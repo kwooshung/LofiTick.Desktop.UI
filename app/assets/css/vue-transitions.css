@@ -1,0 +1,179 @@
+/* 1. Fade - 纯淡入淡出（最常用） */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 400ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 2. Slide from Left - 从左侧滑入（侧边栏、抽屉最常用） */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition:
+    transform 400ms ease,
+    opacity 400ms ease;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+/* 3. Slide from Right - 从右侧滑入（常见于右侧面板、通知） */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition:
+    transform 400ms ease,
+    opacity 400ms ease;
+}
+
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* 4. Slide from Top - 从上方滑入（下拉菜单、toast） */
+.slide-top-enter-active,
+.slide-top-leave-active {
+  transition:
+    transform 350ms ease,
+    opacity 350ms ease;
+}
+
+.slide-top-enter-from {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.slide-top-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* 5. Slide from Bottom - 从下方滑入（底部抽屉、移动端弹层最常用） */
+.slide-bottom-enter-active,
+.slide-bottom-leave-active {
+  transition:
+    transform 400ms ease,
+    opacity 400ms ease;
+}
+
+.slide-bottom-enter-from {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.slide-bottom-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+/* 6. Slide Fade Left - 轻微左侧滑入 + 淡入（卡片、列表项推荐） */
+.slide-fade-left-enter-active,
+.slide-fade-left-leave-active {
+  transition:
+    transform 400ms ease-out,
+    opacity 400ms ease-out;
+}
+
+.slide-fade-left-enter-from,
+.slide-fade-left-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+/* 7. Scale - 缩放出现（对话框、弹窗） */
+.scale-enter-active,
+.scale-leave-active {
+  transition:
+    transform 300ms ease,
+    opacity 300ms ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* 8. Zoom - 中心放大（图片、加载提示） */
+.zoom-enter-active,
+.zoom-leave-active {
+  transition:
+    transform 400ms ease,
+    opacity 400ms ease;
+}
+
+.zoom-enter-from,
+.zoom-leave-to {
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* 9. Bounce - 弹跳缩放（成功提示、强调出现） */
+.bounce-enter-active {
+  animation: bounce-in 600ms ease;
+}
+
+.bounce-leave-active {
+  animation: bounce-in 600ms ease reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 10. List Item Fade Up - 列表项逐个淡入上移（完美配合 <TransitionGroup>） */
+.list-item-enter-active,
+.list-item-leave-active {
+  transition:
+    transform 400ms ease,
+    opacity 400ms ease;
+}
+
+.list-item-enter-from,
+.list-item-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.list-item-move {
+  transition: transform 400ms ease;
+}
+
+/* 11. Rotate Fade - 旋转淡入（图标切换、加载） */
+.rotate-fade-enter-active,
+.rotate-fade-leave-active {
+  transition:
+    transform 500ms ease,
+    opacity 500ms ease;
+}
+
+.rotate-fade-enter-from,
+.rotate-fade-leave-to {
+  opacity: 0;
+  transform: rotate(180deg);
+}

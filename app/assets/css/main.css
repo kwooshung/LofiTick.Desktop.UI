@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@import './vue-transitions.css';
+@import '@nuxt/ui';
+@import 'plyr/dist/plyr.css';
+@import '@fontsource/roboto-mono/400.css'; /* Roboto Mono（Regular） */
+@import '@fontsource/ma-shan-zheng/400.css'; /* 马善政（Regular） */
+@import '@fontsource/zhi-mang-xing/400.css'; /* 知芒星（Regular） */
+
+@source inline('{dark:,}bg-{amber,blue,cyan,emerald,fuchsia,gray,green,indigo,ink,lime,neutral,old-neutral,orange,pink,purple,red,rose,sky,slate,stone,teal,violet,yellow,zinc}-{50,{100..900..100},950}');
+@source inline('{dark:,}text-{amber,blue,cyan,emerald,fuchsia,gray,green,indigo,ink,lime,neutral,old-neutral,orange,pink,purple,red,rose,sky,slate,stone,teal,violet,yellow,zinc}-{50,{100..900..100},950}');
+@source inline('{dark:,}bg-{black,white}');
+@source inline('{dark:,}text-{black,white}');
+
+@theme {
+  --font-sans: 'Roboto Mono', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-zhi-mang-xing: 'Roboto Mono', Quotes, -apple-system, 'Zhi Mang Xing', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-ma-shan-zheng: 'Roboto Mono', Quotes, -apple-system, 'Ma Shan Zheng', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  --breakpoint-3xl: 120rem; /* 1920px */
+  --breakpoint-4xl: 130rem; /* 2080px */
+  --breakpoint-5xl: 140rem; /* 2240px */
+  --breakpoint-6xl: 150rem; /* 2400px */
+  --breakpoint-7xl: 160rem; /* 2560px */
+  --breakpoint-8xl: 170rem; /* 2720px */
+
+  /* --color-antd-50: oklch(0.957 0.02 277);
+  --color-antd-100: oklch(0.914 0.042 275.16);
+  --color-antd-200: oklch(0.838 0.08 272.92);
+  --color-antd-300: oklch(0.755 0.125 269.67);
+  --color-antd-400: oklch(0.679 0.168 265.31);
+  --color-antd-500: oklch(0.599 0.219 259.04);
+  --color-antd-600: oklch(0.542 0.205 258.49);
+  --color-antd-700: oklch(0.481 0.181 258.36);
+  --color-antd-800: oklch(0.42 0.159 258.48);
+  --color-antd-900: oklch(0.359 0.136 258.45);
+  --color-antd-950: oklch(0.322 0.122 258.55); */
+
+  --color-ink-50: oklch(96.1% 0.003 264.54);
+  --color-ink-100: oklch(91.92% 0.006 274.96);
+  --color-ink-200: oklch(83.87% 0.01 267.35);
+  --color-ink-300: oklch(75.42% 0.016 269.93);
+  --color-ink-400: oklch(66.95% 0.022 267.2);
+  --color-ink-500: oklch(57.99% 0.029 268.63);
+  --color-ink-600: oklch(49.6% 0.024 267.08);
+  --color-ink-700: oklch(40.59% 0.019 269.67);
+  --color-ink-800: oklch(31.3% 0.013 267.12);
+  --color-ink-900: oklch(20.97% 0.008 274.53);
+  --color-ink-950: oklch(17.79% 0.006 271.04);
+}
+
+@utility drag {
+  -webkit-app-region: drag;
+}
+
+@utility no-drag {
+  -webkit-app-region: no-drag;
+}
+
+@utility scrollbar {
+  @apply overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-700;
+}
+
+@utility scrollbar-rounded {
+  @apply overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full;
+}
+
+html,
+body {
+  overflow: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-synthesis: unset !important;
+  text-rendering: unset !important;
+
+  @apply scrollbar;
+}
