@@ -21,9 +21,10 @@
     "formkit",
     "heroicons",
     "iconify",
-    "lofitick",
     "lofi",
+    "lofitick",
     "lucide",
+    "mang",
     "mingcute",
     "nuxt",
     "nuxtjs",
@@ -31,12 +32,18 @@
     "ofetch",
     "oklch",
     "pinia",
+    "plyr",
     "proicons",
+    "qrcode",
+    "radya",
     "reka",
     "tabler",
     "tauri",
+    "unhead",
+    "upyun",
     "vitepress",
     "vueuse",
-    "workbuddy"
+    "workbuddy",
+    "zheng"
   ]
 }

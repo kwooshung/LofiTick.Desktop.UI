@@ -1,4 +1,4 @@
 export default defineNuxtPlugin(() => {
-  const store = useStoreAuth();
-  store.setup();
+  // const store = useStoreAuth();
+  // store.setup();
 });

@@ -9,11 +9,6 @@ dist
 # Node dependencies
 node_modules
 
-# Env files（敏感配置，不提交）
-.env
-.env.*
-!.env.example
-
 # Misc
 .DS_Store
 .fleet
