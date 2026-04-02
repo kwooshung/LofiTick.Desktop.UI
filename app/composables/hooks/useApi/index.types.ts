@@ -3,18 +3,63 @@ import type { FetchError } from 'ofetch';
 import type { UseFetchOptions } from '#app';
 
 /**
+ * 接口：Toast 配置（来自服务端）
+ */
+export interface IApiResponseToast {
+  /**
+   * 是否启用
+   */
+  enable?: boolean;
+
+  /**
+   * 图标
+   */
+  icon?: string;
+
+  /**
+   * 类型
+   */
+  type?: string;
+
+  /**
+   * 持续时间，单位毫秒
+   */
+  duration?: number;
+
+  /**
+   * 是否显示进度条
+   */
+  progress?: boolean;
+
+  /**
+   * 是否显示关闭按钮
+   */
+  close?: boolean;
+}
+
+/**
  * 接口：统一包裹后的响应结构
  */
 export interface IApiResponseWrapper<TData = Record<string, unknown>> {
   /**
    * 数据
    */
-  datas: TData;
+  datas?: TData;
 
   /**
    * 状态
    */
   status: IServerError;
+
+  /**
+   * Toast 配置（可选）
+   */
+  toast?: IApiResponseToast;
+
+  /**
+   * 附加数据（可选）
+   */
+  attach?: unknown;
 }
 
 /**

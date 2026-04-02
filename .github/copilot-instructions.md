@@ -132,12 +132,14 @@
 
 ## 4. API 请求规范
 
-> 本项目不使用 Nuxt Server API（无 `server/api/` 目录）。所有 API 请求直接调用外部 Rust 后端。
+> 本项目所有 API 请求统一走 Nitro（Nuxt Server）代理：前端只请求同源 `/api/**`，由 Nitro 转发到外部 Rust 后端。
 
 ### 4.1 API 地址（强制）
 
-- API 基础地址通过 `useRuntimeConfig().public.apiBase` 获取，禁止在代码中硬编码 URL。
-- 开发环境对应 `http://localhost:8180`，生产环境对应 `https://api.v1.lofitick.com`，由 `.env.development` / `.env.production` 控制。
+- Rust API 基础地址通过环境变量 `NUXT_PUBLIC_API_BASE` 注入（对应 `useRuntimeConfig().public.apiBase` 的默认来源），禁止在代码中硬编码 URL。
+- 统一代理规则：`/api/**` -> `${NUXT_PUBLIC_API_BASE}/**`（后端不带 `/api` 前缀）。
+- 禁止为每个 API 路径单独维护代理规则；只能维护这一条统一代理。
+- 部署约束：生产环境必须以 `nuxt build` + `nuxt preview`（或等价的 Nitro/Node 常驻服务）运行；`nuxt generate` 的纯静态产物无法承担 server 代理能力。
 
 ### 4.2 useApi（强制：零容忍）
 
@@ -335,7 +337,7 @@ export const avatarDefaultGet = (gender: number): string => {
     return `${basePath}/female.png`;
   }
 
-  return "";
+  return '';
 };
 
 /**
@@ -346,7 +348,7 @@ export const avatarDefaultGet = (gender: number): string => {
  */
 export const avatarGetOrDefault = (path: string, gender: number): string => {
   // 路径为空则返回默认头像
-  if (!path || path.trim() === "") {
+  if (!path || path.trim() === '') {
     return avatarDefaultGet(gender);
   }
 

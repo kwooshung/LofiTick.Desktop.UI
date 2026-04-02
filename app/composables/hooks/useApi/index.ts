@@ -8,7 +8,39 @@ import type { IApiResponseWrapper, IUseApiResult, IUseFetchExtraOptions, IUseApi
 /**
  * 常量：支持 Body 传参的方法集合
  */
-const HAS_BODY_METHODS: Set<'POST' | 'PUT' | 'PATCH' | 'DELETE'> = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const HAS_BODY_METHODS: Set<'POST' | 'PUT' | 'PATCH'> = new Set(['POST', 'PUT', 'PATCH']);
+
+/**
+ * 函数：格式化三位数字字符串
+ * @param {unknown} input 输入值
+ * @return {string} 三位数字字符串
+ */
+const to3 = (input: unknown): string => {
+  const n = Number(input);
+  if (!Number.isFinite(n)) return '000';
+  return String(Math.trunc(n)).padStart(3, '0');
+};
+
+/**
+ * 函数：构建业务码字符串（HHH-BBB-AAA）
+ * @param {unknown} status 状态对象
+ * @return {string} 业务码字符串
+ */
+const statusCodeBuild = (status: unknown): string => {
+  const s = (status ?? {}) as Record<string, unknown>;
+  return `${to3(s.http)}-${to3(s.biz)}-${to3(s.aim)}`;
+};
+
+/**
+ * 函数：规范化 Toast 类型
+ * @param {unknown} input 类型
+ * @return {'neutral' | 'success' | 'info' | 'warning' | 'error'} 规范化后的类型
+ */
+const toastColorNormalize = (input: unknown): 'neutral' | 'success' | 'info' | 'warning' | 'error' => {
+  const v = String(input ?? '').trim();
+  if (v === 'neutral' || v === 'success' || v === 'info' || v === 'warning' || v === 'error') return v;
+  return 'warning';
+};
 
 /**
  * 函数：刷新认证（登出/token 过期时触发）
@@ -144,17 +176,17 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     headers: headersObj,
     onResponseError(ctx: any) {
       const raw = ctx.response._data as IApiResponseWrapper<unknown> | undefined;
-      if (raw?.status?.toast?.enable) {
+      if (raw?.toast?.enable === true) {
         const storeToast = useStoreToastApi();
         storeToast.set({
           key: `toast-api-${Date.now()}-${raw.status.ts ?? ''}`,
           enable: true,
-          code: raw.status.code ?? '',
-          icon: raw.status.toast.icon ?? '',
-          color: raw.status.toast.type ?? 'warning',
-          duration: raw.status.toast.duration ?? 3000,
-          progress: raw.status.toast.progress ?? false,
-          close: raw.status.toast.close ?? false
+          code: statusCodeBuild(raw.status),
+          icon: raw.toast.icon ?? '',
+          color: toastColorNormalize(raw.toast.type),
+          duration: raw.toast.duration ?? 3000,
+          progress: raw.toast.progress ?? false,
+          close: raw.toast.close ?? false
         });
       }
     },
