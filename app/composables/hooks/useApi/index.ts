@@ -123,7 +123,13 @@ const createDebounced = (fn: (opts?: IUseFetchExtraOptions) => Promise<void>, op
     ...(options.trailing !== undefined ? { trailing: options.trailing } : {}),
     ...(options.maxWait !== undefined ? { maxWait: options.maxWait } : {})
   } as unknown as Parameters<typeof debounce>[2];
-  const wrapped = debounce((opts?: IUseFetchExtraOptions) => { void fn(opts); }, options.wait, debounceOpts);
+  const wrapped = debounce(
+    (opts?: IUseFetchExtraOptions) => {
+      void fn(opts);
+    },
+    options.wait,
+    debounceOpts
+  );
   return (opts?: IUseFetchExtraOptions) => wrapped(opts);
 };
 
@@ -135,7 +141,13 @@ const createThrottled = (fn: (opts?: IUseFetchExtraOptions) => Promise<void>, op
     ...(options.leading !== undefined ? { leading: options.leading } : {}),
     ...(options.trailing !== undefined ? { trailing: options.trailing } : {})
   } as unknown as Parameters<typeof throttle>[2];
-  const wrapped = throttle((opts?: IUseFetchExtraOptions) => { void fn(opts); }, options.wait, throttleOpts);
+  const wrapped = throttle(
+    (opts?: IUseFetchExtraOptions) => {
+      void fn(opts);
+    },
+    options.wait,
+    throttleOpts
+  );
   return (opts?: IUseFetchExtraOptions) => wrapped(opts);
 };
 
@@ -143,7 +155,9 @@ const createThrottled = (fn: (opts?: IUseFetchExtraOptions) => Promise<void>, op
  * 函数：规范化 HTTP 方法
  */
 const normalizeMethod = (method?: unknown): string =>
-  String(method ?? 'GET').toUpperCase().trim();
+  String(method ?? 'GET')
+    .toUpperCase()
+    .trim();
 
 /**
  * 函数：统一封装 API 请求
