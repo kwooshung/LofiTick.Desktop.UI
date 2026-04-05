@@ -3,7 +3,7 @@ import { debounce, throttle } from 'es-toolkit';
 
 import type { UseFetchOptions } from '#app';
 
-import type { IApiResponseWrapper, IUseApiResult, IUseFetchExtraOptions, IUseApiDebounceOptions, IUseApiThrottleOptions, TUseApiRateLimitedFn } from './index.types';
+import type { IApiResponseWrapper, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
 
 /**
  * 常量：支持 Body 传参的方法集合
@@ -17,7 +17,9 @@ const HAS_BODY_METHODS: Set<'POST' | 'PUT' | 'PATCH'> = new Set(['POST', 'PUT', 
  */
 const to3 = (input: unknown): string => {
   const n = Number(input);
-  if (!Number.isFinite(n)) return '000';
+  if (!Number.isFinite(n)) {
+    return '000';
+  }
   return String(Math.trunc(n)).padStart(3, '0');
 };
 
@@ -38,17 +40,10 @@ const statusCodeBuild = (status: unknown): string => {
  */
 const toastColorNormalize = (input: unknown): 'neutral' | 'success' | 'info' | 'warning' | 'error' => {
   const v = String(input ?? '').trim();
-  if (v === 'neutral' || v === 'success' || v === 'info' || v === 'warning' || v === 'error') return v;
+  if (v === 'neutral' || v === 'success' || v === 'info' || v === 'warning' || v === 'error') {
+    return v;
+  }
   return 'warning';
-};
-
-/**
- * 函数：刷新认证（登出/token 过期时触发）
- */
-export const refreshTokenIfNeeded = async (): Promise<void> => {
-  const storeAuth = useStoreAuth();
-  storeAuth.states.ui.show = true;
-  storeAuth.states.ui.lock = false;
 };
 
 /**
@@ -79,8 +74,12 @@ const omitUndefined = (obj: unknown): Record<string, unknown> => {
  * 函数：规范化路径（强制前缀 /api/）
  */
 const toApiPath = (input: string): string => {
-  if (input.startsWith('/api/')) return input;
-  if (input.startsWith('/')) return `/api${input}`;
+  if (input.startsWith('/api/')) {
+    return input;
+  }
+  if (input.startsWith('/')) {
+    return `/api${input}`;
+  }
   return `/api/${input}`;
 };
 
@@ -88,13 +87,19 @@ const toApiPath = (input: string): string => {
  * 函数：转为可展开对象
  */
 const toSpreadableObject = (input: unknown): Record<string, unknown> => {
-  if (input == null) return {};
+  if (input == null) {
+    return {};
+  }
   if (typeof input === 'string') {
     const out: Record<string, unknown> = {};
-    for (let i = 0; i < input.length; i++) out[String(i)] = input.charAt(i);
+    for (let i = 0; i < input.length; i++) {
+      out[String(i)] = input.charAt(i);
+    }
     return out;
   }
-  if (typeof input === 'object' && !Array.isArray(input)) return omitUndefined(input);
+  if (typeof input === 'object' && !Array.isArray(input)) {
+    return omitUndefined(input);
+  }
   return {};
 };
 
@@ -106,9 +111,13 @@ const mergeHeaders = (existing: HeadersInit | undefined, extra: Record<string, s
   if (existing instanceof Headers) {
     existing.forEach((v, k) => (result[k] = v));
   } else if (Array.isArray(existing)) {
-    for (const [k, v] of existing) result[String(k)] = String(v);
+    for (const [k, v] of existing) {
+      result[String(k)] = String(v);
+    }
   } else if (existing && typeof existing === 'object') {
-    for (const [k, v] of Object.entries(existing)) result[k] = String(v as string);
+    for (const [k, v] of Object.entries(existing)) {
+      result[k] = String(v as string);
+    }
   }
   Object.assign(result, extra);
   return result;
@@ -241,9 +250,15 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   };
 
   const refresh = async (opts: IUseFetchExtraOptions = {}) => {
-    if (opts.datas !== undefined) datasSource.value = toSpreadableObject(resolve(opts.datas)) as any;
-    if (opts.query !== undefined) querySource.value = toSpreadableObject(resolve(opts.query));
-    if (opts.body !== undefined) bodySource.value = toSpreadableObject(resolve(opts.body));
+    if (opts.datas !== undefined) {
+      datasSource.value = toSpreadableObject(resolve(opts.datas)) as any;
+    }
+    if (opts.query !== undefined) {
+      querySource.value = toSpreadableObject(resolve(opts.query));
+    }
+    if (opts.body !== undefined) {
+      bodySource.value = toSpreadableObject(resolve(opts.body));
+    }
     finalOptions.key = `${staticKey}-${Date.now()}`;
     await base.refresh();
   };
