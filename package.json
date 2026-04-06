@@ -6,7 +6,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "init": "pnpm husky install && pnpm sync:electron-types",
+    "init": "pnpm husky install",
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "sync:electron-types": "tsx scripts/sync-electron-types.ts",

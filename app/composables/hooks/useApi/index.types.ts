@@ -3,6 +3,41 @@ import type { FetchError } from 'ofetch';
 import type { UseFetchOptions } from '#app';
 
 /**
+ * 接口：服务端状态结构（ApiStatus）。
+ */
+export interface IServerError {
+  /**
+   * 调用方类型（TTT）。
+   */
+  type: string;
+
+  /**
+   * HTTP 状态码。
+   */
+  http: number;
+
+  /**
+   * 业务模块码。
+   */
+  biz: number;
+
+  /**
+   * 目标码。
+   */
+  aim: number;
+
+  /**
+   * 毫秒时间戳字符串。
+   */
+  ts: string;
+
+  /**
+   * 可读信息（可选）。
+   */
+  message?: string;
+}
+
+/**
  * 接口：Toast 配置（来自服务端）
  */
 export interface IApiResponseToast {
@@ -60,6 +95,61 @@ export interface IApiResponseWrapper<TData = Record<string, unknown>> {
    * 附加数据（可选）
    */
   attach?: unknown;
+}
+
+/**
+ * 接口：签名刷新 payload（客户端解密后）。
+ */
+export interface ISignRefreshPayload {
+  /**
+   * 当前窗口的派生签名密钥（小写 hex）。
+   */
+  signKeyHex: string;
+
+  /**
+   * 签名有效期（秒）。
+   */
+  ttlSec: number;
+
+  /**
+   * 时钟偏差容忍（毫秒）。
+   */
+  clockSkewMs: number;
+
+  /**
+   * 签名 header 名称。
+   */
+  signHeaderName: string;
+
+  /**
+   * 签名 header 前缀。
+   */
+  signSigPrefix: string;
+
+  /**
+   * 窗口编号。
+   */
+  windowNum: number;
+
+  /**
+   * 签发时间（毫秒）。
+   */
+  issuedAtMs: number;
+}
+
+/**
+ * 接口：签名运行时状态。
+ */
+export interface ISignState {
+  /**
+   * Nuxt server 写入 refresh blob 的 Cookie 名称。
+   */
+  signBlobCookieName: string;
+
+  /**
+   * 最近一次解密得到的 payload。
+   */
+  payload: ISignRefreshPayload | null;
 }
 
 /**

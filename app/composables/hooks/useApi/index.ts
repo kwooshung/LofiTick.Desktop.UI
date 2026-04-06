@@ -3,7 +3,7 @@ import { debounce, throttle } from 'es-toolkit';
 
 import type { UseFetchOptions } from '#app';
 
-import type { IApiResponseWrapper, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
+import type { IApiResponseWrapper, IServerError, ISignRefreshPayload, ISignState, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
 
 /**
  * 常量：支持 Body 传参的方法集合
@@ -47,6 +47,271 @@ const toastColorNormalize = (input: unknown): 'neutral' | 'success' | 'info' | '
 };
 
 /**
+ * 常量：签名 init 路径。
+ */
+const SIGN_INIT_PATH = '/security/sign/init';
+
+/**
+ * 常量：签名 refresh 路径。
+ */
+const SIGN_REFRESH_PATH = '/security/sign/refresh';
+
+/**
+ * 常量：默认 refresh blob Cookie 名称（兜底）。
+ */
+const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
+
+/**
+ * 常量：代理层提示 Cookie 名称的 header。
+ */
+const SIGN_BLOB_COOKIE_NAME_HINT_HEADER = 'X-Sign-Blob-Cookie-Name';
+
+/**
+ * 函数：从公开 runtimeConfig 获取签名 AES seed。
+ * @param {unknown} publicConfig runtimeConfig.public
+ * @return {string} AES seed
+ */
+const getPublicSignAesSeedFromConfig = (publicConfig: unknown): string => {
+  const v = (publicConfig ?? {}) as Record<string, unknown>;
+  return String(v.signAesSeed ?? v.apiSignAesSeed ?? '').trim();
+};
+
+/**
+ * 函数：Base64URL 解码为字节数组。
+ * @param {string} input Base64URL 字符串
+ * @return {Uint8Array} 字节数组
+ */
+const b64UrlToBytes = (input: string): Uint8Array => {
+  const s = input.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
+  const b64 = s + pad;
+
+  if (import.meta.client) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) {
+      out[i] = bin.charCodeAt(i);
+    }
+    return out;
+  }
+
+  return Uint8Array.from(Buffer.from(b64, 'base64'));
+};
+
+/**
+ * 函数：字节数组编码为 Base64（标准）。
+ * @param {Uint8Array} bytes 字节数组
+ * @return {string} Base64 字符串
+ */
+const bytesToBase64Std = (bytes: Uint8Array): string => {
+  if (import.meta.client) {
+    let bin = '';
+    for (const b of bytes) {
+      bin += String.fromCharCode(b);
+    }
+    return btoa(bin);
+  }
+  return Buffer.from(bytes).toString('base64');
+};
+
+/**
+ * 函数：字节数组转为小写 hex 字符串。
+ * @param {Uint8Array} bytes 字节数组
+ * @return {string} hex 字符串
+ */
+const bytesToHexLower = (bytes: Uint8Array): string => {
+  let out = '';
+  for (const b of bytes) {
+    out += b.toString(16).padStart(2, '0');
+  }
+  return out;
+};
+
+/**
+ * 函数：复制为纯 ArrayBuffer（规避 BufferSource 类型差异）。
+ * @param {Uint8Array} bytes 字节数组
+ * @return {ArrayBuffer} ArrayBuffer
+ */
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
+  const out = new Uint8Array(bytes.byteLength);
+  out.set(bytes);
+  return out.buffer;
+};
+
+/**
+ * 函数：计算 SHA-256（hex 小写）。
+ * @param {string} input 输入字符串
+ * @return {Promise<string>} hex 字符串
+ */
+const sha256HexLower = async (input: string): Promise<string> => {
+  const enc = new TextEncoder();
+  const data = enc.encode(input);
+
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return bytesToHexLower(new Uint8Array(digest));
+};
+
+/**
+ * 函数：计算 HMAC-SHA256。
+ * @param {Uint8Array} key key
+ * @param {Uint8Array} data data
+ * @return {Promise<Uint8Array>} 签名字节
+ */
+const hmacSha256 = async (key: Uint8Array, data: Uint8Array): Promise<Uint8Array> => {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    toArrayBuffer(key),
+    {
+      name: 'HMAC',
+      hash: { name: 'SHA-256' }
+    },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, toArrayBuffer(data));
+  return new Uint8Array(sig);
+};
+
+/**
+ * 函数：派生 AES-256 key（32 字节）。
+ * @param {string} seed AES seed
+ * @param {number} windowNum 窗口编号
+ * @return {Promise<Uint8Array>} key 字节
+ */
+const deriveAesKey = async (seed: string, windowNum: number): Promise<Uint8Array> => {
+  const enc = new TextEncoder();
+  const key = enc.encode(seed);
+  const data = enc.encode(String(windowNum));
+  return await hmacSha256(key, data);
+};
+
+/**
+ * 函数：解密 sign_refresh blob。
+ * @param {string} blob blob 字符串（v1.window.nonce.cipher）
+ * @return {Promise<ISignRefreshPayload>} 解密后的 payload
+ */
+const decryptSignRefreshBlob = async (args: { blob: string; aesSeed: string }): Promise<ISignRefreshPayload> => {
+  const { blob, aesSeed } = args;
+
+  const parts = String(blob ?? '').split('.');
+  if (parts.length !== 4) {
+    throw new Error('sign_refresh blob invalid');
+  }
+
+  const version = parts[0] ?? '';
+  const windowNumStr = parts[1] ?? '';
+  const nonceB64Url = parts[2] ?? '';
+  const cipherB64Url = parts[3] ?? '';
+  if (version !== 'v1') {
+    throw new Error('sign_refresh blob invalid');
+  }
+
+  const windowNum = Number(windowNumStr);
+  if (!Number.isFinite(windowNum)) {
+    throw new Error('sign_refresh blob invalid');
+  }
+
+  const seed = String(aesSeed ?? '').trim();
+  if (seed === '') {
+    throw new Error('NUXT_PUBLIC_SIGN_AES_SEED missing');
+  }
+
+  const nonce = b64UrlToBytes(nonceB64Url);
+  const ciphertext = b64UrlToBytes(cipherB64Url);
+  if (nonce.byteLength !== 12) {
+    throw new Error('sign_refresh blob invalid');
+  }
+
+  const aesKeyRaw = await deriveAesKey(seed, windowNum);
+  const aesKey = await crypto.subtle.importKey('raw', toArrayBuffer(aesKeyRaw), { name: 'AES-GCM' }, false, ['decrypt']);
+
+  const plaintext = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: toArrayBuffer(nonce)
+    },
+    aesKey,
+    toArrayBuffer(ciphertext)
+  );
+
+  const jsonText = new TextDecoder().decode(new Uint8Array(plaintext));
+  const raw = JSON.parse(jsonText) as Record<string, unknown>;
+
+  return {
+    signKeyHex: String(raw.sign_key_hex ?? ''),
+    ttlSec: Number(raw.ttl_sec ?? 0),
+    clockSkewMs: Number(raw.clock_skew_ms ?? 0),
+    signHeaderName: String(raw.sign_header_name ?? ''),
+    signSigPrefix: String(raw.sign_sig_prefix ?? ''),
+    windowNum: Number(raw.window_num ?? windowNum),
+    issuedAtMs: Number(raw.issued_at_ms ?? 0)
+  };
+};
+
+/**
+ * 函数：是否为 sign init/refresh 请求。
+ * @param {string} backendPath 后端路径
+ * @return {boolean} 是否跳过签名
+ */
+const isSignBootstrapPath = (backendPath: string): boolean => {
+  return backendPath === SIGN_INIT_PATH || backendPath === SIGN_REFRESH_PATH;
+};
+
+/**
+ * 函数：规范化为后端路径（去掉 /api 前缀）。
+ * @param {string} input 原始路径
+ * @return {string} 后端路径
+ */
+const toBackendPath = (input: string): string => {
+  const p = input.startsWith('/') ? input : `/${input}`;
+  if (p === '/api') {
+    return '/';
+  }
+  if (p.startsWith('/api/')) {
+    return p.slice('/api'.length);
+  }
+  return p;
+};
+
+/**
+ * 函数：计算请求签名（Base64）。
+ * @param {object} args 参数
+ * @param {string} args.backendPath 后端路径
+ * @param {string[]} args.sortedParamPairs 参数对
+ * @param {string} args.signKeyHex 窗口派生 key（hex 小写）
+ * @return {Promise<string>} Base64 签名
+ */
+const computeSignatureBase64 = async (args: { backendPath: string; sortedParamPairs: string[]; signKeyHex: string }): Promise<string> => {
+  const { backendPath, sortedParamPairs, signKeyHex } = args;
+
+  const content = `${backendPath}?${sortedParamPairs.join('&')}`;
+  const hashContentHexLower = await sha256HexLower(content);
+
+  const enc = new TextEncoder();
+  const keyBytes = enc.encode(signKeyHex);
+  const dataBytes = enc.encode(hashContentHexLower);
+  const sigBytes = await hmacSha256(keyBytes, dataBytes);
+  return bytesToBase64Std(sigBytes);
+};
+
+/**
+ * 函数：是否需要触发条件3 refresh。
+ * @param {unknown} status 服务端 status
+ * @return {boolean} 是否需要 refresh
+ */
+const shouldRefreshOnStatus = (status: unknown): boolean => {
+  const s = (status ?? {}) as Record<string, unknown>;
+  const biz = Number(s.biz ?? -1);
+  const aim = Number(s.aim ?? -1);
+
+  // 800 = Security, 6 = SIGN_TS_EXPIRED, 10 = SIGN_MISMATCH
+  if (biz === 800 && (aim === 6 || aim === 10)) {
+    return true;
+  }
+  return false;
+};
+
+/**
  * 常量：API 派生密钥缓存
  */
 export const useApiDerivedKeyCache: Map<string, string> = new Map<string, string>();
@@ -81,6 +346,149 @@ const toApiPath = (input: string): string => {
     return `/api${input}`;
   }
   return `/api/${input}`;
+};
+
+/**
+ * Hook：获取签名状态（SSR 安全）。
+ */
+const useSignState = (): Ref<ISignState> => {
+  return useState<ISignState>('use-api-sign-state', () => ({
+    signBlobCookieName: DEFAULT_SIGN_BLOB_COOKIE_NAME,
+    payload: null
+  }));
+};
+
+/**
+ * 函数：调用签名 bootstrap 接口（init/refresh）。
+ * @param {string} backendPath 后端路径
+ * @return {Promise<Record<string, unknown>>} datas
+ */
+const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<ISignState>; apiBase: string }): Promise<{ datas: Record<string, unknown>; signRefreshBlob: string }> => {
+  const { backendPath, signState, apiBase } = args;
+  const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
+
+  // SSR：直接请求后端，避免依赖“本次响应写入的 cookie”。
+  if (import.meta.server) {
+    const base = String(apiBase ?? '').trim();
+    if (base === '') {
+      throw new Error('NUXT_PUBLIC_API_BASE missing');
+    }
+
+    const url = `${base.replace(/\/+$/, '')}${backendPath}`;
+
+    const raw = await $fetch<IApiResponseWrapper<Record<string, unknown>>>(url, {
+      method: 'GET',
+      headers: {
+        AppType: 'desktop'
+      }
+    });
+
+    const datas = raw?.datas && typeof raw.datas === 'object' && !Array.isArray(raw.datas) ? (raw.datas as Record<string, unknown>) : {};
+    const attach = raw?.attach && typeof raw.attach === 'object' && !Array.isArray(raw.attach) ? (raw.attach as Record<string, unknown>) : null;
+    const signRefreshBlob = String(attach?.sign_refresh ?? '').trim();
+
+    return {
+      datas,
+      signRefreshBlob
+    };
+  }
+
+  // Client：走同源 /api 代理，由代理写入 refresh cookie 并删除 attach。
+  const apiPath = toApiPath(backendPath);
+
+  const raw = await $fetch<IApiResponseWrapper<Record<string, unknown>>>(apiPath, {
+    method: 'GET',
+    headers: {
+      [SIGN_BLOB_COOKIE_NAME_HINT_HEADER]: hintedCookieName
+    }
+  });
+
+  const datas = raw?.datas && typeof raw.datas === 'object' && !Array.isArray(raw.datas) ? (raw.datas as Record<string, unknown>) : {};
+
+  return {
+    datas,
+    signRefreshBlob: ''
+  };
+};
+
+/**
+ * 类型：CookieRef 获取函数。
+ */
+type TGetCookieRef = (name: string) => Promise<Ref<string | null>>;
+
+/**
+ * 函数：尝试消费 refresh cookie 并更新本地 payload。
+ */
+const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
+  const { signState, aesSeed, getCookieRef } = args;
+  const cookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
+
+  const cookie = await getCookieRef(cookieName);
+  const blob = String(cookie.value ?? '').trim();
+  if (!blob.startsWith('v1.')) {
+    return;
+  }
+
+  const payload = await decryptSignRefreshBlob({ blob, aesSeed });
+  signState.value.payload = payload;
+
+  // 立即清理 cookie，避免重复使用
+  cookie.value = null;
+};
+
+/**
+ * 函数：确保签名状态已初始化。
+ */
+const ensureSignReady = async (args: { signState: Ref<ISignState>; apiBase: string; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
+  const { signState, apiBase, aesSeed, getCookieRef } = args;
+  if (signState.value.payload) {
+    return;
+  }
+
+  // Client：只允许从 cookie 获取（init 必须由 Nuxt server 负责）。
+  if (import.meta.client) {
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+    if (signState.value.payload) {
+      return;
+    }
+    throw new Error('sign payload missing (SSR init required)');
+  }
+
+  // 拉取 init（该请求无需签名，代理层会写入 refresh cookie）
+  const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
+  const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
+  if (cookieName !== '') {
+    signState.value.signBlobCookieName = cookieName;
+  }
+
+  // SSR：可直接拿到 attach.sign_refresh 并立即解密。
+  if (import.meta.server && res.signRefreshBlob.startsWith('v1.')) {
+    signState.value.payload = await decryptSignRefreshBlob({ blob: res.signRefreshBlob, aesSeed });
+    return;
+  }
+
+  await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+};
+
+/**
+ * 函数：执行 refresh 并刷新本地 payload。
+ */
+const performSignRefresh = async (args: { signState: Ref<ISignState>; apiBase: string; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
+  const { signState, apiBase, aesSeed, getCookieRef } = args;
+
+  const res = await fetchSignBootstrap({ backendPath: SIGN_REFRESH_PATH, signState, apiBase });
+  const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
+  if (cookieName !== '') {
+    signState.value.signBlobCookieName = cookieName;
+  }
+
+  // SSR：可直接拿到 attach.sign_refresh 并立即解密。
+  if (import.meta.server && res.signRefreshBlob.startsWith('v1.')) {
+    signState.value.payload = await decryptSignRefreshBlob({ blob: res.signRefreshBlob, aesSeed });
+    return;
+  }
+
+  await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
 };
 
 /**
@@ -173,8 +581,41 @@ const normalizeMethod = (method?: unknown): string =>
  */
 const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Promise<any> => {
   const apiPath = toApiPath(path);
+  const backendPath = toBackendPath(path);
   const method = normalizeMethod(options.method);
   const hasBodyMethod = HAS_BODY_METHODS.has(method as any);
+
+  /**
+   * 常量：Nuxt 上下文（用于在异步链路中安全获取 cookie ref）。
+   */
+  const nuxtApp = useNuxtApp();
+
+  /**
+   * 常量：运行时配置（必须在首次 await 之前读取，避免 async setup 上下文丢失）。
+   */
+  const runtimeConfig = useRuntimeConfig();
+  const publicConfig = (runtimeConfig.public as Record<string, unknown> | undefined) ?? {};
+  const apiBase = String(publicConfig.apiBase ?? '').trim();
+  const aesSeed = getPublicSignAesSeedFromConfig(publicConfig);
+
+  /**
+   * 状态：签名状态（必须在首次 await 之前获取）。
+   */
+  const signState = useSignState();
+
+  /**
+   * 函数：获取 cookie ref（通过 Nuxt 上下文执行，避免异步回调里直接调用 composable）。
+   * @param {string} name Cookie 名称
+   * @return {Ref<string | null>} cookie ref
+   */
+  const getCookieRef: TGetCookieRef = async (name: string): Promise<Ref<string | null>> => {
+    return await nuxtApp.runWithContext(() => useCookie<string | null>(name, { default: () => null }));
+  };
+
+  /**
+   * 状态：Toast store（必须在 setup 上下文中获取，避免回调里调用 composable 触发 Nuxt 报错）
+   */
+  const toastStore = useStoreToastApi();
 
   const querySource = isRef(options.query) ? (options.query as Ref<unknown>) : ref(options.query);
   const bodySource = isRef(options.body) ? (options.body as Ref<unknown>) : ref(options.body);
@@ -190,6 +631,10 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   const staticKey = `api-${keyHash.length}-${Date.now()}`;
 
   const headersObj = mergeHeaders(options.headers as HeadersInit | undefined, {});
+
+  // 提示代理层：当前 refresh cookie name（用于条件2自动注入时落盘）
+  const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
+  headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
   const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, ...restOptions } = options;
 
   const finalOptions: UseFetchOptions<unknown> & Record<string, unknown> = {
@@ -200,8 +645,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     onResponseError(ctx: any) {
       const raw = ctx.response._data as IApiResponseWrapper<unknown> | undefined;
       if (raw?.toast?.enable === true) {
-        const storeToast = useStoreToastApi();
-        storeToast.set({
+        toastStore.set({
           key: `toast-api-${Date.now()}-${raw.status.ts ?? ''}`,
           enable: true,
           code: statusCodeBuild(raw.status),
@@ -232,10 +676,82 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     }
   }
 
-  const fetch = hasBodyMethod ? (useCsrfFetch ?? useFetch) : useFetch;
-  const base: any = await fetch<T | undefined>(apiPath, finalOptions);
+  // 计算签名：仅对非 sign init/refresh 生效
+  const runWithSignature = async (): Promise<void> => {
+    if (isSignBootstrapPath(backendPath)) {
+      return;
+    }
+
+    await ensureSignReady({ signState, apiBase, aesSeed, getCookieRef });
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+
+    const tsMs = Date.now();
+    const ts = String(tsMs);
+
+    // 注入 ts：根据方法放入 query/body
+    if (hasBodyMethod) {
+      finalOptions.body = computed(() => ({
+        ts,
+        ...omitUndefined(resolve(options.body)),
+        ...toSpreadableObject(resolve(datasSource.value))
+      })) as any;
+    } else {
+      finalOptions.query = computed(() => ({
+        ts,
+        ...omitUndefined(resolve(options.query)),
+        ...toSpreadableObject(resolve(datasSource.value))
+      })) as any;
+    }
+
+    // 计算签名参数（合并 query/body/datas 后排序）
+    const allParams: Record<string, unknown> = {
+      ...toSpreadableObject(resolve(querySource.value)),
+      ...toSpreadableObject(resolve(bodySource.value)),
+      ...toSpreadableObject(resolve(datasSource.value)),
+      ts
+    };
+
+    const sortedPairs = Object.keys(allParams)
+      .filter((key) => key !== 'sign' && key !== 'nonce' && allParams[key] !== undefined)
+      .sort()
+      .map((key) => `${key}=${encodeURIComponent(String(allParams[key]))}`);
+
+    const payload = signState.value.payload as ISignRefreshPayload | null;
+    if (!payload || String(payload.signKeyHex ?? '').trim() === '') {
+      throw new Error('sign payload missing');
+    }
+
+    const sig = await computeSignatureBase64({
+      backendPath,
+      sortedParamPairs: sortedPairs,
+      signKeyHex: payload.signKeyHex
+    });
+
+    finalOptions.headers = mergeHeaders(finalOptions.headers as any, {
+      [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`
+    });
+  };
+
+  await runWithSignature();
+
+  const base: any = await nuxtApp.runWithContext(() => useFetch<T | undefined>(apiPath as any, finalOptions as any));
 
   const { error, pending } = base;
+
+  // 条件2：只要代理层写入了 refresh cookie，就尝试解密并缓存
+  await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+
+  // 条件3：完全过期/窗口切换导致拒绝时，refresh 后重试一次
+  const errData = (error.value as any)?.data ?? (error.value as any)?.response?._data;
+  const errStatus = (errData as any)?.status;
+
+  if (!isSignBootstrapPath(backendPath) && error.value && shouldRefreshOnStatus(errStatus)) {
+    await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
+    await runWithSignature();
+    finalOptions.key = `${staticKey}-${Date.now()}`;
+    await base.refresh();
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+  }
 
   const retry = async (opts?: IUseFetchExtraOptions) => {
     if (opts) {

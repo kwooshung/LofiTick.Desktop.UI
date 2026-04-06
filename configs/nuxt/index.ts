@@ -39,13 +39,6 @@ export const configs = {
     output: {
       dir: './dist'
     },
-    routeRules: {
-      '/api/**': {
-        proxy: {
-          to: `${String(process.env.NUXT_PUBLIC_API_BASE ?? '').replace(/\/+$/, '')}/**`
-        }
-      }
-    },
     esbuild: {
       options: {
         target: 'esnext'
@@ -144,7 +137,10 @@ export const configs = {
   runtimeConfig: {
     public: {
       // 由 .env 注入（prod 默认值），开发时由 .env.development 覆盖
-      apiBase: ''
+      apiBase: '',
+
+      // 前端可见：用于解密 sign_refresh blob 的 AES seed（对应后端 SECURITY_SIGN_AES_SEED）
+      signAesSeed: ''
     }
   },
 
