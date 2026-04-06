@@ -13,6 +13,26 @@ const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
 const SIGN_REFRESH_BLOB_PREFIX = 'v1.';
 
 /**
+ * 常量：假参数 nonce 的期望长度。
+ */
+const FAKE_NONCE_LEN = 8;
+
+/**
+ * 常量：假参数 sign 的期望长度。
+ */
+const FAKE_SIGN_LEN = 24;
+
+/**
+ * 常量：签名 init 路径。
+ */
+const SIGN_INIT_PATH = '/security/sign/init';
+
+/**
+ * 常量：签名 refresh 路径。
+ */
+const SIGN_REFRESH_PATH = '/security/sign/refresh';
+
+/**
  * 函数：去除 URL 末尾的 /。
  * @param {string} input 输入 URL
  * @return {string} 规范化后的 URL
@@ -27,6 +47,50 @@ const trimTrailingSlash = (input: string): string => input.replace(/\/+$/, '');
 const isJsonContentType = (contentType: string | null): boolean => {
   const v = String(contentType ?? '').toLowerCase();
   return v.includes('application/json');
+};
+
+/**
+ * 函数：解析布尔开关（兼容 env 注入的字符串）。
+ * @param {unknown} input 输入值
+ * @return {boolean} 布尔值
+ */
+const boolFromRuntimeConfig = (input: unknown): boolean => {
+  if (typeof input === 'boolean') {
+    return input;
+  }
+  const v = String(input ?? '')
+    .trim()
+    .toLowerCase();
+  if (v === '1' || v === 'true' || v === 'yes' || v === 'on') {
+    return true;
+  }
+  if (v === '0' || v === 'false' || v === 'no' || v === 'off' || v === '') {
+    return false;
+  }
+  return false;
+};
+
+/**
+ * 函数：从 query/body 合并参数中校验迷惑假参数（nonce/sign）。
+ * @param {Record<string, unknown>} params 合并后的参数
+ * @returns {void} 无返回
+ */
+const validateFakeParams = (params: Record<string, unknown>): void => {
+  const nonce = params.nonce;
+  if (typeof nonce !== 'string') {
+    throw createError({ statusCode: 403, statusMessage: 'Missing nonce' });
+  }
+  if (nonce.length !== FAKE_NONCE_LEN) {
+    throw createError({ statusCode: 403, statusMessage: 'Invalid nonce' });
+  }
+
+  const sign = params.sign;
+  if (typeof sign !== 'string') {
+    throw createError({ statusCode: 403, statusMessage: 'Missing sign' });
+  }
+  if (sign.length !== FAKE_SIGN_LEN) {
+    throw createError({ statusCode: 403, statusMessage: 'Invalid sign' });
+  }
 };
 
 /**
@@ -138,6 +202,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'NUXT_PUBLIC_API_BASE missing' });
   }
 
+  const enableFakeParamsValidate = boolFromRuntimeConfig((config as Record<string, unknown>).signFakeParamsValidate);
+
   const url = getRequestURL(event);
   const upstreamBase = trimTrailingSlash(apiBase);
 
@@ -173,7 +239,27 @@ export default defineEventHandler(async (event) => {
 
   const method = String(event.method ?? 'GET').toUpperCase();
 
+  const reqContentType = getRequestHeader(event, 'content-type');
   const rawBody = method === 'GET' || method === 'HEAD' ? undefined : await readRawBody(event);
+
+  // 代理层假参数校验（可开关）：仅对非 sign init/refresh 请求生效。
+  if (enableFakeParamsValidate && upstreamPath !== SIGN_INIT_PATH && upstreamPath !== SIGN_REFRESH_PATH) {
+    const queryParams: Record<string, unknown> = Object.fromEntries(url.searchParams.entries());
+
+    let bodyParams: Record<string, unknown> = {};
+    if (rawBody !== undefined && rawBody !== null && isJsonContentType(reqContentType ?? null)) {
+      try {
+        const parsed = JSON.parse(String(rawBody));
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          bodyParams = parsed as Record<string, unknown>;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    validateFakeParams({ ...queryParams, ...bodyParams });
+  }
 
   const upstreamRes = await $fetch.raw(upstreamUrl.toString(), {
     method,

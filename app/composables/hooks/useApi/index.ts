@@ -67,6 +67,26 @@ const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
 const SIGN_BLOB_COOKIE_NAME_HINT_HEADER = 'X-Sign-Blob-Cookie-Name';
 
 /**
+ * 常量：迷惑 Header（Soc-Fetch-Dest）。
+ */
+const SOC_FETCH_DEST_HEADER_NAME = 'Soc-Fetch-Dest';
+
+/**
+ * 常量：迷惑 Header（Soc-Fetch-Dest）值。
+ */
+const SOC_FETCH_DEST_HEADER_VALUE = 'empty; seg=rnbf';
+
+/**
+ * 常量：假参数 nonce 的期望长度。
+ */
+const FAKE_NONCE_LEN = 8;
+
+/**
+ * 常量：假参数 sign 的期望长度。
+ */
+const FAKE_SIGN_LEN = 24;
+
+/**
  * 函数：从公开 runtimeConfig 获取签名 AES seed。
  * @param {unknown} publicConfig runtimeConfig.public
  * @return {string} AES seed
@@ -125,6 +145,26 @@ const bytesToHexLower = (bytes: Uint8Array): string => {
     out += b.toString(16).padStart(2, '0');
   }
   return out;
+};
+
+/**
+ * 函数：生成随机小写 hex 字符串。
+ * @param {number} byteLength 随机字节数
+ * @return {string} 小写 hex 字符串
+ */
+const randomHexLower = (byteLength: number): string => {
+  const len = Number(byteLength);
+  if (!Number.isFinite(len) || len <= 0) {
+    return '';
+  }
+
+  if (!crypto?.getRandomValues) {
+    throw new Error('crypto.getRandomValues missing');
+  }
+
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  return bytesToHexLower(bytes);
 };
 
 /**
@@ -688,18 +728,26 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     const tsMs = Date.now();
     const ts = String(tsMs);
 
+    // 迷惑假参数：nonce/sign（不参与真实签名计算，但会随请求携带并由服务端校验格式）
+    const nonce = randomHexLower(FAKE_NONCE_LEN / 2);
+    const sign = randomHexLower(FAKE_SIGN_LEN / 2);
+
     // 注入 ts：根据方法放入 query/body
     if (hasBodyMethod) {
       finalOptions.body = computed(() => ({
-        ts,
         ...omitUndefined(resolve(options.body)),
-        ...toSpreadableObject(resolve(datasSource.value))
+        ...toSpreadableObject(resolve(datasSource.value)),
+        ts,
+        nonce,
+        sign
       })) as any;
     } else {
       finalOptions.query = computed(() => ({
-        ts,
         ...omitUndefined(resolve(options.query)),
-        ...toSpreadableObject(resolve(datasSource.value))
+        ...toSpreadableObject(resolve(datasSource.value)),
+        ts,
+        nonce,
+        sign
       })) as any;
     }
 
@@ -728,7 +776,8 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     });
 
     finalOptions.headers = mergeHeaders(finalOptions.headers as any, {
-      [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`
+      [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`,
+      [SOC_FETCH_DEST_HEADER_NAME]: SOC_FETCH_DEST_HEADER_VALUE
     });
   };
 

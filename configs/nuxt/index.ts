@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import { development } from './development';
 import { production } from './production';
 
@@ -135,6 +137,13 @@ export const configs = {
 
   // 运行时配置：API 地址通过环境变量注入
   runtimeConfig: {
+    // 后端签名体系的“迷惑假参数”校验开关（仅 Nitro 代理层使用）。
+    //
+    // - 环境变量：NUXT_SIGN_FAKE_PARAMS_VALIDATE
+    // - 取值：true/false（字符串会在运行时被解析）
+    //
+    // 注意：Rust API 侧仍会执行强制校验；该开关只控制代理层是否提前拦截。
+    signFakeParamsValidate: true,
     public: {
       // 由 .env 注入（prod 默认值），开发时由 .env.development 覆盖
       apiBase: '',
