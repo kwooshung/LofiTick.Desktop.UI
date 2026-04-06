@@ -41,12 +41,33 @@ export const zodI18n = {
     unrecognized_keys: 'オブジェクトに認識できないキーがあります：{keys}'
   },
   types: {
-    array: '配列', bigint: '大整数', boolean: '真偽値', date: '日付', float: '浮動小数点数',
-    function: '関数', integer: '整数', map: 'マップ', nan: '非数', never: '存在しない',
-    null: 'null', number: '数値', object: 'オブジェクト', promise: 'Promise', set: 'セット',
-    string: '文字列', symbol: 'シンボル', undefined: '未定義', unknown: '不明', void: '空'
+    array: '配列',
+    bigint: '大整数',
+    boolean: '真偽値',
+    date: '日付',
+    float: '浮動小数点数',
+    function: '関数',
+    integer: '整数',
+    map: 'マップ',
+    nan: '非数',
+    never: '存在しない',
+    null: 'null',
+    number: '数値',
+    object: 'オブジェクト',
+    promise: 'Promise',
+    set: 'セット',
+    string: '文字列',
+    symbol: 'シンボル',
+    undefined: '未定義',
+    unknown: '不明',
+    void: '空'
   },
   validations: {
-    cuid: 'CUID', datetime: '日時', email: 'メール', regex: '正規表現', url: 'URL', uuid: 'UUID'
+    cuid: 'CUID',
+    datetime: '日時',
+    email: 'メール',
+    regex: '正規表現',
+    url: 'URL',
+    uuid: 'UUID'
   }
 };

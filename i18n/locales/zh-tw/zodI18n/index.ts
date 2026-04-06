@@ -41,12 +41,33 @@ export const zodI18n = {
     unrecognized_keys: '物件中無法識別的鍵：{keys}'
   },
   types: {
-    array: '陣列', bigint: '大整數', boolean: '布林值', date: '日期', float: '浮點數',
-    function: '函式', integer: '整數', map: '字典', nan: '非數', never: '不存在',
-    null: '空物件', number: '數字', object: '物件', promise: 'Promise', set: '集合',
-    string: '字串', symbol: '符號', undefined: '未定義', unknown: '未知', void: '空'
+    array: '陣列',
+    bigint: '大整數',
+    boolean: '布林值',
+    date: '日期',
+    float: '浮點數',
+    function: '函式',
+    integer: '整數',
+    map: '字典',
+    nan: '非數',
+    never: '不存在',
+    null: '空物件',
+    number: '數字',
+    object: '物件',
+    promise: 'Promise',
+    set: '集合',
+    string: '字串',
+    symbol: '符號',
+    undefined: '未定義',
+    unknown: '未知',
+    void: '空'
   },
   validations: {
-    cuid: 'CUID', datetime: '日期時間', email: '電子郵件', regex: '正規表達式', url: '連結', uuid: 'UUID'
+    cuid: 'CUID',
+    datetime: '日期時間',
+    email: '電子郵件',
+    regex: '正規表達式',
+    url: '連結',
+    uuid: 'UUID'
   }
 };
