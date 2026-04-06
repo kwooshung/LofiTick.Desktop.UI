@@ -783,7 +783,8 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
 
   await runWithSignature();
 
-  const base: any = await nuxtApp.runWithContext(() => useFetch<T | undefined>(apiPath as any, finalOptions as any));
+  const fetch = hasBodyMethod ? ((useCsrfFetch as any) ?? useFetch) : useFetch;
+  const base: any = await nuxtApp.runWithContext(() => fetch(apiPath as any, finalOptions as any));
 
   const { error, pending } = base;
 

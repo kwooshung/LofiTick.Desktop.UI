@@ -70,7 +70,8 @@ export const configs = {
         'dayjs/plugin/localizedFormat',
         'dayjs/plugin/advancedFormat',
         '@kwooshung/console-badge',
-        'tailwindcss/colors'
+        'tailwindcss/colors',
+        'es-toolkit'
       ]
     }
   },
@@ -133,6 +134,26 @@ export const configs = {
   sourcemap: {
     server: false,
     client: false
+  },
+
+  security: {
+    csrf: {
+      // 启用 CSRF 防护（默认对写方法生效）
+      enabled: true,
+      // 生产环境默认启用 HTTPS 检测，因此如果不支持 HTTPS，请在此处设置为 false
+      https: false,
+      // 需要保护的 HTTP 方法
+      methodsToProtect: ['POST', 'PUT', 'PATCH', 'DELETE'],
+      // 默认为 false，要在服务器上运行 useCsrfFetch，请将其设置为 true
+      addCsrfTokenToEventCtx: true,
+      cookie: {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict'
+      },
+      // 请求头中携带 CSRF token 的名称
+      headerName: 'x-csrf-token'
+    }
   },
 
   // 运行时配置：API 地址通过环境变量注入
