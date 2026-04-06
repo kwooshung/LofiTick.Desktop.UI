@@ -146,6 +146,7 @@ export const configs = {
       methodsToProtect: ['POST', 'PUT', 'PATCH', 'DELETE'],
       // 默认为 false，要在服务器上运行 useCsrfFetch，请将其设置为 true
       addCsrfTokenToEventCtx: true,
+      cookieKey: 'csrf_id',
       cookie: {
         path: '/',
         httpOnly: true,

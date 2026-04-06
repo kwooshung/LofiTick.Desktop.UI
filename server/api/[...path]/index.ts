@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getHeaders, getRequestHeader, getRequestURL, readRawBody, setCookie, setResponseHeaders, setResponseStatus } from 'h3';
+import { createError, defineEventHandler, getCookie, getHeaders, getRequestHeader, getRequestURL, readRawBody, setCookie, setResponseHeaders, setResponseStatus } from 'h3';
 import { useRuntimeConfig } from 'nitropack/runtime';
 import { $fetch } from 'ofetch';
 
@@ -31,6 +31,16 @@ const SIGN_INIT_PATH = '/security/sign/init';
  * 常量：签名 refresh 路径。
  */
 const SIGN_REFRESH_PATH = '/security/sign/refresh';
+
+/**
+ * 常量：CSRF Cookie 名称（兜底）。
+ */
+const DEFAULT_CSRF_COOKIE_NAME = 'csrf_api';
+
+/**
+ * 常量：CSRF Header 名称（兜底）。
+ */
+const DEFAULT_CSRF_HEADER_NAME = 'X-CSRF-api-Token';
 
 /**
  * 函数：去除 URL 末尾的 /。
@@ -189,6 +199,77 @@ const stripSignRefreshAttach = (raw: unknown): unknown => {
 };
 
 /**
+ * 类型：上游下发的 CSRF attach。
+ */
+interface ICsrfAttach {
+  /** CSRF Token */
+  token: string;
+  /** Cookie 名称 */
+  cookie_name: string;
+  /** Header 名称 */
+  header_name: string;
+}
+
+/**
+ * 函数：尝试从响应体中提取 attach.csrf。
+ * @param {unknown} raw 上游 JSON
+ * @return {ICsrfAttach | null} CSRF attach（不存在则 null）
+ */
+const pickCsrfAttach = (raw: unknown): ICsrfAttach | null => {
+  const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  const attach = src?.attach && typeof src.attach === 'object' && !Array.isArray(src.attach) ? (src.attach as Record<string, unknown>) : null;
+  const csrf = attach?.csrf && typeof attach.csrf === 'object' && !Array.isArray(attach.csrf) ? (attach.csrf as Record<string, unknown>) : null;
+
+  const token = String(csrf?.token ?? '').trim();
+  if (token === '') {
+    return null;
+  }
+
+  return {
+    token,
+    cookie_name: String(csrf?.cookie_name ?? '').trim(),
+    header_name: String(csrf?.header_name ?? '').trim()
+  };
+};
+
+/**
+ * 函数：删除响应体中的 attach.csrf 与 datas.csrf_* 字段。
+ * @param {unknown} raw 上游 JSON
+ * @return {unknown} 改写后的 JSON
+ */
+const stripCsrfFields = (raw: unknown): unknown => {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return raw;
+  }
+
+  const out = { ...(raw as Record<string, unknown>) };
+
+  const datas = out.datas;
+  if (datas && typeof datas === 'object' && !Array.isArray(datas)) {
+    const d = { ...(datas as Record<string, unknown>) };
+    delete d.csrf_cookie_name;
+    delete d.csrf_header_name;
+    out.datas = d;
+  }
+
+  const attach = out.attach;
+  if (!attach || typeof attach !== 'object' || Array.isArray(attach)) {
+    return out;
+  }
+
+  const attachObj = { ...(attach as Record<string, unknown>) };
+  delete attachObj.csrf;
+
+  if (Object.keys(attachObj).length === 0) {
+    delete out.attach;
+  } else {
+    out.attach = attachObj;
+  }
+
+  return out;
+};
+
+/**
  * 处理：通用 /api/** 代理。
  *
  * 该代理用于：
@@ -216,6 +297,16 @@ export default defineEventHandler(async (event) => {
   upstreamUrl.search = url.search;
 
   /**
+   * 常量：CSRF Cookie 名称（服务端读取 env 作为唯一口径）。
+   */
+  const csrfCookieName = String(process.env.SECURITY_CSRF_COOKIE_NAME ?? DEFAULT_CSRF_COOKIE_NAME).trim() || DEFAULT_CSRF_COOKIE_NAME;
+
+  /**
+   * 常量：CSRF Header 名称（服务端读取 env 作为唯一口径）。
+   */
+  const csrfHeaderName = String(process.env.SECURITY_CSRF_HEADER_NAME ?? DEFAULT_CSRF_HEADER_NAME).trim() || DEFAULT_CSRF_HEADER_NAME;
+
+  /**
    * 常量：上游请求头
    */
   const upstreamHeaders = new Headers();
@@ -238,6 +329,20 @@ export default defineEventHandler(async (event) => {
   const cookieNameHint = getRequestHeader(event, 'x-sign-blob-cookie-name');
 
   const method = String(event.method ?? 'GET').toUpperCase();
+
+  // sign/init 需要作为 server-to-server：避免透传浏览器 Origin/Referer 触发后端“仅内部下发 csrf attach”的保护。
+  if (upstreamPath === SIGN_INIT_PATH) {
+    upstreamHeaders.delete('origin');
+    upstreamHeaders.delete('referer');
+  }
+
+  // 写请求自动补上游 CSRF Header（Double-Submit：Cookie+Header 必须同值）。
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE') {
+    const token = String(getCookie(event, csrfCookieName) ?? '').trim();
+    if (token !== '') {
+      upstreamHeaders.set(csrfHeaderName, token);
+    }
+  }
 
   const reqContentType = getRequestHeader(event, 'content-type');
   const rawBody = method === 'GET' || method === 'HEAD' ? undefined : await readRawBody(event);
@@ -303,6 +408,25 @@ export default defineEventHandler(async (event) => {
     });
 
     json = stripSignRefreshAttach(json);
+  }
+
+  // sign/init 下发的 csrf attach：落 Nuxt 域名 HttpOnly cookie，并剥离返回给浏览器。
+  const csrfAttach = pickCsrfAttach(json);
+  if (csrfAttach) {
+    const cookieName = csrfAttach.cookie_name || csrfCookieName;
+    const tokenExisting = String(getCookie(event, cookieName) ?? '').trim();
+
+    if (tokenExisting === '') {
+      const isHttps = url.protocol === 'https:';
+      setCookie(event, cookieName, csrfAttach.token, {
+        httpOnly: true,
+        secure: isHttps,
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
+
+    json = stripCsrfFields(json);
   }
 
   return json;

@@ -403,7 +403,7 @@ const useSignState = (): Ref<ISignState> => {
  * @param {string} backendPath 后端路径
  * @return {Promise<Record<string, unknown>>} datas
  */
-const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<ISignState>; apiBase: string }): Promise<{ datas: Record<string, unknown>; signRefreshBlob: string }> => {
+const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<ISignState>; apiBase: string; setHttpOnlyCookieIfMissing?: (args: { name: string; value: string }) => Promise<void> }): Promise<{ datas: Record<string, unknown>; signRefreshBlob: string }> => {
   const { backendPath, signState, apiBase } = args;
   const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
 
@@ -426,6 +426,14 @@ const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<IS
     const datas = raw?.datas && typeof raw.datas === 'object' && !Array.isArray(raw.datas) ? (raw.datas as Record<string, unknown>) : {};
     const attach = raw?.attach && typeof raw.attach === 'object' && !Array.isArray(raw.attach) ? (raw.attach as Record<string, unknown>) : null;
     const signRefreshBlob = String(attach?.sign_refresh ?? '').trim();
+
+    // SSR：sign/init 下发的 csrf token 需要由当前响应显式 set-cookie（SSR 直连后端不会经过 /api 代理）。
+    const csrfRaw = attach?.csrf && typeof attach.csrf === 'object' && !Array.isArray(attach.csrf) ? (attach.csrf as Record<string, unknown>) : null;
+    const csrfToken = String(csrfRaw?.token ?? '').trim();
+    const csrfCookieName = String(csrfRaw?.cookie_name ?? '').trim();
+    if (csrfToken !== '' && csrfCookieName !== '' && typeof args.setHttpOnlyCookieIfMissing === 'function') {
+      await args.setHttpOnlyCookieIfMissing({ name: csrfCookieName, value: csrfToken });
+    }
 
     return {
       datas,
@@ -457,6 +465,11 @@ const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<IS
 type TGetCookieRef = (name: string) => Promise<Ref<string | null>>;
 
 /**
+ * 类型：HttpOnly Cookie 写入函数（仅当缺失时写入）。
+ */
+type TSetHttpOnlyCookieIfMissing = (args: { name: string; value: string }) => Promise<void>;
+
+/**
  * 函数：尝试消费 refresh cookie 并更新本地 payload。
  */
 const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
@@ -479,8 +492,8 @@ const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>;
 /**
  * 函数：确保签名状态已初始化。
  */
-const ensureSignReady = async (args: { signState: Ref<ISignState>; apiBase: string; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
-  const { signState, apiBase, aesSeed, getCookieRef } = args;
+const ensureSignReady = async (args: { signState: Ref<ISignState>; apiBase: string; aesSeed: string; getCookieRef: TGetCookieRef; setHttpOnlyCookieIfMissing: TSetHttpOnlyCookieIfMissing }): Promise<void> => {
+  const { signState, apiBase, aesSeed, getCookieRef, setHttpOnlyCookieIfMissing } = args;
   if (signState.value.payload) {
     return;
   }
@@ -495,7 +508,7 @@ const ensureSignReady = async (args: { signState: Ref<ISignState>; apiBase: stri
   }
 
   // 拉取 init（该请求无需签名，代理层会写入 refresh cookie）
-  const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
+  const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase, setHttpOnlyCookieIfMissing });
   const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
   if (cookieName !== '') {
     signState.value.signBlobCookieName = cookieName;
@@ -653,6 +666,37 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   };
 
   /**
+   * 函数：仅当缺失时写入 HttpOnly Cookie。
+   * @param {object} args 参数
+   * @param {string} args.name Cookie 名称
+   * @param {string} args.value Cookie 值
+   * @return {Promise<void>} 无返回
+   */
+  const setHttpOnlyCookieIfMissing: TSetHttpOnlyCookieIfMissing = async (cookieArgs): Promise<void> => {
+    await nuxtApp.runWithContext(() => {
+      const name = String(cookieArgs.name ?? '').trim();
+      const value = String(cookieArgs.value ?? '').trim();
+      if (name === '' || value === '') {
+        return;
+      }
+
+      const isHttps = useRequestURL().protocol === 'https:';
+      const cookieRef = useCookie<string | null>(name, {
+        default: () => null,
+        httpOnly: true,
+        secure: isHttps,
+        sameSite: 'lax',
+        path: '/'
+      });
+
+      const tokenExisting = String(cookieRef.value ?? '').trim();
+      if (tokenExisting === '') {
+        cookieRef.value = value;
+      }
+    });
+  };
+
+  /**
    * 状态：Toast store（必须在 setup 上下文中获取，避免回调里调用 composable 触发 Nuxt 报错）
    */
   const toastStore = useStoreToastApi();
@@ -722,7 +766,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       return;
     }
 
-    await ensureSignReady({ signState, apiBase, aesSeed, getCookieRef });
+    await ensureSignReady({ signState, apiBase, aesSeed, getCookieRef, setHttpOnlyCookieIfMissing });
     await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
 
     const tsMs = Date.now();
