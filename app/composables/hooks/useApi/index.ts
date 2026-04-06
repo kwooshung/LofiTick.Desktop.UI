@@ -851,7 +851,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     retryDebounced: createDebounced(retry, debounceOpts),
     refreshThrottled: createThrottled(refresh, throttleOpts),
     retryThrottled: createThrottled(retry, throttleOpts)
-  };
+  } as T;
 };
 
 /**
