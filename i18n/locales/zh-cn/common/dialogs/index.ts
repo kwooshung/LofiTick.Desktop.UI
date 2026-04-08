@@ -1,5 +1,5 @@
 /**
- * Common: Dialog texts
+ * 公共：对话框相关文案
  */
 export const dialogs = {
   fileFilters: {

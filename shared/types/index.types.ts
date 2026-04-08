@@ -1,2 +1,4 @@
 export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.types';
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
+export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

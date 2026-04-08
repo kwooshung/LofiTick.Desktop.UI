@@ -1,0 +1,725 @@
+<template>
+  <DashboardPage>
+    <div class="flex w-full flex-1 gap-1">
+      <div class="flex-1">
+        <UTable
+          :columns="columns"
+          :data="computedProetryDatas"
+          :loading="loading"
+          class="shrink-0"
+          sticky
+          :ui="{
+            base: 'table-fixed border-separate border-spacing-0',
+            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+            tbody: '[&>tr]:last:[&>td]:border-b-0',
+            th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+            td: 'border-b border-default',
+            separator: 'h-0'
+          }"
+        />
+      </div>
+    </div>
+    <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+      <div class="muted text-sm">{{ t('components.pagination.total', { total: Number(datas?.total ?? 0) }) }}</div>
+      <div class="flex items-center gap-1.5">
+        <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(datas?.total ?? 0)" />
+      </div>
+    </div>
+    <USlideover
+      v-model:open="stateDetailOpen"
+      side="left"
+      :title="stateDetailInfo.title"
+      :description="`${stateDetailInfo.dynasty.name} · ${stateDetailInfo.author.name}`"
+      :ui="{
+        content: 'font-ma-shan-zheng w-auto max-w-225 light:border-10 light:border-neutral-500 dark:border-neutral-600 light:bg-yellow-50 select-none',
+        header: 'text-5xl font-medium',
+        title: 'mb-4 text-default font-medium',
+        close: 'no-drag',
+        description: 'text-lg text-muted',
+        body: 'scrollbar'
+      }"
+    >
+      <template #body>
+        <div class="light:bg-amber-100 flex flex-col justify-center rounded-lg p-4 dark:bg-neutral-800">
+          <template v-if="stateDetailInfo.translate.length > 0">
+            <UPopover v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" mode="hover" arrow :content="{ side: 'top' }">
+              <p class="transition-background text-default hover:light:bg-amber-200 cursor-pointer rounded-lg px-2 text-2xl leading-relaxed duration-300 ease-out hover:dark:bg-neutral-700">
+                {{ para }}
+              </p>
+              <template #content>
+                <p class="max-w-100 p-2">{{ stateDetailInfo.translate[inx] }}</p>
+              </template>
+            </UPopover>
+          </template>
+          <template v-else>
+            <p v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" class="text-default text-2xl leading-relaxed">
+              {{ para }}
+            </p>
+          </template>
+        </div>
+      </template>
+    </USlideover>
+  </DashboardPage>
+</template>
+
+<script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui';
+
+import type { IQueryResultPoetrysSummaryPage } from '@@/server/db/mysql/quick/poetrys/index.types';
+import type { IQueryResultPoetryTagsBasicRow } from '@@/server/db/mysql/quick/poetrys/tags/index.types';
+
+/**
+ * 组件：Nuxt 时间显示组件
+ */
+const Datetime = resolveComponent('Datetime');
+
+/**
+ * 组件：按钮
+ */
+const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：复选框
+ */
+// const UCheckbox = resolveComponent('UCheckbox');
+
+/**
+ * 组件：开关
+ */
+const USwitch = resolveComponent('USwitch');
+
+/**
+ * 组件：徽章
+ */
+const UBadge = resolveComponent('UBadge');
+/**
+ * 组件：分页
+ */
+const UPagination = resolveComponent('UPagination');
+
+/**
+ * Hook：国际化
+ */
+const { t } = useI18n();
+
+/**
+ * 状态：当前诗词详情
+ */
+const stateDetailOpen = ref<boolean>(false);
+
+/**
+ * 状态：详情信息
+ */
+const stateDetailInfo = ref<IPagePoetrysDetailInfo>({
+  id: 0,
+  title: '',
+  content: [],
+  translate: [],
+  author: {
+    id: 0,
+    name: '',
+    count: 0
+  },
+  dynasty: {
+    id: 0,
+    name: '',
+    count: 0
+  }
+});
+
+/**
+ * 事件：查看详情
+ * @param {number} poetry 诗词
+ */
+const handleViewDetail = (poetry: IPageTableColumnPoetrys) => {
+  stateDetailOpen.value = true;
+  stateDetailInfo.value = {
+    id: poetry.id,
+    title: poetry.infos.title,
+    content: poetry.infos.content,
+    translate: poetry.infos.translate,
+    author: poetry.infos.author,
+    dynasty: poetry.infos.dynasty
+  };
+};
+
+/**
+ * 路由
+ */
+const route = useRoute();
+
+/**
+ * 函数：从路由查询参数构建接口查询参数
+ * @returns {Record<string,string|string[]>} 查询参数
+ */
+const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
+  const query: Record<string, string | string[]> = {};
+
+  /**
+   * 标题
+   */
+  const title = typeof route.query.title !== 'undefined' ? String(route.query.title).trim() : '';
+  if (title) {
+    query.title = title;
+  }
+
+  /**
+   * 内容
+   */
+  const content = typeof route.query.content !== 'undefined' ? String(route.query.content).trim() : '';
+  if (content) {
+    query.content = content;
+  }
+
+  // 布尔匹配：isAnd（1=true，0=false），仅在为 1 时携带，保持与前端构造一致
+  if (String(route.query.is_and) === '1') {
+    query.is_and = '1';
+  }
+
+  /**
+   * 辅助函数：将值转换为字符串数组
+   * @param {unknown} v 输入值
+   * @returns {string[]} 字符串数组
+   */
+  const asArray = (v: unknown): string[] => (Array.isArray(v) ? v.map((i) => String(i)) : v != null ? [String(v)] : []);
+
+  // 多选 ID 参数
+  const dynastyId = asArray(route.query.dynasty_ids);
+  const authorId = asArray(route.query.author_ids);
+  const tags = asArray(route.query.tag_ids);
+  if (dynastyId.length > 0) {
+    query.dynasty_ids = dynastyId;
+  }
+  if (authorId.length > 0) {
+    query.author_ids = authorId;
+  }
+  if (tags.length > 0) {
+    query.tag_ids = tags;
+  }
+
+  // 启用状态与分页
+  if (typeof route.query.enabled !== 'undefined') {
+    query.enabled = String(route.query.enabled);
+  }
+  if (typeof route.query.page !== 'undefined') {
+    query.page = String(route.query.page);
+  }
+  if (typeof route.query.pagesize !== 'undefined') {
+    query.pagesize = String(route.query.pagesize);
+  }
+
+  // 排序：orderBy（updated/created）与 order_dir（asc/desc）
+  if (typeof route.query.order_by !== 'undefined') {
+    const by = String(route.query.order_by);
+    if (by === 'id' || by === 'updated' || by === 'created') {
+      query.order_by = by;
+    }
+  }
+  if (typeof route.query.order_dir !== 'undefined') {
+    const dir = String(route.query.order_dir).toLowerCase();
+    if (dir === 'asc' || dir === 'desc') {
+      query.order_dir = dir;
+    }
+  }
+
+  return query;
+};
+
+/**
+ * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/title/content），移除 page
+ * @param {'dynasty_ids' | 'author_ids' | 'tag_ids'} key 筛选键
+ * @param {number | string} value 筛选值
+ */
+const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids' | 'tag_ids', value: number | string) => {
+  const q: Record<string, string | string[]> = {};
+  // 保留必要参数
+  if (typeof route.query.pagesize !== 'undefined') {
+    q.pagesize = String(route.query.pagesize);
+  }
+  if (typeof route.query.enabled !== 'undefined') {
+    q.enabled = String(route.query.enabled);
+  }
+  if (typeof route.query.is_and !== 'undefined') {
+    q.is_and = String(route.query.is_and);
+  }
+  if (typeof route.query.title !== 'undefined') {
+    const title = String(route.query.title).trim();
+    if (title) {
+      q.title = title;
+    }
+  }
+  if (typeof route.query.content !== 'undefined') {
+    const content = String(route.query.content).trim();
+    if (content) {
+      q.content = content;
+    }
+  }
+  // 设置单选筛选
+  q[key] = String(value);
+
+  // 跳转（移除 page，使用 replace 以清爽历史栈）
+  navigateTo({ path: '/poetrys', query: q });
+};
+
+/**
+ * 排序：切换指定字段（互斥）
+ * @param {'updated'|'created'} field 排序字段
+ */
+const toggleSort = (field: 'id' | 'updated' | 'created') => {
+  // 默认按照编号倒序
+  const currentBy = String(route.query.order_by || 'id');
+  const currentDir = String(route.query.order_dir || 'desc');
+  const nextBy = field;
+  const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
+  const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+  q.order_by = nextBy;
+  q.order_dir = nextDir;
+  navigateTo({ path: route.path, query: q });
+};
+
+/**
+ * API：诗词搜索
+ */
+const { datas, loading, refreshDebounced } = await useApi<IQueryResultPoetrysSummaryPage>('poetrys', { datas: buildApiQueryFromRoute(), immediate: true });
+
+/**
+ * API：更新启用状态（复用实例，避免 useFetch key 缓存导致后续不请求）
+ */
+const { refresh: refreshSetEnabled } = await useApi<{ affected: number }>('poetrys/enabled', { method: 'POST', immediate: false });
+
+/**
+ * 计算属性：直接映射成表格需要的格式
+ */
+const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
+  if (!datas.value || !datas.value.rows || datas.value.rows.length === 0) {
+    return [];
+  }
+
+  return datas.value.rows.map((item) => ({
+    id: item.id ?? 0,
+    infos: {
+      title: item.title ?? 'unknown',
+      sentence: item.sentence ?? 'unknown',
+      content: Array.isArray(item.content) ? item.content : [],
+      translate: Array.isArray(item.translate) ? item.translate : [],
+      dynasty:
+        item.dynasty && typeof item.dynasty === 'object'
+          ? item.dynasty
+          : {
+              id: 0,
+              name: 'unknown',
+              count: 0
+            },
+      author:
+        item.author && typeof item.author === 'object'
+          ? item.author
+          : {
+              id: 0,
+              name: 'unknown',
+              count: 0
+            },
+      tags: Array.isArray(item.tags) ? item.tags : []
+    },
+    enabled: item.enabled ?? false,
+    times: {
+      updated: item.updated ? String(item.updated) : new Date().toISOString(),
+      created: item.created ? String(item.created) : new Date().toISOString()
+    }
+  }));
+});
+
+/**
+ * 计算属性：当前页（与路由同步）
+ */
+const computedPage = computed<number>({
+  get: () => {
+    const str = route.query.page as string | undefined;
+    const num = parseInt(str ?? '', 10);
+    return Number.isFinite(num) && num > 0 ? num : 1;
+  },
+  set: (value: number) => {
+    const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+    q.page = String(Math.max(1, value));
+    navigateTo({ path: route.path, query: q });
+  }
+});
+
+/**
+ * 计算属性：每页数量（Number，避免字符串警告）
+ */
+const computedItemsPerPage = computed<number>(() => {
+  const str = route.query.pagesize as string | undefined;
+  const parsed = parseInt(str ?? '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  const apiSize = Number(datas.value?.pageSize ?? 20);
+  return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
+});
+
+/**
+ * 监听：查询参数变化时刷新列表（防抖）
+ */
+watch(
+  () => route.query,
+  () => {
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  }
+);
+
+/**
+ * 函数：渲染表格标签
+ * @param {IQueryResultPoetryTagsBasicRow[]} tags 标签列表
+ * @returns {VNode[]} 渲染节点数组
+ */
+const renderTagCells = (tags: IQueryResultPoetryTagsBasicRow[]): VNode[] => {
+  const len = tags.length - 1;
+
+  return tags.map((tag, inx) =>
+    h(UBadge, {
+      key: tag.id,
+      label: `${tag.name} (${tag.count})`,
+      color: 'primary',
+      variant: 'soft',
+      class: `${inx < len ? 'mr-1' : ''} opacity-75 hover:opacity-100 transition-opacity duration-300 ease-out cursor-pointer`,
+      onClick: () => navigateWithSingleFilter('tag_ids', tag.id)
+    })
+  );
+};
+
+/**
+ * 函数：切换启用状态并调用后端更新
+ * - 若路由 query 中存在 enabled 键，则更新后刷新当前列表
+ */
+const handleToggleEnabled = async (row: IPageTableColumnPoetrys, value: boolean) => {
+  const prev = row.enabled;
+  row.enabled = value;
+
+  try {
+    await refreshSetEnabled({ datas: { id: row.id, enabled: value }, replace: true });
+    // 统一刷新列表，保证更新时间等字段同步
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  } catch {
+    row.enabled = prev;
+  }
+};
+
+/**
+ * 常量：表格列定义
+ */
+const columns: TableColumn<IPageTableColumnPoetrys>[] = [
+  // {
+  //   id: 'select',
+  //   meta: {
+  //     class: {
+  //       td: 'w-10'
+  //     }
+  //   },
+  //   header: ({ table }) =>
+  //     h(UCheckbox, {
+  //       modelValue: table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
+  //       'onUpdate:modelValue': (value: boolean | 'indeterminate') => table.toggleAllPageRowsSelected(!!value),
+  //       ariaLabel: 'Select all'
+  //     }),
+  //   cell: ({ row }) =>
+  //     h(UCheckbox, {
+  //       modelValue: row.getIsSelected(),
+  //       'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
+  //       ariaLabel: 'Select row'
+  //     })
+  // },
+  {
+    accessorKey: 'id',
+    meta: {
+      class: {
+        td: 'w-15'
+      }
+    },
+    header: () => {
+      const by = String(route.query.order_by || 'id');
+      const dir = String(route.query.order_dir || 'desc');
+      const isSorted = by === 'id' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.id'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
+    },
+    cell: ({ row }) => row.original.id.toString().padStart(5, '0')
+  },
+  // 1级宽度：小屏（< xl），单列展示 标题 + 朝代 · 作者 + 句子 + 标签
+  {
+    accessorKey: 'poem',
+    meta: {
+      class: {
+        th: 'xl:hidden',
+        td: 'xl:hidden'
+      }
+    },
+    header: t('pages.poetrys.result.table.poem'),
+    cell: ({ row }) => {
+      const { title, sentence, dynasty, author, tags } = row.original.infos;
+
+      return h('div', { class: 'flex flex-col' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('div', { class: 'text-sm text-muted mt-1' }, [
+          h(UButton, { color: 'neutral', variant: 'link', label: dynasty.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
+          ' · ',
+          h(UButton, { color: 'neutral', variant: 'link', label: author.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
+        ]),
+        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence),
+        h('div', { class: 'mt-1' }, renderTagCells(tags))
+      ]);
+    }
+  },
+  // 2级宽度：中屏（xl ~ < 2xl），标题 + 朝代 · 作者 + 句子
+  {
+    accessorKey: 'poemTitleMedium',
+    meta: {
+      class: {
+        th: 'w-100 hidden xl:table-cell 2xl:hidden',
+        td: 'w-100 hidden xl:table-cell 2xl:hidden'
+      }
+    },
+    header: t('pages.poetrys.result.table.title'),
+    cell: ({ row }) => {
+      const { title, dynasty, author, sentence } = row.original.infos;
+
+      return h('div', { class: 'flex flex-col' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('div', { class: 'text-sm text-muted mt-1' }, [
+          h(UButton, { color: 'neutral', variant: 'link', label: dynasty.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
+          ' · ',
+          h(UButton, { color: 'neutral', variant: 'link', label: author.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
+        ]),
+        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
+      ]);
+    }
+  },
+  // 3级宽度：大屏（≥ 2xl ~ < 3xl），单列展示 标题 + 核心句
+  {
+    accessorKey: 'poemTitleFull',
+    meta: {
+      class: {
+        th: 'w-100 hidden 2xl:table-cell 3xl:hidden',
+        td: 'w-100 hidden 2xl:table-cell 3xl:hidden'
+      }
+    },
+    header: t('pages.poetrys.result.table.title'),
+    cell: ({ row }) => {
+      const { title, sentence } = row.original.infos;
+
+      return h('div', { class: 'flex flex-col' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
+      ]);
+    }
+  },
+  // 4级宽度：超大屏（≥ 3xl），标题 / 句子 / 标签 / 朝代 · 作者 分列
+  {
+    accessorKey: 'poemTitleFullLarge',
+    meta: {
+      class: {
+        th: 'w-100 hidden 3xl:table-cell',
+        td: 'w-100 hidden 3xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.title'),
+    cell: ({ row }) =>
+      h(UButton, {
+        color: 'neutral',
+        variant: 'link',
+        label: row.original.infos.title,
+        class: 'p-0 text-default hover:text-primary hover:underline',
+        onClick: () => handleViewDetail(row.original)
+      })
+  },
+  {
+    accessorKey: 'poemSentenceFull',
+    meta: {
+      class: {
+        th: 'hidden 3xl:table-cell',
+        td: 'hidden 3xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.sentence'),
+    cell: ({ row }) => h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, row.original.infos.sentence)
+  },
+  {
+    accessorKey: 'poemTags',
+    meta: {
+      class: {
+        th: 'w-80 hidden xl:table-cell',
+        td: 'w-80 hidden xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.tags'),
+    cell: ({ row }) => renderTagCells(row.original.infos.tags)
+  },
+  {
+    accessorKey: 'poemDynastyAuthor',
+    meta: {
+      class: {
+        th: 'w-30 hidden 2xl:table-cell 3xl:hidden',
+        td: 'w-30 hidden 2xl:table-cell 3xl:hidden'
+      }
+    },
+    header: t('pages.poetrys.result.table.dynastyAuthor'),
+    cell: ({ row }) => {
+      const { dynasty, author } = row.original.infos;
+
+      return h('div', { class: 'text-sm text-muted mt-1' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: `${dynasty.name}（${dynasty.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
+        ' · ',
+        h(UButton, { color: 'neutral', variant: 'link', label: `${author.name}（${author.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
+      ]);
+    }
+  },
+  // 4级宽度：超大屏（≥ 3xl），将 朝代 / 作者 拆成独立列
+  {
+    accessorKey: 'poemDynastyFull',
+    meta: {
+      class: {
+        th: 'w-15 hidden 3xl:table-cell',
+        td: 'w-15 hidden 3xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.dynasty'),
+    cell: ({ row }) =>
+      h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id) })
+  },
+  {
+    accessorKey: 'poemAuthorFull',
+    header: t('pages.poetrys.result.table.author'),
+    meta: {
+      class: {
+        th: 'w-15 hidden 3xl:table-cell',
+        td: 'w-15 hidden 3xl:table-cell'
+      }
+    },
+    cell: ({ row }) => h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.author.name}（${row.original.infos.author.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', row.original.infos.author.id) })
+  },
+  {
+    id: 'times',
+    accessorKey: 'times',
+    meta: {
+      class: {
+        th: 'w-45 2xl:hidden',
+        td: 'w-45 2xl:hidden text-default'
+      }
+    },
+    header: t('common.labels.time'),
+    cell: ({ row }) =>
+      h('div', { class: 'flex flex-col gap-1.5' }, [
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [
+          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.poetrys.result.table.updatedAt')}：`),
+          h(Datetime, {
+            class: 'w-auto max-w-full',
+            datetime: row.original.times.updated,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        ]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [
+          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.poetrys.result.table.createdAt')}：`),
+          h(Datetime, {
+            class: 'w-auto max-w-full',
+            datetime: row.original.times.created,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        ])
+      ])
+  },
+  {
+    accessorKey: 'timesUpdated',
+    meta: {
+      class: {
+        th: 'hidden 2xl:table-cell text-right',
+        td: 'hidden 2xl:table-cell w-30 text-right'
+      }
+    },
+    header: () => {
+      const by = String(route.query.order_by || 'id');
+      const dir = String(route.query.order_dir || 'desc');
+      const isSorted = by === 'updated' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
+    },
+    cell: ({ row }) =>
+      h(Datetime, {
+        class: 'self-end w-auto max-w-full text-sm',
+        datetime: row.original.times.updated,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+  },
+  {
+    accessorKey: 'timesCreated',
+    meta: {
+      class: {
+        th: 'hidden 2xl:table-cell text-right',
+        td: 'hidden 2xl:table-cell w-30 text-right'
+      }
+    },
+    header: () => {
+      const by = String(route.query.order_by || 'id');
+      const dir = String(route.query.order_dir || 'desc');
+      const isSorted = by === 'created' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
+    },
+    cell: ({ row }) =>
+      h(Datetime, {
+        class: 'self-end w-auto max-w-full text-sm',
+        datetime: row.original.times.created,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+  },
+  {
+    accessorKey: 'enabled',
+    meta: {
+      class: {
+        td: 'w-20'
+      }
+    },
+    header: t('pages.poetrys.result.table.enabled'),
+    cell: ({ row }) =>
+      h(USwitch, {
+        modelValue: row.original.enabled,
+        'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value)
+      })
+  },
+  {
+    id: 'actions',
+    meta: {
+      class: {
+        td: 'w-20'
+      }
+    },
+    enableHiding: false,
+    header: t('pages.poetrys.result.table.actions'),
+    cell: ({ row }) =>
+      h(UButton, {
+        color: 'neutral',
+        variant: 'ghost',
+        label: t('pages.poetrys.result.table.detail'),
+        onClick: () => handleViewDetail(row.original)
+      })
+  }
+];
+</script>

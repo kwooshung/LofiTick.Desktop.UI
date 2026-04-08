@@ -1,6 +1,6 @@
 export const content = {
   bookTitle: {
-    prefix: '"',
-    suffix: '"'
+    prefix: '“',
+    suffix: '”'
   }
 };

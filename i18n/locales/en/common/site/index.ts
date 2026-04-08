@@ -1,6 +1,6 @@
 export const site = {
-  name: 'LofiTick',
-  description: 'LofiTick Desktop - A Tauri-based lofi music application',
+  name: 'LofiTick Admin Panel',
+  description: 'LofiTick Admin Panel, a Nuxt-based administration system',
   console: {
     info: {
       appName: 'Application Name',

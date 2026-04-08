@@ -31,7 +31,7 @@ export const useSettingsThemeStyle = (): TUseSettingsThemeStyleResult => {
   /**
    * 常量：中性色系：颜色列表
    */
-  const neutralColors = ['slate', 'gray', 'zinc', 'neutral', 'stone', 'ink'];
+  const neutralColors = ['slate', 'gray', 'zinc', 'neutral', 'stone', 'taupe', 'mauve', 'mist', 'olive', 'ink'];
 
   /**
    * 计算属性：中性色系：计算属性
