@@ -29,7 +29,7 @@ const { isTauriRuntime } = useTauriEnv();
 /**
  * API：心跳上报
  */
-const { refresh: refreshHeartbeatRemotePost } = await useApi('settings/unattended/guard/heartbeat', { method: 'POST' });
+const { refresh: refreshHeartbeatRemotePost } = await useApi('desktop/settings/unattended/guard/heartbeat', { method: 'POST' });
 
 /**
  * 变量：取消订阅 tasks 事件句柄

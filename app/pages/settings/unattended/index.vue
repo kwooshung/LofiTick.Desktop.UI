@@ -474,33 +474,33 @@ const computedGuardAnalysis = computed(() => refGuardConfig.value?.analysisGet()
  * API：哨兵配置（GET / PATCH）
  * 描述：用于跨设备同步哨兵配置。
  */
-const { datas: stateSentinelRemote, refresh: refreshSentinelRemoteGet } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('settings/unattended/sentinel');
-const { refresh: refreshSentinelRemotePatch } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('settings/unattended/sentinel', { method: 'PATCH' });
+const { datas: stateSentinelRemote, refresh: refreshSentinelRemoteGet } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('desktop/settings/unattended/sentinel');
+const { refresh: refreshSentinelRemotePatch } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('desktop/settings/unattended/sentinel', { method: 'PATCH' });
 
 /**
  * API：哨兵请求地址默认值（GET）
  */
-const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUrlDefaultGet } = await useApi<IPageSettingsUnattendedSentinelRequestUrlApi>('settings/unattended/sentinel/request-url');
+const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUrlDefaultGet } = await useApi<IPageSettingsUnattendedSentinelRequestUrlApi>('desktop/settings/unattended/sentinel/request-url');
 
 /**
  * API：警卫配置（GET / PATCH）
  * 描述：用于跨设备同步警卫配置。
  */
-const { datas: stateGuardRemote, refresh: refreshGuardRemoteGet } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('settings/unattended/guard');
-const { refresh: refreshGuardRemotePatch } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('settings/unattended/guard', { method: 'PATCH' });
+const { datas: stateGuardRemote, refresh: refreshGuardRemoteGet } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('desktop/settings/unattended/guard');
+const { refresh: refreshGuardRemotePatch } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('desktop/settings/unattended/guard', { method: 'PATCH' });
 
 /**
  * API：场景配置（GET / PATCH）
  * 描述：按 machineCode 分组存储，可跨设备快速读取。
  */
-const { datas: stateScenesRemote, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('settings/unattended/scenes', { immediate: false });
-const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('settings/unattended/scenes', { method: 'PATCH', immediate: false });
+const { datas: stateScenesRemote, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
+const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
 
 /**
  * API：场景配置（GET）
  * 描述：读取所有机器的场景配置列表。
  */
-const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig[]>('settings/unattended/scenes/machines', { immediate: false });
+const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
 
 /**
  * 状态：持久化写入是否静音

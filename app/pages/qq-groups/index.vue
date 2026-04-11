@@ -68,8 +68,8 @@
 import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
 
-import type { IQueryResultSocialQqGroupSummaryPage } from '@@/server/db/mysql/quick/socials/qq/group/index.types';
 import type { IPageQqGroupForm, IPageTableColumnQqGroup } from '@@/shared/types/index.types';
+import type { IQueryResultSocialQqGroupSummaryPage } from '@@/shared/types/pages/qq-groups/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件

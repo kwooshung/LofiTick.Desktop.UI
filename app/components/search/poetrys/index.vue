@@ -197,9 +197,7 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
-import type { IQueryResultPoetryAuthorsBasicRow } from '@@/server/db/mysql/quick/poetrys/authors/index.types';
-import type { IQueryResultPoetryDynastiesBasicRow } from '@@/server/db/mysql/quick/poetrys/dynasties/index.types';
-import type { IQueryResultPoetryTagsBasicRow } from '@@/server/db/mysql/quick/poetrys/tags/index.types';
+import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow, IQueryResultPoetryTagsBasicRow } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）

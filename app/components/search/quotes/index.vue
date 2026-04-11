@@ -160,9 +160,7 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, IComponentPropsQuotesUuidSelectMenuItem } from '@/components/search/quotes/index.types';
-import type { IQueryResultQuoteAuthorsBasicRow } from '@@/server/db/mysql/quick/quotes/authors/index.types';
-import type { IQueryResultQuotesSearchUuid } from '@@/server/db/mysql/quick/quotes/index.types';
-import type { IQueryResultQuoteSourcesBasicRow } from '@@/server/db/mysql/quick/quotes/sources/index.types';
+import type { IQueryResultQuoteAuthorsBasicRow, IQueryResultQuoteSourcesBasicRow, IQueryResultQuotesSearchUuid } from '@@/shared/types/pages/quotes/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）

@@ -65,8 +65,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IQueryResultPoetrysSummaryPage } from '@@/server/db/mysql/quick/poetrys/index.types';
-import type { IQueryResultPoetryTagsBasicRow } from '@@/server/db/mysql/quick/poetrys/tags/index.types';
+import type { IQueryResultPoetrysSummaryPage, IQueryResultPoetryTagsBasicRow } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
