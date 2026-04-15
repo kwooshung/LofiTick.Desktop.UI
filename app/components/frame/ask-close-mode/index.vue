@@ -16,11 +16,6 @@
 
 <script setup lang="ts">
 /**
- * Hook：Tauri 环境
- */
-const { isTauriRuntime } = useTauriEnv();
-
-/**
  * Hook：Tauri preclose
  */
 const tauriPreclose = useTauriPreclose();
@@ -38,7 +33,7 @@ const stateOpen = ref(false);
 /**
  * 取消订阅函数
  */
-let unsubscribePrecloseOnAppPreClose: TUnsubscribePrecloseOnAppPreClose;
+let unsubscribePrecloseOnAppPreClose: null | TUnsubscribePrecloseOnAppPreClose = null;
 
 /**
  * 监听关闭询问弹窗
@@ -48,11 +43,9 @@ const eventUpdateOpen = (value: boolean) => {
   stateOpen.value = value;
 
   if (value === false) {
-    if (!isTauriRuntime.value) {
-      return;
-    }
-
-    void tauriPreclose.resolve('cancel', false);
+    void tauriPreclose.resolve('cancel', false).catch((err) => {
+      console.error('[FrameAskCloseMode] preclose_resolve(cancel) failed', err);
+    });
   }
 };
 
@@ -60,9 +53,9 @@ const eventUpdateOpen = (value: boolean) => {
  * 最小化到托盘
  */
 const eventMinimizeToTray = () => {
-  if (isTauriRuntime.value) {
-    void tauriPreclose.resolve('minimize-to-tray');
-  }
+  void tauriPreclose.resolve('minimize-to-tray').catch((err) => {
+    console.error('[FrameAskCloseMode] preclose_resolve(minimize-to-tray) failed', err);
+  });
   stateOpen.value = false;
 };
 
@@ -70,9 +63,9 @@ const eventMinimizeToTray = () => {
  * 直接退出
  */
 const eventExit = () => {
-  if (isTauriRuntime.value) {
-    void tauriPreclose.resolve('exit');
-  }
+  void tauriPreclose.resolve('exit').catch((err) => {
+    console.error('[FrameAskCloseMode] preclose_resolve(exit) failed', err);
+  });
   stateOpen.value = false;
 };
 
@@ -80,14 +73,25 @@ const eventExit = () => {
  * 生命周期：组件挂载时监听主进程关闭询问事件
  */
 onMounted(() => {
-  if (!isTauriRuntime.value) {
-    return;
-  }
+  console.info('[FrameAskCloseMode] mounted');
 
   void (async () => {
-    unsubscribePrecloseOnAppPreClose = await tauriPreclose.onAppPreClose(() => {
-      stateOpen.value = true;
-    });
+    try {
+      unsubscribePrecloseOnAppPreClose = await tauriPreclose.onAppPreClose(() => {
+        console.info('[FrameAskCloseMode] app_pre_close received');
+
+        if (stateOpen.value) {
+          return;
+        }
+
+        stateOpen.value = true;
+      });
+
+      console.info('[FrameAskCloseMode] preclose listener ready');
+    } catch (err) {
+      console.error('[FrameAskCloseMode] preclose listener init failed', err);
+      unsubscribePrecloseOnAppPreClose = null;
+    }
   })();
 });
 
@@ -97,10 +101,11 @@ onMounted(() => {
 onUnmounted(() => {
   if (unsubscribePrecloseOnAppPreClose) {
     unsubscribePrecloseOnAppPreClose();
+    unsubscribePrecloseOnAppPreClose = null;
   }
 
-  if (isTauriRuntime.value) {
-    void tauriPreclose.resolve('cancel', false);
-  }
+  void tauriPreclose.resolve('cancel', false).catch(() => {
+    // ignore
+  });
 });
 </script>

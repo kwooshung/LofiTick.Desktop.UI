@@ -55,24 +55,6 @@
             <span class="text-muted">{{ item?.count }}</span>
           </template>
         </USelectMenu>
-        <USelectMenu
-          v-model="stateSelectedTags"
-          v-model:search-term="stateKeywordTags"
-          icon="i-mdi:tag-outline"
-          multiple
-          ignore-filter
-          clear
-          :placeholder="t('components.poetrys.search.body.tag.placeholder')"
-          :items="stateItemsTags"
-          :loading="stateLoadingTags"
-          :ui="{
-            trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
-          }"
-        >
-          <template #item-trailing="{ item }">
-            <span class="text-muted">{{ item?.count }}</span>
-          </template>
-        </USelectMenu>
       </template>
       <template #footer>
         <USwitch v-model="stateIsAnd" :label="stateIsAnd ? t('components.poetrys.search.footer.match.all') : t('components.poetrys.search.footer.match.any')" />
@@ -163,41 +145,13 @@
       </UFieldGroup>
     </div>
   </template>
-  <template v-else-if="routeIsTags">
-    <div class="flex items-center gap-2">
-      <UFieldGroup>
-        <USelectMenu
-          ref="refTagMenu"
-          v-model="stateSelectedTags"
-          v-model:search-term="stateKeywordTags"
-          icon="i-mdi:tag-outline"
-          multiple
-          ignore-filter
-          clear
-          :placeholder="t('components.poetrys.search.body.tag.placeholder')"
-          :items="stateItemsTags"
-          :loading="stateLoadingTags"
-          :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-          class="min-w-60"
-        >
-          <template #trailing>
-            <UKbd value="/" class="ms-auto" />
-          </template>
-          <template #item-trailing="{ item }">
-            <span class="text-muted">{{ item?.count }}</span>
-          </template>
-        </USelectMenu>
-        <UButton icon="i-lucide-search" color="primary" @click="handleSearch">{{ t('components.poetrys.search.buttons.search') }}</UButton>
-      </UFieldGroup>
-    </div>
-  </template>
 </template>
 
 <script setup lang="ts">
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
-import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow, IQueryResultPoetryTagsBasicRow } from '@@/shared/types/pages/poetrys/index.types';
+import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）
@@ -230,11 +184,6 @@ const refAuthorMenu = useTemplateRef('refAuthorMenu');
 const refDynastyMenu = useTemplateRef('refDynastyMenu');
 
 /**
- * 引用：选择菜单，标签
- */
-const refTagMenu = useTemplateRef('refTagMenu');
-
-/**
  * 状态：模态框开关
  */
 const stateOpen = ref(false);
@@ -265,11 +214,6 @@ const stateSelectedDynasties = ref<IComponentPropsPoetrysSelectMenuItem[]>([]);
 const stateSelectedAuthor = ref<IComponentPropsPoetrysSelectMenuItem[]>([]);
 
 /**
- * 状态：已选标签
- */
-const stateSelectedTags = ref<IComponentPropsPoetrysSelectMenuItem[]>([]);
-
-/**
  * 状态：朝代联想关键词
  */
 const stateKeywordDynasty = ref('');
@@ -278,11 +222,6 @@ const stateKeywordDynasty = ref('');
  * 状态：作者联想关键词
  */
 const stateKeywordAuthor = ref('');
-
-/**
- * 状态：标签联想关键词
- */
-const stateKeywordTags = ref('');
 
 /**
  * 状态：匹配方式（true=全部满足，false=任意满足）
@@ -300,11 +239,6 @@ const stateLoadingDynasties = ref(false);
 const stateLoadingAuthors = ref(false);
 
 /**
- * 状态：加载标签联想
- */
-const stateLoadingTags = ref(false);
-
-/**
  * 状态：缓存 > 作者标签映射
  */
 const stateCacheAuthorLabelMap = ref(new Map<number, { label: string; count: number }>());
@@ -315,11 +249,6 @@ const stateCacheAuthorLabelMap = ref(new Map<number, { label: string; count: num
 const stateCacheDynastyLabelMap = ref(new Map<number, { label: string; count: number }>());
 
 /**
- * 状态：缓存 > 标签标签映射
- */
-const stateCacheTagLabelMap = ref(new Map<number, { label: string; count: number }>());
-
-/**
  * 计算属性：是否设置了搜索条件
  */
 const computedHasSearchConditions = computed(() => {
@@ -327,7 +256,7 @@ const computedHasSearchConditions = computed(() => {
 
   const hasText = (typeof q.title !== 'undefined' && String(q.title ?? '').trim().length > 0) || (typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0);
 
-  return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids') || hasQueryParamIds('tag_ids');
+  return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids');
 });
 
 /**
@@ -359,21 +288,11 @@ const { items: stateItemAuthors, setOriginItems: setOriginAuthors } = useSelectM
 const { datas: stateAuthorData, refreshDebounced: refreshDebouncedAuthor } = await useApi<{ rows: IQueryResultPoetryAuthorsBasicRow[] }>('poetrys/searchs/authors', { datas: { q: stateKeywordAuthor.value, limit: 10 } });
 
 /**
- * Hook：标签，限制选择数量
- */
-const { items: stateItemsTags, setOriginItems: setOriginTags } = useSelectMenuLimited(stateSelectedTags, 5);
-
-/**
- * API：搜索标签
- */
-const { datas: stateTagData, refreshDebounced: refreshDebouncedTags } = await useApi<{ rows: IQueryResultPoetryTagsBasicRow[] }>('poetrys/searchs/tags', { datas: { q: stateKeywordTags.value, limit: 10 } });
-
-/**
  * 函数：查询数组参数
- * @param {('dynasty_ids' | 'author_ids' | 'tag_ids')} key 参数键名
+ * @param {('dynasty_ids' | 'author_ids')} key 参数键名
  * @return {boolean} 是否存在有效参数
  */
-const hasQueryParamIds = (key: 'dynasty_ids' | 'author_ids' | 'tag_ids'): boolean => {
+const hasQueryParamIds = (key: 'dynasty_ids' | 'author_ids'): boolean => {
   const v = route.query[key];
 
   if (typeof v === 'undefined' || v === null) {
@@ -388,10 +307,33 @@ const hasQueryParamIds = (key: 'dynasty_ids' | 'author_ids' | 'tag_ids'): boolea
 /**
  * 辅助：从路由查询提取 ID 数组
  */
-const getQueryIds = (key: 'dynasty_ids' | 'author_ids' | 'tag_ids'): number[] => {
+const getQueryIds = (key: 'dynasty_ids' | 'author_ids'): number[] => {
   const v = route.query[key];
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
   return arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
+};
+
+/**
+ * 函数：清理旧链接中的 tag_ids 参数（replace 导航）
+ * @return {Promise<void>} 无返回值
+ */
+const stripLegacyTagIdsQuery = async (): Promise<void> => {
+  if (typeof route.query.tag_ids === 'undefined') {
+    return;
+  }
+
+  const nextQuery: Record<string, unknown> = { ...route.query };
+  delete nextQuery.tag_ids;
+
+  await navigateTo(
+    {
+      path: route.path,
+      query: nextQuery
+    },
+    {
+      replace: true
+    }
+  );
 };
 
 /**
@@ -429,11 +371,9 @@ const applyListDefaultsFromRoute = (): void => {
   // 选择项：根据 ID 设置默认值（使用缓存或当前选择补全 label）
   const dynasty_ids = getQueryIds('dynasty_ids');
   const author_ids = getQueryIds('author_ids');
-  const tag_ids = getQueryIds('tag_ids');
 
   stateSelectedDynasties.value = mapIdsToSelected(dynasty_ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
   stateSelectedAuthor.value = mapIdsToSelected(author_ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
-  stateSelectedTags.value = mapIdsToSelected(tag_ids, stateSelectedTags.value, stateCacheTagLabelMap.value);
 };
 
 /**
@@ -466,25 +406,6 @@ const applyDynastiesDefaultsFromRoute = (): void => {
   stateSelectedDynasties.value = ids.map((id) => {
     const hitSel = current.find((s) => s.value === id);
     const hitCache = stateCacheDynastyLabelMap.value.get(id);
-    return {
-      label: hitSel?.label ?? hitCache?.label ?? String(id),
-      value: id,
-      count: hitSel?.count ?? hitCache?.count ?? 0
-    };
-  });
-};
-
-/**
- * 函数：标签页——从路由查询参数应用默认值（tags）
- */
-const applyTagsDefaultsFromRoute = (): void => {
-  const v = route.query.tag_ids;
-  const arr = v ? (Array.isArray(v) ? v : [v]) : [];
-  const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
-  const current = stateSelectedTags.value;
-  stateSelectedTags.value = ids.map((id) => {
-    const hitSel = current.find((s) => s.value === id);
-    const hitCache = stateCacheTagLabelMap.value.get(id);
     return {
       label: hitSel?.label ?? hitCache?.label ?? String(id),
       value: id,
@@ -536,27 +457,6 @@ watch(stateAuthorData, (val) => {
 });
 
 /**
- * 监听：标签联想数据变化
- */
-watch(stateTagData, (val) => {
-  const rows = val?.rows ?? [];
-  const newItems = rows.map((r) => ({ label: r.name, value: r.id, count: r.count }));
-  setOriginTags(newItems);
-  stateLoadingTags.value = false;
-  // 缓存：ID→label/count
-  rows.forEach((r) => {
-    stateCacheTagLabelMap.value.set(r.id, { label: r.name, count: r.count });
-  });
-  /**
-   * 同步：用返回数据补全已选项标签
-   */
-  stateSelectedTags.value = stateSelectedTags.value.map((s) => {
-    const hit = rows.find((r) => r.id === s.value);
-    return hit ? { label: hit.name, value: hit.id, count: hit.count } : s;
-  });
-});
-
-/**
  * 监听：朝代关键词变化触发联想请求
  */
 watch(stateKeywordDynasty, () => {
@@ -570,14 +470,6 @@ watch(stateKeywordDynasty, () => {
 watch(stateKeywordAuthor, () => {
   stateLoadingAuthors.value = true;
   refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
-});
-
-/**
- * 监听：标签关键词变化触发联想请求
- */
-watch(stateKeywordTags, () => {
-  stateLoadingTags.value = true;
-  refreshDebouncedTags({ datas: { q: stateKeywordTags.value } });
 });
 
 /**
@@ -608,15 +500,19 @@ watch(
  */
 watch(
   () => route.query,
-  () => {
+  async () => {
+    if (typeof route.query.tag_ids !== 'undefined') {
+      await stripLegacyTagIdsQuery();
+      return;
+    }
+
     // 列表页：仅在模态打开时应用默认值
     if (props.routeIsList) {
       if (stateOpen.value) {
         applyListDefaultsFromRoute();
-        // 刷新联想数据以便补全标签
+        // 刷新联想数据以便补全选择项标签
         refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
         refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
-        refreshDebouncedTags({ datas: { q: stateKeywordTags.value } });
       }
       return;
     }
@@ -628,7 +524,7 @@ watch(
       } else {
         applyDynastiesDefaultsFromRoute();
       }
-      // 刷新联想数据以便补全标签
+      // 刷新联想数据以便补全选择项标签
       refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
       refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
       return;
@@ -636,11 +532,6 @@ watch(
     if (props.routeIsDynasties) {
       applyDynastiesDefaultsFromRoute();
       refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
-      return;
-    }
-    if (props.routeIsTags) {
-      applyTagsDefaultsFromRoute();
-      refreshDebouncedTags({ datas: { q: stateKeywordTags.value } });
       return;
     }
   }
@@ -660,10 +551,8 @@ const handleUpdateOpen = (isOpen: boolean) => {
     }
     stateLoadingDynasties.value = true;
     stateLoadingAuthors.value = true;
-    stateLoadingTags.value = true;
     refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
     refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
-    refreshDebouncedTags({ datas: { q: stateKeywordTags.value } });
   }
 };
 
@@ -682,10 +571,6 @@ const triggerQuickFocus = () => {
   if (props.routeIsDynasties) {
     refDynastyMenu.value?.triggerRef.click();
   }
-
-  if (props.routeIsTags) {
-    refTagMenu.value?.triggerRef.click();
-  }
 };
 
 /**
@@ -702,12 +587,6 @@ const requestDefaultsForCurrentRoute = () => {
   if (props.routeIsDynasties) {
     stateLoadingDynasties.value = true;
     refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
-    return;
-  }
-
-  if (props.routeIsTags) {
-    stateLoadingTags.value = true;
-    refreshDebouncedTags({ datas: { q: stateKeywordTags.value } });
     return;
   }
 };
@@ -740,11 +619,6 @@ const updateRouteQueryForSearch = (): void => {
       query.author_ids = stateSelectedAuthor.value.map((i) => String(i.value));
     }
 
-    // 标签
-    if (stateSelectedTags.value.length > 0) {
-      query.tag_ids = stateSelectedTags.value.map((i) => String(i.value));
-    }
-
     // 匹配方式
     if (stateIsAnd.value) {
       query.is_and = '1';
@@ -760,11 +634,6 @@ const updateRouteQueryForSearch = (): void => {
     // 朝代页：仅 dynasty_ids
     if (stateSelectedDynasties.value.length > 0) {
       query.dynasty_ids = stateSelectedDynasties.value.map((i) => String(i.value));
-    }
-  } else if (props.routeIsTags) {
-    // 标签页：仅 tag_ids
-    if (stateSelectedTags.value.length > 0) {
-      query.tag_ids = stateSelectedTags.value.map((i) => String(i.value));
     }
   }
 
@@ -795,10 +664,8 @@ const handleReset = (): void => {
   stateContent.value = '';
   stateSelectedDynasties.value = [];
   stateSelectedAuthor.value = [];
-  stateSelectedTags.value = [];
   stateKeywordDynasty.value = '';
   stateKeywordAuthor.value = '';
-  stateKeywordTags.value = '';
   stateIsAnd.value = false;
 
   // 自动触发搜索
@@ -825,6 +692,8 @@ onMounted(() => {
   // 加载默认联想数据
   requestDefaultsForCurrentRoute();
 
+  void stripLegacyTagIdsQuery();
+
   // 非列表页：初始化应用默认值
   if (!props.routeIsList) {
     if (props.routeIsAuthors) {
@@ -833,10 +702,6 @@ onMounted(() => {
     }
     if (props.routeIsDynasties) {
       applyDynastiesDefaultsFromRoute();
-      return;
-    }
-    if (props.routeIsTags) {
-      applyTagsDefaultsFromRoute();
       return;
     }
   }

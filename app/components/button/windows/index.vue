@@ -188,7 +188,11 @@ const onClose = () => {
     return;
   }
 
-  void tauriWindow.requestClose();
+  console.info('[ButtonWindows] requestClose called');
+
+  void tauriWindow.requestClose().catch((err) => {
+    console.error('[ButtonWindows] requestClose failed', err);
+  });
 };
 
 /**

@@ -36,11 +36,6 @@ export interface IComponentPropsPoetrysSearch {
    * 当前是否为朝代页路由
    */
   routeIsDynasties: boolean;
-
-  /**
-   * 当前是否为标签页路由
-   */
-  routeIsTags: boolean;
 }
 
 /**
@@ -66,11 +61,6 @@ export interface IComponentEmitsPoetrysSearch {
    * 作者ID列表
    */
   authorId: number[];
-
-  /**
-   * 标签ID列表
-   */
-  tags: number[];
 
   /**
    * 匹配方式（true=全部满足，false=任一满足）

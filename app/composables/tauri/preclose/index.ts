@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 /**
  * 常量：关闭前询问事件名
@@ -24,9 +25,51 @@ export const useTauriPreclose = () => {
    * @returns {Promise<UnlistenFn>} 取消监听函数
    */
   const onAppPreClose = async (handler: () => void): Promise<UnlistenFn> => {
-    return getCurrentWebviewWindow().listen(EVENT_APP_PRE_CLOSE, () => {
-      handler();
-    });
+    // 同时监听 window 域与 app 全局域：Rust 侧可能通过 window.emit 或 app.emit 发出事件。
+    const unlisteners: UnlistenFn[] = [];
+
+    try {
+      const main = WebviewWindow.getByLabel('main');
+      if (main) {
+        unlisteners.push(
+          await main.listen(EVENT_APP_PRE_CLOSE, () => {
+            handler();
+          })
+        );
+      } else {
+        unlisteners.push(
+          await getCurrentWebviewWindow().listen(EVENT_APP_PRE_CLOSE, () => {
+            handler();
+          })
+        );
+      }
+    } catch (err) {
+      console.error('[tauri-preclose] window.listen failed', err);
+    }
+
+    try {
+      unlisteners.push(
+        await listen(EVENT_APP_PRE_CLOSE, () => {
+          handler();
+        })
+      );
+    } catch (err) {
+      console.error('[tauri-preclose] app.listen failed', err);
+    }
+
+    if (unlisteners.length === 0) {
+      throw new Error('[tauri-preclose] no listeners registered');
+    }
+
+    return () => {
+      for (const unlisten of unlisteners) {
+        try {
+          unlisten();
+        } catch {
+          // ignore
+        }
+      }
+    };
   };
 
   /**
