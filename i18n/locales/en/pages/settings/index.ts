@@ -40,8 +40,8 @@ export const settings = {
     },
     devtools: {
       label: 'Developer tools',
-      description: 'Turn developer tools on or off.',
-      toggle: 'Toggle DevTools'
+      description: 'Open developer tools (close it manually in the DevTools window).',
+      toggle: 'Open DevTools'
     },
     multiOpen: {
       label: 'Multiple instances',

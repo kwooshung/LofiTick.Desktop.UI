@@ -9,5 +9,11 @@ export const common = {
   content,
   dialogs,
   labels,
-  site
+  site,
+  toasts: {
+    startupSyncFailed: {
+      title: '開機自啟同步失敗',
+      description: '設定已保存，但同步系統開機自啟失敗：{message}'
+    }
+  }
 };

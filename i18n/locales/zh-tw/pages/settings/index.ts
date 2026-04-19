@@ -40,8 +40,8 @@ export const settings = {
     },
     devtools: {
       label: '開發者工具',
-      description: '開啟或關閉開發者除錯工具。',
-      toggle: '切換 DevTools'
+      description: '開啟開發者除錯工具（關閉請在 DevTools 視窗內手動關閉）。',
+      toggle: '開啟 DevTools'
     },
     multiOpen: {
       label: '允許多重開啟',

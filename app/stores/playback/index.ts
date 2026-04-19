@@ -46,8 +46,19 @@ export const useStorePlayback = defineStore('playback', () => {
   onMounted(async () => {
     const settings = await tauriSettings.get();
     const playback = settings.playback;
+
     if (playback && typeof playback === 'object' && !Array.isArray(playback)) {
-      states.value = playback as IStoresPlayback;
+      const p = playback as Record<string, unknown>;
+      const fade = p.fade && typeof p.fade === 'object' && !Array.isArray(p.fade) ? (p.fade as Record<string, unknown>) : null;
+
+      const startRaw = fade?.start ?? fade?.in;
+      const endRaw = fade?.end ?? fade?.out;
+
+      const start = typeof startRaw === 'number' && Number.isFinite(startRaw) ? startRaw : states.value.fade.start;
+      const end = typeof endRaw === 'number' && Number.isFinite(endRaw) ? endRaw : states.value.fade.end;
+      const lufs = typeof p.lufs === 'number' && Number.isFinite(p.lufs) ? p.lufs : states.value.lufs;
+
+      states.value = { fade: { start, end }, lufs };
     }
 
     // 完成水合，后续用户修改才写回

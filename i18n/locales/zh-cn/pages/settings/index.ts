@@ -40,8 +40,8 @@
     },
     devtools: {
       label: '开发者工具',
-      description: '打开或关闭开发者调试工具',
-      toggle: '打开/关闭开发者工具'
+      description: '打开开发者调试工具（关闭请在 DevTools 窗口内手动关闭）',
+      toggle: '打开开发者工具'
     },
     multiOpen: {
       label: '应用多开',

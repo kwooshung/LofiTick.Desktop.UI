@@ -9,5 +9,11 @@ export const common = {
   content,
   dialogs,
   labels,
-  site
+  site,
+  toasts: {
+    startupSyncFailed: {
+      title: 'Autostart sync failed',
+      description: 'Settings saved, but failed to sync autostart with the system: {message}'
+    }
+  }
 };

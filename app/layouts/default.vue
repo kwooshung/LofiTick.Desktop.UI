@@ -24,6 +24,9 @@
 </template>
 
 <script setup lang="ts">
+import type { UnlistenFn } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event';
+
 /**
  * Store：Toast Api 信息
  */
@@ -45,6 +48,21 @@ const { t } = useI18n();
 const toast = useToast();
 
 /**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * 常量：Tauri 开机自启同步失败事件名
+ */
+const EVENT_STARTUP_SYNC_FAILED = 'startup_sync_failed';
+
+/**
+ * 变量：取消订阅开机自启同步失败事件句柄
+ */
+let unsubscribeStartupSyncFailed: UnlistenFn | null = null;
+
+/**
  * 函数：构建 toast 标题
  * @param {string} code 错误码（HHH-BBB-AAA）
  * @returns {string} 标题
@@ -54,7 +72,7 @@ const toastTitleBuild = (code: string): string => {
   const translated = t(key);
 
   if (translated === key) {
-    return code;
+    return t('errorcodes.defaultTitle');
   }
 
   return translated;
@@ -67,6 +85,10 @@ watch(
   () => storeToastApi.states.key,
   (val, oldVal) => {
     if (val === oldVal) {
+      return;
+    }
+
+    if (storeToastApi.states.enable !== true) {
       return;
     }
 
@@ -102,4 +124,41 @@ watch(
     toast.add(conf);
   }
 );
+
+/**
+ * 生命周期：组件挂载
+ */
+onMounted(async () => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  if (!isTauriRuntime) {
+    return;
+  }
+
+  unsubscribeStartupSyncFailed = await listen<unknown>(EVENT_STARTUP_SYNC_FAILED, (event) => {
+    const payload = event.payload;
+    const src = payload && typeof payload === 'object' && !Array.isArray(payload) ? (payload as Record<string, unknown>) : {};
+    const message = String(src.message ?? '').trim();
+
+    toast.add({
+      title: t('common.toasts.startupSyncFailed.title'),
+      description: t('common.toasts.startupSyncFailed.description', { message: message || '-' }),
+      type: 'background'
+    });
+  });
+});
+
+/**
+ * 生命周期：组件卸载前
+ */
+onBeforeUnmount(() => {
+  if (!unsubscribeStartupSyncFailed) {
+    return;
+  }
+
+  unsubscribeStartupSyncFailed();
+  unsubscribeStartupSyncFailed = null;
+});
 </script>

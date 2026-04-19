@@ -40,8 +40,8 @@ export const settings = {
     },
     devtools: {
       label: '開発者ツール',
-      description: '開発者ツールの表示／非表示を切り替えます。',
-      toggle: 'DevTools を切り替え'
+      description: '開発者ツールを開きます（閉じる場合は DevTools ウィンドウ側で手動で閉じてください）。',
+      toggle: 'DevTools を開く'
     },
     multiOpen: {
       label: '複数起動',

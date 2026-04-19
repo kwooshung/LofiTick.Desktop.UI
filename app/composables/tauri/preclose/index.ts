@@ -29,7 +29,7 @@ export const useTauriPreclose = () => {
     const unlisteners: UnlistenFn[] = [];
 
     try {
-      const main = WebviewWindow.getByLabel('main');
+      const main = await WebviewWindow.getByLabel('main');
       if (main) {
         unlisteners.push(
           await main.listen(EVENT_APP_PRE_CLOSE, () => {

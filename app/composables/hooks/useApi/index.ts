@@ -47,6 +47,16 @@ const toastColorNormalize = (input: unknown): 'neutral' | 'success' | 'info' | '
 };
 
 /**
+ * 常量：错误 Toast 去重窗口（毫秒）。
+ */
+const TOAST_DEDUPE_WINDOW_MS = 3000;
+
+/**
+ * 常量：错误 Toast 去重时间戳缓存。
+ */
+const toastDedupeMsCache: Map<string, number> = new Map();
+
+/**
  * 常量：签名 init 路径。
  */
 const SIGN_INIT_PATH = '/security/sign/init';
@@ -727,19 +737,48 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     ...restOptions,
     headers: headersObj,
     onResponseError(ctx: any) {
-      const raw = ctx.response._data as IApiResponseWrapper<unknown> | undefined;
-      if (raw?.toast?.enable === true) {
-        toastStore.set({
-          key: `toast-api-${Date.now()}-${raw.status.ts ?? ''}`,
-          enable: true,
-          code: statusCodeBuild(raw.status),
-          icon: raw.toast.icon ?? '',
-          color: toastColorNormalize(raw.toast.type),
-          duration: raw.toast.duration ?? 3000,
-          progress: raw.toast.progress ?? false,
-          close: raw.toast.close ?? false
-        });
+      const raw = ctx?.response?._data as IApiResponseWrapper<unknown> | undefined;
+
+      const status = raw?.status as unknown;
+      const code = raw?.status ? statusCodeBuild(status) : `${to3(ctx?.response?.status)}-000-000`;
+
+      const toastSrc = (raw?.toast ?? {}) as Record<string, unknown>;
+      const toastEnableRaw = toastSrc.enable;
+      const toastEnable = toastEnableRaw === false ? false : true;
+
+      if (!toastEnable) {
+        return;
       }
+
+      const nowMs = Date.now();
+      const dedupeKey = `api:${method}:${backendPath}:${code}:${keyHash}`;
+      const lastMs = toastDedupeMsCache.get(dedupeKey) ?? 0;
+
+      if (nowMs - lastMs < TOAST_DEDUPE_WINDOW_MS) {
+        return;
+      }
+
+      toastDedupeMsCache.set(dedupeKey, nowMs);
+      if (toastDedupeMsCache.size > 200) {
+        for (const [k, v] of toastDedupeMsCache) {
+          if (nowMs - v > TOAST_DEDUPE_WINDOW_MS * 2) {
+            toastDedupeMsCache.delete(k);
+          }
+        }
+      }
+
+      const color = toastSrc.type !== undefined ? toastColorNormalize(toastSrc.type) : 'error';
+
+      toastStore.set({
+        key: `toast-api-${Date.now()}-${(raw as any)?.status?.ts ?? ''}`,
+        enable: toastEnable,
+        code,
+        icon: String(toastSrc.icon ?? ''),
+        color,
+        duration: Number.isFinite(Number(toastSrc.duration)) ? Number(toastSrc.duration) : 3000,
+        progress: toastSrc.progress === true,
+        close: toastSrc.close === true
+      });
     },
     key: staticKey
   };
