@@ -259,29 +259,12 @@
             enableDescription: '开启：仅监护直播场景时推荐打开，确保开机后哨兵自动运行，守护场景稳定性',
             disablePrefix: '关闭：若本应用也需常驻运行，则建议关闭，因为已开启 ',
             disableMiddle: ' 模式，开机自启会自动启动本应用，',
-            disableSuffix: ' 随之启动，实现互相监护'
+            disableSuffix: ' 随之启动'
           },
           requestUrl: {
             label: '请求地址',
             description: '监控的状态等信息，需要同步到远程服务器，方便统一协调管理',
             placeholder: 'lofitick.com/api/system/unattended/heartbeat'
-          }
-        }
-      },
-      guard: {
-        title: '警卫',
-        description: '主要配置此软件监护哨兵的相关设置，确保应用的稳定运行和及时响应，从而实现双向监护',
-        actions: {
-          sync: '同步配置',
-          reset: '恢复默认'
-        },
-        form: {
-          enabled: {
-            label: '警卫守护',
-            descriptionPrefix: '将会直接启动 ',
-            descriptionMiddle: ' 监护程序，这样可以 ',
-            and: '和',
-            descriptionSuffix: ' 之间实现互相监护，提升整体稳定性'
           }
         }
       },

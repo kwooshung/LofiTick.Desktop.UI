@@ -256,10 +256,10 @@ export const settings = {
         form: {
           startup: {
             label: 'Launch at startup',
-            enableDescription: 'On: recommended when guarding live streaming scenes so Sentinel starts automatically after boot.',
+            enableDescription: 'On: recommended when monitoring live streaming scenes so Sentinel starts automatically after boot.',
             disablePrefix: 'Off: if this app also needs to stay running, consider turning it off; since ',
             disableMiddle: ' mode is enabled, launch at startup will start this app, and ',
-            disableSuffix: ' will start along with it, providing mutual guarding.'
+            disableSuffix: ' will start along with it.'
           },
           requestUrl: {
             label: 'Request URL',
@@ -268,26 +268,9 @@ export const settings = {
           }
         }
       },
-      guard: {
-        title: 'Guard',
-        description: 'Configure this app to guard Sentinel, improving stability and responsiveness for mutual guarding.',
-        actions: {
-          sync: 'Sync config',
-          reset: 'Reset to defaults'
-        },
-        form: {
-          enabled: {
-            label: 'Guard Sentinel',
-            descriptionPrefix: 'This will directly start the ',
-            descriptionMiddle: ' guarding program, so that ',
-            and: 'and',
-            descriptionSuffix: ' can mutually guard each other and improve overall stability.'
-          }
-        }
-      },
       scenes: {
-        title: 'Scene guard',
-        description: 'Primarily guards live streaming scene apps built with Unreal Engine.'
+        title: 'Scene protection',
+        description: 'Primarily monitors live streaming scene apps built with Unreal Engine.'
       }
     },
     labels: {

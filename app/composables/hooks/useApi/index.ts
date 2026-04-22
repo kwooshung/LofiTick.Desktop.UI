@@ -508,13 +508,26 @@ const ensureSignReady = async (args: { signState: Ref<ISignState>; apiBase: stri
     return;
   }
 
-  // Client：只允许从 cookie 获取（init 必须由 Nuxt server 负责）。
+  // Client：优先尝试从 cookie 获取；若缺失则自动触发一次 init 让代理写入 refresh cookie。
   if (import.meta.client) {
     await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
     if (signState.value.payload) {
       return;
     }
-    throw new Error('sign payload missing (SSR init required)');
+
+    // 走同源 /api 代理请求 sign/init，由代理写入 refresh cookie。
+    const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
+    const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
+    if (cookieName !== '') {
+      signState.value.signBlobCookieName = cookieName;
+    }
+
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+    if (signState.value.payload) {
+      return;
+    }
+
+    throw new Error('sign payload missing');
   }
 
   // 拉取 init（该请求无需签名，代理层会写入 refresh cookie）

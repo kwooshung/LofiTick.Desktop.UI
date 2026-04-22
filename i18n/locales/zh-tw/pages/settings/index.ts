@@ -259,29 +259,12 @@ export const settings = {
             enableDescription: '開啟：僅監護直播場景時建議啟用，確保開機後哨兵自動運行。',
             disablePrefix: '關閉：若本應用也需常駐，建議關閉；因已啟用 ',
             disableMiddle: ' 模式，開機自動啟動會啟動本應用，且 ',
-            disableSuffix: ' 會隨之啟動以實現互相監護。'
+            disableSuffix: ' 會隨之啟動。'
           },
           requestUrl: {
             label: '請求位址',
             description: '監控狀態等資訊需同步到遠端伺服器，方便統一協調管理。',
             placeholder: 'lofitick.com/api/system/unattended/heartbeat'
-          }
-        }
-      },
-      guard: {
-        title: '警衛',
-        description: '配置本軟體監護哨兵的相關設定，確保穩定運行並及時響應，以實現雙向監護。',
-        actions: {
-          sync: '同步設定',
-          reset: '恢復預設'
-        },
-        form: {
-          enabled: {
-            label: '警衛守護',
-            descriptionPrefix: '將會直接啟動 ',
-            descriptionMiddle: ' 監護程式，讓 ',
-            and: '和',
-            descriptionSuffix: ' 之間可以互相監護並提升整體穩定性。'
           }
         }
       },

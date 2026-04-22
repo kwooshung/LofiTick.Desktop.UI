@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-screen w-screen flex-col overflow-hidden">
-    <UnattendedGuardHeartbeatListener />
     <FrameAskCloseMode />
     <main class="relative flex h-dvh w-screen overflow-hidden">
       <DashboardSidebar />

@@ -259,29 +259,12 @@ export const settings = {
             enableDescription: 'オン：配信シーン監護時に推奨。起動後に哨兵が自動起動します。',
             disablePrefix: 'オフ：このアプリも常駐が必要ならオフ推奨。',
             disableMiddle: ' モードが有効なため、自動起動でこのアプリが起動し、',
-            disableSuffix: ' も起動して相互監護します。'
+            disableSuffix: ' も起動します。'
           },
           requestUrl: {
             label: 'リクエストURL',
             description: '状態などの情報をリモートサーバーに同期して集中管理します。',
             placeholder: 'lofitick.com/api/system/unattended/heartbeat'
-          }
-        }
-      },
-      guard: {
-        title: '警衛',
-        description: 'このアプリが哨兵を監護するための設定で、相互監護により安定性を高めます。',
-        actions: {
-          sync: '設定を同期',
-          reset: '既定に戻す'
-        },
-        form: {
-          enabled: {
-            label: '警衛監護',
-            descriptionPrefix: 'これをオンにすると ',
-            descriptionMiddle: ' の監護プログラムが起動し、',
-            and: 'と',
-            descriptionSuffix: ' が相互監護できるようになります。'
           }
         }
       },

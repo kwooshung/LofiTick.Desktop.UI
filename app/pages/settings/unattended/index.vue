@@ -177,39 +177,6 @@
       <SentinelConfig ref="refSentinelConfig" @analysis-change="handleSentinelConfigChanged" />
     </UPageCard>
 
-    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
-      <template #header>
-        <div class="flex-1">
-          <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.guard.title') }}</div>
-          <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.guard.description') }}</div>
-        </div>
-        <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleGuardSync">{{ t('pages.settings.unattended.sections.guard.actions.sync') }}</UButton>
-        <UButton color="primary" variant="soft" icon="i-mdi:reload" loading-auto @click="handleGuardResetToDefaults">{{ t('pages.settings.unattended.sections.guard.actions.reset') }}</UButton>
-        <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'p-4 w-80' }">
-          <UButton color="primary" variant="outline" icon="i-lucide:calculator">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
-
-          <template #content>
-            <ReuseAnalysisDurationPopoverContent :analysis="computedGuardAnalysis" />
-          </template>
-        </UPopover>
-      </template>
-    </UPageCard>
-    <UPageCard variant="outline" :ui="{ root: 'mb-10', header: 'mb-0 flex w-full items-center' }">
-      <UFormField :label="t('pages.settings.unattended.sections.guard.form.enabled.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #description>
-          {{ t('pages.settings.unattended.sections.guard.form.enabled.descriptionPrefix') }}
-          <UBadge variant="soft">{{ t('pages.settings.unattended.sections.sentinel.title') }}</UBadge>
-          {{ t('pages.settings.unattended.sections.guard.form.enabled.descriptionMiddle') }}
-          <UBadge color="success" variant="soft">{{ t('pages.settings.unattended.sections.sentinel.title') }}</UBadge>
-          {{ t('pages.settings.unattended.sections.guard.form.enabled.and') }}
-          <UBadge color="secondary" variant="soft">{{ t('pages.settings.unattended.labels.thisApp') }}</UBadge>
-          {{ t('pages.settings.unattended.sections.guard.form.enabled.descriptionSuffix') }}
-        </template>
-        <USwitch v-model="stateGuardEnabled" />
-      </UFormField>
-      <SentinelConfig ref="refGuardConfig" @analysis-change="handleGuardConfigChanged" />
-    </UPageCard>
-
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3', body: 'pb-15', footer: 'absolute bottom-0 w-full' }">
       <template #header>
         <div class="flex-1">
@@ -276,7 +243,7 @@
 <script setup lang="ts">
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
-import type { IPageSettingsUnattendedMachineNetworkSnapshot, IPageSettingsUnattendedScenesItem, ISettingsUnattended, ISettingsUnattendedGuard, ISettingsUnattendedSentinel, TUnattendedStartBehavior } from '@@/shared/types/pages/settings/unattended/index.types';
+import type { IPageSettingsUnattendedMachineNetworkSnapshot, IPageSettingsUnattendedScenesItem, ISettingsUnattended, ISettingsUnattendedSentinel, TUnattendedStartBehavior } from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * Hook：i18n
@@ -423,11 +390,6 @@ const computedMachineCodeConsistent = computed(() => {
 const stateSentinelStartUp = ref(false);
 
 /**
- * 状态：警卫是否启用（unattended.guard.enabled）
- */
-const stateGuardEnabled = ref(false);
-
-/**
  * 状态：请求地址（协议 + 主体）
  */
 const stateRequestProtocol = ref<'http' | 'https'>('https');
@@ -456,19 +418,9 @@ const stateHydrated = ref(false);
 const refSentinelConfig = ref<ISentinelConfigExpose | null>(null);
 
 /**
- * 组件：警卫配置表单实例
- */
-const refGuardConfig = ref<ISentinelConfigExpose | null>(null);
-
-/**
  * 计算属性：哨兵配置分析结果
  */
 const computedSentinelAnalysis = computed(() => refSentinelConfig.value?.analysisGet() ?? null);
-
-/**
- * 计算属性：警卫配置分析结果
- */
-const computedGuardAnalysis = computed(() => refGuardConfig.value?.analysisGet() ?? null);
 
 /**
  * API：哨兵配置（GET / PATCH）
@@ -481,13 +433,6 @@ const { refresh: refreshSentinelRemotePatch } = await useApi<IPageSettingsUnatte
  * API：哨兵请求地址默认值（GET）
  */
 const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUrlDefaultGet } = await useApi<IPageSettingsUnattendedSentinelRequestUrlApi>('desktop/settings/unattended/sentinel/request-url');
-
-/**
- * API：警卫配置（GET / PATCH）
- * 描述：用于跨设备同步警卫配置。
- */
-const { datas: stateGuardRemote, refresh: refreshGuardRemoteGet } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('desktop/settings/unattended/guard');
-const { refresh: refreshGuardRemotePatch } = await useApi<IPageSettingsUnattendedGuardRedisConfig>('desktop/settings/unattended/guard', { method: 'PATCH' });
 
 /**
  * API：场景配置（GET / PATCH）
@@ -581,40 +526,6 @@ const unattendedSentinelPickForPersist = (input: unknown): ISettingsUnattendedSe
 };
 
 /**
- * 工具：裁剪警卫配置（写入设置前，确保不含任何额外字段）
- * @param {unknown} input 输入对象
- * @returns {ISettingsUnattendedGuard|null} 裁剪后的配置
- */
-const unattendedGuardPickForPersist = (input: unknown): ISettingsUnattendedGuard | null => {
-  const src = toRecord(input);
-  if (!src) {
-    return null;
-  }
-
-  const heartbeat = toRecord(src.heartbeat);
-  const restart = toRecord(src.restart);
-  const burst = restart ? toRecord(restart.burst) : null;
-
-  return {
-    enabled: Boolean(src.enabled),
-    heartbeat: {
-      interval: toSafeNumber(heartbeat?.interval),
-      timeoutCount: toSafeNumber(heartbeat?.timeoutCount)
-    },
-    restart: {
-      delay: toSafeNumber(restart?.delay),
-      cooldown: toSafeNumber(restart?.cooldown),
-      maxAttempts: toSafeNumber(restart?.maxAttempts),
-      burst: {
-        window: toSafeNumber(burst?.window),
-        cooldown: toSafeNumber(burst?.cooldown),
-        maxAttempts: toSafeNumber(burst?.maxAttempts)
-      }
-    }
-  };
-};
-
-/**
  * 工具：裁剪无人值守配置（写入设置前，确保不含任何额外字段）
  * @param {unknown} input 输入对象
  * @returns {ISettingsUnattended|null} 裁剪后的配置
@@ -628,8 +539,7 @@ const unattendedPickForPersist = (input: unknown): ISettingsUnattended | null =>
   const start = toRecord(src.start);
 
   const sentinel = unattendedSentinelPickForPersist(src.sentinel);
-  const guard = unattendedGuardPickForPersist(src.guard);
-  if (!sentinel || !guard) {
+  if (!sentinel) {
     return null;
   }
 
@@ -639,8 +549,7 @@ const unattendedPickForPersist = (input: unknown): ISettingsUnattended | null =>
       up: Boolean(start?.up),
       behaviors: toUnattendedStartBehavior(start?.behaviors)
     },
-    sentinel,
-    guard
+    sentinel
   };
 };
 
@@ -667,10 +576,10 @@ const requestUrlSplit = (url: string) => {
 
 /**
  * 工具：把持久化配置映射为 SentinelConfig overrides
- * @param {ISettingsUnattendedSentinel|ISettingsUnattendedGuard} settingsConfig 持久化配置
+ * @param {ISettingsUnattendedSentinel} settingsConfig 持久化配置
  * @returns {Record<string,unknown>} overrides
  */
-const sentinelOverridesFromSettings = (settingsConfig: ISettingsUnattendedSentinel | ISettingsUnattendedGuard): Record<string, unknown> => {
+const sentinelOverridesFromSettings = (settingsConfig: ISettingsUnattendedSentinel): Record<string, unknown> => {
   return {
     heartbeatInterval: settingsConfig.heartbeat.interval,
     heartbeatTimeoutCount: settingsConfig.heartbeat.timeoutCount,
@@ -737,7 +646,6 @@ onMounted(async () => {
   const unattendedStart = toRecord(unattended.start) ?? {};
   const unattendedSentinel = toRecord(unattended.sentinel) ?? {};
   const unattendedSentinelRequest = toRecord(unattendedSentinel.request) ?? {};
-  const unattendedGuard = toRecord(unattended.guard) ?? {};
 
   const machineName = String(machine.name || '').trim();
   stateMachineName.value = machineName;
@@ -750,7 +658,6 @@ onMounted(async () => {
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
   stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
   stateSentinelStartUp.value = Boolean(unattendedStart.up);
-  stateGuardEnabled.value = Boolean(unattendedGuard.enabled);
 
   stateStartBehaviors.value = toUnattendedStartBehavior(unattendedStart.behaviors) || stateStartBehaviors.value;
 
@@ -776,9 +683,6 @@ onMounted(async () => {
 
   if (Object.keys(unattendedSentinel).length > 0) {
     refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(unattendedSentinel as unknown as ISettingsUnattendedSentinel));
-  }
-  if (Object.keys(unattendedGuard).length > 0) {
-    refGuardConfig.value?.resetToOverrides(sentinelOverridesFromSettings(unattendedGuard as unknown as ISettingsUnattendedGuard));
   }
 
   stateHydrated.value = true;
@@ -974,29 +878,12 @@ const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
 };
 
 /**
- * 工具：从 UI 构建警卫配置
- * @returns {ISettingsUnattendedGuard|null} 警卫配置
- */
-const buildGuardConfigFromUi = (): ISettingsUnattendedGuard | null => {
-  const heart = heartbeatRestartFromRef(refGuardConfig.value);
-  if (!heart) {
-    return null;
-  }
-
-  return {
-    enabled: stateGuardEnabled.value,
-    ...heart
-  };
-};
-
-/**
  * 工具：从 UI 构建无人值守配置
  * @returns {ISettingsUnattended|null} 无人值守配置
  */
 const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
   const sentinel = buildSentinelConfigFromUi();
-  const guard = buildGuardConfigFromUi();
-  if (!sentinel || !guard) {
+  if (!sentinel) {
     return null;
   }
 
@@ -1006,8 +893,7 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
       up: stateSentinelStartUp.value,
       behaviors: stateStartBehaviors.value
     },
-    sentinel,
-    guard
+    sentinel
   };
 };
 
@@ -1025,22 +911,6 @@ const buildSentinelRedisConfigFromUi = (): IPageSettingsUnattendedSentinelRedisC
     request: {
       url: computedRequestUrl.value
     },
-    ...heart
-  };
-};
-
-/**
- * 工具：从 UI 构建警卫 Redis 配置（用于写回 Redis）
- * @returns {IPageSettingsUnattendedGuardRedisConfig|null} 警卫配置
- */
-const buildGuardRedisConfigFromUi = (): IPageSettingsUnattendedGuardRedisConfig | null => {
-  const heart = heartbeatRestartFromRef(refGuardConfig.value);
-  if (!heart) {
-    return null;
-  }
-
-  return {
-    enabled: stateGuardEnabled.value,
     ...heart
   };
 };
@@ -1119,44 +989,10 @@ const persistSentinelToRedis = async (): Promise<void> => {
 };
 
 /**
- * 函数：写回 Redis（警卫）
- * 描述：用于任意配置变化后动态同步到远程（UI -> Redis）。
- */
-const persistGuardToRedis = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-  if (!stateHydrated.value) {
-    return;
-  }
-  if (statePersistMuted.value) {
-    return;
-  }
-
-  const guard = buildGuardRedisConfigFromUi();
-  if (!guard) {
-    return;
-  }
-
-  await refreshGuardRemotePatch({
-    body: {
-      datas: guard as unknown as Record<string, unknown>
-    }
-  });
-};
-
-/**
  * 函数：写回 Redis（哨兵，防抖）
  */
 const persistSentinelToRedisDebounced = useDebounceFn(() => {
   void persistSentinelToRedis();
-}, 300);
-
-/**
- * 函数：写回 Redis（警卫，防抖）
- */
-const persistGuardToRedisDebounced = useDebounceFn(() => {
-  void persistGuardToRedis();
 }, 300);
 
 /**
@@ -1174,23 +1010,9 @@ const handleSentinelConfigChanged = (): void => {
 };
 
 /**
- * 事件：警卫表单内部配置变化
- */
-const handleGuardConfigChanged = (): void => {
-  if (!stateHydrated.value) {
-    return;
-  }
-  if (statePersistMuted.value) {
-    return;
-  }
-  persistToSettingsDebounced();
-  persistGuardToRedisDebounced();
-};
-
-/**
  * 监听：页面任意配置项变化即写回设置
  */
-watch([stateStartBehaviors, stateSentinelStartUp, stateGuardEnabled, stateRequestProtocol, stateRequestHost], () => {
+watch([stateStartBehaviors, stateSentinelStartUp, stateRequestProtocol, stateRequestHost], () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1274,44 +1096,6 @@ const handleSentinelSync = async () => {
 };
 
 /**
- * 事件：同步警卫配置（Redis -> UI）
- */
-const handleGuardSync = async () => {
-  if (!import.meta.client) {
-    return;
-  }
-  if (!isTauriRuntime) {
-    return;
-  }
-
-  statePersistMuted.value = true;
-  try {
-    await refreshGuardRemoteGet();
-
-    const remote = stateGuardRemote.value;
-    if (!remote) {
-      return;
-    }
-
-    stateGuardEnabled.value = Boolean((remote as unknown as IPageSettingsUnattendedGuardRedisConfig)?.enabled);
-    refGuardConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));
-
-    await nextTick();
-
-    const guardPersist = unattendedGuardPickForPersist(remote);
-    if (!guardPersist) {
-      return;
-    }
-
-    await settingsUpdate({ unattended: { guard: guardPersist } });
-  } finally {
-    statePersistMuted.value = false;
-  }
-
-  await persistToSettings();
-};
-
-/**
  * 事件：哨兵配置恢复默认（仅 SentinelConfig）
  */
 const handleSentinelResetToDefaults = async (): Promise<void> => {
@@ -1332,29 +1116,6 @@ const handleSentinelResetToDefaults = async (): Promise<void> => {
 
   await persistToSettings();
   await persistSentinelToRedis();
-};
-
-/**
- * 事件：警卫配置恢复默认（仅 SentinelConfig）
- */
-const handleGuardResetToDefaults = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-  if (!stateHydrated.value) {
-    return;
-  }
-
-  statePersistMuted.value = true;
-  try {
-    refGuardConfig.value?.resetToDefaults();
-    await nextTick();
-  } finally {
-    statePersistMuted.value = false;
-  }
-
-  await persistToSettings();
-  await persistGuardToRedis();
 };
 
 /**

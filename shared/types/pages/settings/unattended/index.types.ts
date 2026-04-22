@@ -94,26 +94,6 @@ export interface ISettingsUnattendedSentinel {
 }
 
 /**
- * 接口：无人值守-警卫配置
- */
-export interface ISettingsUnattendedGuard {
-  /**
-   * 是否启用
-   */
-  enabled: boolean;
-
-  /**
-   * 心跳配置
-   */
-  heartbeat: ISettingsUnattendedHeartbeat;
-
-  /**
-   * 重启配置
-   */
-  restart: ISettingsUnattendedRestart;
-}
-
-/**
  * 接口：无人值守-启动配置
  */
 export interface ISettingsUnattendedStart {
@@ -146,11 +126,6 @@ export interface ISettingsUnattended {
    * 哨兵配置
    */
   sentinel: ISettingsUnattendedSentinel;
-
-  /**
-   * 警卫配置
-   */
-  guard: ISettingsUnattendedGuard;
 }
 
 /**
