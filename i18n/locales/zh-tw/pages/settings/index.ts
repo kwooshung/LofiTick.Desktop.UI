@@ -232,14 +232,6 @@ export const settings = {
         label: '機器碼',
         description: '每台電腦的機器碼皆為唯一，用於區分不同裝置'
       },
-      machineUuid: {
-        label: '機器 UUID',
-        description: '每台電腦的 UUID 皆為唯一，用於識別裝置身分'
-      },
-      machineFingerprint: {
-        label: '機器指紋',
-        description: '用於識別系統環境的指紋雜湊，可能隨硬體變化'
-      },
       machineCodeConsistent: {
         label: '機器碼一致',
         description: '為空或一致表示未發生變更'

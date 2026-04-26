@@ -94,11 +94,6 @@ export interface ISentinelScenesConfigProps {
   machineName?: string;
 
   /**
-   * 机器 UUID（只读）
-   */
-  machineUuid?: string;
-
-  /**
    * 场景名称（初始值）
    */
   sceneName?: string;

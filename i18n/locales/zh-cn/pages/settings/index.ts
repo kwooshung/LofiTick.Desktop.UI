@@ -232,14 +232,6 @@
         label: '机器代码',
         description: '每个电脑的机器代码都是唯一的，用于区分不同的电脑，方便管理'
       },
-      machineUuid: {
-        label: '机器 UUID',
-        description: '每个电脑的 UUID 都是唯一的，用于标识设备身份'
-      },
-      machineFingerprint: {
-        label: '机器指纹',
-        description: '用于标识系统环境的指纹哈希，可能随硬件变化'
-      },
       machineCodeConsistent: {
         label: '机器码一致',
         description: '为空或一致表示未发生变更'

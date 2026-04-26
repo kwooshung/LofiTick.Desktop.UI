@@ -13,6 +13,8 @@ import ConsoleBadge from '@kwooshung/console-badge';
 import { en, ja, zh_cn, zh_tw } from '@nuxt/ui/locale';
 import colors from 'tailwindcss/colors';
 
+import type { IPageSettingsUnattendedMachineNetworkGroups, IPageSettingsUnattendedMachineNetworkSnapshot, IPageSettingsUnattendedScenesMachineRedisConfig } from '@@/shared/types/pages/settings/unattended/index.types';
+
 /**
  * 常量：支持的语言
  */
@@ -65,6 +67,128 @@ const computedBlackAsPrimary = computed(() => (appConfig.theme.blackAsPrimary ? 
  * Store：应用信息
  */
 const storeAppInfo = useStoreAppInfo();
+
+/**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 设置
+ */
+const { get: settingsGet, machineNetworkGet, machineHostnameGet } = useTauriSettings();
+
+/**
+ * API：场景配置（PATCH）
+ * 描述：用于启动时静默上报本机网络信息。
+ */
+const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
+
+/**
+ * 状态：启动静默上报是否已执行
+ */
+const stateUnattendedStartupReported = useState<boolean>('unattended-startup-reported', () => false);
+
+/**
+ * 工具：转为普通对象
+ * @param {unknown} input 输入
+ * @returns {Record<string, unknown> | null} 对象
+ */
+const toRecord = (input: unknown): Record<string, unknown> | null => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return null;
+  }
+  return input as Record<string, unknown>;
+};
+
+/**
+ * 工具：网络快照转为分组结构
+ * @param {IPageSettingsUnattendedMachineNetworkSnapshot | null} snapshot 网络快照
+ * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
+ */
+const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetworkSnapshot | null): IPageSettingsUnattendedMachineNetworkGroups => {
+  const interfaces = Array.isArray(snapshot?.interfaces) ? snapshot!.interfaces : [];
+  const groups = interfaces
+    .map((iface) => {
+      const name = String(iface?.name ?? '').trim() || '-';
+      const ips = Array.isArray(iface?.ips) ? iface.ips : [];
+
+      const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+
+      const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
+
+      return { name, ipv4, ipv6 };
+    })
+    .filter((g) => g.ipv4.length > 0 || g.ipv6.length > 0);
+
+  return { groups };
+};
+
+/**
+ * 函数：应用启动后静默上报一次本机网络
+ * 描述：仅在 Tauri 运行时触发；失败吞掉，不打断 UI。
+ */
+const unattendedStartupReportOnce = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!isTauriRuntime.value) {
+    return;
+  }
+  if (stateUnattendedStartupReported.value) {
+    return;
+  }
+
+  stateUnattendedStartupReported.value = true;
+
+  let settings: Record<string, unknown> = {};
+  try {
+    settings = await settingsGet();
+  } catch {
+    return;
+  }
+
+  const machine = toRecord(settings.machine) ?? {};
+  const machineCode = String(machine.code ?? '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  let machineName = String(machine.name ?? '').trim();
+  if (!machineName) {
+    try {
+      machineName = String(await machineHostnameGet()).trim();
+    } catch {
+      // ignore
+    }
+  }
+
+  let snapshot: IPageSettingsUnattendedMachineNetworkSnapshot | null = null;
+  try {
+    snapshot = await machineNetworkGet();
+  } catch {
+    // ignore
+  }
+
+  const network = networkSnapshotToGroups(snapshot);
+
+  try {
+    await refreshScenesRemotePatch({
+      query: { machineCode },
+      body: {
+        datas: {
+          machineName,
+          machineCode,
+          network
+        }
+      },
+      ignoreResponseError: true
+    });
+  } catch {
+    // ignore
+  }
+};
 
 /**
  * 监听：语言代码变化，更新 dayjs 语言
@@ -147,6 +271,8 @@ useHead({
  */
 onMounted(() => {
   loadSettings();
+
+  void unattendedStartupReportOnce();
 
   if (!storeAppInfo.states.isDev) {
     console.clear();

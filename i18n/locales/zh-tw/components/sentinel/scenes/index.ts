@@ -4,7 +4,6 @@ export const scenes = {
   labels: {
     machineName: '機器名稱',
     machineId: '機器碼',
-    machineUuid: '機器 UUID',
     sceneName: '場景名稱',
     execPath: '程式路徑',
     args: '啟動參數'
@@ -12,7 +11,6 @@ export const scenes = {
   desc: {
     machineName: '與機器碼共同用於區分不同電腦，避免管理混亂',
     machineId: '唯一標識一台電腦，用於判斷程式路徑是否允許編輯',
-    machineUuid: '用於跨裝置識別同一台電腦',
     sceneName: '用於識別被守護的 UE5 場景應用',
     execPath: 'UE5 場景應用可執行檔路徑（必填）',
     args: '一行一個參數，將按順序傳入啟動命令'

@@ -228,11 +228,6 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
   machineName: string;
 
   /**
-   * 机器 UUID
-   */
-  machineUuid: string;
-
-  /**
    * 机器码
    */
   machineCode: string;

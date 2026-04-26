@@ -51,5 +51,13 @@ export const useTauriSettings = () => {
     return invoke<{ interfaces: Array<{ name: string; ips: string[] }> }>('settings_machine_network_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet };
+  /**
+   * 函数：获取本机默认计算机名称
+   * @returns {Promise<string>} 计算机名称（失败或不可用时为空字符串）
+   */
+  const machineHostnameGet = async (): Promise<string> => {
+    return invoke<string>('settings_machine_hostname_get');
+  };
+
+  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet };
 };

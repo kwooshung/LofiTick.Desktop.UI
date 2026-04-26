@@ -308,6 +308,105 @@ const isSignBootstrapPath = (backendPath: string): boolean => {
 };
 
 /**
+ * 函数：拆分路径与查询串（并忽略 hash）。
+ * @param {string} input 原始路径
+ * @return {{ pathOnly: string; search: string }} 仅路径与查询串
+ */
+const splitPathAndSearch = (input: string): { pathOnly: string; search: string } => {
+  const raw = String(input ?? '');
+
+  const hashIndex = raw.indexOf('#');
+  const noHash = hashIndex >= 0 ? raw.slice(0, hashIndex) : raw;
+
+  const queryIndex = noHash.indexOf('?');
+  if (queryIndex < 0) {
+    return { pathOnly: noHash, search: '' };
+  }
+
+  const pathOnly = noHash.slice(0, queryIndex);
+  const search = noHash.slice(queryIndex);
+  return { pathOnly, search };
+};
+
+/**
+ * 函数：将查询串解析为对象（支持重复 key 形成数组）。
+ * @param {string} search 查询串（可带 ?）
+ * @return {Record<string, unknown>} 参数对象
+ */
+const toParamsObjectFromSearch = (search: string): Record<string, unknown> => {
+  const s = String(search ?? '').trim();
+  if (s === '') {
+    return {};
+  }
+
+  const qs = s.startsWith('?') ? s.slice(1) : s;
+  if (qs === '') {
+    return {};
+  }
+
+  const params = new URLSearchParams(qs);
+  const out: Record<string, unknown> = {};
+
+  for (const [k, v] of params.entries()) {
+    const key = String(k ?? '');
+    const val = String(v ?? '');
+    if (key === '') {
+      continue;
+    }
+
+    const existing = out[key];
+    if (existing === undefined) {
+      out[key] = val;
+      continue;
+    }
+
+    if (Array.isArray(existing)) {
+      existing.push(val);
+      continue;
+    }
+
+    out[key] = [String(existing), val];
+  }
+
+  return out;
+};
+
+/**
+ * 函数：将 query/body 归一为可签名对象。
+ * @param {unknown} input 输入
+ * @return {Record<string, unknown>} 对象
+ */
+const toParamsObjectForSignature = (input: unknown): Record<string, unknown> => {
+  if (input == null) {
+    return {};
+  }
+
+  if (input instanceof URLSearchParams) {
+    return toParamsObjectFromSearch(input.toString());
+  }
+
+  if (typeof input === 'string') {
+    const s = input.trim();
+    if (s === '') {
+      return {};
+    }
+
+    // 仅当看起来像 querystring 时才解析，避免误把普通字符串当作参数表。
+    if (s.includes('=') || s.includes('&')) {
+      return toParamsObjectFromSearch(s);
+    }
+
+    return {};
+  }
+
+  if (typeof input === 'object' && !Array.isArray(input)) {
+    return omitUndefined(input);
+  }
+
+  return {};
+};
+
+/**
  * 函数：规范化为后端路径（去掉 /api 前缀）。
  * @param {string} input 原始路径
  * @return {string} 后端路径
@@ -321,6 +420,264 @@ const toBackendPath = (input: string): string => {
     return p.slice('/api'.length);
   }
   return p;
+};
+
+/**
+ * 函数：映射签名用后端路径（对齐后端 SecurityLayer 实际看到的 path）。
+ *
+ * 后端对部分路由组使用 Axum `nest(prefix, router.route_layer(SecurityLayer))` 的挂载方式。
+ * 在该结构下，`SecurityLayer` 参与签名校验时读取到的 `uri.path()` 会剥离 `prefix`，
+ * 因此前端计算签名时必须使用“剥离后的 path”，否则会出现 `SIGN_MISMATCH`。
+ *
+ * # Arguments
+ *
+ * - `backendPath`：去掉 `/api` 前缀后的后端路径。
+ *
+ * # Returns
+ *
+ * 返回用于签名计算的后端路径。
+ */
+const toBackendPathForSignature = (backendPath: string): string => {
+  const p0 = String(backendPath ?? '').trim();
+  const p = p0 === '' ? '/' : p0.startsWith('/') ? p0 : `/${p0}`;
+
+  const prefixes = ['/desktop', '/crons', '/live'] as const;
+  for (const prefix of prefixes) {
+    if (p === prefix) {
+      return '/';
+    }
+    if (p.startsWith(`${prefix}/`)) {
+      return p.slice(prefix.length);
+    }
+  }
+
+  return p;
+};
+
+/**
+ * 函数：归一化签名参数 key（对齐后端 RequestParams）。
+ * @param {string} key 原始 key
+ * @return {string} 归一化后的 key
+ */
+const normalizeSignatureKey = (key: string): string => {
+  let out = '';
+  let upperNext = false;
+
+  for (const chRaw of String(key ?? '')) {
+    if (chRaw === '_' || chRaw === '-') {
+      upperNext = true;
+      continue;
+    }
+
+    const ch = chRaw.toLowerCase();
+    if (upperNext) {
+      out += ch.toUpperCase();
+      upperNext = false;
+    } else {
+      out += ch;
+    }
+  }
+
+  return out;
+};
+
+/**
+ * 函数：将字符串尝试转换为“可逆的数字”。
+ * @param {string} input 字符串
+ * @return {number | null} 数字或 null
+ */
+const toCanonicalNumberOrNull = (input: string): number | null => {
+  const trimmed = String(input ?? '').trim();
+  if (trimmed === '') {
+    return null;
+  }
+
+  const num = Number(trimmed);
+  if (!Number.isFinite(num)) {
+    return null;
+  }
+
+  // 对齐后端：仅当 trimmed 与 String(Number(trimmed)) 一致时才允许数字化（特别是 -0）
+  const canon = num === 0 ? '0' : String(num);
+  if (canon !== trimmed) {
+    return null;
+  }
+
+  return num;
+};
+
+/**
+ * 函数：字符串布尔值归一（对齐后端 convert_boolean）。
+ * @param {string} input 字符串
+ * @return {boolean | null} 布尔或 null
+ */
+const toCanonicalBooleanOrNull = (input: string): boolean | null => {
+  const lower = String(input ?? '')
+    .trim()
+    .toLowerCase();
+
+  if (lower === 'true' || lower === 'yes' || lower === 'y' || lower === 'on') {
+    return true;
+  }
+  if (lower === 'false' || lower === 'no' || lower === 'n' || lower === 'off') {
+    return false;
+  }
+
+  return null;
+};
+
+/**
+ * 函数：将任意值转换为“用于签名的 JS 字符串表示”。
+ * @param {object} args 参数
+ * @param {string} args.key 归一化后的 key
+ * @param {unknown} args.value 原始值
+ * @return {string | null} 签名字符串（null 表示缺失）
+ */
+const toSignatureJsStringOrNull = (args: { key: string; value: unknown }): string | null => {
+  const keyLower = String(args.key ?? '').toLowerCase();
+  const v = args.value;
+
+  if (v === undefined) {
+    return null;
+  }
+  if (v === null) {
+    // 对齐后端：顶层 null 视为缺失（RequestParams: Value::Null => None）
+    return null;
+  }
+
+  // Array：对齐后端 json_to_js_string：逐项转换后用逗号拼接；单元素数组按标量处理
+  if (Array.isArray(v)) {
+    if (v.length === 0) {
+      return '';
+    }
+    if (v.length === 1) {
+      return toSignatureJsStringOrNull({ key: args.key, value: v[0] });
+    }
+
+    // 对齐后端：数组元素仅做数字化（可逆）与原样字符串化；不做布尔字符串归一与 page/pageSize clamp。
+    const toArrayElementString = (it: unknown): string => {
+      if (it === undefined) {
+        return '';
+      }
+      if (it === null) {
+        return 'null';
+      }
+      if (typeof it === 'boolean') {
+        return it ? 'true' : 'false';
+      }
+      if (typeof it === 'number' && Number.isFinite(it)) {
+        return String(it);
+      }
+      if (typeof it === 'string') {
+        const num = toCanonicalNumberOrNull(it);
+        if (num !== null) {
+          return String(num);
+        }
+        return it;
+      }
+      if (typeof it === 'object') {
+        return '[object Object]';
+      }
+      return String(it);
+    };
+
+    return v.map(toArrayElementString).join(',');
+  }
+
+  // Boolean
+  if (typeof v === 'boolean') {
+    return v ? 'true' : 'false';
+  }
+
+  // Number：对齐后端 clamp 逻辑（page/pageSize）
+  if (typeof v === 'number' && Number.isFinite(v)) {
+    let num = v;
+    if (keyLower === 'page' && num < 1) {
+      num = 1;
+    }
+    if (keyLower === 'pagesize') {
+      num = Math.min(100, Math.max(1, num));
+    }
+    if (Number.isInteger(num)) {
+      return String(num);
+    }
+    return String(num);
+  }
+
+  // String：对齐后端：trim + 空字符串视为缺失 + 布尔字符串归一 + page/pageSize 数字化与 clamp
+  if (typeof v === 'string') {
+    const trimmed = v.trim();
+    if (trimmed === '') {
+      return null;
+    }
+
+    // 对齐后端：标量字符串包含逗号时按数组规则拆分（trim、过滤空项、元素仅做可逆数字化）。
+    if (trimmed.includes(',')) {
+      const parts = trimmed
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s !== '')
+        .map((s) => {
+          const num = toCanonicalNumberOrNull(s);
+          return num !== null ? String(num) : s;
+        });
+
+      return parts.join(',');
+    }
+
+    const b = toCanonicalBooleanOrNull(trimmed);
+    if (b !== null) {
+      return b ? 'true' : 'false';
+    }
+
+    if (keyLower === 'page' || keyLower === 'pagesize') {
+      const num = toCanonicalNumberOrNull(trimmed);
+      if (num !== null) {
+        let out = num;
+        if (keyLower === 'page' && out < 1) {
+          out = 1;
+        }
+        if (keyLower === 'pagesize') {
+          out = Math.min(100, Math.max(1, out));
+        }
+        if (Number.isInteger(out)) {
+          return String(out);
+        }
+        return String(out);
+      }
+    }
+
+    return trimmed;
+  }
+
+  // Object：对齐后端：固定返回 "[object Object]"
+  if (typeof v === 'object') {
+    return '[object Object]';
+  }
+
+  return String(v);
+};
+
+/**
+ * 函数：写入签名用 canonical 参数（后写覆盖先写）。
+ * @param {object} args 参数
+ * @param {Record<string, string>} args.out 输出表
+ * @param {string} args.key 参数 key
+ * @param {unknown} args.value 参数值
+ * @return {void} 无返回
+ */
+const upsertSignatureParam = (args: { out: Record<string, string>; key: string; value: unknown }): void => {
+  const keyNorm = normalizeSignatureKey(args.key);
+  if (keyNorm === '' || keyNorm === 'nonce' || keyNorm === 'sign') {
+    return;
+  }
+
+  const val = toSignatureJsStringOrNull({ key: keyNorm, value: args.value });
+  if (val === null) {
+    return;
+  }
+
+  args.out[keyNorm] = val;
 };
 
 /**
@@ -359,6 +716,46 @@ const shouldRefreshOnStatus = (status: unknown): boolean => {
     return true;
   }
   return false;
+};
+
+/**
+ * 函数：是否需要触发条件3 的 CSRF 自愈。
+ * @param {unknown} status 服务端 status
+ * @return {boolean} 是否需要重新下发 CSRF token
+ */
+const shouldReinitCsrfOnStatus = (status: unknown): boolean => {
+  const s = (status ?? {}) as Record<string, unknown>;
+  const biz = Number(s.biz ?? -1);
+  const aim = Number(s.aim ?? -1);
+
+  // 800 = Security, 60/61/62 = CSRF cookie/header/mismatch
+  if (biz === 800 && (aim === 60 || aim === 61 || aim === 62)) {
+    return true;
+  }
+  return false;
+};
+
+/**
+ * 函数：从 useFetch error 中提取服务端 status。
+ *
+ * 该函数用于在 `immediate: false` 的模式下，从 `base.refresh()` 后的 error
+ * 中读取统一响应结构的 `status`，以判断是否需要触发签名 refresh。
+ *
+ * # Arguments
+ *
+ * * `err` - useFetch 的 error 值。
+ *
+ * # Returns
+ *
+ * 返回可能存在的 `status`；无法提取时返回 `undefined`。
+ */
+const pickStatusFromUseFetchError = (err: unknown): unknown => {
+  const e = (err ?? {}) as Record<string, unknown>;
+  const data = (e.data ?? (e.response as any)?._data) as unknown;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return undefined;
+  }
+  return (data as Record<string, unknown>).status;
 };
 
 /**
@@ -480,6 +877,57 @@ type TGetCookieRef = (name: string) => Promise<Ref<string | null>>;
 type TSetHttpOnlyCookieIfMissing = (args: { name: string; value: string }) => Promise<void>;
 
 /**
+ * 函数：从 document.cookie 读取指定 cookie 值。
+ *
+ * 该函数用于兜底：浏览器通过响应头 `Set-Cookie` 写入 cookie 时，
+ * Nuxt `useCookie()` 返回的 ref 在同一个 tick 内不一定能同步到最新值。
+ *
+ * # Arguments
+ *
+ * * `name` - Cookie 名称。
+ *
+ * # Returns
+ *
+ * 返回 cookie 的字符串值；不存在则返回空字符串。
+ */
+const readCookieValueFromDocument = (name: string): string => {
+  if (!import.meta.client) {
+    return '';
+  }
+
+  const target = String(name ?? '').trim();
+  if (target === '') {
+    return '';
+  }
+
+  const raw = String(document.cookie ?? '').trim();
+  if (raw === '') {
+    return '';
+  }
+
+  const parts = raw.split(/;\s*/g);
+  for (const part of parts) {
+    if (!part) {
+      continue;
+    }
+
+    const idx = part.indexOf('=');
+    if (idx <= 0) {
+      continue;
+    }
+
+    const key = decodeURIComponent(part.slice(0, idx));
+    if (key !== target) {
+      continue;
+    }
+
+    return decodeURIComponent(part.slice(idx + 1));
+  }
+
+  return '';
+};
+
+/**
  * 函数：尝试消费 refresh cookie 并更新本地 payload。
  */
 const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
@@ -487,7 +935,16 @@ const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>;
   const cookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
 
   const cookie = await getCookieRef(cookieName);
-  const blob = String(cookie.value ?? '').trim();
+  let blob = String(cookie.value ?? '').trim();
+
+  // Client：兜底从 document.cookie 读取，避免 useCookie ref 未同步导致刷新失败。
+  if (import.meta.client && !blob.startsWith('v1.')) {
+    const fromDoc = String(readCookieValueFromDocument(cookieName) ?? '').trim();
+    if (fromDoc !== '') {
+      blob = fromDoc;
+    }
+  }
+
   if (!blob.startsWith('v1.')) {
     return;
   }
@@ -657,9 +1114,14 @@ const normalizeMethod = (method?: unknown): string =>
  */
 const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Promise<any> => {
   const apiPath = toApiPath(path);
-  const backendPath = toBackendPath(path);
+  const backendPathWithSearch = toBackendPath(path);
+  const backendParts = splitPathAndSearch(backendPathWithSearch);
+  const backendPath = backendParts.pathOnly;
+  const backendQueryFromPath = toParamsObjectFromSearch(backendParts.search);
+  const signatureBackendPath = toBackendPathForSignature(backendPath);
   const method = normalizeMethod(options.method);
   const hasBodyMethod = HAS_BODY_METHODS.has(method as any);
+  const isWriteMethod = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
 
   /**
    * 常量：Nuxt 上下文（用于在异步链路中安全获取 cookie ref）。
@@ -728,11 +1190,29 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   const bodySource = isRef(options.body) ? (options.body as Ref<unknown>) : ref(options.body);
   const datasSource = isRef(options.datas) ? (options.datas as Ref<Record<string, unknown>>) : ref(options.datas);
 
-  const baseAllParamsRef = computed<Record<string, unknown>>(() => ({
-    ...toSpreadableObject(resolve(querySource.value)),
-    ...toSpreadableObject(resolve(bodySource.value)),
+  const baseQueryRef = computed<Record<string, unknown>>(() => omitUndefined(resolve(querySource.value)));
+  const baseBodyRef = computed<Record<string, unknown>>(() => ({
+    ...omitUndefined(resolve(bodySource.value)),
     ...toSpreadableObject(resolve(datasSource.value))
   }));
+  const baseGetQueryRef = computed<Record<string, unknown>>(() => ({
+    ...omitUndefined(resolve(querySource.value)),
+    ...toSpreadableObject(resolve(datasSource.value))
+  }));
+
+  const baseAllParamsRef = computed<Record<string, unknown>>(() => {
+    if (hasBodyMethod) {
+      return {
+        ...toSpreadableObject(resolve(querySource.value)),
+        ...toSpreadableObject(resolve(bodySource.value)),
+        ...toSpreadableObject(resolve(datasSource.value))
+      };
+    }
+    return {
+      ...toSpreadableObject(resolve(querySource.value)),
+      ...toSpreadableObject(resolve(datasSource.value))
+    };
+  });
 
   const keyHash = JSON.stringify({ method, apiPath, params: baseAllParamsRef.value });
   const staticKey = `api-${keyHash.length}-${Date.now()}`;
@@ -744,6 +1224,65 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
   const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, ...restOptions } = options;
 
+  /**
+   * 变量：最近一次响应的服务端 status。
+   *
+   * 用于在 `immediate: false` 场景下，可靠判断本次 `base.refresh()` 是否命中
+   * `SIGN_TS_EXPIRED` / `SIGN_MISMATCH`，从而触发签名 refresh 并重试一次。
+   */
+  let lastResponseStatus: unknown = undefined;
+
+  /**
+   * 状态：本次请求签名相关参数（稳定引用，避免 useFetch 捕获旧 options 导致 ts 固化）。
+   */
+  const sigTsRef = ref('');
+  const sigNonceRef = ref('');
+  const sigSignRef = ref('');
+  const sigExtraHeadersRef = ref<Record<string, string>>({});
+
+  /**
+   * 计算：带签名字段的 query（GET/HEAD/DELETE 走 query；写方法不注入 query）。
+   */
+  const signedQueryRef = computed<Record<string, unknown>>(() => {
+    if (hasBodyMethod) {
+      return baseQueryRef.value;
+    }
+
+    const ts = sigTsRef.value;
+    if (ts === '') {
+      return baseGetQueryRef.value;
+    }
+
+    return {
+      ...baseGetQueryRef.value,
+      ts,
+      nonce: sigNonceRef.value,
+      sign: sigSignRef.value
+    };
+  });
+
+  /**
+   * 计算：带签名字段的 body（写方法走 body；读方法不发送 body）。
+   */
+  const signedBodyRef = computed<Record<string, unknown>>(() => {
+    const ts = sigTsRef.value;
+    if (ts === '') {
+      return baseBodyRef.value;
+    }
+
+    return {
+      ...baseBodyRef.value,
+      ts,
+      nonce: sigNonceRef.value,
+      sign: sigSignRef.value
+    };
+  });
+
+  /**
+   * 计算：最终请求 headers（稳定引用）。
+   */
+  const signedHeadersRef = computed<Record<string, string>>(() => mergeHeaders(headersObj as any, sigExtraHeadersRef.value));
+
   const finalOptions: UseFetchOptions<unknown> & Record<string, unknown> = {
     watch: false,
     immediate: false,
@@ -751,6 +1290,8 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     headers: headersObj,
     onResponseError(ctx: any) {
       const raw = ctx?.response?._data as IApiResponseWrapper<unknown> | undefined;
+
+      lastResponseStatus = raw?.status;
 
       const status = raw?.status as unknown;
       const code = raw?.status ? statusCodeBuild(status) : `${to3(ctx?.response?.status)}-000-000`;
@@ -797,20 +1338,16 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   };
 
   if (hasBodyMethod) {
-    finalOptions.body = computed(() => ({
-      ...omitUndefined(resolve(options.body)),
-      ...toSpreadableObject(resolve(datasSource.value))
-    })) as any;
-    finalOptions.query = options.query as any;
+    finalOptions.body = signedBodyRef as any;
+    finalOptions.query = signedQueryRef as any;
   } else {
-    finalOptions.query = computed(() => ({
-      ...omitUndefined(resolve(options.query)),
-      ...toSpreadableObject(resolve(datasSource.value))
-    })) as any;
-    if (options.body !== undefined) {
-      finalOptions.body = options.body;
-    }
+    finalOptions.query = signedQueryRef as any;
+
+    // GET/HEAD/DELETE：强制不发送 body，避免与服务端“GET 不解析 body”的规则冲突。
+    delete (finalOptions as any).body;
   }
+
+  finalOptions.headers = signedHeadersRef as any;
 
   // 计算签名：仅对非 sign init/refresh 生效
   const runWithSignature = async (): Promise<void> => {
@@ -824,62 +1361,85 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     const tsMs = Date.now();
     const ts = String(tsMs);
 
+    sigTsRef.value = ts;
+
     // 迷惑假参数：nonce/sign（不参与真实签名计算，但会随请求携带并由服务端校验格式）
     const nonce = randomHexLower(FAKE_NONCE_LEN / 2);
     const sign = randomHexLower(FAKE_SIGN_LEN / 2);
 
-    // 注入 ts：根据方法放入 query/body
-    if (hasBodyMethod) {
-      finalOptions.body = computed(() => ({
-        ...omitUndefined(resolve(options.body)),
-        ...toSpreadableObject(resolve(datasSource.value)),
-        ts,
-        nonce,
-        sign
-      })) as any;
-    } else {
-      finalOptions.query = computed(() => ({
-        ...omitUndefined(resolve(options.query)),
-        ...toSpreadableObject(resolve(datasSource.value)),
-        ts,
-        nonce,
-        sign
-      })) as any;
-    }
+    sigNonceRef.value = nonce;
+    sigSignRef.value = sign;
 
     // 计算签名参数（合并 query/body/datas 后排序）
-    const allParams: Record<string, unknown> = {
-      ...toSpreadableObject(resolve(querySource.value)),
-      ...toSpreadableObject(resolve(bodySource.value)),
-      ...toSpreadableObject(resolve(datasSource.value)),
-      ts
-    };
+    const finalQueryParams = toParamsObjectForSignature(resolve(finalOptions.query as any));
+    const finalBodyParams = hasBodyMethod ? toParamsObjectForSignature(signedBodyRef.value) : {};
 
-    const sortedPairs = Object.keys(allParams)
-      .filter((key) => key !== 'sign' && key !== 'nonce' && allParams[key] !== undefined)
+    const allParams: Record<string, unknown> = hasBodyMethod
+      ? {
+          ...backendQueryFromPath,
+          ...finalQueryParams,
+          ...finalBodyParams,
+          ts
+        }
+      : {
+          ...backendQueryFromPath,
+          ...finalQueryParams,
+          ts
+        };
+
+    const canonicalParams: Record<string, string> = {};
+    for (const [k, v] of Object.entries(allParams)) {
+      upsertSignatureParam({ out: canonicalParams, key: k, value: v });
+    }
+
+    const sortedPairs = Object.keys(canonicalParams)
       .sort()
-      .map((key) => `${key}=${encodeURIComponent(String(allParams[key]))}`);
+      .map((key) => `${key}=${encodeURIComponent(canonicalParams[key] ?? '')}`);
+
+    const orderedKeys = Object.keys(canonicalParams).sort();
 
     const payload = signState.value.payload as ISignRefreshPayload | null;
     if (!payload || String(payload.signKeyHex ?? '').trim() === '') {
       throw new Error('sign payload missing');
     }
 
+    const content = `${signatureBackendPath}?${sortedPairs.join('&')}`;
+    const contentHashHexLower = await sha256HexLower(content);
+
     const sig = await computeSignatureBase64({
-      backendPath,
+      backendPath: signatureBackendPath,
       sortedParamPairs: sortedPairs,
       signKeyHex: payload.signKeyHex
     });
 
-    finalOptions.headers = mergeHeaders(finalOptions.headers as any, {
+    const extraHeaders: Record<string, string> = {
       [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`,
       [SOC_FETCH_DEST_HEADER_NAME]: SOC_FETCH_DEST_HEADER_VALUE
-    });
+    };
+
+    if (import.meta.dev) {
+      const derivedKeyHashHexLower = await sha256HexLower(payload.signKeyHex);
+
+      const ttlSec = Number(payload.ttlSec ?? 0);
+      const windowNum = Number.isFinite(ttlSec) && ttlSec > 0 ? Math.floor(tsMs / (ttlSec * 1000)) : NaN;
+
+      const keysPreview = orderedKeys.slice(0, 20).join(',');
+      const keysTruncated = orderedKeys.length > 20;
+
+      extraHeaders['X-Sign-Debug-Backend-Path'] = signatureBackendPath;
+      extraHeaders['X-Sign-Debug-Content-Hash'] = contentHashHexLower;
+      extraHeaders['X-Sign-Debug-Derived-Key-Hash'] = derivedKeyHashHexLower;
+      extraHeaders['X-Sign-Debug-Ts'] = ts;
+      extraHeaders['X-Sign-Debug-Window-Num'] = Number.isFinite(windowNum) ? String(windowNum) : 'na';
+      extraHeaders['X-Sign-Debug-Keys-Count'] = String(orderedKeys.length);
+      extraHeaders['X-Sign-Debug-Keys'] = keysPreview;
+      extraHeaders['X-Sign-Debug-Keys-Truncated'] = keysTruncated ? '1' : '0';
+    }
+
+    sigExtraHeadersRef.value = extraHeaders;
   };
 
-  await runWithSignature();
-
-  const fetch = hasBodyMethod ? ((useCsrfFetch as any) ?? useFetch) : useFetch;
+  const fetch = isWriteMethod ? ((useCsrfFetch as any) ?? useFetch) : useFetch;
   const base: any = await nuxtApp.runWithContext(() => fetch(apiPath as any, finalOptions as any));
 
   const { error, pending } = base;
@@ -887,17 +1447,57 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   // 条件2：只要代理层写入了 refresh cookie，就尝试解密并缓存
   await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
 
-  // 条件3：完全过期/窗口切换导致拒绝时，refresh 后重试一次
-  const errData = (error.value as any)?.data ?? (error.value as any)?.response?._data;
-  const errStatus = (errData as any)?.status;
+  /**
+   * 函数：当遇到“窗口切换/完全过期”导致的拒绝时，refresh 并重试一次。
+   *
+   * 由于本项目默认使用 `immediate: false`，首次创建 useFetch 实例时并不会真正发起请求。
+   * 因此“条件3”的处理必须落在 `refresh()` / `retry()` 这类真正触发请求的 wrapper 内。
+   *
+   * # Arguments
+   *
+   * * `refreshArgs` - 透传给 `base.refresh(...)` 的参数。
+   *
+   * # Returns
+   *
+   * 无返回。
+   */
+  const refreshOnceIfSecurityRejected = async (refreshArgs?: unknown): Promise<void> => {
+    if (isSignBootstrapPath(backendPath)) {
+      return;
+    }
 
-  if (!isSignBootstrapPath(backendPath) && error.value && shouldRefreshOnStatus(errStatus)) {
-    await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
+    const errStatus = lastResponseStatus ?? pickStatusFromUseFetchError(error.value);
+    if (!error.value || (!shouldRefreshOnStatus(errStatus) && !shouldReinitCsrfOnStatus(errStatus))) {
+      return;
+    }
+
+    if (shouldRefreshOnStatus(errStatus)) {
+      await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
+    } else {
+      // CSRF 自愈：通过 sign/init 的 server-to-server 下发，让代理补齐 CSRF cookie。
+      const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
+      const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
+      if (cookieName !== '') {
+        signState.value.signBlobCookieName = cookieName;
+      }
+    }
+
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
     await runWithSignature();
     finalOptions.key = `${staticKey}-${Date.now()}`;
-    await base.refresh();
+
+    try {
+      if (refreshArgs !== undefined) {
+        await base.refresh(refreshArgs as any);
+      } else {
+        await base.refresh();
+      }
+    } catch {
+      // ignore
+    }
+
     await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-  }
+  };
 
   const retry = async (opts?: IUseFetchExtraOptions) => {
     if (opts) {
@@ -905,9 +1505,23 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       delete (rest as any).datas;
       delete (rest as any).query;
       delete (rest as any).body;
-      await base.refresh(rest as any);
+      await runWithSignature();
+      try {
+        await base.refresh(rest as any);
+      } catch {
+        // ignore
+      }
+      await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+      await refreshOnceIfSecurityRejected(rest as any);
     } else {
-      await base.refresh();
+      await runWithSignature();
+      try {
+        await base.refresh();
+      } catch {
+        // ignore
+      }
+      await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+      await refreshOnceIfSecurityRejected();
     }
   };
 
@@ -922,7 +1536,14 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       bodySource.value = toSpreadableObject(resolve(opts.body));
     }
     finalOptions.key = `${staticKey}-${Date.now()}`;
-    await base.refresh();
+    await runWithSignature();
+    try {
+      await base.refresh();
+    } catch {
+      // ignore
+    }
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+    await refreshOnceIfSecurityRejected();
   };
 
   const debounceOpts: IUseApiDebounceOptions = {

@@ -85,38 +85,13 @@
         <USelect v-model="stateStartBehaviors" :items="computedStartBehaviors" class="w-100" value-attribute="value" option-attribute="label" />
       </UFormField>
       <UFormField :label="t('pages.settings.unattended.form.machineName.label')" :description="t('pages.settings.unattended.form.machineName.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UInput v-model="stateMachineName" :ui="{ trailing: 'pr-0.5' }" class="w-100" />
+        <UInput v-model="computedMachineName" :ui="{ trailing: 'pr-0.5' }" class="w-100" />
       </UFormField>
       <UFormField :label="t('pages.settings.unattended.form.machineCode.label')" :description="t('pages.settings.unattended.form.machineCode.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <UInput readonly :model-value="stateMachineCode" :ui="{ trailing: 'pr-0.5' }" class="w-100">
           <template #trailing>
             <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
               <UButton :color="stateMachineCodeCopied ? 'success' : 'neutral'" variant="link" size="sm" :icon="stateMachineCodeCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click="handleMachineCodeCopy" />
-            </UTooltip>
-          </template>
-        </UInput>
-      </UFormField>
-
-      <UFormField :label="t('pages.settings.unattended.form.machineUuid.label')" :description="t('pages.settings.unattended.form.machineUuid.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UInput readonly :model-value="stateMachineUuid" :ui="{ trailing: 'pr-0.5' }" class="w-100">
-          <template #trailing>
-            <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-              <UButton :color="stateMachineUuidCopied ? 'success' : 'neutral'" variant="link" size="sm" :icon="stateMachineUuidCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click="handleMachineUuidCopy" />
-            </UTooltip>
-          </template>
-        </UInput>
-      </UFormField>
-
-      <UFormField
-        :label="t('pages.settings.unattended.form.machineFingerprint.label')"
-        :description="t('pages.settings.unattended.form.machineFingerprint.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="flex items-center justify-between gap-2 not-last:pb-4"
-      >
-        <UInput readonly :model-value="stateMachineFingerprint" :ui="{ trailing: 'pr-0.5' }" class="w-100">
-          <template #trailing>
-            <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-              <UButton :color="stateMachineFingerprintCopied ? 'success' : 'neutral'" variant="link" size="sm" :icon="stateMachineFingerprintCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click="handleMachineFingerprintCopy" />
             </UTooltip>
           </template>
         </UInput>
@@ -186,31 +161,13 @@
       </template>
     </UPageCard>
     <div class="mb-10 flex w-full flex-col gap-3">
-      <SettingsUnattendedScenesCards
-        :machines="computedScenesMachines"
-        :local-machine-code="stateMachineCode"
-        :local-machine-fingerprint="stateMachineFingerprint"
-        @add="handleScenesAddOpen"
-        @toggle-enabled="(payload) => handleScenesItemToggleEnabled(payload.id, payload.enabled)"
-        @edit="handleScenesEditOpen"
-        @delete="handleScenesItemDelete"
-      />
+      <SettingsUnattendedScenesCards :machines="computedScenesMachines" :local-machine-code="stateMachineCode" @add="handleScenesAddOpen" @toggle-enabled="(payload) => handleScenesItemToggleEnabled(payload.id, payload.enabled)" @edit="handleScenesEditOpen" @delete="handleScenesItemDelete" />
     </div>
 
     <UDrawer v-model:open="stateScenesDrawerOpen" :ui="{ overlay: 'z-50', content: 'z-50', body: 'relative mx-auto w-5/6', footer: 'border-default border-t shadow-[0_-2px_4px_rgba(0,0,0,0.01)] bg-default' }">
       <template #body>
         <UPageCard variant="ghost" :ui="{ container: 'px-0!' }">
-          <SentinelScenes
-            ref="refScenes"
-            form-id="sentinelScenesEditorForm"
-            :machine-id="stateMachineCode"
-            :machine-name="stateMachineName"
-            :machine-uuid="stateMachineUuid"
-            :local-machine-id="stateMachineCode"
-            @execpath-pick="handleScenesPickExecPath"
-            @submit="handleScenesSubmit"
-            @validate="handleScenesValidate"
-          />
+          <SentinelScenes ref="refScenes" form-id="sentinelScenesEditorForm" :machine-id="stateMachineCode" :machine-name="computedMachineName" :local-machine-id="stateMachineCode" @execpath-pick="handleScenesPickExecPath" @submit="handleScenesSubmit" @validate="handleScenesValidate" />
         </UPageCard>
       </template>
 
@@ -243,7 +200,15 @@
 <script setup lang="ts">
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
-import type { IPageSettingsUnattendedMachineNetworkSnapshot, IPageSettingsUnattendedScenesItem, ISettingsUnattended, ISettingsUnattendedSentinel, TUnattendedStartBehavior } from '@@/shared/types/pages/settings/unattended/index.types';
+import type {
+  IPageSettingsUnattendedMachineNetworkGroups,
+  IPageSettingsUnattendedMachineNetworkSnapshot,
+  IPageSettingsUnattendedScenesItem,
+  ISettingsUnattended,
+  ISettingsUnattendedSentinel,
+  TPageSettingsUnattendedMachineNetwork,
+  TUnattendedStartBehavior
+} from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * Hook：i18n
@@ -263,7 +228,7 @@ const { isTauriRuntime } = useTauriEnv();
 /**
  * Hook：Tauri 设置
  */
-const { get: settingsGet, update: settingsUpdate, machineNetworkGet } = useTauriSettings();
+const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet } = useTauriSettings();
 
 /**
  * Hook：Tauri 窗口能力
@@ -324,7 +289,7 @@ const stateStartBehaviors = ref<TUnattendedStartBehavior>('normal');
 /**
  * 状态：机器名称（settings.machine.name）
  */
-const stateMachineName = ref('');
+const stateMachineNameCustom = ref('');
 
 /**
  * 状态：机器名称默认值（用于空值回退）
@@ -332,20 +297,29 @@ const stateMachineName = ref('');
 const stateMachineNameDefault = ref('');
 
 /**
+ * 计算属性：机器名称（自定义优先，否则使用默认计算机名）
+ */
+const computedMachineName = computed({
+  get: (): string => {
+    const custom = String(stateMachineNameCustom.value || '').trim();
+    if (custom) {
+      return custom;
+    }
+    return String(stateMachineNameDefault.value || '').trim();
+  },
+  set: (next: string): void => {
+    stateMachineNameCustom.value = String(next || '');
+  }
+});
+
+/**
  * 状态：机器代码（settings.machine.code）
  */
 const stateMachineCode = ref('');
 
 /**
- * 状态：机器 UUID（settings.machine.uuid）
- */
-const stateMachineUuid = ref('');
-
-/**
  * 状态：机器指纹（settings.machine.fingerprint）
  */
-const stateMachineFingerprint = ref('');
-
 /**
  * 状态：上一次机器代码（settings.machine.codePrev）
  */
@@ -357,19 +331,98 @@ const stateMachineCodePrev = ref('');
 const stateMachineCodeCopied = ref(false);
 
 /**
- * 状态：机器 UUID 是否已复制
- */
-const stateMachineUuidCopied = ref(false);
-
-/**
  * 状态：机器指纹是否已复制
  */
-const stateMachineFingerprintCopied = ref(false);
-
 /**
  * 状态：本机网络快照（兜底，用于 Redis 中暂无本机记录时展示）
  */
 const stateLocalNetworkSnapshot = ref<IPageSettingsUnattendedMachineNetworkSnapshot | null>(null);
+
+/**
+ * 状态：页面打开后是否已上报本机网络
+ */
+const stateLocalNetworkReportedOnce = ref(false);
+
+/**
+ * 工具：网络快照转为分组结构
+ * @param {IPageSettingsUnattendedMachineNetworkSnapshot | null} snapshot 网络快照
+ * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
+ */
+const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetworkSnapshot | null): IPageSettingsUnattendedMachineNetworkGroups => {
+  const interfaces = Array.isArray(snapshot?.interfaces) ? snapshot!.interfaces : [];
+  const groups = interfaces
+    .map((iface) => {
+      const name = String(iface?.name ?? '').trim() || '-';
+      const ips = Array.isArray(iface?.ips) ? iface.ips : [];
+
+      const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+
+      const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
+
+      return { name, ipv4, ipv6 };
+    })
+    .filter((g) => g.ipv4.length > 0 || g.ipv6.length > 0);
+
+  return { groups };
+};
+
+/**
+ * 工具：任意 network 结构归一化为分组结构
+ * @param {TPageSettingsUnattendedMachineNetwork | null | undefined} network network
+ * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
+ */
+const networkNormalizeToGroups = (network: TPageSettingsUnattendedMachineNetwork | null | undefined): IPageSettingsUnattendedMachineNetworkGroups => {
+  const src = network && typeof network === 'object' && !Array.isArray(network) ? (network as Record<string, unknown>) : null;
+  if (!src) {
+    return { groups: [] };
+  }
+
+  const groups = src.groups;
+  if (Array.isArray(groups)) {
+    return { groups: groups as IPageSettingsUnattendedMachineNetworkGroups['groups'] };
+  }
+
+  const interfaces = src.interfaces;
+  if (Array.isArray(interfaces)) {
+    return networkSnapshotToGroups({ interfaces: interfaces as IPageSettingsUnattendedMachineNetworkSnapshot['interfaces'] });
+  }
+
+  return { groups: [] };
+};
+
+/**
+ * 工具：构建 network 指纹（用于对比是否变化）
+ * @param {IPageSettingsUnattendedMachineNetworkGroups} groups 分组
+ * @returns {string} 指纹
+ */
+const networkGroupsFingerprint = (groups: IPageSettingsUnattendedMachineNetworkGroups): string => {
+  const list = Array.isArray(groups?.groups) ? groups.groups : [];
+  const normalized = list
+    .map((g) => {
+      const rec = toRecord(g) ?? {};
+      const name = String(rec.name ?? '').trim();
+      const rawIpv4 = Array.isArray(rec.ipv4) ? rec.ipv4 : [];
+      const rawIpv6 = Array.isArray(rec.ipv6) ? rec.ipv6 : [];
+
+      const ipv4 = rawIpv4.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+      const ipv6 = rawIpv6.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+      return {
+        name,
+        ipv4: Array.from(new Set(ipv4)).sort(),
+        ipv6: Array.from(new Set(ipv6)).sort()
+      };
+    })
+    .filter((g) => g.name !== '' && (g.ipv4.length > 0 || g.ipv6.length > 0))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return JSON.stringify(normalized);
+};
+
+/**
+ * 计算属性：本机网络分组（来自本机快照）
+ */
+const computedLocalNetworkGroups = computed(() => networkSnapshotToGroups(stateLocalNetworkSnapshot.value));
 
 /**
  * 计算属性：机器码是否一致（为空或一致表示一致）
@@ -629,11 +682,17 @@ onMounted(async () => {
     return;
   }
 
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
 
   const settings = await settingsGet();
+
+  try {
+    stateMachineNameDefault.value = String(await machineHostnameGet()).trim();
+  } catch {
+    // ignore
+  }
 
   try {
     stateLocalNetworkSnapshot.value = await machineNetworkGet();
@@ -647,12 +706,8 @@ onMounted(async () => {
   const unattendedSentinel = toRecord(unattended.sentinel) ?? {};
   const unattendedSentinelRequest = toRecord(unattendedSentinel.request) ?? {};
 
-  const machineName = String(machine.name || '').trim();
-  stateMachineName.value = machineName;
-  stateMachineNameDefault.value = machineName;
+  stateMachineNameCustom.value = String(machine.name || '').trim();
   stateMachineCode.value = String(machine.code || '').trim();
-  stateMachineUuid.value = String(machine.uuid || '').trim();
-  stateMachineFingerprint.value = String(machine.fingerprint || '').trim();
   stateMachineCodePrev.value = String(machine.codePrev || '').trim();
 
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
@@ -693,6 +748,47 @@ onMounted(async () => {
   }
 
   await refreshScenesMachinesRemoteGet();
+
+  // 页面打开后：对比本机网络与远端记录，不一致则仅上报一次
+  if (!stateLocalNetworkReportedOnce.value) {
+    const machineCode = String(stateMachineCode.value || '').trim();
+    if (machineCode) {
+      const remoteList = Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : [];
+      const remote = remoteList.find((i) => String(i?.machineCode || '').trim() === machineCode);
+
+      const localGroups = computedLocalNetworkGroups.value;
+      const remoteGroups = networkNormalizeToGroups((remote?.network as unknown as TPageSettingsUnattendedMachineNetwork) ?? null);
+
+      const needReport = !remote || networkGroupsFingerprint(localGroups) !== networkGroupsFingerprint(remoteGroups);
+
+      if (needReport) {
+        stateLocalNetworkReportedOnce.value = true;
+        try {
+          await refreshScenesRemotePatch({
+            query: { machineCode },
+            body: {
+              datas: {
+                machineName: String(computedMachineName.value || '').trim(),
+                machineCode,
+                network: localGroups
+              }
+            },
+            ignoreResponseError: true
+          });
+        } catch {
+          // ignore
+        }
+
+        try {
+          await refreshScenesMachinesRemoteGet();
+        } catch {
+          // ignore
+        }
+      } else {
+        stateLocalNetworkReportedOnce.value = true;
+      }
+    }
+  }
 
   if (requestUrlFilled) {
     await persistToSettings();
@@ -736,7 +832,7 @@ const handleUnattendedRestartLater = async (): Promise<void> => {
   if (!import.meta.client) {
     return;
   }
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
   if (stateUnattendedRestartModalLoading.value) {
@@ -771,7 +867,7 @@ const handleUnattendedRestartNow = async (): Promise<void> => {
   if (!import.meta.client) {
     return;
   }
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
   if (stateUnattendedRestartModalLoading.value) {
@@ -812,53 +908,8 @@ const handleMachineCodeCopy = async (): Promise<void> => {
 };
 
 /**
- * 事件：复制机器 UUID
- */
-const handleMachineUuidCopy = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const uuid = String(stateMachineUuid.value || '').trim();
-  if (!uuid) {
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(uuid);
-    stateMachineUuidCopied.value = true;
-    window.setTimeout(() => {
-      stateMachineUuidCopied.value = false;
-    }, 1200);
-  } catch {
-    // ignore
-  }
-};
-
-/**
  * 事件：复制机器指纹
  */
-const handleMachineFingerprintCopy = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const fingerprint = String(stateMachineFingerprint.value || '').trim();
-  if (!fingerprint) {
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(fingerprint);
-    stateMachineFingerprintCopied.value = true;
-    window.setTimeout(() => {
-      stateMachineFingerprintCopied.value = false;
-    }, 1200);
-  } catch {
-    // ignore
-  }
-};
-
 /**
  * 工具：从 UI 构建哨兵配置
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
@@ -922,7 +973,7 @@ const persistToSettings = async (): Promise<void> => {
   if (!import.meta.client) {
     return;
   }
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
   if (!stateHydrated.value) {
@@ -930,11 +981,6 @@ const persistToSettings = async (): Promise<void> => {
   }
   if (statePersistMuted.value) {
     return;
-  }
-
-  const machineName = String(stateMachineName.value || '').trim();
-  if (machineName === '') {
-    stateMachineName.value = stateMachineNameDefault.value;
   }
 
   const unattended = buildUnattendedConfigFromUi();
@@ -949,7 +995,7 @@ const persistToSettings = async (): Promise<void> => {
         }
       : {}),
     machine: {
-      name: String(stateMachineName.value || '').trim()
+      name: String(stateMachineNameCustom.value || '').trim()
     }
   });
 };
@@ -1025,7 +1071,7 @@ watch([stateStartBehaviors, stateSentinelStartUp, stateRequestProtocol, stateReq
 /**
  * 监听：机器名称变化即写回设置
  */
-watch(stateMachineName, () => {
+watch(stateMachineNameCustom, () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1057,7 +1103,7 @@ const handleSentinelSync = async () => {
   if (!import.meta.client) {
     return;
   }
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
 
@@ -1151,14 +1197,13 @@ const computedScenesMachines = computed(() => {
     return remoteList;
   }
 
-  const localMachineName = String(stateMachineName.value || '').trim();
-  const localMachineUuid = String(stateMachineUuid.value || '').trim();
+  const localMachineName = String(computedMachineName.value || '').trim();
   const localItems = Array.isArray(stateScenesRemote.value?.items) ? stateScenesRemote.value!.items : [];
-  const localNetwork = stateScenesRemote.value?.network ?? stateLocalNetworkSnapshot.value ?? undefined;
+  const localGroups = computedLocalNetworkGroups.value;
+  const localNetwork = localGroups.groups.length > 0 ? localGroups : (stateScenesRemote.value?.network ?? undefined);
 
   const localMachine: IPageSettingsUnattendedScenesMachineRedisConfig = {
     machineName: localMachineName,
-    machineUuid: localMachineUuid,
     machineCode: localMachineCode,
     network: localNetwork,
     items: localItems
@@ -1178,8 +1223,7 @@ const computedScenesMachines = computed(() => {
     ...target,
     machineCode: localMachineCode,
     machineName: localMachineName || String(target.machineName ?? ''),
-    machineUuid: localMachineUuid || String(target.machineUuid ?? ''),
-    network: target.network ?? localNetwork,
+    network: localNetwork,
     items: localItems
   };
 
@@ -1220,8 +1264,7 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
       query: { machineCode },
       body: {
         datas: {
-          machineName: String(stateMachineName.value || '').trim(),
-          machineUuid: String(stateMachineUuid.value || '').trim(),
+          machineName: String(computedMachineName.value || '').trim(),
           machineCode,
           items: nextItems
         }
@@ -1279,8 +1322,7 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
       query: { machineCode },
       body: {
         datas: {
-          machineName: String(stateMachineName.value || '').trim(),
-          machineUuid: String(stateMachineUuid.value || '').trim(),
+          machineName: String(computedMachineName.value || '').trim(),
           machineCode,
           items: nextItems
         }
@@ -1324,19 +1366,10 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     return;
   }
 
-  let network: unknown = undefined;
-  try {
-    network = await machineNetworkGet();
-  } catch {
-    // ignore
-  }
-
   const current = stateScenesRemote.value;
   const base: IPageSettingsUnattendedScenesMachineRedisConfig = {
-    machineName: String(stateMachineName.value || '').trim(),
-    machineUuid: String(stateMachineUuid.value || '').trim(),
+    machineName: String(computedMachineName.value || '').trim(),
     machineCode,
-    network: network as IPageSettingsUnattendedScenesMachineRedisConfig['network'],
     items: Array.isArray(current?.items) ? [...current.items] : []
   };
 
@@ -1407,7 +1440,7 @@ const handleScenesAddOpen = async (): Promise<void> => {
   await nextTick();
 
   const machineId = String(stateMachineCode.value || '').trim();
-  const machineName = String(stateMachineName.value || '').trim();
+  const machineName = String(computedMachineName.value || '').trim();
 
   refScenes.value?.valuesSet({
     machineId,
@@ -1440,7 +1473,7 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
   await nextTick();
 
   const machineId = String(stateMachineCode.value || '').trim();
-  const machineName = String(stateMachineName.value || '').trim();
+  const machineName = String(computedMachineName.value || '').trim();
 
   refScenes.value?.valuesSet({
     machineId,
@@ -1456,7 +1489,7 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
  * @param {string} current 当前输入的路径
  */
 const handleScenesPickExecPath = async (current: string): Promise<void> => {
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
   const payload: IOpenFilePayload = {

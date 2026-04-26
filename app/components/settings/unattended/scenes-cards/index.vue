@@ -33,47 +33,6 @@
           />
         </UTooltip>
       </li>
-      <li class="mb-1 flex items-center gap-2">
-        <div class="flex w-20 items-center gap-1">
-          <UIcon name="i-tabler:grid-3x3" class="text-dimmed" />
-          <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.machineIdentity') }}</span>
-        </div>
-        <span class="min-w-0 flex-1 break-all">{{ machine.machineUuid || '-' }}</span>
-        <UTooltip v-if="String(machine.machineUuid || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
-          <UButton
-            :color="copiedGet(`${machine.machineCode}|info|uuid`) ? 'success' : 'neutral'"
-            variant="link"
-            size="sm"
-            :icon="copiedGet(`${machine.machineCode}|info|uuid`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
-            :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
-            @click.stop="handleIpCopy(`${machine.machineCode}|info|uuid`, String(machine.machineUuid || ''))"
-          />
-        </UTooltip>
-      </li>
-      <li class="flex items-center gap-2">
-        <div class="flex w-20 items-center gap-1">
-          <UIcon name="i-material-symbols:fingerprint" class="text-dimmed" />
-          <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.machineFingerprint') }}</span>
-        </div>
-        <div class="min-w-0 flex-1 break-all">
-          <template v-if="isLocalMachine(machine.machineCode)">
-            <UTooltip :text="localMachineFingerprint" :content="{ side: 'top' }">
-              <span :class="truncate === false ? 'inline-block align-bottom break-all' : 'inline-block max-w-80 truncate align-bottom'">{{ localMachineFingerprint }}</span>
-            </UTooltip>
-          </template>
-          <template v-else>-</template>
-        </div>
-        <UTooltip v-if="isLocalMachine(machine.machineCode) && String(localMachineFingerprint || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
-          <UButton
-            :color="copiedGet(`${machine.machineCode}|info|fingerprint`) ? 'success' : 'neutral'"
-            variant="link"
-            size="sm"
-            :icon="copiedGet(`${machine.machineCode}|info|fingerprint`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
-            :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
-            @click.stop="handleIpCopy(`${machine.machineCode}|info|fingerprint`, localMachineFingerprint)"
-          />
-        </UTooltip>
-      </li>
     </ul>
   </DefineMachineHeaderTemplate>
 
@@ -257,7 +216,7 @@
 import type { TabsItem } from '@nuxt/ui';
 import { createReusableTemplate, useClipboard } from '@vueuse/core';
 
-import type { IPageSettingsUnattendedMachineNetworkGroup, IPageSettingsUnattendedScenesMachineRedisConfig } from '@@/shared/types/pages/settings/unattended/index.types';
+import type { IPageSettingsUnattendedMachineNetworkGroup, IPageSettingsUnattendedMachineNetworkGroups, IPageSettingsUnattendedMachineNetworkSnapshot, IPageSettingsUnattendedScenesMachineRedisConfig } from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * 接口：无人值守-场景守护-卡片组件 Props
@@ -272,11 +231,6 @@ interface ISettingsUnattendedScenesCardsProps {
    * 本机机器码
    */
   localMachineCode: string;
-
-  /**
-   * 本机指纹
-   */
-  localMachineFingerprint: string;
 }
 
 /**
@@ -522,8 +476,41 @@ const handleScenesAddClickByVariant = (actionsVariant?: 'card' | 'slideover' | '
  * @returns {IPageSettingsUnattendedMachineNetworkGroup[]} 分组列表
  */
 const networkGroupsGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => {
-  const groups = machine?.network?.groups;
-  return Array.isArray(groups) ? groups : [];
+  const network = machine?.network;
+  if (!network || typeof network !== 'object' || Array.isArray(network)) {
+    return [];
+  }
+
+  const src = network as Record<string, unknown>;
+  const groups = src.groups;
+  if (Array.isArray(groups)) {
+    return groups as IPageSettingsUnattendedMachineNetworkGroups['groups'];
+  }
+
+  const interfaces = src.interfaces;
+  if (!Array.isArray(interfaces)) {
+    return [];
+  }
+
+  const snapshot: IPageSettingsUnattendedMachineNetworkSnapshot = {
+    interfaces: interfaces as IPageSettingsUnattendedMachineNetworkSnapshot['interfaces']
+  };
+
+  const mapped = (Array.isArray(snapshot.interfaces) ? snapshot.interfaces : [])
+    .map((iface) => {
+      const name = String(iface?.name ?? '').trim() || '-';
+      const ips = Array.isArray(iface?.ips) ? iface.ips : [];
+
+      const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+
+      const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
+
+      return { name, ipv4, ipv6 };
+    })
+    .filter((g) => g.ipv4.length > 0 || g.ipv6.length > 0);
+
+  return mapped;
 };
 
 /**

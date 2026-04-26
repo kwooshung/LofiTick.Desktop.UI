@@ -4,7 +4,6 @@ export const scenes = {
   labels: {
     machineName: 'Machine name',
     machineId: 'Machine ID',
-    machineUuid: 'Machine UUID',
     sceneName: 'Scene name',
     execPath: 'Program path',
     args: 'Arguments'
@@ -12,7 +11,6 @@ export const scenes = {
   desc: {
     machineName: 'Use with Machine ID to distinguish computers',
     machineId: 'Unique identifier of the computer; used to decide whether Program path is editable',
-    machineUuid: 'Used to identify the same computer across devices',
     sceneName: 'Used to identify the monitored UE5 scene app',
     execPath: 'Executable path of the UE5 scene app (required)',
     args: 'One argument per line; passed to the launch command in order'

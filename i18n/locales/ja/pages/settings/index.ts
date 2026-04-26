@@ -232,14 +232,6 @@ export const settings = {
         label: 'マシンID',
         description: '各PCを識別する一意のIDです'
       },
-      machineUuid: {
-        label: 'マシン UUID',
-        description: '端末を識別するための一意の UUID です'
-      },
-      machineFingerprint: {
-        label: 'マシン指紋',
-        description: 'システム環境の指紋ハッシュで、ハードウェア変更で変化する場合があります'
-      },
       machineCodeConsistent: {
         label: 'マシンコード一致',
         description: '空または一致なら変更なしと判断します'

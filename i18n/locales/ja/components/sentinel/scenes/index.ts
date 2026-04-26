@@ -4,7 +4,6 @@ export const scenes = {
   labels: {
     machineName: 'マシン名',
     machineId: 'マシンID',
-    machineUuid: 'マシンUUID',
     sceneName: 'シーン名',
     execPath: 'プログラムパス',
     args: '起動引数'
@@ -12,7 +11,6 @@ export const scenes = {
   desc: {
     machineName: 'マシンIDと合わせて端末を識別します',
     machineId: '端末を一意に識別し、プログラムパスの編集可否判定に使用します',
-    machineUuid: '端末間で同一端末を識別するために使用します',
     sceneName: '監護対象のUE5シーンアプリを識別します',
     execPath: 'UE5シーンアプリの実行ファイルパス（必須）',
     args: '1行1引数。順番どおりに起動コマンドへ渡します'

@@ -13,7 +13,6 @@ export const card = {
   fields: {
     machineCode: '機器碼',
     machineIdentity: '機器 UUID',
-    machineFingerprint: '機器指紋',
     network: '網卡'
   },
   tooltips: {

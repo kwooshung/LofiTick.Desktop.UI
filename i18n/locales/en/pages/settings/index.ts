@@ -232,14 +232,6 @@ export const settings = {
         label: 'Machine ID',
         description: 'A unique ID for each computer, used for management'
       },
-      machineUuid: {
-        label: 'Machine UUID',
-        description: 'A unique UUID for each computer, used to identify the device'
-      },
-      machineFingerprint: {
-        label: 'Machine fingerprint',
-        description: 'Fingerprint hash of the system environment; may change with hardware'
-      },
       machineCodeConsistent: {
         label: 'Machine code consistent',
         description: 'Empty or consistent means no changes detected'
