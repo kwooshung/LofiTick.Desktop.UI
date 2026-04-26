@@ -18,25 +18,19 @@
           <UButton :loading="stateSending && stateLastMethod === 'PATCH'" @click="testSend('PATCH')">发送 PATCH</UButton>
           <UButton :loading="stateSending && stateLastMethod === 'DELETE'" @click="testSend('DELETE')">发送 DELETE</UButton>
 
-          <div class="text-xs text-gray-500">
-            method: {{ stateLastMethod }} | loading:
-            GET={{ String(stateApiGetLoading) }},
-            POST={{ String(stateApiPostLoading) }},
-            PATCH={{ String(stateApiPatchLoading) }},
-            DELETE={{ String(stateApiDeleteLoading) }}
-          </div>
+          <div class="text-xs text-gray-500">method: {{ stateLastMethod }} | loading: GET={{ String(stateApiGetLoading) }}, POST={{ String(stateApiPostLoading) }}, PATCH={{ String(stateApiPatchLoading) }}, DELETE={{ String(stateApiDeleteLoading) }}</div>
         </div>
 
         <UFormGroup label="status">
-          <pre class="whitespace-pre-wrap wrap-break-word text-xs">{{ stateStatusText }}</pre>
+          <pre class="text-xs wrap-break-word whitespace-pre-wrap">{{ stateStatusText }}</pre>
         </UFormGroup>
 
         <UFormGroup label="datas">
-          <pre class="max-h-72 overflow-auto whitespace-pre-wrap wrap-break-word text-xs">{{ stateDatasText }}</pre>
+          <pre class="max-h-72 overflow-auto text-xs wrap-break-word whitespace-pre-wrap">{{ stateDatasText }}</pre>
         </UFormGroup>
 
         <UFormGroup v-if="stateErrorText !== ''" label="error">
-          <pre class="max-h-48 overflow-auto whitespace-pre-wrap wrap-break-word text-xs">{{ stateErrorText }}</pre>
+          <pre class="max-h-48 overflow-auto text-xs wrap-break-word whitespace-pre-wrap">{{ stateErrorText }}</pre>
         </UFormGroup>
       </div>
     </UCard>
@@ -97,49 +91,25 @@ const stateLastMethod = ref<'GET' | 'POST' | 'PATCH' | 'DELETE'>('GET');
  * API：签名测试（GET）
  * 描述：用于验证 useApi 生成的签名是否可通过后端校验。
  */
-const {
-  datas: stateApiGetDatas,
-  status: stateApiGetStatus,
-  loading: stateApiGetLoading,
-  error: stateApiGetError,
-  refresh: refreshApiGet
-} = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'GET' });
+const { datas: stateApiGetDatas, status: stateApiGetStatus, loading: stateApiGetLoading, error: stateApiGetError, refresh: refreshApiGet } = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'GET' });
 
 /**
  * API：签名测试（POST）
  * 描述：用于验证 body 方法的签名与参数合并规则。
  */
-const {
-  datas: stateApiPostDatas,
-  status: stateApiPostStatus,
-  loading: stateApiPostLoading,
-  error: stateApiPostError,
-  refresh: refreshApiPost
-} = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'POST' });
+const { datas: stateApiPostDatas, status: stateApiPostStatus, loading: stateApiPostLoading, error: stateApiPostError, refresh: refreshApiPost } = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'POST' });
 
 /**
  * API：签名测试（PATCH）
  * 描述：用于验证 PATCH 的签名与参数合并规则。
  */
-const {
-  datas: stateApiPatchDatas,
-  status: stateApiPatchStatus,
-  loading: stateApiPatchLoading,
-  error: stateApiPatchError,
-  refresh: refreshApiPatch
-} = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'PATCH' });
+const { datas: stateApiPatchDatas, status: stateApiPatchStatus, loading: stateApiPatchLoading, error: stateApiPatchError, refresh: refreshApiPatch } = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'PATCH' });
 
 /**
  * API：签名测试（DELETE）
  * 描述：用于验证无 body 方法（DELETE）的签名口径。
  */
-const {
-  datas: stateApiDeleteDatas,
-  status: stateApiDeleteStatus,
-  loading: stateApiDeleteLoading,
-  error: stateApiDeleteError,
-  refresh: refreshApiDelete
-} = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'DELETE' });
+const { datas: stateApiDeleteDatas, status: stateApiDeleteStatus, loading: stateApiDeleteLoading, error: stateApiDeleteError, refresh: refreshApiDelete } = await useApi<Record<string, unknown>>('desktop/signature-tests', { immediate: false, method: 'DELETE' });
 
 /**
  * 函数：获取当前选中的 status 值

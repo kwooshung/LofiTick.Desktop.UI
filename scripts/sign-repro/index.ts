@@ -88,9 +88,7 @@ const sha256_hex = (text: string): string => {
  * 返回 Base64 字符串。
  */
 const hmac_sha256_base64 = (key_text: string, msg_text: string): string => {
-  return createHmac('sha256', Buffer.from(key_text, 'utf8'))
-    .update(msg_text, 'utf8')
-    .digest('base64');
+  return createHmac('sha256', Buffer.from(key_text, 'utf8')).update(msg_text, 'utf8').digest('base64');
 };
 
 /**
@@ -221,9 +219,7 @@ const sign_refresh_decrypt = (blob: string, seed: string): ISignRefreshPayload =
   const nonce = b64url_to_buf(parts[2] ?? '');
   const ct_all = b64url_to_buf(parts[3] ?? '');
 
-  const aes_key = createHmac('sha256', Buffer.from(seed, 'utf8'))
-    .update(String(window_num), 'utf8')
-    .digest();
+  const aes_key = createHmac('sha256', Buffer.from(seed, 'utf8')).update(String(window_num), 'utf8').digest();
 
   const tag = ct_all.subarray(ct_all.length - 16);
   const data = ct_all.subarray(0, ct_all.length - 16);
@@ -264,8 +260,8 @@ const run = async (): Promise<ISignReproResult> => {
   // 1) sign/init -> Set-Cookie: sign_refresh
   const init_res = await fetch(`${api_origin}/api/security/sign/init`, {
     headers: {
-      'x-sign-blob-cookie-name': 'sign_refresh',
-    },
+      'x-sign-blob-cookie-name': 'sign_refresh'
+    }
   });
 
   const set_cookie_lines = response_get_set_cookie_lines(init_res);
@@ -304,14 +300,14 @@ const run = async (): Promise<ISignReproResult> => {
     machineCode: machine_code,
     ts,
     nonce: fake_nonce,
-    sign: fake_sign,
+    sign: fake_sign
   }).toString();
 
   const scenes_url = `${api_origin}/api/desktop${backend_path}?${qs}`;
   const scenes_res = await fetch(scenes_url, {
     headers: {
-      'Soc-Fetch-Platform': `browser; sig=${sig}`,
-    },
+      'Soc-Fetch-Platform': `browser; sig=${sig}`
+    }
   });
 
   const body_text = await scenes_res.text();
@@ -327,7 +323,7 @@ const run = async (): Promise<ISignReproResult> => {
     derived_key_hash: sha256_hex(payload.sign_key_hex),
     scenes_url,
     http: scenes_res.status,
-    body,
+    body
   };
 };
 
@@ -336,7 +332,7 @@ try {
   // 输出仅用于对账，不包含 seed/key/cookie 明文。
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {
-  const msg = e instanceof Error ? e.stack ?? e.message : String(e);
+  const msg = e instanceof Error ? (e.stack ?? e.message) : String(e);
   // 错误输出同样避免泄露敏感信息。
   console.error(msg);
   process.exitCode = 1;
