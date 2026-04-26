@@ -2,6 +2,8 @@ import type { FetchError } from 'ofetch';
 
 import type { UseFetchOptions } from '#app';
 
+import type { IStoresToastApi } from '@@/app/stores/toast-api/index.types';
+
 /**
  * 接口：服务端状态结构（ApiStatus）。
  */
@@ -95,6 +97,43 @@ export interface IApiResponseWrapper<TData = Record<string, unknown>> {
    * 附加数据（可选）
    */
   attach?: unknown;
+}
+
+/**
+ * 接口：API 错误 Toast 触发参数。
+ * 描述：统一封装“错误响应 -> toastStore.set(...)”的逻辑入参，供 useApi 与其他调用方复用。
+ */
+export interface IApiToastTryEmitArgs {
+  /**
+   * HTTP 方法（大写）。
+   */
+  method: string;
+
+  /**
+   * 后端 path（用于去重 key 与标题文本）。
+   */
+  backendPath: string;
+
+  /**
+   * 请求参数摘要 hash（用于去重 key）。
+   */
+  keyHash: string;
+
+  /**
+   * 响应体（可能为 ApiResponse，也可能是任意结构）。
+   */
+  raw?: unknown;
+
+  /**
+   * HTTP 状态码兜底（当 raw.status 缺失时使用）。
+   */
+  fallbackHttp?: number;
+
+  /**
+   * 函数：写入 toast store。
+   * @param {IStoresToastApi} newStates toast 状态
+   */
+  toastSet: (newStates: IStoresToastApi) => void;
 }
 
 /**

@@ -3,7 +3,18 @@ import { debounce, throttle } from 'es-toolkit';
 
 import type { UseFetchOptions } from '#app';
 
-import type { IApiResponseWrapper, IServerError, ISignRefreshPayload, ISignState, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
+import type {
+  IApiResponseWrapper,
+  IApiToastTryEmitArgs,
+  IServerError,
+  ISignRefreshPayload,
+  ISignState,
+  IUseApiDebounceOptions,
+  IUseApiResult,
+  IUseApiThrottleOptions,
+  IUseFetchExtraOptions,
+  TUseApiRateLimitedFn
+} from './index.types';
 
 /**
  * 常量：支持 Body 传参的方法集合
@@ -55,6 +66,67 @@ const TOAST_DEDUPE_WINDOW_MS = 3000;
  * 常量：错误 Toast 去重时间戳缓存。
  */
 const toastDedupeMsCache: Map<string, number> = new Map();
+
+/**
+ * 函数：按统一口径尝试触发 API 错误 Toast。
+ *
+ * 该逻辑与 `useApi` 的 `onResponseError` 保持同源，确保 `toast.enable=false` 与去重规则一致。
+ *
+ * # Arguments
+ *
+ * * `args` - 触发参数。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+export const apiToastTryEmit = (args: IApiToastTryEmitArgs): void => {
+  const raw = args.raw;
+  const rawObj = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
+
+  const status = rawObj.status as unknown;
+  const code = status ? statusCodeBuild(status) : `${to3(args.fallbackHttp)}-000-000`;
+
+  const toastSrc = (rawObj.toast ?? {}) as Record<string, unknown>;
+  const toastEnableRaw = toastSrc.enable;
+  const toastEnable = toastEnableRaw === false ? false : true;
+
+  if (!toastEnable) {
+    return;
+  }
+
+  const nowMs = Date.now();
+  const dedupeKey = `api:${args.method}:${args.backendPath}:${code}:${args.keyHash}`;
+  const lastMs = toastDedupeMsCache.get(dedupeKey) ?? 0;
+
+  if (nowMs - lastMs < TOAST_DEDUPE_WINDOW_MS) {
+    return;
+  }
+
+  toastDedupeMsCache.set(dedupeKey, nowMs);
+  if (toastDedupeMsCache.size > 200) {
+    for (const [k, v] of toastDedupeMsCache) {
+      if (nowMs - v > TOAST_DEDUPE_WINDOW_MS * 2) {
+        toastDedupeMsCache.delete(k);
+      }
+    }
+  }
+
+  const color = toastSrc.type !== undefined ? toastColorNormalize(toastSrc.type) : 'error';
+  const statusObj = status && typeof status === 'object' && !Array.isArray(status) ? (status as Record<string, unknown>) : {};
+  const statusTs = String(statusObj.ts ?? '');
+
+  args.toastSet({
+    key: `toast-api-${Date.now()}-${statusTs}`,
+    enable: toastEnable,
+    code,
+    icon: String(toastSrc.icon ?? ''),
+    color,
+    duration: Number.isFinite(Number(toastSrc.duration)) ? Number(toastSrc.duration) : 3000,
+    progress: toastSrc.progress === true,
+    close: toastSrc.close === true
+  });
+};
 
 /**
  * 常量：签名 init 路径。
@@ -1293,45 +1365,13 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
 
       lastResponseStatus = raw?.status;
 
-      const status = raw?.status as unknown;
-      const code = raw?.status ? statusCodeBuild(status) : `${to3(ctx?.response?.status)}-000-000`;
-
-      const toastSrc = (raw?.toast ?? {}) as Record<string, unknown>;
-      const toastEnableRaw = toastSrc.enable;
-      const toastEnable = toastEnableRaw === false ? false : true;
-
-      if (!toastEnable) {
-        return;
-      }
-
-      const nowMs = Date.now();
-      const dedupeKey = `api:${method}:${backendPath}:${code}:${keyHash}`;
-      const lastMs = toastDedupeMsCache.get(dedupeKey) ?? 0;
-
-      if (nowMs - lastMs < TOAST_DEDUPE_WINDOW_MS) {
-        return;
-      }
-
-      toastDedupeMsCache.set(dedupeKey, nowMs);
-      if (toastDedupeMsCache.size > 200) {
-        for (const [k, v] of toastDedupeMsCache) {
-          if (nowMs - v > TOAST_DEDUPE_WINDOW_MS * 2) {
-            toastDedupeMsCache.delete(k);
-          }
-        }
-      }
-
-      const color = toastSrc.type !== undefined ? toastColorNormalize(toastSrc.type) : 'error';
-
-      toastStore.set({
-        key: `toast-api-${Date.now()}-${(raw as any)?.status?.ts ?? ''}`,
-        enable: toastEnable,
-        code,
-        icon: String(toastSrc.icon ?? ''),
-        color,
-        duration: Number.isFinite(Number(toastSrc.duration)) ? Number(toastSrc.duration) : 3000,
-        progress: toastSrc.progress === true,
-        close: toastSrc.close === true
+      apiToastTryEmit({
+        method,
+        backendPath,
+        keyHash,
+        raw,
+        fallbackHttp: ctx?.response?.status,
+        toastSet: toastStore.set
       });
     },
     key: staticKey
