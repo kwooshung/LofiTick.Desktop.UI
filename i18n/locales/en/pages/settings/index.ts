@@ -256,7 +256,7 @@ export const settings = {
           requestUrl: {
             label: 'Request URL',
             description: 'Status information needs to be synced to the remote server for centralized coordination.',
-            placeholder: 'lofitick.com/api/system/unattended/heartbeat'
+            placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
           }
         }
       },

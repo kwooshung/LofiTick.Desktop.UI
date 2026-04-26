@@ -1425,15 +1425,10 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       .sort()
       .map((key) => `${key}=${encodeURIComponent(canonicalParams[key] ?? '')}`);
 
-    const orderedKeys = Object.keys(canonicalParams).sort();
-
     const payload = signState.value.payload as ISignRefreshPayload | null;
     if (!payload || String(payload.signKeyHex ?? '').trim() === '') {
       throw new Error('sign payload missing');
     }
-
-    const content = `${signatureBackendPath}?${sortedPairs.join('&')}`;
-    const contentHashHexLower = await sha256HexLower(content);
 
     const sig = await computeSignatureBase64({
       backendPath: signatureBackendPath,
@@ -1445,25 +1440,6 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`,
       [SOC_FETCH_DEST_HEADER_NAME]: SOC_FETCH_DEST_HEADER_VALUE
     };
-
-    if (import.meta.dev) {
-      const derivedKeyHashHexLower = await sha256HexLower(payload.signKeyHex);
-
-      const ttlSec = Number(payload.ttlSec ?? 0);
-      const windowNum = Number.isFinite(ttlSec) && ttlSec > 0 ? Math.floor(tsMs / (ttlSec * 1000)) : NaN;
-
-      const keysPreview = orderedKeys.slice(0, 20).join(',');
-      const keysTruncated = orderedKeys.length > 20;
-
-      extraHeaders['X-Sign-Debug-Backend-Path'] = signatureBackendPath;
-      extraHeaders['X-Sign-Debug-Content-Hash'] = contentHashHexLower;
-      extraHeaders['X-Sign-Debug-Derived-Key-Hash'] = derivedKeyHashHexLower;
-      extraHeaders['X-Sign-Debug-Ts'] = ts;
-      extraHeaders['X-Sign-Debug-Window-Num'] = Number.isFinite(windowNum) ? String(windowNum) : 'na';
-      extraHeaders['X-Sign-Debug-Keys-Count'] = String(orderedKeys.length);
-      extraHeaders['X-Sign-Debug-Keys'] = keysPreview;
-      extraHeaders['X-Sign-Debug-Keys-Truncated'] = keysTruncated ? '1' : '0';
-    }
 
     sigExtraHeadersRef.value = extraHeaders;
   };

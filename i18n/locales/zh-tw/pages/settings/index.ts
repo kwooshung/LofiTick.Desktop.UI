@@ -256,7 +256,7 @@ export const settings = {
           requestUrl: {
             label: '請求位址',
             description: '監控狀態等資訊需同步到遠端伺服器，方便統一協調管理。',
-            placeholder: 'lofitick.com/api/system/unattended/heartbeat'
+            placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
           }
         }
       },

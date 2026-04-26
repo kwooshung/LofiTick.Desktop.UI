@@ -256,7 +256,7 @@ export const settings = {
           requestUrl: {
             label: 'リクエストURL',
             description: '状態などの情報をリモートサーバーに同期して集中管理します。',
-            placeholder: 'lofitick.com/api/system/unattended/heartbeat'
+            placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
           }
         }
       },

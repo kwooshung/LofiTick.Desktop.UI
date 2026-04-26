@@ -256,7 +256,7 @@
           requestUrl: {
             label: '请求地址',
             description: '监控的状态等信息，需要同步到远程服务器，方便统一协调管理',
-            placeholder: 'lofitick.com/api/system/unattended/heartbeat'
+            placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
           }
         }
       },
