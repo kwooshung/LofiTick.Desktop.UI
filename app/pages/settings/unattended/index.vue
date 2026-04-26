@@ -172,7 +172,7 @@
       </template>
 
       <template #footer>
-        <div class="mx-auto flex h-15 w-5/6 items-center justify-end gap-2">
+        <div class="mx-auto flex h-12 w-5/6 items-center justify-end gap-2">
           <UButton type="button" color="neutral" variant="outline" @click="stateScenesDrawerOpen = false">{{ t('common.actions.cancel') }}</UButton>
           <UButton type="button" icon="i-lucide-save" color="primary" :disabled="!stateScenesFormValid" @click="handleScenesFooterSave">{{ t('common.actions.save') }}</UButton>
         </div>
