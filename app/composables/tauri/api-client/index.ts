@@ -34,7 +34,9 @@ export const useTauriApiClient = () => {
       throw new Error('tauri only');
     }
 
-    const method = String(input?.method ?? '').trim().toUpperCase();
+    const method = String(input?.method ?? '')
+      .trim()
+      .toUpperCase();
     const path = String(input?.path ?? '').trim();
 
     const keyHash = JSON.stringify({

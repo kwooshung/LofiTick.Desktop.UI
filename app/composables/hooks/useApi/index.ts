@@ -3,18 +3,7 @@ import { debounce, throttle } from 'es-toolkit';
 
 import type { UseFetchOptions } from '#app';
 
-import type {
-  IApiResponseWrapper,
-  IApiToastTryEmitArgs,
-  IServerError,
-  ISignRefreshPayload,
-  ISignState,
-  IUseApiDebounceOptions,
-  IUseApiResult,
-  IUseApiThrottleOptions,
-  IUseFetchExtraOptions,
-  TUseApiRateLimitedFn
-} from './index.types';
+import type { IApiResponseWrapper, IApiToastTryEmitArgs, IServerError, ISignRefreshPayload, ISignState, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
 
 /**
  * 常量：支持 Body 传参的方法集合
