@@ -84,27 +84,6 @@
       <UFormField :label="t('pages.settings.unattended.form.startBehavior.label')" :description="t('pages.settings.unattended.form.startBehavior.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <USelect v-model="stateStartBehaviors" :items="computedStartBehaviors" class="w-100" value-attribute="value" option-attribute="label" />
       </UFormField>
-      <UFormField :label="t('pages.settings.unattended.form.machineName.label')" :description="t('pages.settings.unattended.form.machineName.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UInput v-model="computedMachineName" :ui="{ trailing: 'pr-0.5' }" class="w-100" />
-      </UFormField>
-      <UFormField :label="t('pages.settings.unattended.form.machineCode.label')" :description="t('pages.settings.unattended.form.machineCode.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UInput readonly :model-value="stateMachineCode" :ui="{ trailing: 'pr-0.5' }" class="w-100">
-          <template #trailing>
-            <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-              <UButton :color="stateMachineCodeCopied ? 'success' : 'neutral'" variant="link" size="sm" :icon="stateMachineCodeCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click="handleMachineCodeCopy" />
-            </UTooltip>
-          </template>
-        </UInput>
-      </UFormField>
-
-      <UFormField
-        :label="t('pages.settings.unattended.form.machineCodeConsistent.label')"
-        :description="t('pages.settings.unattended.form.machineCodeConsistent.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="flex items-center justify-between gap-2 not-last:pb-4"
-      >
-        <UCheckbox :model-value="computedMachineCodeConsistent" disabled />
-      </UFormField>
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -161,13 +140,32 @@
       </template>
     </UPageCard>
     <div class="mb-10 flex w-full flex-col gap-3">
-      <SettingsUnattendedScenesCards :machines="computedScenesMachines" :local-machine-code="stateMachineCode" @add="handleScenesAddOpen" @toggle-enabled="(payload) => handleScenesItemToggleEnabled(payload.id, payload.enabled)" @edit="handleScenesEditOpen" @delete="handleScenesItemDelete" />
+      <SettingsUnattendedScenesCards
+        :machines="computedScenesMachines"
+        :local-machine-code="stateMachineCode"
+        @add="handleScenesAddOpen"
+        @toggle-enabled="(payload) => handleScenesItemToggleEnabled(payload.id, payload.enabled)"
+        @update-machine-remark="handleScenesMachineRemarkUpdate"
+        @delete-machine="handleScenesMachineDelete"
+        @edit="handleScenesEditOpen"
+        @delete="handleScenesItemDelete"
+      />
     </div>
 
     <UDrawer v-model:open="stateScenesDrawerOpen" :ui="{ overlay: 'z-50', content: 'z-50', body: 'relative mx-auto w-5/6', footer: 'border-default border-t shadow-[0_-2px_4px_rgba(0,0,0,0.01)] bg-default' }">
       <template #body>
         <UPageCard variant="ghost" :ui="{ container: 'px-0!' }">
-          <SentinelScenes ref="refScenes" form-id="sentinelScenesEditorForm" :machine-id="stateMachineCode" :machine-name="computedMachineName" :local-machine-id="stateMachineCode" @execpath-pick="handleScenesPickExecPath" @submit="handleScenesSubmit" @validate="handleScenesValidate" />
+          <SentinelScenes
+            ref="refScenes"
+            form-id="sentinelScenesEditorForm"
+            :machine-id="stateMachineCode"
+            :machine-name="computedMachineName"
+            :machine-remark="computedMachineRemark"
+            :local-machine-id="stateMachineCode"
+            @execpath-pick="handleScenesPickExecPath"
+            @submit="handleScenesSubmit"
+            @validate="handleScenesValidate"
+          />
         </UPageCard>
       </template>
 
@@ -204,8 +202,11 @@ import type {
   IPageSettingsUnattendedMachineNetworkGroups,
   IPageSettingsUnattendedMachineNetworkSnapshot,
   IPageSettingsUnattendedScenesItem,
+  IPageSettingsUnattendedScenesMachineBasic,
+  IPageSettingsUnattendedScenesMachineRedisConfig,
   ISettingsUnattended,
   ISettingsUnattendedSentinel,
+  ISettingsUnattendedSentinelRequest,
   TPageSettingsUnattendedMachineNetwork,
   TUnattendedStartBehavior
 } from '@@/shared/types/pages/settings/unattended/index.types';
@@ -287,30 +288,20 @@ const stateUnattendedRestartModalLoading = ref(false);
 const stateStartBehaviors = ref<TUnattendedStartBehavior>('normal');
 
 /**
- * 状态：机器名称（settings.machine.name）
- */
-const stateMachineNameCustom = ref('');
-
-/**
  * 状态：机器名称默认值（用于空值回退）
  */
 const stateMachineNameDefault = ref('');
 
 /**
- * 计算属性：机器名称（自定义优先，否则使用默认计算机名）
+ * 计算属性：机器名称
+ * 描述：用于场景列表与上报，来源为本机计算机名（不写入 settings）。
  */
-const computedMachineName = computed({
-  get: (): string => {
-    const custom = String(stateMachineNameCustom.value || '').trim();
-    if (custom) {
-      return custom;
-    }
-    return String(stateMachineNameDefault.value || '').trim();
-  },
-  set: (next: string): void => {
-    stateMachineNameCustom.value = String(next || '');
-  }
-});
+const computedMachineName = computed((): string => String(stateMachineNameDefault.value || '').trim());
+
+/**
+ * 计算属性：本机机器备注
+ */
+const computedMachineRemark = computed((): string => String(stateScenesRemote.value?.machineRemark || '').trim());
 
 /**
  * 状态：机器代码（settings.machine.code）
@@ -319,19 +310,6 @@ const stateMachineCode = ref('');
 
 /**
  * 状态：机器指纹（settings.machine.fingerprint）
- */
-/**
- * 状态：上一次机器代码（settings.machine.codePrev）
- */
-const stateMachineCodePrev = ref('');
-
-/**
- * 状态：机器代码是否已复制
- */
-const stateMachineCodeCopied = ref(false);
-
-/**
- * 状态：机器指纹是否已复制
  */
 /**
  * 状态：本机网络快照（兜底，用于 Redis 中暂无本机记录时展示）
@@ -373,7 +351,7 @@ const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetwork
  * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
  */
 const networkNormalizeToGroups = (network: TPageSettingsUnattendedMachineNetwork | null | undefined): IPageSettingsUnattendedMachineNetworkGroups => {
-  const src = network && typeof network === 'object' && !Array.isArray(network) ? (network as Record<string, unknown>) : null;
+  const src = network && typeof network === 'object' && !Array.isArray(network) ? (network as unknown as Record<string, unknown>) : null;
   if (!src) {
     return { groups: [] };
   }
@@ -425,18 +403,6 @@ const networkGroupsFingerprint = (groups: IPageSettingsUnattendedMachineNetworkG
 const computedLocalNetworkGroups = computed(() => networkSnapshotToGroups(stateLocalNetworkSnapshot.value));
 
 /**
- * 计算属性：机器码是否一致（为空或一致表示一致）
- */
-const computedMachineCodeConsistent = computed(() => {
-  const prev = String(stateMachineCodePrev.value || '').trim();
-  const cur = String(stateMachineCode.value || '').trim();
-  if (prev === '') {
-    return true;
-  }
-  return prev === cur;
-});
-
-/**
  * 状态：开机自启（unattended.start.up）
  * 描述：用于控制无人值守模式启动时是否自动运行。
  */
@@ -479,13 +445,13 @@ const computedSentinelAnalysis = computed(() => refSentinelConfig.value?.analysi
  * API：哨兵配置（GET / PATCH）
  * 描述：用于跨设备同步哨兵配置。
  */
-const { datas: stateSentinelRemote, refresh: refreshSentinelRemoteGet } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('desktop/settings/unattended/sentinel');
-const { refresh: refreshSentinelRemotePatch } = await useApi<IPageSettingsUnattendedSentinelRedisConfig>('desktop/settings/unattended/sentinel', { method: 'PATCH' });
+const { datas: stateSentinelRemote, refresh: refreshSentinelRemoteGet } = await useApi<ISettingsUnattendedSentinel>('desktop/settings/unattended/sentinel');
+const { refresh: refreshSentinelRemotePatch } = await useApi<ISettingsUnattendedSentinel>('desktop/settings/unattended/sentinel', { method: 'PATCH' });
 
 /**
  * API：哨兵请求地址默认值（GET）
  */
-const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUrlDefaultGet } = await useApi<IPageSettingsUnattendedSentinelRequestUrlApi>('desktop/settings/unattended/sentinel/request-url');
+const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUrlDefaultGet } = await useApi<ISettingsUnattendedSentinelRequest>('desktop/settings/unattended/sentinel/request-url');
 
 /**
  * API：场景配置（GET / PATCH）
@@ -493,12 +459,13 @@ const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUr
  */
 const { datas: stateScenesRemote, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
 const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
+const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'DELETE', immediate: false });
 
 /**
  * API：场景配置（GET）
  * 描述：读取所有机器的场景配置列表。
  */
-const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
+const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineBasic[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
 
 /**
  * 状态：持久化写入是否静音
@@ -706,9 +673,7 @@ onMounted(async () => {
   const unattendedSentinel = toRecord(unattended.sentinel) ?? {};
   const unattendedSentinelRequest = toRecord(unattendedSentinel.request) ?? {};
 
-  stateMachineNameCustom.value = String(machine.name || '').trim();
   stateMachineCode.value = String(machine.code || '').trim();
-  stateMachineCodePrev.value = String(machine.codePrev || '').trim();
 
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
   stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
@@ -753,13 +718,10 @@ onMounted(async () => {
   if (!stateLocalNetworkReportedOnce.value) {
     const machineCode = String(stateMachineCode.value || '').trim();
     if (machineCode) {
-      const remoteList = Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : [];
-      const remote = remoteList.find((i) => String(i?.machineCode || '').trim() === machineCode);
-
       const localGroups = computedLocalNetworkGroups.value;
-      const remoteGroups = networkNormalizeToGroups((remote?.network as unknown as TPageSettingsUnattendedMachineNetwork) ?? null);
+      const remoteGroups = networkNormalizeToGroups((stateScenesRemote.value?.network as TPageSettingsUnattendedMachineNetwork | null | undefined) ?? null);
 
-      const needReport = !remote || networkGroupsFingerprint(localGroups) !== networkGroupsFingerprint(remoteGroups);
+      const needReport = !stateScenesRemote.value || networkGroupsFingerprint(localGroups) !== networkGroupsFingerprint(remoteGroups);
 
       if (needReport) {
         stateLocalNetworkReportedOnce.value = true;
@@ -884,33 +846,6 @@ const handleUnattendedRestartNow = async (): Promise<void> => {
 };
 
 /**
- * 事件：复制机器代码
- */
-const handleMachineCodeCopy = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const code = String(stateMachineCode.value || '').trim();
-  if (!code) {
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(code);
-    stateMachineCodeCopied.value = true;
-    window.setTimeout(() => {
-      stateMachineCodeCopied.value = false;
-    }, 1200);
-  } catch {
-    // ignore
-  }
-};
-
-/**
- * 事件：复制机器指纹
- */
-/**
  * 工具：从 UI 构建哨兵配置
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
@@ -950,9 +885,9 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
 
 /**
  * 工具：从 UI 构建哨兵 Redis 配置（用于写回 Redis）
- * @returns {IPageSettingsUnattendedSentinelRedisConfig|null} 哨兵配置
+ * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
-const buildSentinelRedisConfigFromUi = (): IPageSettingsUnattendedSentinelRedisConfig | null => {
+const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null => {
   const heart = heartbeatRestartFromRef(refSentinelConfig.value);
   if (!heart) {
     return null;
@@ -993,10 +928,7 @@ const persistToSettings = async (): Promise<void> => {
             ...unattendedPersist
           }
         }
-      : {}),
-    machine: {
-      name: String(stateMachineNameCustom.value || '').trim()
-    }
+      : {})
   });
 };
 
@@ -1059,19 +991,6 @@ const handleSentinelConfigChanged = (): void => {
  * 监听：页面任意配置项变化即写回设置
  */
 watch([stateStartBehaviors, stateSentinelStartUp, stateRequestProtocol, stateRequestHost], () => {
-  if (!stateHydrated.value) {
-    return;
-  }
-  if (statePersistMuted.value) {
-    return;
-  }
-  persistToSettingsDebounced();
-});
-
-/**
- * 监听：机器名称变化即写回设置
- */
-watch(stateMachineNameCustom, () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1189,8 +1108,17 @@ const stateScenesFormValid = ref(false);
  * 计算属性：场景守护机器卡片列表
  * 描述：优先展示 Redis 返回的所有机器；若缺少本机记录，则补一个本机兜底卡片。
  */
-const computedScenesMachines = computed(() => {
-  const remoteList = Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : [];
+const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedisConfig[]>(() => {
+  const remoteList = (Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : []).map(
+    (machine) =>
+      ({
+        machineName: String(machine?.machineName || '').trim(),
+        machineRemark: String(machine?.machineRemark || '').trim(),
+        machineCode: String(machine?.machineCode || '').trim(),
+        network: undefined,
+        items: []
+      }) satisfies IPageSettingsUnattendedScenesMachineRedisConfig
+  );
 
   const localMachineCode = String(stateMachineCode.value || '').trim();
   if (!localMachineCode) {
@@ -1204,6 +1132,7 @@ const computedScenesMachines = computed(() => {
 
   const localMachine: IPageSettingsUnattendedScenesMachineRedisConfig = {
     machineName: localMachineName,
+    machineRemark: String(stateScenesRemote.value?.machineRemark || '').trim(),
     machineCode: localMachineCode,
     network: localNetwork,
     items: localItems
@@ -1223,6 +1152,7 @@ const computedScenesMachines = computed(() => {
     ...target,
     machineCode: localMachineCode,
     machineName: localMachineName || String(target.machineName ?? ''),
+    machineRemark: String(stateScenesRemote.value?.machineRemark || target.machineRemark || '').trim(),
     network: localNetwork,
     items: localItems
   };
@@ -1292,6 +1222,50 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
 };
 
 /**
+ * 事件：更新机器备注
+ * @param {{ machineName: string; machineCode: string; machineRemark: string }} payload 备注更新参数
+ */
+const handleScenesMachineRemarkUpdate = async (payload: { machineName: string; machineCode: string; machineRemark: string }): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!stateHydrated.value) {
+    return;
+  }
+
+  const machineCode = String(payload.machineCode || '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  await refreshScenesRemotePatch({
+    query: { machineCode },
+    body: {
+      datas: {
+        machineName: String(payload.machineName || '').trim(),
+        machineCode,
+        machineRemark: String(payload.machineRemark || '').trim()
+      }
+    }
+  });
+
+  if (machineCode === String(stateMachineCode.value || '').trim()) {
+    await refreshScenesRemoteGet({ query: { machineCode } });
+  }
+
+  await refreshScenesMachinesRemoteGet();
+
+  toast.add({
+    description: t('components.sentinel.scenes.card.toast.machineRemarkSaved'),
+    color: 'success',
+    icon: 'i-lucide-save',
+    duration: 1500,
+    type: 'foreground',
+    close: false
+  });
+};
+
+/**
  * 事件：删除场景（Popover 二次确认）
  * @param {string} id 场景 ID
  */
@@ -1350,6 +1324,39 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
 };
 
 /**
+ * 事件：删除主机（Popover 二次确认）
+ * @param {{ machineName: string; machineCode: string }} payload 主机参数
+ */
+const handleScenesMachineDelete = async (payload: { machineName: string; machineCode: string }): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!stateHydrated.value) {
+    return;
+  }
+
+  const machineCode = String(payload.machineCode || '').trim();
+  if (!machineCode) {
+    return;
+  }
+  if (machineCode === String(stateMachineCode.value || '').trim()) {
+    return;
+  }
+
+  await refreshScenesRemoteDelete({ query: { machineCode } });
+  await refreshScenesMachinesRemoteGet();
+
+  toast.add({
+    description: t('components.sentinel.scenes.card.toast.machineDeleted'),
+    color: 'success',
+    icon: 'i-lucide-trash-2',
+    duration: 1500,
+    type: 'foreground',
+    close: false
+  });
+};
+
+/**
  * 事件：场景表单提交
  * 描述：当前仅用于关闭抽屉，具体保存逻辑后续接入。
  */
@@ -1369,6 +1376,7 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
   const current = stateScenesRemote.value;
   const base: IPageSettingsUnattendedScenesMachineRedisConfig = {
     machineName: String(computedMachineName.value || '').trim(),
+    machineRemark: String(current?.machineRemark || '').trim(),
     machineCode,
     items: Array.isArray(current?.items) ? [...current.items] : []
   };
@@ -1441,10 +1449,12 @@ const handleScenesAddOpen = async (): Promise<void> => {
 
   const machineId = String(stateMachineCode.value || '').trim();
   const machineName = String(computedMachineName.value || '').trim();
+  const machineRemark = String(computedMachineRemark.value || '').trim();
 
   refScenes.value?.valuesSet({
     machineId,
     machineName,
+    machineRemark,
     sceneName: '',
     execPath: '',
     args: []
@@ -1474,10 +1484,12 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
 
   const machineId = String(stateMachineCode.value || '').trim();
   const machineName = String(computedMachineName.value || '').trim();
+  const machineRemark = String(computedMachineRemark.value || '').trim();
 
   refScenes.value?.valuesSet({
     machineId,
     machineName,
+    machineRemark,
     sceneName: String(target.sceneName || ''),
     execPath: String(target.execPath || ''),
     args: Array.isArray(target.args) ? target.args : []

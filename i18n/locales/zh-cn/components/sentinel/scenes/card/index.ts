@@ -6,17 +6,27 @@ export const card = {
   },
   actions: {
     addScene: '添加场景',
+    deleteMachine: '删除主机',
+    network: '网卡',
     details: '详情',
     edit: '编辑',
     delete: '删除'
   },
   fields: {
     machineCode: '机器代码',
+    machineRemark: '机器备注',
     machineIdentity: '机器标识',
-    network: '网卡'
+    network: '网卡',
+    scenes: '场景列表'
   },
   tooltips: {
-    copyToClipboard: '复制到剪贴板'
+    copyToClipboard: '复制到剪贴板',
+    editRemark: '编辑备注',
+    saveRemark: '保存备注'
+  },
+  toast: {
+    machineRemarkSaved: '机器备注保存成功',
+    machineDeleted: '主机删除成功'
   },
   stats: {
     scenes: '场景',
@@ -29,7 +39,8 @@ export const card = {
     disabled: '未启用'
   },
   dialogs: {
-    deleteSceneTitle: '确认删除该场景？'
+    deleteSceneTitle: '确认删除该场景？',
+    deleteMachineTitle: '确认删除该主机？'
   },
   empty: {
     ipv4: {
@@ -42,7 +53,7 @@ export const card = {
     },
     scenes: {
       title: '暂无场景',
-      localDescription: '请点击右上角“添加场景”进行创建',
+      localDescription: '当前机器还没有场景，请在下方创建',
       remoteDescription: '远程机器暂不支持创建场景'
     },
     data: {

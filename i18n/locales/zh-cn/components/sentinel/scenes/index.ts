@@ -4,6 +4,7 @@ export const scenes = {
   labels: {
     machineName: '机器名称',
     machineId: '机器代码',
+    machineRemark: '机器备注',
     sceneName: '场景名称',
     execPath: '程序路径',
     args: '启动参数'

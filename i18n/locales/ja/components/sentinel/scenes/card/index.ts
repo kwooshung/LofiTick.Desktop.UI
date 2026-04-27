@@ -6,17 +6,27 @@ export const card = {
   },
   actions: {
     addScene: 'シーンを追加',
+    deleteMachine: 'マシンを削除',
+    network: 'ネットワーク',
     details: '詳細',
     edit: '編集',
     delete: '削除'
   },
   fields: {
     machineCode: 'マシンID',
+    machineRemark: 'マシン備考',
     machineIdentity: 'マシンUUID',
-    network: 'ネットワーク'
+    network: 'ネットワーク',
+    scenes: 'シーン一覧'
   },
   tooltips: {
-    copyToClipboard: 'クリップボードにコピー'
+    copyToClipboard: 'クリップボードにコピー',
+    editRemark: '備考を編集',
+    saveRemark: '備考を保存'
+  },
+  toast: {
+    machineRemarkSaved: 'マシン備考を保存しました',
+    machineDeleted: 'マシンを削除しました'
   },
   stats: {
     scenes: 'シーン',
@@ -29,7 +39,8 @@ export const card = {
     disabled: '無効'
   },
   dialogs: {
-    deleteSceneTitle: 'このシーンを削除しますか？'
+    deleteSceneTitle: 'このシーンを削除しますか？',
+    deleteMachineTitle: 'このマシンを削除しますか？'
   },
   empty: {
     ipv4: {
@@ -42,7 +53,7 @@ export const card = {
     },
     scenes: {
       title: 'シーンがありません',
-      localDescription: '右上の「シーンを追加」から作成してください',
+      localDescription: 'このマシンにはまだシーンがありません。下のボタンから作成してください',
       remoteDescription: 'リモート端末ではシーンを作成できません'
     },
     data: {

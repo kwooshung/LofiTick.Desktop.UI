@@ -1,21 +1,13 @@
 <template>
-  <DefineMachineHeaderTemplate v-slot="{ machine, showActions, truncate, actionsVariant }">
-    <div class="mb-4 flex justify-between">
-      <div class="flex items-center gap-2">
-        <h3 class="text-lg font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
-        <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft">
-          {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
-        </UBadge>
-      </div>
-      <div v-if="showActions !== false && actionsVariant !== 'none'" class="flex items-center gap-2">
-        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" :class="actionsVariant === 'slideover' ? '-translate-x-8' : ''" @click.stop="handleScenesAddClickByVariant(actionsVariant)">{{
-          t('components.sentinel.scenes.card.actions.addScene')
-        }}</UButton>
-        <UButton v-if="actionsVariant !== 'slideover'" icon="i-material-symbols:info-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
-      </div>
+  <DefineMachineHeaderTemplate v-slot="{ machine, actionsVariant }">
+    <div class="mb-3 flex min-w-0 items-start gap-2">
+      <h3 class="text-lg font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
+      <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft">
+        {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
+      </UBadge>
     </div>
 
-    <ul class="mb-3 space-y-1 pb-3 text-sm">
+    <ul :class="['space-y-1 text-sm', actionsVariant === 'card' ? 'mb-3 pb-3' : '']">
       <li class="mb-1 flex items-center gap-2">
         <div class="flex w-20 items-center gap-1">
           <UIcon name="i-ic:outline-computer" class="text-dimmed" />
@@ -33,12 +25,32 @@
           />
         </UTooltip>
       </li>
+      <li :ref="remarkInputWrapRef(machine.machineCode)" class="mb-1 flex items-center gap-2">
+        <div class="flex w-20 items-center gap-1">
+          <UIcon name="i-lucide:sticky-note" class="text-dimmed" />
+          <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.machineRemark') }}</span>
+        </div>
+        <template v-if="remarkEditingGet(machine.machineCode)">
+          <div class="min-w-0 flex-1">
+            <UInput :model-value="remarkDraftGet(machine.machineCode)" size="sm" class="w-full" @update:model-value="(value) => handleRemarkDraftUpdate(machine.machineCode, value)" @keydown.enter.prevent="handleRemarkSave(machine)" @keydown.esc.prevent="handleRemarkEditCancel(machine)" />
+          </div>
+          <UTooltip :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
+            <UButton color="neutral" variant="link" size="sm" icon="i-lucide-save" :aria-label="t('components.sentinel.scenes.card.tooltips.saveRemark')" @click.stop="handleRemarkSave(machine)" />
+          </UTooltip>
+        </template>
+        <template v-else>
+          <span class="min-w-0 flex-1 break-all">{{ machine.machineRemark || '-' }}</span>
+          <UTooltip :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
+            <UButton color="neutral" variant="link" size="sm" icon="i-material-symbols:edit-outline" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
+          </UTooltip>
+        </template>
+      </li>
     </ul>
   </DefineMachineHeaderTemplate>
 
   <div class="3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-7 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
     <div v-for="machine in computedMachines" :key="machine.machineCode" class="bg-elevated/50 overflow-hidden rounded-xl p-5 select-none">
-      <ReuseMachineHeaderTemplate :machine="machine" />
+      <ReuseMachineHeaderTemplate :machine="machine" actions-variant="card" />
       <div class="mb-3 pb-3">
         <UPageGrid class="gap-2 text-sm">
           <UPageCard icon="i-tabler:layout-grid" :title="t('components.sentinel.scenes.card.stats.scenes')" :description="String(scenesCountTotalGet(machine))" :ui="{ container: 'sm:py-2 sm:px-3 px-3 py-2' }" />
@@ -46,98 +58,35 @@
           <UPageCard icon="i-material-symbols:cancel-outline" :title="t('components.sentinel.scenes.card.stats.disabled')" :description="String(scenesCountDisabledGet(machine))" :ui="{ container: 'sm:py-2 sm:px-3 px-3 py-2' }" />
         </UPageGrid>
       </div>
-      <div class="text-sm">
-        <div class="border-default mb-2 flex items-center justify-between gap-3 border-b">
-          <div class="text-lg">{{ t('components.sentinel.scenes.card.fields.network') }}</div>
-          <UTabs color="primary" variant="link" size="sm" :content="false" :items="NETWORK_TABS_ITEMS" :model-value="networkTabGet(machine)" class="w-auto" :ui="{ list: 'w-auto' }" @update:model-value="(v) => handleNetworkTabUpdate(machine.machineCode, v)" />
+      <div class="border-default flex items-center justify-between gap-3 border-t pt-3">
+        <div class="flex items-center gap-2">
+          <UPopover v-if="!isLocalMachine(machine.machineCode)" :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
+            <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.deleteMachine') }}</UButton>
+            <template #content="{ close }">
+              <div class="flex flex-col gap-2">
+                <div class="text-highlighted text-sm font-medium">{{ t('components.sentinel.scenes.card.dialogs.deleteMachineTitle') }}</div>
+                <div class="text-muted text-xs break-all">{{ machine.machineName || machine.machineCode || '-' }}</div>
+                <div class="flex items-center justify-end gap-2 pt-1">
+                  <UButton color="neutral" variant="outline" size="xs" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" @click="() => handleMachineDeleteConfirm(machine, close)">{{ t('common.actions.confirm') }}</UButton>
+                </div>
+              </div>
+            </template>
+          </UPopover>
         </div>
-
-        <dl v-if="networkTabGet(machine) === 'ipv4'" class="space-y-1 pt-2">
-          <template v-if="networkGroupsIpv4Get(machine).length > 0">
-            <dd v-for="group in networkGroupsIpv4Get(machine)" :key="group.name" class="mb-1 flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 items-center gap-2">
-                <div class="flex items-center gap-1">
-                  <UIcon name="i-mdi:network-outline" class="text-dimmed" />
-                  <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
-                </div>
-                <span class="min-w-0 flex-1 truncate text-right">{{ ipJoin(group.ipv4) || '-' }}</span>
-              </div>
-              <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
-                <UButton
-                  :color="copiedGet(`${machine.machineCode}|ipv4|${group.name}`) ? 'success' : 'neutral'"
-                  variant="link"
-                  size="sm"
-                  :icon="copiedGet(`${machine.machineCode}|ipv4|${group.name}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
-                  :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
-                  @click.stop="handleIpCopy(`${machine.machineCode}|ipv4|${group.name}`, ipJoin(group.ipv4))"
-                />
-              </UTooltip>
-            </dd>
-          </template>
-          <template v-else>
-            <dd class="mb-1 pt-1">
-              <UEmpty
-                icon="i-mdi:network-outline"
-                :title="t('components.sentinel.scenes.card.empty.ipv4.title')"
-                :description="t('components.sentinel.scenes.card.empty.ipv4.description')"
-                variant="naked"
-                size="xs"
-                :ui="{
-                  root: 'p-0 items-start justify-start',
-                  header: 'items-start text-left max-w-none',
-                  body: 'items-start max-w-none'
-                }"
-              />
-            </dd>
-          </template>
-        </dl>
-        <dl v-else class="space-y-1 pt-2">
-          <template v-if="networkGroupsIpv6Get(machine).length > 0">
-            <dd v-for="group in networkGroupsIpv6Get(machine)" :key="group.name" class="mb-1 flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 items-center gap-2">
-                <div class="flex items-center gap-1">
-                  <UIcon name="i-mdi:network-outline" class="text-dimmed" />
-                  <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
-                </div>
-                <span class="min-w-0 flex-1 truncate text-right">{{ ipJoin(group.ipv6) || '-' }}</span>
-              </div>
-              <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
-                <UButton
-                  :color="copiedGet(`${machine.machineCode}|ipv6|${group.name}`) ? 'success' : 'neutral'"
-                  variant="link"
-                  size="sm"
-                  :icon="copiedGet(`${machine.machineCode}|ipv6|${group.name}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
-                  :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
-                  @click.stop="handleIpCopy(`${machine.machineCode}|ipv6|${group.name}`, ipJoin(group.ipv6))"
-                />
-              </UTooltip>
-            </dd>
-          </template>
-          <template v-else>
-            <dd class="mb-1 pt-1">
-              <UEmpty
-                icon="i-mdi:network-outline"
-                :title="t('components.sentinel.scenes.card.empty.ipv6.title')"
-                :description="t('components.sentinel.scenes.card.empty.ipv6.description')"
-                variant="naked"
-                size="xs"
-                :ui="{
-                  root: 'p-0 items-start justify-start',
-                  header: 'items-start text-left max-w-none',
-                  body: 'items-start max-w-none'
-                }"
-              />
-            </dd>
-          </template>
-        </dl>
+        <div class="flex items-center gap-2">
+          <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="handleScenesAddClickByVariant('card')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+          <UButton icon="i-mdi:network-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
+          <UButton icon="i-material-symbols:info-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
+        </div>
       </div>
     </div>
   </div>
 
-  <USlideover v-model:open="stateOpen" :title="computedSlideoverTitle" side="right" :ui="{ overlay: 'z-40', title: 'w-full font-normal', content: 'z-40 w-auto min-w-2xl', close: '-translate-y-1' }">
+  <USlideover v-model:open="stateOpen" :title="computedSlideoverTitle" side="right" :ui="{ title: 'min-w-0 flex-1 font-normal', close: '-translate-y-1 shrink-0' }">
     <template #title>
       <template v-if="computedActiveMachine">
-        <div class="font-normal">
+        <div class="w-102 min-w-0 font-normal">
           <ReuseMachineHeaderTemplate :machine="computedActiveMachine" actions-variant="slideover" :truncate="false" />
         </div>
       </template>
@@ -147,6 +96,11 @@
     </template>
     <template #body>
       <div v-if="computedActiveMachine" class="space-y-5">
+        <div v-if="isLocalMachine(computedActiveMachine.machineCode) && computedActiveMachine.items.length > 0" class="flex justify-end">
+          <UButton v-if="isLocalMachine(computedActiveMachine.machineCode) && computedActiveMachine.items.length > 0" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">{{
+            t('components.sentinel.scenes.card.actions.addScene')
+          }}</UButton>
+        </div>
         <dl v-for="item in computedActiveMachine.items" :key="item.id">
           <dt class="mb-2 flex h-10 items-center justify-between">
             <span class="text-highlighted text-lg font-medium wrap-break-word">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</span>
@@ -191,7 +145,11 @@
               header: 'max-w-none',
               body: 'max-w-none'
             }"
-          />
+          >
+            <template v-if="isLocalMachine(computedActiveMachine.machineCode)" #actions>
+              <UButton icon="i-material-symbols:add-ad-outline-rounded" color="primary" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+            </template>
+          </UEmpty>
         </div>
       </div>
       <div v-else class="py-6">
@@ -210,6 +168,124 @@
       </div>
     </template>
   </USlideover>
+
+  <UModal v-model:open="stateNetworkOpen" :title="t('components.sentinel.scenes.card.fields.network')" :ui="{ content: 'z-50 max-w-4xl', title: 'w-full font-normal' }">
+    <template #title>
+      <template v-if="computedActiveMachine">
+        <div class="w-214 min-w-0 font-normal">
+          <ReuseMachineHeaderTemplate :machine="computedActiveMachine" actions-variant="slideover" :truncate="false" />
+        </div>
+      </template>
+      <template v-else>
+        <div class="text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.network') }}</div>
+      </template>
+    </template>
+    <template #body>
+      <div v-if="computedActiveMachine" class="space-y-5">
+        <UPageCard variant="naked" :ui="{ root: 'border-0 shadow-none bg-transparent', container: 'sm:p-0 p-0' }">
+          <div class="space-y-4 text-sm">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-base font-medium">{{ t('components.sentinel.scenes.card.fields.network') }}</div>
+              <UTabs color="primary" variant="link" size="sm" :content="false" :items="NETWORK_TABS_ITEMS" :model-value="networkTabGet(computedActiveMachine)" @update:model-value="(v) => handleNetworkTabUpdate(computedActiveMachine!.machineCode, v)" />
+            </div>
+
+            <dl v-if="networkTabGet(computedActiveMachine) === 'ipv4'" class="space-y-2 pt-1">
+              <template v-if="networkGroupsIpv4Get(computedActiveMachine).length > 0">
+                <dd v-for="group in networkGroupsIpv4Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-lg px-3 py-2">
+                  <div class="flex min-w-0 flex-1 items-center gap-2">
+                    <div class="flex items-center gap-1">
+                      <UIcon name="i-mdi:network-outline" class="text-dimmed" />
+                      <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
+                    </div>
+                    <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv4) || '-' }}</span>
+                  </div>
+                  <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+                    <UButton
+                      :color="copiedGet(`${computedActiveMachine.machineCode}|ipv4|${group.name}`) ? 'success' : 'neutral'"
+                      variant="link"
+                      size="sm"
+                      :icon="copiedGet(`${computedActiveMachine.machineCode}|ipv4|${group.name}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                      :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
+                      @click.stop="handleIpCopy(`${computedActiveMachine.machineCode}|ipv4|${group.name}`, ipJoin(group.ipv4))"
+                    />
+                  </UTooltip>
+                </dd>
+              </template>
+              <template v-else>
+                <dd class="pt-1">
+                  <UEmpty
+                    icon="i-mdi:network-outline"
+                    :title="t('components.sentinel.scenes.card.empty.ipv4.title')"
+                    :description="t('components.sentinel.scenes.card.empty.ipv4.description')"
+                    variant="naked"
+                    size="xs"
+                    :ui="{
+                      root: 'p-0 items-start justify-start',
+                      header: 'items-start text-left max-w-none',
+                      body: 'items-start max-w-none'
+                    }"
+                  />
+                </dd>
+              </template>
+            </dl>
+            <dl v-else class="space-y-2 pt-1">
+              <template v-if="networkGroupsIpv6Get(computedActiveMachine).length > 0">
+                <dd v-for="group in networkGroupsIpv6Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-lg px-3 py-2">
+                  <div class="flex min-w-0 flex-1 items-center gap-2">
+                    <div class="flex items-center gap-1">
+                      <UIcon name="i-mdi:network-outline" class="text-dimmed" />
+                      <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
+                    </div>
+                    <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv6) || '-' }}</span>
+                  </div>
+                  <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+                    <UButton
+                      :color="copiedGet(`${computedActiveMachine.machineCode}|ipv6|${group.name}`) ? 'success' : 'neutral'"
+                      variant="link"
+                      size="sm"
+                      :icon="copiedGet(`${computedActiveMachine.machineCode}|ipv6|${group.name}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                      :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
+                      @click.stop="handleIpCopy(`${computedActiveMachine.machineCode}|ipv6|${group.name}`, ipJoin(group.ipv6))"
+                    />
+                  </UTooltip>
+                </dd>
+              </template>
+              <template v-else>
+                <dd class="pt-1">
+                  <UEmpty
+                    icon="i-mdi:network-outline"
+                    :title="t('components.sentinel.scenes.card.empty.ipv6.title')"
+                    :description="t('components.sentinel.scenes.card.empty.ipv6.description')"
+                    variant="naked"
+                    size="xs"
+                    :ui="{
+                      root: 'p-0 items-start justify-start',
+                      header: 'items-start text-left max-w-none',
+                      body: 'items-start max-w-none'
+                    }"
+                  />
+                </dd>
+              </template>
+            </dl>
+          </div>
+        </UPageCard>
+      </div>
+      <div v-else class="py-6">
+        <UEmpty
+          icon="i-mdi:network-outline"
+          :title="t('components.sentinel.scenes.card.empty.data.title')"
+          :description="t('components.sentinel.scenes.card.empty.data.description')"
+          variant="naked"
+          size="sm"
+          :ui="{
+            root: 'p-0',
+            header: 'max-w-none',
+            body: 'max-w-none'
+          }"
+        />
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -246,6 +322,41 @@ interface ISettingsUnattendedScenesCardsToggleEnabledPayload {
    * 是否启用
    */
   enabled: boolean;
+}
+
+/**
+ * 接口：无人值守-场景守护-机器备注更新事件参数
+ */
+interface ISettingsUnattendedScenesCardsUpdateMachineRemarkPayload {
+  /**
+   * 机器名称
+   */
+  machineName: string;
+
+  /**
+   * 机器码
+   */
+  machineCode: string;
+
+  /**
+   * 机器备注
+   */
+  machineRemark: string;
+}
+
+/**
+ * 接口：无人值守-场景守护-删除主机事件参数
+ */
+interface ISettingsUnattendedScenesCardsDeleteMachinePayload {
+  /**
+   * 机器名称
+   */
+  machineName: string;
+
+  /**
+   * 机器码
+   */
+  machineCode: string;
 }
 
 /**
@@ -377,6 +488,8 @@ onBeforeUnmount(() => {
 const emit = defineEmits<{
   (e: 'add'): void;
   (e: 'toggle-enabled', payload: ISettingsUnattendedScenesCardsToggleEnabledPayload): void;
+  (e: 'update-machine-remark', payload: ISettingsUnattendedScenesCardsUpdateMachineRemarkPayload): void;
+  (e: 'delete-machine', payload: ISettingsUnattendedScenesCardsDeleteMachinePayload): void;
   (e: 'edit' | 'delete', id: string): void;
 }>();
 
@@ -389,6 +502,31 @@ const props = defineProps<ISettingsUnattendedScenesCardsProps>();
  * 状态：Slideover 是否打开
  */
 const stateOpen = ref(false);
+
+/**
+ * 状态：网卡弹窗是否打开
+ */
+const stateNetworkOpen = ref(false);
+
+/**
+ * 状态：机器备注编辑态
+ */
+const stateRemarkEditingByMachineCode = ref<Record<string, boolean>>({});
+
+/**
+ * 状态：机器备注草稿
+ */
+const stateRemarkDraftByMachineCode = ref<Record<string, string>>({});
+
+/**
+ * 状态：机器备注输入框容器引用
+ */
+const stateRemarkInputWrapByMachineCode = ref<Record<string, HTMLElement | null>>({});
+
+/**
+ * 状态：当前正在编辑备注的机器码
+ */
+const stateActiveRemarkEditingMachineCode = ref<string>('');
 
 /**
  * 状态：当前选择的机器码
@@ -418,6 +556,30 @@ const computedActiveMachine = computed(() => {
 });
 
 /**
+ * 计算属性：当前正在编辑备注的机器
+ */
+const computedActiveRemarkEditingMachine = computed(() => {
+  const code = String(stateActiveRemarkEditingMachineCode.value || '').trim();
+  if (!code) {
+    return null;
+  }
+
+  return computedMachines.value.find((i) => String(i.machineCode || '').trim() === code) ?? null;
+});
+
+/**
+ * 计算属性：当前正在编辑备注的容器
+ */
+const computedActiveRemarkEditingWrap = computed(() => {
+  const code = String(stateActiveRemarkEditingMachineCode.value || '').trim();
+  if (!code) {
+    return null;
+  }
+
+  return stateRemarkInputWrapByMachineCode.value[code] ?? null;
+});
+
+/**
  * 计算属性：Slideover 标题
  */
 const computedSlideoverTitle = computed(() => {
@@ -430,6 +592,58 @@ const computedSlideoverTitle = computed(() => {
   const code = String(m.machineCode || '').trim();
   return code ? `${name} · ${code}` : name;
 });
+
+/**
+ * 函数：获取备注编辑态
+ * @param {string} machineCode 机器码
+ * @returns {boolean} 是否处于编辑态
+ */
+const remarkEditingGet = (machineCode: string): boolean => Boolean(stateRemarkEditingByMachineCode.value[String(machineCode || '').trim()]);
+
+/**
+ * 函数：获取备注草稿
+ * @param {string} machineCode 机器码
+ * @returns {string} 备注草稿
+ */
+const remarkDraftGet = (machineCode: string): string => {
+  const code = String(machineCode || '').trim();
+  return code ? String(stateRemarkDraftByMachineCode.value[code] ?? '') : '';
+};
+
+/**
+ * 函数：记录备注输入框容器引用
+ * @param {string} machineCode 机器码
+ * @returns {(el: unknown) => void} 模板 ref 回调
+ */
+const remarkInputWrapRef = (machineCode: string) => {
+  return (el: unknown): void => {
+    const code = String(machineCode || '').trim();
+    if (!code) {
+      return;
+    }
+
+    stateRemarkInputWrapByMachineCode.value[code] = el instanceof HTMLElement ? el : null;
+  };
+};
+
+/**
+ * 函数：获取备注输入框 DOM
+ * @param {string} machineCode 机器码
+ * @returns {HTMLInputElement | null} 输入框元素
+ */
+const getRemarkInputEl = (machineCode: string): HTMLInputElement | null => {
+  const code = String(machineCode || '').trim();
+  if (!code) {
+    return null;
+  }
+
+  const wrap = stateRemarkInputWrapByMachineCode.value[code];
+  if (!wrap) {
+    return null;
+  }
+
+  return wrap.querySelector('input');
+};
 
 /**
  * 函数：是否本机
@@ -448,32 +662,115 @@ const handleMachineOpen = (machineCode: string) => {
 };
 
 /**
- * 函数：确认删除
- * @param {string} id 场景 ID
- * @param {(() => void) | undefined} close 关闭 Popover
+ * 函数：打开指定机器的网卡弹窗
+ * @param {string} machineCode 机器码
  */
-const handleDeleteConfirm = (id: string, close?: () => void) => {
-  emit('delete', id);
-  close?.();
+const handleMachineNetworkOpen = (machineCode: string): void => {
+  stateActiveMachineCode.value = String(machineCode || '').trim();
+  stateNetworkOpen.value = true;
 };
 
 /**
- * 事件：添加场景
+ * 函数：开始编辑机器备注
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
  */
-const handleScenesAddClickByVariant = (actionsVariant?: 'card' | 'slideover' | 'none'): void => {
-  if (actionsVariant === 'slideover') {
-    emit('add');
+const handleRemarkEditStart = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  const code = String(machine?.machineCode || '').trim();
+  if (!code) {
     return;
   }
 
-  stateOpen.value = false;
-  emit('add');
+  stateRemarkEditingByMachineCode.value = { [code]: true };
+  stateRemarkDraftByMachineCode.value[code] = String(machine?.machineRemark || '');
+  stateActiveRemarkEditingMachineCode.value = code;
+
+  nextTick(() => {
+    const input = getRemarkInputEl(code);
+    if (!input) {
+      return;
+    }
+
+    input.focus();
+    input.select();
+  });
 };
 
 /**
- * 函数：获取机器网络分组
+ * 函数：取消编辑机器备注
  * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {IPageSettingsUnattendedMachineNetworkGroup[]} 分组列表
+ */
+const handleRemarkEditCancel = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  const code = String(machine?.machineCode || '').trim();
+  if (!code) {
+    return;
+  }
+
+  stateRemarkDraftByMachineCode.value[code] = String(machine?.machineRemark || '');
+  stateRemarkEditingByMachineCode.value[code] = false;
+  if (stateActiveRemarkEditingMachineCode.value === code) {
+    stateActiveRemarkEditingMachineCode.value = '';
+  }
+};
+
+/**
+ * 函数：更新机器备注草稿
+ * @param {string} machineCode 机器码
+ * @param {string | number} value 输入值
+ */
+const handleRemarkDraftUpdate = (machineCode: string, value: string | number): void => {
+  const code = String(machineCode || '').trim();
+  if (!code) {
+    return;
+  }
+
+  stateRemarkDraftByMachineCode.value[code] = String(value ?? '');
+};
+
+/**
+ * 函数：保存机器备注
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
+ */
+const handleRemarkSave = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  const machineCode = String(machine?.machineCode || '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  stateRemarkEditingByMachineCode.value[machineCode] = false;
+  if (stateActiveRemarkEditingMachineCode.value === machineCode) {
+    stateActiveRemarkEditingMachineCode.value = '';
+  }
+  emit('update-machine-remark', {
+    machineName: String(machine?.machineName || '').trim(),
+    machineCode,
+    machineRemark: remarkDraftGet(machineCode).trim()
+  });
+};
+
+/**
+ * 事件：点击备注编辑区外部时取消编辑
+ */
+onClickOutside(computedActiveRemarkEditingWrap, () => {
+  const machine = computedActiveRemarkEditingMachine.value;
+  if (!machine) {
+    return;
+  }
+
+  handleRemarkEditCancel(machine);
+});
+
+/**
+ * 函数：获取机器网络分组。
+ *
+ * 兼容两种结构：直接 groups 数组，或旧版 interfaces 快照格式。
+ *
+ * # Arguments
+ *
+ * * `machine` - 机器配置。
+ *
+ * # Returns
+ *
+ * 网卡分组列表。
  */
 const networkGroupsGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => {
   const network = machine?.network;
@@ -481,7 +778,7 @@ const networkGroupsGet = (machine: IPageSettingsUnattendedScenesMachineRedisConf
     return [];
   }
 
-  const src = network as Record<string, unknown>;
+  const src = network as unknown as Record<string, unknown>;
   const groups = src.groups;
   if (Array.isArray(groups)) {
     return groups as IPageSettingsUnattendedMachineNetworkGroups['groups'];
@@ -496,27 +793,28 @@ const networkGroupsGet = (machine: IPageSettingsUnattendedScenesMachineRedisConf
     interfaces: interfaces as IPageSettingsUnattendedMachineNetworkSnapshot['interfaces']
   };
 
-  const mapped = (Array.isArray(snapshot.interfaces) ? snapshot.interfaces : [])
+  return (Array.isArray(snapshot.interfaces) ? snapshot.interfaces : [])
     .map((iface) => {
       const name = String(iface?.name ?? '').trim() || '-';
       const ips = Array.isArray(iface?.ips) ? iface.ips : [];
-
       const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
-
       const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
       const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
-
       return { name, ipv4, ipv6 };
     })
     .filter((g) => g.ipv4.length > 0 || g.ipv6.length > 0);
-
-  return mapped;
 };
 
 /**
- * 函数：拼接 IP 列表
- * @param {string[]} ips IP 列表
- * @returns {string} 拼接文本
+ * 函数：拼接 IP 列表。
+ *
+ * # Arguments
+ *
+ * * `ips` - IP 列表。
+ *
+ * # Returns
+ *
+ * 去重后逗号分隔的字符串。
  */
 const ipJoin = (ips: string[]): string => {
   const list = Array.isArray(ips) ? ips.map((i) => String(i || '').trim()).filter((i) => i !== '') : [];
@@ -524,46 +822,43 @@ const ipJoin = (ips: string[]): string => {
 };
 
 /**
- * 函数：获取存在 IPv4 的网卡分组
- * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {IPageSettingsUnattendedMachineNetworkGroup[]} IPv4 分组
+ * 函数：获取存在 IPv4 的网卡分组。
+ *
+ * # Arguments
+ *
+ * * `machine` - 机器配置。
+ *
+ * # Returns
+ *
+ * 过滤后只含 IPv4 地址的分组列表。
  */
-const networkGroupsIpv4Get = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => {
-  const groups = networkGroupsGet(machine);
-  return groups.filter((g) => ipJoin(Array.isArray(g?.ipv4) ? g.ipv4 : []).trim() !== '');
-};
+const networkGroupsIpv4Get = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => networkGroupsGet(machine).filter((g) => ipJoin(Array.isArray(g?.ipv4) ? g.ipv4 : []).trim() !== '');
 
 /**
- * 函数：获取存在 IPv6 的网卡分组
- * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {IPageSettingsUnattendedMachineNetworkGroup[]} IPv6 分组
+ * 函数：获取存在 IPv6 的网卡分组。
+ *
+ * # Arguments
+ *
+ * * `machine` - 机器配置。
+ *
+ * # Returns
+ *
+ * 过滤后只含 IPv6 地址的分组列表。
  */
-const networkGroupsIpv6Get = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => {
-  const groups = networkGroupsGet(machine);
-  return groups.filter((g) => ipJoin(Array.isArray(g?.ipv6) ? g.ipv6 : []).trim() !== '');
-};
+const networkGroupsIpv6Get = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): IPageSettingsUnattendedMachineNetworkGroup[] => networkGroupsGet(machine).filter((g) => ipJoin(Array.isArray(g?.ipv6) ? g.ipv6 : []).trim() !== '');
 
 /**
- * 函数：获取网卡 Tab 默认值
- * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {TSettingsUnattendedScenesCardsNetworkTab} Tab
- */
-const networkTabDefaultGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): TSettingsUnattendedScenesCardsNetworkTab => {
-  if (networkGroupsIpv4Get(machine).length > 0) {
-    return 'ipv4';
-  }
-
-  if (networkGroupsIpv6Get(machine).length > 0) {
-    return 'ipv6';
-  }
-
-  return 'ipv4';
-};
-
-/**
- * 函数：获取当前网卡 Tab
- * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {TSettingsUnattendedScenesCardsNetworkTab} Tab
+ * 函数：获取当前网卡 Tab。
+ *
+ * 优先取已存储的选择；若无，则默认 ipv4（有数据时）或 ipv4。
+ *
+ * # Arguments
+ *
+ * * `machine` - 机器配置。
+ *
+ * # Returns
+ *
+ * 当前 Tab 值。
  */
 const networkTabGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): TSettingsUnattendedScenesCardsNetworkTab => {
   const code = String(machine?.machineCode || '').trim();
@@ -572,35 +867,61 @@ const networkTabGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig)
     return current;
   }
 
-  return networkTabDefaultGet(machine);
+  return networkGroupsIpv4Get(machine).length > 0 ? 'ipv4' : networkGroupsIpv6Get(machine).length > 0 ? 'ipv6' : 'ipv4';
 };
 
 /**
- * 函数：切换网卡 Tab
- * @param {string} machineCode 机器码
- * @param {TSettingsUnattendedScenesCardsNetworkTab} tab Tab
- */
-const handleNetworkTabChange = (machineCode: string, tab: TSettingsUnattendedScenesCardsNetworkTab): void => {
-  const code = String(machineCode || '').trim();
-  if (!code) {
-    return;
-  }
-
-  stateNetworkTabByMachineCode.value[code] = tab;
-};
-
-/**
- * 函数：处理网卡 Tabs 更新
- * @param {string} machineCode 机器码
- * @param {string | number} value Tabs 值
+ * 函数：处理网卡 Tabs 更新。
+ *
+ * # Arguments
+ *
+ * * `machineCode` - 机器码。
+ * * `value` - 选中的 Tab 值。
  */
 const handleNetworkTabUpdate = (machineCode: string, value: string | number): void => {
+  const code = String(machineCode || '').trim();
   const v = String(value || '').trim();
-  if (v !== 'ipv4' && v !== 'ipv6') {
+  if (!code || (v !== 'ipv4' && v !== 'ipv6')) {
     return;
   }
 
-  handleNetworkTabChange(machineCode, v);
+  stateNetworkTabByMachineCode.value[code] = v as TSettingsUnattendedScenesCardsNetworkTab;
+};
+
+/**
+ * 函数：确认删除
+ * @param {string} id 场景 ID
+ * @param {(() => void) | undefined} close 关闭 Popover
+ */
+const handleDeleteConfirm = (id: string, close?: () => void) => {
+  emit('delete', id);
+  close?.();
+};
+
+/**
+ * 函数：确认删除主机
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
+ * @param {(() => void) | undefined} close 关闭 Popover
+ */
+const handleMachineDeleteConfirm = (machine: IPageSettingsUnattendedScenesMachineRedisConfig, close?: () => void) => {
+  emit('delete-machine', {
+    machineName: String(machine.machineName || '').trim(),
+    machineCode: String(machine.machineCode || '').trim()
+  });
+  close?.();
+};
+
+/**
+ * 事件：添加场景
+ */
+const handleScenesAddClickByVariant = (actionsVariant?: 'card' | 'slideover' | 'none'): void => {
+  if (actionsVariant === 'slideover') {
+    emit('add');
+    return;
+  }
+
+  stateOpen.value = false;
+  emit('add');
 };
 
 /**

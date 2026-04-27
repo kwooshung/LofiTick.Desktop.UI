@@ -14,6 +14,11 @@ export type TSentinelScenesConfigValues = {
   machineName: string;
 
   /**
+   * 机器备注
+   */
+  machineRemark: string;
+
+  /**
    * 场景名称
    */
   sceneName: string;
@@ -92,6 +97,11 @@ export interface ISentinelScenesConfigProps {
    * 机器名称（只读）
    */
   machineName?: string;
+
+  /**
+   * 机器备注（只读）
+   */
+  machineRemark?: string;
 
   /**
    * 场景名称（初始值）

@@ -228,6 +228,11 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
   machineName: string;
 
   /**
+   * 机器备注
+   */
+  machineRemark: string;
+
+  /**
    * 机器码
    */
   machineCode: string;
@@ -241,4 +246,24 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
    * 场景列表
    */
   items: IPageSettingsUnattendedScenesItem[];
+}
+
+/**
+ * 接口：无人值守-场景机器轻列表项
+ */
+export interface IPageSettingsUnattendedScenesMachineBasic {
+  /**
+   * 机器名称
+   */
+  machineName: string;
+
+  /**
+   * 机器备注
+   */
+  machineRemark: string;
+
+  /**
+   * 机器码
+   */
+  machineCode: string;
 }

@@ -4,6 +4,7 @@ export const scenes = {
   labels: {
     machineName: '機器名稱',
     machineId: '機器碼',
+    machineRemark: '機器備註',
     sceneName: '場景名稱',
     execPath: '程式路徑',
     args: '啟動參數'

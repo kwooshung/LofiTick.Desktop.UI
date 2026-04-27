@@ -6,17 +6,27 @@ export const card = {
   },
   actions: {
     addScene: 'Add scene',
+    deleteMachine: 'Delete machine',
+    network: 'Network',
     details: 'Details',
     edit: 'Edit',
     delete: 'Delete'
   },
   fields: {
     machineCode: 'Machine ID',
+    machineRemark: 'Machine Remark',
     machineIdentity: 'Machine UUID',
-    network: 'Network'
+    network: 'Network',
+    scenes: 'Scenes'
   },
   tooltips: {
-    copyToClipboard: 'Copy to clipboard'
+    copyToClipboard: 'Copy to clipboard',
+    editRemark: 'Edit remark',
+    saveRemark: 'Save remark'
+  },
+  toast: {
+    machineRemarkSaved: 'Machine remark saved',
+    machineDeleted: 'Machine deleted'
   },
   stats: {
     scenes: 'Scenes',
@@ -29,7 +39,8 @@ export const card = {
     disabled: 'Disabled'
   },
   dialogs: {
-    deleteSceneTitle: 'Delete this scene?'
+    deleteSceneTitle: 'Delete this scene?',
+    deleteMachineTitle: 'Delete this machine?'
   },
   empty: {
     ipv4: {
@@ -42,7 +53,7 @@ export const card = {
     },
     scenes: {
       title: 'No scenes',
-      localDescription: 'Click “Add scene” in the top right to create one.',
+      localDescription: 'This machine has no scenes yet. Create one below.',
       remoteDescription: 'Creating scenes is not supported on remote machines.'
     },
     data: {

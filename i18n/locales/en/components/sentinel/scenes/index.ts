@@ -4,6 +4,7 @@ export const scenes = {
   labels: {
     machineName: 'Machine name',
     machineId: 'Machine ID',
+    machineRemark: 'Machine remark',
     sceneName: 'Scene name',
     execPath: 'Program path',
     args: 'Arguments'

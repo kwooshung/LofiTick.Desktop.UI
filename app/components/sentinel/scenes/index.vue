@@ -2,6 +2,7 @@
   <UPageGrid class="mb-4">
     <UPageCard icon="i-material-symbols:id-card-outline-sharp" :title="t('components.sentinel.scenes.labels.machineName')" :description="props.machineName" />
     <UPageCard icon="i-material-symbols:code" :title="t('components.sentinel.scenes.labels.machineId')" :description="props.machineId" />
+    <UPageCard icon="i-lucide:sticky-note" :title="t('components.sentinel.scenes.labels.machineRemark')" :description="props.machineRemark || '-'" />
   </UPageGrid>
 
   <UForm :id="computedFormId" ref="refForm" :schema="schema" :state="stateForm" class="mb-4 w-full max-w-none space-y-4" @submit="handleSubmit">
@@ -51,6 +52,7 @@ const { t } = useI18n();
 const props = withDefaults(defineProps<ISentinelScenesConfigProps>(), {
   machineId: '',
   machineName: '',
+  machineRemark: '',
   sceneName: '',
   localMachineId: '',
   execPathEditable: true,
@@ -212,6 +214,7 @@ const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
 const valuesGet = (): TSentinelScenesConfigValues => ({
   machineId: String(props.machineId || ''),
   machineName: String(props.machineName || ''),
+  machineRemark: String(props.machineRemark || ''),
   sceneName: String(stateForm.sceneName || '').trim(),
   execPath: String(stateForm.execPath || '').trim(),
   args: computedArgs.value

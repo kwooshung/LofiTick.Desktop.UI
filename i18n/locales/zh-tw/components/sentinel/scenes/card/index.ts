@@ -6,17 +6,27 @@ export const card = {
   },
   actions: {
     addScene: '新增場景',
+    deleteMachine: '刪除主機',
+    network: '網卡',
     details: '詳情',
     edit: '編輯',
     delete: '刪除'
   },
   fields: {
     machineCode: '機器碼',
+    machineRemark: '機器備註',
     machineIdentity: '機器 UUID',
-    network: '網卡'
+    network: '網卡',
+    scenes: '場景列表'
   },
   tooltips: {
-    copyToClipboard: '複製到剪貼簿'
+    copyToClipboard: '複製到剪貼簿',
+    editRemark: '編輯備註',
+    saveRemark: '儲存備註'
+  },
+  toast: {
+    machineRemarkSaved: '機器備註已儲存',
+    machineDeleted: '主機已刪除'
   },
   stats: {
     scenes: '場景',
@@ -29,7 +39,8 @@ export const card = {
     disabled: '未啟用'
   },
   dialogs: {
-    deleteSceneTitle: '確認刪除此場景？'
+    deleteSceneTitle: '確認刪除此場景？',
+    deleteMachineTitle: '確認刪除此主機？'
   },
   empty: {
     ipv4: {
@@ -42,7 +53,7 @@ export const card = {
     },
     scenes: {
       title: '暫無場景',
-      localDescription: '請點擊右上角「新增場景」進行建立',
+      localDescription: '目前這台機器還沒有場景，請在下方建立',
       remoteDescription: '遠端機器暫不支援建立場景'
     },
     data: {
