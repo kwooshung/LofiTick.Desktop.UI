@@ -175,7 +175,8 @@ export const settings = {
       }
     },
     tooltips: {
-      copyToClipboard: 'Click to copy to clipboard'
+      copyToClipboard: 'Click to copy to clipboard',
+      openLink: 'Open link'
     },
     analysis: {
       title: 'Analysis duration',
@@ -253,10 +254,55 @@ export const settings = {
             disableMiddle: ' mode is enabled, launch at startup will start this app, and ',
             disableSuffix: ' will start along with it.'
           },
+          onlineWindow: {
+            label: 'Online window',
+            description: 'If no new heartbeat is received within this time, the machine is treated as offline.',
+            value: '{seconds} sec'
+          },
           requestUrl: {
             label: 'Request URL',
             description: 'Status information needs to be synced to the remote server for centralized coordination.',
             placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
+          }
+        }
+      },
+      ue5: {
+        title: 'UE5 Access',
+        description: 'Entry address for the desktop localhost bridge. Specific requests are listed separately.',
+        actions: {
+          requests: 'View request list'
+        },
+        form: {
+          endpoint: {
+            label: 'Local access address',
+            description: 'Heartbeat, info reads, and other UE5 bridge requests all expand from this local address.'
+          },
+          upstreamHost: {
+            description: 'Only the upstream host needs to be shown here instead of the full remote path.'
+          }
+        },
+        modal: {
+          title: 'Local bridge requests',
+          description: 'The current localhost bridge requests are listed directly on this page.',
+          errorTitle: 'Bridge requests unavailable',
+          requestListTitle: 'Available requests',
+          actions: {
+            close: 'Close',
+            refresh: 'Refresh'
+          },
+          summary: {
+            accessBase: 'Local access address',
+            upstreamHost: 'Upstream host'
+          },
+          requests: {
+            access: {
+              title: 'Local access info',
+              description: 'Reads the bridge information currently exposed by the desktop app to UE5.'
+            }
+          },
+          empty: {
+            title: 'No requests available',
+            description: 'There are no local bridge requests available for UE5 right now.'
           }
         }
       },

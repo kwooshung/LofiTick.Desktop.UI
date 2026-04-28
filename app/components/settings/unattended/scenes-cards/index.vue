@@ -1,6 +1,9 @@
 <template>
   <DefineMachineHeaderTemplate v-slot="{ machine, actionsVariant }">
     <div class="mb-3 flex min-w-0 items-center gap-2">
+      <UTooltip :text="machineOnlineGet(machine) ? t('components.sentinel.scenes.card.machine.online') : t('components.sentinel.scenes.card.machine.offline')" :content="{ side: 'top' }">
+        <span :class="['block size-2 shrink-0 rounded-full', machineOnlineGet(machine) ? 'bg-success' : 'bg-neutral-400']" />
+      </UTooltip>
       <h3 class="min-w-0 text-lg leading-6 font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
       <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft" class="shrink-0 self-center">
         {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
@@ -44,6 +47,13 @@
             <UButton color="neutral" variant="link" size="sm" icon="i-material-symbols:edit-outline" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
           </UTooltip>
         </template>
+      </li>
+      <li class="mb-1 flex items-center gap-2">
+        <div class="flex w-20 items-center gap-1">
+          <UIcon name="i-lucide:clock-3" class="text-dimmed" />
+          <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.lastSeen') }}</span>
+        </div>
+        <span class="min-w-0 flex-1 break-all">{{ machineLastSeenTextGet(machine) }}</span>
       </li>
     </ul>
   </DefineMachineHeaderTemplate>
@@ -674,6 +684,58 @@ const getRemarkInputEl = (machineCode: string): HTMLInputElement | null => {
  * @returns {boolean} 是否本机
  */
 const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(props.localMachineCode || '').trim();
+
+/**
+ * 函数：获取机器在线状态
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
+ * @returns {boolean} 是否在线
+ */
+const machineOnlineGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): boolean => {
+  const src = machine && typeof machine === 'object' && !Array.isArray(machine) ? (machine as unknown as Record<string, unknown>) : {};
+  const online = src.online;
+  if (typeof online === 'boolean') {
+    return online;
+  }
+
+  return isLocalMachine(String(src.machineCode || ''));
+};
+
+/**
+ * 函数：格式化最后在线时间
+ * @param {unknown} input 输入时间
+ * @returns {string} 展示文本
+ */
+const machineLastSeenFormat = (input: unknown): string => {
+  const raw = String(input || '').trim();
+  if (!raw) {
+    return '--';
+  }
+
+  const time = Date.parse(raw);
+  if (Number.isNaN(time)) {
+    return raw;
+  }
+
+  const date = new Date(time);
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+/**
+ * 函数：获取机器最后在线时间文本
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
+ * @returns {string} 展示文本
+ */
+const machineLastSeenTextGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): string => {
+  const src = machine && typeof machine === 'object' && !Array.isArray(machine) ? (machine as unknown as Record<string, unknown>) : {};
+  return machineLastSeenFormat(src.lastSeenAt);
+};
 
 /**
  * 函数：打开指定机器

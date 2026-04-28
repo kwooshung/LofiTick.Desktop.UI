@@ -1,6 +1,8 @@
 export const card = {
   machine: {
     unnamed: '未命名機器',
+    online: '在線',
+    offline: '離線',
     local: '本機',
     remote: '遠端'
   },
@@ -15,6 +17,7 @@ export const card = {
   fields: {
     machineCode: '機器碼',
     machineRemark: '機器備註',
+    lastSeen: '最後在線',
     machineIdentity: '機器 UUID',
     network: '網卡',
     scenes: '場景列表'

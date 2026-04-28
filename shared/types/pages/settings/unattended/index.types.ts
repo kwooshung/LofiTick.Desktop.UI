@@ -94,6 +94,36 @@ export interface ISettingsUnattendedSentinel {
 }
 
 /**
+ * 接口：UE5 本地接入详情
+ */
+export interface IPageSettingsUnattendedUe5BridgeDetail {
+  /**
+   * 本地接入地址
+   */
+  accessUrl: string;
+
+  /**
+   * 机器代码
+   */
+  machineCode: string;
+
+  /**
+   * 机器名称
+   */
+  machineName: string;
+
+  /**
+   * 上游请求地址
+   */
+  upstreamUrl: string;
+
+  /**
+   * 在线窗口（单位：秒）
+   */
+  onlineWindowSeconds: number;
+}
+
+/**
  * 接口：无人值守-启动配置
  */
 export interface ISettingsUnattendedStart {
@@ -238,6 +268,16 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
   machineCode: string;
 
   /**
+   * 是否在线
+   */
+  online?: boolean;
+
+  /**
+   * 最后在线时间
+   */
+  lastSeenAt?: string;
+
+  /**
    * 网络信息
    */
   network?: TPageSettingsUnattendedMachineNetwork | null;
@@ -266,4 +306,14 @@ export interface IPageSettingsUnattendedScenesMachineBasic {
    * 机器码
    */
   machineCode: string;
+
+  /**
+   * 是否在线
+   */
+  online?: boolean;
+
+  /**
+   * 最后在线时间
+   */
+  lastSeenAt?: string;
 }

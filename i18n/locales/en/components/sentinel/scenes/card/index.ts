@@ -1,6 +1,8 @@
 export const card = {
   machine: {
     unnamed: 'Unnamed machine',
+    online: 'Online',
+    offline: 'Offline',
     local: 'Local',
     remote: 'Remote'
   },
@@ -15,6 +17,7 @@ export const card = {
   fields: {
     machineCode: 'Machine ID',
     machineRemark: 'Machine Remark',
+    lastSeen: 'Last seen',
     machineIdentity: 'Machine UUID',
     network: 'Network',
     scenes: 'Scenes'

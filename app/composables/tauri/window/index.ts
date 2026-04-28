@@ -118,6 +118,15 @@ export const useTauriWindow = () => {
   };
 
   /**
+   * 函数：使用系统默认浏览器打开链接
+   * @param {string} url 完整链接地址
+   * @returns {Promise<void>} 无返回值
+   */
+  const openExternalUrl = async (url: string): Promise<void> => {
+    await invoke('window_open_external_url', { url });
+  };
+
+  /**
    * 函数：打开文件选择对话框
    * @param {IOpenFilePayload} payload 对话框参数
    * @returns {Promise<string | null>} 选择的文件路径
@@ -139,6 +148,7 @@ export const useTauriWindow = () => {
     openDirectory,
     openAppDirectory,
     openUserDataDirectory,
+    openExternalUrl,
     openFile
   };
 };

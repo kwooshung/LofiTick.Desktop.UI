@@ -175,7 +175,8 @@ export const settings = {
       }
     },
     tooltips: {
-      copyToClipboard: 'クリックしてクリップボードにコピー'
+      copyToClipboard: 'クリックしてクリップボードにコピー',
+      openLink: 'リンクを開く'
     },
     analysis: {
       title: '分析時間',
@@ -253,10 +254,55 @@ export const settings = {
             disableMiddle: ' モードが有効なため、自動起動でこのアプリが起動し、',
             disableSuffix: ' も起動します。'
           },
+          onlineWindow: {
+            label: 'オンライン判定',
+            description: 'この時間を超えても新しい心拍が届かない場合、マシンをオフラインとみなします。',
+            value: '{seconds} 秒'
+          },
           requestUrl: {
             label: 'リクエストURL',
             description: '状態などの情報をリモートサーバーに同期して集中管理します。',
             placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
+          }
+        }
+      },
+      ue5: {
+        title: 'UE5 連携',
+        description: 'デスクトップの localhost ブリッジへ接続する入口アドレスです。個別のリクエストは一覧で確認します。',
+        actions: {
+          requests: 'リクエスト一覧を見る'
+        },
+        form: {
+          endpoint: {
+            label: 'ローカル接続先',
+            description: 'ハートビートや情報取得などの UE5 ブリッジ要求は、このローカルアドレスから展開されます。'
+          },
+          upstreamHost: {
+            description: 'ここでは完全なパスではなく、上流ドメインだけを表示します。'
+          }
+        },
+        modal: {
+          title: 'ローカル接続リクエスト',
+          description: '現在利用できる localhost ブリッジ要求をこのページに直接表示します。',
+          errorTitle: 'ローカル接続リクエストを取得できません',
+          requestListTitle: '現在利用できるリクエスト',
+          actions: {
+            close: '閉じる',
+            refresh: '更新'
+          },
+          summary: {
+            accessBase: 'ローカル接続先',
+            upstreamHost: '上流ドメイン'
+          },
+          requests: {
+            access: {
+              title: 'ローカル接続情報',
+              description: 'デスクトップ側が UE5 に公開している現在のブリッジ情報を取得します。'
+            }
+          },
+          empty: {
+            title: '利用できるリクエストがありません',
+            description: '現在、UE5 が呼び出せる localhost ブリッジ要求はありません。'
           }
         }
       },

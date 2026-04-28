@@ -3,6 +3,7 @@
  * 描述：封装 Desktop 壳侧的 settings_get/settings_update。
  * @returns {object} 设置方法
  */
+import type { IPageSettingsUnattendedUe5BridgeDetail } from '@@/shared/types/pages/settings/unattended/index.types';
 import { invoke } from '@tauri-apps/api/core';
 
 export const useTauriSettings = () => {
@@ -59,5 +60,21 @@ export const useTauriSettings = () => {
     return invoke<string>('settings_machine_hostname_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet };
+  /**
+   * 函数：获取 UE5 本地接入地址
+   * @returns {Promise<string>} UE5 接入地址
+   */
+  const ue5BridgeAccessUrlGet = async (): Promise<string> => {
+    return invoke<string>('ue5_bridge_access_url_get');
+  };
+
+  /**
+   * 函数：获取 UE5 本地接入详情
+   * @returns {Promise<IPageSettingsUnattendedUe5BridgeDetail>} UE5 接入详情
+   */
+  const ue5BridgeAccessDetailGet = async (): Promise<IPageSettingsUnattendedUe5BridgeDetail> => {
+    return invoke<IPageSettingsUnattendedUe5BridgeDetail>('ue5_bridge_access_detail_get');
+  };
+
+  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
 };

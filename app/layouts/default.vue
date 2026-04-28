@@ -1,6 +1,8 @@
 <template>
   <div class="flex h-screen w-screen flex-col overflow-hidden">
-    <FrameAskCloseMode />
+    <ClientOnly>
+      <FrameAskCloseMode />
+    </ClientOnly>
     <main class="relative flex h-dvh w-screen overflow-hidden">
       <DashboardSidebar />
       <div class="relative flex size-full flex-col overflow-hidden">

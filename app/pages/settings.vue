@@ -47,6 +47,11 @@ const links = [
       to: localePath('/settings/power')
     },
     {
+      label: t('pages.settings.unattended.sections.ue5.title'),
+      icon: 'i-file-icons:unrealscript',
+      to: localePath('/settings/ue5')
+    },
+    {
       label: t('pages.settings.unattended.title'),
       icon: 'i-mdi:robot-outline',
       to: localePath('/settings/unattended')

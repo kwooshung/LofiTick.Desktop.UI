@@ -175,7 +175,8 @@
       }
     },
     tooltips: {
-      copyToClipboard: '点击复制到剪切板'
+      copyToClipboard: '点击复制到剪切板',
+      openLink: '直接打开链接'
     },
     analysis: {
       title: '分析时长',
@@ -253,10 +254,55 @@
             disableMiddle: ' 模式，开机自启会自动启动本应用，',
             disableSuffix: ' 随之启动'
           },
+          onlineWindow: {
+            label: '在线窗口',
+            description: '超过该时间仍未收到新的心跳时，机器将被视为离线',
+            value: '{seconds} 秒'
+          },
           requestUrl: {
             label: '请求地址',
             description: '监控的状态等信息，需要同步到远程服务器，方便统一协调管理',
             placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
+          }
+        }
+      },
+      ue5: {
+        title: 'UE5 接入',
+        description: '提供给 UE5 场景侧连接本机 localhost 服务的入口地址，具体请求在列表中查看。',
+        actions: {
+          requests: '查看请求列表'
+        },
+        form: {
+          endpoint: {
+            label: '接入地址',
+            description: 'UE5 心跳、信息读取等桥接请求都从这个本地地址展开。'
+          },
+          upstreamHost: {
+            description: '这里统一显示为带 https:// 前缀和 / 结尾的上游地址。'
+          }
+        },
+        modal: {
+          title: '本地接入请求',
+          description: '当前可用的本地桥接请求列表。',
+          errorTitle: '本地接入请求暂不可用',
+          requestListTitle: '当前可用请求',
+          actions: {
+            close: '关闭',
+            refresh: '刷新'
+          },
+          summary: {
+            accessBase: '接入地址',
+            upstreamHost: '上游地址'
+          },
+          requests: {
+            access: {
+              title: '本地接入信息',
+              description: '读取当前桌面端暴露给 UE5 的桥接信息。'
+            }
+          },
+          empty: {
+            title: '暂无可用请求',
+            description: '当前还没有可供 UE5 调用的本地桥接请求。'
           }
         }
       },

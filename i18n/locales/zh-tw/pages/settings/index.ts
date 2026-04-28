@@ -175,7 +175,8 @@ export const settings = {
       }
     },
     tooltips: {
-      copyToClipboard: '點擊複製到剪貼簿'
+      copyToClipboard: '點擊複製到剪貼簿',
+      openLink: '直接開啟連結'
     },
     analysis: {
       title: '分析時長',
@@ -253,10 +254,55 @@ export const settings = {
             disableMiddle: ' 模式，開機自動啟動會啟動本應用，且 ',
             disableSuffix: ' 會隨之啟動。'
           },
+          onlineWindow: {
+            label: '在線視窗',
+            description: '超過此時間仍未收到新的心跳時，機器將被視為離線。',
+            value: '{seconds} 秒'
+          },
           requestUrl: {
             label: '請求位址',
             description: '監控狀態等資訊需同步到遠端伺服器，方便統一協調管理。',
             placeholder: 'api.v1.lofitick.com/system/unattended/heartbeat'
+          }
+        }
+      },
+      ue5: {
+        title: 'UE5 接入',
+        description: '提供給 UE5 場景端連接本機 localhost 服務的入口位址，具體請求可在列表中查看。',
+        actions: {
+          requests: '查看請求列表'
+        },
+        form: {
+          endpoint: {
+            label: '本地接入位址',
+            description: 'UE5 心跳、資訊讀取等橋接請求都會從這個本地位址展開。'
+          },
+          upstreamHost: {
+            description: '這裡只需要顯示上游網域，不需要展示完整遠端路徑。'
+          }
+        },
+        modal: {
+          title: '本地接入請求',
+          description: '目前可用的本地橋接請求會直接列在這個頁面上。',
+          errorTitle: '本地接入請求暫時不可用',
+          requestListTitle: '目前可用請求',
+          actions: {
+            close: '關閉',
+            refresh: '重新整理'
+          },
+          summary: {
+            accessBase: '本地接入位址',
+            upstreamHost: '上游網域'
+          },
+          requests: {
+            access: {
+              title: '本地接入資訊',
+              description: '讀取桌面端目前提供給 UE5 的橋接資訊。'
+            }
+          },
+          empty: {
+            title: '暫無可用請求',
+            description: '目前還沒有可供 UE5 呼叫的本地橋接請求。'
           }
         }
       },

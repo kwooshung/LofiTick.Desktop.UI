@@ -111,6 +111,9 @@ importers:
       '@iconify-json/codicon':
         specifier: ^1.2.46
         version: 1.2.51
+      '@iconify-json/file-icons':
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/flag':
         specifier: ^1.2.10
         version: 1.2.11
@@ -1030,6 +1033,9 @@ packages:
 
   '@iconify-json/codicon@1.2.51':
     resolution: {integrity: sha512-q+ibQk5oiNriGg31owh9FUzue9u1iTwhvBJnVHwaM+ATqbCQproqlUJr6QUNY10x8YPBb4w8oXm/9ah8pRuVaA==}
+
+  '@iconify-json/file-icons@1.2.2':
+    resolution: {integrity: sha512-ajk44wYGTiu79EAyrfNHNaxZ1/2Z1xuSOAvYUT/pAPWHc+P6n9TUZP/ccnPG18kx0WMBxmkHHQ9/zkm6ENhk+Q==}
 
   '@iconify-json/flag@1.2.11':
     resolution: {integrity: sha512-yqaID0FXzdXSXBBVi+/huqxrBWc0tySVvOsAmO/Vu/5UW+A3MNAOzXMIUfzA1SEiaZaxUHE9dDo6/wno3zggyw==}
@@ -9809,6 +9815,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/codicon@1.2.51':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/file-icons@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 

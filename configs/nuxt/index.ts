@@ -9,6 +9,7 @@ const envConfig = isDev ? development : production;
 
 export const configs = {
   compatibilityDate: '2025-09-15',
+  ssr: false,
 
   future: {
     // 启用 Nuxt 5 兼容模式，逐步对齐 v5 行为
@@ -71,7 +72,8 @@ export const configs = {
         'dayjs/plugin/advancedFormat',
         '@kwooshung/console-badge',
         'tailwindcss/colors',
-        'es-toolkit'
+        'es-toolkit',
+        '@tauri-apps/api/core'
       ]
     }
   },

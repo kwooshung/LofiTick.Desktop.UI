@@ -118,15 +118,12 @@
         <USwitch v-model="stateSentinelStartUp" />
       </UFormField>
       <UFormField
-        :label="t('pages.settings.unattended.sections.sentinel.form.requestUrl.label')"
-        :description="t('pages.settings.unattended.sections.sentinel.form.requestUrl.description')"
+        :label="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.label')"
+        :description="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-2 not-last:pb-4"
       >
-        <UFieldGroup>
-          <USelect v-model="stateRequestProtocol" :items="REQUEST_PROTOCOLS" />
-          <UInput v-model="stateRequestHost" :placeholder="t('pages.settings.unattended.sections.sentinel.form.requestUrl.placeholder')" class="w-100" />
-        </UFieldGroup>
+        <UInput readonly :model-value="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.value', { seconds: ONLINE_WINDOW_DEFAULT_SECONDS })" class="w-40" />
       </UFormField>
       <SentinelConfig ref="refSentinelConfig" @analysis-change="handleSentinelConfigChanged" />
     </UPageCard>
@@ -240,7 +237,6 @@ const { restart, openFile } = useTauriWindow();
  * 模板：分析时长 Popover 内容（可复用）
  */
 const [DefineAnalysisDurationPopoverContent, ReuseAnalysisDurationPopoverContent] = createReusableTemplate<{ analysis: ISentinelConfigAnalysis | null }>();
-
 /**
  * 计算属性：启动行为选项
  */
@@ -253,9 +249,9 @@ const computedStartBehaviors = computed((): Array<{ label: string; value: TUnatt
 });
 
 /**
- * 常量：请求协议选项
+ * 常量：在线时间窗口默认值（秒）
  */
-const REQUEST_PROTOCOLS: Array<'http' | 'https'> = ['http', 'https'];
+const ONLINE_WINDOW_DEFAULT_SECONDS = 30;
 
 /**
  * 状态：无人值守是否启用

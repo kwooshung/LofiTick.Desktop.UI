@@ -76,6 +76,9 @@ export default defineAppConfig({
       }
     },
     tooltip: {
+      default: {
+        arrow: true
+      },
       slots: {
         content: 'z-60 bg-stone-800 ring-stone-800 dark:bg-neutral-600 dark:ring-neutral-600 text-white',
         arrow: 'fill-stone-800 dark:fill-neutral-600'
