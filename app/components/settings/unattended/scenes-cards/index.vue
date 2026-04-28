@@ -1,7 +1,7 @@
 <template>
   <DefineMachineHeaderTemplate v-slot="{ machine, actionsVariant }">
     <div class="mb-3 flex min-w-0 items-center gap-2">
-      <UTooltip :text="machineOnlineGet(machine) ? t('components.sentinel.scenes.card.machine.online') : t('components.sentinel.scenes.card.machine.offline')" :content="{ side: 'top' }">
+      <UTooltip arrow :text="machineOnlineGet(machine) ? t('components.sentinel.scenes.card.machine.online') : t('components.sentinel.scenes.card.machine.offline')" :content="{ side: 'top' }">
         <span :class="['block size-2 shrink-0 rounded-full', machineOnlineGet(machine) ? 'bg-success' : 'bg-neutral-400']" />
       </UTooltip>
       <h3 class="min-w-0 text-lg leading-6 font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
@@ -17,7 +17,7 @@
           <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.machineCode') }}</span>
         </div>
         <span class="min-w-0 flex-1 break-all">{{ machine.machineCode || '-' }}</span>
-        <UTooltip v-if="String(machine.machineCode || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+        <UTooltip v-if="String(machine.machineCode || '').trim()" arrow :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
           <UButton
             :color="copiedGet(`${machine.machineCode}|info|code`) ? 'success' : 'neutral'"
             variant="link"
@@ -37,13 +37,13 @@
           <div class="min-w-0 flex-1">
             <UInput :model-value="remarkDraftGet(machine.machineCode)" size="sm" class="w-full" @update:model-value="(value) => handleRemarkDraftUpdate(machine.machineCode, value)" @keydown.enter.prevent="handleRemarkSave(machine)" @keydown.esc.prevent="handleRemarkEditCancel(machine)" />
           </div>
-          <UTooltip :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
+          <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
             <UButton color="neutral" variant="link" size="sm" icon="i-lucide-save" :aria-label="t('components.sentinel.scenes.card.tooltips.saveRemark')" @click.stop="handleRemarkSave(machine)" />
           </UTooltip>
         </template>
         <template v-else>
           <span class="min-w-0 flex-1 break-all">{{ machine.machineRemark || '-' }}</span>
-          <UTooltip :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
+          <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
             <UButton color="neutral" variant="link" size="sm" icon="i-material-symbols:edit-outline" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
           </UTooltip>
         </template>
@@ -70,7 +70,7 @@
       </div>
       <div class="border-default flex items-center justify-between gap-3 border-t pt-3">
         <div class="flex items-center gap-2">
-          <UPopover v-if="!isLocalMachine(machine.machineCode)" :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
+          <UPopover v-if="!isLocalMachine(machine.machineCode)" arrow :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
             <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.deleteMachine') }}</UButton>
             <template #content="{ close }">
               <div class="flex flex-col gap-2">
@@ -146,7 +146,7 @@
                   <div v-if="isLocalMachine(computedActiveMachine.machineCode)" class="flex shrink-0 items-center gap-2 self-start xl:ps-4">
                     <UButton color="primary" variant="ghost" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
 
-                    <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
+                    <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
                       <UButton color="error" variant="ghost" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
                       <template #content="{ close }">
                         <div class="flex flex-col gap-2">
@@ -232,7 +232,7 @@
                     </div>
                     <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv4) || '-' }}</span>
                   </div>
-                  <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+                  <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
                     <UButton
                       :color="copiedGet(`${computedActiveMachine.machineCode}|ipv4|${group.name}`) ? 'success' : 'neutral'"
                       variant="link"
@@ -271,7 +271,7 @@
                     </div>
                     <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv6) || '-' }}</span>
                   </div>
-                  <UTooltip :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+                  <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
                     <UButton
                       :color="copiedGet(`${computedActiveMachine.machineCode}|ipv6|${group.name}`) ? 'success' : 'neutral'"
                       variant="link"

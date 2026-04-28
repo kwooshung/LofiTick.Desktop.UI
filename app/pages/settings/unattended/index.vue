@@ -94,7 +94,7 @@
         </div>
         <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
         <UButton color="primary" variant="soft" icon="i-mdi:reload" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
-        <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'p-4 w-80' }">
+        <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'p-4 w-80' }">
           <UButton color="primary" variant="outline" icon="i-lucide:calculator">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
 
           <template #content>

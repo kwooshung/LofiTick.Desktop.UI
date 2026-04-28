@@ -40,7 +40,7 @@
           <div class="space-y-1">
             {{ t('pages.settings.general.storage.description') }}
             <span v-if="stateStoragePath">
-              <UTooltip :text="stateStoragePath" :content="{ side: 'top' }" :disabled="stateStoragePath === computedTruncatedStorage">
+              <UTooltip arrow :text="stateStoragePath" :content="{ side: 'top' }" :disabled="stateStoragePath === computedTruncatedStorage">
                 <ULink class="align-middle hover:cursor-pointer" @click.prevent="handleOpenStorage">{{ computedTruncatedStorage }}</ULink>
               </UTooltip>
             </span>
