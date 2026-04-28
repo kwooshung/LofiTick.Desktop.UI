@@ -32,6 +32,11 @@ export type TSentinelScenesConfigValues = {
    * 启动参数（每项为一个参数）
    */
   args: string[];
+
+  /**
+   * 是否启用
+   */
+  enabled: boolean;
 };
 
 /**
@@ -82,6 +87,11 @@ export interface ISentinelScenesConfigFormState {
    * 启动参数（文本形式：一行一个参数）
    */
   argsText: string;
+
+  /**
+   * 是否启用
+   */
+  enabled: boolean;
 }
 
 /**
@@ -128,6 +138,11 @@ export interface ISentinelScenesConfigProps {
    * 初始启动参数
    */
   args?: string[];
+
+  /**
+   * 初始启用状态
+   */
+  enabled?: boolean;
 
   /**
    * 表单 id

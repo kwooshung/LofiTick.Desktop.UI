@@ -32,6 +32,11 @@
       <template #description>{{ t('components.sentinel.scenes.desc.args') }}</template>
       <UTextarea v-model="stateForm.argsText" class="w-full" :readonly="computedFormReadonly" :rows="4" autoresize :placeholder="t('components.sentinel.scenes.placeholders.args')" />
     </UFormField>
+
+    <UFormField :label="t('components.sentinel.scenes.labels.enabled')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <template #description>{{ t('components.sentinel.scenes.desc.enabled') }}</template>
+      <USwitch v-model="stateForm.enabled" :disabled="computedFormReadonly" />
+    </UFormField>
   </UForm>
 </template>
 
@@ -57,7 +62,8 @@ const props = withDefaults(defineProps<ISentinelScenesConfigProps>(), {
   localMachineId: '',
   execPathEditable: true,
   execPath: '',
-  args: () => []
+  args: () => [],
+  enabled: true
 });
 
 /**
@@ -76,7 +82,8 @@ const FORM_ID_DEFAULT = 'sentinelScenesEditorForm';
 const stateForm = reactive<ISentinelScenesConfigFormState>({
   sceneName: String(props.sceneName || ''),
   execPath: String(props.execPath || ''),
-  argsText: Array.isArray(props.args) ? props.args.join('\n') : ''
+  argsText: Array.isArray(props.args) ? props.args.join('\n') : '',
+  enabled: Boolean(props.enabled)
 });
 
 /**
@@ -217,7 +224,8 @@ const valuesGet = (): TSentinelScenesConfigValues => ({
   machineRemark: String(props.machineRemark || ''),
   sceneName: String(stateForm.sceneName || '').trim(),
   execPath: String(stateForm.execPath || '').trim(),
-  args: computedArgs.value
+  args: computedArgs.value,
+  enabled: Boolean(stateForm.enabled)
 });
 
 /**
@@ -228,6 +236,7 @@ const valuesSet = (values: TSentinelScenesConfigValues): void => {
   stateForm.sceneName = String(values.sceneName || '');
   stateForm.execPath = String(values.execPath || '');
   stateForm.argsText = Array.isArray(values.args) ? values.args.join('\n') : '';
+  stateForm.enabled = Boolean(values.enabled);
 
   refForm.value?.clear();
   validateBuildResult();

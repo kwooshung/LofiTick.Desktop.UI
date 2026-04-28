@@ -7,14 +7,16 @@ export const scenes = {
     machineRemark: 'マシン備考',
     sceneName: 'シーン名',
     execPath: 'プログラムパス',
-    args: '起動引数'
+    args: '起動引数',
+    enabled: '有効化'
   },
   desc: {
     machineName: 'マシンIDと合わせて端末を識別します',
     machineId: '端末を一意に識別し、プログラムパスの編集可否判定に使用します',
     sceneName: '監護対象のUE5シーンアプリを識別します',
     execPath: 'UE5シーンアプリの実行ファイルパス（必須）',
-    args: '1行1引数。順番どおりに起動コマンドへ渡します'
+    args: '1行1引数。順番どおりに起動コマンドへ渡します',
+    enabled: 'オフにすると設定は残りますが、Sentinel はこのシーンを自動起動しません'
   },
   placeholders: {
     sceneName: 'シーン名を入力してください（例：屋内シーン）',

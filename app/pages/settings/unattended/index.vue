@@ -1385,14 +1385,13 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
   const nextId = editingId || (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
 
   const idx = base.items.findIndex((i) => String(i?.id || '').trim() === nextId);
-  const keepEnabled = idx >= 0 ? Boolean(base.items[idx]?.enabled) : true;
 
   const nextItem: IPageSettingsUnattendedScenesItem = {
     id: nextId,
     sceneName: String(values.sceneName || '').trim(),
     execPath: String(values.execPath || '').trim(),
     args: Array.isArray(values.args) ? values.args : [],
-    enabled: keepEnabled
+    enabled: Boolean(values.enabled)
   };
 
   if (idx >= 0) {
@@ -1457,7 +1456,8 @@ const handleScenesAddOpen = async (): Promise<void> => {
     machineRemark,
     sceneName: '',
     execPath: '',
-    args: []
+    args: [],
+    enabled: true
   });
 };
 
@@ -1492,7 +1492,8 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
     machineRemark,
     sceneName: String(target.sceneName || ''),
     execPath: String(target.execPath || ''),
-    args: Array.isArray(target.args) ? target.args : []
+    args: Array.isArray(target.args) ? target.args : [],
+    enabled: Boolean(target.enabled)
   });
 };
 

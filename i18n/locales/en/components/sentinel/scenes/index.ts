@@ -7,14 +7,16 @@ export const scenes = {
     machineRemark: 'Machine remark',
     sceneName: 'Scene name',
     execPath: 'Program path',
-    args: 'Arguments'
+    args: 'Arguments',
+    enabled: 'Enabled'
   },
   desc: {
     machineName: 'Use with Machine ID to distinguish computers',
     machineId: 'Unique identifier of the computer; used to decide whether Program path is editable',
     sceneName: 'Used to identify the monitored UE5 scene app',
     execPath: 'Executable path of the UE5 scene app (required)',
-    args: 'One argument per line; passed to the launch command in order'
+    args: 'One argument per line; passed to the launch command in order',
+    enabled: 'When off, the scene config is kept, but Sentinel will not auto-start it'
   },
   placeholders: {
     sceneName: 'Enter a scene name, e.g. Indoor scene',

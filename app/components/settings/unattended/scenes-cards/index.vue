@@ -96,25 +96,52 @@
     </template>
     <template #body>
       <div v-if="computedActiveMachine" class="space-y-5">
-        <div v-if="isLocalMachine(computedActiveMachine.machineCode) && computedActiveMachine.items.length > 0" class="flex justify-end">
-          <UButton v-if="isLocalMachine(computedActiveMachine.machineCode) && computedActiveMachine.items.length > 0" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">{{
-            t('components.sentinel.scenes.card.actions.addScene')
-          }}</UButton>
-        </div>
-        <dl v-for="item in computedActiveMachine.items" :key="item.id">
-          <dt class="mb-2 flex h-10 items-center justify-between">
-            <span class="text-highlighted text-lg font-medium wrap-break-word">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</span>
-            <div class="flex shrink-0 items-center gap-2">
-              <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="soft">{{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}</UBadge>
-              <template v-if="isLocalMachine(computedActiveMachine.machineCode)">
-                <USwitch :model-value="Boolean(item.enabled)" @update:model-value="(v: boolean) => emit('toggle-enabled', { id: String(item.id || ''), enabled: Boolean(v) })" />
-              </template>
+        <section class="space-y-4">
+          <div class="border-default flex items-center justify-between gap-3 border-b pb-3">
+            <div class="flex min-w-0 items-center gap-2">
+              <div class="text-highlighted text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.scenes') }}</div>
+              <UBadge color="neutral" variant="soft">{{ computedActiveMachine.items.length }}</UBadge>
             </div>
-          </dt>
-          <dd class="text-muted mt-1 text-xs break-all">
-            <div class="flex gap-4">
-              <UTextarea :default-value="scenesCommandTextGet(item.execPath, item.args) || '-'" readonly autoresize size="md" class="flex-1 resize-none" />
-              <div v-if="isLocalMachine(computedActiveMachine.machineCode)" class="flex flex-col justify-between">
+            <UButton v-if="isLocalMachine(computedActiveMachine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">
+              {{ t('components.sentinel.scenes.card.actions.addScene') }}
+            </UButton>
+          </div>
+
+          <div v-if="computedActiveMachine.items.length > 0" class="space-y-3">
+            <article v-for="item in computedActiveMachine.items" :key="item.id" class="bg-elevated/40 ring-default space-y-4 rounded-xl p-4 ring-1">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1 space-y-2">
+                  <div class="flex min-w-0 flex-wrap items-center gap-2">
+                    <div class="text-highlighted min-w-0 text-lg font-medium break-all">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</div>
+                    <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="soft">{{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}</UBadge>
+                  </div>
+
+                  <div class="text-muted flex min-w-0 items-start gap-2 text-xs">
+                    <UIcon name="i-material-symbols:terminal-rounded" class="mt-0.5 shrink-0" />
+                    <span class="min-w-0 break-all">{{ scenesCommandTextGet(item.execPath, item.args) || '-' }}</span>
+                  </div>
+                </div>
+
+                <template v-if="isLocalMachine(computedActiveMachine.machineCode)">
+                  <USwitch :model-value="Boolean(item.enabled)" @update:model-value="(v: boolean) => emit('toggle-enabled', { id: String(item.id || ''), enabled: Boolean(v) })" />
+                </template>
+              </div>
+
+              <div class="grid gap-3 xl:grid-cols-2">
+                <div class="bg-default/80 space-y-1 rounded-lg px-3 py-2">
+                  <div class="text-muted text-[11px] font-medium tracking-[0.08em] uppercase">{{ t('components.sentinel.scenes.labels.execPath') }}</div>
+                  <div class="text-sm break-all">{{ item.execPath || '-' }}</div>
+                </div>
+
+                <div class="bg-default/80 space-y-1 rounded-lg px-3 py-2">
+                  <div class="text-muted text-[11px] font-medium tracking-[0.08em] uppercase">{{ t('components.sentinel.scenes.labels.args') }}</div>
+                  <div class="text-sm break-all">{{ scenesArgsTextGet(item.args) }}</div>
+                </div>
+              </div>
+
+              <div v-if="isLocalMachine(computedActiveMachine.machineCode)" class="border-default flex items-center justify-end gap-2 border-t pt-3">
+                <UButton color="primary" variant="outline" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
+
                 <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
                   <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
                   <template #content="{ close }">
@@ -128,29 +155,29 @@
                     </div>
                   </template>
                 </UPopover>
-                <UButton color="primary" variant="outline" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
               </div>
-            </div>
-          </dd>
-        </dl>
-        <div v-if="computedActiveMachine.items.length === 0" class="py-4">
-          <UEmpty
-            icon="i-tabler:layout-grid"
-            :title="t('components.sentinel.scenes.card.empty.scenes.title')"
-            :description="isLocalMachine(computedActiveMachine.machineCode) ? t('components.sentinel.scenes.card.empty.scenes.localDescription') : t('components.sentinel.scenes.card.empty.scenes.remoteDescription')"
-            variant="naked"
-            size="sm"
-            :ui="{
-              root: 'p-0',
-              header: 'max-w-none',
-              body: 'max-w-none'
-            }"
-          >
-            <template v-if="isLocalMachine(computedActiveMachine.machineCode)" #actions>
-              <UButton icon="i-material-symbols:add-ad-outline-rounded" color="primary" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
-            </template>
-          </UEmpty>
-        </div>
+            </article>
+          </div>
+
+          <div v-else class="ring-default ring-dashed rounded-xl px-4 py-5 ring-1">
+            <UEmpty
+              icon="i-tabler:layout-grid"
+              :title="t('components.sentinel.scenes.card.empty.scenes.title')"
+              :description="isLocalMachine(computedActiveMachine.machineCode) ? t('components.sentinel.scenes.card.empty.scenes.localDescription') : t('components.sentinel.scenes.card.empty.scenes.remoteDescription')"
+              variant="naked"
+              size="sm"
+              :ui="{
+                root: 'p-0',
+                header: 'max-w-none',
+                body: 'max-w-none'
+              }"
+            >
+              <template v-if="isLocalMachine(computedActiveMachine.machineCode)" #actions>
+                <UButton icon="i-material-symbols:add-ad-outline-rounded" color="primary" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+              </template>
+            </UEmpty>
+          </div>
+        </section>
       </div>
       <div v-else class="py-6">
         <UEmpty
@@ -935,6 +962,27 @@ const scenesCommandTextGet = (execPath: string, args: string[]): string => {
   const safeArgs = Array.isArray(args) ? args.map((i) => String(i)) : [];
 
   const parts = [safeExecPath, ...safeArgs].filter((i) => String(i).trim() !== '');
+  return parts
+    .map((i) => {
+      const s = String(i);
+      return /\s/.test(s) ? `"${s.replaceAll('"', '\\"')}"` : s;
+    })
+    .join(' ')
+    .trim();
+};
+
+/**
+ * 函数：构建参数展示文本
+ * @param {string[]} args 参数列表
+ * @returns {string} 参数摘要
+ */
+const scenesArgsTextGet = (args: string[]): string => {
+  const safeArgs = Array.isArray(args) ? args.map((i) => String(i)) : [];
+  const parts = safeArgs.filter((i) => String(i).trim() !== '');
+  if (parts.length === 0) {
+    return '-';
+  }
+
   return parts
     .map((i) => {
       const s = String(i);

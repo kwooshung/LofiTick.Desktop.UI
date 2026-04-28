@@ -40,6 +40,41 @@ export default defineAppConfig({
         root: 'relative group overflow-hidden bg-default shadow-lg rounded-lg ring ring-default p-4 flex gap-2.5 focus:outline-none no-drag'
       }
     },
+    modal: {
+      slots: {
+        overlay: 'no-drag',
+        content: 'no-drag',
+        header: 'no-drag',
+        body: 'no-drag',
+        footer: 'no-drag',
+        close: 'no-drag'
+      }
+    },
+    drawer: {
+      slots: {
+        overlay: 'no-drag',
+        content: 'no-drag',
+        container: 'no-drag',
+        header: 'no-drag',
+        body: 'no-drag',
+        footer: 'no-drag'
+      }
+    },
+    slideover: {
+      slots: {
+        overlay: 'no-drag',
+        content: 'no-drag',
+        header: 'no-drag',
+        body: 'no-drag',
+        footer: 'no-drag',
+        close: 'no-drag'
+      }
+    },
+    popover: {
+      slots: {
+        content: 'no-drag'
+      }
+    },
     tooltip: {
       slots: {
         content: 'z-60 bg-stone-800 ring-stone-800 dark:bg-neutral-600 dark:ring-neutral-600 text-white',
