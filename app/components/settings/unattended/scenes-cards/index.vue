@@ -1,8 +1,8 @@
 <template>
   <DefineMachineHeaderTemplate v-slot="{ machine, actionsVariant }">
-    <div class="mb-3 flex min-w-0 items-start gap-2">
-      <h3 class="text-lg font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
-      <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft">
+    <div class="mb-3 flex min-w-0 items-center gap-2">
+      <h3 class="min-w-0 text-lg leading-6 font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
+      <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft" class="shrink-0 self-center">
         {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
       </UBadge>
     </div>
@@ -83,10 +83,10 @@
     </div>
   </div>
 
-  <USlideover v-model:open="stateOpen" :title="computedSlideoverTitle" side="right" :ui="{ title: 'min-w-0 flex-1 font-normal', close: '-translate-y-1 shrink-0' }">
+  <USlideover v-model:open="stateOpen" :title="computedSlideoverTitle" side="right" :ui="{ content: 'w-auto min-w-120', title: 'min-w-0 flex-1 font-normal', close: '-translate-y-1 shrink-0' }">
     <template #title>
       <template v-if="computedActiveMachine">
-        <div class="w-102 min-w-0 font-normal">
+        <div class="w-120 min-w-0 font-normal">
           <ReuseMachineHeaderTemplate :machine="computedActiveMachine" actions-variant="slideover" :truncate="false" />
         </div>
       </template>
@@ -108,53 +108,49 @@
           </div>
 
           <div v-if="computedActiveMachine.items.length > 0" class="space-y-3">
-            <article v-for="item in computedActiveMachine.items" :key="item.id" class="bg-elevated/40 ring-default space-y-4 rounded-xl p-4 ring-1">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0 flex-1 space-y-2">
-                  <div class="flex min-w-0 flex-wrap items-center gap-2">
-                    <div class="text-highlighted min-w-0 text-lg font-medium break-all">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</div>
-                    <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="soft">{{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}</UBadge>
-                  </div>
+            <article v-for="item in computedActiveMachine.items" :key="item.id" class="bg-elevated/35 ring-default rounded-lg p-4 ring-1">
+              <div class="flex min-w-0 flex-col gap-3">
+                <div class="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                  <div class="min-w-0 space-y-2">
+                    <div class="flex min-w-0 items-center justify-between gap-3">
+                      <div class="text-highlighted min-w-0 text-lg font-medium break-all">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</div>
 
-                  <div class="text-muted flex min-w-0 items-start gap-2 text-xs">
-                    <UIcon name="i-material-symbols:terminal-rounded" class="mt-0.5 shrink-0" />
-                    <span class="min-w-0 break-all">{{ scenesCommandTextGet(item.execPath, item.args) || '-' }}</span>
-                  </div>
-                </div>
-
-                <template v-if="isLocalMachine(computedActiveMachine.machineCode)">
-                  <USwitch :model-value="Boolean(item.enabled)" @update:model-value="(v: boolean) => emit('toggle-enabled', { id: String(item.id || ''), enabled: Boolean(v) })" />
-                </template>
-              </div>
-
-              <div class="grid gap-3 xl:grid-cols-2">
-                <div class="bg-default/80 space-y-1 rounded-lg px-3 py-2">
-                  <div class="text-muted text-[11px] font-medium tracking-[0.08em] uppercase">{{ t('components.sentinel.scenes.labels.execPath') }}</div>
-                  <div class="text-sm break-all">{{ item.execPath || '-' }}</div>
-                </div>
-
-                <div class="bg-default/80 space-y-1 rounded-lg px-3 py-2">
-                  <div class="text-muted text-[11px] font-medium tracking-[0.08em] uppercase">{{ t('components.sentinel.scenes.labels.args') }}</div>
-                  <div class="text-sm break-all">{{ scenesArgsTextGet(item.args) }}</div>
-                </div>
-              </div>
-
-              <div v-if="isLocalMachine(computedActiveMachine.machineCode)" class="border-default flex items-center justify-end gap-2 border-t pt-3">
-                <UButton color="primary" variant="outline" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
-
-                <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
-                  <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
-                  <template #content="{ close }">
-                    <div class="flex flex-col gap-2">
-                      <div class="text-highlighted text-sm font-medium">{{ t('components.sentinel.scenes.card.dialogs.deleteSceneTitle') }}</div>
-                      <div class="text-muted text-xs break-all">{{ String(item.sceneName || '') }}</div>
-                      <div class="flex items-center justify-end gap-2 pt-1">
-                        <UButton color="neutral" variant="outline" size="xs" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                        <UButton color="error" variant="solid" size="xs" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
+                      <div class="flex shrink-0 items-center gap-2">
+                        <template v-if="isLocalMachine(computedActiveMachine.machineCode)">
+                          <USwitch :model-value="Boolean(item.enabled)" @update:model-value="(v: boolean) => emit('toggle-enabled', { id: String(item.id || ''), enabled: Boolean(v) })" />
+                        </template>
+                        <template v-else>
+                          <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="soft">
+                            {{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}
+                          </UBadge>
+                        </template>
                       </div>
                     </div>
-                  </template>
-                </UPopover>
+
+                    <div class="text-muted flex min-w-0 items-start gap-2 text-xs leading-5">
+                      <UIcon name="i-material-symbols:terminal-rounded" class="mt-0.5 shrink-0" />
+                      <span class="min-w-0 break-all">{{ scenesCommandTextGet(item.execPath, item.args) || '-' }}</span>
+                    </div>
+                  </div>
+
+                  <div v-if="isLocalMachine(computedActiveMachine.machineCode)" class="flex shrink-0 items-center gap-2 self-start xl:ps-4">
+                    <UButton color="primary" variant="ghost" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
+
+                    <UPopover :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
+                      <UButton color="error" variant="ghost" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
+                      <template #content="{ close }">
+                        <div class="flex flex-col gap-2">
+                          <div class="text-highlighted text-sm font-medium">{{ t('components.sentinel.scenes.card.dialogs.deleteSceneTitle') }}</div>
+                          <div class="text-muted text-xs break-all">{{ String(item.sceneName || '') }}</div>
+                          <div class="flex items-center justify-end gap-2 pt-1">
+                            <UButton color="neutral" variant="outline" size="xs" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                            <UButton color="error" variant="solid" size="xs" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
+                          </div>
+                        </div>
+                      </template>
+                    </UPopover>
+                  </div>
+                </div>
               </div>
             </article>
           </div>
@@ -962,27 +958,6 @@ const scenesCommandTextGet = (execPath: string, args: string[]): string => {
   const safeArgs = Array.isArray(args) ? args.map((i) => String(i)) : [];
 
   const parts = [safeExecPath, ...safeArgs].filter((i) => String(i).trim() !== '');
-  return parts
-    .map((i) => {
-      const s = String(i);
-      return /\s/.test(s) ? `"${s.replaceAll('"', '\\"')}"` : s;
-    })
-    .join(' ')
-    .trim();
-};
-
-/**
- * 函数：构建参数展示文本
- * @param {string[]} args 参数列表
- * @returns {string} 参数摘要
- */
-const scenesArgsTextGet = (args: string[]): string => {
-  const safeArgs = Array.isArray(args) ? args.map((i) => String(i)) : [];
-  const parts = safeArgs.filter((i) => String(i).trim() !== '');
-  if (parts.length === 0) {
-    return '-';
-  }
-
   return parts
     .map((i) => {
       const s = String(i);

@@ -1302,20 +1302,18 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   const sigExtraHeadersRef = ref<Record<string, string>>({});
 
   /**
-   * 计算：带签名字段的 query（GET/HEAD/DELETE 走 query；写方法不注入 query）。
+   * 计算：带签名字段的 query。
+   *
+   * 迷惑假参数 `ts/nonce/sign` 一律显示在 URL 中，便于对外观测时保持一致。
    */
   const signedQueryRef = computed<Record<string, unknown>>(() => {
-    if (hasBodyMethod) {
-      return baseQueryRef.value;
-    }
-
     const ts = sigTsRef.value;
     if (ts === '') {
-      return baseGetQueryRef.value;
+      return hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value;
     }
 
     return {
-      ...baseGetQueryRef.value,
+      ...(hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value),
       ts,
       nonce: sigNonceRef.value,
       sign: sigSignRef.value
@@ -1323,21 +1321,11 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   });
 
   /**
-   * 计算：带签名字段的 body（写方法走 body；读方法不发送 body）。
+   * 计算：最终请求 body。
+   *
+   * 写请求仅携带业务参数，迷惑假参数不再混入 body。
    */
-  const signedBodyRef = computed<Record<string, unknown>>(() => {
-    const ts = sigTsRef.value;
-    if (ts === '') {
-      return baseBodyRef.value;
-    }
-
-    return {
-      ...baseBodyRef.value,
-      ts,
-      nonce: sigNonceRef.value,
-      sign: sigSignRef.value
-    };
-  });
+  const signedBodyRef = computed<Record<string, unknown>>(() => baseBodyRef.value);
 
   /**
    * 计算：最终请求 headers（稳定引用）。

@@ -457,9 +457,15 @@ const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUr
  * API：场景配置（GET / PATCH）
  * 描述：按 machineCode 分组存储，可跨设备快速读取。
  */
-const { datas: stateScenesRemote, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
-const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
+const { datas: stateScenesRemoteFetched, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
+const { datas: stateScenesRemotePatch, refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
 const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'DELETE', immediate: false });
+
+/**
+ * 状态：当前机器的场景详情（本地可写镜像）
+ * 描述：用于承接乐观更新与 PATCH 返回值，避免直接写只读 computed datas。
+ */
+const stateScenesRemote = ref<IPageSettingsUnattendedScenesMachineRedisConfig | undefined>(undefined);
 
 /**
  * API：场景配置（GET）
@@ -484,6 +490,18 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
   }
   return input as Record<string, unknown>;
 };
+
+/**
+ * 监听：GET 场景详情变更时，同步本地可写镜像
+ * @param {IPageSettingsUnattendedScenesMachineRedisConfig | undefined} value 最新详情
+ */
+watch(
+  stateScenesRemoteFetched,
+  (value) => {
+    stateScenesRemote.value = value;
+  },
+  { immediate: true }
+);
 
 /**
  * 工具：转为安全数字
@@ -1200,23 +1218,13 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
         }
       }
     });
-    await refreshScenesRemoteGet({ query: { machineCode } });
 
-    try {
-      await refreshScenesMachinesRemoteGet();
-    } catch {
-      // ignore
+    if (stateScenesRemotePatch.value) {
+      stateScenesRemote.value = stateScenesRemotePatch.value;
     }
   } catch {
     if (current) {
       stateScenesRemote.value = { ...current, items: snapshotItems };
-    }
-    await refreshScenesRemoteGet({ query: { machineCode } });
-
-    try {
-      await refreshScenesMachinesRemoteGet();
-    } catch {
-      // ignore
     }
   }
 };
