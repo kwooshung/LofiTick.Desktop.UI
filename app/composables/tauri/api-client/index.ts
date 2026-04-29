@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import type { IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
+import type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 
 import { apiToastTryEmit } from '../../hooks/useApi';
 
@@ -64,5 +64,22 @@ export const useTauriApiClient = () => {
     return out;
   };
 
-  return { request };
+  /**
+   * 函数：更新壳侧 API 客户端配置
+   * @param {IApiClientConfigPatch} patch 配置补丁
+   * @returns {Promise<IApiClientConfig>} 更新后的完整配置
+   */
+  const configUpdate = async (patch: IApiClientConfigPatch): Promise<IApiClientConfig> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return await invoke<IApiClientConfig>('api_client_config_update', { patch });
+  };
+
+  return { request, configUpdate };
 };

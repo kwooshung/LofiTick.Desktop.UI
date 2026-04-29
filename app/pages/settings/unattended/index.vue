@@ -1129,6 +1129,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
         machineName: String(machine?.machineName || '').trim(),
         machineRemark: String(machine?.machineRemark || '').trim(),
         machineCode: String(machine?.machineCode || '').trim(),
+        lastSeenAt: String(machine?.lastSeenAt || '').trim() || undefined,
         network: undefined,
         items: []
       }) satisfies IPageSettingsUnattendedScenesMachineRedisConfig
@@ -1148,6 +1149,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     machineName: localMachineName,
     machineRemark: String(stateScenesRemote.value?.machineRemark || '').trim(),
     machineCode: localMachineCode,
+    lastSeenAt: String(stateScenesRemote.value?.lastSeenAt || '').trim() || undefined,
     network: localNetwork,
     items: localItems
   };
@@ -1167,6 +1169,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     machineCode: localMachineCode,
     machineName: localMachineName || String(target.machineName ?? ''),
     machineRemark: String(stateScenesRemote.value?.machineRemark || target.machineRemark || '').trim(),
+    lastSeenAt: String(stateScenesRemote.value?.lastSeenAt || target.lastSeenAt || '').trim() || undefined,
     network: localNetwork,
     items: localItems
   };

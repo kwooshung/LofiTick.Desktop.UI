@@ -74,6 +74,16 @@ const storeAppInfo = useStoreAppInfo();
 const { isTauriRuntime } = useTauriEnv();
 
 /**
+ * Hook：运行时配置
+ */
+const runtimeConfig = useRuntimeConfig();
+
+/**
+ * Hook：Tauri 直连 API 客户端
+ */
+const { configUpdate: tauriApiClientConfigUpdate } = useTauriApiClient();
+
+/**
  * Hook：Tauri 设置
  */
 const { get: settingsGet, machineNetworkGet, machineHostnameGet } = useTauriSettings();
@@ -88,6 +98,11 @@ const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattend
  * 状态：启动静默上报是否已执行
  */
 const stateUnattendedStartupReported = useState<boolean>('unattended-startup-reported', () => false);
+
+/**
+ * 状态：壳侧 API 客户端配置是否已同步
+ */
+const stateTauriApiClientConfigured = useState<boolean>('tauri-api-client-configured', () => false);
 
 /**
  * 工具：转为普通对象
@@ -191,6 +206,35 @@ const unattendedStartupReportOnce = async (): Promise<void> => {
 };
 
 /**
+ * 函数：同步壳侧 API 客户端配置
+ * 描述：仅在 Tauri 运行时执行一次，把前端 runtimeConfig 中的 apiBase/signAesSeed 写入桌面壳。
+ */
+const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!isTauriRuntime.value) {
+    return;
+  }
+  if (stateTauriApiClientConfigured.value) {
+    return;
+  }
+
+  const apiBase = String(runtimeConfig.public.apiBase || '').trim();
+  const signAesSeed = String(runtimeConfig.public.signAesSeed || '').trim();
+  if (!apiBase || !signAesSeed) {
+    console.warn('[tauri-api-client] runtime config missing', {
+      apiBaseReady: Boolean(apiBase),
+      signAesSeedReady: Boolean(signAesSeed)
+    });
+    return;
+  }
+
+  await tauriApiClientConfigUpdate({ apiBase, signAesSeed });
+  stateTauriApiClientConfigured.value = true;
+};
+
+/**
  * 函数：阻止 Tauri 运行时的默认右键菜单
  * @param {MouseEvent} event 鼠标事件
  * @returns {void} 无返回值
@@ -285,7 +329,15 @@ useHead({
 onMounted(() => {
   loadSettings();
 
-  void unattendedStartupReportOnce();
+  void (async () => {
+    try {
+      await tauriApiClientConfigSyncOnce();
+    } catch (error) {
+      console.warn('[tauri-api-client] config sync failed', error);
+    }
+
+    await unattendedStartupReportOnce();
+  })();
 
   if (isTauriRuntime.value) {
     window.addEventListener('contextmenu', handleTauriContextMenu, true);

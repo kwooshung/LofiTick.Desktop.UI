@@ -44,3 +44,35 @@ export interface IApiClientRequestOutput {
    */
   json: unknown;
 }
+
+/**
+ * 接口：Tauri 直连 API 客户端配置。
+ * 描述：对应 Desktop 壳侧 `ApiClientConfig`。
+ */
+export interface IApiClientConfig {
+  /**
+   * 后端 API 基础地址
+   */
+  apiBase: string;
+
+  /**
+   * 签名 AES Seed
+   */
+  signAesSeed: string;
+}
+
+/**
+ * 接口：Tauri 直连 API 客户端配置补丁。
+ * 描述：对应 Desktop 壳侧 `api_client_config_update` 的 patch 参数。
+ */
+export interface IApiClientConfigPatch {
+  /**
+   * 后端 API 基础地址
+   */
+  apiBase?: string;
+
+  /**
+   * 签名 AES Seed
+   */
+  signAesSeed?: string;
+}
