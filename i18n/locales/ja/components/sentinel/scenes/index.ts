@@ -57,7 +57,7 @@ export const scenes = {
       open: '同期確認',
       useLocal: 'ローカルを使用',
       useRemote: 'リモートを使用',
-      merge: '競合はローカル優先でマージ'
+      merge: '設定をマージ'
     },
     status: {
       'local-only': 'ローカルのみ',

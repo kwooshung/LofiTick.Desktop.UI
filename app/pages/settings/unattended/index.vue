@@ -1224,6 +1224,38 @@ const persistLocalScenes = async (items: IPageSettingsUnattendedScenesItem[], ro
 };
 
 /**
+ * 函数：本地与远程同时写入场景副本
+ * @param {IPageSettingsUnattendedScenesItem[]} items 最新场景列表
+ * @param {ISettingsUnattendedScenesLocal} [rollbackState] 回滚副本
+ */
+const persistScenesLocalAndRemote = async (items: IPageSettingsUnattendedScenesItem[], rollbackState?: ISettingsUnattendedScenesLocal): Promise<void> => {
+  const fallbackState = rollbackState ?? {
+    updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
+    items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
+  };
+
+  await persistLocalScenes(items, fallbackState);
+
+  try {
+    await applyLocalScenesToRemote(items);
+  } catch (error) {
+    stateScenesLocal.value = fallbackState;
+
+    try {
+      await settingsUpdate({
+        unattended: {
+          scenes: fallbackState
+        }
+      });
+    } catch {
+      // ignore rollback write errors
+    }
+
+    throw error;
+  }
+};
+
+/**
  * 函数：刷新远程场景缓存
  */
 const refreshScenesRemoteState = async (): Promise<void> => {
@@ -1333,23 +1365,18 @@ const handleScenesSyncOpen = async (): Promise<void> => {
       entries
     });
 
-    if (choice === 'dismiss') {
-      return;
-    }
-
     if (choice === 'remote') {
-      await persistLocalScenes(unattendedScenesItemsNormalize(remote?.items));
+      await persistScenesLocalAndRemote(unattendedScenesItemsNormalize(remote?.items), local);
       return;
     }
 
     if (choice === 'local') {
-      await applyLocalScenesToRemote(local.items);
+      await persistScenesLocalAndRemote(local.items, local);
       return;
     }
 
     const mergedItems = unattendedScenesMergePreferLocal(local.items, unattendedScenesItemsNormalize(remote?.items));
-    await persistLocalScenes(mergedItems);
-    await applyLocalScenesToRemote(mergedItems);
+    await persistScenesLocalAndRemote(mergedItems, local);
   } finally {
     stateScenesSyncing.value = false;
   }
@@ -1381,7 +1408,7 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
 
   const nextItems = snapshotItems.map((i) => (String(i?.id || '').trim() === String(id || '').trim() ? { ...i, enabled: Boolean(enabled) } : i));
 
-  await persistLocalScenes(nextItems, snapshotState);
+  await persistScenesLocalAndRemote(nextItems, snapshotState);
 };
 
 /**
@@ -1452,7 +1479,7 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
   const snapshotItems = snapshotState.items;
   const nextItems = snapshotItems.filter((i) => String(i?.id || '').trim() !== String(id || '').trim());
 
-  await persistLocalScenes(nextItems, snapshotState);
+  await persistScenesLocalAndRemote(nextItems, snapshotState);
 };
 
 /**
@@ -1490,7 +1517,7 @@ const handleScenesMachineDelete = async (payload: { machineName: string; machine
 
 /**
  * 事件：场景表单提交
- * 描述：当前仅用于关闭抽屉，具体保存逻辑后续接入。
+ * 描述：本机场景保存时同时写入本地副本与当前机器的远程配置。
  */
 const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<void> => {
   if (!import.meta.client) {
@@ -1532,7 +1559,12 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     base.items.push(nextItem);
   }
 
-  await persistLocalScenes(base.items);
+  const rollbackState: ISettingsUnattendedScenesLocal = {
+    updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
+    items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
+  };
+
+  await persistScenesLocalAndRemote(base.items, rollbackState);
 
   stateScenesDrawerOpen.value = false;
 };

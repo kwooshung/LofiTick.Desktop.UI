@@ -5,7 +5,7 @@
         <span :class="['block size-2 shrink-0 rounded-full', machineOnlineGet(machine) ? 'bg-success' : 'bg-neutral-400']" />
       </UTooltip>
       <h3 class="min-w-0 text-lg leading-6 font-medium whitespace-nowrap">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
-      <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft" class="shrink-0 self-center">
+      <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="outline" class="shrink-0 self-center">
         {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
       </UBadge>
     </div>
@@ -113,7 +113,7 @@
           <div class="border-default flex items-center justify-between gap-3 border-b pb-3">
             <div class="flex min-w-0 items-center gap-2">
               <div class="text-highlighted text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.scenes') }}</div>
-              <UBadge color="neutral" variant="soft">{{ computedActiveMachine.items.length }}</UBadge>
+              <UBadge color="neutral" variant="outline">{{ computedActiveMachine.items.length }}</UBadge>
             </div>
             <UButton v-if="isLocalMachine(computedActiveMachine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="handleScenesAddClickByVariant('slideover')">
               {{ t('components.sentinel.scenes.card.actions.addScene') }}
@@ -126,7 +126,7 @@
                 <div class="min-w-0 flex-1 space-y-2">
                   <div class="flex min-w-0 flex-wrap items-center gap-2">
                     <div class="text-highlighted min-w-0 text-lg font-medium break-all">{{ item.sceneName || t('components.sentinel.scenes.card.scene.unnamed') }}</div>
-                    <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="soft">{{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}</UBadge>
+                    <UBadge :color="item.enabled ? 'success' : 'neutral'" variant="outline">{{ item.enabled ? t('components.sentinel.scenes.card.scene.enabled') : t('components.sentinel.scenes.card.scene.disabled') }}</UBadge>
                   </div>
 
                   <div class="text-muted flex min-w-0 items-start gap-2 text-xs">

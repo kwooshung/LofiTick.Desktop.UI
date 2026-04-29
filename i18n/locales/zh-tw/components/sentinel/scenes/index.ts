@@ -57,7 +57,7 @@ export const scenes = {
       open: '同步校驗',
       useLocal: '使用本地',
       useRemote: '使用遠端',
-      merge: '合併並保留本地衝突'
+      merge: '合併配置'
     },
     status: {
       'local-only': '僅本地存在',

@@ -1,5 +1,5 @@
 <template>
-  <UModal v-model:open="stateOpen" :title="t('components.sentinel.scenes.sync.title')" :description="computedDescription" :ui="{ content: 'sm:max-w-5xl', body: 'space-y-4', footer: 'justify-between' }" @update:open="handleOpenUpdate">
+  <UModal v-model:open="stateOpen" :title="t('components.sentinel.scenes.sync.title')" :description="computedDescription" :close="false" :dismissible="false" :ui="{ content: 'sm:max-w-5xl', body: 'space-y-4', footer: 'justify-end' }">
     <template #body>
       <div v-if="statePayload" class="space-y-4">
         <div class="grid gap-3 md:grid-cols-4">
@@ -9,80 +9,81 @@
           <UPageCard :title="t('components.sentinel.scenes.sync.summary.conflict')" :description="String(computedConflictCount)" :ui="{ container: 'px-4 py-3' }" />
         </div>
 
-        <div class="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
-          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="bg-elevated/40 border-default rounded-xl border p-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="text-highlighted truncate text-sm font-semibold">{{ entry.sceneName || t('components.sentinel.scenes.sync.unnamed') }}</div>
-                <div class="text-muted text-xs break-all">{{ entry.sceneId }}</div>
+        <div class="space-y-2">
+          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="border-default bg-default/95 overflow-hidden rounded-lg border shadow-sm">
+            <div class="border-default flex items-center justify-between gap-3 border-b px-4 py-2.5">
+              <div class="min-w-0 space-y-1">
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">Scene</span>
+                  <div class="text-highlighted min-w-0 truncate text-base leading-6 font-semibold">{{ entry.sceneName || t('components.sentinel.scenes.sync.unnamed') }}</div>
+                </div>
+                <div class="text-muted font-mono text-[12px] leading-4 break-all">{{ entry.sceneId }}</div>
               </div>
               <UBadge :color="statusColorGet(entry.status)" variant="soft">{{ statusLabelGet(entry.status) }}</UBadge>
             </div>
 
-            <div class="grid gap-3 lg:grid-cols-2">
-              <UPageCard variant="subtle" :title="t('components.sentinel.scenes.sync.sources.local')" :ui="{ container: 'px-4 py-3' }">
-                <template #description>
-                  <div v-if="entry.local" class="space-y-2 text-sm">
-                    <div class="flex items-center justify-between gap-3">
-                      <span class="text-muted">{{ t('components.sentinel.scenes.sync.fields.enabled') }}</span>
-                      <UBadge :color="entry.local.enabled ? 'success' : 'neutral'" variant="soft">{{ entry.local.enabled ? t('components.sentinel.scenes.sync.values.enabled') : t('components.sentinel.scenes.sync.values.disabled') }}</UBadge>
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-muted text-xs">{{ t('components.sentinel.scenes.sync.fields.execPath') }}</div>
-                      <div class="text-sm break-all">{{ entry.local.execPath || '-' }}</div>
-                    </div>
-                    <div class="flex items-center justify-between gap-3">
-                      <span class="text-muted">{{ t('components.sentinel.scenes.sync.fields.execState') }}</span>
-                      <UBadge :color="entry.localExecExists ? 'success' : 'warning'" variant="soft">{{ entry.localExecExists ? t('components.sentinel.scenes.sync.values.pathExists') : t('components.sentinel.scenes.sync.values.pathMissing') }}</UBadge>
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-muted text-xs">{{ t('components.sentinel.scenes.sync.fields.args') }}</div>
-                      <div class="text-sm break-all">{{ commandTextGet(entry.local.execPath, entry.local.args) || '-' }}</div>
-                    </div>
-                  </div>
-                  <UEmpty
-                    v-else
-                    icon="i-lucide-monitor-down"
-                    :title="t('components.sentinel.scenes.sync.empty.local.title')"
-                    :description="t('components.sentinel.scenes.sync.empty.local.description')"
-                    variant="naked"
-                    size="xs"
-                    :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }"
-                  />
-                </template>
-              </UPageCard>
+            <div class="px-4 py-2">
+              <div class="border-default bg-muted/30 overflow-hidden rounded-md border">
+                <div class="text-muted border-default/70 bg-muted/45 hidden grid-cols-[72px_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 border-b px-3 py-2 text-[12px] tracking-wide uppercase md:grid">
+                  <div class="whitespace-nowrap">{{ shortFieldLabelGet('state') }}</div>
+                  <div class="whitespace-nowrap">{{ shortSourceLabelGet('local') }}</div>
+                  <div class="whitespace-nowrap">{{ shortSourceLabelGet('remote') }}</div>
+                </div>
 
-              <UPageCard variant="subtle" :title="t('components.sentinel.scenes.sync.sources.remote')" :ui="{ container: 'px-4 py-3' }">
-                <template #description>
-                  <div v-if="entry.remote" class="space-y-2 text-sm">
-                    <div class="flex items-center justify-between gap-3">
-                      <span class="text-muted">{{ t('components.sentinel.scenes.sync.fields.enabled') }}</span>
-                      <UBadge :color="entry.remote.enabled ? 'success' : 'neutral'" variant="soft">{{ entry.remote.enabled ? t('components.sentinel.scenes.sync.values.enabled') : t('components.sentinel.scenes.sync.values.disabled') }}</UBadge>
+                <div class="divide-default/70 divide-y">
+                  <div class="grid gap-2 px-3 py-2 md:grid-cols-[72px_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                    <div class="text-muted text-[12px] tracking-wide whitespace-nowrap uppercase">{{ shortFieldLabelGet('state') }}</div>
+                    <div class="bg-default/95 min-w-0 rounded-sm px-2.5 py-2 md:bg-transparent md:px-0 md:py-0">
+                      <div class="text-muted mb-1 text-[11px] tracking-wide whitespace-nowrap uppercase md:hidden">{{ shortSourceLabelGet('local') }}</div>
+                      <template v-if="entry.local">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <UBadge :color="entry.local.enabled ? 'success' : 'neutral'" variant="soft">{{ entry.local.enabled ? t('components.sentinel.scenes.sync.values.enabled') : t('components.sentinel.scenes.sync.values.disabled') }}</UBadge>
+                          <UBadge :color="entry.localExecExists ? 'success' : 'warning'" variant="soft">{{ entry.localExecExists ? t('components.sentinel.scenes.sync.values.pathExists') : t('components.sentinel.scenes.sync.values.pathMissing') }}</UBadge>
+                        </div>
+                      </template>
+                      <div v-else class="text-muted text-sm">-</div>
                     </div>
-                    <div class="space-y-1">
-                      <div class="text-muted text-xs">{{ t('components.sentinel.scenes.sync.fields.execPath') }}</div>
-                      <div class="text-sm break-all">{{ entry.remote.execPath || '-' }}</div>
-                    </div>
-                    <div class="flex items-center justify-between gap-3">
-                      <span class="text-muted">{{ t('components.sentinel.scenes.sync.fields.execState') }}</span>
-                      <UBadge :color="entry.remoteExecExists ? 'success' : 'warning'" variant="soft">{{ entry.remoteExecExists ? t('components.sentinel.scenes.sync.values.pathExists') : t('components.sentinel.scenes.sync.values.pathMissing') }}</UBadge>
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-muted text-xs">{{ t('components.sentinel.scenes.sync.fields.args') }}</div>
-                      <div class="text-sm break-all">{{ commandTextGet(entry.remote.execPath, entry.remote.args) || '-' }}</div>
+                    <div class="bg-default/95 min-w-0 rounded-sm px-2.5 py-2 md:bg-transparent md:px-0 md:py-0">
+                      <div class="text-muted mb-1 text-[11px] tracking-wide whitespace-nowrap uppercase md:hidden">{{ shortSourceLabelGet('remote') }}</div>
+                      <template v-if="entry.remote">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <UBadge :color="entry.remote.enabled ? 'success' : 'neutral'" variant="soft">{{ entry.remote.enabled ? t('components.sentinel.scenes.sync.values.enabled') : t('components.sentinel.scenes.sync.values.disabled') }}</UBadge>
+                          <UBadge :color="entry.remoteExecExists ? 'success' : 'warning'" variant="soft">{{ entry.remoteExecExists ? t('components.sentinel.scenes.sync.values.pathExists') : t('components.sentinel.scenes.sync.values.pathMissing') }}</UBadge>
+                        </div>
+                      </template>
+                      <div v-else class="text-muted text-sm">-</div>
                     </div>
                   </div>
-                  <UEmpty
-                    v-else
-                    icon="i-lucide-cloud-off"
-                    :title="t('components.sentinel.scenes.sync.empty.remote.title')"
-                    :description="t('components.sentinel.scenes.sync.empty.remote.description')"
-                    variant="naked"
-                    size="xs"
-                    :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }"
-                  />
-                </template>
-              </UPageCard>
+
+                  <div class="grid gap-2 px-3 py-2 md:grid-cols-[72px_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                    <div class="text-muted text-[12px] tracking-wide whitespace-nowrap uppercase">{{ shortFieldLabelGet('path') }}</div>
+                    <div class="bg-default/95 min-w-0 rounded-sm px-2.5 py-2 md:bg-transparent md:px-0 md:py-0">
+                      <div class="text-muted mb-1 text-[11px] tracking-wide whitespace-nowrap uppercase md:hidden">{{ shortSourceLabelGet('local') }}</div>
+                      <div v-if="entry.local" :title="entry.local.execPath || '-'" class="font-mono text-[13px] leading-5 break-all">{{ entry.local.execPath || '-' }}</div>
+                      <div v-else class="text-muted text-sm">-</div>
+                    </div>
+                    <div class="bg-default/95 min-w-0 rounded-sm px-2.5 py-2 md:bg-transparent md:px-0 md:py-0">
+                      <div class="text-muted mb-1 text-[11px] tracking-wide whitespace-nowrap uppercase md:hidden">{{ shortSourceLabelGet('remote') }}</div>
+                      <div v-if="entry.remote" :title="entry.remote.execPath || '-'" class="font-mono text-[13px] leading-5 break-all">{{ entry.remote.execPath || '-' }}</div>
+                      <div v-else class="text-muted text-sm">-</div>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-2 px-3 py-2 md:grid-cols-[72px_minmax(0,1fr)_minmax(0,1fr)] md:items-stretch">
+                    <div class="text-muted text-[12px] tracking-wide whitespace-nowrap uppercase">{{ shortFieldLabelGet('command') }}</div>
+                    <div class="bg-ink-950 min-w-0 rounded-sm px-2.5 py-2 md:flex md:h-full md:flex-col md:justify-center md:px-2 md:py-1.5">
+                      <div class="mb-1 text-[11px] tracking-wide whitespace-nowrap text-white/65 uppercase md:hidden">{{ shortSourceLabelGet('local') }}</div>
+                      <div v-if="entry.local" :title="commandTextGet(entry.local.execPath, entry.local.args) || '-'" class="font-mono text-[13px] leading-5 break-all text-white">{{ commandTextGet(entry.local.execPath, entry.local.args) || '-' }}</div>
+                      <div v-else class="text-sm text-white/70">-</div>
+                    </div>
+                    <div class="bg-ink-950 min-w-0 rounded-sm px-2.5 py-2 md:flex md:h-full md:flex-col md:justify-center md:px-2 md:py-1.5">
+                      <div class="mb-1 text-[11px] tracking-wide whitespace-nowrap text-white/65 uppercase md:hidden">{{ shortSourceLabelGet('remote') }}</div>
+                      <div v-if="entry.remote" :title="commandTextGet(entry.remote.execPath, entry.remote.args) || '-'" class="font-mono text-[13px] leading-5 break-all text-white">{{ commandTextGet(entry.remote.execPath, entry.remote.args) || '-' }}</div>
+                      <div v-else class="text-sm text-white/70">-</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -90,7 +91,6 @@
     </template>
 
     <template #footer>
-      <UButton color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
       <div class="flex items-center gap-2">
         <UButton color="neutral" variant="soft" :disabled="!computedHasRemote" @click="settle('remote')">{{ t('components.sentinel.scenes.sync.actions.useRemote') }}</UButton>
         <UButton color="primary" variant="soft" @click="settle('merge')">{{ t('components.sentinel.scenes.sync.actions.merge') }}</UButton>
@@ -106,12 +106,12 @@ import type { TUnattendedScenesSyncStatus } from '@/composables/unattended/scene
 /**
  * Hook：i18n
  */
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 /**
  * Hook：全局场景同步弹窗
  */
-const { stateOpen, statePayload, settle, close } = useUnattendedScenesSyncDialog();
+const { stateOpen, statePayload, settle } = useUnattendedScenesSyncDialog();
 
 /**
  * 计算属性：远程条目数量
@@ -139,6 +139,92 @@ const computedDescription = computed(() => {
 
   return t('components.sentinel.scenes.sync.descriptionWithMachine', { machine });
 });
+
+/**
+ * 函数：获取简短字段标签。
+ *
+ * 用于差异确认列表中的紧凑表格式展示，避免长文案挤压布局。
+ *
+ * # Arguments
+ *
+ * * `field` - 字段类型。
+ *
+ * # Returns
+ *
+ * 返回适合当前语言环境的短标签。
+ */
+const shortFieldLabelGet = (field: 'state' | 'path' | 'command'): string => {
+  if (locale.value === 'en') {
+    if (field === 'state') {
+      return 'State';
+    }
+    if (field === 'path') {
+      return 'Path';
+    }
+
+    return 'Command';
+  }
+
+  if (locale.value === 'ja') {
+    if (field === 'state') {
+      return '状態';
+    }
+    if (field === 'path') {
+      return 'パス';
+    }
+
+    return 'コマンド';
+  }
+
+  if (locale.value === 'zh_tw') {
+    if (field === 'state') {
+      return '狀態';
+    }
+    if (field === 'path') {
+      return '路徑';
+    }
+
+    return '命令';
+  }
+
+  if (field === 'state') {
+    return '状态';
+  }
+  if (field === 'path') {
+    return '路径';
+  }
+
+  return '命令';
+};
+
+/**
+ * 函数：获取简短来源标签。
+ *
+ * 用于本地与远程两列的紧凑标题展示，确保标签长度稳定且不换行。
+ *
+ * # Arguments
+ *
+ * * `source` - 来源类型。
+ *
+ * # Returns
+ *
+ * 返回适合当前语言环境的短来源标签。
+ */
+const shortSourceLabelGet = (source: 'local' | 'remote'): string => {
+  if (locale.value === 'en') {
+    return source === 'local' ? 'Local' : 'Remote';
+  }
+
+  if (locale.value === 'ja') {
+    return source === 'local' ? 'ローカル' : 'リモート';
+  }
+
+  if (locale.value === 'zh_tw') {
+    return source === 'local' ? '本地' : '遠端';
+  }
+
+  return source === 'local' ? '本地' : '远端';
+};
 
 /**
  * 函数：获取状态标签
@@ -175,15 +261,5 @@ const commandTextGet = (execPath: string, args: string[]): string => {
     .map((item) => (/\s/.test(item) ? `"${item.replaceAll('"', '\\"')}"` : item))
     .join(' ')
     .trim();
-};
-
-/**
- * 事件：外部关闭弹窗
- * @param {boolean} open 最新打开状态
- */
-const handleOpenUpdate = (open: boolean): void => {
-  if (!open) {
-    close();
-  }
 };
 </script>

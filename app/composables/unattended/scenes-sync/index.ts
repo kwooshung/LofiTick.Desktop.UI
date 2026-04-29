@@ -1,6 +1,6 @@
 import type { IPageSettingsUnattendedScenesItem, IPageSettingsUnattendedScenesMachineRedisConfig, ISettingsUnattendedScenesLocal } from '@@/shared/types/pages/settings/unattended/index.types';
 
-export type TUnattendedScenesSyncChoice = 'local' | 'remote' | 'merge' | 'dismiss';
+export type TUnattendedScenesSyncChoice = 'local' | 'remote' | 'merge';
 
 export type TUnattendedScenesSyncStatus = 'local-only' | 'remote-only' | 'same' | 'conflict';
 
@@ -246,18 +246,10 @@ export const useUnattendedScenesSyncDialog = () => {
     current?.(choice);
   };
 
-  /**
-   * 函数：关闭弹窗。
-   */
-  const close = (): void => {
-    settle('dismiss');
-  };
-
   return {
     stateOpen,
     statePayload,
     request,
-    settle,
-    close
+    settle
   };
 };

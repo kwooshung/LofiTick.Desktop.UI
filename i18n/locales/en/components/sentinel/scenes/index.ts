@@ -57,7 +57,7 @@ export const scenes = {
       open: 'Sync review',
       useLocal: 'Use local',
       useRemote: 'Use remote',
-      merge: 'Merge and keep local conflicts'
+      merge: 'Merge config'
     },
     status: {
       'local-only': 'Local only',
