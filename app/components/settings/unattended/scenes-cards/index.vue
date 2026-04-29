@@ -53,7 +53,10 @@
           <UIcon name="i-lucide:clock-3" class="text-dimmed" />
           <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.lastSeen') }}</span>
         </div>
-        <span class="min-w-0 flex-1 break-all">{{ machineLastSeenTextGet(machine) }}</span>
+        <span v-if="String(machine.lastSeenAt || '').trim()">
+          <Datetime :datetime="String(machine.lastSeenAt || '').trim()" />
+        </span>
+        <span v-else class="min-w-0 flex-1 break-all">--</span>
       </li>
     </ul>
   </DefineMachineHeaderTemplate>
@@ -690,43 +693,6 @@ const machineOnlineGet = (machine: IPageSettingsUnattendedScenesMachineRedisConf
   }
 
   return isLocalMachine(String(src.machineCode || ''));
-};
-
-/**
- * 函数：格式化最后在线时间
- * @param {unknown} input 输入时间
- * @returns {string} 展示文本
- */
-const machineLastSeenFormat = (input: unknown): string => {
-  const raw = String(input || '').trim();
-  if (!raw) {
-    return '--';
-  }
-
-  const time = Date.parse(raw);
-  if (Number.isNaN(time)) {
-    return raw;
-  }
-
-  const date = new Date(time);
-  const year = String(date.getFullYear());
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-/**
- * 函数：获取机器最后在线时间文本
- * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
- * @returns {string} 展示文本
- */
-const machineLastSeenTextGet = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): string => {
-  const src = machine && typeof machine === 'object' && !Array.isArray(machine) ? (machine as unknown as Record<string, unknown>) : {};
-  return machineLastSeenFormat(src.lastSeenAt);
 };
 
 /**
