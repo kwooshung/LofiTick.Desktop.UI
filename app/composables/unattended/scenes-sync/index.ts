@@ -149,11 +149,7 @@ export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnatte
  *
  * 返回按重要性排序的对比条目。
  */
-export const unattendedScenesSyncEntriesBuild = (args: {
-  local: ISettingsUnattendedScenesLocal;
-  remote: IPageSettingsUnattendedScenesMachineRedisConfig | null;
-  execExistsByPath: Record<string, boolean>;
-}): IUnattendedScenesSyncEntry[] => {
+export const unattendedScenesSyncEntriesBuild = (args: { local: ISettingsUnattendedScenesLocal; remote: IPageSettingsUnattendedScenesMachineRedisConfig | null; execExistsByPath: Record<string, boolean> }): IUnattendedScenesSyncEntry[] => {
   const localItems = unattendedScenesItemsNormalize(args.local.items);
   const remoteItems = unattendedScenesItemsNormalize(args.remote?.items);
 

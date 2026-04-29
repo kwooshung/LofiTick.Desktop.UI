@@ -10,7 +10,7 @@
         </div>
 
         <div class="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
-          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="bg-elevated/40 rounded-xl border border-default p-4">
+          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="bg-elevated/40 border-default rounded-xl border p-4">
             <div class="mb-3 flex items-center justify-between gap-3">
               <div class="min-w-0">
                 <div class="text-highlighted truncate text-sm font-semibold">{{ entry.sceneName || t('components.sentinel.scenes.sync.unnamed') }}</div>
@@ -40,7 +40,15 @@
                       <div class="text-sm break-all">{{ commandTextGet(entry.local.execPath, entry.local.args) || '-' }}</div>
                     </div>
                   </div>
-                  <UEmpty v-else icon="i-lucide-monitor-down" :title="t('components.sentinel.scenes.sync.empty.local.title')" :description="t('components.sentinel.scenes.sync.empty.local.description')" variant="naked" size="xs" :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }" />
+                  <UEmpty
+                    v-else
+                    icon="i-lucide-monitor-down"
+                    :title="t('components.sentinel.scenes.sync.empty.local.title')"
+                    :description="t('components.sentinel.scenes.sync.empty.local.description')"
+                    variant="naked"
+                    size="xs"
+                    :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }"
+                  />
                 </template>
               </UPageCard>
 
@@ -64,7 +72,15 @@
                       <div class="text-sm break-all">{{ commandTextGet(entry.remote.execPath, entry.remote.args) || '-' }}</div>
                     </div>
                   </div>
-                  <UEmpty v-else icon="i-lucide-cloud-off" :title="t('components.sentinel.scenes.sync.empty.remote.title')" :description="t('components.sentinel.scenes.sync.empty.remote.description')" variant="naked" size="xs" :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }" />
+                  <UEmpty
+                    v-else
+                    icon="i-lucide-cloud-off"
+                    :title="t('components.sentinel.scenes.sync.empty.remote.title')"
+                    :description="t('components.sentinel.scenes.sync.empty.remote.description')"
+                    variant="naked"
+                    size="xs"
+                    :ui="{ root: 'p-0 items-start justify-start', header: 'items-start text-left max-w-none', body: 'items-start max-w-none' }"
+                  />
                 </template>
               </UPageCard>
             </div>
