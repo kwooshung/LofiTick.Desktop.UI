@@ -278,7 +278,7 @@ export const settings = {
             description: 'Heartbeat, info reads, and other UE5 bridge requests all expand from this local address.'
           },
           upstreamHost: {
-            description: 'Only the upstream host needs to be shown here instead of the full remote path.'
+            description: 'The upstream address is the remote target URL that the UE5 local bridge finally forwards to.'
           }
         },
         modal: {

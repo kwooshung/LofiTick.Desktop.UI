@@ -143,7 +143,7 @@ const { get: settingsGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet } = us
 const stateAccessUrl = ref('');
 
 /**
- * 状态：上游域名
+ * 状态：上游地址
  */
 const stateUpstreamHost = ref('');
 
@@ -234,9 +234,9 @@ const urlParamsGet = (url: string): ISettingsUe5RequestParamItem[] => {
 };
 
 /**
- * 函数：将上游地址归一为域名
+ * 函数：将上游地址归一为展示值
  * @param {string} url 上游地址
- * @returns {string} 域名
+ * @returns {string} 统一展示地址
  */
 const upstreamHostGet = (url: string): string => {
   const value = String(url || '').trim();
@@ -245,9 +245,20 @@ const upstreamHostGet = (url: string): string => {
   }
 
   try {
-    return String(new URL(value).host || '').trim();
+    const parsed = new URL(value);
+    const host = String(parsed.host || '').trim();
+    if (!host) {
+      return '';
+    }
+
+    return `https://${host}/`;
   } catch {
-    return String(value.replace(/^https?:\/\//i, '').split('/')[0] || '').trim();
+    const host = String(value.replace(/^https?:\/\//i, '').split('/')[0] || '').trim();
+    if (!host) {
+      return '';
+    }
+
+    return `https://${host.replace(/\/+$/, '')}/`;
   }
 };
 
@@ -260,12 +271,7 @@ const computedBaseUrl = computed((): string => urlBaseDirectoryGet(stateAccessUr
  * 计算属性：上游地址展示值
  */
 const computedUpstreamAddress = computed((): string => {
-  const host = String(stateUpstreamHost.value || '').trim();
-  if (!host) {
-    return '';
-  }
-
-  return `https://${host.replace(/^https?:\/\//i, '').replace(/\/+$/, '')}/`;
+  return String(stateUpstreamHost.value || '').trim();
 });
 
 /**

@@ -278,7 +278,7 @@
             description: 'UE5 心跳、信息读取等桥接请求都从这个本地地址展开。'
           },
           upstreamHost: {
-            description: '这里统一显示为带 https:// 前缀和 / 结尾的上游地址。'
+            description: '上游地址指 UE5 本地桥接最终转发到的远端目标地址。'
           }
         },
         modal: {

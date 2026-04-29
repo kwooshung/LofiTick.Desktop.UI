@@ -278,7 +278,7 @@ export const settings = {
             description: 'UE5 心跳、資訊讀取等橋接請求都會從這個本地位址展開。'
           },
           upstreamHost: {
-            description: '這裡只需要顯示上游網域，不需要展示完整遠端路徑。'
+            description: '上游位址指 UE5 本地橋接最終轉發到的遠端目標位址。'
           }
         },
         modal: {

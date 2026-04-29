@@ -278,7 +278,7 @@ export const settings = {
             description: 'ハートビートや情報取得などの UE5 ブリッジ要求は、このローカルアドレスから展開されます。'
           },
           upstreamHost: {
-            description: 'ここでは完全なパスではなく、上流ドメインだけを表示します。'
+            description: '上流アドレスは UE5 のローカルブリッジが最終的に転送する先のリモート URL です。'
           }
         },
         modal: {
