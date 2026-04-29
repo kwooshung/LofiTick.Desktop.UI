@@ -26,6 +26,56 @@ export const scenes = {
   actions: {
     pickProgram: 'Pick program'
   },
+  sync: {
+    title: 'Review local and remote scene differences',
+    description: 'The local scene copy and the remote machine config differ. Choose how to sync them.',
+    descriptionWithMachine: 'Detected differences between local and remote scenes for {machine}. Choose how to sync them.',
+    unnamed: 'Unnamed scene',
+    summary: {
+      machine: 'Machine',
+      local: 'Local scenes',
+      remote: 'Remote scenes',
+      conflict: 'Conflicts'
+    },
+    sources: {
+      local: 'Local copy',
+      remote: 'Remote config'
+    },
+    fields: {
+      enabled: 'Enabled',
+      execPath: 'Program path',
+      execState: 'Program availability',
+      args: 'Launch command'
+    },
+    values: {
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      pathExists: 'Path available',
+      pathMissing: 'Path missing'
+    },
+    actions: {
+      open: 'Sync review',
+      useLocal: 'Use local',
+      useRemote: 'Use remote',
+      merge: 'Merge and keep local conflicts'
+    },
+    status: {
+      'local-only': 'Local only',
+      'remote-only': 'Remote only',
+      same: 'Same',
+      conflict: 'Conflict'
+    },
+    empty: {
+      local: {
+        title: 'Not available locally',
+        description: 'This scene currently exists only in the remote config.'
+      },
+      remote: {
+        title: 'Not available remotely',
+        description: 'This scene currently exists only in the local copy.'
+      }
+    }
+  },
   dialogs: {
     pickProgramTitle: 'Select program'
   },

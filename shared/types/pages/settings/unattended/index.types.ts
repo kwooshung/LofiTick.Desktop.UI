@@ -139,6 +139,21 @@ export interface ISettingsUnattendedStart {
 }
 
 /**
+ * 接口：无人值守-本地场景副本
+ */
+export interface ISettingsUnattendedScenesLocal {
+  /**
+   * 最近本地更新时间
+   */
+  updatedAt: string;
+
+  /**
+   * 本机场景列表
+   */
+  items: IPageSettingsUnattendedScenesItem[];
+}
+
+/**
  * 接口：无人值守配置
  */
 export interface ISettingsUnattended {
@@ -151,6 +166,11 @@ export interface ISettingsUnattended {
    * 启动配置
    */
   start: ISettingsUnattendedStart;
+
+  /**
+   * 本地场景副本
+   */
+  scenes?: ISettingsUnattendedScenesLocal;
 
   /**
    * 哨兵配置

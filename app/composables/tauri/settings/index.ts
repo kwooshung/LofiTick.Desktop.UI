@@ -6,6 +6,21 @@
 import type { IPageSettingsUnattendedUe5BridgeDetail } from '@@/shared/types/pages/settings/unattended/index.types';
 import { invoke } from '@tauri-apps/api/core';
 
+/**
+ * 接口：本地路径存在性检查结果
+ */
+interface ITauriSettingsPathExistsItem {
+  /**
+   * 路径
+   */
+  path: string;
+
+  /**
+   * 是否存在
+   */
+  exists: boolean;
+}
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -61,6 +76,15 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：批量检查本地路径是否存在
+   * @param {string[]} paths 路径列表
+   * @returns {Promise<ITauriSettingsPathExistsItem[]>} 检查结果
+   */
+  const pathsExistGet = async (paths: string[]): Promise<ITauriSettingsPathExistsItem[]> => {
+    return invoke<ITauriSettingsPathExistsItem[]>('settings_paths_exist', { paths });
+  };
+
+  /**
    * 函数：获取 UE5 本地接入地址
    * @returns {Promise<string>} UE5 接入地址
    */
@@ -76,5 +100,5 @@ export const useTauriSettings = () => {
     return invoke<IPageSettingsUnattendedUe5BridgeDetail>('ue5_bridge_access_detail_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
+  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
 };

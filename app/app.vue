@@ -5,6 +5,7 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <SettingsUnattendedScenesSyncDialog />
   </UApp>
 </template>
 

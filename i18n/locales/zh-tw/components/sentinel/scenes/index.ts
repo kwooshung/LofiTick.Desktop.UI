@@ -26,6 +26,56 @@ export const scenes = {
   actions: {
     pickProgram: '選擇程式'
   },
+  sync: {
+    title: '本地與遠端場景差異確認',
+    description: '本地場景副本與遠端機器設定存在差異，請確認本次同步方式。',
+    descriptionWithMachine: '偵測到 {machine} 的本地與遠端場景不一致，請確認本次同步方式。',
+    unnamed: '未命名場景',
+    summary: {
+      machine: '機器',
+      local: '本地場景',
+      remote: '遠端場景',
+      conflict: '衝突數量'
+    },
+    sources: {
+      local: '本地副本',
+      remote: '遠端設定'
+    },
+    fields: {
+      enabled: '啟用狀態',
+      execPath: '程式路徑',
+      execState: '程式可用性',
+      args: '啟動命令'
+    },
+    values: {
+      enabled: '已啟用',
+      disabled: '未啟用',
+      pathExists: '路徑可用',
+      pathMissing: '路徑缺失'
+    },
+    actions: {
+      open: '同步校驗',
+      useLocal: '使用本地',
+      useRemote: '使用遠端',
+      merge: '合併並保留本地衝突'
+    },
+    status: {
+      'local-only': '僅本地存在',
+      'remote-only': '僅遠端存在',
+      same: '兩端一致',
+      conflict: '內容衝突'
+    },
+    empty: {
+      local: {
+        title: '本地不存在該場景',
+        description: '該場景目前只存在於遠端設定中。'
+      },
+      remote: {
+        title: '遠端不存在該場景',
+        description: '該場景目前只存在於本地副本中。'
+      }
+    }
+  },
   dialogs: {
     pickProgramTitle: '選擇守護程式'
   },

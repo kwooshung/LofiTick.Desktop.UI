@@ -134,6 +134,7 @@
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.scenes.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.scenes.description') }}</div>
         </div>
+        <UButton color="primary" variant="soft" icon="i-mdi:compare-horizontal" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
       </template>
     </UPageCard>
     <div class="mb-10 flex w-full flex-col gap-3">
@@ -202,6 +203,7 @@ import type {
   IPageSettingsUnattendedScenesMachineBasic,
   IPageSettingsUnattendedScenesMachineRedisConfig,
   ISettingsUnattended,
+  ISettingsUnattendedScenesLocal,
   ISettingsUnattendedSentinel,
   ISettingsUnattendedSentinelRequest,
   TPageSettingsUnattendedMachineNetwork,
@@ -226,7 +228,12 @@ const { isTauriRuntime } = useTauriEnv();
 /**
  * Hook：Tauri 设置
  */
-const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet } = useTauriSettings();
+const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet, pathsExistGet } = useTauriSettings();
+
+/**
+ * Hook：场景同步弹窗
+ */
+const { request: unattendedScenesSyncRequest } = useUnattendedScenesSyncDialog();
 
 /**
  * Hook：Tauri 窗口能力
@@ -454,7 +461,7 @@ const { datas: stateSentinelRequestUrlDefault, refresh: refreshSentinelRequestUr
  * 描述：按 machineCode 分组存储，可跨设备快速读取。
  */
 const { datas: stateScenesRemoteFetched, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
-const { datas: stateScenesRemotePatch, refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
+const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
 const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'DELETE', immediate: false });
 
 /**
@@ -462,6 +469,16 @@ const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnatten
  * 描述：用于承接乐观更新与 PATCH 返回值，避免直接写只读 computed datas。
  */
 const stateScenesRemote = ref<IPageSettingsUnattendedScenesMachineRedisConfig | undefined>(undefined);
+
+/**
+ * 状态：本地场景副本
+ */
+const stateScenesLocal = ref<ISettingsUnattendedScenesLocal>(unattendedScenesLocalStateCreate());
+
+/**
+ * 状态：场景同步流程是否进行中
+ */
+const stateScenesSyncing = ref(false);
 
 /**
  * API：场景配置（GET）
@@ -688,6 +705,7 @@ onMounted(async () => {
   const unattendedSentinelRequest = toRecord(unattendedSentinel.request) ?? {};
 
   stateMachineCode.value = String(machine.code || '').trim();
+  stateScenesLocal.value = unattendedScenesLocalNormalize(unattended.scenes);
 
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
   stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
@@ -765,6 +783,8 @@ onMounted(async () => {
       }
     }
   }
+
+  await handleScenesSyncOpen();
 
   if (requestUrlFilled) {
     await persistToSettings();
@@ -1141,7 +1161,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
   }
 
   const localMachineName = String(computedMachineName.value || '').trim();
-  const localItems = Array.isArray(stateScenesRemote.value?.items) ? stateScenesRemote.value!.items : [];
+  const localItems = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
   const localGroups = computedLocalNetworkGroups.value;
   const localNetwork = localGroups.groups.length > 0 ? localGroups : (stateScenesRemote.value?.network ?? undefined);
 
@@ -1179,6 +1199,163 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
 });
 
 /**
+ * 函数：写回本地场景副本
+ * @param {IPageSettingsUnattendedScenesItem[]} items 最新场景列表
+ * @param {ISettingsUnattendedScenesLocal} [rollbackState] 回滚副本
+ */
+const persistLocalScenes = async (items: IPageSettingsUnattendedScenesItem[], rollbackState?: ISettingsUnattendedScenesLocal): Promise<void> => {
+  const next = {
+    updatedAt: new Date().toISOString(),
+    items: unattendedScenesItemsNormalize(items)
+  } satisfies ISettingsUnattendedScenesLocal;
+
+  stateScenesLocal.value = next;
+
+  try {
+    await settingsUpdate({
+      unattended: {
+        scenes: next
+      }
+    });
+  } catch {
+    stateScenesLocal.value = rollbackState ?? unattendedScenesLocalStateCreate();
+    throw new Error('persist local scenes failed');
+  }
+};
+
+/**
+ * 函数：刷新远程场景缓存
+ */
+const refreshScenesRemoteState = async (): Promise<void> => {
+  const machineCode = String(stateMachineCode.value || '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  try {
+    await refreshScenesRemoteGet({ query: { machineCode } });
+  } catch {
+    // ignore
+  }
+
+  try {
+    await refreshScenesMachinesRemoteGet();
+  } catch {
+    // ignore
+  }
+};
+
+/**
+ * 函数：构建路径存在性映射
+ * @param {string[]} paths 路径列表
+ * @returns {Promise<Record<string, boolean>>} 映射表
+ */
+const execExistsMapBuild = async (paths: string[]): Promise<Record<string, boolean>> => {
+  const uniquePaths = Array.from(new Set(paths.map((item) => String(item || '').trim()).filter((item) => item !== '')));
+  if (uniquePaths.length === 0) {
+    return {};
+  }
+
+  const results = await pathsExistGet(uniquePaths);
+  return results.reduce<Record<string, boolean>>((acc, item) => {
+    acc[String(item.path || '').trim()] = Boolean(item.exists);
+    return acc;
+  }, {});
+};
+
+/**
+ * 函数：把本地场景推送到远程
+ * @param {IPageSettingsUnattendedScenesItem[]} items 场景列表
+ */
+const applyLocalScenesToRemote = async (items: IPageSettingsUnattendedScenesItem[]): Promise<void> => {
+  const machineCode = String(stateMachineCode.value || '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  await refreshScenesRemotePatch({
+    query: { machineCode },
+    body: {
+      datas: {
+        machineName: String(computedMachineName.value || '').trim(),
+        machineCode,
+        items: unattendedScenesItemsNormalize(items)
+      }
+    }
+  });
+
+  await refreshScenesRemoteState();
+};
+
+/**
+ * 函数：打开场景同步对比弹窗
+ */
+const handleScenesSyncOpen = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!isTauriRuntime.value) {
+    return;
+  }
+  if (stateScenesSyncing.value) {
+    return;
+  }
+
+  const machineCode = String(stateMachineCode.value || '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  stateScenesSyncing.value = true;
+
+  try {
+    await refreshScenesRemoteState();
+
+    const local = unattendedScenesLocalNormalize(stateScenesLocal.value);
+    const remote = stateScenesRemote.value ? { ...stateScenesRemote.value, items: unattendedScenesItemsNormalize(stateScenesRemote.value.items) } : null;
+    if (local.items.length === 0 && (!remote || remote.items.length === 0)) {
+      return;
+    }
+
+    const paths = [...local.items.map((item) => item.execPath), ...(Array.isArray(remote?.items) ? remote!.items.map((item) => item.execPath) : [])];
+    const execExistsByPath = await execExistsMapBuild(paths);
+    const entries = unattendedScenesSyncEntriesBuild({ local, remote, execExistsByPath });
+
+    if (entries.every((entry) => entry.status === 'same')) {
+      return;
+    }
+
+    const choice = await unattendedScenesSyncRequest({
+      machineCode,
+      machineName: String(computedMachineName.value || remote?.machineName || '').trim(),
+      local,
+      remote,
+      entries
+    });
+
+    if (choice === 'dismiss') {
+      return;
+    }
+
+    if (choice === 'remote') {
+      await persistLocalScenes(unattendedScenesItemsNormalize(remote?.items));
+      return;
+    }
+
+    if (choice === 'local') {
+      await applyLocalScenesToRemote(local.items);
+      return;
+    }
+
+    const mergedItems = unattendedScenesMergePreferLocal(local.items, unattendedScenesItemsNormalize(remote?.items));
+    await persistLocalScenes(mergedItems);
+    await applyLocalScenesToRemote(mergedItems);
+  } finally {
+    stateScenesSyncing.value = false;
+  }
+};
+
+/**
  * 事件：切换场景启用状态（仅列表开关）
  * @param {string} id 场景 ID
  * @param {boolean} enabled 是否启用
@@ -1196,36 +1373,15 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
     return;
   }
 
-  const current = stateScenesRemote.value;
-  const snapshotItems = Array.isArray(current?.items) ? [...current.items] : [];
+  const snapshotState: ISettingsUnattendedScenesLocal = {
+    updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
+    items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
+  };
+  const snapshotItems = snapshotState.items;
 
   const nextItems = snapshotItems.map((i) => (String(i?.id || '').trim() === String(id || '').trim() ? { ...i, enabled: Boolean(enabled) } : i));
 
-  // 乐观更新
-  if (current) {
-    stateScenesRemote.value = { ...current, items: nextItems };
-  }
-
-  try {
-    await refreshScenesRemotePatch({
-      query: { machineCode },
-      body: {
-        datas: {
-          machineName: String(computedMachineName.value || '').trim(),
-          machineCode,
-          items: nextItems
-        }
-      }
-    });
-
-    if (stateScenesRemotePatch.value) {
-      stateScenesRemote.value = stateScenesRemotePatch.value;
-    }
-  } catch {
-    if (current) {
-      stateScenesRemote.value = { ...current, items: snapshotItems };
-    }
-  }
+  await persistLocalScenes(nextItems, snapshotState);
 };
 
 /**
@@ -1289,45 +1445,14 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
     return;
   }
 
-  const current = stateScenesRemote.value;
-  const snapshotItems = Array.isArray(current?.items) ? [...current.items] : [];
+  const snapshotState: ISettingsUnattendedScenesLocal = {
+    updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
+    items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
+  };
+  const snapshotItems = snapshotState.items;
   const nextItems = snapshotItems.filter((i) => String(i?.id || '').trim() !== String(id || '').trim());
 
-  // 乐观更新
-  if (current) {
-    stateScenesRemote.value = { ...current, items: nextItems };
-  }
-
-  try {
-    await refreshScenesRemotePatch({
-      query: { machineCode },
-      body: {
-        datas: {
-          machineName: String(computedMachineName.value || '').trim(),
-          machineCode,
-          items: nextItems
-        }
-      }
-    });
-    await refreshScenesRemoteGet({ query: { machineCode } });
-
-    try {
-      await refreshScenesMachinesRemoteGet();
-    } catch {
-      // ignore
-    }
-  } catch {
-    if (current) {
-      stateScenesRemote.value = { ...current, items: snapshotItems };
-    }
-    await refreshScenesRemoteGet({ query: { machineCode } });
-
-    try {
-      await refreshScenesMachinesRemoteGet();
-    } catch {
-      // ignore
-    }
-  }
+  await persistLocalScenes(nextItems, snapshotState);
 };
 
 /**
@@ -1385,7 +1510,7 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     machineName: String(computedMachineName.value || '').trim(),
     machineRemark: String(current?.machineRemark || '').trim(),
     machineCode,
-    items: Array.isArray(current?.items) ? [...current.items] : []
+    items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
   };
 
   const editingId = String(stateScenesEditingId.value || '').trim();
@@ -1407,20 +1532,7 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     base.items.push(nextItem);
   }
 
-  await refreshScenesRemotePatch({
-    query: { machineCode },
-    body: {
-      datas: base as unknown as Record<string, unknown>
-    }
-  });
-
-  await refreshScenesRemoteGet({ query: { machineCode } });
-
-  try {
-    await refreshScenesMachinesRemoteGet();
-  } catch {
-    // ignore
-  }
+  await persistLocalScenes(base.items);
 
   stateScenesDrawerOpen.value = false;
 };
@@ -1477,8 +1589,7 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
     return;
   }
 
-  const current = stateScenesRemote.value;
-  const items = Array.isArray(current?.items) ? current.items : [];
+  const items = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
   const target = items.find((i) => String(i?.id || '').trim() === String(id || '').trim());
   if (!target) {
     return;

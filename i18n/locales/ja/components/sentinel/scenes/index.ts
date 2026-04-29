@@ -26,6 +26,56 @@ export const scenes = {
   actions: {
     pickProgram: 'プログラムを選択'
   },
+  sync: {
+    title: 'ローカルとリモートのシーン差分を確認',
+    description: 'ローカルのシーン副本とリモート設定に差異があります。同期方法を選択してください。',
+    descriptionWithMachine: '{machine} のローカルとリモートのシーン設定に差異があります。同期方法を選択してください。',
+    unnamed: '名称未設定のシーン',
+    summary: {
+      machine: 'マシン',
+      local: 'ローカルシーン',
+      remote: 'リモートシーン',
+      conflict: '競合数'
+    },
+    sources: {
+      local: 'ローカル副本',
+      remote: 'リモート設定'
+    },
+    fields: {
+      enabled: '有効状態',
+      execPath: 'プログラムパス',
+      execState: 'プログラム可用性',
+      args: '起動コマンド'
+    },
+    values: {
+      enabled: '有効',
+      disabled: '無効',
+      pathExists: 'パス有効',
+      pathMissing: 'パス欠落'
+    },
+    actions: {
+      open: '同期確認',
+      useLocal: 'ローカルを使用',
+      useRemote: 'リモートを使用',
+      merge: '競合はローカル優先でマージ'
+    },
+    status: {
+      'local-only': 'ローカルのみ',
+      'remote-only': 'リモートのみ',
+      same: '一致',
+      conflict: '競合'
+    },
+    empty: {
+      local: {
+        title: 'ローカルには存在しません',
+        description: 'このシーンは現在リモート設定にのみ存在します。'
+      },
+      remote: {
+        title: 'リモートには存在しません',
+        description: 'このシーンは現在ローカル副本にのみ存在します。'
+      }
+    }
+  },
   dialogs: {
     pickProgramTitle: '監護プログラムを選択'
   },
