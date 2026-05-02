@@ -4,6 +4,12 @@
  */
 export interface ISentinelConfig {
   /**
+   * 属性：在线窗口
+   * 描述：单位秒；超过该时间未收到新心跳则视为离线
+   */
+  onlineWindowSeconds: number;
+
+  /**
    * 属性：心跳间隔
    * 描述：单位毫秒
    */

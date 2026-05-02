@@ -203,7 +203,7 @@ export const settings = {
         badges: {
           force: '強制',
           preventSystemSleep: '禁止系統睡眠',
-          enableStartup: '啟用開機自動啟動',
+          enableStartup: '強制開啟開機自動啟動',
           restoreOnClose: '關閉時恢復原狀'
         },
         line2: {
@@ -245,6 +245,39 @@ export const settings = {
         actions: {
           sync: '同步設定',
           reset: '恢復預設'
+        },
+        runtime: {
+          states: {
+            idle: '等待判定',
+            online: '在線',
+            offline: '離線',
+            error: '異常'
+          },
+          reasons: {
+            awaitingSnapshot: '等待桌面殼回傳目前的哨兵狀態。',
+            unattendedDisabled: '目前尚未啟用無人值守模式。',
+            machineCodeMissing: '缺少機器碼，無法啟動哨兵判定。',
+            noEnabledScenes: '目前這台主機尚未啟用任何守護場景。',
+            heartbeatMissing: '遠端尚未收到這台主機的場景心跳。',
+            heartbeatTimeout: '心跳已超過在線視窗，目前主機會被視為離線。',
+            remoteFetchFailed: '暫時無法從遠端讀取這台主機的場景狀態。',
+            lastSeenInvalid: '遠端回傳的最後心跳時間格式無效。',
+            settingsUnavailable: '桌面殼暫時無法讀取本機設定。'
+          },
+          fields: {
+            enabledScenes: '已啟用場景 {count} 個',
+            onlineWindow: '在線視窗 {count} 秒',
+            lastSeenAt: '最後心跳 {value}',
+            staleFor: '已超時 {count} 秒',
+            recoveryIdle: '恢復佇列閒置中',
+            recoveryPending: '恢復判定進行中',
+            recoveryCooldown: '恢復冷卻中',
+            recoveryStopped: '已達爆發上限，自動重啟已停止',
+            recoveryAttempts: '當前輪已重啟 {count} 次',
+            recoveryEpisodes: '當前爆發窗口已完成 {count} 輪',
+            recoveryBurstCount: '累計觸發爆發 {count} 次',
+            recoveryNextAttemptAt: '下次允許重試 {value}'
+          }
         },
         form: {
           startup: {
@@ -298,6 +331,10 @@ export const settings = {
             access: {
               title: '本地接入資訊',
               description: '讀取桌面端目前提供給 UE5 的橋接資訊。'
+            },
+            heartbeat: {
+              title: '場景心跳上報',
+              description: '寫入目前機器的最新心跳時間，用於刷新在線時間與離線判定。'
             }
           },
           empty: {

@@ -1,5 +1,6 @@
 export const config = {
   labels: {
+    onlineWindowSeconds: 'Online window',
     heartbeatInterval: 'Heartbeat interval',
     heartbeatTimeoutCount: 'Crash count',
     restartDelay: 'Restart delay',
@@ -10,10 +11,12 @@ export const config = {
     restartBurstCooldown: 'Burst cooldown'
   },
   units: {
+    window: 'Window',
     interval: 'Interval',
     count: 'Count',
     delay: 'Delay',
     cooldown: 'Cooldown',
+    seconds: 'sec',
     milliseconds: 'ms',
     times: 'times',
     consecutive: 'Consecutive',
@@ -30,6 +33,7 @@ export const config = {
     restartBurst: 'Restart burst'
   },
   desc: {
+    onlineWindowSecondsAfterHeartbeat: 'Online detection window after a heartbeat is received',
     heartbeatIntervalAfterHeartbeat: 'Interval between app heartbeats and monitoring checks',
     crashCountPrefix: 'Consecutive heartbeat misses',
     crashCountMiddle: 'reach the configured count, then mark as',

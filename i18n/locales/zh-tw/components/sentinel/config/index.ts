@@ -1,5 +1,6 @@
 export const config = {
   labels: {
+    onlineWindowSeconds: '在線視窗',
     heartbeatInterval: '心跳間隔',
     heartbeatTimeoutCount: '崩潰計數',
     restartDelay: '重啟延時',
@@ -10,10 +11,12 @@ export const config = {
     restartBurstCooldown: '爆發冷卻'
   },
   units: {
+    window: '視窗',
     interval: '間隔',
     count: '計數',
     delay: '延時',
     cooldown: '冷卻',
+    seconds: '秒',
     milliseconds: '毫秒',
     times: '次數',
     consecutive: '連續',
@@ -30,6 +33,7 @@ export const config = {
     restartBurst: '重啟爆發'
   },
   desc: {
+    onlineWindowSecondsAfterHeartbeat: '同步檢測收到心跳後的在線判定視窗',
     heartbeatIntervalAfterHeartbeat: '應用發送心跳與監護檢測的時間間隔',
     crashCountPrefix: '連續丟失心跳',
     crashCountMiddle: '達到設定次數後判定為',

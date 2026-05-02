@@ -79,7 +79,7 @@
             {{ t('pages.settings.unattended.form.enabled.line2.suffix') }}
           </span>
         </template>
-        <USwitch :model-value="stateUnattendedEnabled" @update:model-value="handleUnattendedEnabledToggle" />
+        <USwitch :model-value="stateUnattendedEnabled" :loading="stateUnattendedEnabledSaving" @update:model-value="handleUnattendedEnabledToggle" />
       </UFormField>
       <UFormField :label="t('pages.settings.unattended.form.startBehavior.label')" :description="t('pages.settings.unattended.form.startBehavior.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <USelect v-model="stateStartBehaviors" :items="computedStartBehaviors" class="w-100" value-attribute="value" option-attribute="label" />
@@ -91,6 +91,21 @@
         <div class="flex-1">
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.sentinel.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.sentinel.description') }}</div>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <UBadge :color="computedSentinelRuntimeBadgeColor" variant="soft" :icon="computedSentinelRuntimeBadgeIcon">{{ computedSentinelRuntimeBadgeLabel }}</UBadge>
+            <span class="text-muted text-sm">{{ computedSentinelRuntimeReason }}</span>
+          </div>
+          <div class="text-muted mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+            <span>{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.enabledScenes', { count: computedSentinelRuntimeEnabledSceneCount }) }}</span>
+            <span>{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.onlineWindow', { count: computedSentinelRuntimeOnlineWindowSeconds }) }}</span>
+            <span v-if="computedSentinelRuntimeLastSeenAt">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.lastSeenAt', { value: computedSentinelRuntimeLastSeenAt }) }}</span>
+            <span v-if="computedSentinelRuntimeStaleForSeconds > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.staleFor', { count: computedSentinelRuntimeStaleForSeconds }) }}</span>
+            <span>{{ computedSentinelRecoveryStateLabel }}</span>
+            <span v-if="computedSentinelRecoveryAttemptsInEpisode > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryAttempts', { count: computedSentinelRecoveryAttemptsInEpisode }) }}</span>
+            <span v-if="computedSentinelRecoveryEpisodesInBurst > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryEpisodes', { count: computedSentinelRecoveryEpisodesInBurst }) }}</span>
+            <span v-if="computedSentinelRecoveryBurstCount > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryBurstCount', { count: computedSentinelRecoveryBurstCount }) }}</span>
+            <span v-if="computedSentinelRecoveryNextAttemptAt">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryNextAttemptAt', { value: computedSentinelRecoveryNextAttemptAt }) }}</span>
+          </div>
         </div>
         <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
         <UButton color="primary" variant="soft" icon="i-mdi:reload" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
@@ -104,27 +119,6 @@
       </template>
     </UPageCard>
     <UPageCard variant="outline" :ui="{ root: 'mb-10', container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.unattended.sections.sentinel.form.startup.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #description>
-          <span class="block">{{ t('pages.settings.unattended.sections.sentinel.form.startup.enableDescription') }}</span>
-          <span class="block">
-            {{ t('pages.settings.unattended.sections.sentinel.form.startup.disablePrefix') }}
-            <UBadge variant="soft">{{ t('pages.settings.unattended.title') }}</UBadge>
-            {{ t('pages.settings.unattended.sections.sentinel.form.startup.disableMiddle') }}
-            <UBadge color="success" variant="soft">{{ t('pages.settings.unattended.sections.sentinel.title') }}</UBadge>
-            {{ t('pages.settings.unattended.sections.sentinel.form.startup.disableSuffix') }}
-          </span>
-        </template>
-        <USwitch v-model="stateSentinelStartUp" />
-      </UFormField>
-      <UFormField
-        :label="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.label')"
-        :description="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="flex items-center justify-between gap-2 not-last:pb-4"
-      >
-        <UInput readonly :model-value="t('pages.settings.unattended.sections.sentinel.form.onlineWindow.value', { seconds: ONLINE_WINDOW_DEFAULT_SECONDS })" class="w-40" />
-      </UFormField>
       <SentinelConfig ref="refSentinelConfig" @analysis-change="handleSentinelConfigChanged" />
     </UPageCard>
 
@@ -174,28 +168,14 @@
         </div>
       </template>
     </UDrawer>
-
-    <UModal v-model:open="stateUnattendedRestartModalOpen" :title="t('pages.settings.unattended.dialogs.restart.title')" :description="t('pages.settings.unattended.dialogs.restart.description')" :close="false" :dismissible="false" :ui="{ footer: 'justify-end' }">
-      <span class="hidden" />
-
-      <template #footer>
-        <UButton color="neutral" variant="outline" :disabled="stateUnattendedRestartModalLoading" @click="handleUnattendedRestartCancel">
-          {{ t('pages.settings.unattended.dialogs.restart.actions.cancel') }}
-        </UButton>
-        <UButton color="neutral" variant="soft" :loading="stateUnattendedRestartModalLoading" @click="handleUnattendedRestartLater">
-          {{ t('pages.settings.unattended.dialogs.restart.actions.later') }}
-        </UButton>
-        <UButton color="primary" :loading="stateUnattendedRestartModalLoading" @click="handleUnattendedRestartNow">
-          {{ t('pages.settings.unattended.dialogs.restart.actions.now') }}
-        </UButton>
-      </template>
-    </UModal>
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
+import type { ISentinelStatusPayload } from '@/composables/tauri/sentinel/index';
+import type { UnlistenFn } from '@tauri-apps/api/event';
 import type {
   IPageSettingsUnattendedMachineNetworkGroups,
   IPageSettingsUnattendedMachineNetworkSnapshot,
@@ -226,6 +206,11 @@ const toast = useToast();
 const { isTauriRuntime } = useTauriEnv();
 
 /**
+ * Hook：Tauri 哨兵
+ */
+const { statusGet: sentinelStatusGet, onStatusChange: onSentinelStatusChange } = useTauriSentinel();
+
+/**
  * Hook：Tauri 设置
  */
 const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet, pathsExistGet } = useTauriSettings();
@@ -238,7 +223,7 @@ const { request: unattendedScenesSyncRequest } = useUnattendedScenesSyncDialog()
 /**
  * Hook：Tauri 窗口能力
  */
-const { restart, openFile } = useTauriWindow();
+const { openFile } = useTauriWindow();
 
 /**
  * 模板：分析时长 Popover 内容（可复用）
@@ -256,34 +241,14 @@ const computedStartBehaviors = computed((): Array<{ label: string; value: TUnatt
 });
 
 /**
- * 常量：在线时间窗口默认值（秒）
- */
-const ONLINE_WINDOW_DEFAULT_SECONDS = 30;
-
-/**
  * 状态：无人值守是否启用
  */
 const stateUnattendedEnabled = ref(false);
 
 /**
- * 状态：无人值守是否启用（弹窗前的旧值）
+ * 状态：无人值守是否启用保存中
  */
-const stateUnattendedEnabledBefore = ref(false);
-
-/**
- * 状态：无人值守是否启用（弹窗待确认的新值）
- */
-const stateUnattendedEnabledPending = ref<boolean | null>(null);
-
-/**
- * 状态：切换无人值守后是否打开重启确认弹窗
- */
-const stateUnattendedRestartModalOpen = ref(false);
-
-/**
- * 状态：重启确认弹窗操作是否处理中
- */
-const stateUnattendedRestartModalLoading = ref(false);
+const stateUnattendedEnabledSaving = ref(false);
 
 /**
  * 状态：启动行为（unattended.start.behaviors）
@@ -406,12 +371,6 @@ const networkGroupsFingerprint = (groups: IPageSettingsUnattendedMachineNetworkG
 const computedLocalNetworkGroups = computed(() => networkSnapshotToGroups(stateLocalNetworkSnapshot.value));
 
 /**
- * 状态：开机自启（unattended.start.up）
- * 描述：用于控制无人值守模式启动时是否自动运行。
- */
-const stateSentinelStartUp = ref(false);
-
-/**
  * 状态：请求地址（协议 + 主体）
  */
 const stateRequestProtocol = ref<'http' | 'https'>('https');
@@ -445,6 +404,221 @@ const refSentinelConfig = ref<ISentinelConfigExpose | null>(null);
 const computedSentinelAnalysis = computed(() => refSentinelConfig.value?.analysisGet() ?? null);
 
 /**
+ * 状态：桌面壳当前哨兵状态快照
+ */
+const stateSentinelRuntime = ref<ISentinelStatusPayload | null>(null);
+
+/**
+ * 变量：取消订阅哨兵状态事件句柄
+ */
+let unsubscribeSentinelStatus: null | UnlistenFn = null;
+
+/**
+ * 计算属性：哨兵状态值
+ */
+const computedSentinelRuntimeState = computed(() => String(stateSentinelRuntime.value?.status?.state || 'idle').trim());
+
+/**
+ * 计算属性：哨兵状态标签
+ */
+const computedSentinelRuntimeBadgeLabel = computed(() => {
+  switch (computedSentinelRuntimeState.value) {
+    case 'online':
+      return t('pages.settings.unattended.sections.sentinel.runtime.states.online');
+    case 'offline':
+      return t('pages.settings.unattended.sections.sentinel.runtime.states.offline');
+    case 'error':
+      return t('pages.settings.unattended.sections.sentinel.runtime.states.error');
+    default:
+      return t('pages.settings.unattended.sections.sentinel.runtime.states.idle');
+  }
+});
+
+/**
+ * 计算属性：哨兵状态徽标颜色
+ */
+const computedSentinelRuntimeBadgeColor = computed(() => {
+  switch (computedSentinelRuntimeState.value) {
+    case 'online':
+      return 'primary';
+    case 'offline':
+      return 'error';
+    case 'error':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+});
+
+/**
+ * 计算属性：哨兵状态徽标图标
+ */
+const computedSentinelRuntimeBadgeIcon = computed(() => {
+  switch (computedSentinelRuntimeState.value) {
+    case 'online':
+      return 'i-lucide:shield-check';
+    case 'offline':
+      return 'i-lucide:shield-alert';
+    case 'error':
+      return 'i-lucide:triangle-alert';
+    default:
+      return 'i-lucide:shield';
+  }
+});
+
+/**
+ * 计算属性：哨兵状态原因
+ */
+const computedSentinelRuntimeReason = computed(() => {
+  const payload = stateSentinelRuntime.value;
+  const reason = String(payload?.status?.reason || '').trim();
+  const message = String(payload?.status?.message || '').trim();
+
+  if (message) {
+    return message;
+  }
+
+  switch (reason) {
+    case 'unattended-disabled':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.unattendedDisabled');
+    case 'machine-code-missing':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.machineCodeMissing');
+    case 'no-enabled-scenes':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.noEnabledScenes');
+    case 'heartbeat-missing':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.heartbeatMissing');
+    case 'heartbeat-timeout':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.heartbeatTimeout');
+    case 'remote-fetch-failed':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.remoteFetchFailed');
+    case 'last-seen-invalid':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.lastSeenInvalid');
+    case 'settings-unavailable':
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.settingsUnavailable');
+    default:
+      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.awaitingSnapshot');
+  }
+});
+
+/**
+ * 计算属性：哨兵已启用场景数
+ */
+const computedSentinelRuntimeEnabledSceneCount = computed(() => {
+  const remoteCount = Number(stateSentinelRuntime.value?.attach?.enabledSceneCount ?? NaN);
+  if (Number.isFinite(remoteCount)) {
+    return remoteCount;
+  }
+
+  const items = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
+  return items.filter((item) => Boolean(item?.enabled)).length;
+});
+
+/**
+ * 计算属性：哨兵在线窗口秒数
+ */
+const computedSentinelRuntimeOnlineWindowSeconds = computed(() => {
+  const fromRuntime = Number(stateSentinelRuntime.value?.attach?.onlineWindowSeconds ?? NaN);
+  if (Number.isFinite(fromRuntime) && fromRuntime > 0) {
+    return fromRuntime;
+  }
+
+  const fromConfig = Number(refSentinelConfig.value?.configGet()?.onlineWindowSeconds ?? NaN);
+  if (Number.isFinite(fromConfig) && fromConfig > 0) {
+    return fromConfig;
+  }
+
+  return 30;
+});
+
+/**
+ * 计算属性：最后心跳时间展示
+ */
+const computedSentinelRuntimeLastSeenAt = computed(() => {
+  const raw = String(stateSentinelRuntime.value?.attach?.lastSeenAt || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return raw;
+  }
+
+  return parsed.toLocaleString();
+});
+
+/**
+ * 计算属性：已超时秒数
+ */
+const computedSentinelRuntimeStaleForSeconds = computed(() => {
+  const value = Number(stateSentinelRuntime.value?.attach?.staleForSeconds ?? NaN);
+  if (!Number.isFinite(value) || value <= 0) {
+    return 0;
+  }
+
+  return Math.trunc(value);
+});
+
+/**
+ * 计算属性：恢复状态标签
+ */
+const computedSentinelRecoveryStateLabel = computed(() => {
+  const state = String(stateSentinelRuntime.value?.attach?.recoveryState || 'idle').trim();
+
+  switch (state) {
+    case 'pending':
+      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryPending');
+    case 'cooldown':
+      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryCooldown');
+    case 'stopped':
+      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryStopped');
+    default:
+      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryIdle');
+  }
+});
+
+/**
+ * 计算属性：当前连续重启次数
+ */
+const computedSentinelRecoveryAttemptsInEpisode = computed(() => {
+  const value = Number(stateSentinelRuntime.value?.attach?.recoveryAttemptsInEpisode ?? NaN);
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
+});
+
+/**
+ * 计算属性：当前爆发窗口轮次
+ */
+const computedSentinelRecoveryEpisodesInBurst = computed(() => {
+  const value = Number(stateSentinelRuntime.value?.attach?.recoveryEpisodesInBurst ?? NaN);
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
+});
+
+/**
+ * 计算属性：累计爆发次数
+ */
+const computedSentinelRecoveryBurstCount = computed(() => {
+  const value = Number(stateSentinelRuntime.value?.attach?.recoveryBurstCount ?? NaN);
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
+});
+
+/**
+ * 计算属性：下一次允许尝试重启时间
+ */
+const computedSentinelRecoveryNextAttemptAt = computed(() => {
+  const raw = String(stateSentinelRuntime.value?.attach?.recoveryNextAttemptAt || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return raw;
+  }
+
+  return parsed.toLocaleString();
+});
+
+/**
  * API：哨兵配置（GET / PATCH）
  * 描述：用于跨设备同步哨兵配置。
  */
@@ -469,6 +643,11 @@ const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnatten
  * 描述：用于承接乐观更新与 PATCH 返回值，避免直接写只读 computed datas。
  */
 const stateScenesRemote = ref<IPageSettingsUnattendedScenesMachineRedisConfig | undefined>(undefined);
+
+/**
+ * 常量：场景在线时间刷新间隔（ms）
+ */
+const SCENES_REMOTE_REFRESH_INTERVAL_MS = 5000;
 
 /**
  * 状态：本地场景副本
@@ -559,6 +738,7 @@ const unattendedSentinelPickForPersist = (input: unknown): ISettingsUnattendedSe
     request: {
       url: String(request?.url ?? '')
     },
+    onlineWindowSeconds: toSafeNumber(src.onlineWindowSeconds, 30),
     heartbeat: {
       interval: toSafeNumber(heartbeat?.interval),
       timeoutCount: toSafeNumber(heartbeat?.timeoutCount)
@@ -632,6 +812,7 @@ const requestUrlSplit = (url: string) => {
  */
 const sentinelOverridesFromSettings = (settingsConfig: ISettingsUnattendedSentinel): Record<string, unknown> => {
   return {
+    onlineWindowSeconds: settingsConfig.onlineWindowSeconds ?? 30,
     heartbeatInterval: settingsConfig.heartbeat.interval,
     heartbeatTimeoutCount: settingsConfig.heartbeat.timeoutCount,
     restartDelay: settingsConfig.restart.delay,
@@ -655,6 +836,7 @@ const heartbeatRestartFromRef = (refConfig: ISentinelConfigExpose | null) => {
   }
 
   return {
+    onlineWindowSeconds: config.onlineWindowSeconds,
     heartbeat: {
       interval: config.heartbeatInterval,
       timeoutCount: config.heartbeatTimeoutCount
@@ -684,6 +866,20 @@ onMounted(async () => {
     return;
   }
 
+  try {
+    unsubscribeSentinelStatus = await onSentinelStatusChange((payload) => {
+      stateSentinelRuntime.value = payload;
+    });
+  } catch (error) {
+    console.error('[settings/unattended] sentinel listen failed', error);
+  }
+
+  try {
+    stateSentinelRuntime.value = await sentinelStatusGet();
+  } catch (error) {
+    console.error('[settings/unattended] sentinel snapshot failed', error);
+  }
+
   const settings = await settingsGet();
 
   try {
@@ -708,8 +904,6 @@ onMounted(async () => {
   stateScenesLocal.value = unattendedScenesLocalNormalize(unattended.scenes);
 
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
-  stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
-  stateSentinelStartUp.value = Boolean(unattendedStart.up);
 
   stateStartBehaviors.value = toUnattendedStartBehavior(unattendedStart.behaviors) || stateStartBehaviors.value;
 
@@ -785,6 +979,7 @@ onMounted(async () => {
   }
 
   await handleScenesSyncOpen();
+  resumeScenesRemotePolling();
 
   if (requestUrlFilled) {
     await persistToSettings();
@@ -793,10 +988,24 @@ onMounted(async () => {
 });
 
 /**
+ * 生命周期：组件卸载前
+ */
+onBeforeUnmount(() => {
+  pauseScenesRemotePolling();
+
+  if (!unsubscribeSentinelStatus) {
+    return;
+  }
+
+  unsubscribeSentinelStatus();
+  unsubscribeSentinelStatus = null;
+});
+
+/**
  * 事件：切换无人值守是否启用
  * @param {boolean} next 下一个值
  */
-const handleUnattendedEnabledToggle = (next: boolean): void => {
+const handleUnattendedEnabledToggle = async (next: boolean): Promise<void> => {
   if (!stateHydrated.value) {
     stateUnattendedEnabled.value = next;
     return;
@@ -806,76 +1015,21 @@ const handleUnattendedEnabledToggle = (next: boolean): void => {
     return;
   }
 
-  stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
-  stateUnattendedEnabledPending.value = next;
+  if (stateUnattendedEnabledSaving.value) {
+    return;
+  }
+
+  const previous = stateUnattendedEnabled.value;
   stateUnattendedEnabled.value = next;
-  stateUnattendedRestartModalOpen.value = true;
-};
 
-/**
- * 事件：取消切换（不落盘，并回滚 UI）
- */
-const handleUnattendedRestartCancel = (): void => {
-  stateUnattendedRestartModalOpen.value = false;
-  stateUnattendedEnabled.value = stateUnattendedEnabledBefore.value;
-  stateUnattendedEnabledPending.value = null;
-};
-
-/**
- * 事件：稍后自行重启（先保存，再提示）
- */
-const handleUnattendedRestartLater = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-  if (!isTauriRuntime.value) {
-    return;
-  }
-  if (stateUnattendedRestartModalLoading.value) {
-    return;
-  }
-
-  stateUnattendedRestartModalLoading.value = true;
+  stateUnattendedEnabledSaving.value = true;
   try {
     await persistToSettings();
-
-    toast.add({
-      description: t('pages.settings.unattended.dialogs.restart.toast.later'),
-      color: 'success',
-      icon: 'i-lucide-save',
-      duration: 1500,
-      type: 'foreground',
-      close: false
-    });
-
-    stateUnattendedRestartModalOpen.value = false;
-    stateUnattendedEnabledPending.value = null;
-    stateUnattendedEnabledBefore.value = stateUnattendedEnabled.value;
+  } catch (error) {
+    stateUnattendedEnabled.value = previous;
+    throw error;
   } finally {
-    stateUnattendedRestartModalLoading.value = false;
-  }
-};
-
-/**
- * 事件：立即重启（先保存，再重启应用）
- */
-const handleUnattendedRestartNow = async (): Promise<void> => {
-  if (!import.meta.client) {
-    return;
-  }
-  if (!isTauriRuntime.value) {
-    return;
-  }
-  if (stateUnattendedRestartModalLoading.value) {
-    return;
-  }
-
-  stateUnattendedRestartModalLoading.value = true;
-  try {
-    await persistToSettings();
-    await restart();
-  } finally {
-    stateUnattendedRestartModalLoading.value = false;
+    stateUnattendedEnabledSaving.value = false;
   }
 };
 
@@ -884,8 +1038,8 @@ const handleUnattendedRestartNow = async (): Promise<void> => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
-  const heart = heartbeatRestartFromRef(refSentinelConfig.value);
-  if (!heart) {
+  const config = refSentinelConfig.value?.configGet();
+  if (!config) {
     return null;
   }
 
@@ -893,7 +1047,21 @@ const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
     request: {
       url: computedRequestUrl.value
     },
-    ...heart
+    onlineWindowSeconds: config.onlineWindowSeconds,
+    heartbeat: {
+      interval: config.heartbeatInterval,
+      timeoutCount: config.heartbeatTimeoutCount
+    },
+    restart: {
+      delay: config.restartDelay,
+      cooldown: config.restartCooldown,
+      maxAttempts: config.restartMaxAttempts,
+      burst: {
+        window: config.restartBurstWindow,
+        cooldown: config.restartBurstCooldown,
+        maxAttempts: config.restartBurstMaxAttempts
+      }
+    }
   };
 };
 
@@ -910,7 +1078,7 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
   return {
     enabled: stateUnattendedEnabled.value,
     start: {
-      up: stateSentinelStartUp.value,
+      up: stateUnattendedEnabled.value,
       behaviors: stateStartBehaviors.value
     },
     sentinel
@@ -922,8 +1090,8 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null => {
-  const heart = heartbeatRestartFromRef(refSentinelConfig.value);
-  if (!heart) {
+  const config = refSentinelConfig.value?.configGet();
+  if (!config) {
     return null;
   }
 
@@ -931,7 +1099,20 @@ const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null =>
     request: {
       url: computedRequestUrl.value
     },
-    ...heart
+    heartbeat: {
+      interval: config.heartbeatInterval,
+      timeoutCount: config.heartbeatTimeoutCount
+    },
+    restart: {
+      delay: config.restartDelay,
+      cooldown: config.restartCooldown,
+      maxAttempts: config.restartMaxAttempts,
+      burst: {
+        window: config.restartBurstWindow,
+        cooldown: config.restartBurstCooldown,
+        maxAttempts: config.restartBurstMaxAttempts
+      }
+    }
   };
 };
 
@@ -1024,7 +1205,7 @@ const handleSentinelConfigChanged = (): void => {
 /**
  * 监听：页面任意配置项变化即写回设置
  */
-watch([stateStartBehaviors, stateSentinelStartUp, stateRequestProtocol, stateRequestHost], () => {
+watch([stateStartBehaviors, stateRequestProtocol, stateRequestHost], () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1069,15 +1250,24 @@ const handleSentinelSync = async () => {
       return;
     }
 
+    const currentOnlineWindowSeconds = refSentinelConfig.value?.configGet().onlineWindowSeconds ?? 30;
     const { protocol, host } = requestUrlSplit(remote.request?.url || '');
     stateRequestProtocol.value = protocol;
     stateRequestHost.value = host;
 
-    refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));
+    refSentinelConfig.value?.resetToOverrides(
+      sentinelOverridesFromSettings({
+        ...(remote as unknown as ISettingsUnattendedSentinel),
+        onlineWindowSeconds: currentOnlineWindowSeconds
+      })
+    );
 
     await nextTick();
 
-    const sentinelPersist = unattendedSentinelPickForPersist(remote);
+    const sentinelPersist = unattendedSentinelPickForPersist({
+      ...(remote as unknown as ISettingsUnattendedSentinel),
+      onlineWindowSeconds: currentOnlineWindowSeconds
+    });
     if (!sentinelPersist) {
       return;
     }
@@ -1150,6 +1340,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
         machineRemark: String(machine?.machineRemark || '').trim(),
         machineCode: String(machine?.machineCode || '').trim(),
         lastSeenAt: String(machine?.lastSeenAt || '').trim() || undefined,
+        machineLastSeenAt: String(machine?.machineLastSeenAt || '').trim() || undefined,
         network: undefined,
         items: []
       }) satisfies IPageSettingsUnattendedScenesMachineRedisConfig
@@ -1170,6 +1361,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     machineRemark: String(stateScenesRemote.value?.machineRemark || '').trim(),
     machineCode: localMachineCode,
     lastSeenAt: String(stateScenesRemote.value?.lastSeenAt || '').trim() || undefined,
+    machineLastSeenAt: String(stateScenesRemote.value?.machineLastSeenAt || '').trim() || undefined,
     network: localNetwork,
     items: localItems
   };
@@ -1190,6 +1382,7 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     machineName: localMachineName || String(target.machineName ?? ''),
     machineRemark: String(stateScenesRemote.value?.machineRemark || target.machineRemark || '').trim(),
     lastSeenAt: String(stateScenesRemote.value?.lastSeenAt || target.lastSeenAt || '').trim() || undefined,
+    machineLastSeenAt: String(stateScenesRemote.value?.machineLastSeenAt || target.machineLastSeenAt || '').trim() || undefined,
     network: localNetwork,
     items: localItems
   };
@@ -1276,6 +1469,22 @@ const refreshScenesRemoteState = async (): Promise<void> => {
     // ignore
   }
 };
+
+/**
+ * Hook：场景在线时间轮询
+ * 描述：页面存活期间持续刷新远端场景状态，确保最后心跳时间不受无人值守开关影响。
+ */
+const { pause: pauseScenesRemotePolling, resume: resumeScenesRemotePolling } = useIntervalFn(
+  () => {
+    if (stateScenesSyncing.value) {
+      return;
+    }
+
+    void refreshScenesRemoteState();
+  },
+  SCENES_REMOTE_REFRESH_INTERVAL_MS,
+  { immediate: false, immediateCallback: false }
+);
 
 /**
  * 函数：构建路径存在性映射

@@ -83,6 +83,11 @@ export interface ISettingsUnattendedSentinel {
   request: ISettingsUnattendedSentinelRequest;
 
   /**
+   * 在线窗口（单位：秒）
+   */
+  onlineWindowSeconds?: number;
+
+  /**
    * 心跳配置
    */
   heartbeat: ISettingsUnattendedHeartbeat;
@@ -298,6 +303,11 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
   lastSeenAt?: string;
 
   /**
+   * 机器最后在线时间
+   */
+  machineLastSeenAt?: string;
+
+  /**
    * 网络信息
    */
   network?: TPageSettingsUnattendedMachineNetwork | null;
@@ -336,4 +346,9 @@ export interface IPageSettingsUnattendedScenesMachineBasic {
    * 最后在线时间
    */
   lastSeenAt?: string;
+
+  /**
+   * 机器最后在线时间
+   */
+  machineLastSeenAt?: string;
 }

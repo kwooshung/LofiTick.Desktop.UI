@@ -1,5 +1,6 @@
 export const config = {
   labels: {
+    onlineWindowSeconds: 'オンライン判定',
     heartbeatInterval: '心拍間隔',
     heartbeatTimeoutCount: 'クラッシュ回数',
     restartDelay: '再起動遅延',
@@ -10,10 +11,12 @@ export const config = {
     restartBurstCooldown: 'バーストクールダウン'
   },
   units: {
+    window: '判定',
     interval: '間隔',
     count: '回数',
     delay: '遅延',
     cooldown: '冷却',
+    seconds: '秒',
     milliseconds: 'ms',
     times: '回',
     consecutive: '連続',
@@ -30,6 +33,7 @@ export const config = {
     restartBurst: '再起動バースト'
   },
   desc: {
+    onlineWindowSecondsAfterHeartbeat: '同期チェックで心拍を受け取った後のオンライン判定時間',
     heartbeatIntervalAfterHeartbeat: 'アプリの心拍送信と監視チェックの間隔',
     crashCountPrefix: '心拍の連続欠落が',
     crashCountMiddle: '設定回数に達すると判定：',

@@ -203,7 +203,7 @@
         badges: {
           force: '强制',
           preventSystemSleep: '禁止系统休眠',
-          enableStartup: '启用开机自启',
+          enableStartup: '强制开启开机自启',
           restoreOnClose: '关闭时恢复原状'
         },
         line2: {
@@ -245,6 +245,39 @@
         actions: {
           sync: '同步配置',
           reset: '恢复默认'
+        },
+        runtime: {
+          states: {
+            idle: '等待判定',
+            online: '在线',
+            offline: '离线',
+            error: '异常'
+          },
+          reasons: {
+            awaitingSnapshot: '等待桌面壳返回当前哨兵状态',
+            unattendedDisabled: '当前未开启无人值守模式',
+            machineCodeMissing: '机器码缺失，无法启动哨兵判定',
+            noEnabledScenes: '当前主机还没有启用任何守护场景',
+            heartbeatMissing: '远端尚未收到当前主机的场景心跳',
+            heartbeatTimeout: '心跳已超过在线窗口，当前主机被视为离线',
+            remoteFetchFailed: '暂时无法从远端读取当前主机的场景状态',
+            lastSeenInvalid: '远端返回的最后心跳时间格式无效',
+            settingsUnavailable: '桌面壳暂时无法读取本地设置'
+          },
+          fields: {
+            enabledScenes: '已启用场景 {count} 个',
+            onlineWindow: '在线窗口 {count} 秒',
+            lastSeenAt: '最后心跳 {value}',
+            staleFor: '已超时 {count} 秒',
+            recoveryIdle: '恢复队列空闲',
+            recoveryPending: '恢复判定进行中',
+            recoveryCooldown: '恢复冷却中',
+            recoveryStopped: '已达到爆发上限，自动重启已停止',
+            recoveryAttempts: '当前轮已重启 {count} 次',
+            recoveryEpisodes: '当前爆发窗口已完成 {count} 轮',
+            recoveryBurstCount: '累计触发爆发 {count} 次',
+            recoveryNextAttemptAt: '下次允许重试 {value}'
+          }
         },
         form: {
           startup: {
@@ -298,6 +331,10 @@
             access: {
               title: '本地接入信息',
               description: '读取当前桌面端暴露给 UE5 的桥接信息。'
+            },
+            heartbeat: {
+              title: '场景心跳上报',
+              description: '写入当前机器的最新心跳时间，用于刷新在线时间与离线判定。'
             }
           },
           empty: {

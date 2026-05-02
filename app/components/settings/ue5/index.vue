@@ -279,7 +279,9 @@ const computedUpstreamAddress = computed((): string => {
  */
 const computedRequests = computed<ISettingsUe5RequestItem[]>(() => {
   const accessUrl = String(stateAccessUrl.value || '').trim();
-  if (!accessUrl) {
+  const heartbeatUrl = computedBaseUrl.value ? `${computedBaseUrl.value}ue5/heartbeat` : '';
+
+  if (!accessUrl || !heartbeatUrl) {
     return [];
   }
 
@@ -291,6 +293,14 @@ const computedRequests = computed<ISettingsUe5RequestItem[]>(() => {
       url: accessUrl,
       description: t('pages.settings.unattended.sections.ue5.modal.requests.access.description'),
       params: urlParamsGet(accessUrl)
+    },
+    {
+      id: 'heartbeat',
+      title: t('pages.settings.unattended.sections.ue5.modal.requests.heartbeat.title'),
+      method: 'POST',
+      url: heartbeatUrl,
+      description: t('pages.settings.unattended.sections.ue5.modal.requests.heartbeat.description'),
+      params: []
     }
   ];
 });

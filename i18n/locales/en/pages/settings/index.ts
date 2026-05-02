@@ -203,7 +203,7 @@ export const settings = {
         badges: {
           force: 'force',
           preventSystemSleep: 'prevent system sleep',
-          enableStartup: 'enable launch at startup',
+          enableStartup: 'force launch at startup',
           restoreOnClose: 'restore when turned off'
         },
         line2: {
@@ -245,6 +245,39 @@ export const settings = {
         actions: {
           sync: 'Sync config',
           reset: 'Reset to defaults'
+        },
+        runtime: {
+          states: {
+            idle: 'Waiting',
+            online: 'Online',
+            offline: 'Offline',
+            error: 'Error'
+          },
+          reasons: {
+            awaitingSnapshot: 'Waiting for the desktop shell to return the current Sentinel state.',
+            unattendedDisabled: 'Unattended mode is currently disabled.',
+            machineCodeMissing: 'Machine code is missing, so Sentinel cannot start evaluation.',
+            noEnabledScenes: 'No guarded scene is enabled on this machine yet.',
+            heartbeatMissing: 'The remote side has not received any scene heartbeat from this machine yet.',
+            heartbeatTimeout: 'Heartbeat is older than the online window, so this machine is treated as offline.',
+            remoteFetchFailed: 'Unable to read the current machine scene state from the remote side right now.',
+            lastSeenInvalid: 'The remote side returned an invalid last heartbeat timestamp.',
+            settingsUnavailable: 'The desktop shell cannot read local settings right now.'
+          },
+          fields: {
+            enabledScenes: '{count} enabled scenes',
+            onlineWindow: 'Online window {count} sec',
+            lastSeenAt: 'Last heartbeat {value}',
+            staleFor: 'Timed out for {count} sec',
+            recoveryIdle: 'Recovery queue idle',
+            recoveryPending: 'Recovery decision in progress',
+            recoveryCooldown: 'Recovery cooldown active',
+            recoveryStopped: 'Burst limit reached, auto restart stopped',
+            recoveryAttempts: '{count} restart attempts in current round',
+            recoveryEpisodes: '{count} completed rounds in current burst window',
+            recoveryBurstCount: '{count} bursts triggered',
+            recoveryNextAttemptAt: 'Next retry allowed at {value}'
+          }
         },
         form: {
           startup: {
@@ -298,6 +331,10 @@ export const settings = {
             access: {
               title: 'Local access info',
               description: 'Reads the bridge information currently exposed by the desktop app to UE5.'
+            },
+            heartbeat: {
+              title: 'Scene heartbeat report',
+              description: 'Writes the latest heartbeat time for this machine to refresh online time and offline detection.'
             }
           },
           empty: {

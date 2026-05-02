@@ -203,7 +203,7 @@ export const settings = {
         badges: {
           force: '強制',
           preventSystemSleep: 'システムスリープを禁止',
-          enableStartup: '起動時に自動起動を有効化',
+          enableStartup: '起動時自動起動を強制有効化',
           restoreOnClose: 'オフで元に戻す'
         },
         line2: {
@@ -245,6 +245,39 @@ export const settings = {
         actions: {
           sync: '設定を同期',
           reset: '既定に戻す'
+        },
+        runtime: {
+          states: {
+            idle: '判定待ち',
+            online: 'オンライン',
+            offline: 'オフライン',
+            error: '異常'
+          },
+          reasons: {
+            awaitingSnapshot: 'デスクトップシェルから現在の哨兵状態を取得中です。',
+            unattendedDisabled: '現在は無人値守モードが無効です。',
+            machineCodeMissing: 'マシンコードがないため、哨兵判定を開始できません。',
+            noEnabledScenes: 'このマシンではまだ監護対象のシーンが有効になっていません。',
+            heartbeatMissing: 'このマシンのシーン心拍がまだリモートに届いていません。',
+            heartbeatTimeout: '心拍がオンライン判定時間を超えたため、このマシンはオフライン扱いです。',
+            remoteFetchFailed: '現在このマシンのシーン状態をリモートから取得できません。',
+            lastSeenInvalid: 'リモートが返した最後の心拍時刻の形式が不正です。',
+            settingsUnavailable: 'デスクトップシェルがローカル設定を読み取れません。'
+          },
+          fields: {
+            enabledScenes: '有効なシーン {count} 件',
+            onlineWindow: 'オンライン判定 {count} 秒',
+            lastSeenAt: '最後の心拍 {value}',
+            staleFor: '{count} 秒タイムアウト中',
+            recoveryIdle: '復旧キュー待機中',
+            recoveryPending: '復旧判定を進行中',
+            recoveryCooldown: '復旧クールダウン中',
+            recoveryStopped: 'バースト上限に達したため自動再起動を停止',
+            recoveryAttempts: '現在ラウンドで {count} 回再起動',
+            recoveryEpisodes: '現在のバースト枠で {count} ラウンド完了',
+            recoveryBurstCount: '累計バースト {count} 回',
+            recoveryNextAttemptAt: '次回再試行可能時刻 {value}'
+          }
         },
         form: {
           startup: {
@@ -298,6 +331,10 @@ export const settings = {
             access: {
               title: 'ローカル接続情報',
               description: 'デスクトップ側が UE5 に公開している現在のブリッジ情報を取得します。'
+            },
+            heartbeat: {
+              title: 'シーンのハートビート送信',
+              description: 'このマシンの最新ハートビート時刻を書き込み、オンライン時間とオフライン判定を更新します。'
             }
           },
           empty: {

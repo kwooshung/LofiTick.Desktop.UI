@@ -53,8 +53,8 @@
           <UIcon name="i-lucide:clock-3" class="text-dimmed" />
           <span class="text-muted shrink-0">{{ t('components.sentinel.scenes.card.fields.lastSeen') }}</span>
         </div>
-        <span v-if="String(machine.lastSeenAt || '').trim()">
-          <Datetime :datetime="String(machine.lastSeenAt || '').trim()" />
+        <span v-if="String(machine.machineLastSeenAt || machine.lastSeenAt || '').trim()">
+          <Datetime :datetime="String(machine.machineLastSeenAt || machine.lastSeenAt || '').trim()" />
         </span>
         <span v-else class="min-w-0 flex-1 break-all">--</span>
       </li>
