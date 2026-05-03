@@ -354,6 +354,13 @@ export const settings = {
             unit: 'sec'
           }
         }
+      },
+      logs: {
+        title: 'Logs overview',
+        description: 'View recent Sentinel logs by machine so the same UI can later be reused for the online machines page and the home dashboard.',
+        actions: {
+          refresh: 'Refresh logs'
+        }
       }
     },
     labels: {

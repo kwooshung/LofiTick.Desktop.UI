@@ -354,6 +354,13 @@ export const settings = {
             unit: '秒'
           }
         }
+      },
+      logs: {
+        title: 'ログ概要',
+        description: 'マシンごとに最近の哨兵ログを確認します。この表示は今後オンラインマシン一覧やホーム画面にも再利用できます。',
+        actions: {
+          refresh: 'ログを更新'
+        }
       }
     },
     labels: {

@@ -10,6 +10,7 @@ export const card = {
     addScene: 'Add scene',
     deleteMachine: 'Delete machine',
     network: 'Network',
+    logs: 'Logs',
     details: 'Details',
     edit: 'Edit',
     delete: 'Delete'
@@ -20,6 +21,7 @@ export const card = {
     lastSeen: 'Last seen',
     machineIdentity: 'Machine UUID',
     network: 'Network',
+    logs: 'Logs',
     scenes: 'Scenes'
   },
   tooltips: {
@@ -33,6 +35,9 @@ export const card = {
   },
   stats: {
     scenes: 'Scenes',
+    logs: 'Logs',
+    machineLogs: 'Machine logs',
+    sceneLogs: 'Scene logs',
     enabled: 'Enabled',
     disabled: 'Disabled'
   },
@@ -58,6 +63,10 @@ export const card = {
       title: 'No scenes',
       localDescription: 'This machine has no scenes yet. Create one below.',
       remoteDescription: 'Creating scenes is not supported on remote machines.'
+    },
+    logs: {
+      title: 'No logs',
+      description: 'There are no logs to display yet.'
     },
     data: {
       title: 'No data',

@@ -10,6 +10,7 @@ export const card = {
     addScene: '新增場景',
     deleteMachine: '刪除主機',
     network: '網卡',
+    logs: '日誌',
     details: '詳情',
     edit: '編輯',
     delete: '刪除'
@@ -20,6 +21,7 @@ export const card = {
     lastSeen: '最後在線',
     machineIdentity: '機器 UUID',
     network: '網卡',
+    logs: '日誌',
     scenes: '場景列表'
   },
   tooltips: {
@@ -33,6 +35,9 @@ export const card = {
   },
   stats: {
     scenes: '場景',
+    logs: '日誌',
+    machineLogs: '機器日誌',
+    sceneLogs: '場景日誌',
     enabled: '啟用',
     disabled: '未啟用'
   },
@@ -58,6 +63,10 @@ export const card = {
       title: '暫無場景',
       localDescription: '目前這台機器還沒有場景，請在下方建立',
       remoteDescription: '遠端機器暫不支援建立場景'
+    },
+    logs: {
+      title: '暫無日誌',
+      description: '目前尚無可顯示的日誌'
     },
     data: {
       title: '暫無資料',

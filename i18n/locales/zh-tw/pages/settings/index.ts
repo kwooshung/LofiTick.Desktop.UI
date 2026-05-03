@@ -354,6 +354,13 @@ export const settings = {
             unit: '秒'
           }
         }
+      },
+      logs: {
+        title: '日誌總覽',
+        description: '依機器查看最近的哨兵日誌，後續也可復用到在線機器頁與首頁大屏。',
+        actions: {
+          refresh: '重新整理日誌'
+        }
       }
     },
     labels: {

@@ -354,6 +354,13 @@
             unit: '秒'
           }
         }
+      },
+      logs: {
+        title: '日志总览',
+        description: '按机器查看最近的哨兵日志，后续也可复用到在线机器页与首页大屏。',
+        actions: {
+          refresh: '刷新日志'
+        }
       }
     },
     labels: {

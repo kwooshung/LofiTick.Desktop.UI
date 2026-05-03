@@ -10,6 +10,7 @@ export const card = {
     addScene: 'シーンを追加',
     deleteMachine: 'マシンを削除',
     network: 'ネットワーク',
+    logs: 'ログ',
     details: '詳細',
     edit: '編集',
     delete: '削除'
@@ -20,6 +21,7 @@ export const card = {
     lastSeen: '最終接続',
     machineIdentity: 'マシンUUID',
     network: 'ネットワーク',
+    logs: 'ログ',
     scenes: 'シーン一覧'
   },
   tooltips: {
@@ -33,6 +35,9 @@ export const card = {
   },
   stats: {
     scenes: 'シーン',
+    logs: 'ログ',
+    machineLogs: 'マシンログ',
+    sceneLogs: 'シーンログ',
     enabled: '有効',
     disabled: '無効'
   },
@@ -58,6 +63,10 @@ export const card = {
       title: 'シーンがありません',
       localDescription: 'このマシンにはまだシーンがありません。下のボタンから作成してください',
       remoteDescription: 'リモート端末ではシーンを作成できません'
+    },
+    logs: {
+      title: 'ログがありません',
+      description: '表示できるログはまだありません'
     },
     data: {
       title: 'データがありません',

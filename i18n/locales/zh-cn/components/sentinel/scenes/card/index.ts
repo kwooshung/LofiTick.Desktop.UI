@@ -10,6 +10,7 @@ export const card = {
     addScene: '添加场景',
     deleteMachine: '删除主机',
     network: '网卡',
+    logs: '日志',
     details: '详情',
     edit: '编辑',
     delete: '删除'
@@ -20,6 +21,7 @@ export const card = {
     lastSeen: '最后在线',
     machineIdentity: '机器标识',
     network: '网卡',
+    logs: '日志',
     scenes: '场景列表'
   },
   tooltips: {
@@ -33,6 +35,9 @@ export const card = {
   },
   stats: {
     scenes: '场景',
+    logs: '日志',
+    machineLogs: '机器日志',
+    sceneLogs: '场景日志',
     enabled: '启用',
     disabled: '未启用'
   },
@@ -58,6 +63,10 @@ export const card = {
       title: '暂无场景',
       localDescription: '当前机器还没有场景，请在下方创建',
       remoteDescription: '远程机器暂不支持创建场景'
+    },
+    logs: {
+      title: '暂无日志',
+      description: '当前还没有可展示的日志'
     },
     data: {
       title: '暂无数据',

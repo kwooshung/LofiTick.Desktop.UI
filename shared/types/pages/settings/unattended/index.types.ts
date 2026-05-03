@@ -279,9 +279,9 @@ export interface IPageSettingsUnattendedScenesItem {
 }
 
 /**
- * 接口：无人值守-按机器存储的场景配置
+ * 接口：无人值守-机器卡片基础信息
  */
-export interface IPageSettingsUnattendedScenesMachineRedisConfig {
+export interface IPageSettingsUnattendedMachineCardInfo {
   /**
    * 机器名称
    */
@@ -316,7 +316,12 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
    * 网络信息
    */
   network?: TPageSettingsUnattendedMachineNetwork | null;
+}
 
+/**
+ * 接口：无人值守-按机器存储的场景配置
+ */
+export interface IPageSettingsUnattendedScenesMachineRedisConfig extends IPageSettingsUnattendedMachineCardInfo {
   /**
    * 场景列表
    */
@@ -326,16 +331,16 @@ export interface IPageSettingsUnattendedScenesMachineRedisConfig {
 /**
  * 接口：无人值守-场景机器轻列表项
  */
-export interface IPageSettingsUnattendedScenesMachineBasic {
-  /**
-   * 机器名称
-   */
-  machineName: string;
+export interface IPageSettingsUnattendedScenesMachineBasic extends Omit<IPageSettingsUnattendedMachineCardInfo, 'network'> {}
 
+/**
+ * 接口：无人值守-哨兵日志条目
+ */
+export interface IPageSettingsUnattendedSentinelLogItem {
   /**
-   * 机器备注
+   * 日志唯一标识
    */
-  machineRemark: string;
+  id: string;
 
   /**
    * 机器码
@@ -343,17 +348,72 @@ export interface IPageSettingsUnattendedScenesMachineBasic {
   machineCode: string;
 
   /**
-   * 是否在线
+   * 作用域
    */
-  online?: boolean;
+  scope: string;
 
   /**
-   * 最后在线时间
+   * 场景 ID
    */
-  lastSeenAt?: string;
+  sceneId: string;
 
   /**
-   * 机器最后在线时间
+   * 场景名称
    */
-  machineLastSeenAt?: string;
+  sceneName: string;
+
+  /**
+   * 日志级别
+   */
+  level: string;
+
+  /**
+   * 阶段标签
+   */
+  stage: string;
+
+  /**
+   * 步骤标签
+   */
+  step: string;
+
+  /**
+   * 状态值
+   */
+  state: string;
+
+  /**
+   * 日志消息
+   */
+  message: string;
+
+  /**
+   * 时间戳
+   */
+  ts: string;
+}
+
+/**
+ * 接口：无人值守-按机器分组的哨兵日志
+ */
+export interface IPageSettingsUnattendedSentinelLogsMachineGroup {
+  /**
+   * 机器码
+   */
+  machineCode: string;
+
+  /**
+   * 日志列表
+   */
+  logs: IPageSettingsUnattendedSentinelLogItem[];
+}
+
+/**
+ * 接口：无人值守-用于卡片展示的哨兵日志机器信息
+ */
+export interface IPageSettingsUnattendedSentinelLogsMachineCard extends IPageSettingsUnattendedMachineCardInfo {
+  /**
+   * 日志列表
+   */
+  logs: IPageSettingsUnattendedSentinelLogItem[];
 }

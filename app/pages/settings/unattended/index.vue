@@ -138,6 +138,7 @@
     <div class="mb-10 flex w-full flex-col gap-3">
       <SettingsUnattendedScenesCards
         :machines="computedScenesMachines"
+        :logs-machines="computedSentinelLogsMachines"
         :local-machine-code="stateMachineCode"
         @add="handleScenesAddOpen"
         @toggle-enabled="(payload) => handleScenesItemToggleEnabled(payload.id, payload.enabled)"
@@ -146,6 +147,19 @@
         @edit="handleScenesEditOpen"
         @delete="handleScenesItemDelete"
       />
+    </div>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.logs.title') }}</div>
+          <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.logs.description') }}</div>
+        </div>
+        <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelLogsRefresh">{{ t('pages.settings.unattended.sections.logs.actions.refresh') }}</UButton>
+      </template>
+    </UPageCard>
+    <div class="mb-10 flex w-full flex-col gap-3">
+      <SettingsUnattendedSentinelLogsCards :machines="computedSentinelLogsMachines" :local-machine-code="stateMachineCode" />
     </div>
 
     <UDrawer v-model:open="stateScenesDrawerOpen" :ui="{ overlay: 'z-50', content: 'z-50', body: 'relative mx-auto w-5/6', footer: 'border-default border-t shadow-[0_-2px_4px_rgba(0,0,0,0.01)] bg-default' }">
@@ -186,6 +200,8 @@ import type {
   IPageSettingsUnattendedMachineNetworkSnapshot,
   IPageSettingsUnattendedScenesItem,
   IPageSettingsUnattendedScenesMachineRedisConfig,
+  IPageSettingsUnattendedSentinelLogsMachineCard,
+  IPageSettingsUnattendedSentinelLogsMachineGroup,
   ISettingsUnattended,
   ISettingsUnattendedScenesLocal,
   ISettingsUnattendedSentinel,
@@ -461,6 +477,12 @@ const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnatten
  * 描述：读取所有机器的场景配置列表。
  */
 const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
+
+/**
+ * API：哨兵日志列表（GET）
+ * 描述：按机器分组读取仍有日志的机器列表。
+ */
+const { datas: stateSentinelLogsMachinesRemote, refresh: refreshSentinelLogsMachinesRemoteGet } = await useApi<IPageSettingsUnattendedSentinelLogsMachineGroup[]>('desktop/settings/unattended/sentinel/logs/machines', { immediate: false });
 
 /**
  * 状态：当前机器的场景详情（本地可写镜像）
@@ -745,6 +767,7 @@ onMounted(async () => {
   }
 
   await refreshScenesMachinesRemoteGet();
+  await refreshSentinelLogsMachinesRemoteGet();
 
   // 页面打开后：对比本机网络与远端记录，不一致则仅上报一次
   if (!stateLocalNetworkReportedOnce.value) {
@@ -775,6 +798,12 @@ onMounted(async () => {
 
         try {
           await refreshScenesMachinesRemoteGet();
+        } catch {
+          // ignore
+        }
+
+        try {
+          await refreshSentinelLogsMachinesRemoteGet();
         } catch {
           // ignore
         }
@@ -1216,6 +1245,41 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
 });
 
 /**
+ * 计算属性：机器日志卡片列表
+ * 描述：将日志聚合结果和机器基础信息合并，供独立日志区复用。
+ */
+const computedSentinelLogsMachines = computed<IPageSettingsUnattendedSentinelLogsMachineCard[]>(() => {
+  const machineMap = new Map(computedScenesMachines.value.map((machine) => [String(machine.machineCode || '').trim(), machine] satisfies [string, IPageSettingsUnattendedScenesMachineRedisConfig]));
+
+  const groups = Array.isArray(stateSentinelLogsMachinesRemote.value) ? stateSentinelLogsMachinesRemote.value : [];
+  return groups.reduce<IPageSettingsUnattendedSentinelLogsMachineCard[]>((list, group) => {
+    const machineCode = String(group?.machineCode || '').trim();
+    if (!machineCode) {
+      return list;
+    }
+
+    const current = machineMap.get(machineCode);
+    const logs = Array.isArray(group?.logs) ? group.logs : [];
+    if (logs.length === 0) {
+      return list;
+    }
+
+    list.push({
+      machineName: String(current?.machineName || '').trim(),
+      machineRemark: String(current?.machineRemark || '').trim(),
+      machineCode,
+      online: Boolean(typeof current?.online === 'boolean' ? current.online : machineCode === String(stateMachineCode.value || '').trim()),
+      lastSeenAt: String(current?.lastSeenAt || '').trim() || undefined,
+      machineLastSeenAt: String(current?.machineLastSeenAt || '').trim() || undefined,
+      network: current?.network,
+      logs
+    } satisfies IPageSettingsUnattendedSentinelLogsMachineCard);
+
+    return list;
+  }, []);
+});
+
+/**
  * 函数：写回本地场景副本
  * @param {IPageSettingsUnattendedScenesItem[]} items 最新场景列表
  * @param {ISettingsUnattendedScenesLocal} [rollbackState] 回滚副本
@@ -1289,6 +1353,17 @@ const refreshScenesRemoteState = async (): Promise<void> => {
 
   try {
     await refreshScenesMachinesRemoteGet();
+  } catch {
+    // ignore
+  }
+};
+
+/**
+ * 函数：手动刷新哨兵日志
+ */
+const handleSentinelLogsRefresh = async (): Promise<void> => {
+  try {
+    await refreshSentinelLogsMachinesRemoteGet();
   } catch {
     // ignore
   }
