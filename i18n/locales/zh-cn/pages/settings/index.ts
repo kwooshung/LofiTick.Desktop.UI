@@ -249,31 +249,32 @@
         runtime: {
           states: {
             idle: '等待判定',
-            online: '在线',
-            offline: '离线',
+            online: '场景在线',
+            offline: '场景离线',
             error: '异常'
           },
+          summary: '这里只表示当前主机已启用场景应用的心跳状态，不表示桌面壳本身是否在线。',
           reasons: {
             awaitingSnapshot: '等待桌面壳返回当前哨兵状态',
             unattendedDisabled: '当前未开启无人值守模式',
             machineCodeMissing: '机器码缺失，无法启动哨兵判定',
-            noEnabledScenes: '当前主机还没有启用任何守护场景',
-            heartbeatMissing: '远端尚未收到当前主机的场景心跳',
-            heartbeatTimeout: '心跳已超过在线窗口，当前主机被视为离线',
-            remoteFetchFailed: '暂时无法从远端读取当前主机的场景状态',
-            lastSeenInvalid: '远端返回的最后心跳时间格式无效',
+            noEnabledScenes: '当前主机还没有启用任何需要守护的场景应用',
+            heartbeatMissing: '远端尚未收到当前主机已启用场景应用的心跳',
+            heartbeatTimeout: '当前主机已启用场景应用的心跳已超过在线窗口，已判定为离线',
+            remoteFetchFailed: '暂时无法从远端读取当前主机已启用场景应用的心跳状态',
+            lastSeenInvalid: '远端返回的场景应用最后心跳时间格式无效',
             settingsUnavailable: '桌面壳暂时无法读取本地设置'
           },
           fields: {
-            enabledScenes: '已启用场景 {count} 个',
-            onlineWindow: '在线窗口 {count} 秒',
-            lastSeenAt: '最后心跳 {value}',
+            enabledScenes: '已启用守护场景 {count} 个',
+            onlineWindow: '场景应用在线判定窗口 {count} 秒',
+            lastSeenAt: '场景应用最后心跳 {value}',
             staleFor: '已超时 {count} 秒',
             recoveryIdle: '恢复队列空闲',
-            recoveryPending: '恢复判定进行中',
-            recoveryCooldown: '恢复冷却中',
-            recoveryStopped: '已达到爆发上限，自动重启已停止',
-            recoveryAttempts: '当前轮已重启 {count} 次',
+            recoveryPending: '场景应用恢复判定进行中',
+            recoveryCooldown: '场景应用恢复冷却中',
+            recoveryStopped: '已达到爆发上限，场景应用自动拉起已停止',
+            recoveryAttempts: '当前轮已尝试拉起 {count} 次',
             recoveryEpisodes: '当前爆发窗口已完成 {count} 轮',
             recoveryBurstCount: '累计触发爆发 {count} 次',
             recoveryNextAttemptAt: '下次允许重试 {value}'
@@ -288,8 +289,8 @@
             disableSuffix: ' 随之启动'
           },
           onlineWindow: {
-            label: '在线窗口',
-            description: '超过该时间仍未收到新的心跳时，机器将被视为离线',
+            label: '在线判定与刷新间隔',
+            description: '同时用于离线判定窗口与机器最后在线时间的刷新周期',
             value: '{seconds} 秒'
           },
           requestUrl: {
@@ -345,7 +346,14 @@
       },
       scenes: {
         title: '场景守护',
-        description: '主要守护虚幻引擎做的直播场景应用'
+        description: '主要守护虚幻引擎做的直播场景应用',
+        form: {
+          onlineWindow: {
+            label: '在线判定与刷新间隔',
+            short: '在线判定与刷新间隔',
+            unit: '秒'
+          }
+        }
       }
     },
     labels: {

@@ -61,7 +61,7 @@
     </ul>
   </DefineMachineHeaderTemplate>
 
-  <div class="3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-7 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+  <div class="4xl:grid-cols-3 grid grid-cols-1 gap-4 xl:grid-cols-2">
     <div v-for="machine in computedMachines" :key="machine.machineCode" class="bg-elevated/50 ring-default overflow-hidden rounded-2xl p-6 ring-1 select-none">
       <ReuseMachineHeaderTemplate :machine="machine" actions-variant="card" />
       <div class="mb-4 pb-4">

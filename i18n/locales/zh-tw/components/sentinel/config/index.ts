@@ -1,8 +1,8 @@
 export const config = {
   labels: {
     onlineWindowSeconds: '在線視窗',
-    heartbeatInterval: '心跳間隔',
-    heartbeatTimeoutCount: '崩潰計數',
+    heartbeatInterval: '場景應用心跳間隔',
+    heartbeatTimeoutCount: '連續丟心跳次數',
     restartDelay: '重啟延時',
     restartMaxAttempts: '最大重啟',
     restartCooldown: '重啟冷卻',
@@ -23,7 +23,7 @@ export const config = {
     burst: '爆發'
   },
   badges: {
-    heartbeat: '心跳',
+    heartbeat: '場景心跳',
     crash: '崩潰',
     wait: '等待',
     consecutiveRestart: '連續重啟',
@@ -33,9 +33,9 @@ export const config = {
     restartBurst: '重啟爆發'
   },
   desc: {
-    onlineWindowSecondsAfterHeartbeat: '同步檢測收到心跳後的在線判定視窗',
-    heartbeatIntervalAfterHeartbeat: '應用發送心跳與監護檢測的時間間隔',
-    crashCountPrefix: '連續丟失心跳',
+    onlineWindowSecondsAfterHeartbeat: '目前主機已啟用場景中的應用心跳到達後的在線判定視窗',
+    heartbeatIntervalAfterHeartbeat: '目前主機已啟用場景中的應用心跳間隔，也是哨兵執行監護檢測的基準',
+    crashCountPrefix: '目前主機已啟用場景中的應用連續丟失心跳',
     crashCountMiddle: '達到設定次數後判定為',
     restartDelayPrefix: '',
     restartDelayMiddle: '',

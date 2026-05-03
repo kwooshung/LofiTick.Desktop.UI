@@ -1,8 +1,8 @@
 export const config = {
   labels: {
     onlineWindowSeconds: 'Online window',
-    heartbeatInterval: 'Heartbeat interval',
-    heartbeatTimeoutCount: 'Crash count',
+    heartbeatInterval: 'Scene app heartbeat interval',
+    heartbeatTimeoutCount: 'Consecutive heartbeat misses',
     restartDelay: 'Restart delay',
     restartMaxAttempts: 'Max restarts',
     restartCooldown: 'Restart cooldown',
@@ -23,7 +23,7 @@ export const config = {
     burst: 'Burst'
   },
   badges: {
-    heartbeat: 'Heartbeat',
+    heartbeat: 'Scene heartbeat',
     crash: 'Crash',
     wait: 'Wait',
     consecutiveRestart: 'Consecutive restart',
@@ -33,9 +33,9 @@ export const config = {
     restartBurst: 'Restart burst'
   },
   desc: {
-    onlineWindowSecondsAfterHeartbeat: 'Online detection window after a heartbeat is received',
-    heartbeatIntervalAfterHeartbeat: 'Interval between app heartbeats and monitoring checks',
-    crashCountPrefix: 'Consecutive heartbeat misses',
+    onlineWindowSecondsAfterHeartbeat: 'Online detection window after a heartbeat from an enabled scene app on this machine is received',
+    heartbeatIntervalAfterHeartbeat: 'Heartbeat interval of enabled scene apps on this machine, also used as the sentinel monitoring cadence',
+    crashCountPrefix: 'Consecutive missed heartbeats from enabled scene apps on this machine',
     crashCountMiddle: 'reach the configured count, then mark as',
     restartDelayPrefix: '',
     restartDelayMiddle: '',

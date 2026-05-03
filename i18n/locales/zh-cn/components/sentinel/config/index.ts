@@ -1,8 +1,8 @@
 export const config = {
   labels: {
     onlineWindowSeconds: '在线窗口',
-    heartbeatInterval: '心跳间隔',
-    heartbeatTimeoutCount: '崩溃计数',
+    heartbeatInterval: '场景应用心跳间隔',
+    heartbeatTimeoutCount: '连续丢心跳次数',
     restartDelay: '重启延时',
     restartMaxAttempts: '最大重启',
     restartCooldown: '重启冷却',
@@ -23,7 +23,7 @@ export const config = {
     burst: '爆发'
   },
   badges: {
-    heartbeat: '心跳',
+    heartbeat: '场景心跳',
     crash: '崩溃',
     wait: '等待',
     consecutiveRestart: '连续重启',
@@ -33,9 +33,9 @@ export const config = {
     restartBurst: '重启爆发'
   },
   desc: {
-    onlineWindowSecondsAfterHeartbeat: '同步检测收到心跳后的在线判定窗口',
-    heartbeatIntervalAfterHeartbeat: '应用发送心跳与监护检测的时间间隔',
-    crashCountPrefix: '连续丢失心跳',
+    onlineWindowSecondsAfterHeartbeat: '当前主机已启用场景中的应用心跳到达后的在线判定窗口',
+    heartbeatIntervalAfterHeartbeat: '当前主机已启用场景中的应用心跳间隔，也是哨兵执行监护检查的基准',
+    crashCountPrefix: '当前主机已启用场景中的应用连续丢失心跳',
     crashCountMiddle: '达到设定次数后判定为',
     restartDelayPrefix: '',
     restartDelayMiddle: '',

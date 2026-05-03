@@ -18,7 +18,7 @@ export const settings = {
     },
     rememberWindowState: {
       label: 'ウィンドウ状態を記憶',
-      description: '常にウィンドウ位置とサイズを記録し、この設定に応じて起動時に復元するかどうかを決めます。'
+      description: 'ウィンドウ位置とサイズを常に記録し、このスイッチで起動時に復元するかどうかを決めます。'
     },
     appDirectory: {
       label: 'アプリの場所',
@@ -26,13 +26,13 @@ export const settings = {
       open: 'フォルダーを開く'
     },
     userDataDirectory: {
-      label: 'ユーザーデータ',
+      label: 'ユーザーデータの場所',
       description: 'userData フォルダー（設定やキャッシュなど）を開きます。',
       open: 'フォルダーを開く'
     },
     storage: {
       label: 'データ保存先',
-      description: 'データファイルを保存するフォルダーです。現在のパス：',
+      description: 'データファイルを保存するディレクトリです。現在のパス：',
       dialogTitle: '添付ファイルの保存先を選択',
       choose: 'フォルダーを選択',
       reselect: '再選択',
@@ -249,10 +249,11 @@ export const settings = {
         runtime: {
           states: {
             idle: '判定待ち',
-            online: 'オンライン',
-            offline: 'オフライン',
+            online: 'シーンオンライン',
+            offline: 'シーンオフライン',
             error: '異常'
           },
+          summary: 'ここで示すのは、このマシンで有効なシーンアプリの心拍状態だけであり、デスクトップシェル本体のオンライン状態ではありません。',
           reasons: {
             awaitingSnapshot: 'デスクトップシェルから現在の哨兵状態を取得中です。',
             unattendedDisabled: '現在は無人値守モードが無効です。',
@@ -266,7 +267,7 @@ export const settings = {
           },
           fields: {
             enabledScenes: '有効なシーン {count} 件',
-            onlineWindow: 'オンライン判定 {count} 秒',
+            onlineWindow: 'オンライン判定と更新間隔 {count} 秒',
             lastSeenAt: '最後の心拍 {value}',
             staleFor: '{count} 秒タイムアウト中',
             recoveryIdle: '復旧キュー待機中',
@@ -288,8 +289,8 @@ export const settings = {
             disableSuffix: ' も起動します。'
           },
           onlineWindow: {
-            label: 'オンライン判定',
-            description: 'この時間を超えても新しい心拍が届かない場合、マシンをオフラインとみなします。',
+            label: 'オンライン判定と更新間隔',
+            description: 'オフライン判定の時間幅と、マシン最終オンライン時刻の更新周期の両方に使われます。',
             value: '{seconds} 秒'
           },
           requestUrl: {
@@ -345,7 +346,14 @@ export const settings = {
       },
       scenes: {
         title: 'シーン監護',
-        description: 'Unreal Engine製の配信シーンアプリを主に監護します。'
+        description: 'Unreal Engine製の配信シーンアプリを主に監護します。',
+        form: {
+          onlineWindow: {
+            label: 'オンライン判定と更新間隔',
+            short: 'オンライン判定と更新間隔',
+            unit: '秒'
+          }
+        }
       }
     },
     labels: {

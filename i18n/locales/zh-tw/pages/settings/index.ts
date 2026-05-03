@@ -18,7 +18,7 @@ export const settings = {
     },
     rememberWindowState: {
       label: '記住視窗狀態',
-      description: '持續記錄視窗位置與大小，啟動時依此開關決定是否自動還原。'
+      description: '持續記錄視窗位置與大小，並由此開關決定啟動時是否恢復。'
     },
     appDirectory: {
       label: '應用程式目錄',
@@ -26,13 +26,13 @@ export const settings = {
       open: '開啟目錄'
     },
     userDataDirectory: {
-      label: '使用者目錄',
+      label: '使用者資料目錄',
       description: '開啟應用程式的 userData 目錄（偏好設定、快取等）。',
       open: '開啟目錄'
     },
     storage: {
-      label: '資料儲存目錄',
-      description: '用來儲存資料檔案的資料夾，目前路徑：',
+      label: '資料存放目錄',
+      description: '資料檔案儲存的目錄，目前路徑：',
       dialogTitle: '選擇附件儲存目錄',
       choose: '選擇目錄',
       reselect: '重新選擇',
@@ -249,10 +249,11 @@ export const settings = {
         runtime: {
           states: {
             idle: '等待判定',
-            online: '在線',
-            offline: '離線',
+            online: '場景在線',
+            offline: '場景離線',
             error: '異常'
           },
+          summary: '這裡只表示目前主機已啟用場景應用的心跳狀態，不表示桌面殼本身是否在線。',
           reasons: {
             awaitingSnapshot: '等待桌面殼回傳目前的哨兵狀態。',
             unattendedDisabled: '目前尚未啟用無人值守模式。',
@@ -266,7 +267,7 @@ export const settings = {
           },
           fields: {
             enabledScenes: '已啟用場景 {count} 個',
-            onlineWindow: '在線視窗 {count} 秒',
+            onlineWindow: '在線判定與刷新間隔 {count} 秒',
             lastSeenAt: '最後心跳 {value}',
             staleFor: '已超時 {count} 秒',
             recoveryIdle: '恢復佇列閒置中',
@@ -288,8 +289,8 @@ export const settings = {
             disableSuffix: ' 會隨之啟動。'
           },
           onlineWindow: {
-            label: '在線視窗',
-            description: '超過此時間仍未收到新的心跳時，機器將被視為離線。',
+            label: '在線判定與刷新間隔',
+            description: '同時用於離線判定視窗與機器最後在線時間的刷新週期。',
             value: '{seconds} 秒'
           },
           requestUrl: {
@@ -345,7 +346,14 @@ export const settings = {
       },
       scenes: {
         title: '場景守護',
-        description: '主要守護由 Unreal Engine 製作的直播場景應用。'
+        description: '主要守護由 Unreal Engine 製作的直播場景應用。',
+        form: {
+          onlineWindow: {
+            label: '在線判定與刷新間隔',
+            short: '在線判定與刷新間隔',
+            unit: '秒'
+          }
+        }
       }
     },
     labels: {

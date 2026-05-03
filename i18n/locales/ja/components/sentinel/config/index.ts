@@ -1,8 +1,8 @@
 export const config = {
   labels: {
     onlineWindowSeconds: 'オンライン判定',
-    heartbeatInterval: '心拍間隔',
-    heartbeatTimeoutCount: 'クラッシュ回数',
+    heartbeatInterval: 'シーンアプリ心拍間隔',
+    heartbeatTimeoutCount: '連続心拍欠落回数',
     restartDelay: '再起動遅延',
     restartMaxAttempts: '最大再起動',
     restartCooldown: '再起動クールダウン',
@@ -23,7 +23,7 @@ export const config = {
     burst: 'バースト'
   },
   badges: {
-    heartbeat: '心拍',
+    heartbeat: 'シーン心拍',
     crash: 'クラッシュ',
     wait: '待機',
     consecutiveRestart: '連続再起動',
@@ -33,9 +33,9 @@ export const config = {
     restartBurst: '再起動バースト'
   },
   desc: {
-    onlineWindowSecondsAfterHeartbeat: '同期チェックで心拍を受け取った後のオンライン判定時間',
-    heartbeatIntervalAfterHeartbeat: 'アプリの心拍送信と監視チェックの間隔',
-    crashCountPrefix: '心拍の連続欠落が',
+    onlineWindowSecondsAfterHeartbeat: 'このマシンで有効なシーンアプリの心拍を受け取った後のオンライン判定時間',
+    heartbeatIntervalAfterHeartbeat: 'このマシンで有効なシーンアプリの心拍間隔であり、哨兵の監視周期にも使われます',
+    crashCountPrefix: 'このマシンで有効なシーンアプリの心拍連続欠落が',
     crashCountMiddle: '設定回数に達すると判定：',
     restartDelayPrefix: '',
     restartDelayMiddle: '',

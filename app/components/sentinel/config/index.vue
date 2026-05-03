@@ -1,22 +1,4 @@
 <template>
-  <UFormField :label="t('components.sentinel.config.labels.onlineWindowSeconds')" :ui="{ labelWrapper: 'min-w-0 flex-1', container: 'shrink-0', label: 'text-base text-highlighted mb-1', description: 'text-muted break-words' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-    <template #description>
-      <div class="flex flex-col gap-1">
-        <div class="flex flex-wrap items-center gap-1">
-          <UBadge variant="soft">{{ t('components.sentinel.config.badges.heartbeat') }}</UBadge
-          >：{{ t('components.sentinel.config.desc.onlineWindowSecondsAfterHeartbeat') }}
-        </div>
-      </div>
-    </template>
-    <div class="inline-flex shrink-0 items-center self-center">
-      <label :for="ids.onlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex rounded-l-sm border border-r-0 px-2 py-1.5">{{ t('components.sentinel.config.units.window') }}</label>
-      <div class="border-accented focus-within:border-primary relative h-fit w-36 border transition-colors duration-300">
-        <UInputNumber :id="ids.onlineWindowSeconds" v-model="stateConfig.onlineWindowSeconds" orientation="vertical" :min="1" :max="600" variant="none" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
-      </div>
-      <label :for="ids.onlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex rounded-r-sm border border-l-0 px-2 py-1.5">{{ t('components.sentinel.config.units.seconds') }}</label>
-    </div>
-  </UFormField>
-
   <UFormField :label="t('components.sentinel.config.labels.heartbeatInterval')" :ui="{ labelWrapper: 'min-w-0 flex-1', container: 'shrink-0', label: 'text-base text-highlighted mb-1', description: 'text-muted break-words' }" class="flex items-center justify-between gap-2 not-last:pb-4">
     <template #description>
       <div class="flex flex-col gap-1">
@@ -194,7 +176,6 @@ const { t } = useI18n();
  * 常量：哨兵通用配置默认值
  */
 const DEFAULTS: Readonly<ISentinelConfig> = {
-  onlineWindowSeconds: 30,
   heartbeatInterval: 5000,
   heartbeatTimeoutCount: 3,
   restartDelay: 3000,
@@ -209,7 +190,6 @@ const DEFAULTS: Readonly<ISentinelConfig> = {
  * 状态：当前配置
  */
 const stateConfig = reactive<ISentinelConfig>({
-  onlineWindowSeconds: DEFAULTS.onlineWindowSeconds,
   heartbeatInterval: DEFAULTS.heartbeatInterval,
   heartbeatTimeoutCount: DEFAULTS.heartbeatTimeoutCount,
   restartDelay: DEFAULTS.restartDelay,
@@ -224,7 +204,6 @@ const stateConfig = reactive<ISentinelConfig>({
  * 常量：输入框 id 集合（避免重复）
  */
 const ids = {
-  onlineWindowSeconds: 'sentinelOnlineWindowSeconds',
   heartbeatInterval: 'sentinelHeartbeatInterval',
   heartbeatTimeoutCount: 'sentinelHeartbeatTimeoutCount',
   restartDelay: 'sentinelRestartDelay',
@@ -316,7 +295,6 @@ const configMerge = (overrides: ISentinelConfigOverrides): ISentinelConfig => {
    * 变量：合并结果
    */
   const merged: ISentinelConfig = {
-    onlineWindowSeconds: overrides.onlineWindowSeconds ?? DEFAULTS.onlineWindowSeconds,
     heartbeatInterval: overrides.heartbeatInterval ?? DEFAULTS.heartbeatInterval,
     heartbeatTimeoutCount: overrides.heartbeatTimeoutCount ?? DEFAULTS.heartbeatTimeoutCount,
     restartDelay: overrides.restartDelay ?? DEFAULTS.restartDelay,
@@ -336,7 +314,6 @@ const configMerge = (overrides: ISentinelConfigOverrides): ISentinelConfig => {
  */
 const configGet = (): ISentinelConfig => {
   return {
-    onlineWindowSeconds: stateConfig.onlineWindowSeconds,
     heartbeatInterval: stateConfig.heartbeatInterval,
     heartbeatTimeoutCount: stateConfig.heartbeatTimeoutCount,
     restartDelay: stateConfig.restartDelay,

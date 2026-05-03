@@ -91,21 +91,6 @@
         <div class="flex-1">
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.sentinel.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.sentinel.description') }}</div>
-          <div class="mt-3 flex flex-wrap items-center gap-2">
-            <UBadge :color="computedSentinelRuntimeBadgeColor" variant="soft" :icon="computedSentinelRuntimeBadgeIcon">{{ computedSentinelRuntimeBadgeLabel }}</UBadge>
-            <span class="text-muted text-sm">{{ computedSentinelRuntimeReason }}</span>
-          </div>
-          <div class="text-muted mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-            <span>{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.enabledScenes', { count: computedSentinelRuntimeEnabledSceneCount }) }}</span>
-            <span>{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.onlineWindow', { count: computedSentinelRuntimeOnlineWindowSeconds }) }}</span>
-            <span v-if="computedSentinelRuntimeLastSeenAt">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.lastSeenAt', { value: computedSentinelRuntimeLastSeenAt }) }}</span>
-            <span v-if="computedSentinelRuntimeStaleForSeconds > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.staleFor', { count: computedSentinelRuntimeStaleForSeconds }) }}</span>
-            <span>{{ computedSentinelRecoveryStateLabel }}</span>
-            <span v-if="computedSentinelRecoveryAttemptsInEpisode > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryAttempts', { count: computedSentinelRecoveryAttemptsInEpisode }) }}</span>
-            <span v-if="computedSentinelRecoveryEpisodesInBurst > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryEpisodes', { count: computedSentinelRecoveryEpisodesInBurst }) }}</span>
-            <span v-if="computedSentinelRecoveryBurstCount > 0">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryBurstCount', { count: computedSentinelRecoveryBurstCount }) }}</span>
-            <span v-if="computedSentinelRecoveryNextAttemptAt">{{ t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryNextAttemptAt', { value: computedSentinelRecoveryNextAttemptAt }) }}</span>
-          </div>
         </div>
         <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
         <UButton color="primary" variant="soft" icon="i-mdi:reload" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
@@ -128,7 +113,26 @@
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.scenes.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.scenes.description') }}</div>
         </div>
-        <UButton color="primary" variant="soft" icon="i-mdi:compare-horizontal" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
+        <div class="flex items-end gap-2">
+          <div class="inline-flex shrink-0 items-center self-center">
+            <label for="scenesOnlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.unattended.sections.scenes.form.onlineWindow.short') }}</label>
+            <div class="border-accented focus-within:border-primary relative flex h-8 w-28 items-center border transition-colors duration-300">
+              <UInputNumber
+                id="scenesOnlineWindowSeconds"
+                v-model="stateOnlineWindowSeconds"
+                class="h-8 w-full"
+                orientation="vertical"
+                :min="ONLINE_WINDOW_SECONDS_MIN"
+                :max="ONLINE_WINDOW_SECONDS_MAX"
+                variant="none"
+                :increment="{ color: 'neutral', variant: 'soft' }"
+                :decrement="{ color: 'neutral', variant: 'soft' }"
+              />
+            </div>
+            <label for="scenesOnlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.unattended.sections.scenes.form.onlineWindow.unit') }}</label>
+          </div>
+          <UButton color="primary" variant="soft" icon="i-mdi:compare-horizontal" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
+        </div>
       </template>
     </UPageCard>
     <div class="mb-10 flex w-full flex-col gap-3">
@@ -377,6 +381,21 @@ const stateRequestProtocol = ref<'http' | 'https'>('https');
 const stateRequestHost = ref('');
 
 /**
+ * 状态：在线窗口（秒）
+ */
+const stateOnlineWindowSeconds = ref(30);
+
+/**
+ * 常量：在线窗口最小值（秒）
+ */
+const ONLINE_WINDOW_SECONDS_MIN = 1;
+
+/**
+ * 常量：在线窗口最大值（秒）
+ */
+const ONLINE_WINDOW_SECONDS_MAX = 600;
+
+/**
  * 计算属性：请求完整 URL
  */
 const computedRequestUrl = computed(() => {
@@ -517,17 +536,7 @@ const computedSentinelRuntimeEnabledSceneCount = computed(() => {
  * 计算属性：哨兵在线窗口秒数
  */
 const computedSentinelRuntimeOnlineWindowSeconds = computed(() => {
-  const fromRuntime = Number(stateSentinelRuntime.value?.attach?.onlineWindowSeconds ?? NaN);
-  if (Number.isFinite(fromRuntime) && fromRuntime > 0) {
-    return fromRuntime;
-  }
-
-  const fromConfig = Number(refSentinelConfig.value?.configGet()?.onlineWindowSeconds ?? NaN);
-  if (Number.isFinite(fromConfig) && fromConfig > 0) {
-    return fromConfig;
-  }
-
-  return 30;
+  return onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value);
 });
 
 /**
@@ -707,6 +716,23 @@ const toSafeNumber = (input: unknown, fallback = 0): number => {
 };
 
 /**
+ * 工具：归一化在线窗口秒数
+ * @param {unknown} input 输入
+ * @returns {number} 在线窗口秒数
+ */
+const onlineWindowSecondsNormalize = (input: unknown): number => {
+  const value = Math.trunc(toSafeNumber(input, 30));
+  if (value < ONLINE_WINDOW_SECONDS_MIN) {
+    return ONLINE_WINDOW_SECONDS_MIN;
+  }
+  if (value > ONLINE_WINDOW_SECONDS_MAX) {
+    return ONLINE_WINDOW_SECONDS_MAX;
+  }
+
+  return value;
+};
+
+/**
  * 工具：转为无人值守启动行为
  * @param {unknown} input 输入
  * @returns {TUnattendedStartBehavior} 启动行为
@@ -738,7 +764,7 @@ const unattendedSentinelPickForPersist = (input: unknown): ISettingsUnattendedSe
     request: {
       url: String(request?.url ?? '')
     },
-    onlineWindowSeconds: toSafeNumber(src.onlineWindowSeconds, 30),
+    onlineWindowSeconds: onlineWindowSecondsNormalize(src.onlineWindowSeconds),
     heartbeat: {
       interval: toSafeNumber(heartbeat?.interval),
       timeoutCount: toSafeNumber(heartbeat?.timeoutCount)
@@ -812,7 +838,6 @@ const requestUrlSplit = (url: string) => {
  */
 const sentinelOverridesFromSettings = (settingsConfig: ISettingsUnattendedSentinel): Record<string, unknown> => {
   return {
-    onlineWindowSeconds: settingsConfig.onlineWindowSeconds ?? 30,
     heartbeatInterval: settingsConfig.heartbeat.interval,
     heartbeatTimeoutCount: settingsConfig.heartbeat.timeoutCount,
     restartDelay: settingsConfig.restart.delay,
@@ -836,7 +861,6 @@ const heartbeatRestartFromRef = (refConfig: ISentinelConfigExpose | null) => {
   }
 
   return {
-    onlineWindowSeconds: config.onlineWindowSeconds,
     heartbeat: {
       interval: config.heartbeatInterval,
       timeoutCount: config.heartbeatTimeoutCount
@@ -906,6 +930,7 @@ onMounted(async () => {
   stateUnattendedEnabled.value = Boolean(unattended.enabled);
 
   stateStartBehaviors.value = toUnattendedStartBehavior(unattendedStart.behaviors) || stateStartBehaviors.value;
+  stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(unattendedSentinel.onlineWindowSeconds);
 
   const url = String(unattendedSentinelRequest.url || '');
   const { protocol, host } = requestUrlSplit(url);
@@ -1047,7 +1072,7 @@ const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
     request: {
       url: computedRequestUrl.value
     },
-    onlineWindowSeconds: config.onlineWindowSeconds,
+    onlineWindowSeconds: onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value),
     heartbeat: {
       interval: config.heartbeatInterval,
       timeoutCount: config.heartbeatTimeoutCount
@@ -1099,6 +1124,7 @@ const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null =>
     request: {
       url: computedRequestUrl.value
     },
+    onlineWindowSeconds: onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value),
     heartbeat: {
       interval: config.heartbeatInterval,
       timeoutCount: config.heartbeatTimeoutCount
@@ -1216,6 +1242,26 @@ watch([stateStartBehaviors, stateRequestProtocol, stateRequestHost], () => {
 });
 
 /**
+ * 监听：在线窗口变化时同步写回设置与 Redis
+ */
+watch(stateOnlineWindowSeconds, (next) => {
+  const normalized = onlineWindowSecondsNormalize(next);
+  if (normalized !== next) {
+    stateOnlineWindowSeconds.value = normalized;
+    return;
+  }
+  if (!stateHydrated.value) {
+    return;
+  }
+  if (statePersistMuted.value) {
+    return;
+  }
+
+  persistToSettingsDebounced();
+  persistSentinelToRedisDebounced();
+});
+
+/**
  * 监听：请求地址变化时同步哨兵配置到 Redis
  */
 watch([stateRequestProtocol, stateRequestHost], () => {
@@ -1250,23 +1296,19 @@ const handleSentinelSync = async () => {
       return;
     }
 
-    const currentOnlineWindowSeconds = refSentinelConfig.value?.configGet().onlineWindowSeconds ?? 30;
+    const currentOnlineWindowSeconds = onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value);
     const { protocol, host } = requestUrlSplit(remote.request?.url || '');
     stateRequestProtocol.value = protocol;
     stateRequestHost.value = host;
+    stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(remote.onlineWindowSeconds ?? currentOnlineWindowSeconds);
 
-    refSentinelConfig.value?.resetToOverrides(
-      sentinelOverridesFromSettings({
-        ...(remote as unknown as ISettingsUnattendedSentinel),
-        onlineWindowSeconds: currentOnlineWindowSeconds
-      })
-    );
+    refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));
 
     await nextTick();
 
     const sentinelPersist = unattendedSentinelPickForPersist({
       ...(remote as unknown as ISettingsUnattendedSentinel),
-      onlineWindowSeconds: currentOnlineWindowSeconds
+      onlineWindowSeconds: stateOnlineWindowSeconds.value
     });
     if (!sentinelPersist) {
       return;
@@ -1297,6 +1339,7 @@ const handleSentinelResetToDefaults = async (): Promise<void> => {
 
   statePersistMuted.value = true;
   try {
+    stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(30);
     refSentinelConfig.value?.resetToDefaults();
     await nextTick();
   } finally {

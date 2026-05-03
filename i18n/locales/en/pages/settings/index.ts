@@ -18,7 +18,7 @@ export const settings = {
     },
     rememberWindowState: {
       label: 'Remember window state',
-      description: 'Always record window position and size, and decide whether to restore on startup according to this switch.'
+      description: 'Always record window position and size, then decide whether to restore it on startup using this switch.'
     },
     appDirectory: {
       label: 'App directory',
@@ -249,10 +249,11 @@ export const settings = {
         runtime: {
           states: {
             idle: 'Waiting',
-            online: 'Online',
-            offline: 'Offline',
+            online: 'Scene online',
+            offline: 'Scene offline',
             error: 'Error'
           },
+          summary: 'This only reflects the heartbeat state of enabled scene apps on this machine, not whether the desktop shell itself is online.',
           reasons: {
             awaitingSnapshot: 'Waiting for the desktop shell to return the current Sentinel state.',
             unattendedDisabled: 'Unattended mode is currently disabled.',
@@ -266,7 +267,7 @@ export const settings = {
           },
           fields: {
             enabledScenes: '{count} enabled scenes',
-            onlineWindow: 'Online window {count} sec',
+            onlineWindow: 'Online check and refresh interval {count} sec',
             lastSeenAt: 'Last heartbeat {value}',
             staleFor: 'Timed out for {count} sec',
             recoveryIdle: 'Recovery queue idle',
@@ -288,8 +289,8 @@ export const settings = {
             disableSuffix: ' will start along with it.'
           },
           onlineWindow: {
-            label: 'Online window',
-            description: 'If no new heartbeat is received within this time, the machine is treated as offline.',
+            label: 'Online check and refresh interval',
+            description: 'Used for both offline detection and the refresh cycle of machine last-seen time.',
             value: '{seconds} sec'
           },
           requestUrl: {
@@ -345,7 +346,14 @@ export const settings = {
       },
       scenes: {
         title: 'Scene protection',
-        description: 'Primarily monitors live streaming scene apps built with Unreal Engine.'
+        description: 'Primarily monitors live streaming scene apps built with Unreal Engine.',
+        form: {
+          onlineWindow: {
+            label: 'Online check and refresh interval',
+            short: 'Online check and refresh interval',
+            unit: 'sec'
+          }
+        }
       }
     },
     labels: {
