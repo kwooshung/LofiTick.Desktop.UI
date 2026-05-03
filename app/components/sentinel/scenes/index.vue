@@ -28,7 +28,7 @@
       </template>
     </UFormField>
 
-    <UFormField name="execPath" :label="t('components.sentinel.scenes.labels.execPath')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }">
+    <UFormField v-if="computedShowManagedExecPath" name="execPath" :label="t('components.sentinel.scenes.labels.execPath')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }">
       <template #description>{{ t('components.sentinel.scenes.desc.execPathManaged') }}</template>
       <UInput v-model="stateForm.execPath" class="z-1 w-full" readonly :placeholder="t('components.sentinel.scenes.placeholders.execPathManaged')" />
     </UFormField>
@@ -145,6 +145,12 @@ const computedExecPathReadonly = computed(() => {
 });
 
 /**
+ * 计算属性：是否显示受管副本路径
+ * 描述：新增场景且尚未生成副本时不显示该字段，避免表单里出现空的只读路径。
+ */
+const computedShowManagedExecPath = computed(() => String(stateForm.execPath || '').trim().length > 0);
+
+/**
  * 计算属性：args 数组（清洗为一行一个参数）
  */
 const computedArgs = computed(() =>
@@ -184,7 +190,7 @@ const schema = z.object({
   sourceExecPath: z
     .string()
     .trim()
-    .min(1, t('components.sentinel.scenes.errors.execPathRequired'))
+    .min(1, t('components.sentinel.scenes.errors.sourceExecPathRequired'))
     .refine((v) => isWindowsAbsolutePath(v), t('components.sentinel.scenes.errors.execPathInvalidWindowsPath'))
 });
 
@@ -213,7 +219,7 @@ const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
       errors.sceneName = issue.message;
     }
     if (key === 'sourceExecPath') {
-      errors.execPath = issue.message;
+      errors.sourceExecPath = issue.message;
     }
   }
 
@@ -277,7 +283,7 @@ const validateAndSubmit = (): TSentinelScenesConfigValidateResult => {
 };
 
 watch(
-  [() => stateForm.sceneName, () => stateForm.execPath, () => stateForm.argsText],
+  [() => stateForm.sceneName, () => stateForm.sourceExecPath, () => stateForm.execPath, () => stateForm.argsText],
   (_current, oldValues) => {
     // 首次（immediate）不触发 change，避免外部误认为用户改动
     if (oldValues) {

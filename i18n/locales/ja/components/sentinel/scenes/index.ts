@@ -6,7 +6,8 @@ export const scenes = {
     machineId: 'マシンID',
     machineRemark: 'マシン備考',
     sceneName: 'シーン名',
-    execPath: 'プログラムパス',
+    sourceExecPath: 'プログラムパス',
+    execPath: '副本パス',
     args: '起動引数',
     enabled: '有効化'
   },
@@ -14,13 +15,17 @@ export const scenes = {
     machineName: 'マシンIDと合わせて端末を識別します',
     machineId: '端末を一意に識別し、プログラムパスの編集可否判定に使用します',
     sceneName: '監護対象のUE5シーンアプリを識別します',
-    execPath: 'UE5シーンアプリの実行ファイルパス（必須）',
+    sourceExecPath: '監護対象の exe を選ぶと、保存時にデスクトップシェルが対応する副本を自動生成します',
+    execPath: 'このシーンが実際に起動する副本のパスです',
+    execPathManaged: 'このシーンが実際に起動する副本のパスです',
     args: '1行1引数。順番どおりに起動コマンドへ渡します',
     enabled: 'オフにすると設定は残りますが、Sentinel はこのシーンを自動起動しません'
   },
   placeholders: {
     sceneName: 'シーン名を入力してください（例：屋内シーン）',
+    sourceExecPath: '実行ファイルパスを選択してください',
     execPath: '実行ファイルパスを選択または入力してください',
+    execPathManaged: '自動生成される副本パス',
     args: '1行1引数。例：\n-RenderOffScreen\n-Log'
   },
   actions: {
@@ -43,7 +48,7 @@ export const scenes = {
     },
     fields: {
       enabled: '有効状態',
-      execPath: 'プログラムパス',
+      execPath: '副本パス',
       execState: 'プログラム可用性',
       args: '起動コマンド'
     },
@@ -81,6 +86,7 @@ export const scenes = {
   },
   errors: {
     sceneNameRequired: 'シーン名は必須です',
+    sourceExecPathRequired: 'プログラムパスは必須です',
     execPathRequired: 'プログラムパスは必須です',
     execPathInvalidWindowsPath: 'プログラムパスは Windows の絶対パスである必要があります（例：C:\\Apps\\Scene.exe または \\\\Server\\Share\\Scene.exe）'
   },

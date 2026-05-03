@@ -24,11 +24,11 @@ export type TSentinelScenesConfigValues = {
   sceneName: string;
 
   /**
-    * 原始可执行文件路径
-    */
-    sourceExecPath: string;
+   * 原始可执行文件路径
+   */
+  sourceExecPath: string;
 
-    /**
+  /**
    * 可执行文件路径
    */
   execPath: string;
@@ -54,9 +54,9 @@ export interface ISentinelScenesConfigValidateErrors {
   sceneName?: string;
 
   /**
-   * execPath 错误信息
+   * sourceExecPath 错误信息
    */
-  execPath?: string;
+  sourceExecPath?: string;
 }
 
 /**
@@ -84,11 +84,11 @@ export interface ISentinelScenesConfigFormState {
   sceneName: string;
 
   /**
-    * 原始可执行文件路径
-    */
-    sourceExecPath: string;
+   * 原始可执行文件路径
+   */
+  sourceExecPath: string;
 
-    /**
+  /**
    * 可执行文件路径
    */
   execPath: string;
@@ -145,11 +145,11 @@ export interface ISentinelScenesConfigProps {
   sourceExecPathEditable?: boolean;
 
   /**
-    * 初始原始可执行文件路径
-    */
-    sourceExecPath?: string;
+   * 初始原始可执行文件路径
+   */
+  sourceExecPath?: string;
 
-    /**
+  /**
    * 初始可执行文件路径
    */
   execPath?: string;

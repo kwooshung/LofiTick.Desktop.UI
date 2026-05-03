@@ -176,10 +176,11 @@
 </template>
 
 <script setup lang="ts">
+import type { UnlistenFn } from '@tauri-apps/api/event';
+
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
 import type { ISentinelStatusPayload } from '@/composables/tauri/sentinel/index';
-import type { UnlistenFn } from '@tauri-apps/api/event';
 import type {
   IPageSettingsUnattendedMachineNetworkGroups,
   IPageSettingsUnattendedMachineNetworkSnapshot,
@@ -228,7 +229,7 @@ const { request: unattendedScenesSyncRequest } = useUnattendedScenesSyncDialog()
  * Hook：Tauri 窗口能力
  */
 const { openFile } = useTauriWindow();
-const { sceneManagedExeMaterialize } = useTauriSettings();
+const { sceneManagedExeMaterialize, sceneManagedExeRemove } = useTauriSettings();
 
 /**
  * 模板：分析时长 Popover 内容（可复用）
@@ -1807,7 +1808,16 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     enabled: Boolean(values.enabled)
   };
 
-  const materialized = await sceneManagedExeMaterialize(nextId, nextItem.sourceExecPath || nextItem.execPath);
+  const previousExecPath =
+    idx >= 0
+      ? String(base.items[idx]?.execPath || '').trim()
+      : '';
+
+  const materialized = await sceneManagedExeMaterialize(
+    nextId,
+    nextItem.sceneName,
+    nextItem.sourceExecPath || nextItem.execPath
+  );
   nextItem.sourceExecPath = String(materialized.sourceExecPath || '').trim();
   nextItem.execPath = String(materialized.execPath || '').trim();
 
@@ -1822,7 +1832,23 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
   };
 
-  await persistScenesLocalAndRemote(base.items, rollbackState);
+  try {
+    await persistScenesLocalAndRemote(base.items, rollbackState);
+  } catch (error) {
+    if (
+      nextItem.execPath
+      && nextItem.sourceExecPath
+      && nextItem.execPath !== nextItem.sourceExecPath
+      && nextItem.execPath !== previousExecPath
+    ) {
+      try {
+        await sceneManagedExeRemove(nextItem.execPath, nextItem.sourceExecPath);
+      } catch {
+      }
+    }
+
+    throw error;
+  }
 
   stateScenesDrawerOpen.value = false;
 };
@@ -1938,7 +1964,11 @@ const handleScenesPickExecPath = async (current: string): Promise<void> => {
 
   refScenes.value?.valuesSet({
     ...values,
-    sourceExecPath: next
+    sourceExecPath: next,
+    execPath:
+      String(next || '').trim() === String(values.sourceExecPath || '').trim()
+        ? String(values.execPath || '').trim()
+        : ''
   });
 };
 

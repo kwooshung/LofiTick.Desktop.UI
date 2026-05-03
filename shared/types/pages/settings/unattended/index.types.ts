@@ -258,11 +258,11 @@ export interface IPageSettingsUnattendedScenesItem {
   sceneName: string;
 
   /**
-    * 原始可执行文件路径
-    */
-    sourceExecPath?: string;
+   * 原始可执行文件路径
+   */
+  sourceExecPath?: string;
 
-    /**
+  /**
    * 可执行文件路径
    */
   execPath: string;

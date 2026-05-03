@@ -6,7 +6,8 @@ export const scenes = {
     machineId: '机器代码',
     machineRemark: '机器备注',
     sceneName: '场景名称',
-    execPath: '程序路径',
+    sourceExecPath: '程序路径',
+    execPath: '副本路径',
     args: '启动参数',
     enabled: '是否启用'
   },
@@ -14,13 +15,17 @@ export const scenes = {
     machineName: '与机器代码共同用于区分不同电脑，避免管理混乱',
     machineId: '唯一标识一台电脑，用于判断程序路径是否允许编辑',
     sceneName: '用于识别被守护的 UE5 场景应用',
-    execPath: 'UE5 场景应用可执行文件路径（必填）',
+    sourceExecPath: '选择要守护的 exe，保存时会自动复制并生成对应副本',
+    execPath: '当前场景实际运行的副本路径',
+    execPathManaged: '当前场景实际运行的副本路径',
     args: '一行一个参数，将按顺序传入启动命令',
     enabled: '关闭后会保留该场景配置，但守护逻辑不会自动启动它'
   },
   placeholders: {
     sceneName: '请输入场景名称，例如：室内场景',
+    sourceExecPath: '请选择可执行文件路径',
     execPath: '请选择或输入可执行文件路径',
+    execPathManaged: '自动生成的副本路径',
     args: '一行一个参数，例如：\n-RenderOffScreen\n-Log'
   },
   actions: {
@@ -43,7 +48,7 @@ export const scenes = {
     },
     fields: {
       enabled: '启用状态',
-      execPath: '程序路径',
+      execPath: '副本路径',
       execState: '程序可用性',
       args: '启动命令'
     },
@@ -81,6 +86,7 @@ export const scenes = {
   },
   errors: {
     sceneNameRequired: '场景名称不能为空',
+    sourceExecPathRequired: '程序路径不能为空',
     execPathRequired: '程序路径不能为空',
     execPathInvalidWindowsPath: '程序路径必须是 Windows 绝对路径（例如：C:\\Apps\\Scene.exe 或 \\\\Server\\Share\\Scene.exe）'
   },

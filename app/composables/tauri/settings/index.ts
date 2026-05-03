@@ -102,11 +102,22 @@ export const useTauriSettings = () => {
   /**
    * 函数：创建或修复场景受管副本 exe
    * @param {string} sceneId 场景 ID
+   * @param {string} sceneName 场景名称
    * @param {string} sourceExecPath 原始 exe 路径
    * @returns {Promise<ITauriManagedSceneExeResult>} 原始路径与受管副本路径
    */
-  const sceneManagedExeMaterialize = async (sceneId: string, sourceExecPath: string): Promise<ITauriManagedSceneExeResult> => {
-    return invoke<ITauriManagedSceneExeResult>('settings_scene_managed_exe_materialize', { sceneId, sourceExecPath });
+  const sceneManagedExeMaterialize = async (sceneId: string, sceneName: string, sourceExecPath: string): Promise<ITauriManagedSceneExeResult> => {
+    return invoke<ITauriManagedSceneExeResult>('settings_scene_managed_exe_materialize', { sceneId, sceneName, sourceExecPath });
+  };
+
+  /**
+   * 函数：删除场景受管副本 exe
+   * @param {string} execPath 受管副本路径
+   * @param {string} sourceExecPath 原始 exe 路径
+   * @returns {Promise<void>} 无返回值
+   */
+  const sceneManagedExeRemove = async (execPath: string, sourceExecPath: string): Promise<void> => {
+    await invoke('settings_scene_managed_exe_remove', { execPath, sourceExecPath });
   };
 
   /**
@@ -125,5 +136,5 @@ export const useTauriSettings = () => {
     return invoke<IPageSettingsUnattendedUe5BridgeDetail>('ue5_bridge_access_detail_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, sceneManagedExeMaterialize, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
+  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, sceneManagedExeMaterialize, sceneManagedExeRemove, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
 };

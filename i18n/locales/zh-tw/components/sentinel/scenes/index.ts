@@ -6,7 +6,8 @@ export const scenes = {
     machineId: '機器碼',
     machineRemark: '機器備註',
     sceneName: '場景名稱',
-    execPath: '程式路徑',
+    sourceExecPath: '程式路徑',
+    execPath: '副本路徑',
     args: '啟動參數',
     enabled: '是否啟用'
   },
@@ -14,13 +15,17 @@ export const scenes = {
     machineName: '與機器碼共同用於區分不同電腦，避免管理混亂',
     machineId: '唯一標識一台電腦，用於判斷程式路徑是否允許編輯',
     sceneName: '用於識別被守護的 UE5 場景應用',
-    execPath: 'UE5 場景應用可執行檔路徑（必填）',
+    sourceExecPath: '選擇要守護的 exe 後，儲存時桌面殼會自動複製並產生對應副本',
+    execPath: '目前場景實際執行的副本路徑',
+    execPathManaged: '目前場景實際執行的副本路徑',
     args: '一行一個參數，將按順序傳入啟動命令',
     enabled: '關閉後會保留該場景設定，但守護邏輯不會自動啟動它'
   },
   placeholders: {
     sceneName: '請輸入場景名稱，例如：室內場景',
+    sourceExecPath: '請選擇可執行檔路徑',
     execPath: '請選擇或輸入可執行檔路徑',
+    execPathManaged: '自動產生的副本路徑',
     args: '一行一個參數，例如：\n-RenderOffScreen\n-Log'
   },
   actions: {
@@ -43,7 +48,7 @@ export const scenes = {
     },
     fields: {
       enabled: '啟用狀態',
-      execPath: '程式路徑',
+      execPath: '副本路徑',
       execState: '程式可用性',
       args: '啟動命令'
     },
@@ -81,6 +86,7 @@ export const scenes = {
   },
   errors: {
     sceneNameRequired: '場景名稱不能為空',
+    sourceExecPathRequired: '程式路徑不能為空',
     execPathRequired: '程式路徑不能為空',
     execPathInvalidWindowsPath: '程式路徑必須是 Windows 絕對路徑（例如：C:\\Apps\\Scene.exe 或 \\\\Server\\Share\\Scene.exe）'
   },

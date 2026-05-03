@@ -6,7 +6,8 @@ export const scenes = {
     machineId: 'Machine ID',
     machineRemark: 'Machine remark',
     sceneName: 'Scene name',
-    execPath: 'Program path',
+    sourceExecPath: 'Program path',
+    execPath: 'Copy path',
     args: 'Arguments',
     enabled: 'Enabled'
   },
@@ -14,13 +15,17 @@ export const scenes = {
     machineName: 'Use with Machine ID to distinguish computers',
     machineId: 'Unique identifier of the computer; used to decide whether Program path is editable',
     sceneName: 'Used to identify the monitored UE5 scene app',
-    execPath: 'Executable path of the UE5 scene app (required)',
+    sourceExecPath: 'Pick the executable to guard. Saving will copy it and generate the matching managed copy automatically.',
+    execPath: 'Path of the managed copy that this scene will actually run',
+    execPathManaged: 'Path of the managed copy that this scene will actually run',
     args: 'One argument per line; passed to the launch command in order',
     enabled: 'When off, the scene config is kept, but Sentinel will not auto-start it'
   },
   placeholders: {
     sceneName: 'Enter a scene name, e.g. Indoor scene',
+    sourceExecPath: 'Select the executable path',
     execPath: 'Select or enter the executable path',
+    execPathManaged: 'Managed copy path generated automatically',
     args: 'One argument per line, e.g.:\n-RenderOffScreen\n-Log'
   },
   actions: {
@@ -43,7 +48,7 @@ export const scenes = {
     },
     fields: {
       enabled: 'Enabled',
-      execPath: 'Program path',
+      execPath: 'Copy path',
       execState: 'Program availability',
       args: 'Launch command'
     },
@@ -81,6 +86,7 @@ export const scenes = {
   },
   errors: {
     sceneNameRequired: 'Scene name is required',
+    sourceExecPathRequired: 'Program path is required',
     execPathRequired: 'Program path is required',
     execPathInvalidWindowsPath: 'Program path must be a Windows absolute path (e.g. C:\\Apps\\Scene.exe or \\\\Server\\Share\\Scene.exe)'
   },
