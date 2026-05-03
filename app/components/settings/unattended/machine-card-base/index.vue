@@ -3,7 +3,7 @@
     class="bg-default/72 ring-default/40 relative isolate overflow-hidden rounded-lg px-4 py-4 shadow-xs ring-1 shadow-black/5 select-none before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-18 before:bg-linear-to-br before:from-sky-300/24 before:via-cyan-200/16 before:to-transparent before:content-[''] dark:before:from-sky-500/14 dark:before:via-cyan-400/8"
   >
     <div class="relative">
-      <div class="bg-white/34 ring-sky-300/22 shadow-sky-950/6 dark:bg-slate-900/28 dark:ring-white/8 dark:shadow-black/8 mb-7 min-w-0 rounded-md px-3.5 py-2.75 shadow-sm ring-1 backdrop-blur-lg">
+      <div class="mb-7 min-w-0 rounded-md bg-white/34 px-3.5 py-2.75 shadow-sm ring-1 shadow-sky-950/6 ring-sky-300/22 backdrop-blur-lg dark:bg-slate-900/28 dark:shadow-black/8 dark:ring-white/8">
         <div class="flex min-w-0 items-center gap-2">
           <h3 class="text-highlighted min-w-0 flex-1 truncate text-[15px] leading-6 font-medium">{{ props.machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
           <UBadge :color="isLocalMachine(props.machine.machineCode) ? 'primary' : 'warning'" variant="soft" size="sm" class="shrink-0 self-center">
@@ -19,7 +19,7 @@
       </div>
 
       <ul class="text-[13px]">
-        <li class="bg-default/22 mb-2 py-1.15 flex items-center gap-2 rounded-md px-2.5">
+        <li class="bg-default/22 py-1.15 mb-2 flex items-center gap-2 rounded-md px-2.5">
           <div class="text-muted flex w-24 shrink-0 items-center gap-1.5 text-xs leading-4.5">
             <UIcon name="i-ic:outline-computer" class="text-dimmed size-3.5" />
             <span>{{ t('components.sentinel.scenes.card.fields.machineCode') }}</span>
@@ -29,7 +29,7 @@
             <UButton :color="stateCodeCopied ? 'success' : 'neutral'" variant="link" size="xs" :icon="stateCodeCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" @click.stop="handleMachineCodeCopy" />
           </UTooltip>
         </li>
-        <li class="bg-default/22 mb-2 py-1.15 flex items-center gap-2 rounded-md px-2.5">
+        <li class="bg-default/22 py-1.15 mb-2 flex items-center gap-2 rounded-md px-2.5">
           <div class="text-muted flex w-24 shrink-0 items-center gap-1.5 text-xs leading-4.5">
             <UIcon name="i-lucide:sticky-note" class="text-dimmed size-3.5" />
             <span>{{ t('components.sentinel.scenes.card.fields.machineRemark') }}</span>
