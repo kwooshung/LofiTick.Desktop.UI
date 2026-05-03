@@ -61,8 +61,8 @@
     </ul>
   </DefineMachineHeaderTemplate>
 
-  <div class="4xl:grid-cols-3 grid grid-cols-1 gap-4 xl:grid-cols-2">
-    <div v-for="machine in computedMachines" :key="machine.machineCode" class="bg-elevated/50 ring-default overflow-hidden rounded-2xl p-6 ring-1 select-none">
+  <div class="3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-7 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div v-for="machine in computedMachines" :key="machine.machineCode" class="bg-elevated/50 ring-default overflow-hidden rounded-xl p-6 ring-1 select-none">
       <ReuseMachineHeaderTemplate :machine="machine" actions-variant="card" />
       <div class="mb-4 pb-4">
         <UPageGrid class="gap-2 text-sm">
@@ -219,7 +219,7 @@
 
             <dl v-if="networkTabGet(computedActiveMachine) === 'ipv4'" class="space-y-2 pt-1">
               <template v-if="networkGroupsIpv4Get(computedActiveMachine).length > 0">
-                <dd v-for="group in networkGroupsIpv4Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-lg px-3 py-2">
+                <dd v-for="group in networkGroupsIpv4Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-xl px-3 py-2">
                   <div class="flex min-w-0 flex-1 items-center gap-2">
                     <div class="flex items-center gap-1">
                       <UIcon name="i-mdi:network-outline" class="text-dimmed" />
@@ -258,7 +258,7 @@
             </dl>
             <dl v-else class="space-y-2 pt-1">
               <template v-if="networkGroupsIpv6Get(computedActiveMachine).length > 0">
-                <dd v-for="group in networkGroupsIpv6Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-lg px-3 py-2">
+                <dd v-for="group in networkGroupsIpv6Get(computedActiveMachine)" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-xl px-3 py-2">
                   <div class="flex min-w-0 flex-1 items-center gap-2">
                     <div class="flex items-center gap-1">
                       <UIcon name="i-mdi:network-outline" class="text-dimmed" />
