@@ -115,7 +115,27 @@ const stateActiveMachineCode = ref<string>('');
 /**
  * 计算属性：机器列表
  */
-const computedMachines = computed(() => (Array.isArray(props.machines) ? props.machines : []));
+const computedMachines = computed(() => {
+  const machines = Array.isArray(props.machines) ? [...props.machines] : [];
+
+  return machines.sort((left, right) => {
+    const leftCode = String(left?.machineCode || '').trim();
+    const rightCode = String(right?.machineCode || '').trim();
+    const localCode = String(props.localMachineCode || '').trim();
+
+    const leftIsLocal = leftCode !== '' && leftCode === localCode;
+    const rightIsLocal = rightCode !== '' && rightCode === localCode;
+
+    if (leftIsLocal !== rightIsLocal) {
+      return leftIsLocal ? -1 : 1;
+    }
+
+    const leftLabel = String(left?.machineName || '').trim() || leftCode;
+    const rightLabel = String(right?.machineName || '').trim() || rightCode;
+
+    return leftLabel.localeCompare(rightLabel, 'zh-CN');
+  });
+});
 
 /**
  * 计算属性：当前激活机器
