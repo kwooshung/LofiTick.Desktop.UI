@@ -10,6 +10,7 @@ import { musics } from './musics';
 import { poetrys } from './poetrys';
 import { quotes } from './quotes';
 import { reviews } from './reviews';
+import { sentinel } from './sentinel';
 import { settings } from './settings';
 import { socials } from './socials';
 
@@ -19,6 +20,7 @@ export const pages = {
   musics,
   analyses,
   reviews,
+  sentinel,
   crawlers,
   hotsearch,
   poetrys,

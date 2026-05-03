@@ -149,19 +149,6 @@
       />
     </div>
 
-    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
-      <template #header>
-        <div class="flex-1">
-          <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.logs.title') }}</div>
-          <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.logs.description') }}</div>
-        </div>
-        <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelLogsRefresh">{{ t('pages.settings.unattended.sections.logs.actions.refresh') }}</UButton>
-      </template>
-    </UPageCard>
-    <div class="mb-10 flex w-full flex-col gap-3">
-      <SettingsUnattendedSentinelLogsCards :machines="computedSentinelLogsMachines" :local-machine-code="stateMachineCode" />
-    </div>
-
     <UDrawer v-model:open="stateScenesDrawerOpen" :ui="{ overlay: 'z-50', content: 'z-50', body: 'relative mx-auto w-5/6', footer: 'border-default border-t shadow-[0_-2px_4px_rgba(0,0,0,0.01)] bg-default' }">
       <template #body>
         <UPageCard variant="ghost" :ui="{ container: 'px-0!' }">
@@ -1353,17 +1340,6 @@ const refreshScenesRemoteState = async (): Promise<void> => {
 
   try {
     await refreshScenesMachinesRemoteGet();
-  } catch {
-    // ignore
-  }
-};
-
-/**
- * 函数：手动刷新哨兵日志
- */
-const handleSentinelLogsRefresh = async (): Promise<void> => {
-  try {
-    await refreshSentinelLogsMachinesRemoteGet();
   } catch {
     // ignore
   }
