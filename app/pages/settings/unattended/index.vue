@@ -185,7 +185,6 @@ import type {
   IPageSettingsUnattendedMachineNetworkGroups,
   IPageSettingsUnattendedMachineNetworkSnapshot,
   IPageSettingsUnattendedScenesItem,
-  IPageSettingsUnattendedScenesMachineBasic,
   IPageSettingsUnattendedScenesMachineRedisConfig,
   ISettingsUnattended,
   ISettingsUnattendedScenesLocal,
@@ -437,198 +436,6 @@ let unsubscribeSentinelStatus: null | UnlistenFn = null;
 /**
  * 计算属性：哨兵状态值
  */
-const computedSentinelRuntimeState = computed(() => String(stateSentinelRuntime.value?.status?.state || 'idle').trim());
-
-/**
- * 计算属性：哨兵状态标签
- */
-const computedSentinelRuntimeBadgeLabel = computed(() => {
-  switch (computedSentinelRuntimeState.value) {
-    case 'online':
-      return t('pages.settings.unattended.sections.sentinel.runtime.states.online');
-    case 'offline':
-      return t('pages.settings.unattended.sections.sentinel.runtime.states.offline');
-    case 'error':
-      return t('pages.settings.unattended.sections.sentinel.runtime.states.error');
-    default:
-      return t('pages.settings.unattended.sections.sentinel.runtime.states.idle');
-  }
-});
-
-/**
- * 计算属性：哨兵状态徽标颜色
- */
-const computedSentinelRuntimeBadgeColor = computed(() => {
-  switch (computedSentinelRuntimeState.value) {
-    case 'online':
-      return 'primary';
-    case 'offline':
-      return 'error';
-    case 'error':
-      return 'warning';
-    default:
-      return 'neutral';
-  }
-});
-
-/**
- * 计算属性：哨兵状态徽标图标
- */
-const computedSentinelRuntimeBadgeIcon = computed(() => {
-  switch (computedSentinelRuntimeState.value) {
-    case 'online':
-      return 'i-lucide:shield-check';
-    case 'offline':
-      return 'i-lucide:shield-alert';
-    case 'error':
-      return 'i-lucide:triangle-alert';
-    default:
-      return 'i-lucide:shield';
-  }
-});
-
-/**
- * 计算属性：哨兵状态原因
- */
-const computedSentinelRuntimeReason = computed(() => {
-  const payload = stateSentinelRuntime.value;
-  const reason = String(payload?.status?.reason || '').trim();
-  const message = String(payload?.status?.message || '').trim();
-
-  if (message) {
-    return message;
-  }
-
-  switch (reason) {
-    case 'unattended-disabled':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.unattendedDisabled');
-    case 'machine-code-missing':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.machineCodeMissing');
-    case 'no-enabled-scenes':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.noEnabledScenes');
-    case 'heartbeat-missing':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.heartbeatMissing');
-    case 'heartbeat-timeout':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.heartbeatTimeout');
-    case 'remote-fetch-failed':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.remoteFetchFailed');
-    case 'last-seen-invalid':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.lastSeenInvalid');
-    case 'settings-unavailable':
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.settingsUnavailable');
-    default:
-      return t('pages.settings.unattended.sections.sentinel.runtime.reasons.awaitingSnapshot');
-  }
-});
-
-/**
- * 计算属性：哨兵已启用场景数
- */
-const computedSentinelRuntimeEnabledSceneCount = computed(() => {
-  const remoteCount = Number(stateSentinelRuntime.value?.attach?.enabledSceneCount ?? NaN);
-  if (Number.isFinite(remoteCount)) {
-    return remoteCount;
-  }
-
-  const items = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
-  return items.filter((item) => Boolean(item?.enabled)).length;
-});
-
-/**
- * 计算属性：哨兵在线窗口秒数
- */
-const computedSentinelRuntimeOnlineWindowSeconds = computed(() => {
-  return onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value);
-});
-
-/**
- * 计算属性：最后心跳时间展示
- */
-const computedSentinelRuntimeLastSeenAt = computed(() => {
-  const raw = String(stateSentinelRuntime.value?.attach?.lastSeenAt || '').trim();
-  if (!raw) {
-    return '';
-  }
-
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    return raw;
-  }
-
-  return parsed.toLocaleString();
-});
-
-/**
- * 计算属性：已超时秒数
- */
-const computedSentinelRuntimeStaleForSeconds = computed(() => {
-  const value = Number(stateSentinelRuntime.value?.attach?.staleForSeconds ?? NaN);
-  if (!Number.isFinite(value) || value <= 0) {
-    return 0;
-  }
-
-  return Math.trunc(value);
-});
-
-/**
- * 计算属性：恢复状态标签
- */
-const computedSentinelRecoveryStateLabel = computed(() => {
-  const state = String(stateSentinelRuntime.value?.attach?.recoveryState || 'idle').trim();
-
-  switch (state) {
-    case 'pending':
-      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryPending');
-    case 'cooldown':
-      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryCooldown');
-    case 'stopped':
-      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryStopped');
-    default:
-      return t('pages.settings.unattended.sections.sentinel.runtime.fields.recoveryIdle');
-  }
-});
-
-/**
- * 计算属性：当前连续重启次数
- */
-const computedSentinelRecoveryAttemptsInEpisode = computed(() => {
-  const value = Number(stateSentinelRuntime.value?.attach?.recoveryAttemptsInEpisode ?? NaN);
-  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
-});
-
-/**
- * 计算属性：当前爆发窗口轮次
- */
-const computedSentinelRecoveryEpisodesInBurst = computed(() => {
-  const value = Number(stateSentinelRuntime.value?.attach?.recoveryEpisodesInBurst ?? NaN);
-  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
-});
-
-/**
- * 计算属性：累计爆发次数
- */
-const computedSentinelRecoveryBurstCount = computed(() => {
-  const value = Number(stateSentinelRuntime.value?.attach?.recoveryBurstCount ?? NaN);
-  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
-});
-
-/**
- * 计算属性：下一次允许尝试重启时间
- */
-const computedSentinelRecoveryNextAttemptAt = computed(() => {
-  const raw = String(stateSentinelRuntime.value?.attach?.recoveryNextAttemptAt || '').trim();
-  if (!raw) {
-    return '';
-  }
-
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    return raw;
-  }
-
-  return parsed.toLocaleString();
-});
-
 /**
  * API：哨兵配置（GET / PATCH）
  * 描述：用于跨设备同步哨兵配置。
@@ -650,15 +457,16 @@ const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattend
 const { refresh: refreshScenesRemoteDelete } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'DELETE', immediate: false });
 
 /**
+ * API：场景配置列表（GET）
+ * 描述：读取所有机器的场景配置列表。
+ */
+const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
+
+/**
  * 状态：当前机器的场景详情（本地可写镜像）
  * 描述：用于承接乐观更新与 PATCH 返回值，避免直接写只读 computed datas。
  */
 const stateScenesRemote = ref<IPageSettingsUnattendedScenesMachineRedisConfig | undefined>(undefined);
-
-/**
- * 常量：场景在线时间刷新间隔（ms）
- */
-const SCENES_REMOTE_REFRESH_INTERVAL_MS = 5000;
 
 /**
  * 状态：本地场景副本
@@ -666,31 +474,31 @@ const SCENES_REMOTE_REFRESH_INTERVAL_MS = 5000;
 const stateScenesLocal = ref<ISettingsUnattendedScenesLocal>(unattendedScenesLocalStateCreate());
 
 /**
- * 状态：场景同步流程是否进行中
+ * 状态：场景同步是否进行中
  */
 const stateScenesSyncing = ref(false);
 
 /**
- * API：场景配置（GET）
- * 描述：读取所有机器的场景配置列表。
- */
-const { datas: stateScenesMachinesRemote, refresh: refreshScenesMachinesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineBasic[]>('desktop/settings/unattended/scenes/machines', { immediate: false });
-
-/**
  * 状态：持久化写入是否静音
- * 描述：用于“同步配置 / 恢复默认”等批量更新 UI 时，避免回环触发自动写入。
+ * 描述：用于批量同步时避免 watch 回环触发。
  */
 const statePersistMuted = ref(false);
 
 /**
+ * 常量：场景在线时间刷新间隔（ms）
+ */
+const SCENES_REMOTE_REFRESH_INTERVAL_MS = 5000;
+
+/**
  * 工具：转为普通对象
  * @param {unknown} input 输入
- * @returns {Record<string,unknown>|null} 对象
+ * @returns {Record<string, unknown> | null} 普通对象
  */
 const toRecord = (input: unknown): Record<string, unknown> | null => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return null;
   }
+
   return input as Record<string, unknown>;
 };
 
@@ -848,35 +656,6 @@ const sentinelOverridesFromSettings = (settingsConfig: ISettingsUnattendedSentin
     restartBurstWindow: settingsConfig.restart.burst.window,
     restartBurstCooldown: settingsConfig.restart.burst.cooldown,
     restartBurstMaxAttempts: settingsConfig.restart.burst.maxAttempts
-  };
-};
-
-/**
- * 工具：从 SentinelConfig 获取 heartbeat/restart patch
- * @param {ISentinelConfigExpose|null} refConfig SentinelConfig 组件实例的 ref
- * @returns {{heartbeat:{interval:number,timeoutCount:number},restart:{delay:number,cooldown:number,maxAttempts:number,burst:{window:number,cooldown:number,maxAttempts:number}}}|null}} heartbeat/restart 配置对象
- */
-const heartbeatRestartFromRef = (refConfig: ISentinelConfigExpose | null) => {
-  const config = refConfig?.configGet();
-  if (!config) {
-    return null;
-  }
-
-  return {
-    heartbeat: {
-      interval: config.heartbeatInterval,
-      timeoutCount: config.heartbeatTimeoutCount
-    },
-    restart: {
-      delay: config.restartDelay,
-      cooldown: config.restartCooldown,
-      maxAttempts: config.restartMaxAttempts,
-      burst: {
-        window: config.restartBurstWindow,
-        cooldown: config.restartBurstCooldown,
-        maxAttempts: config.restartBurstMaxAttempts
-      }
-    }
   };
 };
 
