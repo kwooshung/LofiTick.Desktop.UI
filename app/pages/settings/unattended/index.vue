@@ -1808,9 +1808,12 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     enabled: Boolean(values.enabled)
   };
 
-  const previousExecPath = t materialized = await sceneManagedExeMaterializ Item.sourceExecPath = String(materialized.sourceExecPath || '').trim();
-  nextItem.execPath = String(materialized.execPath || '').trim();
- (idx > base.items.splice(i else {  base.items.push(nextItem);
+  const previousExecPath = idx >= 0 ? String(base.items[idx]?.execPath || '').trim() : '';
+
+  const materialized = await sceneManagedExeMaterialize(xtItem.nxtItem.execPath = Sif (idx >= 0) {
+    base.items.splice(idx, 1, nextItem);
+  } else {
+    base.items.push(nextItem);
   }
 
   const rollbackState: ISettingsUnattendedScenesLocal = {
@@ -1828,10 +1831,16 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     }
 
     throw error;
-  } eScenesDrawerOpen.value =
+  }
+
+  stateScenesDrawerOpen.value = false;
+};
+
+/**
  * 事件：场景表单校验
  * @param {TSentinelScenesConfigValidateResult} result 校验结果
- */handleScenesValidate = (result: TSentinelScenesConfigValidateResult) => {
+ */
+const handleScenesValidate = (result: TSentinelScenesConfigValidateResult) => {
   stateScenesFormValid.value = Boolean(result?.valid);
 };
 
@@ -1952,7 +1961,10 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * Hook：本地化路由
  */
 const localePath = useLocalePath();
-屑导航状态
+
+/**
+ * 设置面包屑导航状态
+ */
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
