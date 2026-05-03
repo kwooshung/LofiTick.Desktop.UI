@@ -1810,7 +1810,13 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
 
   const previousExecPath = idx >= 0 ? String(base.items[idx]?.execPath || '').trim() : '';
 
-  const materialized = await sceneManagedExeMaterialize(xtItem.nxtItem.execPath = Sif (idx >= 0) {
+  if (nextItem.sourceExecPath) {
+    const materialized = await sceneManagedExeMaterialize(nextId, nextItem.sceneName, nextItem.sourceExecPath);
+    nextItem.sourceExecPath = String(materialized.sourceExecPath || nextItem.sourceExecPath).trim();
+    nextItem.execPath = String(materialized.execPath || nextItem.execPath).trim();
+  }
+
+  if (idx >= 0) {
     base.items.splice(idx, 1, nextItem);
   } else {
     base.items.push(nextItem);
@@ -1827,7 +1833,9 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     if (nextItem.execPath && nextItem.sourceExecPath && nextItem.execPath !== nextItem.sourceExecPath && nextItem.execPath !== previousExecPath) {
       try {
         await sceneManagedExeRemove(nextItem.execPath, nextItem.sourceExecPath);
-      } catch {}
+      } catch {
+        // 忽略回滚清理失败，保留原始保存错误。
+      }
     }
 
     throw error;
