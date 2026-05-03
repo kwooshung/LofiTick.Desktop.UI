@@ -14,9 +14,9 @@
       </template>
     </UFormField>
 
-    <UFormField required name="execPath" :label="t('components.sentinel.scenes.labels.execPath')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted', error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
-      <template #description>{{ t('components.sentinel.scenes.desc.execPath') }}</template>
-      <UInput v-model="stateForm.execPath" class="z-1 w-full" :readonly="computedExecPathReadonly" :placeholder="t('components.sentinel.scenes.placeholders.execPath')" :ui="{ trailing: 'pr-0.5' }">
+    <UFormField required name="sourceExecPath" :label="t('components.sentinel.scenes.labels.sourceExecPath')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted', error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+      <template #description>{{ t('components.sentinel.scenes.desc.sourceExecPath') }}</template>
+      <UInput v-model="stateForm.sourceExecPath" class="z-1 w-full" :readonly="computedExecPathReadonly" :placeholder="t('components.sentinel.scenes.placeholders.sourceExecPath')" :ui="{ trailing: 'pr-0.5' }">
         <template #trailing>
           <UButton size="sm" color="neutral" variant="outline" :disabled="computedExecPathReadonly" @click="handlePickExecPath">
             {{ t('components.sentinel.scenes.actions.pickProgram') }}
@@ -26,6 +26,11 @@
       <template #error="{ error }">
         <p v-if="typeof error === 'string' && error">{{ error }}</p>
       </template>
+    </UFormField>
+
+    <UFormField name="execPath" :label="t('components.sentinel.scenes.labels.execPath')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }">
+      <template #description>{{ t('components.sentinel.scenes.desc.execPathManaged') }}</template>
+      <UInput v-model="stateForm.execPath" class="z-1 w-full" readonly :placeholder="t('components.sentinel.scenes.placeholders.execPathManaged')" />
     </UFormField>
 
     <UFormField :label="t('components.sentinel.scenes.labels.args')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }">
@@ -61,6 +66,8 @@ const props = withDefaults(defineProps<ISentinelScenesConfigProps>(), {
   sceneName: '',
   localMachineId: '',
   execPathEditable: true,
+  sourceExecPathEditable: true,
+  sourceExecPath: '',
   execPath: '',
   args: () => [],
   enabled: true
@@ -81,6 +88,7 @@ const FORM_ID_DEFAULT = 'sentinelScenesEditorForm';
  */
 const stateForm = reactive<ISentinelScenesConfigFormState>({
   sceneName: String(props.sceneName || ''),
+  sourceExecPath: String(props.sourceExecPath || ''),
   execPath: String(props.execPath || ''),
   argsText: Array.isArray(props.args) ? props.args.join('\n') : '',
   enabled: Boolean(props.enabled)
@@ -121,7 +129,7 @@ const computedExecPathReadonly = computed(() => {
     return true;
   }
 
-  if (!props.execPathEditable) {
+  if (!props.execPathEditable || !props.sourceExecPathEditable) {
     return true;
   }
 
@@ -173,7 +181,7 @@ const isWindowsAbsolutePath = (value: string): boolean => {
 
 const schema = z.object({
   sceneName: z.string().trim().min(1, t('components.sentinel.scenes.errors.sceneNameRequired')),
-  execPath: z
+  sourceExecPath: z
     .string()
     .trim()
     .min(1, t('components.sentinel.scenes.errors.execPathRequired'))
@@ -191,7 +199,7 @@ type Schema = z.output<typeof schema>;
  * @returns {TSentinelScenesConfigValidateResult} 校验结果
  */
 const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
-  const parsed = schema.safeParse({ sceneName: stateForm.sceneName, execPath: stateForm.execPath });
+  const parsed = schema.safeParse({ sceneName: stateForm.sceneName, sourceExecPath: stateForm.sourceExecPath });
   if (parsed.success) {
     const result: TSentinelScenesConfigValidateResult = { valid: true, errors: {} };
     emit('validate', result);
@@ -204,7 +212,7 @@ const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
     if (key === 'sceneName') {
       errors.sceneName = issue.message;
     }
-    if (key === 'execPath') {
+    if (key === 'sourceExecPath') {
       errors.execPath = issue.message;
     }
   }
@@ -223,6 +231,7 @@ const valuesGet = (): TSentinelScenesConfigValues => ({
   machineName: String(props.machineName || ''),
   machineRemark: String(props.machineRemark || ''),
   sceneName: String(stateForm.sceneName || '').trim(),
+  sourceExecPath: String(stateForm.sourceExecPath || '').trim(),
   execPath: String(stateForm.execPath || '').trim(),
   args: computedArgs.value,
   enabled: Boolean(stateForm.enabled)
@@ -234,6 +243,7 @@ const valuesGet = (): TSentinelScenesConfigValues => ({
  */
 const valuesSet = (values: TSentinelScenesConfigValues): void => {
   stateForm.sceneName = String(values.sceneName || '');
+  stateForm.sourceExecPath = String(values.sourceExecPath || '');
   stateForm.execPath = String(values.execPath || '');
   stateForm.argsText = Array.isArray(values.args) ? values.args.join('\n') : '';
   stateForm.enabled = Boolean(values.enabled);
@@ -246,7 +256,7 @@ const valuesSet = (values: TSentinelScenesConfigValues): void => {
  * 事件：选择程序
  */
 const handlePickExecPath = (): void => {
-  emit('execpath-pick', String(stateForm.execPath || '').trim());
+  emit('execpath-pick', String(stateForm.sourceExecPath || '').trim());
 };
 
 /**

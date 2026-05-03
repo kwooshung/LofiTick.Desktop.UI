@@ -228,6 +228,7 @@ const { request: unattendedScenesSyncRequest } = useUnattendedScenesSyncDialog()
  * Hook：Tauri 窗口能力
  */
 const { openFile } = useTauriWindow();
+const { sceneManagedExeMaterialize } = useTauriSettings();
 
 /**
  * 模板：分析时长 Popover 内容（可复用）
@@ -1800,10 +1801,15 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
   const nextItem: IPageSettingsUnattendedScenesItem = {
     id: nextId,
     sceneName: String(values.sceneName || '').trim(),
+    sourceExecPath: String(values.sourceExecPath || '').trim(),
     execPath: String(values.execPath || '').trim(),
     args: Array.isArray(values.args) ? values.args : [],
     enabled: Boolean(values.enabled)
   };
+
+  const materialized = await sceneManagedExeMaterialize(nextId, nextItem.sourceExecPath || nextItem.execPath);
+  nextItem.sourceExecPath = String(materialized.sourceExecPath || '').trim();
+  nextItem.execPath = String(materialized.execPath || '').trim();
 
   if (idx >= 0) {
     base.items.splice(idx, 1, nextItem);
@@ -1858,6 +1864,7 @@ const handleScenesAddOpen = async (): Promise<void> => {
     machineName,
     machineRemark,
     sceneName: '',
+    sourceExecPath: '',
     execPath: '',
     args: [],
     enabled: true
@@ -1893,6 +1900,7 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
     machineName,
     machineRemark,
     sceneName: String(target.sceneName || ''),
+    sourceExecPath: String(target.sourceExecPath || target.execPath || ''),
     execPath: String(target.execPath || ''),
     args: Array.isArray(target.args) ? target.args : [],
     enabled: Boolean(target.enabled)
@@ -1930,7 +1938,7 @@ const handleScenesPickExecPath = async (current: string): Promise<void> => {
 
   refScenes.value?.valuesSet({
     ...values,
-    execPath: next
+    sourceExecPath: next
   });
 };
 

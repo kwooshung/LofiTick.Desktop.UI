@@ -10,7 +10,7 @@
         </div>
 
         <div class="space-y-2">
-          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="border-default bg-default/95 overflow-hidden rounded-lg border shadow-sm">
+          <div v-for="entry in statePayload.entries" :key="entry.sceneId" class="border-default bg-default/95 overflow-hidden rounded-md border shadow-sm">
             <div class="border-default flex items-center justify-between gap-3 border-b px-4 py-2.5">
               <div class="min-w-0 space-y-1">
                 <div class="flex min-w-0 items-center gap-2">
@@ -23,7 +23,7 @@
             </div>
 
             <div class="px-4 py-2">
-              <div class="border-default bg-muted/30 overflow-hidden rounded-md border">
+              <div class="border-default bg-muted/30 overflow-hidden rounded-sm border">
                 <div class="text-muted border-default/70 bg-muted/45 hidden grid-cols-[72px_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 border-b px-3 py-2 text-[12px] tracking-wide uppercase md:grid">
                   <div class="whitespace-nowrap">{{ shortFieldLabelGet('state') }}</div>
                   <div class="whitespace-nowrap">{{ shortSourceLabelGet('local') }}</div>

@@ -75,6 +75,7 @@ export const unattendedScenesItemsNormalize = (items: unknown): IPageSettingsUna
     return {
       id: String(src.id ?? '').trim(),
       sceneName: String(src.sceneName ?? '').trim(),
+      sourceExecPath: String(src.sourceExecPath ?? '').trim(),
       execPath: String(src.execPath ?? '').trim(),
       args,
       enabled: Boolean(src.enabled)

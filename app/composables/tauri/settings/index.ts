@@ -21,6 +21,21 @@ interface ITauriSettingsPathExistsItem {
   exists: boolean;
 }
 
+/**
+ * 接口：场景受管副本结果
+ */
+interface ITauriManagedSceneExeResult {
+  /**
+   * 原始可执行文件路径
+   */
+  sourceExecPath: string;
+
+  /**
+   * 受管副本运行路径
+   */
+  execPath: string;
+}
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -85,6 +100,16 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：创建或修复场景受管副本 exe
+   * @param {string} sceneId 场景 ID
+   * @param {string} sourceExecPath 原始 exe 路径
+   * @returns {Promise<ITauriManagedSceneExeResult>} 原始路径与受管副本路径
+   */
+  const sceneManagedExeMaterialize = async (sceneId: string, sourceExecPath: string): Promise<ITauriManagedSceneExeResult> => {
+    return invoke<ITauriManagedSceneExeResult>('settings_scene_managed_exe_materialize', { sceneId, sourceExecPath });
+  };
+
+  /**
    * 函数：获取 UE5 本地接入地址
    * @returns {Promise<string>} UE5 接入地址
    */
@@ -100,5 +125,5 @@ export const useTauriSettings = () => {
     return invoke<IPageSettingsUnattendedUe5BridgeDetail>('ue5_bridge_access_detail_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
+  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, sceneManagedExeMaterialize, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
 };
