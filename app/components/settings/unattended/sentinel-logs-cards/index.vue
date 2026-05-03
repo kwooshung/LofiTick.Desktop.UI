@@ -4,26 +4,26 @@
       <SettingsUnattendedMachineCardBase :machine="machine" :local-machine-code="props.localMachineCode">
         <template #body>
           <div class="grid grid-cols-3 gap-2">
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-lucide:file-text" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.logs') }}</span>
               </div>
-              <div class="text-highlighted mt-1 text-lg leading-6 font-semibold">{{ machine.logs.length }}</div>
+              <div class="text-highlighted mt-1 text-center text-lg leading-6 font-semibold">{{ machine.logs.length }}</div>
             </div>
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-lucide:monitor-dot" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.machineLogs') }}</span>
               </div>
-              <div class="mt-1 text-lg leading-6 font-semibold text-cyan-500">{{ machineLogsCountGet(machine) }}</div>
+              <div class="mt-1 text-center text-lg leading-6 font-semibold text-cyan-500">{{ machineLogsCountGet(machine) }}</div>
             </div>
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-lucide:layout-grid" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.sceneLogs') }}</span>
               </div>
-              <div class="mt-1 text-lg leading-6 font-semibold text-violet-500">{{ sceneLogsCountGet(machine) }}</div>
+              <div class="mt-1 text-center text-lg leading-6 font-semibold text-violet-500">{{ sceneLogsCountGet(machine) }}</div>
             </div>
           </div>
 
@@ -35,7 +35,7 @@
                   <UBadge color="neutral" variant="outline" size="xs">{{ item.scope || '-' }}</UBadge>
                   <span class="text-muted ml-auto text-[11px]"><Datetime :datetime="String(item.ts || '').trim()" /></span>
                 </div>
-                <div class="text-highlighted mt-1.5 line-clamp-2 leading-5 wrap-break-word">{{ item.message || '-' }}</div>
+                <div class="text-highlighted mt-1.5 line-clamp-2 leading-5 wrap-break-word">{{ previewLogMessageGet(item) }}</div>
               </article>
             </template>
             <template v-else>
@@ -52,7 +52,7 @@
         </template>
 
         <template #footer>
-          <div class="flex items-center gap-2">
+          <div class="flex w-full items-center justify-end gap-2">
             <UButton icon="i-mdi:network-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
             <UButton icon="i-lucide:file-text" color="primary" size="sm" variant="soft" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.logs') }}</UButton>
           </div>
@@ -155,6 +155,25 @@ const handleMachineLogsOpen = (machineCode: string): void => {
 const previewLogsGet = (machine: IPageSettingsUnattendedSentinelLogsMachineCard): IPageSettingsUnattendedSentinelLogItem[] => machine.logs.slice(0, 3);
 
 /**
+ * 函数：获取预览日志文案
+ * @param {IPageSettingsUnattendedSentinelLogItem} item 日志项
+ * @returns {string} 预览文本
+ */
+const previewLogMessageGet = (item: IPageSettingsUnattendedSentinelLogItem): string => {
+  const safeMessage = String(item.message || '').trim();
+  if (!safeMessage) {
+    return '-';
+  }
+
+  if (safeMessage.startsWith('components.sentinel.scenes.card.logsMeta.')) {
+    const translated = String(t(safeMessage) || '');
+    return translated && translated !== safeMessage ? translated : safeMessage;
+  }
+
+  return safeMessage;
+};
+
+/**
  * 函数：统计机器级日志数量
  * @param {IPageSettingsUnattendedSentinelLogsMachineCard} machine 机器日志信息
  * @returns {number} 数量
@@ -171,9 +190,9 @@ const sceneLogsCountGet = (machine: IPageSettingsUnattendedSentinelLogsMachineCa
 /**
  * 函数：日志级别映射为徽标颜色
  * @param {string} level 日志级别
- * @returns {'error' | 'warning' | 'success' | 'info' | 'neutral'} 颜色
+ * @returns {'error' | 'warning' | 'success' | 'primary' | 'neutral'} 颜色
  */
-const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'info' | 'neutral' => {
+const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'primary' | 'neutral' => {
   const safeLevel = String(level || '')
     .trim()
     .toLowerCase();
@@ -187,7 +206,7 @@ const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'info' 
     return 'success';
   }
   if (safeLevel === 'info') {
-    return 'info';
+    return 'primary';
   }
 
   return 'neutral';

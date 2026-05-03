@@ -28,26 +28,26 @@
 
         <template #body>
           <div class="grid grid-cols-3 gap-2">
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-tabler:layout-grid" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.scenes') }}</span>
               </div>
-              <div class="text-highlighted mt-1 text-lg leading-6 font-semibold">{{ scenesCountTotalGet(machine) }}</div>
+              <div class="text-highlighted mt-1 text-center text-lg leading-6 font-semibold">{{ scenesCountTotalGet(machine) }}</div>
             </div>
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-material-symbols:check-circle-outline" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.enabled') }}</span>
               </div>
-              <div class="mt-1 text-lg leading-6 font-semibold text-emerald-500">{{ scenesCountEnabledGet(machine) }}</div>
+              <div class="mt-1 text-center text-lg leading-6 font-semibold text-emerald-500">{{ scenesCountEnabledGet(machine) }}</div>
             </div>
-            <div class="bg-muted/35 rounded-md px-2.5 py-2">
-              <div class="text-muted flex items-center gap-1 text-[11px] leading-4">
+            <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
+              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
                 <UIcon name="i-material-symbols:cancel-outline" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.disabled') }}</span>
               </div>
-              <div class="mt-1 text-lg leading-6 font-semibold text-amber-500">{{ scenesCountDisabledGet(machine) }}</div>
+              <div class="mt-1 text-center text-lg leading-6 font-semibold text-amber-500">{{ scenesCountDisabledGet(machine) }}</div>
             </div>
           </div>
         </template>

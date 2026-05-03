@@ -388,6 +388,11 @@ export interface IPageSettingsUnattendedSentinelLogItem {
   message: string;
 
   /**
+   * 日志消息参数
+   */
+  messageArgs?: Record<string, string>;
+
+  /**
    * 时间戳
    */
   ts: string;
