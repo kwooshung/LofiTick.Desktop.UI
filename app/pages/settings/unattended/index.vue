@@ -1808,23 +1808,9 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     enabled: Boolean(values.enabled)
   };
 
-  const previousExecPath =
-    idx >= 0
-      ? String(base.items[idx]?.execPath || '').trim()
-      : '';
-
-  const materialized = await sceneManagedExeMaterialize(
-    nextId,
-    nextItem.sceneName,
-    nextItem.sourceExecPath || nextItem.execPath
-  );
-  nextItem.sourceExecPath = String(materialized.sourceExecPath || '').trim();
+  const previousExecPath = t materialized = await sceneManagedExeMaterializ Item.sourceExecPath = String(materialized.sourceExecPath || '').trim();
   nextItem.execPath = String(materialized.execPath || '').trim();
-
-  if (idx >= 0) {
-    base.items.splice(idx, 1, nextItem);
-  } else {
-    base.items.push(nextItem);
+ (idx > base.items.splice(i else {  base.items.push(nextItem);
   }
 
   const rollbackState: ISettingsUnattendedScenesLocal = {
@@ -1835,29 +1821,17 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
   try {
     await persistScenesLocalAndRemote(base.items, rollbackState);
   } catch (error) {
-    if (
-      nextItem.execPath
-      && nextItem.sourceExecPath
-      && nextItem.execPath !== nextItem.sourceExecPath
-      && nextItem.execPath !== previousExecPath
-    ) {
+    if (nextItem.execPath && nextItem.sourceExecPath && nextItem.execPath !== nextItem.sourceExecPath && nextItem.execPath !== previousExecPath) {
       try {
         await sceneManagedExeRemove(nextItem.execPath, nextItem.sourceExecPath);
-      } catch {
-      }
+      } catch {}
     }
 
     throw error;
-  }
-
-  stateScenesDrawerOpen.value = false;
-};
-
-/**
+  } eScenesDrawerOpen.value =
  * 事件：场景表单校验
  * @param {TSentinelScenesConfigValidateResult} result 校验结果
- */
-const handleScenesValidate = (result: TSentinelScenesConfigValidateResult) => {
+ */handleScenesValidate = (result: TSentinelScenesConfigValidateResult) => {
   stateScenesFormValid.value = Boolean(result?.valid);
 };
 
@@ -1965,10 +1939,7 @@ const handleScenesPickExecPath = async (current: string): Promise<void> => {
   refScenes.value?.valuesSet({
     ...values,
     sourceExecPath: next,
-    execPath:
-      String(next || '').trim() === String(values.sourceExecPath || '').trim()
-        ? String(values.execPath || '').trim()
-        : ''
+    execPath: String(next || '').trim() === String(values.sourceExecPath || '').trim() ? String(values.execPath || '').trim() : ''
   });
 };
 
@@ -1981,10 +1952,7 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * Hook：本地化路由
  */
 const localePath = useLocalePath();
-
-/**
- * 设置面包屑导航状态
- */
+屑导航状态
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
