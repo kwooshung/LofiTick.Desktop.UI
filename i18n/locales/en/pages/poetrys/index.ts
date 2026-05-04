@@ -14,6 +14,7 @@ export const poetrys = {
       poem: 'Poem',
       kind: 'Kind',
       rhythmic: 'Rhythmic',
+      chapterSection: 'Chapter / Section',
       chapter: 'Chapter',
       section: 'Section',
       author: 'Author',

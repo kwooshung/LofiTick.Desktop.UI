@@ -180,7 +180,7 @@ const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
  * @param {IPageTableColumnPoetrys['infos']['kind']} kind 作品类型
  * @returns {string} 类型文案
  */
-const poetryKindLabelGet = (kind: IPageTableColumnPoetrys['infos']['kind']): string => t(`pages.poetrys.result.kind.${kind}`);
+const poetryKindLabelGet = (kind: IPageTableColumnPoetrys['infos']['kind']): string => t(`pages.poetrys.kind.${kind}`);
 
 /**
  * 函数：获取章节文案。
@@ -191,6 +191,88 @@ const poetryMetaValueGet = (value: string): string => {
   const text = String(value ?? '').trim();
 
   return text === '' ? t('common.labels.none') : text;
+};
+
+/**
+ * 函数：获取关联实体展示名称。
+ * @param {{ id: number; name: string }} item 关联实体
+ * @returns {string} 展示名称
+ */
+const poetryLinkedNameGet = (item: { id: number; name: string }): string => {
+  if (Number(item.id) === 1) {
+    return '';
+  }
+
+  return String(item.name ?? '').trim();
+};
+
+/**
+ * 函数：获取标题展示文案。
+ * @param {IPageTableColumnPoetrys['infos']} infos 作品信息
+ * @param {boolean} includeRhythmic 是否展示词牌/曲牌前缀
+ * @returns {string} 标题文案
+ */
+const poetryTitleDisplayGet = (infos: IPageTableColumnPoetrys['infos'], includeRhythmic: boolean): string => {
+  const title = String(infos.title ?? '').trim();
+  const rhythmicName = includeRhythmic ? poetryLinkedNameGet(infos.rhythmic) : '';
+  const wrappedTitle = title === '' ? '' : `《${title}》`;
+
+  if (rhythmicName === '') {
+    return wrappedTitle;
+  }
+
+  if (wrappedTitle === '') {
+    return rhythmicName;
+  }
+
+  return `${rhythmicName} · ${wrappedTitle}`;
+};
+
+/**
+ * 函数：获取章卷与节部文案。
+ * @param {IPageTableColumnPoetrys['infos']} infos 作品信息
+ * @returns {string} 合并文案
+ */
+const poetryChapterSectionLabelGet = (infos: IPageTableColumnPoetrys['infos']): string => {
+  const values = [String(infos.chapter ?? '').trim(), String(infos.section ?? '').trim()].filter((item) => item !== '');
+
+  if (values.length === 0) {
+    return t('common.labels.none');
+  }
+
+  return values.join(' / ');
+};
+
+/**
+ * 函数：获取朝代与作者文案。
+ * @param {IPageTableColumnPoetrys['infos']} infos 作品信息
+ * @returns {string} 合并文案
+ */
+const poetryDynastyAuthorLabelGet = (infos: IPageTableColumnPoetrys['infos']): string => {
+  const values = [poetryLinkedNameGet(infos.dynasty), poetryLinkedNameGet(infos.author)].filter((item) => item !== '');
+
+  if (values.length === 0) {
+    return '';
+  }
+
+  return values.join(' · ');
+};
+
+/**
+ * 函数：截断核心句展示文案。
+ * @param {string} sentence 原始核心句
+ * @param {number} maxLength 最大长度
+ * @returns {string} 截断后的文案
+ */
+const poetrySentencePreviewGet = (sentence: string, maxLength: number): string => {
+  const text = String(sentence ?? '').trim();
+  const limit = Math.max(1, Math.trunc(maxLength));
+
+  if (text.length <= limit) {
+    return text;
+  }
+
+  return `${text.slice(0, limit).trimEnd()}...`;
 };
 
 /**
@@ -356,7 +438,7 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
           ? item.rhythmic
           : {
               id: 0,
-              name: t('pages.poetrys.result.kind.unknown')
+              name: ''
             },
       chapter: String(item.chapter ?? ''),
       section: String(item.section ?? ''),
@@ -365,16 +447,16 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
         item.dynasty && typeof item.dynasty === 'object'
           ? item.dynasty
           : {
-              id: 0,
-              name: 'unknown',
+              id: 1,
+              name: '',
               count: 0
             },
       author:
         item.author && typeof item.author === 'object'
           ? item.author
           : {
-              id: 0,
-              name: 'unknown',
+              id: 1,
+              name: '',
               count: 0
             }
     },
@@ -482,7 +564,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     cell: ({ row }) => row.original.id.toString().padStart(5, '0')
   },
-  // 1级宽度：小屏（< xl），单列展示 标题 + 朝代 · 作者 + 句子
+  // 1级宽度：小屏（< xl），复杂列展示全部核心信息
   {
     accessorKey: 'poem',
     meta: {
@@ -493,117 +575,89 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.poem'),
     cell: ({ row }) => {
-      const { title, sentence, dynasty, author } = row.original.infos;
+      const { infos } = row.original;
+      const title = poetryTitleDisplayGet(infos, true);
+      const dynastyName = poetryLinkedNameGet(infos.dynasty);
+      const authorName = poetryLinkedNameGet(infos.author);
+      const titleLine = `${poetryKindLabelGet(infos.kind)}${title}`;
 
-      return h('div', { class: 'flex flex-col' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
-        h('div', { class: 'text-sm text-muted mt-1' }, [
-          h(UButton, { color: 'neutral', variant: 'link', label: dynasty.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
-          ' · ',
-          h(UButton, { color: 'neutral', variant: 'link', label: author.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
-        ]),
-        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
+      return h('div', { class: 'flex flex-col gap-1.5' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: titleLine, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('p', { class: 'text-xs text-muted' }, poetryChapterSectionLabelGet(infos)),
+        ...(dynastyName === '' && authorName === ''
+          ? []
+          : [
+              h('div', { class: 'flex items-center gap-1 text-sm text-muted' }, [
+                ...(dynastyName === ''
+                  ? []
+                  : [
+                      h(UButton, {
+                        color: 'neutral',
+                        variant: 'link',
+                        label: dynastyName,
+                        class: 'p-0 h-auto min-h-0 text-muted hover:text-primary hover:underline',
+                        onClick: () => navigateWithSingleFilter('dynasty_ids', infos.dynasty.id)
+                      })
+                    ]),
+                ...(dynastyName !== '' && authorName !== '' ? ['·'] : []),
+                ...(authorName === ''
+                  ? []
+                  : [
+                      h(UButton, {
+                        color: 'neutral',
+                        variant: 'link',
+                        label: authorName,
+                        class: 'p-0 h-auto min-h-0 text-muted hover:text-primary hover:underline',
+                        onClick: () => navigateWithSingleFilter('author_ids', infos.author.id)
+                      })
+                    ])
+              ])
+            ]),
+        h('p', { class: 'text-sm text-dimmed break-words' }, poetrySentencePreviewGet(infos.sentence, 36))
       ]);
     }
   },
-  // 2级宽度：中屏（xl ~ < 2xl），标题 + 朝代 · 作者 + 句子
+  // 2级宽度：中屏（xl ~ < 2xl），标题列保留标题、类型与章节信息
   {
     accessorKey: 'poemTitleMedium',
     meta: {
       class: {
-        th: 'w-100 hidden xl:table-cell 2xl:hidden',
-        td: 'w-100 hidden xl:table-cell 2xl:hidden'
+        th: 'w-88 hidden xl:table-cell 2xl:hidden',
+        td: 'w-88 hidden xl:table-cell 2xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
     cell: ({ row }) => {
-      const { title, dynasty, author, sentence } = row.original.infos;
+      const { infos } = row.original;
 
-      return h('div', { class: 'flex flex-col' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
-        h('div', { class: 'text-sm text-muted mt-1' }, [
-          h(UButton, { color: 'neutral', variant: 'link', label: dynasty.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
-          ' · ',
-          h(UButton, { color: 'neutral', variant: 'link', label: author.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
-        ]),
-        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
+      return h('div', { class: 'flex flex-col gap-1.5' }, [
+        h(UButton, { color: 'neutral', variant: 'link', label: poetryTitleDisplayGet(infos, true), class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('p', { class: 'text-xs text-muted' }, poetryKindLabelGet(infos.kind)),
+        h('p', { class: 'text-xs text-muted' }, poetryChapterSectionLabelGet(infos))
       ]);
     }
   },
-  // 3级宽度：大屏（≥ 2xl ~ < 3xl），单列展示 标题 + 核心句
+  // 3级宽度：大屏（≥ 2xl ~ < 5xl），标题列仅保留标题
   {
     accessorKey: 'poemTitleFull',
     meta: {
       class: {
-        th: 'w-100 hidden 2xl:table-cell 3xl:hidden',
-        td: 'w-100 hidden 2xl:table-cell 3xl:hidden'
+        th: 'w-88 hidden 2xl:table-cell 5xl:hidden',
+        td: 'w-88 hidden 2xl:table-cell 5xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
     cell: ({ row }) => {
-      const { title, sentence } = row.original.infos;
-
-      return h('div', { class: 'flex flex-col' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
-        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
-      ]);
+      return h(UButton, { color: 'neutral', variant: 'link', label: poetryTitleDisplayGet(row.original.infos, true), class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) });
     }
   },
-  // 新结构列：类型（仅在更大屏幕显示，避免破坏旧页面主布局）
+  // 4级宽度：超宽屏（≥ 5xl），标题独立列不再重复词牌/曲牌
   {
-    accessorKey: 'poemKind',
+    accessorKey: 'poemTitleUltra',
     meta: {
       class: {
-        th: 'w-16 hidden 4xl:table-cell',
-        td: 'w-16 hidden 4xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.kind'),
-    cell: ({ row }) => poetryKindLabelGet(row.original.infos.kind)
-  },
-  // 新结构列：词牌/曲牌（仅在更大屏幕显示，避免破坏旧页面主布局）
-  {
-    accessorKey: 'poemRhythmic',
-    meta: {
-      class: {
-        th: 'w-24 hidden 4xl:table-cell',
-        td: 'w-24 hidden 4xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.rhythmic'),
-    cell: ({ row }) => poetryMetaValueGet(row.original.infos.rhythmic.name)
-  },
-  // 新结构列：章/卷/篇（仅在更大屏幕显示，避免破坏旧页面主布局）
-  {
-    accessorKey: 'poemChapter',
-    meta: {
-      class: {
-        th: 'w-20 hidden 4xl:table-cell',
-        td: 'w-20 hidden 4xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.chapter'),
-    cell: ({ row }) => poetryMetaValueGet(row.original.infos.chapter)
-  },
-  // 新结构列：节/部（仅在更大屏幕显示，避免破坏旧页面主布局）
-  {
-    accessorKey: 'poemSection',
-    meta: {
-      class: {
-        th: 'w-20 hidden 4xl:table-cell',
-        td: 'w-20 hidden 4xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.section'),
-    cell: ({ row }) => poetryMetaValueGet(row.original.infos.section)
-  },
-  // 4级宽度：超大屏（≥ 3xl），标题 / 句子 / 朝代 / 作者 分列
-  {
-    accessorKey: 'poemTitleFullLarge',
-    meta: {
-      class: {
-        th: 'w-100 hidden 3xl:table-cell',
-        td: 'w-100 hidden 3xl:table-cell'
+        th: 'w-80 hidden 5xl:table-cell',
+        td: 'w-80 hidden 5xl:table-cell'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -611,64 +665,147 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       h(UButton, {
         color: 'neutral',
         variant: 'link',
-        label: row.original.infos.title,
+        label: poetryTitleDisplayGet(row.original.infos, false),
         class: 'p-0 text-default hover:text-primary hover:underline',
         onClick: () => handleViewDetail(row.original)
       })
+  },
+  // 类型：从 xl 起逐步拆出，2xl 以上始终保持独立列
+  {
+    accessorKey: 'poemKind',
+    meta: {
+      class: {
+        th: 'w-16 hidden 2xl:table-cell whitespace-nowrap',
+        td: 'w-16 hidden 2xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.kind'),
+    cell: ({ row }) => poetryKindLabelGet(row.original.infos.kind)
+  },
+  // 中宽屏：章节信息组合列
+  {
+    accessorKey: 'poemChapterSection',
+    meta: {
+      class: {
+        th: 'w-26 hidden 2xl:table-cell 5xl:hidden whitespace-nowrap',
+        td: 'w-26 hidden 2xl:table-cell 5xl:hidden'
+      }
+    },
+    header: t('pages.poetrys.result.table.chapterSection'),
+    cell: ({ row }) => poetryChapterSectionLabelGet(row.original.infos)
+  },
+  // 超宽屏：词牌/曲牌独立列
+  {
+    accessorKey: 'poemRhythmic',
+    meta: {
+      class: {
+        th: 'w-28 hidden 5xl:table-cell whitespace-nowrap',
+        td: 'w-28 hidden 5xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.rhythmic'),
+    cell: ({ row }) => poetryLinkedNameGet(row.original.infos.rhythmic)
+  },
+  // 超宽屏：章/卷/篇独立列
+  {
+    accessorKey: 'poemChapter',
+    meta: {
+      class: {
+        th: 'w-22 hidden 5xl:table-cell whitespace-nowrap',
+        td: 'w-22 hidden 5xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.chapter'),
+    cell: ({ row }) => poetryMetaValueGet(row.original.infos.chapter)
+  },
+  // 超宽屏：节/部独立列
+  {
+    accessorKey: 'poemSection',
+    meta: {
+      class: {
+        th: 'w-20 hidden 5xl:table-cell whitespace-nowrap',
+        td: 'w-20 hidden 5xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.section'),
+    cell: ({ row }) => poetryMetaValueGet(row.original.infos.section)
   },
   {
     accessorKey: 'poemSentenceFull',
     meta: {
       class: {
-        th: 'hidden 3xl:table-cell',
-        td: 'hidden 3xl:table-cell'
+        th: 'hidden xl:table-cell',
+        td: 'hidden xl:table-cell'
       }
     },
     header: t('pages.poetrys.result.table.sentence'),
-    cell: ({ row }) => h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, row.original.infos.sentence)
+    cell: ({ row }) => h('p', { class: 'text-sm text-dimmed break-words' }, poetrySentencePreviewGet(row.original.infos.sentence, 72))
   },
   {
     accessorKey: 'poemDynastyAuthor',
     meta: {
       class: {
-        th: 'w-30 hidden 2xl:table-cell 3xl:hidden',
-        td: 'w-30 hidden 2xl:table-cell 3xl:hidden'
+        th: 'w-30 hidden xl:table-cell 5xl:hidden whitespace-nowrap',
+        td: 'w-30 hidden xl:table-cell 5xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.dynastyAuthor'),
     cell: ({ row }) => {
       const { dynasty, author } = row.original.infos;
+      const dynastyName = poetryLinkedNameGet(dynasty);
+      const authorName = poetryLinkedNameGet(author);
+
+      if (dynastyName === '' && authorName === '') {
+        return '';
+      }
 
       return h('div', { class: 'text-sm text-muted mt-1' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: `${dynasty.name}（${dynasty.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) }),
-        ' · ',
-        h(UButton, { color: 'neutral', variant: 'link', label: `${author.name}（${author.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
+        ...(dynastyName === '' ? [] : [h(UButton, { color: 'neutral', variant: 'link', label: `${dynastyName}（${dynasty.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) })]),
+        ...(dynastyName !== '' && authorName !== '' ? [' · '] : []),
+        ...(authorName === '' ? [] : [h(UButton, { color: 'neutral', variant: 'link', label: `${authorName}（${author.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })])
       ]);
     }
   },
-  // 4级宽度：超大屏（≥ 3xl），将 朝代 / 作者 拆成独立列
+  // 超宽屏：将 朝代 / 作者 拆成独立列
   {
     accessorKey: 'poemDynastyFull',
     meta: {
       class: {
-        th: 'w-15 hidden 3xl:table-cell',
-        td: 'w-15 hidden 3xl:table-cell'
+        th: 'w-18 hidden 5xl:table-cell whitespace-nowrap',
+        td: 'w-18 hidden 5xl:table-cell'
       }
     },
     header: t('pages.poetrys.result.table.dynasty'),
     cell: ({ row }) =>
-      h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id) })
+      poetryLinkedNameGet(row.original.infos.dynasty) === ''
+        ? ''
+        : h(UButton, {
+            color: 'neutral',
+            variant: 'link',
+            label: `${poetryLinkedNameGet(row.original.infos.dynasty)}（${row.original.infos.dynasty.count}）`,
+            class: 'p-0 text-muted hover:text-primary hover:underline',
+            onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id)
+          })
   },
   {
     accessorKey: 'poemAuthorFull',
     header: t('pages.poetrys.result.table.author'),
     meta: {
       class: {
-        th: 'w-15 hidden 3xl:table-cell',
-        td: 'w-15 hidden 3xl:table-cell'
+        th: 'w-18 hidden 5xl:table-cell whitespace-nowrap',
+        td: 'w-18 hidden 5xl:table-cell'
       }
     },
-    cell: ({ row }) => h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.author.name}（${row.original.infos.author.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', row.original.infos.author.id) })
+    cell: ({ row }) =>
+      poetryLinkedNameGet(row.original.infos.author) === ''
+        ? ''
+        : h(UButton, {
+            color: 'neutral',
+            variant: 'link',
+            label: `${poetryLinkedNameGet(row.original.infos.author)}（${row.original.infos.author.count}）`,
+            class: 'p-0 text-muted hover:text-primary hover:underline',
+            onClick: () => navigateWithSingleFilter('author_ids', row.original.infos.author.id)
+          })
   },
   {
     id: 'times',

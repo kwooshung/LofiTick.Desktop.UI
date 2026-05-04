@@ -1,3 +1,4 @@
 export const labels = {
-  time: 'Time'
+  time: 'Time',
+  none: 'None'
 };

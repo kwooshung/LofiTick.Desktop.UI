@@ -1,3 +1,4 @@
 export const labels = {
-  time: '时间'
+  time: '时间',
+  none: '无'
 };
