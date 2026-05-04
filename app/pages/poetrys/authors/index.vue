@@ -42,6 +42,11 @@ const Datetime = resolveComponent('Datetime');
  * 组件：按钮
  */
 const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：开关
+ */
+const USwitch = resolveComponent('USwitch');
 /**
  * 组件：分页
  */
@@ -255,7 +260,12 @@ const columns: TableColumn<IPageTableColumnPoetryAuthors>[] = [
       }
     },
     header: t('pages.poetrys.result.table.enabled'),
-    cell: ({ row }) => h('span', { class: row.original.infos.enabled ? 'text-success' : 'text-muted' }, row.original.infos.enabled ? t('common.options.enabled') : t('common.options.disabled'))
+    cell: ({ row }) =>
+      h(USwitch, {
+        modelValue: row.original.infos.enabled,
+        disabled: true,
+        'aria-label': t('pages.poetrys.result.table.enabled')
+      })
   },
   {
     accessorKey: 'time',

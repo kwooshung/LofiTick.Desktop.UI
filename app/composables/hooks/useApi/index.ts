@@ -749,6 +749,26 @@ const upsertSignatureParam = (args: { out: Record<string, string>; key: string; 
 };
 
 /**
+ * 常量：签名 canonical 规则测试入口。
+ * 描述：仅供单元测试复用，避免前后端 canonical 规则再次发生漂移。
+ */
+export const useApiSignatureTestUtils = {
+  normalizeSignatureKey,
+  toBackendPathForSignature,
+  toParamsObjectForSignature,
+  toSignatureJsStringOrNull,
+  canonicalizeParams: (input: Record<string, unknown>): Record<string, string> => {
+    const out: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(input)) {
+      upsertSignatureParam({ out, key, value });
+    }
+
+    return out;
+  }
+};
+
+/**
  * 函数：计算请求签名（Base64）。
  * @param {object} args 参数
  * @param {string} args.backendPath 后端路径
