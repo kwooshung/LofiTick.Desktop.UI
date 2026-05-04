@@ -75,12 +75,11 @@ const pagesize = computed<number>({
   set: (value: number) => {
     const query = { ...route.query };
 
-    // 写入路由
-    if (value === pagesizesCookie.value[props.cacheKey]) {
-      delete query.pagesize;
-    } else {
-      query.pagesize = String(value);
-    }
+    // 修改每页数量后统一回到第一页，避免当前页越界导致看起来像“没生效”。
+    delete query.page;
+
+    // 写入路由。查询接口以路由中的 pagesize 为准，因此这里必须始终显式带上。
+    query.pagesize = String(value);
 
     navigateTo({ path: route.path, query }, { replace: true });
 

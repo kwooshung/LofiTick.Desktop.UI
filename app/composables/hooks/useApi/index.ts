@@ -521,6 +521,13 @@ const toBackendPathForSignature = (backendPath: string): string => {
  * @return {string} 归一化后的 key
  */
 const normalizeSignatureKey = (key: string): string => {
+  const keyLower = String(key ?? '')
+    .trim()
+    .toLowerCase();
+  if (keyLower === 'pagesize') {
+    return 'pageSize';
+  }
+
   let out = '';
   let upperNext = false;
 
@@ -1519,16 +1526,28 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     }
   };
 
-  const refresh = async (opts: IUseFetchExtraOptions = {}) => {
-    if (opts.datas !== undefined) {
-      datasSource.value = toSpreadableObject(resolve(opts.datas)) as any;
-    }
-    if (opts.query !== undefined) {
-      querySource.value = toSpreadableObject(resolve(opts.query));
-    }
-    if (opts.body !== undefined) {
-      bodySource.value = toSpreadableObject(resolve(opts.body));
-    }
+  let latestRefreshVersion = 0;
+  let activeRefreshPromise: Promise<void> | null = null;
+  let queuedDatasSource: Record<string, unknown> | null = null;
+  let queuedQuerySource: Record<string, unknown> | null = null;
+  let queuedBodySource: Record<string, unknown> | null = null;
+
+  const snapshotRecord = (input: unknown): Record<string, unknown> => toSpreadableObject(resolve(input));
+
+  const captureQueuedSources = (opts: IUseFetchExtraOptions): void => {
+    queuedDatasSource = opts.datas !== undefined ? snapshotRecord(opts.datas) : snapshotRecord(datasSource.value);
+    queuedQuerySource = opts.query !== undefined ? snapshotRecord(opts.query) : snapshotRecord(querySource.value);
+    queuedBodySource = opts.body !== undefined ? snapshotRecord(opts.body) : snapshotRecord(bodySource.value);
+  };
+
+  const applyQueuedSources = (): void => {
+    datasSource.value = { ...(queuedDatasSource ?? snapshotRecord(datasSource.value)) } as any;
+    querySource.value = { ...(queuedQuerySource ?? snapshotRecord(querySource.value)) };
+    bodySource.value = { ...(queuedBodySource ?? snapshotRecord(bodySource.value)) };
+  };
+
+  const executeRefreshOnce = async (): Promise<void> => {
+    applyQueuedSources();
     finalOptions.key = `${staticKey}-${Date.now()}`;
     await runWithSignature();
     try {
@@ -1538,6 +1557,36 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     }
     await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
     await refreshOnceIfSecurityRejected();
+  };
+
+  const refresh = async (opts: IUseFetchExtraOptions = {}) => {
+    captureQueuedSources(opts);
+
+    latestRefreshVersion += 1;
+
+    if (activeRefreshPromise) {
+      await activeRefreshPromise;
+      return;
+    }
+
+    const refreshPromise = (async () => {
+      let processedVersion = 0;
+
+      while (processedVersion !== latestRefreshVersion) {
+        processedVersion = latestRefreshVersion;
+        await executeRefreshOnce();
+      }
+    })();
+
+    activeRefreshPromise = refreshPromise;
+
+    try {
+      await refreshPromise;
+    } finally {
+      if (activeRefreshPromise === refreshPromise) {
+        activeRefreshPromise = null;
+      }
+    }
   };
 
   const debounceOpts: IUseApiDebounceOptions = {

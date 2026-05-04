@@ -244,21 +244,6 @@ const poetryChapterSectionLabelGet = (infos: IPageTableColumnPoetrys['infos']): 
 };
 
 /**
- * 函数：获取朝代与作者文案。
- * @param {IPageTableColumnPoetrys['infos']} infos 作品信息
- * @returns {string} 合并文案
- */
-const poetryDynastyAuthorLabelGet = (infos: IPageTableColumnPoetrys['infos']): string => {
-  const values = [poetryLinkedNameGet(infos.dynasty), poetryLinkedNameGet(infos.author)].filter((item) => item !== '');
-
-  if (values.length === 0) {
-    return '';
-  }
-
-  return values.join(' · ');
-};
-
-/**
  * 函数：截断核心句展示文案。
  * @param {string} sentence 原始核心句
  * @param {number} maxLength 最大长度
@@ -408,7 +393,7 @@ const toggleSort = (field: 'id' | 'updated' | 'created') => {
 /**
  * API：诗词搜索
  */
-const { datas, loading, refreshDebounced } = await useApi<IQueryResultPoetrysSummaryPage>('poetrys', { datas: buildApiQueryFromRoute(), immediate: true });
+const { datas, loading, refresh, refreshDebounced } = await useApi<IQueryResultPoetrysSummaryPage>('poetrys', { datas: buildApiQueryFromRoute(), immediate: true });
 
 /**
  * API：诗词详情
@@ -503,8 +488,35 @@ const computedItemsPerPage = computed<number>(() => {
 watch(
   () => route.query,
   () => {
-    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+    refresh({ datas: buildApiQueryFromRoute(), replace: true });
   }
+);
+
+/**
+ * 监听：当分页条数变化导致当前页越界时，自动跳回有效页。
+ */
+watch(
+  () => ({
+    total: Number(datas.value?.total ?? 0),
+    rows: Array.isArray(datas.value?.rows) ? datas.value?.rows.length : 0,
+    pageSize: computedItemsPerPage.value,
+    page: computedPage.value
+  }),
+  ({ total, rows, pageSize, page }) => {
+    if (total <= 0 || rows > 0 || page <= 1) {
+      return;
+    }
+
+    const maxPage = Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
+    if (page <= maxPage) {
+      return;
+    }
+
+    const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+    q.page = String(maxPage);
+    navigateTo({ path: route.path, query: q }, { replace: true });
+  },
+  { immediate: true }
 );
 
 /**
