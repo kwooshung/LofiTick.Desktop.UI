@@ -158,7 +158,7 @@ export const settings = {
     title: '無人值守',
     header: {
       description: '調整無人值守模式與心跳檢測相關設定。',
-      enter: '進入無人值守模式'
+      enter: '前往無人值守頁面'
     },
     dialogs: {
       restart: {

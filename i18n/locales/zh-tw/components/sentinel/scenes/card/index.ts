@@ -73,6 +73,7 @@ export const card = {
       stateChanged: '狀態切換',
       heartbeatDetected: '檢測到新心跳',
       recoveryEvaluation: '恢復評估',
+      recoveryUnlockedAfterStopped: '檢測到舊的停止狀態，已自動解鎖並繼續重試',
       waiting: '等待',
       cleanup: '清理',
       restart: '重啟',

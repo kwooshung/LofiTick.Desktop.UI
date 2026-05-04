@@ -51,12 +51,15 @@
       </div>
     </DefineAnalysisDurationPopoverContent>
 
-    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center' }">
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.header.description') }}</div>
         </div>
+        <UButton color="primary" variant="outline" icon="i-mdi:robot-outline" :to="localePath('/unattended')">
+          {{ t('pages.settings.unattended.header.enter') }}
+        </UButton>
       </template>
     </UPageCard>
 

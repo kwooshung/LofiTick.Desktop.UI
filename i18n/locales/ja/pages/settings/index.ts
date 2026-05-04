@@ -158,7 +158,7 @@ export const settings = {
     title: '無人値守',
     header: {
       description: '無人値守モードおよび心拍監視に関する設定を調整します。',
-      enter: '無人値守モードに入る'
+      enter: '無人値守ページへ移動'
     },
     dialogs: {
       restart: {

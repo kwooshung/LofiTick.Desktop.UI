@@ -158,7 +158,7 @@
     title: '无人值守',
     header: {
       description: '调整无人值守模式下和心跳检测相关的设置',
-      enter: '进入无人值守模式'
+      enter: '前往无人值守页面'
     },
     dialogs: {
       restart: {

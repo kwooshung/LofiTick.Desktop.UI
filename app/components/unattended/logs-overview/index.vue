@@ -7,7 +7,10 @@
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.sentinel.logs.description') }}</div>
         </div>
         <div class="flex shrink-0 flex-col items-end gap-2">
-          <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelLogsRefresh">{{ t('pages.sentinel.logs.actions.refresh') }}</UButton>
+          <div class="flex items-center gap-2">
+            <UButton color="primary" variant="outline" icon="i-proicons:settings" :to="localePath('/settings/unattended')">{{ t('pages.sentinel.logs.actions.openSettings') }}</UButton>
+            <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelLogsRefresh">{{ t('pages.sentinel.logs.actions.refresh') }}</UButton>
+          </div>
           <div class="text-toned flex items-center gap-1.5 text-xs leading-4 whitespace-nowrap">
             <UIcon name="i-lucide:history" class="size-3.5 shrink-0" />
             <span>{{ computedLastRefreshText }}</span>
@@ -36,6 +39,11 @@ import type { IPageSettingsUnattendedScenesMachineRedisConfig, IPageSettingsUnat
  * Hook：i18n
  */
 const { t } = useI18n();
+
+/**
+ * Hook：本地化路由
+ */
+const localePath = useLocalePath();
 
 /**
  * Hook：dayjs

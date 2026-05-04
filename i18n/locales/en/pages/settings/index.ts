@@ -158,7 +158,7 @@ export const settings = {
     title: 'Unattended',
     header: {
       description: 'Adjust unattended mode and heartbeat-related settings.',
-      enter: 'Enter unattended mode'
+      enter: 'Go to unattended page'
     },
     dialogs: {
       restart: {

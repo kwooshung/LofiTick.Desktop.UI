@@ -7,6 +7,7 @@ export const sentinel = {
     lastRefreshEmpty: '最終更新: 初回取得待ち',
     lastRefreshAt: '最終更新: {value}',
     actions: {
+      openSettings: '設定を開く',
       refresh: '今すぐ更新'
     },
     stats: {

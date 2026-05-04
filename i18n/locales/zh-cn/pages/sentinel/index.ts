@@ -7,6 +7,7 @@ export const sentinel = {
     lastRefreshEmpty: '最近刷新：等待首次拉取',
     lastRefreshAt: '最近刷新：{value}',
     actions: {
+      openSettings: '前往设置',
       refresh: '立即刷新'
     },
     stats: {

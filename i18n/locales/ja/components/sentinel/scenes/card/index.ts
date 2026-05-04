@@ -73,6 +73,7 @@ export const card = {
       stateChanged: '状態変更',
       heartbeatDetected: 'ハートビート検知',
       recoveryEvaluation: '復旧評価',
+      recoveryUnlockedAfterStopped: '以前の停止状態を検出し、自動的に解除して再試行を継続',
       waiting: '待機',
       cleanup: 'クリーンアップ',
       restart: '再起動',

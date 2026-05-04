@@ -73,6 +73,7 @@ export const card = {
       stateChanged: 'State changed',
       heartbeatDetected: 'Heartbeat detected',
       recoveryEvaluation: 'Recovery evaluation',
+      recoveryUnlockedAfterStopped: 'Detected previous stopped state and resumed retries automatically',
       waiting: 'Waiting',
       cleanup: 'Cleanup',
       restart: 'Restart',

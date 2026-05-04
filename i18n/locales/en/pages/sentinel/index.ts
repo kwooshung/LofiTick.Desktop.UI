@@ -7,6 +7,7 @@ export const sentinel = {
     lastRefreshEmpty: 'Last refresh: waiting for the first fetch',
     lastRefreshAt: 'Last refresh: {value}',
     actions: {
+      openSettings: 'Open Settings',
       refresh: 'Refresh Now'
     },
     stats: {
