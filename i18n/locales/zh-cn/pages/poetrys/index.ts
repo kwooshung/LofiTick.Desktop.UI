@@ -1,16 +1,23 @@
 export const poetrys = {
   title: '诗词',
+  detail: {
+    loading: '正在加载详情...'
+  },
   result: {
     table: {
       id: '编号',
       title: '标题',
       poem: '诗词',
+      kind: '类型',
+      rhythmic: '词牌 / 曲牌',
+      chapter: '章 / 卷 / 篇',
+      section: '节 / 部',
       author: '作者',
       dynasty: '朝代',
       dynastyAuthor: '朝代 / 作者',
       sentence: '核心句',
-      tags: '标签',
       count: '数量',
+      authorCount: '作者数',
       enabled: '启用',
       updatedAt: '更新时间',
       createdAt: '创建时间',
@@ -21,6 +28,14 @@ export const poetrys = {
       total: '共 {total} 条结果'
     }
   },
+  kind: {
+    unknown: '未知',
+    shi: '诗',
+    ci: '词',
+    qu: '曲',
+    fu: '赋',
+    wen: '文'
+  },
   all: {
     title: '所有'
   },
@@ -29,8 +44,5 @@ export const poetrys = {
   },
   dynasty: {
     title: '朝代'
-  },
-  tags: {
-    title: '标签'
   }
 };

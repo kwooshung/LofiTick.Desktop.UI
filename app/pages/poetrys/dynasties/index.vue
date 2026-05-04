@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IQueryResultPoetryDynastiesSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
+import type { IPageTableColumnPoetryDynasties, IQueryResultPoetryDynastiesSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
@@ -148,6 +148,7 @@ const computedProetryDynastiesDatas = computed<IPageTableColumnPoetryDynasties[]
     id: item.id ?? 0,
     name: String(item.name ?? 'unknown'),
     count: Number(item.count ?? 0),
+    authorCount: Number(item.authorCount ?? 0),
     times: {
       updated: item.updated ? String(item.updated) : new Date().toISOString(),
       created: item.created ? String(item.created) : new Date().toISOString()
@@ -227,13 +228,31 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
   },
   {
     accessorKey: 'count',
+    meta: {
+      class: {
+        th: 'w-20 text-center',
+        td: 'w-20 text-center'
+      }
+    },
     header: () => {
       const by = String(route.query.order_by || 'id');
       const dir = String(route.query.order_dir || 'desc');
       const isSorted = by === 'count' ? (dir === 'asc' ? 'asc' : 'desc') : false;
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.count'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('count') });
-    }
+    },
+    cell: ({ row }) => h('span', { class: 'text-default' }, String(row.original.count))
+  },
+  {
+    accessorKey: 'authorCount',
+    meta: {
+      class: {
+        th: 'w-24 text-center',
+        td: 'w-24 text-center'
+      }
+    },
+    header: t('pages.poetrys.result.table.authorCount'),
+    cell: ({ row }) => h('span', { class: 'text-default' }, String(row.original.authorCount))
   },
   {
     accessorKey: 'time',

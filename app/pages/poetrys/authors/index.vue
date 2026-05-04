@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IQueryResultPoetryAuthorsSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
+import type { IPageTableColumnPoetryAuthors, IQueryResultPoetryAuthorsSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
@@ -153,6 +153,7 @@ const computedPoetryAuthorsData = computed<IPageTableColumnPoetryAuthors[]>(() =
     infos: {
       name: String(item.name ?? 'unknown'),
       count: Number(item.count ?? 0),
+      enabled: item.enabled ?? false,
       dynasty:
         item.dynasty && typeof item.dynasty === 'object'
           ? item.dynasty
@@ -244,6 +245,17 @@ const columns: TableColumn<IPageTableColumnPoetryAuthors>[] = [
     header: t('pages.poetrys.result.table.dynasty'),
     cell: ({ row }) =>
       h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id) })
+  },
+  {
+    accessorKey: 'enabled',
+    meta: {
+      class: {
+        th: 'w-20 text-center',
+        td: 'w-20 text-center'
+      }
+    },
+    header: t('pages.poetrys.result.table.enabled'),
+    cell: ({ row }) => h('span', { class: row.original.infos.enabled ? 'text-success' : 'text-muted' }, row.original.infos.enabled ? t('common.options.enabled') : t('common.options.disabled'))
   },
   {
     accessorKey: 'time',

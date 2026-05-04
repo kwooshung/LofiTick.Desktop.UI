@@ -1,5 +1,8 @@
 export const poetrys = {
   title: 'Poems',
+  detail: {
+    loading: 'Loading detail...'
+  },
   result: {
     title: 'All',
     footer: {
@@ -9,18 +12,30 @@ export const poetrys = {
       id: 'ID',
       title: 'Title',
       poem: 'Poem',
+      kind: 'Kind',
+      rhythmic: 'Rhythmic',
+      chapter: 'Chapter',
+      section: 'Section',
       author: 'Author',
       dynasty: 'Dynasty',
       dynastyAuthor: 'Dynasty / Author',
       sentence: 'Key line',
-      tags: 'Tags',
       count: 'Count',
+      authorCount: 'Authors',
       updatedAt: 'Updated at',
       createdAt: 'Created at',
       enabled: 'Enabled',
       actions: 'Actions',
       detail: 'Details'
     }
+  },
+  kind: {
+    unknown: 'Unknown',
+    shi: 'Shi',
+    ci: 'Ci',
+    qu: 'Qu',
+    fu: 'Fu',
+    wen: 'Wen'
   },
   all: {
     title: 'All'
@@ -30,8 +45,5 @@ export const poetrys = {
   },
   dynasty: {
     title: 'Dynasties'
-  },
-  tags: {
-    title: 'Tags'
   }
 };

@@ -9,8 +9,7 @@ export const poetrys = {
       title: { placeholder: 'Search by title…' },
       content: { placeholder: 'Search by content…' },
       dynasty: { placeholder: 'Search by dynasty…' },
-      author: { placeholder: 'Search by author…' },
-      tag: { placeholder: 'Search by tag…' }
+      author: { placeholder: 'Search by author…' }
     },
     footer: {
       match: {
@@ -20,8 +19,7 @@ export const poetrys = {
     },
     selects: {
       author: 'Author',
-      dynasty: 'Dynasty',
-      tag: 'Tag'
+      dynasty: 'Dynasty'
     },
     buttons: {
       reset: 'Reset',

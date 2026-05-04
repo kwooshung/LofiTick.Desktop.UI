@@ -314,29 +314,6 @@ const getQueryIds = (key: 'dynasty_ids' | 'author_ids'): number[] => {
 };
 
 /**
- * 函数：清理旧链接中的 tag_ids 参数（replace 导航）
- * @return {Promise<void>} 无返回值
- */
-const stripLegacyTagIdsQuery = async (): Promise<void> => {
-  if (typeof route.query.tag_ids === 'undefined') {
-    return;
-  }
-
-  const nextQuery: Record<string, unknown> = { ...route.query };
-  delete nextQuery.tag_ids;
-
-  await navigateTo(
-    {
-      path: route.path,
-      query: nextQuery
-    },
-    {
-      replace: true
-    }
-  );
-};
-
-/**
  * 辅助：将 ID 映射为选择项，优先使用当前选择或缓存中的 label
  */
 const mapIdsToSelected = (ids: number[], current: IComponentPropsPoetrysSelectMenuItem[], cache: Map<number, { label: string; count: number }>): IComponentPropsPoetrysSelectMenuItem[] => {
@@ -500,12 +477,7 @@ watch(
  */
 watch(
   () => route.query,
-  async () => {
-    if (typeof route.query.tag_ids !== 'undefined') {
-      await stripLegacyTagIdsQuery();
-      return;
-    }
-
+  () => {
     // 列表页：仅在模态打开时应用默认值
     if (props.routeIsList) {
       if (stateOpen.value) {
@@ -691,8 +663,6 @@ const handleSearch = (): void => {
 onMounted(() => {
   // 加载默认联想数据
   requestDefaultsForCurrentRoute();
-
-  void stripLegacyTagIdsQuery();
 
   // 非列表页：初始化应用默认值
   if (!props.routeIsList) {

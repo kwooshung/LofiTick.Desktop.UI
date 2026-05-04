@@ -41,6 +41,15 @@
     >
       <template #body>
         <div class="light:bg-amber-100 flex flex-col justify-center rounded-lg p-4 dark:bg-neutral-800">
+          <div class="text-muted mb-4 flex flex-wrap items-center gap-2 text-sm">
+            <span>{{ poetryKindLabelGet(stateDetailInfo.kind) }}</span>
+            <span>·</span>
+            <span>{{ poetryMetaValueGet(stateDetailInfo.rhythmic.name) }}</span>
+            <span>·</span>
+            <span>{{ poetryMetaValueGet(stateDetailInfo.chapter) }}</span>
+            <span>·</span>
+            <span>{{ poetryMetaValueGet(stateDetailInfo.section) }}</span>
+          </div>
           <template v-if="stateDetailInfo.translate.length > 0">
             <UPopover v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" mode="hover" arrow :content="{ side: 'top' }">
               <p class="transition-background text-default hover:light:bg-amber-200 cursor-pointer rounded-lg px-2 text-2xl leading-relaxed duration-300 ease-out hover:dark:bg-neutral-700">
@@ -65,7 +74,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IQueryResultPoetrysSummaryPage, IQueryResultPoetryTagsBasicRow } from '@@/shared/types/pages/poetrys/index.types';
+import type { IPagePoetrysDetailInfo, IPageTableColumnPoetrys, IQueryResultPoetryDetailResponse, IQueryResultPoetrysSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
@@ -88,10 +97,6 @@ const UButton = resolveComponent('UButton');
 const USwitch = resolveComponent('USwitch');
 
 /**
- * 组件：徽章
- */
-const UBadge = resolveComponent('UBadge');
-/**
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
@@ -112,6 +117,14 @@ const stateDetailOpen = ref<boolean>(false);
 const stateDetailInfo = ref<IPagePoetrysDetailInfo>({
   id: 0,
   title: '',
+  kind: 'unknown',
+  rhythmic: {
+    id: 0,
+    name: ''
+  },
+  chapter: '',
+  section: '',
+  sentence: '',
   content: [],
   translate: [],
   author: {
@@ -123,23 +136,61 @@ const stateDetailInfo = ref<IPagePoetrysDetailInfo>({
     id: 0,
     name: '',
     count: 0
-  }
+  },
+  enabled: false,
+  updated: '',
+  created: ''
 });
 
 /**
  * 事件：查看详情
- * @param {number} poetry 诗词
+ * @param {IPageTableColumnPoetrys} poetry 诗词
  */
-const handleViewDetail = (poetry: IPageTableColumnPoetrys) => {
+const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
   stateDetailOpen.value = true;
   stateDetailInfo.value = {
     id: poetry.id,
     title: poetry.infos.title,
-    content: poetry.infos.content,
-    translate: poetry.infos.translate,
+    kind: poetry.infos.kind,
+    rhythmic: poetry.infos.rhythmic,
+    chapter: poetry.infos.chapter,
+    section: poetry.infos.section,
+    sentence: poetry.infos.sentence,
+    content: [],
+    translate: [],
     author: poetry.infos.author,
-    dynasty: poetry.infos.dynasty
+    dynasty: poetry.infos.dynasty,
+    enabled: poetry.enabled,
+    updated: poetry.times.updated,
+    created: poetry.times.created
   };
+
+  await refreshDetail({ datas: { id: poetry.id }, replace: true });
+
+  const detail = detailDatas.value?.detail;
+  if (!detail || stateDetailInfo.value.id !== poetry.id) {
+    return;
+  }
+
+  stateDetailInfo.value = detail;
+};
+
+/**
+ * 函数：获取作品类型文案。
+ * @param {IPageTableColumnPoetrys['infos']['kind']} kind 作品类型
+ * @returns {string} 类型文案
+ */
+const poetryKindLabelGet = (kind: IPageTableColumnPoetrys['infos']['kind']): string => t(`pages.poetrys.result.kind.${kind}`);
+
+/**
+ * 函数：获取章节文案。
+ * @param {string} value 原始值
+ * @returns {string} 章节文案
+ */
+const poetryMetaValueGet = (value: string): string => {
+  const text = String(value ?? '').trim();
+
+  return text === '' ? t('common.labels.none') : text;
 };
 
 /**
@@ -185,15 +236,11 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   // 多选 ID 参数
   const dynastyId = asArray(route.query.dynasty_ids);
   const authorId = asArray(route.query.author_ids);
-  const tags = asArray(route.query.tag_ids);
   if (dynastyId.length > 0) {
     query.dynasty_ids = dynastyId;
   }
   if (authorId.length > 0) {
     query.author_ids = authorId;
-  }
-  if (tags.length > 0) {
-    query.tag_ids = tags;
   }
 
   // 启用状态与分页
@@ -226,10 +273,10 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
 /**
  * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/title/content），移除 page
- * @param {'dynasty_ids' | 'author_ids' | 'tag_ids'} key 筛选键
+ * @param {'dynasty_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
  */
-const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids' | 'tag_ids', value: number | string) => {
+const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids', value: number | string) => {
   const q: Record<string, string | string[]> = {};
   // 保留必要参数
   if (typeof route.query.pagesize !== 'undefined') {
@@ -282,6 +329,11 @@ const toggleSort = (field: 'id' | 'updated' | 'created') => {
 const { datas, loading, refreshDebounced } = await useApi<IQueryResultPoetrysSummaryPage>('poetrys', { datas: buildApiQueryFromRoute(), immediate: true });
 
 /**
+ * API：诗词详情
+ */
+const { datas: detailDatas, refresh: refreshDetail } = await useApi<IQueryResultPoetryDetailResponse>('poetrys/detail', { immediate: false });
+
+/**
  * API：更新启用状态（复用实例，避免 useFetch key 缓存导致后续不请求）
  */
 const { refresh: refreshSetEnabled } = await useApi<{ affected: number }>('poetrys/enabled', { method: 'POST', immediate: false });
@@ -297,10 +349,18 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
   return datas.value.rows.map((item) => ({
     id: item.id ?? 0,
     infos: {
-      title: item.title ?? 'unknown',
+      title: String(item.title ?? '').trim(),
+      kind: item.kind ?? 'unknown',
+      rhythmic:
+        item.rhythmic && typeof item.rhythmic === 'object'
+          ? item.rhythmic
+          : {
+              id: 0,
+              name: t('pages.poetrys.result.kind.unknown')
+            },
+      chapter: String(item.chapter ?? ''),
+      section: String(item.section ?? ''),
       sentence: item.sentence ?? 'unknown',
-      content: Array.isArray(item.content) ? item.content : [],
-      translate: Array.isArray(item.translate) ? item.translate : [],
       dynasty:
         item.dynasty && typeof item.dynasty === 'object'
           ? item.dynasty
@@ -316,8 +376,7 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
               id: 0,
               name: 'unknown',
               count: 0
-            },
-      tags: Array.isArray(item.tags) ? item.tags : []
+            }
     },
     enabled: item.enabled ?? false,
     times: {
@@ -365,26 +424,6 @@ watch(
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
   }
 );
-
-/**
- * 函数：渲染表格标签
- * @param {IQueryResultPoetryTagsBasicRow[]} tags 标签列表
- * @returns {VNode[]} 渲染节点数组
- */
-const renderTagCells = (tags: IQueryResultPoetryTagsBasicRow[]): VNode[] => {
-  const len = tags.length - 1;
-
-  return tags.map((tag, inx) =>
-    h(UBadge, {
-      key: tag.id,
-      label: `${tag.name} (${tag.count})`,
-      color: 'primary',
-      variant: 'soft',
-      class: `${inx < len ? 'mr-1' : ''} opacity-75 hover:opacity-100 transition-opacity duration-300 ease-out cursor-pointer`,
-      onClick: () => navigateWithSingleFilter('tag_ids', tag.id)
-    })
-  );
-};
 
 /**
  * 函数：切换启用状态并调用后端更新
@@ -443,7 +482,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     cell: ({ row }) => row.original.id.toString().padStart(5, '0')
   },
-  // 1级宽度：小屏（< xl），单列展示 标题 + 朝代 · 作者 + 句子 + 标签
+  // 1级宽度：小屏（< xl），单列展示 标题 + 朝代 · 作者 + 句子
   {
     accessorKey: 'poem',
     meta: {
@@ -454,7 +493,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.poem'),
     cell: ({ row }) => {
-      const { title, sentence, dynasty, author, tags } = row.original.infos;
+      const { title, sentence, dynasty, author } = row.original.infos;
 
       return h('div', { class: 'flex flex-col' }, [
         h(UButton, { color: 'neutral', variant: 'link', label: title, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
@@ -463,8 +502,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
           ' · ',
           h(UButton, { color: 'neutral', variant: 'link', label: author.name, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })
         ]),
-        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence),
-        h('div', { class: 'mt-1' }, renderTagCells(tags))
+        h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, sentence)
       ]);
     }
   },
@@ -511,7 +549,55 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       ]);
     }
   },
-  // 4级宽度：超大屏（≥ 3xl），标题 / 句子 / 标签 / 朝代 · 作者 分列
+  // 新结构列：类型（仅在更大屏幕显示，避免破坏旧页面主布局）
+  {
+    accessorKey: 'poemKind',
+    meta: {
+      class: {
+        th: 'w-16 hidden 4xl:table-cell',
+        td: 'w-16 hidden 4xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.kind'),
+    cell: ({ row }) => poetryKindLabelGet(row.original.infos.kind)
+  },
+  // 新结构列：词牌/曲牌（仅在更大屏幕显示，避免破坏旧页面主布局）
+  {
+    accessorKey: 'poemRhythmic',
+    meta: {
+      class: {
+        th: 'w-24 hidden 4xl:table-cell',
+        td: 'w-24 hidden 4xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.rhythmic'),
+    cell: ({ row }) => poetryMetaValueGet(row.original.infos.rhythmic.name)
+  },
+  // 新结构列：章/卷/篇（仅在更大屏幕显示，避免破坏旧页面主布局）
+  {
+    accessorKey: 'poemChapter',
+    meta: {
+      class: {
+        th: 'w-20 hidden 4xl:table-cell',
+        td: 'w-20 hidden 4xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.chapter'),
+    cell: ({ row }) => poetryMetaValueGet(row.original.infos.chapter)
+  },
+  // 新结构列：节/部（仅在更大屏幕显示，避免破坏旧页面主布局）
+  {
+    accessorKey: 'poemSection',
+    meta: {
+      class: {
+        th: 'w-20 hidden 4xl:table-cell',
+        td: 'w-20 hidden 4xl:table-cell'
+      }
+    },
+    header: t('pages.poetrys.result.table.section'),
+    cell: ({ row }) => poetryMetaValueGet(row.original.infos.section)
+  },
+  // 4级宽度：超大屏（≥ 3xl），标题 / 句子 / 朝代 / 作者 分列
   {
     accessorKey: 'poemTitleFullLarge',
     meta: {
@@ -540,17 +626,6 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.sentence'),
     cell: ({ row }) => h('p', { class: 'text-sm text-dimmed mt-1 break-words' }, row.original.infos.sentence)
-  },
-  {
-    accessorKey: 'poemTags',
-    meta: {
-      class: {
-        th: 'w-80 hidden xl:table-cell',
-        td: 'w-80 hidden xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.tags'),
-    cell: ({ row }) => renderTagCells(row.original.infos.tags)
   },
   {
     accessorKey: 'poemDynastyAuthor',

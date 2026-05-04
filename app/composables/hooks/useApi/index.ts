@@ -1283,7 +1283,8 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   // 提示代理层：当前 refresh cookie name（用于条件2自动注入时落盘）
   const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
   headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
-  const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, ...restOptions } = options;
+  const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, immediate: immediateOption, ...restOptions } = options;
+  const shouldRunImmediate = immediateOption === true;
 
   /**
    * 变量：最近一次响应的服务端 status。
@@ -1550,6 +1551,10 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     leading: options.rateLimit?.throttle?.leading ?? true,
     trailing: options.rateLimit?.throttle?.trailing ?? false
   };
+
+  if (shouldRunImmediate) {
+    await refresh();
+  }
 
   return {
     data: base.data,

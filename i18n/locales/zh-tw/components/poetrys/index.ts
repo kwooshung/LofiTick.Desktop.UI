@@ -9,8 +9,7 @@ export const poetrys = {
       title: { placeholder: '搜尋標題…' },
       content: { placeholder: '搜尋內容…' },
       dynasty: { placeholder: '搜尋朝代…' },
-      author: { placeholder: '搜尋作者…' },
-      tag: { placeholder: '依標籤搜尋…' }
+      author: { placeholder: '搜尋作者…' }
     },
     footer: {
       match: {
@@ -20,8 +19,7 @@ export const poetrys = {
     },
     selects: {
       author: '作者',
-      dynasty: '朝代',
-      tag: '標籤'
+      dynasty: '朝代'
     },
     buttons: {
       reset: '重設',

@@ -1,18 +1,4 @@
 /**
- * 接口：诗词标签基础信息。
- */
-export interface IQueryResultPoetryTagsBasicRow {
-  /** 标签 ID */
-  id: number;
-
-  /** 标签名称 */
-  name: string;
-
-  /** 关联数量 */
-  count: number;
-}
-
-/**
  * 接口：诗词朝代基础信息。
  */
 export interface IQueryResultPoetryDynastiesBasicRow {
@@ -41,6 +27,22 @@ export interface IQueryResultPoetryAuthorsBasicRow {
 }
 
 /**
+ * 类型：诗词作品类型。
+ */
+export type TPoetryKind = 'unknown' | 'shi' | 'ci' | 'qu' | 'fu' | 'wen';
+
+/**
+ * 接口：词牌/曲牌基础信息。
+ */
+export interface IQueryResultPoetryRhythmicBasicRow {
+  /** 词牌/曲牌 ID */
+  id: number;
+
+  /** 词牌/曲牌名称 */
+  name: string;
+}
+
+/**
  * 接口：诗词列表行。
  */
 export interface IQueryResultPoetrysSummaryRow {
@@ -50,23 +52,26 @@ export interface IQueryResultPoetrysSummaryRow {
   /** 标题 */
   title: string;
 
+  /** 类型 */
+  kind: TPoetryKind;
+
+  /** 词牌/曲牌 */
+  rhythmic: IQueryResultPoetryRhythmicBasicRow;
+
+  /** 章/卷/篇 */
+  chapter: string;
+
+  /** 节/部 */
+  section: string;
+
   /** 摘要句 */
   sentence: string;
-
-  /** 正文段落 */
-  content: string[];
-
-  /** 译文段落 */
-  translate: string[];
 
   /** 朝代 */
   dynasty: IQueryResultPoetryDynastiesBasicRow;
 
   /** 作者 */
   author: IQueryResultPoetryAuthorsBasicRow;
-
-  /** 标签 */
-  tags: IQueryResultPoetryTagsBasicRow[];
 
   /** 是否启用 */
   enabled: boolean;
@@ -96,6 +101,118 @@ export interface IQueryResultPoetrysSummaryPage {
 }
 
 /**
+ * 接口：诗词表列信息。
+ */
+export interface IPageTableColumnPoetrysInfos {
+  /** 标题 */
+  title: string;
+
+  /** 类型 */
+  kind: TPoetryKind;
+
+  /** 词牌/曲牌 */
+  rhythmic: IQueryResultPoetryRhythmicBasicRow;
+
+  /** 章/卷/篇 */
+  chapter: string;
+
+  /** 节/部 */
+  section: string;
+
+  /** 核心句 */
+  sentence: string;
+
+  /** 朝代 */
+  dynasty: IQueryResultPoetryDynastiesBasicRow;
+
+  /** 作者 */
+  author: IQueryResultPoetryAuthorsBasicRow;
+}
+
+/**
+ * 接口：诗词表列时间。
+ */
+export interface IPageTableColumnPoetrysTime {
+  /** 更新时间 */
+  updated: string;
+
+  /** 创建时间 */
+  created: string;
+}
+
+/**
+ * 接口：诗词表列。
+ */
+export interface IPageTableColumnPoetrys {
+  /** 作品 ID */
+  id: number;
+
+  /** 作品信息 */
+  infos: IPageTableColumnPoetrysInfos;
+
+  /** 是否启用 */
+  enabled: boolean;
+
+  /** 时间信息 */
+  times: IPageTableColumnPoetrysTime;
+}
+
+/**
+ * 接口：诗词详情信息。
+ */
+export interface IPagePoetrysDetailInfo {
+  /** 作品 ID */
+  id: number;
+
+  /** 标题 */
+  title: string;
+
+  /** 类型 */
+  kind: TPoetryKind;
+
+  /** 词牌/曲牌 */
+  rhythmic: IQueryResultPoetryRhythmicBasicRow;
+
+  /** 章/卷/篇 */
+  chapter: string;
+
+  /** 节/部 */
+  section: string;
+
+  /** 摘要句 */
+  sentence: string;
+
+  /** 正文段落 */
+  content: string[];
+
+  /** 译文段落 */
+  translate: string[];
+
+  /** 作者 */
+  author: IQueryResultPoetryAuthorsBasicRow;
+
+  /** 朝代 */
+  dynasty: IQueryResultPoetryDynastiesBasicRow;
+
+  /** 是否启用 */
+  enabled: boolean;
+
+  /** 更新时间 */
+  updated: string;
+
+  /** 创建时间 */
+  created: string;
+}
+
+/**
+ * 接口：诗词详情响应。
+ */
+export interface IQueryResultPoetryDetailResponse {
+  /** 详情 */
+  detail: IPagePoetrysDetailInfo;
+}
+
+/**
  * 接口：诗词作者列表行。
  */
 export interface IQueryResultPoetryAuthorsSummaryRow {
@@ -108,8 +225,11 @@ export interface IQueryResultPoetryAuthorsSummaryRow {
   /** 关联数量 */
   count: number;
 
-  /** 代表性朝代（用于作者页展示与联动筛选） */
-  dynasty?: IQueryResultPoetryDynastiesBasicRow | null;
+  /** 代表性朝代 */
+  dynasty: IQueryResultPoetryDynastiesBasicRow;
+
+  /** 是否启用 */
+  enabled: boolean;
 
   /** 更新时间（ISO 字符串） */
   updated: string;
@@ -136,6 +256,38 @@ export interface IQueryResultPoetryAuthorsSummaryPage {
 }
 
 /**
+ * 接口：诗词作者表列。
+ */
+export interface IPageTableColumnPoetryAuthors {
+  /** 作者 ID */
+  id: number;
+
+  /** 作者信息 */
+  infos: {
+    /** 作者名称 */
+    name: string;
+
+    /** 作品数量 */
+    count: number;
+
+    /** 所属朝代 */
+    dynasty: IQueryResultPoetryDynastiesBasicRow;
+
+    /** 是否启用 */
+    enabled: boolean;
+  };
+
+  /** 时间信息 */
+  times: {
+    /** 更新时间 */
+    updated: string;
+
+    /** 创建时间 */
+    created: string;
+  };
+}
+
+/**
  * 接口：诗词朝代列表行。
  */
 export interface IQueryResultPoetryDynastiesSummaryRow {
@@ -147,6 +299,9 @@ export interface IQueryResultPoetryDynastiesSummaryRow {
 
   /** 关联数量 */
   count: number;
+
+  /** 作者数量 */
+  authorCount: number;
 
   /** 更新时间（ISO 字符串） */
   updated: string;
@@ -173,38 +328,27 @@ export interface IQueryResultPoetryDynastiesSummaryPage {
 }
 
 /**
- * 接口：诗词标签列表行。
+ * 接口：诗词朝代表列。
  */
-export interface IQueryResultPoetryTagsSummaryRow {
-  /** 标签 ID */
+export interface IPageTableColumnPoetryDynasties {
+  /** 朝代 ID */
   id: number;
 
-  /** 标签名称 */
+  /** 朝代名称 */
   name: string;
 
-  /** 关联数量 */
+  /** 作品数量 */
   count: number;
 
-  /** 更新时间（ISO 字符串） */
-  updated: string;
+  /** 作者数量 */
+  authorCount: number;
 
-  /** 创建时间（ISO 字符串） */
-  created: string;
-}
+  /** 时间信息 */
+  times: {
+    /** 更新时间 */
+    updated: string;
 
-/**
- * 接口：诗词标签分页响应。
- */
-export interface IQueryResultPoetryTagsSummaryPage {
-  /** 行列表 */
-  rows: IQueryResultPoetryTagsSummaryRow[];
-
-  /** 当前页 */
-  page: number;
-
-  /** 每页数量 */
-  pageSize: number;
-
-  /** 总数 */
-  total: number;
+    /** 创建时间 */
+    created: string;
+  };
 }
