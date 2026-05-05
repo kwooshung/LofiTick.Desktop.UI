@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IPagePoetrysDetailInfo, IPageTableColumnPoetrys, IQueryResultPoetryDetailResponse, IQueryResultPoetrysSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
+import type { IPagePoetrysDetailInfo, IPageTableColumnPoetrys, IQueryResultPoetryDetailResponse, IQueryResultPoetrySetEnabledResponse, IQueryResultPoetrysSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
@@ -369,7 +369,7 @@ const { datas: detailDatas, refresh: refreshDetail } = await useApi<IQueryResult
 /**
  * API：更新启用状态（复用实例，避免 useFetch key 缓存导致后续不请求）
  */
-const { refresh: refreshSetEnabled } = await useApi<{ affected: number }>('poetrys/enabled', { method: 'POST', immediate: false });
+const { refresh: refreshSetEnabled } = await useApi<IQueryResultPoetrySetEnabledResponse>('poetrys/enabled', { method: 'POST', immediate: false });
 
 /**
  * 计算属性：直接映射成表格需要的格式

@@ -1,4 +1,20 @@
 /**
+ * 类型：settings / unattended 接口字段契约。
+ *
+ * 该文件是 settings 相关页面与组件当前共享的数据边界入口，
+ * 主要覆盖以下来源：
+ * - `desktop/settings/unattended/sentinel`
+ * - `desktop/settings/unattended/sentinel/request-url`
+ * - `desktop/settings/unattended/scenes`
+ * - `desktop/settings/unattended/scenes/machines`
+ * - `desktop/settings/unattended/sentinel/logs/machines`
+ * - Tauri settings bridge 返回的无人值守相关结构
+ *
+ * 当前排查结果：settings 相关页面与组件主要依赖这里的共享类型，
+ * 未发现类似 poetrys 早期那种“后端已删除字段，前端页面仍继续声明消费”的漂移问题。
+ */
+
+/**
  * 类型：无人值守启动行为
  */
 export type TUnattendedStartBehavior = 'normal' | 'minimize' | 'minimize-to-tray';

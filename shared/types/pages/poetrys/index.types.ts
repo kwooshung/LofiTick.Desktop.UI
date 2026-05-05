@@ -238,6 +238,14 @@ export interface IQueryResultPoetrySearchDynastiesResponse {
 }
 
 /**
+ * 接口：诗词启用状态切换响应。
+ */
+export interface IQueryResultPoetrySetEnabledResponse {
+  /** 受影响行数 */
+  affected: number;
+}
+
+/**
  * 接口：诗词作者列表行。
  */
 export interface IQueryResultPoetryAuthorsSummaryRow {

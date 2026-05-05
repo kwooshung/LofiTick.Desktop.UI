@@ -172,7 +172,7 @@ const { datas, loading, refreshDebounced } = await useApi<IQueryResultQuotesSumm
 /**
  * API：更新启用状态（复用实例，避免 useFetch key 缓存导致后续不请求）
  */
-const { refresh: refreshSetEnabled } = await useApi<{ affected: number }>('quotes/enabled', { method: 'POST', immediate: false });
+const { refresh: refreshSetEnabled } = await useApi<IQueryResultQuotesSetEnabledResponse>('quotes/enabled', { method: 'POST', immediate: false });
 
 /**
  * 计算属性：将接口返回映射为表格需要的格式

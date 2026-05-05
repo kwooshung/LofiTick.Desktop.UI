@@ -214,6 +214,14 @@ export interface IQueryResultQuotesSearchAuthorsResponse {
   rows: IQueryResultQuotesAuthorsBasicRow[];
 }
 
+/**
+ * 接口：语录启用状态切换响应。
+ */
+export interface IQueryResultQuotesSetEnabledResponse {
+  /** 受影响行数 */
+  affected: number;
+}
+
 export type IQueryResultQuoteAuthorsBasicRow = IQueryResultQuotesAuthorsBasicRow;
 export type IQueryResultQuoteSourcesBasicRow = IQueryResultQuotesSourcesBasicRow;
 export type IQueryResultQuoteAuthorsSummaryPage = IQueryResultQuotesAuthorsSummaryPage;

@@ -89,33 +89,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 类型：UE5 本地桥接请求参数项
- */
-interface ISettingsUe5RequestParamItem {
-  /** 参数名 */
-  name: string;
-  /** 参数值 */
-  value: string;
-}
-
-/**
- * 类型：UE5 本地桥接请求项
- */
-interface ISettingsUe5RequestItem {
-  /** 请求唯一标识 */
-  id: string;
-  /** 请求标题 */
-  title: string;
-  /** 请求方法 */
-  method: string;
-  /** 完整请求地址 */
-  url: string;
-  /** 请求说明 */
-  description: string;
-  /** 请求参数 */
-  params: ISettingsUe5RequestParamItem[];
-}
+import type { IPageSettingsUe5RequestItem, IPageSettingsUe5RequestParamItem } from '@@/shared/types/pages/settings/ue5/index.types';
 
 /**
  * Hook：i18n
@@ -199,9 +173,9 @@ const urlBaseDirectoryGet = (url: string): string => {
 /**
  * 函数：从 URL 中提取参数列表
  * @param {string} url 完整地址
- * @returns {ISettingsUe5RequestParamItem[]} 参数列表
+ * @returns {IPageSettingsUe5RequestParamItem[]} 参数列表
  */
-const urlParamsGet = (url: string): ISettingsUe5RequestParamItem[] => {
+const urlParamsGet = (url: string): IPageSettingsUe5RequestParamItem[] => {
   const value = String(url || '').trim();
   if (!value) {
     return [];
@@ -277,7 +251,7 @@ const computedUpstreamAddress = computed((): string => {
 /**
  * 计算属性：当前请求列表
  */
-const computedRequests = computed<ISettingsUe5RequestItem[]>(() => {
+const computedRequests = computed<IPageSettingsUe5RequestItem[]>(() => {
   const accessUrl = String(stateAccessUrl.value || '').trim();
   const heartbeatUrl = computedBaseUrl.value ? `${computedBaseUrl.value}ue5/heartbeat` : '';
 
