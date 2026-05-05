@@ -151,7 +151,14 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
-import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow, IQueryResultPoetrySearchAuthorsResponse, IQueryResultPoetrySearchDynastiesResponse } from '@@/shared/types/pages/poetrys/index.types';
+import type {
+  IQueryResultPoetryAuthorsBasicRow,
+  IQueryResultPoetryAuthorsSummaryPage,
+  IQueryResultPoetryDynastiesBasicRow,
+  IQueryResultPoetryDynastiesSummaryPage,
+  IQueryResultPoetrySearchAuthorsResponse,
+  IQueryResultPoetrySearchDynastiesResponse
+} from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）
@@ -249,6 +256,11 @@ const stateCacheAuthorLabelMap = ref(new Map<number, { label: string; count: num
 const stateCacheDynastyLabelMap = ref(new Map<number, { label: string; count: number }>());
 
 /**
+ * 常量：搜索候选默认数量。
+ */
+const SEARCH_SUGGESTION_LIMIT = 10;
+
+/**
  * 计算属性：是否设置了搜索条件
  */
 const computedHasSearchConditions = computed(() => {
@@ -275,7 +287,12 @@ const { items: stateItemDynasties, setOriginItems: setOriginDynasties } = useSel
 /**
  * API：搜索朝代
  */
-const { datas: stateDynastyData, refreshDebounced: refreshDebouncedDynasty } = await useApi<IQueryResultPoetrySearchDynastiesResponse>('poetrys/searchs/dynasties', { datas: { q: stateKeywordDynasty.value, limit: 10 } });
+const { datas: stateDynastyData, refreshDebounced: refreshDebouncedDynasty } = await useApi<IQueryResultPoetrySearchDynastiesResponse>('poetrys/searchs/dynasties', { datas: { q: stateKeywordDynasty.value, limit: SEARCH_SUGGESTION_LIMIT } });
+
+/**
+ * API：按 ID 回填朝代标签。
+ */
+const { datas: stateDynastySummaryData, refresh: refreshDynastySummary } = await useApi<IQueryResultPoetryDynastiesSummaryPage>('poetrys/dynasties', { immediate: false });
 
 /**
  * Hook：作者，限制选择数量
@@ -285,7 +302,34 @@ const { items: stateItemAuthors, setOriginItems: setOriginAuthors } = useSelectM
 /**
  * API：搜索作者
  */
-const { datas: stateAuthorData, refreshDebounced: refreshDebouncedAuthor } = await useApi<IQueryResultPoetrySearchAuthorsResponse>('poetrys/searchs/authors', { datas: { q: stateKeywordAuthor.value, limit: 10 } });
+const { datas: stateAuthorData, refreshDebounced: refreshDebouncedAuthor } = await useApi<IQueryResultPoetrySearchAuthorsResponse>('poetrys/searchs/authors', { datas: { q: stateKeywordAuthor.value, limit: SEARCH_SUGGESTION_LIMIT } });
+
+/**
+ * API：按 ID 回填作者标签。
+ */
+const { datas: stateAuthorSummaryData, refresh: refreshAuthorSummary } = await useApi<IQueryResultPoetryAuthorsSummaryPage>('poetrys/authors', { immediate: false });
+
+/**
+ * 函数：构建联想请求参数。
+ * @param {string} keyword 搜索关键词
+ * @returns {{ q: string; limit: number }} 联想请求参数
+ */
+const buildSuggestionDatas = (keyword: string): { q: string; limit: number } => ({
+  q: String(keyword ?? '').trim(),
+  limit: SEARCH_SUGGESTION_LIMIT
+});
+
+/**
+ * 函数：构建按 ID 回填名称的请求参数。
+ * @param {'author_ids' | 'dynasty_ids'} key 过滤键名
+ * @param {number[]} ids ID 列表
+ * @returns {Record<string, string | string[]>} 列表查询参数
+ */
+const buildHydrateQueryDatas = (key: 'author_ids' | 'dynasty_ids', ids: number[]): Record<string, string | string[]> => ({
+  [key]: ids.map((id) => String(id)),
+  page: '1',
+  pagesize: String(Math.max(ids.length, SEARCH_SUGGESTION_LIMIT))
+});
 
 /**
  * 函数：查询数组参数
@@ -331,7 +375,7 @@ const mapIdsToSelected = (ids: number[], current: IComponentPropsPoetrysSelectMe
 /**
  * 函数：列表页——从路由查询参数应用默认值（在模态打开时执行）
  */
-const applyListDefaultsFromRoute = (): void => {
+const applyListDefaultsFromRoute = async (): Promise<void> => {
   // 标题与内容
   if (typeof route.query.title !== 'undefined') {
     stateTitle.value = String(route.query.title ?? '').trim();
@@ -351,44 +395,74 @@ const applyListDefaultsFromRoute = (): void => {
 
   stateSelectedDynasties.value = mapIdsToSelected(dynasty_ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
   stateSelectedAuthor.value = mapIdsToSelected(author_ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
+
+  await Promise.all([hydrateSelectedDynastiesByIds(dynasty_ids), hydrateSelectedAuthorsByIds(author_ids)]);
 };
 
 /**
  * 函数：作者页——从路由查询参数应用默认值（authorId）
  */
-const applyAuthorsDefaultsFromRoute = (): void => {
-  const v = route.query.author_ids;
-  const arr = v ? (Array.isArray(v) ? v : [v]) : [];
-  const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
-  const current = stateSelectedAuthor.value;
-  stateSelectedAuthor.value = ids.map((id) => {
-    const hitSel = current.find((s) => s.value === id);
-    const hitCache = stateCacheAuthorLabelMap.value.get(id);
-    return {
-      label: hitSel?.label ?? hitCache?.label ?? String(id),
-      value: id,
-      count: hitSel?.count ?? hitCache?.count ?? 0
-    };
-  });
+const applyAuthorsDefaultsFromRoute = async (): Promise<void> => {
+  const ids = getQueryIds('author_ids');
+
+  stateSelectedAuthor.value = mapIdsToSelected(ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
+  await hydrateSelectedAuthorsByIds(ids);
 };
 
 /**
  * 函数：朝代页——从路由查询参数应用默认值（dynastyId）
  */
-const applyDynastiesDefaultsFromRoute = (): void => {
-  const v = route.query.dynasty_ids;
-  const arr = v ? (Array.isArray(v) ? v : [v]) : [];
-  const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
-  const current = stateSelectedDynasties.value;
-  stateSelectedDynasties.value = ids.map((id) => {
-    const hitSel = current.find((s) => s.value === id);
-    const hitCache = stateCacheDynastyLabelMap.value.get(id);
-    return {
-      label: hitSel?.label ?? hitCache?.label ?? String(id),
-      value: id,
-      count: hitSel?.count ?? hitCache?.count ?? 0
-    };
+const applyDynastiesDefaultsFromRoute = async (): Promise<void> => {
+  const ids = getQueryIds('dynasty_ids');
+
+  stateSelectedDynasties.value = mapIdsToSelected(ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
+  await hydrateSelectedDynastiesByIds(ids);
+};
+
+/**
+ * 函数：按 ID 回填作者选择项标签。
+ * @param {number[]} ids 作者 ID 列表
+ * @returns {Promise<void>} 回填完成
+ */
+const hydrateSelectedAuthorsByIds = async (ids: number[]): Promise<void> => {
+  const missingIds = ids.filter((id) => !stateCacheAuthorLabelMap.value.has(id));
+
+  if (missingIds.length === 0) {
+    stateSelectedAuthor.value = mapIdsToSelected(ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
+    return;
+  }
+
+  await refreshAuthorSummary({ datas: buildHydrateQueryDatas('author_ids', missingIds), replace: true });
+
+  const rows = stateAuthorSummaryData.value?.rows ?? [];
+  rows.forEach((row) => {
+    stateCacheAuthorLabelMap.value.set(row.id, { label: row.name, count: row.count });
   });
+
+  stateSelectedAuthor.value = mapIdsToSelected(ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
+};
+
+/**
+ * 函数：按 ID 回填朝代选择项标签。
+ * @param {number[]} ids 朝代 ID 列表
+ * @returns {Promise<void>} 回填完成
+ */
+const hydrateSelectedDynastiesByIds = async (ids: number[]): Promise<void> => {
+  const missingIds = ids.filter((id) => !stateCacheDynastyLabelMap.value.has(id));
+
+  if (missingIds.length === 0) {
+    stateSelectedDynasties.value = mapIdsToSelected(ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
+    return;
+  }
+
+  await refreshDynastySummary({ datas: buildHydrateQueryDatas('dynasty_ids', missingIds), replace: true });
+
+  const rows = stateDynastySummaryData.value?.rows ?? [];
+  rows.forEach((row) => {
+    stateCacheDynastyLabelMap.value.set(row.id, { label: row.name, count: row.count });
+  });
+
+  stateSelectedDynasties.value = mapIdsToSelected(ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
 };
 
 /**
@@ -438,7 +512,7 @@ watch(stateAuthorData, (val) => {
  */
 watch(stateKeywordDynasty, () => {
   stateLoadingDynasties.value = true;
-  refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
+  refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
 });
 
 /**
@@ -446,7 +520,7 @@ watch(stateKeywordDynasty, () => {
  */
 watch(stateKeywordAuthor, () => {
   stateLoadingAuthors.value = true;
-  refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
+  refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
 });
 
 /**
@@ -468,7 +542,7 @@ watch(statePageAuthorSearchType, (val) => {
 watch(
   () => route.path,
   () => {
-    requestDefaultsForCurrentRoute();
+    void requestDefaultsForCurrentRoute();
   }
 );
 
@@ -477,14 +551,14 @@ watch(
  */
 watch(
   () => route.query,
-  () => {
+  async () => {
     // 列表页：仅在模态打开时应用默认值
     if (props.routeIsList) {
       if (stateOpen.value) {
-        applyListDefaultsFromRoute();
+        await applyListDefaultsFromRoute();
         // 刷新联想数据以便补全选择项标签
-        refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
-        refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
+        refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
+        refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
       }
       return;
     }
@@ -492,18 +566,18 @@ watch(
     // 其他页面：根据当前页类型同步各自参数
     if (props.routeIsAuthors) {
       if (statePageAuthorSearchType.value === 'author') {
-        applyAuthorsDefaultsFromRoute();
+        await applyAuthorsDefaultsFromRoute();
       } else {
-        applyDynastiesDefaultsFromRoute();
+        await applyDynastiesDefaultsFromRoute();
       }
       // 刷新联想数据以便补全选择项标签
-      refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
-      refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
+      refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
+      refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
     }
     if (props.routeIsDynasties) {
-      applyDynastiesDefaultsFromRoute();
-      refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
+      await applyDynastiesDefaultsFromRoute();
+      refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
     }
   }
@@ -513,18 +587,18 @@ watch(
  * 事件：模态框打开后，加载默认联想数据
  * @param {boolean} isOpen 模态框是否打开
  */
-const handleUpdateOpen = (isOpen: boolean) => {
+const handleUpdateOpen = async (isOpen: boolean) => {
   if (isOpen) {
     /**
      * 列表页：仅在模态打开时读取路由默认值
      */
     if (props.routeIsList) {
-      applyListDefaultsFromRoute();
+      await applyListDefaultsFromRoute();
     }
     stateLoadingDynasties.value = true;
     stateLoadingAuthors.value = true;
-    refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
-    refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
+    refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
+    refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
   }
 };
 
@@ -548,17 +622,18 @@ const triggerQuickFocus = () => {
 /**
  * 函数：根据当前路由初始化默认联想数据
  */
-const requestDefaultsForCurrentRoute = () => {
+const requestDefaultsForCurrentRoute = async (): Promise<void> => {
   if (props.routeIsAuthors) {
     stateLoadingAuthors.value = true;
-    refreshDebouncedAuthor({ datas: { q: stateKeywordAuthor.value } });
-    refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
+    stateLoadingDynasties.value = true;
+    refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
+    refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
     return;
   }
 
   if (props.routeIsDynasties) {
     stateLoadingDynasties.value = true;
-    refreshDebouncedDynasty({ datas: { q: stateKeywordDynasty.value } });
+    refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
     return;
   }
 };
