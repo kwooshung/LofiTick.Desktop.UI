@@ -75,7 +75,12 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedSentinelLogsMachineCard } from '@@/shared/types/pages/settings/unattended/index.types';
+import type {
+  IPageSettingsUnattendedSentinelLogsMachineCard,
+  IPageSettingsUnattendedStructuredLogEntry,
+  IPageSettingsUnattendedStructuredLogMessage,
+  TPageSettingsUnattendedLogMessageSegment
+} from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * 接口：机器日志弹窗 Props
@@ -188,44 +193,18 @@ const isoDatetimeLikeGet = (value: string): boolean => {
 };
 
 /**
- * 类型：日志消息切片
- */
-type TSettingsUnattendedLogMessageSegment = {
-  type: 'text' | 'datetime';
-  value: string;
-};
-
-/**
- * 类型：结构化日志字段
- */
-type TSettingsUnattendedStructuredLogEntry = {
-  key: string;
-  label: string;
-  value: string;
-};
-
-/**
- * 类型：结构化日志消息
- */
-type TSettingsUnattendedStructuredLogMessage = {
-  summary: string;
-  topLevelEntries: TSettingsUnattendedStructuredLogEntry[];
-  recoveryEntries: TSettingsUnattendedStructuredLogEntry[];
-};
-
-/**
  * 函数：拆分日志消息中的时间片段
  * @param {string} message 日志消息
- * @returns {TSettingsUnattendedLogMessageSegment[]} 切片列表
+ * @returns {TPageSettingsUnattendedLogMessageSegment[]} 切片列表
  */
-const logMessageSegmentsGet = (message: string): TSettingsUnattendedLogMessageSegment[] => {
+const logMessageSegmentsGet = (message: string): TPageSettingsUnattendedLogMessageSegment[] => {
   const safeMessage = String(message || '');
   if (!safeMessage) {
     return [{ type: 'text', value: '-' }];
   }
 
   const matcher = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/g;
-  const segments: TSettingsUnattendedLogMessageSegment[] = [];
+  const segments: TPageSettingsUnattendedLogMessageSegment[] = [];
   let cursor = 0;
 
   for (const match of safeMessage.matchAll(matcher)) {
@@ -495,15 +474,15 @@ const logEntryValueLocalizedGet = (key: string, value: string): string => {
 /**
  * 函数：结构化日志消息
  * @param {IPageSettingsUnattendedSentinelLogsMachineCard['logs'][number]} item 日志项
- * @returns {TSettingsUnattendedStructuredLogMessage | null} 结构化结果
+ * @returns {IPageSettingsUnattendedStructuredLogMessage | null} 结构化结果
  */
-const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachineCard['logs'][number]): TSettingsUnattendedStructuredLogMessage | null => {
+const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachineCard['logs'][number]): IPageSettingsUnattendedStructuredLogMessage | null => {
   const safeMessage = String(item.message || '').trim();
   const safeArgs = item.messageArgs ?? {};
 
   if (logKeyLikeGet(safeMessage) && Object.keys(safeArgs).length > 0) {
-    const topLevelEntries: TSettingsUnattendedStructuredLogEntry[] = [];
-    const recoveryEntries: TSettingsUnattendedStructuredLogEntry[] = [];
+    const topLevelEntries: IPageSettingsUnattendedStructuredLogEntry[] = [];
+    const recoveryEntries: IPageSettingsUnattendedStructuredLogEntry[] = [];
 
     if (safeArgs.reason) {
       topLevelEntries.push({ key: 'reason', label: logEntryLabelGet('reason'), value: logEntryValueLocalizedGet('reason', safeArgs.reason) });
@@ -562,8 +541,8 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
     return null;
   }
 
-  const topLevelEntries: TSettingsUnattendedStructuredLogEntry[] = [];
-  const recoveryEntries: TSettingsUnattendedStructuredLogEntry[] = [];
+  const topLevelEntries: IPageSettingsUnattendedStructuredLogEntry[] = [];
+  const recoveryEntries: IPageSettingsUnattendedStructuredLogEntry[] = [];
 
   for (const pair of pairs) {
     if (pair.key === 'recovery') {

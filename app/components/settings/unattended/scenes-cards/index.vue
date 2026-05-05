@@ -103,7 +103,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedScenesMachineRedisConfig, IPageSettingsUnattendedSentinelLogsMachineCard } from '@@/shared/types/pages/settings/unattended/index.types';
+import type {
+  IPageSettingsUnattendedScenesDeleteMachinePayload,
+  IPageSettingsUnattendedScenesMachineRedisConfig,
+  IPageSettingsUnattendedScenesToggleEnabledPayload,
+  IPageSettingsUnattendedScenesUpdateMachineRemarkPayload,
+  IPageSettingsUnattendedSentinelLogsMachineCard
+} from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * 接口：无人值守-场景守护-卡片组件 Props
@@ -126,56 +132,6 @@ interface ISettingsUnattendedScenesCardsProps {
 }
 
 /**
- * 接口：无人值守-场景守护-切换启用事件参数
- */
-interface ISettingsUnattendedScenesCardsToggleEnabledPayload {
-  /**
-   * 场景 ID
-   */
-  id: string;
-
-  /**
-   * 是否启用
-   */
-  enabled: boolean;
-}
-
-/**
- * 接口：无人值守-场景守护-机器备注更新事件参数
- */
-interface ISettingsUnattendedScenesCardsUpdateMachineRemarkPayload {
-  /**
-   * 机器名称
-   */
-  machineName: string;
-
-  /**
-   * 机器码
-   */
-  machineCode: string;
-
-  /**
-   * 机器备注
-   */
-  machineRemark: string;
-}
-
-/**
- * 接口：无人值守-场景守护-删除主机事件参数
- */
-interface ISettingsUnattendedScenesCardsDeleteMachinePayload {
-  /**
-   * 机器名称
-   */
-  machineName: string;
-
-  /**
-   * 机器码
-   */
-  machineCode: string;
-}
-
-/**
  * Hook：i18n
  */
 const { t } = useI18n();
@@ -190,9 +146,9 @@ const props = defineProps<ISettingsUnattendedScenesCardsProps>();
  */
 const emit = defineEmits<{
   (e: 'add'): void;
-  (e: 'toggle-enabled', payload: ISettingsUnattendedScenesCardsToggleEnabledPayload): void;
-  (e: 'update-machine-remark', payload: ISettingsUnattendedScenesCardsUpdateMachineRemarkPayload): void;
-  (e: 'delete-machine', payload: ISettingsUnattendedScenesCardsDeleteMachinePayload): void;
+  (e: 'toggle-enabled', payload: IPageSettingsUnattendedScenesToggleEnabledPayload): void;
+  (e: 'update-machine-remark', payload: IPageSettingsUnattendedScenesUpdateMachineRemarkPayload): void;
+  (e: 'delete-machine', payload: IPageSettingsUnattendedScenesDeleteMachinePayload): void;
   (e: 'edit' | 'delete', id: string): void;
 }>();
 

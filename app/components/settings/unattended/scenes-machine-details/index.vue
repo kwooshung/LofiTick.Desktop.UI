@@ -70,7 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedScenesMachineRedisConfig } from '@@/shared/types/pages/settings/unattended/index.types';
+import type {
+  IPageSettingsUnattendedScenesMachineRedisConfig,
+  IPageSettingsUnattendedScenesToggleEnabledPayload
+} from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * 接口：场景守护详情 Props
@@ -88,21 +91,6 @@ interface ISettingsUnattendedScenesMachineDetailsProps {
 }
 
 /**
- * 接口：场景守护详情切换启用参数
- */
-interface ISettingsUnattendedScenesMachineDetailsToggleEnabledPayload {
-  /**
-   * 场景 ID
-   */
-  id: string;
-
-  /**
-   * 是否启用
-   */
-  enabled: boolean;
-}
-
-/**
  * Hook：i18n
  */
 const { t } = useI18n();
@@ -117,7 +105,7 @@ const props = defineProps<ISettingsUnattendedScenesMachineDetailsProps>();
  */
 const emit = defineEmits<{
   (e: 'add'): void;
-  (e: 'toggle-enabled', payload: ISettingsUnattendedScenesMachineDetailsToggleEnabledPayload): void;
+  (e: 'toggle-enabled', payload: IPageSettingsUnattendedScenesToggleEnabledPayload): void;
   (e: 'edit' | 'delete', id: string): void;
 }>();
 
