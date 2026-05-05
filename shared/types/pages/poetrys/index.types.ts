@@ -228,9 +228,6 @@ export interface IQueryResultPoetryAuthorsSummaryRow {
   /** 代表性朝代 */
   dynasty: IQueryResultPoetryDynastiesBasicRow;
 
-  /** 是否启用 */
-  enabled: boolean;
-
   /** 更新时间（ISO 字符串） */
   updated: string;
 
@@ -272,9 +269,6 @@ export interface IPageTableColumnPoetryAuthors {
 
     /** 所属朝代 */
     dynasty: IQueryResultPoetryDynastiesBasicRow;
-
-    /** 是否启用 */
-    enabled: boolean;
   };
 
   /** 时间信息 */

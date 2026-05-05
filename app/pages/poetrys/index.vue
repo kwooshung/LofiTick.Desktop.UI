@@ -50,13 +50,13 @@
             <span>·</span>
             <span>{{ poetryMetaValueGet(stateDetailInfo.section) }}</span>
           </div>
-          <template v-if="stateDetailInfo.translate.length > 0">
+          <template v-if="Array.isArray(stateDetailInfo.translate) && stateDetailInfo.translate.length > 0">
             <UPopover v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" mode="hover" arrow :content="{ side: 'top' }">
               <p class="transition-background text-default hover:light:bg-amber-200 cursor-pointer rounded-lg px-2 text-2xl leading-relaxed duration-300 ease-out hover:dark:bg-neutral-700">
                 {{ para }}
               </p>
               <template #content>
-                <p class="max-w-100 p-2">{{ stateDetailInfo.translate[inx] }}</p>
+                <p class="max-w-100 p-2">{{ stateDetailInfo.translate?.[inx] ?? '' }}</p>
               </template>
             </UPopover>
           </template>
@@ -172,7 +172,11 @@ const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
     return;
   }
 
-  stateDetailInfo.value = detail;
+  stateDetailInfo.value = {
+    ...detail,
+    content: Array.isArray(detail.content) ? detail.content : [],
+    translate: Array.isArray(detail.translate) ? detail.translate : []
+  };
 };
 
 /**

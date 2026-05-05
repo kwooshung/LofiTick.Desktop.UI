@@ -44,10 +44,6 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
- * 组件：开关
- */
-const USwitch = resolveComponent('USwitch');
-/**
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
@@ -107,7 +103,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 };
 
 /**
- * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/title/content），移除 page
+ * 函数：导航到单一筛选并重置分页。
  * @param {'dynasty_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
  */
@@ -158,7 +154,6 @@ const computedPoetryAuthorsData = computed<IPageTableColumnPoetryAuthors[]>(() =
     infos: {
       name: String(item.name ?? 'unknown'),
       count: Number(item.count ?? 0),
-      enabled: item.enabled ?? false,
       dynasty:
         item.dynasty && typeof item.dynasty === 'object'
           ? item.dynasty
@@ -250,22 +245,6 @@ const columns: TableColumn<IPageTableColumnPoetryAuthors>[] = [
     header: t('pages.poetrys.result.table.dynasty'),
     cell: ({ row }) =>
       h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id) })
-  },
-  {
-    accessorKey: 'enabled',
-    meta: {
-      class: {
-        th: 'w-20 text-center',
-        td: 'w-20 text-center'
-      }
-    },
-    header: t('pages.poetrys.result.table.enabled'),
-    cell: ({ row }) =>
-      h(USwitch, {
-        modelValue: row.original.infos.enabled,
-        disabled: true,
-        'aria-label': t('pages.poetrys.result.table.enabled')
-      })
   },
   {
     accessorKey: 'time',
