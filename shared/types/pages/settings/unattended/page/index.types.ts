@@ -1,7 +1,8 @@
 /**
  * 类型：settings / unattended 页面契约。
  *
- * 该文件承载页面与数据源直接对齐的字段结构，主要覆盖：
+ * 该文件承载 settings/unattended 页面层直接消费的数据结构，
+ * 其字段口径与后端接口、Tauri bridge 返回值保持对齐，主要覆盖：
  * - `desktop/settings/unattended/sentinel`
  * - `desktop/settings/unattended/sentinel/request-url`
  * - `desktop/settings/unattended/scenes`

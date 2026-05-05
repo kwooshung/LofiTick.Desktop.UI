@@ -2,7 +2,7 @@
  * 类型：settings / unattended 组件事件契约。
  *
  * 该文件承载 settings/unattended 组件之间通过 emits 传递的 payload，
- * 用于统一页面层与组件层的事件输入输出语义。
+ * 用于统一页面层与组件层之间的事件输入输出语义。
  */
 
 /**

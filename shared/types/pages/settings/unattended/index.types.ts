@@ -1,6 +1,7 @@
 /**
  * 类型：settings / unattended 共享类型总入口。
  *
+ * 该文件作为 settings/unattended 的 barrel，总结并转发分层子入口。
  * 为了避免单文件持续膨胀，这里将无人值守共享类型拆成三层：
  * - `page`：页面契约与后端/Tauri 数据结构
  * - `events`：组件事件 payload
