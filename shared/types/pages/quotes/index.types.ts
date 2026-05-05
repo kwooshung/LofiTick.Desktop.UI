@@ -1,4 +1,32 @@
 /**
+ * 类型：语录接口字段契约。
+ *
+ * 该文件是 LofiTick.Desktop.UI 语录页面的单一字段来源。
+ * 当前项目通过 `server/api/[...path]/index.ts` 统一代理外部 `/api/**`，
+ * 因此前端页面与搜索组件只能依赖这里声明过的字段。
+ *
+ * 当前前端已使用的接口：
+ * - `quotes` -> `IQueryResultQuotesSummaryPage`
+ * - `quotes/authors` -> `IQueryResultQuotesAuthorsSummaryPage`
+ * - `quotes/sources` -> `IQueryResultQuotesSourcesSummaryPage`
+ * - `quotes/searchs/uuid` -> `TQueryResultQuotesSearchUuidResponse`
+ * - `quotes/searchs/sources` -> `IQueryResultQuotesSearchSourcesResponse`
+ * - `quotes/searchs/authors` -> `IQueryResultQuotesSearchAuthorsResponse`
+ *
+ * 当前列表接口中的核心字段：
+ * - `id`
+ * - `uuid`
+ * - `sentence`
+ * - `translate`
+ * - `typeId`
+ * - `author`
+ * - `source`
+ * - `enabled`
+ * - `updated`
+ * - `created`
+ */
+
+/**
  * 接口：语录作者基础信息。
  */
 export interface IQueryResultQuotesAuthorsBasicRow {
@@ -28,6 +56,8 @@ export interface IQueryResultQuotesSourcesBasicRow {
 
 /**
  * 接口：语录列表行。
+ *
+ * 该结构对应当前前端实际消费的语录列表项。
  */
 export interface IQueryResultQuotesSummaryRow {
   /** 语录 ID */
@@ -161,6 +191,27 @@ export interface IQueryResultQuotesSearchUuid {
 
   /** UUID */
   uuid: string;
+}
+
+/**
+ * 类型：语录 UUID 联想响应。
+ */
+export type TQueryResultQuotesSearchUuidResponse = IQueryResultQuotesSearchUuid[];
+
+/**
+ * 接口：语录出处联想响应。
+ */
+export interface IQueryResultQuotesSearchSourcesResponse {
+  /** 行列表 */
+  rows: IQueryResultQuotesSourcesBasicRow[];
+}
+
+/**
+ * 接口：语录作者联想响应。
+ */
+export interface IQueryResultQuotesSearchAuthorsResponse {
+  /** 行列表 */
+  rows: IQueryResultQuotesAuthorsBasicRow[];
 }
 
 export type IQueryResultQuoteAuthorsBasicRow = IQueryResultQuotesAuthorsBasicRow;

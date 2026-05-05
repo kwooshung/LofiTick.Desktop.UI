@@ -1,4 +1,28 @@
 /**
+ * 类型：诗词接口字段契约。
+ *
+ * 该文件是 LofiTick.Desktop.UI 诗词页面的单一字段来源，
+ * 字段面必须与 Rust API 的真实响应保持一致。
+ *
+ * 契约来源：
+ * - `LofiTick.API/src/service/poetry.rs`
+ * - `LofiTick.API/src/handler/poetry.rs`
+ *
+ * 当前前端已使用的接口：
+ * - `poetrys` -> `IQueryResultPoetrysSummaryPage`
+ * - `poetrys/detail` -> `IQueryResultPoetryDetailResponse`
+ * - `poetrys/authors` -> `IQueryResultPoetryAuthorsSummaryPage`
+ * - `poetrys/dynasties` -> `IQueryResultPoetryDynastiesSummaryPage`
+ * - `poetrys/searchs/authors` -> `IQueryResultPoetrySearchAuthorsResponse`
+ * - `poetrys/searchs/dynasties` -> `IQueryResultPoetrySearchDynastiesResponse`
+ *
+ * 明确不存在的旧字段：
+ * - `chapter`
+ * - `section`
+ * - `translate`
+ */
+
+/**
  * 接口：诗词朝代基础信息。
  */
 export interface IQueryResultPoetryDynastiesBasicRow {
@@ -44,6 +68,9 @@ export interface IQueryResultPoetryRhythmicBasicRow {
 
 /**
  * 接口：诗词列表行。
+ *
+ * 该结构严格对应后端 `PoetrySummaryRow`。
+ * 不允许额外补入 `chapter`、`section`、`translate` 等旧字段。
  */
 export interface IQueryResultPoetrysSummaryRow {
   /** 作品 ID */
@@ -57,12 +84,6 @@ export interface IQueryResultPoetrysSummaryRow {
 
   /** 词牌/曲牌 */
   rhythmic: IQueryResultPoetryRhythmicBasicRow;
-
-  /** 章/卷/篇 */
-  chapter: string;
-
-  /** 节/部 */
-  section: string;
 
   /** 摘要句 */
   sentence: string;
@@ -113,12 +134,6 @@ export interface IPageTableColumnPoetrysInfos {
   /** 词牌/曲牌 */
   rhythmic: IQueryResultPoetryRhythmicBasicRow;
 
-  /** 章/卷/篇 */
-  chapter: string;
-
-  /** 节/部 */
-  section: string;
-
   /** 核心句 */
   sentence: string;
 
@@ -159,6 +174,9 @@ export interface IPageTableColumnPoetrys {
 
 /**
  * 接口：诗词详情信息。
+ *
+ * 该结构严格对应后端 `PoetryDetailRow`。
+ * 详情当前只返回 `content` 正文段落，不返回 `translate`。
  */
 export interface IPagePoetrysDetailInfo {
   /** 作品 ID */
@@ -173,20 +191,11 @@ export interface IPagePoetrysDetailInfo {
   /** 词牌/曲牌 */
   rhythmic: IQueryResultPoetryRhythmicBasicRow;
 
-  /** 章/卷/篇 */
-  chapter: string;
-
-  /** 节/部 */
-  section: string;
-
   /** 摘要句 */
   sentence: string;
 
   /** 正文段落 */
   content: string[];
-
-  /** 译文段落 */
-  translate: string[];
 
   /** 作者 */
   author: IQueryResultPoetryAuthorsBasicRow;
@@ -210,6 +219,22 @@ export interface IPagePoetrysDetailInfo {
 export interface IQueryResultPoetryDetailResponse {
   /** 详情 */
   detail: IPagePoetrysDetailInfo;
+}
+
+/**
+ * 接口：诗词作者联想响应。
+ */
+export interface IQueryResultPoetrySearchAuthorsResponse {
+  /** 行列表 */
+  rows: IQueryResultPoetryAuthorsBasicRow[];
+}
+
+/**
+ * 接口：诗词朝代联想响应。
+ */
+export interface IQueryResultPoetrySearchDynastiesResponse {
+  /** 行列表 */
+  rows: IQueryResultPoetryDynastiesBasicRow[];
 }
 
 /**

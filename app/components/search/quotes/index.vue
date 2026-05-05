@@ -160,7 +160,7 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, IComponentPropsQuotesUuidSelectMenuItem } from '@/components/search/quotes/index.types';
-import type { IQueryResultQuoteAuthorsBasicRow, IQueryResultQuoteSourcesBasicRow, IQueryResultQuotesSearchUuid } from '@@/shared/types/pages/quotes/index.types';
+import type { IQueryResultQuoteAuthorsBasicRow, IQueryResultQuoteSourcesBasicRow, IQueryResultQuotesSearchAuthorsResponse, IQueryResultQuotesSearchSourcesResponse, TQueryResultQuotesSearchUuidResponse } from '@@/shared/types/pages/quotes/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）
@@ -344,21 +344,21 @@ const { items: stateItemsAuthor, setOriginItems: setAuthorOrigin } = useSelectMe
 /**
  * API：搜索 UUID
  */
-const { datas: stateUuidData, refreshDebounced: refreshUuidDebounced } = await useApi<IQueryResultQuotesSearchUuid[]>('quotes/searchs/uuid', {
+const { datas: stateUuidData, refreshDebounced: refreshUuidDebounced } = await useApi<TQueryResultQuotesSearchUuidResponse>('quotes/searchs/uuid', {
   datas: { q: stateKeywordUuid.value, limit: 10 }
 });
 
 /**
  * API：搜索出处
  */
-const { datas: stateSourcesData, refreshDebounced: refreshSourcesDebounced } = await useApi<{ rows: IQueryResultQuoteSourcesBasicRow[] }>('quotes/searchs/sources', {
+const { datas: stateSourcesData, refreshDebounced: refreshSourcesDebounced } = await useApi<IQueryResultQuotesSearchSourcesResponse>('quotes/searchs/sources', {
   datas: { q: stateKeywordSource.value, limit: 10 }
 });
 
 /**
  * API：搜索作者
  */
-const { datas: stateAuthorData, refreshDebounced: refreshAuthorDebounced } = await useApi<{ rows: IQueryResultQuoteAuthorsBasicRow[] }>('quotes/searchs/authors', {
+const { datas: stateAuthorData, refreshDebounced: refreshAuthorDebounced } = await useApi<IQueryResultQuotesSearchAuthorsResponse>('quotes/searchs/authors', {
   datas: { q: stateKeywordAuthor.value, limit: 10 }
 });
 

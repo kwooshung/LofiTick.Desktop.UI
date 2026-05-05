@@ -45,26 +45,10 @@
             <span>{{ poetryKindLabelGet(stateDetailInfo.kind) }}</span>
             <span>·</span>
             <span>{{ poetryMetaValueGet(stateDetailInfo.rhythmic.name) }}</span>
-            <span>·</span>
-            <span>{{ poetryMetaValueGet(stateDetailInfo.chapter) }}</span>
-            <span>·</span>
-            <span>{{ poetryMetaValueGet(stateDetailInfo.section) }}</span>
           </div>
-          <template v-if="Array.isArray(stateDetailInfo.translate) && stateDetailInfo.translate.length > 0">
-            <UPopover v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" mode="hover" arrow :content="{ side: 'top' }">
-              <p class="transition-background text-default hover:light:bg-amber-200 cursor-pointer rounded-lg px-2 text-2xl leading-relaxed duration-300 ease-out hover:dark:bg-neutral-700">
-                {{ para }}
-              </p>
-              <template #content>
-                <p class="max-w-100 p-2">{{ stateDetailInfo.translate?.[inx] ?? '' }}</p>
-              </template>
-            </UPopover>
-          </template>
-          <template v-else>
-            <p v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" class="text-default text-2xl leading-relaxed">
-              {{ para }}
-            </p>
-          </template>
+          <p v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" class="text-default text-2xl leading-relaxed">
+            {{ para }}
+          </p>
         </div>
       </template>
     </USlideover>
@@ -122,11 +106,8 @@ const stateDetailInfo = ref<IPagePoetrysDetailInfo>({
     id: 0,
     name: ''
   },
-  chapter: '',
-  section: '',
   sentence: '',
   content: [],
-  translate: [],
   author: {
     id: 0,
     name: '',
@@ -153,11 +134,8 @@ const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
     title: poetry.infos.title,
     kind: poetry.infos.kind,
     rhythmic: poetry.infos.rhythmic,
-    chapter: poetry.infos.chapter,
-    section: poetry.infos.section,
     sentence: poetry.infos.sentence,
     content: [],
-    translate: [],
     author: poetry.infos.author,
     dynasty: poetry.infos.dynasty,
     enabled: poetry.enabled,
@@ -174,8 +152,7 @@ const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
 
   stateDetailInfo.value = {
     ...detail,
-    content: Array.isArray(detail.content) ? detail.content : [],
-    translate: Array.isArray(detail.translate) ? detail.translate : []
+    content: Array.isArray(detail.content) ? detail.content : []
   };
 };
 
@@ -230,21 +207,6 @@ const poetryTitleDisplayGet = (infos: IPageTableColumnPoetrys['infos'], includeR
   }
 
   return `${rhythmicName} · ${wrappedTitle}`;
-};
-
-/**
- * 函数：获取章卷与节部文案。
- * @param {IPageTableColumnPoetrys['infos']} infos 作品信息
- * @returns {string} 合并文案
- */
-const poetryChapterSectionLabelGet = (infos: IPageTableColumnPoetrys['infos']): string => {
-  const values = [String(infos.chapter ?? '').trim(), String(infos.section ?? '').trim()].filter((item) => item !== '');
-
-  if (values.length === 0) {
-    return t('common.labels.none');
-  }
-
-  return values.join(' / ');
 };
 
 /**
@@ -429,8 +391,6 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
               id: 0,
               name: ''
             },
-      chapter: String(item.chapter ?? ''),
-      section: String(item.section ?? ''),
       sentence: item.sentence ?? 'unknown',
       dynasty:
         item.dynasty && typeof item.dynasty === 'object'
@@ -599,7 +559,6 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
         h(UButton, { color: 'neutral', variant: 'link', label: titleLine, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
-        h('p', { class: 'text-xs text-muted' }, poetryChapterSectionLabelGet(infos)),
         ...(dynastyName === '' && authorName === ''
           ? []
           : [
@@ -648,8 +607,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
         h(UButton, { color: 'neutral', variant: 'link', label: poetryTitleDisplayGet(infos, true), class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
-        h('p', { class: 'text-xs text-muted' }, poetryKindLabelGet(infos.kind)),
-        h('p', { class: 'text-xs text-muted' }, poetryChapterSectionLabelGet(infos))
+        h('p', { class: 'text-xs text-muted' }, poetryKindLabelGet(infos.kind))
       ]);
     }
   },
@@ -698,18 +656,6 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     header: t('pages.poetrys.result.table.kind'),
     cell: ({ row }) => poetryKindLabelGet(row.original.infos.kind)
   },
-  // 中宽屏：章节信息组合列
-  {
-    accessorKey: 'poemChapterSection',
-    meta: {
-      class: {
-        th: 'w-26 hidden 2xl:table-cell 5xl:hidden whitespace-nowrap',
-        td: 'w-26 hidden 2xl:table-cell 5xl:hidden'
-      }
-    },
-    header: t('pages.poetrys.result.table.chapterSection'),
-    cell: ({ row }) => poetryChapterSectionLabelGet(row.original.infos)
-  },
   // 超宽屏：词牌/曲牌独立列
   {
     accessorKey: 'poemRhythmic',
@@ -721,30 +667,6 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.rhythmic'),
     cell: ({ row }) => poetryLinkedNameGet(row.original.infos.rhythmic)
-  },
-  // 超宽屏：章/卷/篇独立列
-  {
-    accessorKey: 'poemChapter',
-    meta: {
-      class: {
-        th: 'w-22 hidden 5xl:table-cell whitespace-nowrap',
-        td: 'w-22 hidden 5xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.chapter'),
-    cell: ({ row }) => poetryMetaValueGet(row.original.infos.chapter)
-  },
-  // 超宽屏：节/部独立列
-  {
-    accessorKey: 'poemSection',
-    meta: {
-      class: {
-        th: 'w-20 hidden 5xl:table-cell whitespace-nowrap',
-        td: 'w-20 hidden 5xl:table-cell'
-      }
-    },
-    header: t('pages.poetrys.result.table.section'),
-    cell: ({ row }) => poetryMetaValueGet(row.original.infos.section)
   },
   {
     accessorKey: 'poemSentenceFull',

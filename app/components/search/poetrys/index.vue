@@ -151,7 +151,7 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
-import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow } from '@@/shared/types/pages/poetrys/index.types';
+import type { IQueryResultPoetryAuthorsBasicRow, IQueryResultPoetryDynastiesBasicRow, IQueryResultPoetrySearchAuthorsResponse, IQueryResultPoetrySearchDynastiesResponse } from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）
@@ -275,7 +275,7 @@ const { items: stateItemDynasties, setOriginItems: setOriginDynasties } = useSel
 /**
  * API：搜索朝代
  */
-const { datas: stateDynastyData, refreshDebounced: refreshDebouncedDynasty } = await useApi<{ rows: IQueryResultPoetryDynastiesBasicRow[] }>('poetrys/searchs/dynasties', { datas: { q: stateKeywordDynasty.value, limit: 10 } });
+const { datas: stateDynastyData, refreshDebounced: refreshDebouncedDynasty } = await useApi<IQueryResultPoetrySearchDynastiesResponse>('poetrys/searchs/dynasties', { datas: { q: stateKeywordDynasty.value, limit: 10 } });
 
 /**
  * Hook：作者，限制选择数量
@@ -285,7 +285,7 @@ const { items: stateItemAuthors, setOriginItems: setOriginAuthors } = useSelectM
 /**
  * API：搜索作者
  */
-const { datas: stateAuthorData, refreshDebounced: refreshDebouncedAuthor } = await useApi<{ rows: IQueryResultPoetryAuthorsBasicRow[] }>('poetrys/searchs/authors', { datas: { q: stateKeywordAuthor.value, limit: 10 } });
+const { datas: stateAuthorData, refreshDebounced: refreshDebouncedAuthor } = await useApi<IQueryResultPoetrySearchAuthorsResponse>('poetrys/searchs/authors', { datas: { q: stateKeywordAuthor.value, limit: 10 } });
 
 /**
  * 函数：查询数组参数
