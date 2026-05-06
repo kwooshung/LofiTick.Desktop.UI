@@ -19,6 +19,8 @@ export const modules = [
 
   // 国际化（多语言标配）
   '@nuxtjs/i18n',
+  // 邮件模板渲染（欢迎邮件测试）
+  'nuxt-email-renderer',
   // 表单动画（体验优化）
   '@formkit/auto-animate/nuxt',
 

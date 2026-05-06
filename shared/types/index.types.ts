@@ -1,5 +1,6 @@
 export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.types';
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
+export type { IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload } from '@@/shared/types/pages/home/index.types';
 export type {
   IPagePoetrysDetailInfo,
   IPageTableColumnPoetryAuthors,
