@@ -70,8 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedSentinelLogItem, IPageSettingsUnattendedSentinelLogsMachineCard } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 接口：哨兵日志卡片 Props
  */

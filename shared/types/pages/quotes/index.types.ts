@@ -27,6 +27,99 @@
  */
 
 /**
+ * 接口：名句表格列数据。
+ */
+export interface IPageTableColumnQuotes {
+  /** 主键 ID */
+  id: number;
+
+  /** UUID */
+  uuid: string;
+
+  /** 名句信息 */
+  infos: {
+    /** 原文 */
+    sentence: string;
+
+    /** 译文 */
+    translate: string;
+
+    /** 类型 ID */
+    typeId: number;
+
+    /** 来源 */
+    source: IQueryResultQuotesSourcesBasicRow;
+
+    /** 作者 */
+    author: IQueryResultQuotesAuthorsBasicRow;
+  };
+
+  /** 是否启用 */
+  enabled: boolean;
+
+  /** 时间信息 */
+  times: {
+    /** 更新时间 */
+    updated: string;
+
+    /** 创建时间 */
+    created: string;
+  };
+}
+
+/**
+ * 接口：名句作者表格列数据。
+ */
+export interface IPageTableColumnQuoteAuthors {
+  /** 主键 ID */
+  id: number;
+
+  /** 作者信息 */
+  infos: {
+    /** 名称 */
+    name: string;
+
+    /** 数量 */
+    count: number;
+  };
+
+  /** 时间信息 */
+  times: {
+    /** 更新时间 */
+    updated: string;
+
+    /** 创建时间 */
+    created: string;
+  };
+}
+
+/**
+ * 接口：名句出处表格列数据。
+ */
+export interface IPageTableColumnQuoteSources {
+  /** 主键 ID */
+  id: number;
+
+  /** 出处信息 */
+  infos: {
+    /** 名称 */
+    name: string;
+
+    /** 数量 */
+    count: number;
+  };
+
+  /** 时间信息 */
+  times: {
+    /** 更新时间 */
+    updated: string;
+
+    /** 创建时间 */
+    created: string;
+  };
+}
+
+/**
  * 接口：语录作者基础信息。
  */
 export interface IQueryResultQuotesAuthorsBasicRow {

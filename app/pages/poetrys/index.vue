@@ -58,8 +58,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IPagePoetrysDetailInfo, IPageTableColumnPoetrys, IQueryResultPoetryDetailResponse, IQueryResultPoetrySetEnabledResponse, IQueryResultPoetrysSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
-
 /**
  * 组件：Nuxt 时间显示组件
  */

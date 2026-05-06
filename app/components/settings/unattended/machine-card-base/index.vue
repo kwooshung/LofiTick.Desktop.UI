@@ -65,8 +65,6 @@
 <script setup lang="ts">
 import { useClipboard } from '@vueuse/core';
 
-import type { IPageSettingsUnattendedMachineCardInfo } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 接口：机器基础卡片 Props
  */

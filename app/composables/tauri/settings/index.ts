@@ -1,10 +1,10 @@
+import { invoke } from '@tauri-apps/api/core';
+
 /**
  * Hook：Tauri 设置
  * 描述：封装 Desktop 壳侧的 settings_get/settings_update。
  * @returns {object} 设置方法
  */
-import type { IPageSettingsUnattendedUe5BridgeDetail } from '@@/shared/types/pages/settings/unattended/index.types';
-import { invoke } from '@tauri-apps/api/core';
 
 /**
  * 接口：本地路径存在性检查结果

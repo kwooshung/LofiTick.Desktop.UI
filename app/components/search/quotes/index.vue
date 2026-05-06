@@ -160,7 +160,6 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, IComponentPropsQuotesUuidSelectMenuItem } from '@/components/search/quotes/index.types';
-import type { IQueryResultQuoteAuthorsBasicRow, IQueryResultQuoteSourcesBasicRow, IQueryResultQuotesSearchAuthorsResponse, IQueryResultQuotesSearchSourcesResponse, TQueryResultQuotesSearchUuidResponse } from '@@/shared/types/pages/quotes/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）

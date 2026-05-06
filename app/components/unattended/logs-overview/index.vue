@@ -33,8 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedScenesMachineRedisConfig, IPageSettingsUnattendedSentinelLogsMachineCard, IPageSettingsUnattendedSentinelLogsMachineGroup } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * Hook：i18n
  */

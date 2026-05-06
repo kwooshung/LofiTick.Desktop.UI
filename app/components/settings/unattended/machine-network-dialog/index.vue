@@ -84,8 +84,6 @@
 <script setup lang="ts">
 import type { TabsItem } from '@nuxt/ui';
 
-import type { IPageSettingsUnattendedMachineCardInfo, IPageSettingsUnattendedMachineNetworkGroup, IPageSettingsUnattendedMachineNetworkGroups, IPageSettingsUnattendedMachineNetworkSnapshot } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 类型：网卡 Tab
  */

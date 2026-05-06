@@ -70,8 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedScenesMachineRedisConfig, IPageSettingsUnattendedScenesToggleEnabledPayload } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 接口：场景守护详情 Props
  */

@@ -1,5 +1,3 @@
-import type { IPageSettingsUnattendedScenesItem, IPageSettingsUnattendedScenesMachineRedisConfig, ISettingsUnattendedScenesLocal } from '@@/shared/types/pages/settings/unattended/index.types';
-
 export type TUnattendedScenesSyncChoice = 'local' | 'remote' | 'merge';
 
 export type TUnattendedScenesSyncStatus = 'local-only' | 'remote-only' | 'same' | 'conflict';

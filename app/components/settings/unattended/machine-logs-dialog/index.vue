@@ -75,8 +75,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUnattendedSentinelLogsMachineCard, IPageSettingsUnattendedStructuredLogEntry, IPageSettingsUnattendedStructuredLogMessage, TPageSettingsUnattendedLogMessageSegment } from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 接口：机器日志弹窗 Props
  */

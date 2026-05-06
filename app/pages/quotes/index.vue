@@ -31,8 +31,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IQueryResultQuotesSummaryPage } from '@@/shared/types/pages/quotes/index.types';
-
 /**
  * 组件：Nuxt 时间显示组件
  */

@@ -31,8 +31,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IPageTableColumnPoetryDynasties, IQueryResultPoetryDynastiesSummaryPage } from '@@/shared/types/pages/poetrys/index.types';
-
 /**
  * 组件：Nuxt 时间显示组件
  */
