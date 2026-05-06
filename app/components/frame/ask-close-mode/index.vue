@@ -21,6 +21,11 @@
 const tauriPreclose = useTauriPreclose();
 
 /**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
  * Hook：国际化
  */
 const { t } = useI18n();
@@ -73,6 +78,14 @@ const eventExit = () => {
  * 生命周期：组件挂载时监听主进程关闭询问事件
  */
 onMounted(() => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
   console.info('[FrameAskCloseMode] mounted');
 
   void (async () => {
@@ -99,6 +112,10 @@ onMounted(() => {
  * 生命周期：组件卸载时取消监听，防止内存泄漏
  */
 onUnmounted(() => {
+  if (!import.meta.client || !isTauriRuntime.value) {
+    return;
+  }
+
   if (unsubscribePrecloseOnAppPreClose) {
     unsubscribePrecloseOnAppPreClose();
     unsubscribePrecloseOnAppPreClose = null;

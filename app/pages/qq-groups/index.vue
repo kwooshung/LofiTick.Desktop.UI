@@ -68,7 +68,7 @@
 import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
 
-import type { IPageQqGroupForm, IPageTableColumnQqGroup } from '@@/shared/types/index.types';
+import type { IPageQqGroupsProps } from '@@/shared/types/pages/qq-groups/index.types';
 
 /**
  * 组件：Nuxt 时间显示组件
@@ -101,13 +101,7 @@ const { t } = useI18n();
 const route = useRoute();
 
 const props = withDefaults(
-  defineProps<{
-    /**
-     * 属性：创建 nonce
-     * 描述：用于触发创建相关逻辑的刷新
-     */
-    createNonce?: number;
-  }>(),
+  defineProps<IPageQqGroupsProps>(),
   {
     createNonce: 0
   }

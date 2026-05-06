@@ -82,6 +82,10 @@
 - 如果你发现变量/函数未显式导入：先确认是否 Nuxt 自动导入导致的；不要擅自补 import。
 - 在 `app/` 的 Nuxt 编译上下文中，Vue 组合式 API（例如 `ref`/`computed`/`watch`/生命周期函数等）默认已通过 auto-import 全局可用；不要再显式 `import ... from "vue"`。
 - 该规则以 `.nuxt/imports.d.ts` 的生成清单为准；不确定时优先查该文件再决定是否补 import。
+- 共享类型的全局导入入口固定为 `shared/types/index.types.ts`：凡是需要被页面、组件、composable 高频复用的共享类型，必须先汇总到该文件，再交给 Nuxt 自动导入；禁止在 `app/**` 中长期保留本可通过全局导入获得的 `@@/shared/types/**` 显式 `import type`。
+- 共享值/工具的全局导入入口固定为 `shared/utils/index.ts`：凡是需要被页面、组件、composable 高频复用的常量、枚举值、纯工具函数，必须先确认是否已经从该总出口导出；不要因为“当前文件报未定义”就直接在局部补 `import`。
+- 如果怀疑是“没有全局导入”而不是“类型/变量不存在”，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。
+- Vue SFC 宏例外（强制）：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 这类编译期宏所使用的类型参数，必须优先使用当前文件可静态解析的显式 `import type`；不要依赖 Nuxt 的全局自动导入类型去喂给这些宏，否则可能出现 `Unresolvable type reference` 编译错误。
 
 ### 3.3 实现优先级（强制）
 
@@ -218,8 +222,8 @@
 > 本节规则优先于第 5 节的"通用类型规则"。
 
 - `app/pages/**` 内：禁止新增任何 `interface` 或 `type` 声明（不论复杂度、使用次数、是否仅用于本页）。
-- 页面需要类型：必须新增到 `app/types/pages/...`。
-- 并且必须在 `app/types/index.types.ts` 导出，以便 Nuxt 全局自动导入。
+- 页面需要类型：必须新增到 `shared/types/pages/...`。
+- 并且必须在 `shared/types/index.types.ts` 导出，以便 Nuxt 全局自动导入。
 - API 请求/响应的结构：必须优先复用共享类型；没有就新增到共享类型，禁止在页面内临时声明。
 
 ### 6.1 Pages 表格（UTable）规范（零容忍）

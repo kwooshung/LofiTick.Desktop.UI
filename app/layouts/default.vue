@@ -134,7 +134,7 @@ onMounted(async () => {
     return;
   }
 
-  if (!isTauriRuntime) {
+  if (!isTauriRuntime.value) {
     return;
   }
 

@@ -31,6 +31,112 @@ export interface IQueryResultQqGroupsSummaryRow {
 }
 
 /**
+ * 接口：QQ 群管理表格行。
+ */
+export interface IPageTableColumnQqGroup {
+  /**
+   * 主键 ID
+   */
+  id: number;
+
+  /**
+   * 名称
+   */
+  name: string;
+
+  /**
+   * 群号
+   */
+  number: string;
+
+  /**
+   * 规模
+   */
+  size: number;
+
+  /**
+   * 加群链接
+   */
+  url: string;
+
+  /**
+   * 是否满员
+   */
+  full: boolean;
+
+  /**
+   * 是否启用
+   */
+  enabled: boolean;
+
+  /**
+   * 时间
+   */
+  times: {
+    /**
+     * 更新时间
+     */
+    updated: string;
+
+    /**
+     * 创建时间
+     */
+    created: string;
+  };
+}
+
+/**
+ * 接口：QQ 群管理表单。
+ */
+export interface IPageQqGroupForm {
+  /**
+   * 主键 ID
+   */
+  id: number;
+
+  /**
+   * 名称
+   */
+  name: string;
+
+  /**
+   * 群号
+   */
+  number: string;
+
+  /**
+   * 规模
+   */
+  size: number;
+
+  /**
+   * 加群链接
+   */
+  url: string;
+
+  /**
+   * 是否满员
+   */
+  full: boolean;
+
+  /**
+   * 是否启用
+   */
+  enabled: boolean;
+}
+
+/**
+ * 接口：QQ 群页面属性。
+ */
+export interface IPageQqGroupsProps {
+  /**
+   * 属性：创建 nonce
+   * 描述：用于触发创建相关逻辑的刷新
+   */
+  createNonce?: number;
+}
+
+/**
  * 接口：QQ 群列表分页响应。
  */
 export interface IQueryResultQqGroupsSummaryPage {
