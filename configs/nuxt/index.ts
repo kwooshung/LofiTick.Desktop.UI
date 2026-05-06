@@ -138,6 +138,14 @@ export const configs = {
     client: false
   },
 
+  routeRules: {
+    '/api/email/send': {
+      security: {
+        xssValidator: false
+      }
+    }
+  },
+
   security: {
     csrf: {
       // 启用 CSRF 防护（默认对写方法生效）

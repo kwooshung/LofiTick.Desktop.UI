@@ -45,14 +45,7 @@ export type {
   IQueryResultQuotesSummaryRow,
   TQueryResultQuotesSearchUuidResponse
 } from '@@/shared/types/pages/quotes/index.types';
-export type {
-  IPageQqGroupForm,
-  IPageQqGroupsProps,
-  IPageTableColumnQqGroup,
-  IQueryResultQqGroupsSummaryPage,
-  IQueryResultQqGroupsSummaryRow,
-  IQueryResultSocialQqGroupSummaryPage
-} from '@@/shared/types/pages/qq-groups/index.types';
+export type { IPageQqGroupForm, IPageQqGroupsProps, IPageTableColumnQqGroup, IQueryResultQqGroupsSummaryPage, IQueryResultQqGroupsSummaryRow, IQueryResultSocialQqGroupSummaryPage } from '@@/shared/types/pages/qq-groups/index.types';
 export type {
   IPageSettingsUnattendedMachineCardInfo,
   IPageSettingsUnattendedMachineNetworkGroup,

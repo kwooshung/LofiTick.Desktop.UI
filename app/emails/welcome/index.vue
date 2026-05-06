@@ -9,7 +9,11 @@
       <li>
         <EText :style="styles.text">
           emails.welcome.content.live.intro
-          <ELink :style="styles.link" href="https://live.bilibili.com/27519423/">emails.welcome.content.live.platform.bilibili</ELink>、<ELink :style="styles.link" href="https://www.xiaohongshu.com/">emails.welcome.content.live.platform.xiaohongshu</ELink>、<ELink :style="styles.link" href="https://www.douyin.com/">emails.welcome.content.live.platform.douyin</ELink>、<ELink :style="styles.link" href="https://www.youtube.com/">emails.welcome.content.live.platform.youtube</ELink>
+          <ELink :style="styles.link" href="https://live.bilibili.com/27519423/">emails.welcome.content.live.platform.bilibili</ELink>、<ELink :style="styles.link" href="https://www.xiaohongshu.com/">emails.welcome.content.live.platform.xiaohongshu</ELink>、<ELink
+            :style="styles.link"
+            href="https://www.douyin.com/"
+            >emails.welcome.content.live.platform.douyin</ELink
+          >、<ELink :style="styles.link" href="https://www.youtube.com/">emails.welcome.content.live.platform.youtube</ELink>
           emails.welcome.content.live.suffix
         </EText>
       </li>

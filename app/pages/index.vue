@@ -1,11 +1,11 @@
-﻿<template>
+<template>
   <Dashboard>
     <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <UPageCard :title="t('pages.home.title')" :description="t('pages.home.welcomeEmail.description')" variant="naked" />
 
       <UPageCard variant="outline" :ui="{ container: 'space-y-5' }">
         <div class="flex flex-col gap-3">
-          <div class="text-sm leading-6 text-muted">
+          <div class="text-muted text-sm leading-6">
             {{ t('pages.home.welcomeEmail.target', { email: stateTargetEmail }) }}
           </div>
           <div class="flex items-center gap-3">
@@ -16,13 +16,7 @@
           </div>
         </div>
 
-        <UAlert
-          v-if="stateResultVisible"
-          :color="stateResultSuccess ? 'success' : 'error'"
-          variant="soft"
-          :title="stateResultSuccess ? t('pages.home.welcomeEmail.result.successTitle') : t('pages.home.welcomeEmail.result.errorTitle')"
-          :description="stateResultMessage"
-        />
+        <UAlert v-if="stateResultVisible" :color="stateResultSuccess ? 'success' : 'error'" variant="soft" :title="stateResultSuccess ? t('pages.home.welcomeEmail.result.successTitle') : t('pages.home.welcomeEmail.result.errorTitle')" :description="stateResultMessage" />
       </UPageCard>
     </div>
   </Dashboard>
@@ -62,7 +56,11 @@ const stateResultMessage = ref('');
 /**
  * API：生成欢迎邮件
  */
-const { datas: stateWelcomeEmailDatas, loading: stateWelcomeEmailLoading, refresh: refreshWelcomeEmail } = await useApi<IPageHomeWelcomeEmailPayload>('email/welcome', {
+const {
+  datas: stateWelcomeEmailDatas,
+  loading: stateWelcomeEmailLoading,
+  refresh: refreshWelcomeEmail
+} = await useApi<IPageHomeWelcomeEmailPayload>('email/welcome', {
   method: 'POST',
   immediate: false
 });
@@ -70,7 +68,11 @@ const { datas: stateWelcomeEmailDatas, loading: stateWelcomeEmailLoading, refres
 /**
  * API：发送邮件
  */
-const { datas: stateEmailSendDatas, loading: stateEmailSendLoading, refresh: refreshEmailSend } = await useApi<IPageHomeSendWelcomeEmailResponse>('email/send', {
+const {
+  datas: stateEmailSendDatas,
+  loading: stateEmailSendLoading,
+  refresh: refreshEmailSend
+} = await useApi<IPageHomeSendWelcomeEmailResponse>('email/send', {
   method: 'POST',
   immediate: false
 });
