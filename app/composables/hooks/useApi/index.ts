@@ -133,6 +133,11 @@ const SIGN_REFRESH_PATH = '/security/sign/refresh';
 const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
 
 /**
+ * 常量：Nuxt CSRF token 刷新接口。
+ */
+const NUXT_CSRF_REFRESH_PATH = '/api/security/csrf';
+
+/**
  * 常量：代理层提示 Cookie 名称的 header。
  */
 const SIGN_BLOB_COOKIE_NAME_HINT_HEADER = 'X-Sign-Blob-Cookie-Name';
@@ -847,6 +852,95 @@ const pickStatusFromUseFetchError = (err: unknown): unknown => {
 };
 
 /**
+ * 函数：从 useFetch error 中提取错误响应对象。
+ *
+ * 该函数用于兼容 Nitro `createError(...)` 与 ofetch `FetchError` 的多种结构，
+ * 以便统一判断 Nuxt 自身的 CSRF 拒绝。
+ *
+ * # Arguments
+ *
+ * * `err` - useFetch 的 error 值。
+ *
+ * # Returns
+ *
+ * 返回可读取字段的对象；不存在时返回空对象。
+ */
+const pickUseFetchErrorObject = (err: unknown): Record<string, unknown> => {
+  const e = (err ?? {}) as Record<string, unknown>;
+  const data = (e.data ?? (e.response as any)?._data) as unknown;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return {};
+  }
+  return data as Record<string, unknown>;
+};
+
+/**
+ * 函数：判断是否命中 Nuxt 自身的 CSRF 拒绝。
+ *
+ * 该判断只处理 `nuxt-csurf` 在同源 `/api/**` 层抛出的 `EBADCSRFTOKEN`，
+ * 不影响后端安全层的签名/CSRF 自愈逻辑。
+ *
+ * # Arguments
+ *
+ * * `err` - useFetch 的 error 值。
+ *
+ * # Returns
+ *
+ * 命中 Nuxt CSRF 拒绝时返回 `true`。
+ */
+const shouldRefreshNuxtCsrfOnError = (err: unknown): boolean => {
+  const e = (err ?? {}) as Record<string, unknown>;
+  const data = pickUseFetchErrorObject(err);
+
+  const statusCode = Number(e.statusCode ?? data.statusCode ?? (e.response as any)?.status ?? 0);
+  const errorName = String(e.name ?? data.name ?? '').trim();
+  const statusMessage = String(e.statusMessage ?? data.statusMessage ?? '').trim();
+  const message = String(e.message ?? data.message ?? '').trim();
+
+  if (statusCode !== 403) {
+    return false;
+  }
+
+  return errorName === 'EBADCSRFTOKEN' || statusMessage === 'CSRF Token Mismatch' || message === 'CSRF Token invalid' || message === 'CSRF Token not found' || message === 'CSRF Cookie not found';
+};
+
+/**
+ * 函数：刷新当前页面可用的 Nuxt CSRF token。
+ *
+ * 该函数通过本地 `/api/security/csrf` 获取最新 token，并同步写回当前文档的 meta，
+ * 供后续写请求重新读取。
+ *
+ * # Returns
+ *
+ * 成功刷新时返回 `true`，否则返回 `false`。
+ */
+const refreshNuxtCsrfToken = async (): Promise<boolean> => {
+  if (import.meta.server) {
+    return false;
+  }
+
+  const raw = await $fetch<{ token?: unknown }>(NUXT_CSRF_REFRESH_PATH, {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  const token = String(raw?.token ?? '').trim();
+  if (token === '') {
+    return false;
+  }
+
+  let meta = window.document.querySelector('meta[name="csrf-token"]');
+  if (!meta) {
+    meta = window.document.createElement('meta');
+    meta.setAttribute('name', 'csrf-token');
+    window.document.head.appendChild(meta);
+  }
+
+  meta.setAttribute('content', token);
+  return true;
+};
+
+/**
  * 常量：API 派生密钥缓存
  */
 export const useApiDerivedKeyCache: Map<string, string> = new Map<string, string>();
@@ -1330,6 +1424,28 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   const sigExtraHeadersRef = ref<Record<string, string>>({});
 
   /**
+   * 计算：Nuxt CSRF 请求头。
+   *
+   * 写请求在真正发出前总是读取当前文档中的最新 token，
+   * 避免长生命周期 `useFetch` 实例沿用过期 header。
+   */
+  const nuxtCsrfHeadersRef = computed<Record<string, string>>(() => {
+    if (!isWriteMethod || isSignBootstrapPath(backendPath)) {
+      return {};
+    }
+
+    const { csrf, headerName } = useCsrf();
+    const token = String(csrf ?? '').trim();
+    const name = String(headerName ?? '').trim();
+
+    if (token === '' || name === '') {
+      return {};
+    }
+
+    return { [name]: token };
+  });
+
+  /**
    * 计算：带签名字段的 query。
    *
    * 迷惑假参数 `ts/nonce/sign` 一律显示在 URL 中，便于对外观测时保持一致。
@@ -1358,7 +1474,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   /**
    * 计算：最终请求 headers（稳定引用）。
    */
-  const signedHeadersRef = computed<Record<string, string>>(() => mergeHeaders(headersObj as any, sigExtraHeadersRef.value));
+  const signedHeadersRef = computed<Record<string, string>>(() => mergeHeaders(headersObj as any, mergeHeaders(nuxtCsrfHeadersRef.value, sigExtraHeadersRef.value)));
 
   const finalOptions: UseFetchOptions<unknown> & Record<string, unknown> = {
     watch: false,
@@ -1460,7 +1576,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     sigExtraHeadersRef.value = extraHeaders;
   };
 
-  const fetch = isWriteMethod ? ((useCsrfFetch as any) ?? useFetch) : useFetch;
+  const fetch = useFetch;
   const base: any = await nuxtApp.runWithContext(() => fetch(apiPath as any, finalOptions as any));
 
   const { error, pending } = base;
@@ -1488,11 +1604,19 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     }
 
     const errStatus = lastResponseStatus ?? pickStatusFromUseFetchError(error.value);
-    if (!error.value || (!shouldRefreshOnStatus(errStatus) && !shouldReinitCsrfOnStatus(errStatus))) {
+    const shouldRefreshNuxtCsrf = shouldRefreshNuxtCsrfOnError(error.value);
+
+    if (!error.value || (!shouldRefreshOnStatus(errStatus) && !shouldReinitCsrfOnStatus(errStatus) && !shouldRefreshNuxtCsrf)) {
       return;
     }
 
-    if (shouldRefreshOnStatus(errStatus)) {
+    if (shouldRefreshNuxtCsrf) {
+      try {
+        await refreshNuxtCsrfToken();
+      } catch {
+        return;
+      }
+    } else if (shouldRefreshOnStatus(errStatus)) {
       await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
     } else {
       // CSRF 自愈：通过 sign/init 的 server-to-server 下发，让代理补齐 CSRF cookie。
@@ -1569,6 +1693,15 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
   const executeRefreshOnce = async (): Promise<void> => {
     applyQueuedSources();
     finalOptions.key = `${staticKey}-${Date.now()}`;
+
+    if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
+      try {
+        await refreshNuxtCsrfToken();
+      } catch {
+        // ignore
+      }
+    }
+
     await runWithSignature();
     try {
       await base.refresh();
