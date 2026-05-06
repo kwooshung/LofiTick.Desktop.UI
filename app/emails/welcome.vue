@@ -54,7 +54,10 @@
                       </ul>
                       <p :style="styles.text">emails.welcome.content.closing.thanks</p>
                       <p :style="styles.text">emails.welcome.content.closing.blessing</p>
-                      <p :style="styles.signature">{{ username }}</p>
+                      <p :style="styles.signature">
+                        emails.layout.signature
+                        emails.layout.teamSuffix
+                      </p>
                     </td>
                   </tr>
                 </tbody>
