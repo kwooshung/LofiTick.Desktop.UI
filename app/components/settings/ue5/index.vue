@@ -89,8 +89,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageSettingsUe5RequestItem, IPageSettingsUe5RequestParamItem } from '@@/shared/types/pages/settings/ue5/index.types';
-
 /**
  * Hook：i18n
  */
