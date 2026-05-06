@@ -59,6 +59,21 @@ const UPagination = resolveComponent('UPagination');
 const { t } = useI18n();
 
 /**
+ * Hook：本地化路由
+ */
+const localePath = useLocalePath();
+
+/**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口能力
+ */
+const { openExternalUrl } = useTauriWindow();
+
+/**
  * 路由
  */
 const route = useRoute();
@@ -265,12 +280,19 @@ const handleToggleEnabled = async (row: IPageTableColumnQuotes, value: boolean) 
  * 事件：点击名句句子
  * @param {string} uuid 名句 UUID
  */
-const handleClickSentence = (uuid: string) => {
-  window.open(`https://hitokoto.cn?uuid=${uuid}`, '_blank', 'noopener,noreferrer');
+const handleClickSentence = async (uuid: string): Promise<void> => {
+  const url = `https://hitokoto.cn?uuid=${uuid}`;
+
+  if (isTauriRuntime.value) {
+    await openExternalUrl(url);
+    return;
+  }
+
+  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 /**
- * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/uuid/sentence/translate），移除 page
+ * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/uuid/content/translate），移除 page
  * @param {'type_ids' | 'source_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
  */
@@ -293,10 +315,10 @@ const navigateWithSingleFilter = (key: 'type_ids' | 'source_ids' | 'author_ids',
       q.uuid = uuid;
     }
   }
-  if (typeof route.query.sentence !== 'undefined') {
-    const sentence = String(route.query.sentence).trim();
-    if (sentence) {
-      q.sentence = sentence;
+  if (typeof route.query.content !== 'undefined') {
+    const content = String(route.query.content).trim();
+    if (content) {
+      q.content = content;
     }
   }
   if (typeof route.query.translate !== 'undefined') {
@@ -310,7 +332,7 @@ const navigateWithSingleFilter = (key: 'type_ids' | 'source_ids' | 'author_ids',
   q[key] = String(value);
 
   // 跳转（移除 page，使用 replace 以清爽历史栈）
-  navigateTo({ path: '/quotes', query: q });
+  navigateTo({ path: localePath('/quotes'), query: q });
 };
 
 /**

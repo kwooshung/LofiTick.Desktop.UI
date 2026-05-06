@@ -54,6 +54,11 @@ const UPagination = resolveComponent('UPagination');
 const { t } = useI18n();
 
 /**
+ * Hook：本地化路由
+ */
+const localePath = useLocalePath();
+
+/**
  * 路由
  */
 const route = useRoute();
@@ -106,7 +111,7 @@ const navigateWithSingleFilter = (sourceId: number | string) => {
 
   q.source_ids = String(sourceId);
 
-  navigateTo({ path: '/quotes', query: q });
+  navigateTo({ path: localePath('/quotes'), query: q });
 };
 
 /**
