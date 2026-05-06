@@ -1,7 +1,7 @@
 export const home = {
   title: '首页',
   welcomeEmail: {
-    description: '点击按钮后，会用欢迎邮件 Vue 模板生成 HTML，并发送到固定测试邮箱。',
+    description: '点击按钮后，会生成欢迎邮件内容，并发送到当前收件邮箱。',
     target: '默认收件邮箱：{email}',
     send: '发送欢迎邮件',
     result: {

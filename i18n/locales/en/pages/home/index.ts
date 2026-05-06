@@ -1,7 +1,7 @@
 export const home = {
   title: 'Home',
   welcomeEmail: {
-    description: 'Click the button to render the welcome email HTML from the Vue template and send it to the fixed test mailbox.',
+    description: 'Click the button to generate the welcome email and send it to the current recipient mailbox.',
     target: 'Default recipient: {email}',
     send: 'Send Welcome Email',
     result: {

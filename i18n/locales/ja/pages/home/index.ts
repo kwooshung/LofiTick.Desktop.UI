@@ -1,7 +1,7 @@
 export const home = {
   title: 'ホーム',
   welcomeEmail: {
-    description: 'ボタンを押すと、Vue テンプレートから歓迎メール HTML を描画し、固定のテスト用メールアドレスへ送信します。',
+    description: 'ボタンを押すと、歓迎メールの内容を生成し、現在の送信先メールアドレスへ送信します。',
     target: '既定の送信先: {email}',
     send: '歓迎メールを送信',
     result: {

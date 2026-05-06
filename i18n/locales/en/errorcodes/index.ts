@@ -1,6 +1,7 @@
 export const errorcodes = {
   title: 'Business code: {code}',
   defaultTitle: 'Request failed',
+  '400-000-000': 'Invalid request parameters',
   '403-800-001': 'Signature seed missing',
   '403-800-002': 'Signature timestamp missing',
   '403-800-003': 'Signature timestamp invalid',
