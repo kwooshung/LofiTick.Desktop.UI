@@ -185,20 +185,6 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
 import type { ISentinelStatusPayload } from '@/composables/tauri/sentinel/index';
-import type {
-  IPageSettingsUnattendedMachineNetworkGroups,
-  IPageSettingsUnattendedMachineNetworkSnapshot,
-  IPageSettingsUnattendedScenesItem,
-  IPageSettingsUnattendedScenesMachineRedisConfig,
-  IPageSettingsUnattendedSentinelLogsMachineCard,
-  IPageSettingsUnattendedSentinelLogsMachineGroup,
-  ISettingsUnattended,
-  ISettingsUnattendedScenesLocal,
-  ISettingsUnattendedSentinel,
-  ISettingsUnattendedSentinelRequest,
-  TPageSettingsUnattendedMachineNetwork,
-  TUnattendedStartBehavior
-} from '@@/shared/types/pages/settings/unattended/index.types';
 
 /**
  * Hook：i18n

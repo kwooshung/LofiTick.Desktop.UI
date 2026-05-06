@@ -49,17 +49,24 @@ export type {
   IPageSettingsUnattendedMachineNetworkGroup,
   IPageSettingsUnattendedMachineNetworkGroups,
   IPageSettingsUnattendedMachineNetworkSnapshot,
+  IPageSettingsUnattendedScenesDeleteMachinePayload,
   IPageSettingsUnattendedScenesItem,
   IPageSettingsUnattendedScenesMachineRedisConfig,
   IPageSettingsUnattendedScenesToggleEnabledPayload,
+  IPageSettingsUnattendedScenesUpdateMachineRemarkPayload,
   IPageSettingsUnattendedSentinelLogItem,
   IPageSettingsUnattendedSentinelLogsMachineCard,
   IPageSettingsUnattendedSentinelLogsMachineGroup,
   IPageSettingsUnattendedStructuredLogEntry,
   IPageSettingsUnattendedStructuredLogMessage,
   IPageSettingsUnattendedUe5BridgeDetail,
+  ISettingsUnattended,
   ISettingsUnattendedScenesLocal,
-  TPageSettingsUnattendedLogMessageSegment
+  ISettingsUnattendedSentinel,
+  ISettingsUnattendedSentinelRequest,
+  TPageSettingsUnattendedLogMessageSegment,
+  TPageSettingsUnattendedMachineNetwork,
+  TUnattendedStartBehavior
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';

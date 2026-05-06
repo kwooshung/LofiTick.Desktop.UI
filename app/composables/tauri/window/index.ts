@@ -2,9 +2,6 @@ import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 
-import type { IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
-import type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';
-
 /**
  * 常量：窗口状态变化事件名
  */

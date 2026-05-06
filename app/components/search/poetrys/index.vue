@@ -151,14 +151,6 @@
 import type { SelectItem } from '@nuxt/ui';
 
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
-import type {
-  IQueryResultPoetryAuthorsBasicRow,
-  IQueryResultPoetryAuthorsSummaryPage,
-  IQueryResultPoetryDynastiesBasicRow,
-  IQueryResultPoetryDynastiesSummaryPage,
-  IQueryResultPoetrySearchAuthorsResponse,
-  IQueryResultPoetrySearchDynastiesResponse
-} from '@@/shared/types/pages/poetrys/index.types';
 
 /**
  * 属性：路由状态（由主页面传入）

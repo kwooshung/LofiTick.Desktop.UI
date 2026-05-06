@@ -1,7 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
-
 import { apiToastTryEmit } from '../../hooks/useApi';
 
 /**

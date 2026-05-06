@@ -103,14 +103,6 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  IPageSettingsUnattendedScenesDeleteMachinePayload,
-  IPageSettingsUnattendedScenesMachineRedisConfig,
-  IPageSettingsUnattendedScenesToggleEnabledPayload,
-  IPageSettingsUnattendedScenesUpdateMachineRemarkPayload,
-  IPageSettingsUnattendedSentinelLogsMachineCard
-} from '@@/shared/types/pages/settings/unattended/index.types';
-
 /**
  * 接口：无人值守-场景守护-卡片组件 Props
  */
