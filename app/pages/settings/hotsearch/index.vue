@@ -159,7 +159,7 @@
       </UFormField>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6', header: 'mb-0 flex w-full items-start gap-3' }">
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-start gap-3' }">
       <template #header>
         <div class="flex w-full flex-col items-start gap-3 md:flex-row md:items-start">
           <div class="min-w-0 flex-1">
@@ -176,7 +176,9 @@
           </div>
         </div>
       </template>
+    </UPageCard>
 
+    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
       <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
         <div v-for="platform in computedPlatforms" :key="platform.id" class="bg-elevated/40 border-default/70 hover:border-primary/35 flex min-h-28 items-start justify-between gap-3 rounded-lg border p-4 transition-colors duration-200">
           <div class="min-w-0 space-y-2">
@@ -194,14 +196,9 @@
       </div>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
-      <template #header>
-        <div>
-          <h3 class="text-highlighted text-base font-medium">{{ t('pages.settings.hotsearch.sections.summary.title') }}</h3>
-          <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.sections.summary.description') }}</p>
-        </div>
-      </template>
+    <UPageCard :title="t('pages.settings.hotsearch.sections.summary.title')" :description="t('pages.settings.hotsearch.sections.summary.description')" variant="naked" />
 
+    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <UPageCard icon="i-lucide:layers-2" :title="t('pages.settings.hotsearch.summary.selectedPlatforms')" :description="String(computedSelectedPlatformCount)" />
         <UPageCard icon="i-mdi:lightning-bolt-outline" :title="t('pages.settings.hotsearch.summary.perWindowCost')" :description="String(computedPerWindowCost)" />
