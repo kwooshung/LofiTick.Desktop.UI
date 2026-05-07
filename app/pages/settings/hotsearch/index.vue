@@ -178,42 +178,38 @@
       </template>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
-        <div v-for="platform in computedPlatforms" :key="platform.id" class="bg-elevated/40 border-default/70 hover:border-primary/35 flex min-h-28 items-start justify-between gap-3 rounded-lg border p-4 transition-colors duration-200">
-          <div class="min-w-0 space-y-2">
-            <div class="text-highlighted text-sm leading-5 font-medium">{{ platform.label }}</div>
-            <div class="flex flex-wrap items-center gap-2">
-              <UBadge color="neutral" variant="soft" size="sm">#{{ platform.id }}</UBadge>
-              <UBadge v-if="platform.selected" color="primary" variant="soft" size="sm">
-                {{ t('pages.settings.hotsearch.fields.enabled.label') }}
-              </UBadge>
-            </div>
+    <div class="mb-6 grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
+      <div v-for="platform in computedPlatforms" :key="platform.id" class="bg-elevated/40 border-default/70 hover:border-primary/35 flex min-h-28 items-start justify-between gap-3 rounded-lg border p-4 transition-colors duration-200">
+        <div class="min-w-0 space-y-2">
+          <div class="text-highlighted text-sm leading-5 font-medium">{{ platform.label }}</div>
+          <div class="flex flex-wrap items-center gap-2">
+            <UBadge color="neutral" variant="soft" size="sm">#{{ platform.id }}</UBadge>
+            <UBadge v-if="platform.selected" color="primary" variant="soft" size="sm">
+              {{ t('pages.settings.hotsearch.fields.enabled.label') }}
+            </UBadge>
           </div>
-
-          <USwitch :model-value="platform.selected" @update:model-value="(value) => handlePlatformEnabledUpdate(platform.id, value)" />
         </div>
+
+        <USwitch :model-value="platform.selected" @update:model-value="(value) => handlePlatformEnabledUpdate(platform.id, value)" />
       </div>
-    </UPageCard>
+    </div>
 
     <UPageCard :title="t('pages.settings.hotsearch.sections.summary.title')" :description="t('pages.settings.hotsearch.sections.summary.description')" variant="naked" />
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
-      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <UPageCard icon="i-lucide:layers-2" :title="t('pages.settings.hotsearch.summary.selectedPlatforms')" :description="String(computedSelectedPlatformCount)" />
-        <UPageCard icon="i-mdi:lightning-bolt-outline" :title="t('pages.settings.hotsearch.summary.perWindowCost')" :description="String(computedPerWindowCost)" />
-        <UPageCard icon="i-mdi:calendar-today-outline" :title="t('pages.settings.hotsearch.summary.dailyCost')" :description="String(computedDailyCost)" />
-        <UPageCard icon="i-mdi:calendar-month-outline" :title="t('pages.settings.hotsearch.summary.monthlyEstimate')" :description="String(computedMonthlyEstimate)" />
-        <UPageCard icon="i-lucide:timer" :title="t('pages.settings.hotsearch.summary.windowDuration')" :description="t('pages.settings.hotsearch.summary.minutesValue', { value: computedWindowDurationMinutes })" />
-        <UPageCard icon="i-lucide:clock-3" :title="t('pages.settings.hotsearch.summary.suggestedMorningPodcast')" :description="computedSuggestedMorningPodcastTime" />
-        <UPageCard icon="i-lucide:clock-9" :title="t('pages.settings.hotsearch.summary.suggestedEveningPodcast')" :description="computedSuggestedEveningPodcastTime" />
-        <UPageCard icon="i-lucide:shield-alert" :title="t('pages.settings.hotsearch.summary.budgetStatus')" :description="computedBudgetStatusLabel">
-          <template #footer>
-            <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
-          </template>
-        </UPageCard>
-      </div>
-    </UPageCard>
+    <div class="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <UPageCard icon="i-lucide:layers-2" :title="t('pages.settings.hotsearch.summary.selectedPlatforms')" :description="String(computedSelectedPlatformCount)" />
+      <UPageCard icon="i-mdi:lightning-bolt-outline" :title="t('pages.settings.hotsearch.summary.perWindowCost')" :description="String(computedPerWindowCost)" />
+      <UPageCard icon="i-mdi:calendar-today-outline" :title="t('pages.settings.hotsearch.summary.dailyCost')" :description="String(computedDailyCost)" />
+      <UPageCard icon="i-mdi:calendar-month-outline" :title="t('pages.settings.hotsearch.summary.monthlyEstimate')" :description="String(computedMonthlyEstimate)" />
+      <UPageCard icon="i-lucide:timer" :title="t('pages.settings.hotsearch.summary.windowDuration')" :description="t('pages.settings.hotsearch.summary.minutesValue', { value: computedWindowDurationMinutes })" />
+      <UPageCard icon="i-lucide:clock-3" :title="t('pages.settings.hotsearch.summary.suggestedMorningPodcast')" :description="computedSuggestedMorningPodcastTime" />
+      <UPageCard icon="i-lucide:clock-9" :title="t('pages.settings.hotsearch.summary.suggestedEveningPodcast')" :description="computedSuggestedEveningPodcastTime" />
+      <UPageCard icon="i-lucide:shield-alert" :title="t('pages.settings.hotsearch.summary.budgetStatus')" :description="computedBudgetStatusLabel">
+        <template #footer>
+          <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
+        </template>
+      </UPageCard>
+    </div>
   </DashboardPage>
 </template>
 
