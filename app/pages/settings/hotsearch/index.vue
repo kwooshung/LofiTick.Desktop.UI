@@ -159,7 +159,7 @@
       </UFormField>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', header: 'mb-0 flex w-full items-start gap-3' }">
       <template #header>
         <div class="flex w-full flex-col items-start gap-3 md:flex-row md:items-start">
           <div class="min-w-0 flex-1">
