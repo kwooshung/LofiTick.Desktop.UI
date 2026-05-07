@@ -35,10 +35,11 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
  * 函数：列出热搜平台项。
  * @returns {ISettingsHotsearchPlatformItem[]} 平台项列表。
  */
-export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] => HOTSEARCH_PLATFORM_BASE_LIST.map((item) => ({
-  ...item,
-  key: `components.hotsearch.platform.${item.type}`
-}));
+export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] =>
+  HOTSEARCH_PLATFORM_BASE_LIST.map((item) => ({
+    ...item,
+    key: `components.hotsearch.platform.${item.type}`
+  }));
 
 /**
  * 函数：创建默认热搜设置。
@@ -158,7 +159,7 @@ export const hotsearchTimeAddMinutes = (time: string, minutes: number): string =
   const normalized = hotsearchTimeNormalize(time, '00:00');
   const [hourText, minuteText] = normalized.split(':');
   const baseMinutes = Number(hourText) * 60 + Number(minuteText);
-  const nextMinutes = ((baseMinutes + Math.max(0, Math.trunc(minutes))) % (24 * 60) + (24 * 60)) % (24 * 60);
+  const nextMinutes = (((baseMinutes + Math.max(0, Math.trunc(minutes))) % (24 * 60)) + 24 * 60) % (24 * 60);
   const nextHour = Math.floor(nextMinutes / 60);
   const nextMinute = nextMinutes % 60;
   return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;

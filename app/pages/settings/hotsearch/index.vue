@@ -7,11 +7,21 @@
         <USwitch :model-value="stateHotsearchConfig.enabled" @update:model-value="handleEnabledUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.podcastEnabled.label')" :description="t('pages.settings.hotsearch.fields.podcastEnabled.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.podcastEnabled.label')"
+        :description="t('pages.settings.hotsearch.fields.podcastEnabled.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
         <USwitch :model-value="stateHotsearchConfig.podcastEnabled" @update:model-value="handlePodcastEnabledUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.monthlyBudget.label')" :description="t('pages.settings.hotsearch.fields.monthlyBudget.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.monthlyBudget.label')"
+        :description="t('pages.settings.hotsearch.fields.monthlyBudget.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <div class="flex items-center gap-2">
           <UInput :model-value="String(stateHotsearchConfig.monthlyBudget)" type="number" min="1" step="1" class="w-36" @update:model-value="handleMonthlyBudgetUpdate" />
           <UButton color="neutral" variant="outline" icon="i-lucide:external-link" @click="handleUsageOpen">{{ t('pages.settings.hotsearch.actions.usage') }}</UButton>
@@ -20,27 +30,57 @@
     </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.hotsearch.fields.morningStartAt.label')" :description="t('pages.settings.hotsearch.fields.morningStartAt.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.morningStartAt.label')"
+        :description="t('pages.settings.hotsearch.fields.morningStartAt.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="stateHotsearchConfig.morningStartAt" type="time" class="w-36" @update:model-value="handleMorningStartAtUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.eveningStartAt.label')" :description="t('pages.settings.hotsearch.fields.eveningStartAt.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.eveningStartAt.label')"
+        :description="t('pages.settings.hotsearch.fields.eveningStartAt.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="stateHotsearchConfig.eveningStartAt" type="time" class="w-36" @update:model-value="handleEveningStartAtUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.platformIntervalMinutes.label')" :description="t('pages.settings.hotsearch.fields.platformIntervalMinutes.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.platformIntervalMinutes.label')"
+        :description="t('pages.settings.hotsearch.fields.platformIntervalMinutes.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="String(stateHotsearchConfig.platformIntervalMinutes)" type="number" min="1" step="1" class="w-36" @update:model-value="handlePlatformIntervalMinutesUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.podcastBufferMinutes.label')" :description="t('pages.settings.hotsearch.fields.podcastBufferMinutes.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.podcastBufferMinutes.label')"
+        :description="t('pages.settings.hotsearch.fields.podcastBufferMinutes.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="String(stateHotsearchConfig.podcastBufferMinutes)" type="number" min="0" step="1" class="w-36" @update:model-value="handlePodcastBufferMinutesUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.retryMaxAttempts.label')" :description="t('pages.settings.hotsearch.fields.retryMaxAttempts.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.retryMaxAttempts.label')"
+        :description="t('pages.settings.hotsearch.fields.retryMaxAttempts.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="String(stateHotsearchConfig.retryMaxAttempts)" type="number" min="0" step="1" class="w-36" @update:model-value="handleRetryMaxAttemptsUpdate" />
       </UFormField>
 
-      <UFormField :label="t('pages.settings.hotsearch.fields.retryDelayMinutes.label')" :description="t('pages.settings.hotsearch.fields.retryDelayMinutes.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.retryDelayMinutes.label')"
+        :description="t('pages.settings.hotsearch.fields.retryDelayMinutes.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
         <UInput :model-value="String(stateHotsearchConfig.retryDelayMinutes)" type="number" min="1" step="1" class="w-36" @update:model-value="handleRetryDelayMinutesUpdate" />
       </UFormField>
     </UPageCard>
@@ -49,7 +89,7 @@
       <template #header>
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 class="text-base font-medium text-highlighted">{{ t('pages.settings.hotsearch.sections.platforms.title') }}</h3>
+            <h3 class="text-highlighted text-base font-medium">{{ t('pages.settings.hotsearch.sections.platforms.title') }}</h3>
             <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.sections.platforms.description') }}</p>
           </div>
           <div class="flex items-center gap-2">
@@ -68,7 +108,7 @@
           :class="platform.selected ? 'bg-primary/8 border-primary/40' : ''"
           @click="handlePlatformToggle(platform.id)"
         >
-          <span class="text-sm text-highlighted">{{ platform.label }}</span>
+          <span class="text-highlighted text-sm">{{ platform.label }}</span>
           <UBadge :color="platform.selected ? 'primary' : 'neutral'" variant="soft">#{{ platform.id }}</UBadge>
         </button>
       </div>
@@ -77,7 +117,7 @@
     <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
       <template #header>
         <div>
-          <h3 class="text-base font-medium text-highlighted">{{ t('pages.settings.hotsearch.sections.summary.title') }}</h3>
+          <h3 class="text-highlighted text-base font-medium">{{ t('pages.settings.hotsearch.sections.summary.title') }}</h3>
           <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.sections.summary.description') }}</p>
         </div>
       </template>
@@ -182,11 +222,13 @@ storeBreadcrumb.states = [
 /**
  * 计算属性：平台列表
  */
-const computedPlatforms = computed(() => hotsearchPlatformsList().map((platform) => ({
-  ...platform,
-  label: t(platform.key),
-  selected: stateHotsearchConfig.value.platformIds.includes(platform.id)
-})));
+const computedPlatforms = computed(() =>
+  hotsearchPlatformsList().map((platform) => ({
+    ...platform,
+    label: t(platform.key),
+    selected: stateHotsearchConfig.value.platformIds.includes(platform.id)
+  }))
+);
 
 /**
  * 计算属性：当月天数
@@ -416,9 +458,7 @@ const handleRetryDelayMinutesUpdate = (value: string | number): void => {
  * @param {number} platformId 平台 ID
  */
 const handlePlatformToggle = (platformId: number): void => {
-  const nextIds = stateHotsearchConfig.value.platformIds.includes(platformId)
-    ? stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId)
-    : [...stateHotsearchConfig.value.platformIds, platformId];
+  const nextIds = stateHotsearchConfig.value.platformIds.includes(platformId) ? stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId) : [...stateHotsearchConfig.value.platformIds, platformId];
 
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,

@@ -1,27 +1,7 @@
 /**
  * 类型：热搜平台标识。
  */
-export type THotsearchPlatformType =
-  | 'baidu'
-  | 'sina'
-  | 'sina-news'
-  | 'weibo'
-  | 'toutiao'
-  | 'qq-news'
-  | 'thepaper'
-  | 'netease-news'
-  | 'huxiu'
-  | 'hupu'
-  | 'zhihu'
-  | 'zhihu-daily'
-  | 'ifanr'
-  | 'sspai'
-  | 'guokr'
-  | '36kr'
-  | 'douban-group'
-  | 'helloGitHub'
-  | 'v2ex'
-  | 'history';
+export type THotsearchPlatformType = 'baidu' | 'sina' | 'sina-news' | 'weibo' | 'toutiao' | 'qq-news' | 'thepaper' | 'netease-news' | 'huxiu' | 'hupu' | 'zhihu' | 'zhihu-daily' | 'ifanr' | 'sspai' | 'guokr' | '36kr' | 'douban-group' | 'helloGitHub' | 'v2ex' | 'history';
 
 /**
  * 接口：热搜平台项。
