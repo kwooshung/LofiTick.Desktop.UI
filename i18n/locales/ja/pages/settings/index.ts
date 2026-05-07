@@ -154,6 +154,79 @@ export const settings = {
       playing: '再生中のみブロック'
     }
   },
+  hotsearch: {
+    title: 'トレンド設定',
+    description: 'この端末で使うトレンド取得ウィンドウ、対象プラットフォーム、予算、Podcast 生成の余裕時間を設定します。',
+    sections: {
+      platforms: {
+        title: 'プラットフォーム',
+        description: '本当に必要なプラットフォームだけを選びます。予算は選択数から概算します。'
+      },
+      summary: {
+        title: 'プラン概要',
+        description: '現在の設定におけるウィンドウ所要時間、想定ポイント、Podcast の推奨時刻を表示します。'
+      }
+    },
+    fields: {
+      enabled: {
+        label: '自動取得',
+        description: '有効にすると、この端末が設定したウィンドウに従って選択済みプラットフォームを自動取得します。'
+      },
+      podcastEnabled: {
+        label: 'Podcast 自動生成',
+        description: '有効にすると、Podcast 時刻はトレンド取得ウィンドウから自動推定されます。'
+      },
+      monthlyBudget: {
+        label: '月間ポイント予算',
+        description: '初期値は 3500 です。実際の残高は公式コンソールで確認してください。'
+      },
+      morningStartAt: {
+        label: '朝の取得開始時刻',
+        description: '朝ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+      },
+      eveningStartAt: {
+        label: '夜の取得開始時刻',
+        description: '夜ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+      },
+      platformIntervalMinutes: {
+        label: 'プラットフォーム間隔',
+        description: '1 つのウィンドウ内で各プラットフォームをずらして実行する間隔（分）です。'
+      },
+      podcastBufferMinutes: {
+        label: 'Podcast バッファ',
+        description: 'トレンド取得完了後に追加で待つ時間（分）です。'
+      },
+      retryMaxAttempts: {
+        label: '再試行回数',
+        description: '1 プラットフォームが失敗した場合に許可する自動再試行の最大回数です。'
+      },
+      retryDelayMinutes: {
+        label: '再試行間隔',
+        description: '失敗後に再試行するまでの待機時間（分）です。'
+      }
+    },
+    summary: {
+      selectedPlatforms: '選択済みプラットフォーム',
+      perWindowCost: '1 ウィンドウあたりのポイント',
+      dailyCost: '1 日あたりのポイント',
+      monthlyEstimate: '月間想定ポイント',
+      windowDuration: 'ウィンドウ所要時間',
+      suggestedMorningPodcast: '朝の Podcast 推奨時刻',
+      suggestedEveningPodcast: '夜の Podcast 推奨時刻',
+      budgetStatus: '予算状態',
+      budgetStatusSafe: '安全',
+      budgetStatusWarning: '注意',
+      budgetStatusExceeded: '超過',
+      minutesValue: '{value} 分'
+    },
+    actions: {
+      usage: '公式使用量を開く',
+      selectAll: 'すべて選択',
+      clearAll: 'すべて解除',
+      reset: '初期値に戻す',
+      save: '設定を保存'
+    }
+  },
   unattended: {
     title: '無人値守',
     header: {

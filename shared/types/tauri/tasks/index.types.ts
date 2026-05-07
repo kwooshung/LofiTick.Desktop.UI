@@ -1,0 +1,89 @@
+/**
+ * 接口：热搜窗口计划条目
+ */
+export interface ITauriHotsearchScheduleWindow {
+  /**
+   * 窗口标识
+   */
+  key: string;
+
+  /**
+   * 开始时间
+   */
+  startAt: string;
+
+  /**
+   * 结束时间
+   */
+  endAt: string;
+
+  /**
+   * 建议播客时间
+   */
+  suggestedPodcastAt: string;
+
+  /**
+   * 平台数量
+   */
+  platformCount: number;
+
+  /**
+   * 窗口耗时（分钟）
+   */
+  windowDurationMinutes: number;
+
+  /**
+   * 预计积分
+   */
+  estimatedPoints: number;
+}
+
+/**
+ * 接口：热搜计划快照
+ */
+export interface ITauriHotsearchScheduleSnapshot {
+  /**
+   * 是否启用自动抓取
+   */
+  enabled: boolean;
+
+  /**
+   * 是否启用自动播客
+   */
+  podcastEnabled: boolean;
+
+  /**
+   * 月度预算积分
+   */
+  monthlyBudget: number;
+
+  /**
+   * 已选平台数量
+   */
+  selectedPlatformCount: number;
+
+  /**
+   * 平台抓取间隔（分钟）
+   */
+  platformIntervalMinutes: number;
+
+  /**
+   * 播客缓冲时间（分钟）
+   */
+  podcastBufferMinutes: number;
+
+  /**
+   * 最大重试次数
+   */
+  retryMaxAttempts: number;
+
+  /**
+   * 重试间隔（分钟）
+   */
+  retryDelayMinutes: number;
+
+  /**
+   * 早晚窗口计划
+   */
+  windows: ITauriHotsearchScheduleWindow[];
+}

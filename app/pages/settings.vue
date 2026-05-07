@@ -47,6 +47,11 @@ const links = [
       to: localePath('/settings/power')
     },
     {
+      label: t('pages.settings.hotsearch.title'),
+      icon: 'i-material-symbols:bigtop-updates-rounded',
+      to: localePath('/settings/hotsearch')
+    },
+    {
       label: t('pages.settings.unattended.sections.ue5.title'),
       icon: 'i-file-icons:unrealscript',
       to: localePath('/settings/ue5')

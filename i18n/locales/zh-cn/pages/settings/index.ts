@@ -154,6 +154,79 @@
       playing: '播放时阻止'
     }
   },
+  hotsearch: {
+    title: '热搜设置',
+    description: '配置本机热搜抓取窗口、平台选择、预算与播客缓冲时间。',
+    sections: {
+      platforms: {
+        title: '平台选择',
+        description: '只抓取你真正需要的平台，预算会按已选平台数量实时估算。'
+      },
+      summary: {
+        title: '计划摘要',
+        description: '这里展示当前配置下的窗口耗时、积分预算和建议播客时间。'
+      }
+    },
+    fields: {
+      enabled: {
+        label: '自动抓取',
+        description: '启用后，本机将按热搜窗口计划自动抓取已选平台。'
+      },
+      podcastEnabled: {
+        label: '自动生成播客',
+        description: '启用后，播客时间将默认跟随热搜窗口的推导结果。'
+      },
+      monthlyBudget: {
+        label: '月度预算积分',
+        description: '默认按 3500 规划；真实剩余积分请以官网为准。'
+      },
+      morningStartAt: {
+        label: '早间热搜开始时间',
+        description: '这是早间窗口的源时间，其他推导时间都会跟随变化。'
+      },
+      eveningStartAt: {
+        label: '晚间热搜开始时间',
+        description: '这是晚间窗口的源时间，其他推导时间都会跟随变化。'
+      },
+      platformIntervalMinutes: {
+        label: '平台抓取间隔',
+        description: '窗口内各平台错峰执行的间隔，单位为分钟。'
+      },
+      podcastBufferMinutes: {
+        label: '播客缓冲时长',
+        description: '热搜窗口结束后额外预留的缓冲时间，单位为分钟。'
+      },
+      retryMaxAttempts: {
+        label: '失败重试次数',
+        description: '单个平台抓取失败后允许自动补抓的最大次数。'
+      },
+      retryDelayMinutes: {
+        label: '重试间隔',
+        description: '失败后再次尝试抓取的等待时间，单位为分钟。'
+      }
+    },
+    summary: {
+      selectedPlatforms: '已选平台',
+      perWindowCost: '单窗口积分',
+      dailyCost: '每日积分',
+      monthlyEstimate: '月度预计积分',
+      windowDuration: '窗口耗时',
+      suggestedMorningPodcast: '建议早间播客时间',
+      suggestedEveningPodcast: '建议晚间播客时间',
+      budgetStatus: '预算状态',
+      budgetStatusSafe: '安全',
+      budgetStatusWarning: '提醒',
+      budgetStatusExceeded: '超预算',
+      minutesValue: '{value} 分钟'
+    },
+    actions: {
+      usage: '查看官网用量',
+      selectAll: '全选平台',
+      clearAll: '清空平台',
+      reset: '恢复默认',
+      save: '保存设置'
+    }
+  },
   unattended: {
     title: '无人值守',
     header: {

@@ -154,6 +154,79 @@ export const settings = {
       playing: 'Block while playing'
     }
   },
+  hotsearch: {
+    title: 'Hot Search',
+    description: 'Configure local trending windows, selected platforms, budget, and podcast buffer time.',
+    sections: {
+      platforms: {
+        title: 'Platforms',
+        description: 'Only select the platforms you really need. Budget is estimated from the selected count.'
+      },
+      summary: {
+        title: 'Plan summary',
+        description: 'Shows current window duration, estimated points, and suggested podcast times.'
+      }
+    },
+    fields: {
+      enabled: {
+        label: 'Auto fetch',
+        description: 'When enabled, this machine fetches the selected platforms according to the configured windows.'
+      },
+      podcastEnabled: {
+        label: 'Auto podcast generation',
+        description: 'When enabled, podcast time follows the suggested time derived from the hot search window.'
+      },
+      monthlyBudget: {
+        label: 'Monthly point budget',
+        description: 'Plan with 3500 by default. Check the official console for the real remaining balance.'
+      },
+      morningStartAt: {
+        label: 'Morning hot search start',
+        description: 'This is the source time for the morning window. Derived times follow it automatically.'
+      },
+      eveningStartAt: {
+        label: 'Evening hot search start',
+        description: 'This is the source time for the evening window. Derived times follow it automatically.'
+      },
+      platformIntervalMinutes: {
+        label: 'Platform interval',
+        description: 'Delay between platforms inside one window, in minutes.'
+      },
+      podcastBufferMinutes: {
+        label: 'Podcast buffer',
+        description: 'Extra wait time after the window finishes, in minutes.'
+      },
+      retryMaxAttempts: {
+        label: 'Retry attempts',
+        description: 'Maximum automatic retries for one failed platform.'
+      },
+      retryDelayMinutes: {
+        label: 'Retry delay',
+        description: 'Wait time before retrying a failed platform, in minutes.'
+      }
+    },
+    summary: {
+      selectedPlatforms: 'Selected platforms',
+      perWindowCost: 'Points per window',
+      dailyCost: 'Daily points',
+      monthlyEstimate: 'Monthly estimate',
+      windowDuration: 'Window duration',
+      suggestedMorningPodcast: 'Suggested morning podcast time',
+      suggestedEveningPodcast: 'Suggested evening podcast time',
+      budgetStatus: 'Budget status',
+      budgetStatusSafe: 'Safe',
+      budgetStatusWarning: 'Notice',
+      budgetStatusExceeded: 'Exceeded',
+      minutesValue: '{value} min'
+    },
+    actions: {
+      usage: 'Open usage console',
+      selectAll: 'Select all',
+      clearAll: 'Clear all',
+      reset: 'Reset defaults',
+      save: 'Save settings'
+    }
+  },
   unattended: {
     title: 'Unattended',
     header: {

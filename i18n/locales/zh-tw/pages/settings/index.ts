@@ -154,6 +154,79 @@ export const settings = {
       playing: '播放時阻止'
     }
   },
+  hotsearch: {
+    title: '熱搜設定',
+    description: '設定本機熱搜抓取視窗、平台選擇、預算與 Podcast 緩衝時間。',
+    sections: {
+      platforms: {
+        title: '平台選擇',
+        description: '只選你真正需要的平台，預算會依已選平台數量即時計算。'
+      },
+      summary: {
+        title: '計畫摘要',
+        description: '顯示目前設定下的視窗耗時、積分預估與建議 Podcast 時間。'
+      }
+    },
+    fields: {
+      enabled: {
+        label: '自動抓取',
+        description: '啟用後，本機會依熱搜視窗計畫自動抓取已選平台。'
+      },
+      podcastEnabled: {
+        label: '自動生成 Podcast',
+        description: '啟用後，Podcast 時間會預設跟隨熱搜視窗推導。'
+      },
+      monthlyBudget: {
+        label: '月度預算積分',
+        description: '預設以 3500 規劃；真實剩餘積分請以官網為準。'
+      },
+      morningStartAt: {
+        label: '早間熱搜開始時間',
+        description: '這是早間視窗的來源時間，其餘推導時間都會跟著變化。'
+      },
+      eveningStartAt: {
+        label: '晚間熱搜開始時間',
+        description: '這是晚間視窗的來源時間，其餘推導時間都會跟著變化。'
+      },
+      platformIntervalMinutes: {
+        label: '平台抓取間隔',
+        description: '單一視窗內各平台錯峰執行的間隔，單位為分鐘。'
+      },
+      podcastBufferMinutes: {
+        label: 'Podcast 緩衝時長',
+        description: '熱搜視窗結束後額外保留的緩衝時間，單位為分鐘。'
+      },
+      retryMaxAttempts: {
+        label: '失敗重試次數',
+        description: '單一平台抓取失敗後允許自動補抓的最大次數。'
+      },
+      retryDelayMinutes: {
+        label: '重試間隔',
+        description: '失敗後再次嘗試抓取的等待時間，單位為分鐘。'
+      }
+    },
+    summary: {
+      selectedPlatforms: '已選平台',
+      perWindowCost: '單視窗積分',
+      dailyCost: '每日積分',
+      monthlyEstimate: '月度預估積分',
+      windowDuration: '視窗耗時',
+      suggestedMorningPodcast: '建議早間 Podcast 時間',
+      suggestedEveningPodcast: '建議晚間 Podcast 時間',
+      budgetStatus: '預算狀態',
+      budgetStatusSafe: '安全',
+      budgetStatusWarning: '提醒',
+      budgetStatusExceeded: '超出預算',
+      minutesValue: '{value} 分鐘'
+    },
+    actions: {
+      usage: '查看官網用量',
+      selectAll: '全選平台',
+      clearAll: '清空平台',
+      reset: '恢復預設',
+      save: '儲存設定'
+    }
+  },
   unattended: {
     title: '無人值守',
     header: {

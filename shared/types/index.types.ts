@@ -70,6 +70,8 @@ export type {
   TPageSettingsUnattendedMachineNetwork,
   TUnattendedStartBehavior
 } from '@@/shared/types/pages/settings/unattended/index.types';
+export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, THotsearchPlatformType } from '@@/shared/types/pages/settings/hotsearch/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
+export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';
