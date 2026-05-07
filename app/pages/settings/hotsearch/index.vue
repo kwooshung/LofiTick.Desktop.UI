@@ -1,6 +1,6 @@
 <template>
   <DashboardPage>
-    <UPageCard variant="naked" :ui="{ root: 'mb-6', header: 'mb-0 flex w-full items-center gap-3' }">
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
@@ -50,6 +50,8 @@
         </div>
       </UFormField>
     </UPageCard>
+
+    <UPageCard :title="t('pages.settings.hotsearch.sections.schedule.title')" :description="t('pages.settings.hotsearch.sections.schedule.description')" variant="naked" />
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField
@@ -163,7 +165,7 @@
       <template #header>
         <div class="flex w-full flex-col items-start gap-3 md:flex-row md:items-start">
           <div class="min-w-0 flex-1">
-            <h3 class="text-highlighted text-base font-medium">{{ t('pages.settings.hotsearch.sections.platforms.title') }}</h3>
+            <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.platforms.title') }}</h3>
             <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.sections.platforms.description') }}</p>
           </div>
 

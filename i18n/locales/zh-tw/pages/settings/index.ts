@@ -158,6 +158,10 @@ export const settings = {
     title: '熱搜設定',
     description: '設定本機熱搜抓取視窗、平台選擇、預算與 Podcast 緩衝時間。',
     sections: {
+      schedule: {
+        title: '抓取計畫',
+        description: '這裡設定熱搜視窗的來源時間、平台執行間隔與失敗補抓策略。'
+      },
       platforms: {
         title: '平台選擇',
         description: '只選你真正需要的平台，預算會依已選平台數量即時計算。'

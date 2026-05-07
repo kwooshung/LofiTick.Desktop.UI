@@ -158,6 +158,10 @@
     title: '热搜设置',
     description: '配置本机热搜抓取窗口、平台选择、预算与播客缓冲时间。',
     sections: {
+      schedule: {
+        title: '抓取计划',
+        description: '这里配置热搜窗口的源时间、平台执行间隔和失败补抓策略。'
+      },
       platforms: {
         title: '平台选择',
         description: '只抓取你真正需要的平台，预算会按已选平台数量实时估算。'

@@ -158,6 +158,10 @@ export const settings = {
     title: 'トレンド設定',
     description: 'この端末で使うトレンド取得ウィンドウ、対象プラットフォーム、予算、Podcast 生成の余裕時間を設定します。',
     sections: {
+      schedule: {
+        title: '取得スケジュール',
+        description: '取得ウィンドウの基準時刻、プラットフォーム間隔、再試行方針をここで設定します。'
+      },
       platforms: {
         title: 'プラットフォーム',
         description: '本当に必要なプラットフォームだけを選びます。予算は選択数から概算します。'

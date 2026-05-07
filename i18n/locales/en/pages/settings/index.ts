@@ -158,6 +158,10 @@ export const settings = {
     title: 'Hot Search',
     description: 'Configure local trending windows, selected platforms, budget, and podcast buffer time.',
     sections: {
+      schedule: {
+        title: 'Fetch schedule',
+        description: 'Configure the source window times, platform interval, and retry policy here.'
+      },
       platforms: {
         title: 'Platforms',
         description: 'Only select the platforms you really need. Budget is estimated from the selected count.'
