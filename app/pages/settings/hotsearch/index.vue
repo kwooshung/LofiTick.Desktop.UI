@@ -60,7 +60,7 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputTime :model-value="computedMorningStartAtValue" granularity="minute" hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleMorningStartAtUpdate">
+        <UInputTime :model-value="computedMorningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleMorningStartAtUpdate">
           <template #leading>
             <UIcon name="i-lucide:clock-3" class="text-dimmed size-4" />
           </template>
@@ -73,7 +73,7 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputTime :model-value="computedEveningStartAtValue" granularity="minute" hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleEveningStartAtUpdate">
+        <UInputTime :model-value="computedEveningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleEveningStartAtUpdate">
           <template #leading>
             <UIcon name="i-lucide:clock-9" class="text-dimmed size-4" />
           </template>
@@ -217,7 +217,9 @@
 
 <script setup lang="ts">
 import { parseTime } from '@internationalized/date';
-import type { TimeValue } from 'reka-ui';
+import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
+
+type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
 /**
  * Hook：i18n
@@ -411,25 +413,25 @@ const computedBudgetStatusColor = computed(() => {
  * 函数：将时间文本转换为 UInputTime 可用值
  * @param {string} value 时间文本
  * @param {string} fallback 回退时间
- * @returns {TimeValue} 时间值
+ * @returns {THotsearchInputTimeValue} 时间值
  */
-const hotsearchTimeValueFromText = (value: string, fallback: string): TimeValue => {
+const hotsearchTimeValueFromText = (value: string, fallback: string): THotsearchInputTimeValue => {
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   try {
-    return parseTime(normalized);
+    return parseTime(normalized) as unknown as THotsearchInputTimeValue;
   } catch {
-    return parseTime(fallback);
+    return parseTime(fallback) as unknown as THotsearchInputTimeValue;
   }
 };
 
 /**
  * 函数：将 UInputTime 值格式化为 HH:mm
- * @param {TimeValue | undefined} value 时间值
+ * @param {THotsearchInputTimeValue} value 时间值
  * @param {string} fallback 回退时间
  * @returns {string} 时间文本
  */
-const hotsearchTextFromTimeValue = (value: TimeValue | undefined, fallback: string): string => {
+const hotsearchTextFromTimeValue = (value: THotsearchInputTimeValue, fallback: string): string => {
   if (!value) {
     return fallback;
   }
@@ -563,7 +565,7 @@ const handleMonthlyBudgetUpdate = (value: number | undefined): void => {
  * 函数：更新早间时间
  * @param {string} value 最新值
  */
-const handleMorningStartAtUpdate = (value: TimeValue | undefined): void => {
+const handleMorningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     morningStartAt: hotsearchTextFromTimeValue(value, '06:00')
@@ -575,7 +577,7 @@ const handleMorningStartAtUpdate = (value: TimeValue | undefined): void => {
  * 函数：更新晚间时间
  * @param {string} value 最新值
  */
-const handleEveningStartAtUpdate = (value: TimeValue | undefined): void => {
+const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     eveningStartAt: hotsearchTextFromTimeValue(value, '18:00')
