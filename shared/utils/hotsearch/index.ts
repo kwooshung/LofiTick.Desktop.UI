@@ -111,7 +111,7 @@ const hotsearchPlatformIdsNormalize = (input: unknown): number[] => {
     .filter((item) => Number.isInteger(item) && platformIds.has(item))
     .map((item) => Number(item));
 
-  return normalized.length > 0 ? Array.from(new Set(normalized)) : hotsearchSettingsDefaultCreate().platformIds;
+  return Array.from(new Set(normalized));
 };
 
 /**

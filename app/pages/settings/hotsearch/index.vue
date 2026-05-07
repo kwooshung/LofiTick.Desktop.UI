@@ -1,6 +1,17 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.hotsearch.title')" :description="t('pages.settings.hotsearch.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ root: 'mb-6', header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
+        </div>
+
+        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetDefaults">
+          {{ t('pages.settings.hotsearch.actions.reset') }}
+        </UButton>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.hotsearch.fields.enabled.label')" :description="t('pages.settings.hotsearch.fields.enabled.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
@@ -22,9 +33,20 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <div class="flex items-center gap-2">
-          <UInput :model-value="String(stateHotsearchConfig.monthlyBudget)" type="number" min="1" step="1" class="w-36" @update:model-value="handleMonthlyBudgetUpdate" />
-          <UButton color="neutral" variant="outline" icon="i-lucide:external-link" @click="handleUsageOpen">{{ t('pages.settings.hotsearch.actions.usage') }}</UButton>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <UInputNumber
+            :model-value="stateHotsearchConfig.monthlyBudget"
+            orientation="vertical"
+            :min="1"
+            :step="1"
+            color="primary"
+            variant="outline"
+            class="w-36"
+            :increment="{ color: 'neutral', variant: 'ghost' }"
+            :decrement="{ color: 'neutral', variant: 'ghost' }"
+            @update:model-value="handleMonthlyBudgetUpdate"
+          />
+          <UButton color="primary" variant="outline" icon="i-lucide:external-link" @click="handleUsageOpen">{{ t('pages.settings.hotsearch.actions.usage') }}</UButton>
         </div>
       </UFormField>
     </UPageCard>
@@ -36,7 +58,11 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="stateHotsearchConfig.morningStartAt" type="time" class="w-36" @update:model-value="handleMorningStartAtUpdate" />
+        <UInputTime :model-value="computedMorningStartAtValue" granularity="minute" hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleMorningStartAtUpdate">
+          <template #leading>
+            <UIcon name="i-lucide:clock-3" class="text-dimmed size-4" />
+          </template>
+        </UInputTime>
       </UFormField>
 
       <UFormField
@@ -45,7 +71,11 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="stateHotsearchConfig.eveningStartAt" type="time" class="w-36" @update:model-value="handleEveningStartAtUpdate" />
+        <UInputTime :model-value="computedEveningStartAtValue" granularity="minute" hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleEveningStartAtUpdate">
+          <template #leading>
+            <UIcon name="i-lucide:clock-9" class="text-dimmed size-4" />
+          </template>
+        </UInputTime>
       </UFormField>
 
       <UFormField
@@ -54,7 +84,18 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="String(stateHotsearchConfig.platformIntervalMinutes)" type="number" min="1" step="1" class="w-36" @update:model-value="handlePlatformIntervalMinutesUpdate" />
+        <UInputNumber
+          :model-value="stateHotsearchConfig.platformIntervalMinutes"
+          orientation="vertical"
+          :min="1"
+          :step="1"
+          color="primary"
+          variant="outline"
+          class="w-36"
+          :increment="{ color: 'neutral', variant: 'ghost' }"
+          :decrement="{ color: 'neutral', variant: 'ghost' }"
+          @update:model-value="handlePlatformIntervalMinutesUpdate"
+        />
       </UFormField>
 
       <UFormField
@@ -63,7 +104,18 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="String(stateHotsearchConfig.podcastBufferMinutes)" type="number" min="0" step="1" class="w-36" @update:model-value="handlePodcastBufferMinutesUpdate" />
+        <UInputNumber
+          :model-value="stateHotsearchConfig.podcastBufferMinutes"
+          orientation="vertical"
+          :min="0"
+          :step="1"
+          color="primary"
+          variant="outline"
+          class="w-36"
+          :increment="{ color: 'neutral', variant: 'ghost' }"
+          :decrement="{ color: 'neutral', variant: 'ghost' }"
+          @update:model-value="handlePodcastBufferMinutesUpdate"
+        />
       </UFormField>
 
       <UFormField
@@ -72,7 +124,18 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="String(stateHotsearchConfig.retryMaxAttempts)" type="number" min="0" step="1" class="w-36" @update:model-value="handleRetryMaxAttemptsUpdate" />
+        <UInputNumber
+          :model-value="stateHotsearchConfig.retryMaxAttempts"
+          orientation="vertical"
+          :min="0"
+          :step="1"
+          color="primary"
+          variant="outline"
+          class="w-36"
+          :increment="{ color: 'neutral', variant: 'ghost' }"
+          :decrement="{ color: 'neutral', variant: 'ghost' }"
+          @update:model-value="handleRetryMaxAttemptsUpdate"
+        />
       </UFormField>
 
       <UFormField
@@ -81,36 +144,53 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInput :model-value="String(stateHotsearchConfig.retryDelayMinutes)" type="number" min="1" step="1" class="w-36" @update:model-value="handleRetryDelayMinutesUpdate" />
+        <UInputNumber
+          :model-value="stateHotsearchConfig.retryDelayMinutes"
+          orientation="vertical"
+          :min="1"
+          :step="1"
+          color="primary"
+          variant="outline"
+          class="w-36"
+          :increment="{ color: 'neutral', variant: 'ghost' }"
+          :decrement="{ color: 'neutral', variant: 'ghost' }"
+          @update:model-value="handleRetryDelayMinutesUpdate"
+        />
       </UFormField>
     </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6' }">
       <template #header>
-        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
+        <div class="flex w-full flex-col items-start gap-3 md:flex-row md:items-start">
+          <div class="min-w-0 flex-1">
             <h3 class="text-highlighted text-base font-medium">{{ t('pages.settings.hotsearch.sections.platforms.title') }}</h3>
             <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.sections.platforms.description') }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <UButton color="neutral" variant="outline" size="sm" @click="handleSelectAllPlatforms">{{ t('pages.settings.hotsearch.actions.selectAll') }}</UButton>
-            <UButton color="neutral" variant="outline" size="sm" @click="handleClearPlatforms">{{ t('pages.settings.hotsearch.actions.clearAll') }}</UButton>
+
+          <div class="flex w-full items-center justify-end gap-2 self-end md:ml-auto md:w-auto md:shrink-0 md:self-start">
+            <UBadge color="neutral" variant="soft">{{ computedSelectedPlatformCount }}/{{ computedPlatforms.length }}</UBadge>
+            <div class="bg-elevated/60 border-default flex items-center gap-2 rounded-full border px-3 py-1.5">
+              <span class="text-toned text-xs font-medium">{{ t('pages.settings.hotsearch.actions.selectAll') }}</span>
+              <USwitch :model-value="computedAllPlatformsSelected" @update:model-value="handlePlatformsToggleAll" />
+            </div>
           </div>
         </div>
       </template>
 
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <button
-          v-for="platform in computedPlatforms"
-          :key="platform.id"
-          type="button"
-          class="border-default hover:border-primary/40 hover:bg-elevated flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors"
-          :class="platform.selected ? 'bg-primary/8 border-primary/40' : ''"
-          @click="handlePlatformToggle(platform.id)"
-        >
-          <span class="text-highlighted text-sm">{{ platform.label }}</span>
-          <UBadge :color="platform.selected ? 'primary' : 'neutral'" variant="soft">#{{ platform.id }}</UBadge>
-        </button>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
+        <div v-for="platform in computedPlatforms" :key="platform.id" class="bg-elevated/40 border-default/70 hover:border-primary/35 flex min-h-28 items-start justify-between gap-3 rounded-lg border p-4 transition-colors duration-200">
+          <div class="min-w-0 space-y-2">
+            <div class="text-highlighted text-sm leading-5 font-medium">{{ platform.label }}</div>
+            <div class="flex flex-wrap items-center gap-2">
+              <UBadge color="neutral" variant="soft" size="sm">#{{ platform.id }}</UBadge>
+              <UBadge v-if="platform.selected" color="primary" variant="soft" size="sm">
+                {{ t('pages.settings.hotsearch.fields.enabled.label') }}
+              </UBadge>
+            </div>
+          </div>
+
+          <USwitch :model-value="platform.selected" @update:model-value="(value) => handlePlatformEnabledUpdate(platform.id, value)" />
+        </div>
       </div>
     </UPageCard>
 
@@ -137,15 +217,13 @@
         </UPageCard>
       </div>
     </UPageCard>
-
-    <div class="flex items-center justify-end gap-2">
-      <UButton color="neutral" variant="outline" @click="handleResetDefaults">{{ t('pages.settings.hotsearch.actions.reset') }}</UButton>
-      <UButton color="primary" :loading="stateSaving" @click="handleSave">{{ t('pages.settings.hotsearch.actions.save') }}</UButton>
-    </div>
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
+import { parseTime } from '@internationalized/date';
+import type { TimeValue } from 'reka-ui';
+
 /**
  * Hook：i18n
  */
@@ -197,6 +275,16 @@ const stateRuntimeSchedule = ref<ITauriHotsearchScheduleSnapshot | null>(null);
 const stateSaving = ref(false);
 
 /**
+ * 状态：页面数据已完成初始化
+ */
+const stateHydrated = ref(false);
+
+/**
+ * 状态：保存请求排队中
+ */
+const statePersistQueued = ref(false);
+
+/**
  * 设置面包屑导航状态
  */
 storeBreadcrumb.states = [
@@ -244,6 +332,21 @@ const computedDaysInCurrentMonth = computed(() => {
 const computedSelectedPlatformCount = computed(() => stateHotsearchConfig.value.platformIds.length);
 
 /**
+ * 计算属性：平台是否已全部启用
+ */
+const computedAllPlatformsSelected = computed(() => computedPlatforms.value.length > 0 && computedSelectedPlatformCount.value === computedPlatforms.value.length);
+
+/**
+ * 计算属性：早间时间输入值
+ */
+const computedMorningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.morningStartAt, '06:00'));
+
+/**
+ * 计算属性：晚间时间输入值
+ */
+const computedEveningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.eveningStartAt, '18:00'));
+
+/**
  * 计算属性：壳侧早间窗口快照
  */
 const computedRuntimeMorningWindow = computed(() => stateRuntimeSchedule.value?.windows.find((window) => window.key === 'morning') || null);
@@ -284,26 +387,6 @@ const computedSuggestedMorningPodcastTime = computed(() => computedRuntimeMornin
 const computedSuggestedEveningPodcastTime = computed(() => computedRuntimeEveningWindow.value?.suggestedPodcastAt ?? hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.eveningStartAt));
 
 /**
- * 函数：将壳侧计划标记为待刷新
- */
-const markRuntimeScheduleDirty = (): void => {
-  stateRuntimeSchedule.value = null;
-};
-
-/**
- * 函数：读取壳侧热搜计划快照
- * @returns {Promise<void>} 无返回值
- */
-const loadRuntimeSchedule = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    stateRuntimeSchedule.value = null;
-    return;
-  }
-
-  stateRuntimeSchedule.value = await tauriTasks.hotsearchScheduleGet();
-};
-
-/**
  * 计算属性：预算状态标签
  */
 const computedBudgetStatusLabel = computed(() => {
@@ -330,6 +413,105 @@ const computedBudgetStatusColor = computed(() => {
 });
 
 /**
+ * 函数：将时间文本转换为 UInputTime 可用值
+ * @param {string} value 时间文本
+ * @param {string} fallback 回退时间
+ * @returns {TimeValue} 时间值
+ */
+const hotsearchTimeValueFromText = (value: string, fallback: string): TimeValue => {
+  const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+
+  try {
+    return parseTime(normalized);
+  } catch {
+    return parseTime(fallback);
+  }
+};
+
+/**
+ * 函数：将 UInputTime 值格式化为 HH:mm
+ * @param {TimeValue | undefined} value 时间值
+ * @param {string} fallback 回退时间
+ * @returns {string} 时间文本
+ */
+const hotsearchTextFromTimeValue = (value: TimeValue | undefined, fallback: string): string => {
+  if (!value) {
+    return fallback;
+  }
+
+  return `${String(value.hour).padStart(2, '0')}:${String(value.minute).padStart(2, '0')}`;
+};
+
+/**
+ * 函数：将壳侧计划标记为待刷新
+ */
+const markRuntimeScheduleDirty = (): void => {
+  stateRuntimeSchedule.value = null;
+};
+
+/**
+ * 函数：读取壳侧热搜计划快照
+ * @returns {Promise<void>} 无返回值
+ */
+const loadRuntimeSchedule = async (): Promise<void> => {
+  if (!isTauriRuntime.value) {
+    stateRuntimeSchedule.value = null;
+    return;
+  }
+
+  stateRuntimeSchedule.value = await tauriTasks.hotsearchScheduleGet();
+};
+
+/**
+ * 函数：持久化热搜设置
+ * @returns {Promise<void>} 无返回值
+ */
+const persistHotsearchSettings = async (): Promise<void> => {
+  if (!stateHydrated.value) {
+    return;
+  }
+
+  if (stateSaving.value) {
+    statePersistQueued.value = true;
+    return;
+  }
+
+  stateSaving.value = true;
+  try {
+    const result = await tauriSettings.update({
+      hotsearch: stateHotsearchConfig.value
+    });
+    stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
+    await loadRuntimeSchedule();
+  } finally {
+    stateSaving.value = false;
+  }
+
+  if (statePersistQueued.value) {
+    statePersistQueued.value = false;
+    persistHotsearchSettingsDebounced();
+  }
+};
+
+/**
+ * 函数：延迟写回热搜设置
+ */
+const persistHotsearchSettingsDebounced = useDebounceFn(() => {
+  void persistHotsearchSettings();
+}, 300);
+
+/**
+ * 函数：请求写回热搜设置
+ */
+const requestPersistHotsearchSettings = (): void => {
+  markRuntimeScheduleDirty();
+  if (!stateHydrated.value) {
+    return;
+  }
+  persistHotsearchSettingsDebounced();
+};
+
+/**
  * 函数：从 Tauri 设置读取热搜配置
  * @returns {Promise<void>} 无返回值
  */
@@ -337,6 +519,7 @@ const loadHotsearchSettings = async (): Promise<void> => {
   const settings = await tauriSettings.get();
   stateHotsearchConfig.value = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
   await loadRuntimeSchedule();
+  stateHydrated.value = true;
 };
 
 /**
@@ -353,140 +536,131 @@ const handleUsageOpen = (): void => {
 
 /**
  * 函数：切换热搜自动抓取开关
- * @param {boolean | string} value 最新值
+ * @param {boolean} value 最新值
  */
-const handleEnabledUpdate = (value: boolean | string): void => {
-  stateHotsearchConfig.value.enabled = Boolean(value);
-  markRuntimeScheduleDirty();
+const handleEnabledUpdate = (value: boolean): void => {
+  stateHotsearchConfig.value.enabled = value;
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：切换播客自动生成开关
- * @param {boolean | string} value 最新值
+ * @param {boolean} value 最新值
  */
-const handlePodcastEnabledUpdate = (value: boolean | string): void => {
-  stateHotsearchConfig.value.podcastEnabled = Boolean(value);
-  markRuntimeScheduleDirty();
+const handlePodcastEnabledUpdate = (value: boolean): void => {
+  stateHotsearchConfig.value.podcastEnabled = value;
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新月度预算
- * @param {string | number} value 最新值
+ * @param {number | undefined} value 最新值
  */
-const handleMonthlyBudgetUpdate = (value: string | number): void => {
+const handleMonthlyBudgetUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     monthlyBudget: value
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新早间时间
- * @param {string | number} value 最新值
+ * @param {string} value 最新值
  */
-const handleMorningStartAtUpdate = (value: string | number): void => {
+const handleMorningStartAtUpdate = (value: TimeValue | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    morningStartAt: value
+    morningStartAt: hotsearchTextFromTimeValue(value, '06:00')
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新晚间时间
- * @param {string | number} value 最新值
+ * @param {string} value 最新值
  */
-const handleEveningStartAtUpdate = (value: string | number): void => {
+const handleEveningStartAtUpdate = (value: TimeValue | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    eveningStartAt: value
+    eveningStartAt: hotsearchTextFromTimeValue(value, '18:00')
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新平台抓取间隔
- * @param {string | number} value 最新值
+ * @param {number | undefined} value 最新值
  */
-const handlePlatformIntervalMinutesUpdate = (value: string | number): void => {
+const handlePlatformIntervalMinutesUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     platformIntervalMinutes: value
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新播客缓冲时间
- * @param {string | number} value 最新值
+ * @param {number | undefined} value 最新值
  */
-const handlePodcastBufferMinutesUpdate = (value: string | number): void => {
+const handlePodcastBufferMinutesUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastBufferMinutes: value
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新最大重试次数
- * @param {string | number} value 最新值
+ * @param {number | undefined} value 最新值
  */
-const handleRetryMaxAttemptsUpdate = (value: string | number): void => {
+const handleRetryMaxAttemptsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     retryMaxAttempts: value
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
  * 函数：更新重试间隔
- * @param {string | number} value 最新值
+ * @param {number | undefined} value 最新值
  */
-const handleRetryDelayMinutesUpdate = (value: string | number): void => {
+const handleRetryDelayMinutesUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     retryDelayMinutes: value
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
- * 函数：切换平台选择
+ * 函数：切换单个平台开关
  * @param {number} platformId 平台 ID
+ * @param {boolean} enabled 是否启用
  */
-const handlePlatformToggle = (platformId: number): void => {
-  const nextIds = stateHotsearchConfig.value.platformIds.includes(platformId) ? stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId) : [...stateHotsearchConfig.value.platformIds, platformId];
+const handlePlatformEnabledUpdate = (platformId: number, enabled: boolean): void => {
+  const nextIds = enabled ? [...new Set([...stateHotsearchConfig.value.platformIds, platformId])] : stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId);
 
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
     platformIds: nextIds
   });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
- * 函数：选择全部平台
+ * 函数：切换全部平台开关
+ * @param {boolean} enabled 是否全部启用
  */
-const handleSelectAllPlatforms = (): void => {
+const handlePlatformsToggleAll = (enabled: boolean): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    platformIds: hotsearchPlatformsList().map((platform) => platform.id)
+    platformIds: enabled ? computedPlatforms.value.map((platform) => platform.id) : []
   });
-  markRuntimeScheduleDirty();
-};
-
-/**
- * 函数：清空平台选择
- */
-const handleClearPlatforms = (): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
-    ...stateHotsearchConfig.value,
-    platformIds: []
-  });
-  markRuntimeScheduleDirty();
+  requestPersistHotsearchSettings();
 };
 
 /**
@@ -494,28 +668,7 @@ const handleClearPlatforms = (): void => {
  */
 const handleResetDefaults = (): void => {
   stateHotsearchConfig.value = hotsearchSettingsDefaultCreate();
-  markRuntimeScheduleDirty();
-};
-
-/**
- * 函数：保存热搜设置
- * @returns {Promise<void>} 无返回值
- */
-const handleSave = async (): Promise<void> => {
-  if (stateSaving.value) {
-    return;
-  }
-
-  stateSaving.value = true;
-  try {
-    const result = await tauriSettings.update({
-      hotsearch: stateHotsearchConfig.value
-    });
-    stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
-    await loadRuntimeSchedule();
-  } finally {
-    stateSaving.value = false;
-  }
+  requestPersistHotsearchSettings();
 };
 
 /**

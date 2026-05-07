@@ -16,6 +16,7 @@ export const hotsearch = {
     sspai: '少数派',
     guokr: '果壳',
     '36kr': '36氪',
+    'douban-group': '豆瓣小组',
     helloGitHub: 'HelloGitHub',
     v2ex: 'V2EX',
     history: '历史上的今天'
