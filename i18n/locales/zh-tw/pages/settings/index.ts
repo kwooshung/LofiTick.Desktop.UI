@@ -192,9 +192,13 @@ export const settings = {
         label: '晚間熱搜開始時間',
         description: '這是晚間視窗的來源時間，其餘推導時間都會跟著變化。'
       },
-      platformIntervalMinutes: {
-        label: '平台抓取間隔',
-        description: '單一視窗內各平台錯峰執行的間隔，單位為分鐘。'
+      platformIntervalSeconds: {
+        label: '單一平台抓取間隔',
+        description: '每個平台觸發之間的等待時間，單位為秒。例如 360 秒約等於 6 分鐘。'
+      },
+      scheduleJitterSeconds: {
+        label: '開始時間隨機偏移',
+        description: '以早晚基準時間為中心做正負隨機秒數偏移。例如 1800 代表正負 30 分鐘。'
       },
       podcastBufferMinutes: {
         label: 'Podcast 緩衝時長',
@@ -217,10 +221,15 @@ export const settings = {
       windowDuration: '視窗耗時',
       suggestedMorningPodcast: '建議早間 Podcast 時間',
       suggestedEveningPodcast: '建議晚間 Podcast 時間',
-      budgetStatus: '預算狀態',
+      budgetStatus: '預算結餘',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '提醒',
       budgetStatusExceeded: '超出預算',
+      scopeMonth: '本月',
+      scopeYear: '本年',
+      budgetStatusRemainingDetail: '{scope}：預算 {budget}，預估 {estimate}，剩餘 {remaining}',
+      budgetStatusExceededDetail: '{scope}：預算 {budget}，預估 {estimate}，超出 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分鐘'
     },
     actions: {

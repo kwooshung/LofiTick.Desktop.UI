@@ -52,7 +52,8 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   platformIds: hotsearchPlatformsList().map((item) => item.id),
   morningStartAt: '06:00',
   eveningStartAt: '18:00',
-  platformIntervalMinutes: 2,
+  platformIntervalSeconds: 360,
+  scheduleJitterSeconds: 0,
   podcastBufferMinutes: 20,
   retryMaxAttempts: 1,
   retryDelayMinutes: 10
@@ -122,6 +123,7 @@ const hotsearchPlatformIdsNormalize = (input: unknown): number[] => {
 export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch => {
   const defaults = hotsearchSettingsDefaultCreate();
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+  const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
 
   return {
     enabled: Boolean(source.enabled),
@@ -130,7 +132,8 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
     platformIds: hotsearchPlatformIdsNormalize(source.platformIds),
     morningStartAt: hotsearchTimeNormalize(source.morningStartAt, defaults.morningStartAt),
     eveningStartAt: hotsearchTimeNormalize(source.eveningStartAt, defaults.eveningStartAt),
-    platformIntervalMinutes: hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalMinutes, 1, 120),
+    platformIntervalSeconds: hotsearchIntegerNormalize(source.platformIntervalSeconds, legacyPlatformIntervalMinutes * 60, 1, 7200),
+    scheduleJitterSeconds: hotsearchIntegerNormalize(source.scheduleJitterSeconds, defaults.scheduleJitterSeconds, 0, 43200),
     podcastBufferMinutes: hotsearchIntegerNormalize(source.podcastBufferMinutes, defaults.podcastBufferMinutes, 0, 240),
     retryMaxAttempts: hotsearchIntegerNormalize(source.retryMaxAttempts, defaults.retryMaxAttempts, 0, 10),
     retryDelayMinutes: hotsearchIntegerNormalize(source.retryDelayMinutes, defaults.retryDelayMinutes, 1, 240)
@@ -138,15 +141,47 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
 };
 
 /**
- * 函数：计算窗口耗时分钟数。
+ * 函数：计算窗口耗时秒数。
  * @param {number} platformCount 平台数量。
- * @param {number} intervalMinutes 平台间隔分钟数。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
  * @returns {number} 预计窗口耗时。
  */
-export const hotsearchWindowDurationMinutesGet = (platformCount: number, intervalMinutes: number): number => {
+export const hotsearchWindowDurationSecondsGet = (platformCount: number, intervalSeconds: number): number => {
   const count = Math.max(0, Math.trunc(platformCount));
-  const interval = Math.max(1, Math.trunc(intervalMinutes));
-  return count <= 1 ? 0 : (count - 1) * interval;
+  const interval = Math.max(1, Math.trunc(intervalSeconds));
+  return count <= 0 ? 0 : count * interval;
+};
+
+/**
+ * 函数：计算窗口耗时分钟数。
+ * @param {number} platformCount 平台数量。
+ * @param {number} intervalSeconds 平台间隔秒数。
+ * @returns {number} 预计窗口耗时。
+ */
+export const hotsearchWindowDurationMinutesGet = (platformCount: number, intervalSeconds: number): number => {
+  return Math.ceil(hotsearchWindowDurationSecondsGet(platformCount, intervalSeconds) / 60);
+};
+
+/**
+ * 函数：在 HH:mm 时间上增加秒数。
+ * @param {string} time 时间字符串。
+ * @param {number} seconds 追加秒数。
+ * @returns {string} 结果时间。
+ */
+export const hotsearchTimeAddSeconds = (time: string, seconds: number): string => {
+  const normalized = hotsearchTimeNormalize(time, '00:00');
+  const [hourText, minuteText] = normalized.split(':');
+  const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  const nextSeconds = (((baseSeconds + Math.max(0, Math.trunc(seconds))) % 86400) + 86400) % 86400;
+  const nextHour = Math.floor(nextSeconds / 3600);
+  const nextMinute = Math.floor((nextSeconds % 3600) / 60);
+  const nextSecond = nextSeconds % 60;
+
+  if (nextSecond === 0) {
+    return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
+  }
+
+  return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}:${String(nextSecond).padStart(2, '0')}`;
 };
 
 /**
@@ -172,20 +207,35 @@ export const hotsearchTimeAddMinutes = (time: string, minutes: number): string =
  * @returns {string} 建议播客时间。
  */
 export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, startAt: string): string => {
-  const duration = hotsearchWindowDurationMinutesGet(settings.platformIds.length, settings.platformIntervalMinutes);
-  return hotsearchTimeAddMinutes(startAt, duration + settings.podcastBufferMinutes);
+  const durationSeconds = hotsearchWindowDurationSecondsGet(settings.platformIds.length, settings.platformIntervalSeconds);
+  return hotsearchTimeAddSeconds(startAt, durationSeconds + settings.podcastBufferMinutes * 60);
+};
+
+/**
+ * 函数：计算预计每日积分消耗。
+ * @param {number} platformCount 平台数量。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
+ * @returns {number} 预计积分消耗。
+ */
+export const hotsearchEstimatedDayPointsGet = (platformCount: number, intervalSeconds: number): number => {
+  const count = Math.max(0, Math.trunc(platformCount));
+  const interval = Math.max(1, Math.trunc(intervalSeconds));
+
+  if (count <= 0) {
+    return 0;
+  }
+
+  return Math.ceil(86400 / interval);
 };
 
 /**
  * 函数：计算预计月度积分消耗。
  * @param {number} platformCount 平台数量。
- * @param {number} windowsPerDay 每日窗口数。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
  * @param {number} daysInMonth 当月天数。
  * @returns {number} 预计积分消耗。
  */
-export const hotsearchEstimatedMonthPointsGet = (platformCount: number, windowsPerDay: number, daysInMonth: number): number => {
-  const count = Math.max(0, Math.trunc(platformCount));
-  const windows = Math.max(0, Math.trunc(windowsPerDay));
+export const hotsearchEstimatedMonthPointsGet = (platformCount: number, intervalSeconds: number, daysInMonth: number): number => {
   const days = Math.max(1, Math.trunc(daysInMonth));
-  return count * windows * days;
+  return hotsearchEstimatedDayPointsGet(platformCount, intervalSeconds) * days;
 };

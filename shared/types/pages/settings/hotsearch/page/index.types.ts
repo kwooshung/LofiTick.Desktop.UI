@@ -58,9 +58,14 @@ export interface ISettingsHotsearch {
   eveningStartAt: string;
 
   /**
-   * 平台之间的抓取间隔（单位：分钟）。
+   * 单个平台之间的抓取间隔（单位：秒）。
    */
-  platformIntervalMinutes: number;
+  platformIntervalSeconds: number;
+
+  /**
+   * 早晚窗口的随机偏移范围（单位：秒）。
+   */
+  scheduleJitterSeconds: number;
 
   /**
    * 播客生成缓冲时长（单位：分钟）。

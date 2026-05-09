@@ -192,9 +192,13 @@
         label: '晚间热搜开始时间',
         description: '这是晚间窗口的源时间，其他推导时间都会跟随变化。'
       },
-      platformIntervalMinutes: {
-        label: '平台抓取间隔',
-        description: '窗口内各平台错峰执行的间隔，单位为分钟。'
+      platformIntervalSeconds: {
+        label: '单个平台抓取间隔',
+        description: '每个平台触发之间的等待时间，单位为秒。比如 360 秒约等于 6 分钟。'
+      },
+      scheduleJitterSeconds: {
+        label: '开始时间随机偏移',
+        description: '以早晚基准时间为中心做正负随机秒数偏移。比如 1800 表示正负 30 分钟。'
       },
       podcastBufferMinutes: {
         label: '播客缓冲时长',
@@ -217,10 +221,15 @@
       windowDuration: '窗口耗时',
       suggestedMorningPodcast: '建议早间播客时间',
       suggestedEveningPodcast: '建议晚间播客时间',
-      budgetStatus: '预算状态',
+      budgetStatus: '预算结余',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '提醒',
       budgetStatusExceeded: '超预算',
+      scopeMonth: '本月',
+      scopeYear: '本年',
+      budgetStatusRemainingDetail: '{scope}：预算 {budget}，预计 {estimate}，剩余 {remaining}',
+      budgetStatusExceededDetail: '{scope}：预算 {budget}，预计 {estimate}，超出 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分钟'
     },
     actions: {

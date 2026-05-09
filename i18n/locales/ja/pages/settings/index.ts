@@ -192,9 +192,13 @@ export const settings = {
         label: '夜の取得開始時刻',
         description: '夜ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
       },
-      platformIntervalMinutes: {
+      platformIntervalSeconds: {
         label: 'プラットフォーム間隔',
-        description: '1 つのウィンドウ内で各プラットフォームをずらして実行する間隔（分）です。'
+        description: '各プラットフォームを発火する間の待機時間です。単位は秒です。たとえば 360 秒は約 6 分です。'
+      },
+      scheduleJitterSeconds: {
+        label: '開始時刻のランダム幅',
+        description: '朝と夜の基準時刻を中心に、前後へランダム秒数を加えます。たとえば 1800 なら前後 30 分です。'
       },
       podcastBufferMinutes: {
         label: 'Podcast バッファ',
@@ -217,10 +221,15 @@ export const settings = {
       windowDuration: 'ウィンドウ所要時間',
       suggestedMorningPodcast: '朝の Podcast 推奨時刻',
       suggestedEveningPodcast: '夜の Podcast 推奨時刻',
-      budgetStatus: '予算状態',
+      budgetStatus: '予算残高',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '注意',
       budgetStatusExceeded: '超過',
+      scopeMonth: '今月',
+      scopeYear: '今年',
+      budgetStatusRemainingDetail: '{scope}：予算 {budget}、想定 {estimate}、残り {remaining}',
+      budgetStatusExceededDetail: '{scope}：予算 {budget}、想定 {estimate}、超過 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分'
     },
     actions: {

@@ -81,13 +81,13 @@
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.platformIntervalMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.platformIntervalMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.platformIntervalSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.platformIntervalSeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
         <UInputNumber
-          :model-value="stateHotsearchConfig.platformIntervalMinutes"
+          :model-value="stateHotsearchConfig.platformIntervalSeconds"
           orientation="vertical"
           :min="1"
           :step="1"
@@ -96,7 +96,27 @@
           class="w-36"
           :increment="{ color: 'neutral', variant: 'ghost' }"
           :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handlePlatformIntervalMinutesUpdate"
+          @update:model-value="handlePlatformIntervalSecondsUpdate"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.scheduleJitterSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.scheduleJitterSeconds.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
+        <UInputNumber
+          :model-value="stateHotsearchConfig.scheduleJitterSeconds"
+          orientation="vertical"
+          :min="0"
+          :step="60"
+          color="primary"
+          variant="outline"
+          class="w-36"
+          :increment="{ color: 'neutral', variant: 'ghost' }"
+          :decrement="{ color: 'neutral', variant: 'ghost' }"
+          @update:model-value="handleScheduleJitterSecondsUpdate"
         />
       </UFormField>
 
@@ -206,10 +226,17 @@
       <UPageCard icon="i-lucide:timer" :title="t('pages.settings.hotsearch.summary.windowDuration')" :description="t('pages.settings.hotsearch.summary.minutesValue', { value: computedWindowDurationMinutes })" />
       <UPageCard icon="i-lucide:clock-3" :title="t('pages.settings.hotsearch.summary.suggestedMorningPodcast')" :description="computedSuggestedMorningPodcastTime" />
       <UPageCard icon="i-lucide:clock-9" :title="t('pages.settings.hotsearch.summary.suggestedEveningPodcast')" :description="computedSuggestedEveningPodcastTime" />
-      <UPageCard icon="i-lucide:shield-alert" :title="t('pages.settings.hotsearch.summary.budgetStatus')" :description="computedBudgetStatusLabel">
-        <template #footer>
-          <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
+      <UPageCard icon="i-lucide:shield-alert">
+        <template #title>
+          <div class="flex items-center gap-2">
+            <span>{{ t('pages.settings.hotsearch.summary.budgetStatus') }}</span>
+            <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
+          </div>
         </template>
+        <div class="space-y-1.5">
+          <p class="text-toned text-sm leading-6">{{ computedBudgetStatusMonthDescription }}</p>
+          <p class="text-toned text-sm leading-6">{{ computedBudgetStatusYearDescription }}</p>
+        </div>
       </UPageCard>
     </div>
   </DashboardPage>
@@ -334,6 +361,66 @@ const computedSelectedPlatformCount = computed(() => stateHotsearchConfig.value.
 const computedAllPlatformsSelected = computed(() => computedPlatforms.value.length > 0 && computedSelectedPlatformCount.value === computedPlatforms.value.length);
 
 /**
+ * 计算属性：本地热搜计划窗口
+ */
+const computedLocalScheduleWindows = computed(() => {
+  const platformCount = computedSelectedPlatformCount.value;
+  const windowDurationMinutes = hotsearchWindowDurationMinutesGet(platformCount, stateHotsearchConfig.value.platformIntervalSeconds);
+
+  return [
+    {
+      key: 'morning',
+      estimatedPoints: platformCount,
+      windowDurationMinutes,
+      suggestedPodcastAt: hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.morningStartAt)
+    },
+    {
+      key: 'evening',
+      estimatedPoints: platformCount,
+      windowDurationMinutes,
+      suggestedPodcastAt: hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.eveningStartAt)
+    }
+  ];
+});
+
+/**
+ * 函数：按秒偏移时间文本。
+ * @param {string} value 时间文本
+ * @param {string} fallback 回退时间
+ * @param {number} deltaSeconds 偏移秒数
+ * @returns {string} 偏移后的时间文本
+ */
+const hotsearchTimeShiftText = (value: string, fallback: string, deltaSeconds: number): string => {
+  const normalized = typeof value === 'string' && /^\d{2}:\d{2}$/.test(value.trim()) ? value.trim() : fallback;
+  const [hourText, minuteText] = normalized.split(':');
+  const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  const nextSeconds = (((baseSeconds + Math.trunc(deltaSeconds)) % 86400) + 86400) % 86400;
+  const nextHour = Math.floor(nextSeconds / 3600);
+  const nextMinute = Math.floor((nextSeconds % 3600) / 60);
+  return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
+};
+
+/**
+ * 函数：格式化随机时间范围。
+ * @param {string} value 基准时间
+ * @param {string} fallback 回退时间
+ * @returns {string} 时间范围文本
+ */
+const hotsearchTimeRangeText = (value: string, fallback: string): string => {
+  const jitterSeconds = stateHotsearchConfig.value.scheduleJitterSeconds;
+  const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+
+  if (jitterSeconds <= 0) {
+    return normalized;
+  }
+
+  return t('pages.settings.hotsearch.summary.rangeValue', {
+    start: hotsearchTimeShiftText(normalized, fallback, -jitterSeconds),
+    end: hotsearchTimeShiftText(normalized, fallback, jitterSeconds)
+  });
+};
+
+/**
  * 计算属性：早间时间输入值
  */
 const computedMorningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.morningStartAt, '06:00'));
@@ -344,44 +431,77 @@ const computedMorningStartAtValue = computed(() => hotsearchTimeValueFromText(st
 const computedEveningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.eveningStartAt, '18:00'));
 
 /**
- * 计算属性：壳侧早间窗口快照
- */
-const computedRuntimeMorningWindow = computed(() => stateRuntimeSchedule.value?.windows.find((window) => window.key === 'morning') || null);
-
-/**
- * 计算属性：壳侧晚间窗口快照
- */
-const computedRuntimeEveningWindow = computed(() => stateRuntimeSchedule.value?.windows.find((window) => window.key === 'evening') || null);
-
-/**
  * 计算属性：单窗口积分消耗
  */
-const computedPerWindowCost = computed(() => computedRuntimeMorningWindow.value?.estimatedPoints ?? computedSelectedPlatformCount.value);
+const computedPerWindowCost = computed(() => computedLocalScheduleWindows.value[0]?.estimatedPoints ?? 0);
 
 /**
  * 计算属性：每天积分消耗
  */
-const computedDailyCost = computed(() => computedPerWindowCost.value * 2);
+const computedDailyCost = computed(() => {
+  if (computedSelectedPlatformCount.value <= 0) {
+    return 0;
+  }
+
+  return Math.ceil(86400 / Math.max(1, stateHotsearchConfig.value.platformIntervalSeconds));
+});
 
 /**
  * 计算属性：月度预计积分消耗
  */
-const computedMonthlyEstimate = computed(() => hotsearchEstimatedMonthPointsGet(computedSelectedPlatformCount.value, 2, computedDaysInCurrentMonth.value));
+const computedMonthlyEstimate = computed(() => hotsearchEstimatedMonthPointsGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalSeconds, computedDaysInCurrentMonth.value));
+
+/**
+ * 计算属性：当前年份天数
+ */
+const computedDaysInCurrentYear = computed(() => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const start = new Date(year, 0, 1);
+  const end = new Date(year + 1, 0, 1);
+  return Math.round((end.getTime() - start.getTime()) / 86400000);
+});
+
+/**
+ * 计算属性：年度预计积分消耗
+ */
+const computedYearlyEstimate = computed(() => computedDailyCost.value * computedDaysInCurrentYear.value);
 
 /**
  * 计算属性：窗口耗时
  */
-const computedWindowDurationMinutes = computed(() => computedRuntimeMorningWindow.value?.windowDurationMinutes ?? hotsearchWindowDurationMinutesGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalMinutes));
+const computedWindowDurationMinutes = computed(() => computedLocalScheduleWindows.value[0]?.windowDurationMinutes ?? 0);
 
 /**
  * 计算属性：建议早间播客时间
  */
-const computedSuggestedMorningPodcastTime = computed(() => computedRuntimeMorningWindow.value?.suggestedPodcastAt ?? hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.morningStartAt));
+const computedSuggestedMorningPodcastTime = computed(() => {
+  const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'morning')?.suggestedPodcastAt ?? stateHotsearchConfig.value.morningStartAt;
+  return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.morningStartAt);
+});
 
 /**
  * 计算属性：建议晚间播客时间
  */
-const computedSuggestedEveningPodcastTime = computed(() => computedRuntimeEveningWindow.value?.suggestedPodcastAt ?? hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.eveningStartAt));
+const computedSuggestedEveningPodcastTime = computed(() => {
+  const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'evening')?.suggestedPodcastAt ?? stateHotsearchConfig.value.eveningStartAt;
+  return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.eveningStartAt);
+});
+
+/**
+ * 计算属性：预算剩余额度
+ */
+const computedBudgetRemaining = computed(() => stateHotsearchConfig.value.monthlyBudget - computedMonthlyEstimate.value);
+
+/**
+ * 计算属性：年度预算积分
+ */
+const computedYearlyBudget = computed(() => stateHotsearchConfig.value.monthlyBudget * 12);
+
+/**
+ * 计算属性：年度预算剩余额度
+ */
+const computedYearlyBudgetRemaining = computed(() => computedYearlyBudget.value - computedYearlyEstimate.value);
 
 /**
  * 计算属性：预算状态标签
@@ -407,6 +527,48 @@ const computedBudgetStatusColor = computed(() => {
     return 'warning';
   }
   return 'success';
+});
+
+/**
+ * 计算属性：预算状态详情
+ */
+const computedBudgetStatusMonthDescription = computed(() => {
+  if (computedBudgetRemaining.value < 0) {
+    return t('pages.settings.hotsearch.summary.budgetStatusExceededDetail', {
+      scope: t('pages.settings.hotsearch.summary.scopeMonth'),
+      budget: stateHotsearchConfig.value.monthlyBudget,
+      estimate: computedMonthlyEstimate.value,
+      exceeded: Math.abs(computedBudgetRemaining.value)
+    });
+  }
+
+  return t('pages.settings.hotsearch.summary.budgetStatusRemainingDetail', {
+    scope: t('pages.settings.hotsearch.summary.scopeMonth'),
+    budget: stateHotsearchConfig.value.monthlyBudget,
+    estimate: computedMonthlyEstimate.value,
+    remaining: computedBudgetRemaining.value
+  });
+});
+
+/**
+ * 计算属性：预算状态年详情
+ */
+const computedBudgetStatusYearDescription = computed(() => {
+  if (computedYearlyBudgetRemaining.value < 0) {
+    return t('pages.settings.hotsearch.summary.budgetStatusExceededDetail', {
+      scope: t('pages.settings.hotsearch.summary.scopeYear'),
+      budget: computedYearlyBudget.value,
+      estimate: computedYearlyEstimate.value,
+      exceeded: Math.abs(computedYearlyBudgetRemaining.value)
+    });
+  }
+
+  return t('pages.settings.hotsearch.summary.budgetStatusRemainingDetail', {
+    scope: t('pages.settings.hotsearch.summary.scopeYear'),
+    budget: computedYearlyBudget.value,
+    estimate: computedYearlyEstimate.value,
+    remaining: computedYearlyBudgetRemaining.value
+  });
 });
 
 /**
@@ -589,10 +751,22 @@ const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
  * 函数：更新平台抓取间隔
  * @param {number | undefined} value 最新值
  */
-const handlePlatformIntervalMinutesUpdate = (value: number | undefined): void => {
+const handlePlatformIntervalSecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    platformIntervalMinutes: value
+    platformIntervalSeconds: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新计划随机偏移
+ * @param {number | undefined} value 最新值
+ */
+const handleScheduleJitterSecondsUpdate = (value: number | undefined): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    scheduleJitterSeconds: value
   });
   requestPersistHotsearchSettings();
 };

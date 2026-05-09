@@ -192,9 +192,13 @@ export const settings = {
         label: 'Evening hot search start',
         description: 'This is the source time for the evening window. Derived times follow it automatically.'
       },
-      platformIntervalMinutes: {
-        label: 'Platform interval',
-        description: 'Delay between platforms inside one window, in minutes.'
+      platformIntervalSeconds: {
+        label: 'Per-platform interval',
+        description: 'Delay between platform triggers, in seconds. For example, 360 seconds is about 6 minutes.'
+      },
+      scheduleJitterSeconds: {
+        label: 'Start time jitter',
+        description: 'Apply a symmetric random offset around the morning and evening base times. For example, 1800 means plus or minus 30 minutes.'
       },
       podcastBufferMinutes: {
         label: 'Podcast buffer',
@@ -217,10 +221,15 @@ export const settings = {
       windowDuration: 'Window duration',
       suggestedMorningPodcast: 'Suggested morning podcast time',
       suggestedEveningPodcast: 'Suggested evening podcast time',
-      budgetStatus: 'Budget status',
+      budgetStatus: 'Budget balance',
       budgetStatusSafe: 'Safe',
       budgetStatusWarning: 'Notice',
       budgetStatusExceeded: 'Exceeded',
+      scopeMonth: 'This month',
+      scopeYear: 'This year',
+      budgetStatusRemainingDetail: '{scope}: budget {budget}, estimate {estimate}, remaining {remaining}',
+      budgetStatusExceededDetail: '{scope}: budget {budget}, estimate {estimate}, exceeded by {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} min'
     },
     actions: {
