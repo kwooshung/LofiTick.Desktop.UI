@@ -1,0 +1,25 @@
+name: push main branche, gitee sync
+
+# 当推送到 main分支 时 触发此工作流
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 同步到 Gitee
+      - name: Sync to Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+        with:
+          source-repo: "git@github.com:kwooshung/LofiTick.Desktop.UI.git"
+          destination-repo: "git@gitee.com:kwooshung/LofiTick.Desktop.UI.git"

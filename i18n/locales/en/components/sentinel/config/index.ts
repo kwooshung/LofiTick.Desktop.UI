@@ -1,0 +1,56 @@
+export const config = {
+  labels: {
+    onlineWindowSeconds: 'Online window',
+    heartbeatInterval: 'Scene app heartbeat interval',
+    heartbeatTimeoutCount: 'Consecutive heartbeat misses',
+    restartDelay: 'Restart delay',
+    restartMaxAttempts: 'Max restarts',
+    restartCooldown: 'Restart cooldown',
+    restartBurstWindow: 'Restart burst',
+    restartBurstMaxAttempts: 'Max bursts',
+    restartBurstCooldown: 'Burst cooldown'
+  },
+  units: {
+    window: 'Window',
+    interval: 'Interval',
+    count: 'Count',
+    delay: 'Delay',
+    cooldown: 'Cooldown',
+    seconds: 'sec',
+    milliseconds: 'ms',
+    times: 'times',
+    consecutive: 'Consecutive',
+    burst: 'Burst'
+  },
+  badges: {
+    heartbeat: 'Scene heartbeat',
+    crash: 'Crash',
+    wait: 'Wait',
+    consecutiveRestart: 'Consecutive restart',
+    restartDelay: 'Restart delay',
+    maxRestart: 'Max restarts',
+    restartCooldown: 'Restart cooldown',
+    restartBurst: 'Restart burst'
+  },
+  desc: {
+    onlineWindowSecondsAfterHeartbeat: 'Online detection window after a heartbeat from an enabled scene app on this machine is received',
+    heartbeatIntervalAfterHeartbeat: 'Heartbeat interval of enabled scene apps on this machine, also used as the sentinel monitoring cadence',
+    crashCountPrefix: 'Consecutive missed heartbeats from enabled scene apps on this machine',
+    crashCountMiddle: 'reach the configured count, then mark as',
+    restartDelayPrefix: '',
+    restartDelayMiddle: '',
+    restartDelaySuffix: 'how long before attempting restart',
+    restartEpisodePrefix: '',
+    restartEpisodeAfterConsecutive: '',
+    restartEpisodeAfterCrash: 'is detected, retry restart at',
+    restartEpisodeAfterDelay: 'interval; when attempts reach',
+    restartEpisodeAfterMax: ', enter',
+    restartCooldownPrefix: 'When',
+    restartCooldownMiddle: 'attempts reach',
+    restartCooldownSuffixBeforeNext: ', enter cooldown; once finished, allow the next',
+    restartBurstWindowAfterConsecutive: 'failures reach this threshold, count as 1',
+    maxBurstAfterBurst: 'Total triggers allowed; stop restarting when reached',
+    burstCooldownAfterBurst: 'After each trigger,',
+    burstCooldownAfterWait: 'how long before trying restarts again'
+  }
+};
