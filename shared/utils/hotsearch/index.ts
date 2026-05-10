@@ -219,13 +219,14 @@ export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, s
  */
 export const hotsearchEstimatedDayPointsGet = (platformCount: number, intervalSeconds: number): number => {
   const count = Math.max(0, Math.trunc(platformCount));
-  const interval = Math.max(1, Math.trunc(intervalSeconds));
+  const windowDurationSeconds = hotsearchWindowDurationSecondsGet(platformCount, intervalSeconds);
 
-  if (count <= 0) {
+  if (count <= 0 || windowDurationSeconds <= 0) {
     return 0;
   }
 
-  return Math.ceil(86400 / interval);
+  const fullRoundsPerDay = Math.max(1, Math.floor(86400 / windowDurationSeconds));
+  return fullRoundsPerDay * count;
 };
 
 /**

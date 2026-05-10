@@ -438,13 +438,7 @@ const computedPerWindowCost = computed(() => computedLocalScheduleWindows.value[
 /**
  * 计算属性：每天积分消耗
  */
-const computedDailyCost = computed(() => {
-  if (computedSelectedPlatformCount.value <= 0) {
-    return 0;
-  }
-
-  return Math.ceil(86400 / Math.max(1, stateHotsearchConfig.value.platformIntervalSeconds));
-});
+const computedDailyCost = computed(() => hotsearchEstimatedDayPointsGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalSeconds));
 
 /**
  * 计算属性：月度预计积分消耗
