@@ -1,5 +1,24 @@
 ﻿export const settings = {
   title: '设置',
+  connections: {
+    title: '服务连接',
+    description: '统一管理桌面端连接 Rust API、1Panel 与 UE5 桥接所需的接入配置。',
+    apiBase: {
+      label: 'Rust API 地址',
+      description: '桌面壳直连 Rust API 时使用的基础地址。',
+      placeholder: 'https://api.example.com'
+    },
+    onepanelApiKey: {
+      label: '1Panel API Key',
+      description: '只保存到服务端 Redis，用于计划任务代理与热搜 cron 同步。',
+      placeholder: '请输入 1Panel API Key'
+    },
+    ue5Upstream: {
+      label: 'UE5 上游域名',
+      description: '用于 UE5 接入桥接的上游域名，输入后会自动保存。',
+      placeholder: 'https://api.v1.lofitick.com/'
+    }
+  },
   general: {
     title: '常规设置',
     description: '应用程序基础行为、语言等通用偏好配置',
@@ -238,6 +257,85 @@
       clearAll: '清空平台',
       reset: '恢复默认',
       save: '保存设置'
+    }
+  },
+  cron: {
+    title: '计划任务',
+    description: '统一管理服务器任务与本地任务。',
+    tabs: {
+      server: '服务器任务',
+      local: '本地任务'
+    },
+    actions: {
+      refresh: '刷新',
+      search: '查询',
+      resetSearch: '清空',
+      syncHotsearch: '同步热搜 cron',
+      run: '执行',
+      stop: '停止',
+      records: '记录',
+      delete: '删除',
+      viewLog: '日志'
+    },
+    hotsearch: {
+      label: '热搜计划任务',
+      description: '这里展示热搜开关与 1Panel cron 是否已经保持一致。',
+      enabled: '热搜开关：{value}',
+      callbackUnset: '尚未推导出可供 1Panel 回调的地址',
+      states: {
+        ready: '已同步',
+        outOfSync: '待修复',
+        unconfigured: '未配置 1Panel'
+      }
+    },
+    local: {
+      empty: {
+        title: '本地任务暂未接入',
+        description: '这里预留给桌面端本地计划任务，当前版本暂不提供可操作内容。'
+      }
+    },
+    search: {
+      label: '任务筛选',
+      description: '按名称筛选 1Panel 计划任务。',
+      placeholder: '输入任务名称关键字'
+    },
+    table: {
+      name: '任务',
+      schedule: '计划',
+      createdAt: '创建时间',
+      status: '状态',
+      actions: '操作',
+      executing: '执行中'
+    },
+    records: {
+      title: '{name} 的执行记录',
+      empty: {
+        title: '暂无执行记录',
+        description: '当前任务还没有可展示的执行历史。'
+      },
+      table: {
+        startedAt: '开始时间',
+        status: '状态',
+        message: '摘要',
+        interval: '耗时',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '执行记录 #{id} 日志',
+      empty: {
+        title: '暂无日志内容',
+        description: '当前记录没有返回可展示的文本日志。'
+      }
+    },
+    delete: {
+      title: '确认删除任务',
+      description: '将删除 {name}，但不会清理关联数据。',
+      confirm: '确认删除'
+    },
+    footer: {
+      total: '共 {total} 条任务'
     }
   },
   unattended: {

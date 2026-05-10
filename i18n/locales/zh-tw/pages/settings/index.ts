@@ -1,5 +1,24 @@
 export const settings = {
   title: '設定',
+  connections: {
+    title: '服務連線',
+    description: '集中管理桌面端連接 Rust API、1Panel 與 UE5 橋接所需的接入設定。',
+    apiBase: {
+      label: 'Rust API 位址',
+      description: '桌面殼直連 Rust API 時使用的基礎位址。',
+      placeholder: 'https://api.example.com'
+    },
+    onepanelApiKey: {
+      label: '1Panel API Key',
+      description: '只會儲存在伺服器 Redis，用於排程代理與熱搜 cron 同步。',
+      placeholder: '請輸入 1Panel API Key'
+    },
+    ue5Upstream: {
+      label: 'UE5 上游網域',
+      description: 'UE5 橋接整合所使用的上游網域，輸入後會自動儲存。',
+      placeholder: 'https://api.v1.lofitick.com/'
+    }
+  },
   general: {
     title: '一般設定',
     description: '調整應用程式的基本行為、介面語言與常用偏好。',
@@ -238,6 +257,85 @@ export const settings = {
       clearAll: '清空平台',
       reset: '恢復預設',
       save: '儲存設定'
+    }
+  },
+  cron: {
+    title: '計畫任務',
+    description: '集中管理伺服器任務與本地任務。',
+    tabs: {
+      server: '伺服器任務',
+      local: '本地任務'
+    },
+    actions: {
+      refresh: '重新整理',
+      search: '查詢',
+      resetSearch: '清空',
+      syncHotsearch: '同步熱搜 cron',
+      run: '執行',
+      stop: '停止',
+      records: '紀錄',
+      delete: '刪除',
+      viewLog: '日誌'
+    },
+    hotsearch: {
+      label: '熱搜計畫任務',
+      description: '這裡顯示熱搜開關與 1Panel cron 是否已經一致。',
+      enabled: '熱搜開關：{value}',
+      callbackUnset: '尚未推導出可供 1Panel 回呼的位址',
+      states: {
+        ready: '已同步',
+        outOfSync: '待修復',
+        unconfigured: '尚未設定 1Panel'
+      }
+    },
+    local: {
+      empty: {
+        title: '本地任務尚未接入',
+        description: '這裡預留給桌面端本地計畫任務，當前版本暫時沒有可操作內容。'
+      }
+    },
+    search: {
+      label: '任務篩選',
+      description: '依名稱篩選 1Panel 計畫任務。',
+      placeholder: '輸入任務名稱關鍵字'
+    },
+    table: {
+      name: '任務',
+      schedule: '排程',
+      createdAt: '建立時間',
+      status: '狀態',
+      actions: '操作',
+      executing: '執行中'
+    },
+    records: {
+      title: '{name} 的執行紀錄',
+      empty: {
+        title: '暫無執行紀錄',
+        description: '目前任務還沒有可顯示的執行歷史。'
+      },
+      table: {
+        startedAt: '開始時間',
+        status: '狀態',
+        message: '摘要',
+        interval: '耗時',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '執行紀錄 #{id} 日誌',
+      empty: {
+        title: '暫無日誌內容',
+        description: '目前紀錄沒有可顯示的文字日誌。'
+      }
+    },
+    delete: {
+      title: '確認刪除任務',
+      description: '將刪除 {name}，但不會清理關聯資料。',
+      confirm: '確認刪除'
+    },
+    footer: {
+      total: '共 {total} 筆任務'
     }
   },
   unattended: {

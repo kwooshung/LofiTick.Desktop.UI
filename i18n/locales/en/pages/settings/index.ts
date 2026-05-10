@@ -1,5 +1,24 @@
 export const settings = {
   title: 'Settings',
+  connections: {
+    title: 'Service connections',
+    description: 'Manage the desktop-side connection settings used for the Rust API, 1Panel, and the UE5 bridge in one place.',
+    apiBase: {
+      label: 'Rust API base',
+      description: 'Base URL used by the desktop shell when it talks directly to the Rust API.',
+      placeholder: 'https://api.example.com'
+    },
+    onepanelApiKey: {
+      label: '1Panel API Key',
+      description: 'Stored only in server-side Redis for cron proxying and hot search cron sync.',
+      placeholder: 'Enter the 1Panel API Key'
+    },
+    ue5Upstream: {
+      label: 'UE5 upstream domain',
+      description: 'Upstream domain used by the UE5 bridge integration. It is saved automatically after input.',
+      placeholder: 'https://api.v1.lofitick.com/'
+    }
+  },
   general: {
     title: 'General',
     description: 'Configure basic app behavior, language, and common preferences.',
@@ -238,6 +257,85 @@ export const settings = {
       clearAll: 'Clear all',
       reset: 'Reset defaults',
       save: 'Save settings'
+    }
+  },
+  cron: {
+    title: 'Scheduled Tasks',
+    description: 'Manage server-side jobs and local jobs in one place.',
+    tabs: {
+      server: 'Server jobs',
+      local: 'Local jobs'
+    },
+    actions: {
+      refresh: 'Refresh',
+      search: 'Search',
+      resetSearch: 'Clear',
+      syncHotsearch: 'Sync hot search cron',
+      run: 'Run',
+      stop: 'Stop',
+      records: 'Records',
+      delete: 'Delete',
+      viewLog: 'Log'
+    },
+    hotsearch: {
+      label: 'Hot search cron',
+      description: 'Shows whether the hot search switch and the 1Panel cron state are aligned.',
+      enabled: 'Hot search: {value}',
+      callbackUnset: 'No callback URL has been derived for 1Panel yet.',
+      states: {
+        ready: 'Synchronized',
+        outOfSync: 'Needs repair',
+        unconfigured: '1Panel not configured'
+      }
+    },
+    local: {
+      empty: {
+        title: 'Local jobs are not wired yet',
+        description: 'This section is reserved for desktop-local scheduled tasks and is not available in the current version.'
+      }
+    },
+    search: {
+      label: 'Filter jobs',
+      description: 'Filter 1Panel cron jobs by name.',
+      placeholder: 'Enter a cron job name keyword'
+    },
+    table: {
+      name: 'Job',
+      schedule: 'Schedule',
+      createdAt: 'Created at',
+      status: 'Status',
+      actions: 'Actions',
+      executing: 'Running'
+    },
+    records: {
+      title: 'Execution records for {name}',
+      empty: {
+        title: 'No execution records',
+        description: 'This job has no execution history to display yet.'
+      },
+      table: {
+        startedAt: 'Started at',
+        status: 'Status',
+        message: 'Summary',
+        interval: 'Duration',
+        actions: 'Actions',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: 'Log for record #{id}',
+      empty: {
+        title: 'No log content',
+        description: 'This record did not return any displayable text log.'
+      }
+    },
+    delete: {
+      title: 'Delete cron job',
+      description: 'Delete {name} without cleaning related data.',
+      confirm: 'Delete'
+    },
+    footer: {
+      total: '{total} jobs in total'
     }
   },
   unattended: {

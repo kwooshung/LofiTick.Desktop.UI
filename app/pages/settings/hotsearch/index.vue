@@ -274,6 +274,20 @@ const tauriTasks = useTauriTasks();
 const tauriWindow = useTauriWindow();
 
 /**
+ * API：热搜配置（GET / PATCH）
+ * 描述：用于与服务端 Redis 同步热搜设置。
+ */
+const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
+const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { method: 'PATCH', immediate: false });
+
+/**
+ * API：热搜 1Panel cron 状态（GET / POST）
+ * 描述：用于进入页面后检测并修复热搜计划任务。
+ */
+const { datas: stateHotsearchCronStatus, refresh: refreshHotsearchCronStatus } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/onepanel/hotsearch/status', { immediate: false });
+const { refresh: refreshHotsearchCronSync } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/onepanel/hotsearch/sync', { method: 'POST', immediate: false });
+
+/**
  * Store：面包屑
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -616,6 +630,51 @@ const loadRuntimeSchedule = async (): Promise<void> => {
 };
 
 /**
+ * 函数：按需同步热搜 1Panel cron
+ * @param {boolean} force 是否强制同步
+ * @returns {Promise<void>} 无返回值
+ */
+const syncHotsearchCronIfNeeded = async (force = false): Promise<void> => {
+  try {
+    await refreshHotsearchCronStatus();
+    const status = stateHotsearchCronStatus.value;
+
+    if (!status?.configured) {
+      return;
+    }
+
+    if (!force && status.synchronized) {
+      return;
+    }
+
+    await refreshHotsearchCronSync();
+  } catch {
+    // ignore
+  }
+};
+
+/**
+ * 函数：将热搜设置回写到本地 Tauri settings 镜像
+ * @param {ISettingsHotsearch} config 热搜设置
+ * @returns {Promise<void>} 无返回值
+ */
+const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearch): Promise<void> => {
+  const normalized = hotsearchSettingsNormalize(config);
+
+  if (!isTauriRuntime.value) {
+    stateHotsearchConfig.value = normalized;
+    stateRuntimeSchedule.value = null;
+    return;
+  }
+
+  const result = await tauriSettings.update({
+    hotsearch: normalized
+  });
+  stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
+  await loadRuntimeSchedule();
+};
+
+/**
  * 函数：持久化热搜设置
  * @returns {Promise<void>} 无返回值
  */
@@ -631,11 +690,14 @@ const persistHotsearchSettings = async (): Promise<void> => {
 
   stateSaving.value = true;
   try {
-    const result = await tauriSettings.update({
-      hotsearch: stateHotsearchConfig.value
+    const nextConfig = hotsearchSettingsNormalize(stateHotsearchConfig.value);
+    await refreshHotsearchRemotePatch({
+      body: {
+        datas: nextConfig
+      }
     });
-    stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
-    await loadRuntimeSchedule();
+    await persistHotsearchSettingsToLocal(nextConfig);
+    await syncHotsearchCronIfNeeded(true);
   } finally {
     stateSaving.value = false;
   }
@@ -669,9 +731,30 @@ const requestPersistHotsearchSettings = (): void => {
  * @returns {Promise<void>} 无返回值
  */
 const loadHotsearchSettings = async (): Promise<void> => {
-  const settings = await tauriSettings.get();
-  stateHotsearchConfig.value = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
-  await loadRuntimeSchedule();
+  let nextConfig = hotsearchSettingsDefaultCreate();
+
+  if (isTauriRuntime.value) {
+    const settings = await tauriSettings.get();
+    nextConfig = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
+  }
+
+  stateHotsearchConfig.value = nextConfig;
+
+  try {
+    await refreshHotsearchRemoteGet();
+    if (stateHotsearchRemoteConfig.value) {
+      const remoteConfig = hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value);
+      stateHotsearchConfig.value = remoteConfig;
+      await persistHotsearchSettingsToLocal(remoteConfig);
+    } else {
+      await loadRuntimeSchedule();
+    }
+  } catch {
+    await loadRuntimeSchedule();
+  }
+
+  await syncHotsearchCronIfNeeded();
+
   stateHydrated.value = true;
 };
 

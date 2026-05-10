@@ -1,5 +1,24 @@
 export const settings = {
   title: '設定',
+  connections: {
+    title: 'サービス接続',
+    description: 'Rust API、1Panel、UE5 ブリッジに接続するための設定をここでまとめて管理します。',
+    apiBase: {
+      label: 'Rust API アドレス',
+      description: 'デスクトップシェルが Rust API に直接接続するときに使う基底 URL です。',
+      placeholder: 'https://api.example.com'
+    },
+    onepanelApiKey: {
+      label: '1Panel API Key',
+      description: 'cron 代理とトレンド cron 同期のために、サーバー側 Redis にのみ保存します。',
+      placeholder: '1Panel API Key を入力'
+    },
+    ue5Upstream: {
+      label: 'UE5 上流ドメイン',
+      description: 'UE5 ブリッジが利用する上流ドメインです。入力後に自動保存されます。',
+      placeholder: 'https://api.v1.lofitick.com/'
+    }
+  },
   general: {
     title: '一般設定',
     description: 'アプリの基本的な動作や言語など、共通の設定を行います。',
@@ -238,6 +257,85 @@ export const settings = {
       clearAll: 'すべて解除',
       reset: '初期値に戻す',
       save: '設定を保存'
+    }
+  },
+  cron: {
+    title: 'スケジュールタスク',
+    description: 'サーバータスクとローカルタスクをまとめて管理します。',
+    tabs: {
+      server: 'サーバータスク',
+      local: 'ローカルタスク'
+    },
+    actions: {
+      refresh: '更新',
+      search: '検索',
+      resetSearch: 'クリア',
+      syncHotsearch: 'トレンド cron を同期',
+      run: '実行',
+      stop: '停止',
+      records: '記録',
+      delete: '削除',
+      viewLog: 'ログ'
+    },
+    hotsearch: {
+      label: 'トレンド cron',
+      description: 'トレンド取得の有効状態と 1Panel cron の状態が一致しているかを表示します。',
+      enabled: 'トレンド取得：{value}',
+      callbackUnset: '1Panel 用のコールバック URL はまだ導出されていません。',
+      states: {
+        ready: '同期済み',
+        outOfSync: '要修復',
+        unconfigured: '1Panel 未設定'
+      }
+    },
+    local: {
+      empty: {
+        title: 'ローカルタスクはまだ未接続です',
+        description: 'この領域はデスクトップ側のローカル計画タスク用です。現在のバージョンではまだ利用できません。'
+      }
+    },
+    search: {
+      label: 'ジョブ検索',
+      description: '1Panel の cron ジョブを名前で絞り込みます。',
+      placeholder: 'ジョブ名キーワードを入力'
+    },
+    table: {
+      name: 'ジョブ',
+      schedule: 'スケジュール',
+      createdAt: '作成日時',
+      status: '状態',
+      actions: '操作',
+      executing: '実行中'
+    },
+    records: {
+      title: '{name} の実行履歴',
+      empty: {
+        title: '実行履歴はありません',
+        description: 'このジョブにはまだ表示できる実行履歴がありません。'
+      },
+      table: {
+        startedAt: '開始時刻',
+        status: '状態',
+        message: '概要',
+        interval: '所要時間',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '記録 #{id} のログ',
+      empty: {
+        title: 'ログはありません',
+        description: 'この記録には表示できるテキストログがありません。'
+      }
+    },
+    delete: {
+      title: 'cron を削除',
+      description: '関連データを消さずに {name} を削除します。',
+      confirm: '削除する'
+    },
+    footer: {
+      total: '合計 {total} 件'
     }
   },
   unattended: {
