@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="border-default mt-auto flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-        <div class="flex flex-wrap items-center gap-3 text-sm text-muted">
+        <div class="text-muted flex flex-wrap items-center gap-3 text-sm">
           <div>{{ t('components.pagination.total', { total: stateCronjobsTotal }) }}</div>
           <div>{{ t('pages.settings.cron.footer.selected', { total: computedSelectedCount }) }}</div>
         </div>
@@ -92,16 +92,16 @@
       <template #body>
         <div class="space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="text-sm text-muted">{{ t('pages.settings.cron.operate.payloadLabel') }}</div>
+            <div class="text-muted text-sm">{{ t('pages.settings.cron.operate.payloadLabel') }}</div>
             <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:calendar-clock" :loading="stateOperatePreviewing" @click="handlePreviewNextTimes">{{ t('pages.settings.cron.operate.previewNext') }}</UButton>
           </div>
           <UTextarea v-model="stateOperatePayload" :rows="18" autoresize class="w-full font-mono" />
           <div class="space-y-2">
-            <div class="text-sm text-muted">{{ t('pages.settings.cron.operate.nextTimes') }}</div>
+            <div class="text-muted text-sm">{{ t('pages.settings.cron.operate.nextTimes') }}</div>
             <div v-if="stateOperateNextTimes.length > 0" class="flex flex-wrap gap-2">
               <UBadge v-for="item in stateOperateNextTimes" :key="item" color="neutral" variant="soft">{{ item }}</UBadge>
             </div>
-            <div v-else class="text-sm text-muted">{{ t('pages.settings.cron.operate.nextEmpty') }}</div>
+            <div v-else class="text-muted text-sm">{{ t('pages.settings.cron.operate.nextEmpty') }}</div>
           </div>
           <div class="flex justify-end gap-2">
             <UButton color="neutral" variant="ghost" @click="stateOperateOpen = false">{{ t('common.actions.cancel') }}</UButton>

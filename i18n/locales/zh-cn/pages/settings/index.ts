@@ -17,7 +17,7 @@
       label: '1Panel API Key',
       description: '只保存到服务端 Redis，用于计划任务代理与热搜 cron 同步。',
       placeholder: '请输入 1Panel API Key'
-    },
+    }
   },
   general: {
     title: '常规设置',
@@ -296,15 +296,116 @@
       }
     },
     local: {
+      runtimeOnly: {
+        title: '当前不在 Tauri 运行环境',
+        description: '本地任务依赖桌面壳提供的计划快照，浏览器环境下不显示实际计划。'
+      },
+      snapshot: {
+        title: '本地后台任务清单',
+        description: '这里展示桌面壳在本机负责的后台任务，不和服务器 1Panel cron 混在一起。'
+      },
+      summary: {
+        enabled: '自动抓取：{value}',
+        podcastEnabled: '自动播客：{value}',
+        platformCount: '平台数：{value}',
+        monthlyBudget: '月预算：{value}',
+        sceneCount: '启用场景：{value}',
+        recoveryState: '恢复状态：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: '本地热搜调度',
+          description: '桌面壳常驻轮询本地热搜配置，并在早晚时间段内执行抓取节拍。'
+        },
+        sentinel: {
+          title: '本地哨兵轮询',
+          description: '桌面壳常驻轮询无人值守哨兵状态，并按恢复策略处理异常。'
+        }
+      },
+      schedule: {
+        windowsLabel: '执行窗口：',
+        podcastLabel: '建议播客：',
+        sentinelPolling: '应用运行期间持续轮询',
+        lastSeenLabel: '最后心跳：',
+        pending: '等待本地运行时快照'
+      },
+      states: {
+        hotsearchEnabled: '运行中',
+        hotsearchDisabled: '已停用',
+        sentinelOnline: '在线',
+        sentinelOffline: '离线',
+        sentinelError: '错误',
+        sentinelIdle: '空闲',
+        sentinelUnknown: '未上报'
+      },
+      windowKeys: {
+        morning: '早间窗口',
+        evening: '晚间窗口'
+      },
+      window: {
+        title: '{name}',
+        startAt: '开始时间',
+        endAt: '结束时间',
+        suggestedPodcastAt: '建议播客时间',
+        duration: '窗口耗时',
+        durationValue: '{value} 分钟',
+        platformCount: '平台数量',
+        points: '预计积分'
+      },
       empty: {
-        title: '本地任务暂未接入',
-        description: '这里预留给桌面端 Tauri 本地计划任务，当前版本暂不提供可操作内容。'
+        title: '本地任务暂不可用',
+        description: '当前未读取到桌面壳可展示的本地后台任务信息。'
       }
     },
     system: {
+      readonly: '只读',
+      groups: {
+        system: '系统任务',
+        hook: '公开节拍器'
+      },
+      snapshot: {
+        title: '系统内建任务清单',
+        description: '这些任务由 Rust API 固定提供，不允许在桌面端新增、编辑或删除。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '早间热搜生成',
+          description: '系统会在热搜配置定义的早间窗口内推进热搜生成流程。'
+        },
+        hotsearchEveningGenerate: {
+          title: '晚间热搜生成',
+          description: '系统会在热搜配置定义的晚间窗口内推进热搜生成流程。'
+        },
+        hotsearchStep: {
+          title: '热搜单步推进',
+          description: '供外部 cron 节拍器调用，每次仅推进一个平台。'
+        },
+        quoteRandom: {
+          title: '随机名句抓取',
+          description: '抓取一条随机名句并按幂等规则入库。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '按热搜设置中的早间窗口执行',
+          secondary: '系统内建热搜生成流程'
+        },
+        hotsearchEveningGenerate: {
+          primary: '按热搜设置中的晚间窗口执行',
+          secondary: '系统内建热搜生成流程'
+        },
+        hotsearchStep: {
+          primary: '由外部 cron / 1Panel 节拍器按固定周期回调',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '由系统计划任务按需触发',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
       empty: {
         title: '系统任务为只读视图',
-        description: '这里用于展示桌面端内建系统任务。当前版本先提供只读入口，不支持创建、编辑或删除。'
+        description: '这里展示的是系统内建任务定义，不提供任何编辑入口。'
       }
     },
     search: {
@@ -314,6 +415,8 @@
     },
     table: {
       name: '任务',
+      path: '路径',
+      method: '方法',
       schedule: '计划',
       createdAt: '创建时间',
       status: '状态',

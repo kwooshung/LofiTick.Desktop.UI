@@ -17,7 +17,7 @@ export const settings = {
       label: '1Panel API Key',
       description: 'cron 代理とトレンド cron 同期のために、サーバー側 Redis にのみ保存します。',
       placeholder: '1Panel API Key を入力'
-    },
+    }
   },
   general: {
     title: '一般設定',
@@ -296,15 +296,116 @@ export const settings = {
       }
     },
     local: {
+      runtimeOnly: {
+        title: '現在は Tauri 実行環境ではありません',
+        description: 'ローカルタスクはデスクトップシェルが提供する計画スナップショットに依存するため、ブラウザー環境では実際の計画を表示できません。'
+      },
+      snapshot: {
+        title: 'ローカルバックグラウンドタスク一覧',
+        description: 'この端末でデスクトップシェルが担当しているバックグラウンドタスクを表示し、サーバー側の 1Panel cron と混在させません。'
+      },
+      summary: {
+        enabled: '自動取得：{value}',
+        podcastEnabled: '自動ポッドキャスト：{value}',
+        platformCount: 'プラットフォーム数：{value}',
+        monthlyBudget: '月間予算：{value}',
+        sceneCount: '有効シーン数：{value}',
+        recoveryState: '復旧状態：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: 'ローカル熱搜スケジューラ',
+          description: 'デスクトップシェルがローカル熱搜設定を常駐監視し、朝夕ウィンドウ内で取得ティックを実行します。'
+        },
+        sentinel: {
+          title: 'ローカル Sentinel ポーリング',
+          description: 'デスクトップシェルが無人運用 Sentinel 状態を常駐監視し、ローカル復旧戦略を適用します。'
+        }
+      },
+      schedule: {
+        windowsLabel: '実行ウィンドウ：',
+        podcastLabel: '推奨ポッドキャスト：',
+        sentinelPolling: 'アプリ起動中は継続ポーリング',
+        lastSeenLabel: '最終ハートビート：',
+        pending: 'ローカル実行時スナップショット待ち'
+      },
+      states: {
+        hotsearchEnabled: '稼働中',
+        hotsearchDisabled: '停止中',
+        sentinelOnline: 'オンライン',
+        sentinelOffline: 'オフライン',
+        sentinelError: 'エラー',
+        sentinelIdle: 'アイドル',
+        sentinelUnknown: '未報告'
+      },
+      windowKeys: {
+        morning: '朝のウィンドウ',
+        evening: '夜のウィンドウ'
+      },
+      window: {
+        title: '{name}',
+        startAt: '開始時刻',
+        endAt: '終了時刻',
+        suggestedPodcastAt: '推奨ポッドキャスト時刻',
+        duration: '所要時間',
+        durationValue: '{value} 分',
+        platformCount: 'プラットフォーム数',
+        points: '想定ポイント'
+      },
       empty: {
-        title: 'ローカルタスクはまだ未接続です',
-        description: 'この領域は Tauri デスクトップ側のローカル計画タスク用です。現在のバージョンではまだ利用できません。'
+        title: 'ローカルタスクは利用できません',
+        description: '表示に使えるローカルバックグラウンドタスク情報をデスクトップシェルから取得できませんでした。'
       }
     },
     system: {
+      readonly: '読み取り専用',
+      groups: {
+        system: 'システムタスク',
+        hook: '公開ティッカー'
+      },
+      snapshot: {
+        title: '内蔵システムタスク一覧',
+        description: 'これらのタスクは Rust API 側で固定されており、デスクトップ側から新規作成・編集・削除はできません。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '朝の熱搜生成',
+          description: '熱搜設定で定義した朝のウィンドウ内で、システムが熱搜生成フローを進めます。'
+        },
+        hotsearchEveningGenerate: {
+          title: '夜の熱搜生成',
+          description: '熱搜設定で定義した夜のウィンドウ内で、システムが熱搜生成フローを進めます。'
+        },
+        hotsearchStep: {
+          title: '熱搜の単発ステップ実行',
+          description: '外部 cron ティッカー用の入口で、1 回の呼び出しで 1 プラットフォームだけ進めます。'
+        },
+        quoteRandom: {
+          title: 'ランダム名句の取得',
+          description: 'ランダムな名句を 1 件取得し、冪等ルールで保存します。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '熱搜設定の朝ウィンドウに従って実行',
+          secondary: 'システム内蔵の熱搜生成フロー'
+        },
+        hotsearchEveningGenerate: {
+          primary: '熱搜設定の夜ウィンドウに従って実行',
+          secondary: 'システム内蔵の熱搜生成フロー'
+        },
+        hotsearchStep: {
+          primary: '外部 cron / 1Panel ティッカーから固定間隔で呼び出し',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '必要に応じてシステム計画タスクから起動',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
       empty: {
         title: 'システムタスクは読み取り専用です',
-        description: 'この領域はデスクトップ内蔵のシステムタスク表示用です。現在のバージョンでは閲覧のみを提供し、作成・編集・削除はできません。'
+        description: 'ここではシステム内蔵タスクの定義のみを表示し、編集操作は提供しません。'
       }
     },
     search: {
@@ -314,6 +415,8 @@ export const settings = {
     },
     table: {
       name: 'ジョブ',
+      path: 'パス',
+      method: 'メソッド',
       schedule: 'スケジュール',
       createdAt: '作成日時',
       status: '状態',

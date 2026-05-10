@@ -191,7 +191,6 @@ const loadSettings = async (): Promise<void> => {
     return;
   }
 
-  const conf = await tauriSettings.get();
   const apiClientConfig = await tauriApiClient.configGet();
 
   stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim();

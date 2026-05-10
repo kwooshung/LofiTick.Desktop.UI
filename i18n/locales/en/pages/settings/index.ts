@@ -17,7 +17,7 @@ export const settings = {
       label: '1Panel API Key',
       description: 'Stored only in server-side Redis for cron proxying and hot search cron sync.',
       placeholder: 'Enter the 1Panel API Key'
-    },
+    }
   },
   general: {
     title: 'General',
@@ -296,15 +296,116 @@ export const settings = {
       }
     },
     local: {
+      runtimeOnly: {
+        title: 'Not running inside Tauri',
+        description: 'Local jobs rely on schedule snapshots exposed by the desktop shell and are not available in a plain browser runtime.'
+      },
+      snapshot: {
+        title: 'Local background task list',
+        description: 'Shows background tasks owned by the desktop shell on this machine instead of mixing them with server-side 1Panel cron jobs.'
+      },
+      summary: {
+        enabled: 'Auto fetch: {value}',
+        podcastEnabled: 'Auto podcast: {value}',
+        platformCount: 'Platforms: {value}',
+        monthlyBudget: 'Monthly budget: {value}',
+        sceneCount: 'Enabled scenes: {value}',
+        recoveryState: 'Recovery state: {value}'
+      },
+      items: {
+        hotsearch: {
+          title: 'Local hot search scheduler',
+          description: 'The desktop shell keeps polling local hot search settings and runs fetch ticks inside the morning and evening windows.'
+        },
+        sentinel: {
+          title: 'Local sentinel poller',
+          description: 'The desktop shell keeps polling unattended sentinel state and applies local recovery strategies.'
+        }
+      },
+      schedule: {
+        windowsLabel: 'Windows: ',
+        podcastLabel: 'Suggested podcast: ',
+        sentinelPolling: 'Continuous polling while the app is running',
+        lastSeenLabel: 'Last heartbeat: ',
+        pending: 'Waiting for local runtime snapshot'
+      },
+      states: {
+        hotsearchEnabled: 'Running',
+        hotsearchDisabled: 'Disabled',
+        sentinelOnline: 'Online',
+        sentinelOffline: 'Offline',
+        sentinelError: 'Error',
+        sentinelIdle: 'Idle',
+        sentinelUnknown: 'Not reported'
+      },
+      windowKeys: {
+        morning: 'Morning window',
+        evening: 'Evening window'
+      },
+      window: {
+        title: '{name}',
+        startAt: 'Start time',
+        endAt: 'End time',
+        suggestedPodcastAt: 'Suggested podcast time',
+        duration: 'Window duration',
+        durationValue: '{value} min',
+        platformCount: 'Platform count',
+        points: 'Estimated points'
+      },
       empty: {
-        title: 'Local jobs are not wired yet',
-        description: 'This section is reserved for Tauri desktop-local scheduled tasks and is not available in the current version.'
+        title: 'Local tasks are unavailable',
+        description: 'The desktop shell did not provide any local background task data to display.'
       }
     },
     system: {
+      readonly: 'Read-only',
+      groups: {
+        system: 'System job',
+        hook: 'Public hook'
+      },
+      snapshot: {
+        title: 'Built-in system job list',
+        description: 'These jobs are fixed by the Rust API and cannot be created, edited, or deleted from the desktop app.'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: 'Morning hot search generation',
+          description: 'The system advances the hot search generation flow inside the morning window defined by hot search settings.'
+        },
+        hotsearchEveningGenerate: {
+          title: 'Evening hot search generation',
+          description: 'The system advances the hot search generation flow inside the evening window defined by hot search settings.'
+        },
+        hotsearchStep: {
+          title: 'Hot search step runner',
+          description: 'Called by an external cron ticker and advances only one platform per request.'
+        },
+        quoteRandom: {
+          title: 'Random quote fetch',
+          description: 'Fetches one random quote and stores it with idempotent rules.'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: 'Runs inside the morning window defined by hot search settings',
+          secondary: 'Built-in hot search generation flow'
+        },
+        hotsearchEveningGenerate: {
+          primary: 'Runs inside the evening window defined by hot search settings',
+          secondary: 'Built-in hot search generation flow'
+        },
+        hotsearchStep: {
+          primary: 'Called by an external cron / 1Panel ticker on a fixed interval',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: 'Triggered by built-in scheduled jobs when needed',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
       empty: {
         title: 'System jobs are read-only',
-        description: 'This section is reserved for built-in desktop system jobs. The current version exposes a read-only entry and does not allow create, edit, or delete operations.'
+        description: 'This section shows the built-in system job definitions only and does not expose any editing entry.'
       }
     },
     search: {
@@ -314,6 +415,8 @@ export const settings = {
     },
     table: {
       name: 'Job',
+      path: 'Path',
+      method: 'Method',
       schedule: 'Schedule',
       createdAt: 'Created at',
       status: 'Status',

@@ -17,7 +17,7 @@ export const settings = {
       label: '1Panel API Key',
       description: '只會儲存在伺服器 Redis，用於排程代理與熱搜 cron 同步。',
       placeholder: '請輸入 1Panel API Key'
-    },
+    }
   },
   general: {
     title: '一般設定',
@@ -296,15 +296,116 @@ export const settings = {
       }
     },
     local: {
+      runtimeOnly: {
+        title: '目前不在 Tauri 執行環境',
+        description: '本地任務依賴桌面殼提供的計畫快照，瀏覽器環境下不顯示實際計畫。'
+      },
+      snapshot: {
+        title: '本地背景任務清單',
+        description: '這裡展示桌面殼在本機負責的背景任務，不和伺服器端的 1Panel cron 混在一起。'
+      },
+      summary: {
+        enabled: '自動抓取：{value}',
+        podcastEnabled: '自動播客：{value}',
+        platformCount: '平台數：{value}',
+        monthlyBudget: '月預算：{value}',
+        sceneCount: '啟用場景：{value}',
+        recoveryState: '恢復狀態：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: '本地熱搜調度',
+          description: '桌面殼常駐輪詢本地熱搜設定，並在早晚時段內執行抓取節拍。'
+        },
+        sentinel: {
+          title: '本地哨兵輪詢',
+          description: '桌面殼常駐輪詢無人值守哨兵狀態，並依恢復策略處理異常。'
+        }
+      },
+      schedule: {
+        windowsLabel: '執行視窗：',
+        podcastLabel: '建議播客：',
+        sentinelPolling: '應用執行期間持續輪詢',
+        lastSeenLabel: '最後心跳：',
+        pending: '等待本地執行時快照'
+      },
+      states: {
+        hotsearchEnabled: '執行中',
+        hotsearchDisabled: '已停用',
+        sentinelOnline: '在線',
+        sentinelOffline: '離線',
+        sentinelError: '錯誤',
+        sentinelIdle: '空閒',
+        sentinelUnknown: '未回報'
+      },
+      windowKeys: {
+        morning: '早間視窗',
+        evening: '晚間視窗'
+      },
+      window: {
+        title: '{name}',
+        startAt: '開始時間',
+        endAt: '結束時間',
+        suggestedPodcastAt: '建議播客時間',
+        duration: '視窗耗時',
+        durationValue: '{value} 分鐘',
+        platformCount: '平台數量',
+        points: '預估積分'
+      },
       empty: {
-        title: '本地任務尚未接入',
-        description: '這裡預留給桌面端 Tauri 本地計畫任務，當前版本暫時沒有可操作內容。'
+        title: '本地任務暫不可用',
+        description: '目前未讀取到桌面殼可展示的本地背景任務資訊。'
       }
     },
     system: {
+      readonly: '唯讀',
+      groups: {
+        system: '系統任務',
+        hook: '公開節拍器'
+      },
+      snapshot: {
+        title: '系統內建任務清單',
+        description: '這些任務由 Rust API 固定提供，不允許在桌面端新增、編輯或刪除。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '早間熱搜生成',
+          description: '系統會在熱搜設定定義的早間視窗內推進熱搜生成流程。'
+        },
+        hotsearchEveningGenerate: {
+          title: '晚間熱搜生成',
+          description: '系統會在熱搜設定定義的晚間視窗內推進熱搜生成流程。'
+        },
+        hotsearchStep: {
+          title: '熱搜單步推進',
+          description: '供外部 cron 節拍器呼叫，每次只推進一個平台。'
+        },
+        quoteRandom: {
+          title: '隨機名句抓取',
+          description: '抓取一條隨機名句並依冪等規則入庫。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '依熱搜設定中的早間視窗執行',
+          secondary: '系統內建熱搜生成流程'
+        },
+        hotsearchEveningGenerate: {
+          primary: '依熱搜設定中的晚間視窗執行',
+          secondary: '系統內建熱搜生成流程'
+        },
+        hotsearchStep: {
+          primary: '由外部 cron / 1Panel 節拍器按固定週期回呼',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '由系統計畫任務按需觸發',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
       empty: {
         title: '系統任務為唯讀視圖',
-        description: '這裡用於展示桌面端內建系統任務。當前版本先提供唯讀入口，不支援建立、編輯或刪除。'
+        description: '這裡展示的是系統內建任務定義，不提供任何編輯入口。'
       }
     },
     search: {
@@ -314,6 +415,8 @@ export const settings = {
     },
     table: {
       name: '任務',
+      path: '路徑',
+      method: '方法',
       schedule: '排程',
       createdAt: '建立時間',
       status: '狀態',
