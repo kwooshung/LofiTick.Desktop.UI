@@ -98,7 +98,7 @@ const computedLinks = computed<NavigationMenuItem[]>(() => [
   {
     label: t('pages.settings.cron.title'),
     icon: 'i-lucide:timer-reset',
-    to: localePath('/crons')
+    to: localePath('/crons/service')
   },
   {
     label: t('pages.settings.unattended.title'),

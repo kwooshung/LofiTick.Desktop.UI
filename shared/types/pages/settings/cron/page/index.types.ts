@@ -3,6 +3,11 @@
  */
 export interface IPageSettingsOnepanelSettings {
   /**
+   * 1Panel 基础域名。
+   */
+  apiBase: string;
+
+  /**
    * 1Panel API Key。
    */
   apiKey: string;

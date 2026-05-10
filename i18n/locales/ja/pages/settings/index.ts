@@ -2,22 +2,22 @@ export const settings = {
   title: '設定',
   connections: {
     title: 'サービス接続',
-    description: 'Rust API、1Panel、UE5 ブリッジに接続するための設定をここでまとめて管理します。',
+    description: 'Rust API と 1Panel に接続するための設定をここでまとめて管理します。',
     apiBase: {
       label: 'Rust API アドレス',
       description: 'デスクトップシェルが Rust API に直接接続するときに使う基底 URL です。',
       placeholder: 'https://api.example.com'
+    },
+    onepanelApiBase: {
+      label: '1Panel ベース URL',
+      description: '1Panel パネルの基底 URL です。デフォルトは https://one-panel.lofitick.com/ です。',
+      placeholder: 'https://one-panel.lofitick.com/'
     },
     onepanelApiKey: {
       label: '1Panel API Key',
       description: 'cron 代理とトレンド cron 同期のために、サーバー側 Redis にのみ保存します。',
       placeholder: '1Panel API Key を入力'
     },
-    ue5Upstream: {
-      label: 'UE5 上流ドメイン',
-      description: 'UE5 ブリッジが利用する上流ドメインです。入力後に自動保存されます。',
-      placeholder: 'https://api.v1.lofitick.com/'
-    }
   },
   general: {
     title: '一般設定',
@@ -261,16 +261,23 @@ export const settings = {
   },
   cron: {
     title: 'スケジュールタスク',
-    description: 'サーバータスクとローカルタスクをまとめて管理します。',
+    description: 'ローカルタスク、サーバータスク、システムタスクをまとめて管理します。',
     tabs: {
+      local: 'ローカルタスク',
       server: 'サーバータスク',
-      local: 'ローカルタスク'
+      system: 'システムタスク'
     },
     actions: {
       refresh: '更新',
       search: '検索',
       resetSearch: 'クリア',
       syncHotsearch: 'トレンド cron を同期',
+      create: '作成',
+      edit: '編集',
+      enableSelected: '選択項目を有効化',
+      disableSelected: '選択項目を無効化',
+      stopSelected: '選択項目を停止',
+      deleteSelected: '選択項目を削除',
       run: '実行',
       stop: '停止',
       records: '記録',
@@ -291,7 +298,13 @@ export const settings = {
     local: {
       empty: {
         title: 'ローカルタスクはまだ未接続です',
-        description: 'この領域はデスクトップ側のローカル計画タスク用です。現在のバージョンではまだ利用できません。'
+        description: 'この領域は Tauri デスクトップ側のローカル計画タスク用です。現在のバージョンではまだ利用できません。'
+      }
+    },
+    system: {
+      empty: {
+        title: 'システムタスクは読み取り専用です',
+        description: 'この領域はデスクトップ内蔵のシステムタスク表示用です。現在のバージョンでは閲覧のみを提供し、作成・編集・削除はできません。'
       }
     },
     search: {
@@ -309,6 +322,9 @@ export const settings = {
     },
     records: {
       title: '{name} の実行履歴',
+      actions: {
+        clean: '記録をクリア'
+      },
       empty: {
         title: '実行履歴はありません',
         description: 'このジョブにはまだ表示できる実行履歴がありません。'
@@ -329,13 +345,24 @@ export const settings = {
         description: 'この記録には表示できるテキストログがありません。'
       }
     },
+    operate: {
+      createTitle: 'スケジュールタスクを作成',
+      editTitle: 'スケジュールタスクを編集',
+      description: '現段階では 1Panel のネイティブ JSON 設定をそのまま透過し、まず完全な機能連携を優先します。',
+      payloadLabel: 'タスク JSON 設定',
+      previewNext: '次回実行をプレビュー',
+      nextTimes: '次回の実行時刻',
+      nextEmpty: 'まだプレビュー結果はありません',
+      save: '設定を保存'
+    },
     delete: {
       title: 'cron を削除',
       description: '関連データを消さずに {name} を削除します。',
       confirm: '削除する'
     },
     footer: {
-      total: '合計 {total} 件'
+      total: '合計 {total} 件',
+      selected: '{total} 件を選択中'
     }
   },
   unattended: {

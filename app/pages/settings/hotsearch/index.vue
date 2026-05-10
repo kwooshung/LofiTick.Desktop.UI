@@ -284,8 +284,8 @@ const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch
  * API：热搜 1Panel cron 状态（GET / POST）
  * 描述：用于进入页面后检测并修复热搜计划任务。
  */
-const { datas: stateHotsearchCronStatus, refresh: refreshHotsearchCronStatus } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/onepanel/hotsearch/status', { immediate: false });
-const { refresh: refreshHotsearchCronSync } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/onepanel/hotsearch/sync', { method: 'POST', immediate: false });
+const { datas: stateHotsearchCronStatus, refresh: refreshHotsearchCronStatus } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/status', { immediate: false });
+const { refresh: refreshHotsearchCronSync } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/sync', { method: 'POST', immediate: false });
 
 /**
  * Store：面包屑

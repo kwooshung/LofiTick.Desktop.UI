@@ -6,6 +6,9 @@
       <UFormField :label="t('pages.settings.connections.apiBase.label')" :description="t('pages.settings.connections.apiBase.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
         <UInput v-model="stateApiBaseValue" class="w-full max-w-full md:w-120 2xl:w-140" :placeholder="t('pages.settings.connections.apiBase.placeholder')" />
       </UFormField>
+      <UFormField :label="t('pages.settings.connections.onepanelApiBase.label')" :description="t('pages.settings.connections.onepanelApiBase.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
+        <UInput v-model="stateOnepanelApiBaseValue" class="w-full max-w-full md:w-120 2xl:w-140" :placeholder="t('pages.settings.connections.onepanelApiBase.placeholder')" />
+      </UFormField>
       <UFormField :label="t('pages.settings.connections.onepanelApiKey.label')" :description="t('pages.settings.connections.onepanelApiKey.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
         <UInput id="onepanel-api-key" v-model="stateOnepanelApiKeyValue" :type="stateOnepanelApiKeyVisible ? 'text' : 'password'" class="w-full max-w-full md:w-120 2xl:w-140" :placeholder="t('pages.settings.connections.onepanelApiKey.placeholder')" :ui="{ trailing: 'pe-1' }">
           <template #trailing>
@@ -22,9 +25,6 @@
           </template>
         </UInput>
       </UFormField>
-      <UFormField :label="t('pages.settings.connections.ue5Upstream.label')" :description="t('pages.settings.connections.ue5Upstream.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-3 not-last:pb-4">
-        <UInput v-model="stateUe5UpstreamValue" class="w-full max-w-full md:w-120 2xl:w-140" :placeholder="t('pages.settings.connections.ue5Upstream.placeholder')" />
-      </UFormField>
     </UPageCard>
   </DashboardPage>
 </template>
@@ -34,11 +34,6 @@
  * Hook：Tauri 环境
  */
 const { isTauriRuntime } = useTauriEnv();
-
-/**
- * Hook：Tauri 设置
- */
-const tauriSettings = useTauriSettings();
 
 /**
  * Hook：Tauri 直连 API 客户端
@@ -95,6 +90,11 @@ storeBreadcrumb.states = [
 const stateApiBaseValue = ref('');
 
 /**
+ * 状态：1Panel 基础域名
+ */
+const stateOnepanelApiBaseValue = ref('');
+
+/**
  * 状态：1Panel API Key
  */
 const stateOnepanelApiKeyValue = ref('');
@@ -105,24 +105,14 @@ const stateOnepanelApiKeyValue = ref('');
 const stateOnepanelApiKeyVisible = ref(false);
 
 /**
- * 状态：UE5 上游地址
- */
-const stateUe5UpstreamValue = ref('');
-
-/**
  * 状态：API Base 保存中
  */
 const stateApiBaseSaving = ref(false);
 
 /**
- * 状态：1Panel API Key 保存中
+ * 状态：1Panel 设置保存中
  */
-const stateOnepanelApiKeySaving = ref(false);
-
-/**
- * 状态：UE5 上游地址保存中
- */
-const stateUe5UpstreamSaving = ref(false);
+const stateOnepanelSettingsSaving = ref(false);
 
 /**
  * 状态：设置项是否已完成首轮加载
@@ -147,56 +137,35 @@ const handleSaveApiBase = async (): Promise<void> => {
 };
 
 /**
- * 事件：保存 1Panel API Key
+ * 函数：回填 1Panel 设置
  */
-const handleSaveOnepanelApiKey = async (): Promise<void> => {
-  if (stateOnepanelApiKeySaving.value) {
+const applyOnepanelSettings = (): void => {
+  stateOnepanelApiBaseValue.value = String(stateOnepanelSettingsRemote.value?.apiBase || '').trim();
+  stateOnepanelApiKeyValue.value = String(stateOnepanelSettingsRemote.value?.apiKey || '').trim();
+};
+
+/**
+ * 事件：保存 1Panel 设置
+ */
+const handleSaveOnepanelSettings = async (): Promise<void> => {
+  if (stateOnepanelSettingsSaving.value) {
     return;
   }
 
-  stateOnepanelApiKeySaving.value = true;
+  stateOnepanelSettingsSaving.value = true;
   try {
     await refreshOnepanelSettingsPatch({
       body: {
         datas: {
+          apiBase: String(stateOnepanelApiBaseValue.value || '').trim(),
           apiKey: String(stateOnepanelApiKeyValue.value || '').trim()
         }
       }
     });
 
-    stateOnepanelApiKeyValue.value = String(stateOnepanelSettingsRemote.value?.apiKey || stateOnepanelApiKeyValue.value || '').trim();
+    applyOnepanelSettings();
   } finally {
-    stateOnepanelApiKeySaving.value = false;
-  }
-};
-
-/**
- * 事件：保存 UE5 上游地址
- */
-const handleSaveUe5Upstream = async (): Promise<void> => {
-  if (!isTauriRuntime.value || stateUe5UpstreamSaving.value) {
-    return;
-  }
-
-  stateUe5UpstreamSaving.value = true;
-  try {
-    const result = await tauriSettings.update({
-      unattended: {
-        sentinel: {
-          request: {
-            url: String(stateUe5UpstreamValue.value || '').trim()
-          }
-        }
-      }
-    });
-
-    const unattended = typeof result.unattended === 'object' && result.unattended && !Array.isArray(result.unattended) ? (result.unattended as Record<string, unknown>) : {};
-    const sentinel = typeof unattended.sentinel === 'object' && unattended.sentinel && !Array.isArray(unattended.sentinel) ? (unattended.sentinel as Record<string, unknown>) : {};
-    const request = typeof sentinel.request === 'object' && sentinel.request && !Array.isArray(sentinel.request) ? (sentinel.request as Record<string, unknown>) : {};
-
-    stateUe5UpstreamValue.value = String(request.url || '').trim();
-  } finally {
-    stateUe5UpstreamSaving.value = false;
+    stateOnepanelSettingsSaving.value = false;
   }
 };
 
@@ -208,17 +177,10 @@ const persistApiBaseDebounced = useDebounceFn(() => {
 }, 300);
 
 /**
- * 函数：自动保存 1Panel API Key（防抖）
+ * 函数：自动保存 1Panel 设置（防抖）
  */
-const persistOnepanelApiKeyDebounced = useDebounceFn(() => {
-  void handleSaveOnepanelApiKey();
-}, 300);
-
-/**
- * 函数：自动保存 UE5 上游域名（防抖）
- */
-const persistUe5UpstreamDebounced = useDebounceFn(() => {
-  void handleSaveUe5Upstream();
+const persistOnepanelSettingsDebounced = useDebounceFn(() => {
+  void handleSaveOnepanelSettings();
 }, 300);
 
 /**
@@ -233,11 +195,11 @@ const loadSettings = async (): Promise<void> => {
   const apiClientConfig = await tauriApiClient.configGet();
 
   stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim();
+  stateOnepanelApiBaseValue.value = '';
   stateOnepanelApiKeyValue.value = '';
-  stateUe5UpstreamValue.value = String((((conf.unattended as Record<string, unknown> | undefined)?.sentinel as Record<string, unknown> | undefined)?.request as Record<string, unknown> | undefined)?.url || '').trim();
 
   await refreshOnepanelSettingsGet();
-  stateOnepanelApiKeyValue.value = String(stateOnepanelSettingsRemote.value?.apiKey || '').trim();
+  applyOnepanelSettings();
   stateSettingsHydrated.value = true;
 };
 
@@ -253,6 +215,17 @@ watch(stateApiBaseValue, () => {
 });
 
 /**
+ * 监听：1Panel 基础域名输入变化后自动保存
+ */
+watch(stateOnepanelApiBaseValue, () => {
+  if (!stateSettingsHydrated.value) {
+    return;
+  }
+
+  persistOnepanelSettingsDebounced();
+});
+
+/**
  * 监听：1Panel API Key 输入变化后自动保存
  */
 watch(stateOnepanelApiKeyValue, () => {
@@ -260,18 +233,7 @@ watch(stateOnepanelApiKeyValue, () => {
     return;
   }
 
-  persistOnepanelApiKeyDebounced();
-});
-
-/**
- * 监听：UE5 上游域名输入变化后自动保存
- */
-watch(stateUe5UpstreamValue, () => {
-  if (!stateSettingsHydrated.value) {
-    return;
-  }
-
-  persistUe5UpstreamDebounced();
+  persistOnepanelSettingsDebounced();
 });
 
 /**

@@ -2,22 +2,22 @@ export const settings = {
   title: '設定',
   connections: {
     title: '服務連線',
-    description: '集中管理桌面端連接 Rust API、1Panel 與 UE5 橋接所需的接入設定。',
+    description: '集中管理桌面端連接 Rust API 與 1Panel 所需的接入設定。',
     apiBase: {
       label: 'Rust API 位址',
       description: '桌面殼直連 Rust API 時使用的基礎位址。',
       placeholder: 'https://api.example.com'
+    },
+    onepanelApiBase: {
+      label: '1Panel 基礎網域',
+      description: '1Panel 面板基礎網域，預設會使用 https://one-panel.lofitick.com/。',
+      placeholder: 'https://one-panel.lofitick.com/'
     },
     onepanelApiKey: {
       label: '1Panel API Key',
       description: '只會儲存在伺服器 Redis，用於排程代理與熱搜 cron 同步。',
       placeholder: '請輸入 1Panel API Key'
     },
-    ue5Upstream: {
-      label: 'UE5 上游網域',
-      description: 'UE5 橋接整合所使用的上游網域，輸入後會自動儲存。',
-      placeholder: 'https://api.v1.lofitick.com/'
-    }
   },
   general: {
     title: '一般設定',
@@ -261,16 +261,23 @@ export const settings = {
   },
   cron: {
     title: '計畫任務',
-    description: '集中管理伺服器任務與本地任務。',
+    description: '集中管理本地任務、伺服器任務與系統任務。',
     tabs: {
+      local: '本地任務',
       server: '伺服器任務',
-      local: '本地任務'
+      system: '系統任務'
     },
     actions: {
       refresh: '重新整理',
       search: '查詢',
       resetSearch: '清空',
       syncHotsearch: '同步熱搜 cron',
+      create: '建立',
+      edit: '編輯',
+      enableSelected: '批次啟用',
+      disableSelected: '批次停用',
+      stopSelected: '批次停止',
+      deleteSelected: '批次刪除',
       run: '執行',
       stop: '停止',
       records: '紀錄',
@@ -291,7 +298,13 @@ export const settings = {
     local: {
       empty: {
         title: '本地任務尚未接入',
-        description: '這裡預留給桌面端本地計畫任務，當前版本暫時沒有可操作內容。'
+        description: '這裡預留給桌面端 Tauri 本地計畫任務，當前版本暫時沒有可操作內容。'
+      }
+    },
+    system: {
+      empty: {
+        title: '系統任務為唯讀視圖',
+        description: '這裡用於展示桌面端內建系統任務。當前版本先提供唯讀入口，不支援建立、編輯或刪除。'
       }
     },
     search: {
@@ -309,6 +322,9 @@ export const settings = {
     },
     records: {
       title: '{name} 的執行紀錄',
+      actions: {
+        clean: '清理紀錄'
+      },
       empty: {
         title: '暫無執行紀錄',
         description: '目前任務還沒有可顯示的執行歷史。'
@@ -329,13 +345,24 @@ export const settings = {
         description: '目前紀錄沒有可顯示的文字日誌。'
       }
     },
+    operate: {
+      createTitle: '建立計畫任務',
+      editTitle: '編輯計畫任務',
+      description: '目前階段先直接透傳 1Panel 原生 JSON 設定，優先把完整能力鏈路打通。',
+      payloadLabel: '任務 JSON 設定',
+      previewNext: '預覽下一次執行',
+      nextTimes: '下一次執行時間',
+      nextEmpty: '尚未產生預覽結果',
+      save: '儲存設定'
+    },
     delete: {
       title: '確認刪除任務',
       description: '將刪除 {name}，但不會清理關聯資料。',
       confirm: '確認刪除'
     },
     footer: {
-      total: '共 {total} 筆任務'
+      total: '共 {total} 筆任務',
+      selected: '已選 {total} 筆'
     }
   },
   unattended: {

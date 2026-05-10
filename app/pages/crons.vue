@@ -59,7 +59,12 @@ const stateSyncNonce = useState('crons-sync-nonce', () => 0);
 /**
  * 计算属性：服务器任务路由
  */
-const computedPathServer = computed(() => localePath('/crons'));
+const computedPathServer = computed(() => localePath('/crons/service'));
+
+/**
+ * 计算属性：服务器任务兼容路由
+ */
+const computedPathServerAlias = computed(() => localePath('/crons'));
 
 /**
  * 计算属性：本地任务路由
@@ -67,9 +72,14 @@ const computedPathServer = computed(() => localePath('/crons'));
 const computedPathLocal = computed(() => localePath('/crons/local'));
 
 /**
+ * 计算属性：系统任务路由
+ */
+const computedPathSystem = computed(() => localePath('/crons/system'));
+
+/**
  * 计算属性：当前是否为服务器任务页
  */
-const computedRouteIsServer = computed(() => route.path === computedPathServer.value);
+const computedRouteIsServer = computed(() => route.path === computedPathServer.value || route.path === computedPathServerAlias.value);
 
 /**
  * 计算属性：当前是否为本地任务页
@@ -99,7 +109,7 @@ storeBreadcrumb.states = [
   {
     label: t('pages.settings.cron.title'),
     icon: 'i-lucide:timer-reset',
-    to: localePath('/crons'),
+    to: localePath('/crons/service'),
     exact: true
   }
 ];
@@ -110,15 +120,19 @@ storeBreadcrumb.states = [
 const links = [
   [
     {
-      label: t('pages.settings.cron.tabs.server'),
-      icon: 'i-lucide:server',
-      to: localePath('/crons'),
-      exact: true
-    },
-    {
       label: t('pages.settings.cron.tabs.local'),
       icon: 'i-lucide:monitor-cog',
       to: localePath('/crons/local')
+    },
+    {
+      label: t('pages.settings.cron.tabs.server'),
+      icon: 'i-lucide:server',
+      to: localePath('/crons/service')
+    },
+    {
+      label: t('pages.settings.cron.tabs.system'),
+      icon: 'i-lucide:shield-check',
+      to: localePath('/crons/system')
     }
   ]
 ] satisfies NavigationMenuItem[][];

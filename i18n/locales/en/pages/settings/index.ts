@@ -2,22 +2,22 @@ export const settings = {
   title: 'Settings',
   connections: {
     title: 'Service connections',
-    description: 'Manage the desktop-side connection settings used for the Rust API, 1Panel, and the UE5 bridge in one place.',
+    description: 'Manage the desktop-side connection settings used for the Rust API and 1Panel in one place.',
     apiBase: {
       label: 'Rust API base',
       description: 'Base URL used by the desktop shell when it talks directly to the Rust API.',
       placeholder: 'https://api.example.com'
+    },
+    onepanelApiBase: {
+      label: '1Panel base URL',
+      description: 'Base URL of the 1Panel panel. It defaults to https://one-panel.lofitick.com/.',
+      placeholder: 'https://one-panel.lofitick.com/'
     },
     onepanelApiKey: {
       label: '1Panel API Key',
       description: 'Stored only in server-side Redis for cron proxying and hot search cron sync.',
       placeholder: 'Enter the 1Panel API Key'
     },
-    ue5Upstream: {
-      label: 'UE5 upstream domain',
-      description: 'Upstream domain used by the UE5 bridge integration. It is saved automatically after input.',
-      placeholder: 'https://api.v1.lofitick.com/'
-    }
   },
   general: {
     title: 'General',
@@ -261,16 +261,23 @@ export const settings = {
   },
   cron: {
     title: 'Scheduled Tasks',
-    description: 'Manage server-side jobs and local jobs in one place.',
+    description: 'Manage local jobs, server jobs, and system jobs in one place.',
     tabs: {
+      local: 'Local jobs',
       server: 'Server jobs',
-      local: 'Local jobs'
+      system: 'System jobs'
     },
     actions: {
       refresh: 'Refresh',
       search: 'Search',
       resetSearch: 'Clear',
       syncHotsearch: 'Sync hot search cron',
+      create: 'Create',
+      edit: 'Edit',
+      enableSelected: 'Enable selected',
+      disableSelected: 'Disable selected',
+      stopSelected: 'Stop selected',
+      deleteSelected: 'Delete selected',
       run: 'Run',
       stop: 'Stop',
       records: 'Records',
@@ -291,7 +298,13 @@ export const settings = {
     local: {
       empty: {
         title: 'Local jobs are not wired yet',
-        description: 'This section is reserved for desktop-local scheduled tasks and is not available in the current version.'
+        description: 'This section is reserved for Tauri desktop-local scheduled tasks and is not available in the current version.'
+      }
+    },
+    system: {
+      empty: {
+        title: 'System jobs are read-only',
+        description: 'This section is reserved for built-in desktop system jobs. The current version exposes a read-only entry and does not allow create, edit, or delete operations.'
       }
     },
     search: {
@@ -309,6 +322,9 @@ export const settings = {
     },
     records: {
       title: 'Execution records for {name}',
+      actions: {
+        clean: 'Clean records'
+      },
       empty: {
         title: 'No execution records',
         description: 'This job has no execution history to display yet.'
@@ -329,13 +345,24 @@ export const settings = {
         description: 'This record did not return any displayable text log.'
       }
     },
+    operate: {
+      createTitle: 'Create cron job',
+      editTitle: 'Edit cron job',
+      description: 'This stage forwards the native 1Panel JSON payload directly so the full capability chain can work first.',
+      payloadLabel: 'Cron job JSON payload',
+      previewNext: 'Preview next run',
+      nextTimes: 'Next execution times',
+      nextEmpty: 'No preview has been generated yet',
+      save: 'Save configuration'
+    },
     delete: {
       title: 'Delete cron job',
       description: 'Delete {name} without cleaning related data.',
       confirm: 'Delete'
     },
     footer: {
-      total: '{total} jobs in total'
+      total: '{total} jobs in total',
+      selected: '{total} selected'
     }
   },
   unattended: {
