@@ -1,12 +1,6 @@
 <template>
   <DashboardPage>
     <div class="flex w-full flex-1 flex-col gap-3">
-      <div class="flex flex-wrap items-center gap-2">
-        <UBadge :color="computedHotsearchStatusColor" variant="soft">{{ computedHotsearchStatusLabel }}</UBadge>
-        <UBadge color="neutral" variant="soft">{{ t('pages.settings.cron.hotsearch.enabled', { value: stateHotsearchStatus?.hotsearchEnabled ? t('common.actions.enabled') : t('common.actions.disabled') }) }}</UBadge>
-        <div class="text-muted min-w-0 text-sm break-all">{{ stateHotsearchStatus?.callbackUrl || t('pages.settings.cron.hotsearch.callbackUnset') }}</div>
-      </div>
-
       <div v-if="computedOnepanelConfigured" class="flex flex-wrap items-center gap-2">
         <UButton color="primary" size="sm" icon="i-lucide:plus" @click="handleOpenCreate">{{ t('pages.settings.cron.actions.create') }}</UButton>
         <UButton color="neutral" variant="outline" size="sm" :disabled="computedSelectedCount === 0" @click="handleBatchChangeStatus('Enable')">{{ t('pages.settings.cron.actions.enableSelected') }}</UButton>
@@ -179,11 +173,6 @@ const { refresh: refreshCronjobRecordsClean } = await useApi<Record<string, neve
 const { datas: stateHotsearchStatusDatas, refresh: refreshHotsearchStatus } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/status', { immediate: false });
 const { refresh: refreshHotsearchSync } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/sync', { method: 'POST', immediate: false });
 
-const route = useRoute();
-
-const stateRefreshNonce = useState('crons-refresh-nonce', () => 0);
-const stateSyncNonce = useState('crons-sync-nonce', () => 0);
-
 /**
  * 状态：1Panel 是否已完成配置
  */
@@ -317,11 +306,6 @@ storeBreadcrumb.states = [
 ];
 
 /**
- * 计算属性：热搜状态
- */
-const stateHotsearchStatus = computed(() => stateHotsearchStatusDatas.value);
-
-/**
  * 计算属性：当前每页条数
  */
 const computedItemsPerPage = computed(() => Number(statePageSize.value || '20'));
@@ -347,36 +331,6 @@ const computedOperateTitle = computed(() => (stateOperateMode.value === 'create'
 const computedOnepanelConfigured = computed(() => stateOnepanelConfigured.value);
 
 /**
- * 计算属性：热搜状态标签
- */
-const computedHotsearchStatusLabel = computed(() => {
-  if (!stateHotsearchStatus.value?.configured) {
-    return t('pages.settings.cron.hotsearch.states.unconfigured');
-  }
-
-  if (!stateHotsearchStatus.value.synchronized) {
-    return t('pages.settings.cron.hotsearch.states.outOfSync');
-  }
-
-  return t('pages.settings.cron.hotsearch.states.ready');
-});
-
-/**
- * 计算属性：热搜状态颜色
- */
-const computedHotsearchStatusColor = computed(() => {
-  if (!stateHotsearchStatus.value?.configured) {
-    return 'warning';
-  }
-
-  if (!stateHotsearchStatus.value.synchronized) {
-    return 'error';
-  }
-
-  return 'success';
-});
-
-/**
  * 函数：加载 cron 列表
  */
 const loadCronjobs = async (): Promise<void> => {
@@ -387,11 +341,9 @@ const loadCronjobs = async (): Promise<void> => {
     return;
   }
 
-  const info = typeof route.query.info === 'string' ? route.query.info : '';
-
   await refresh({
     body: {
-      info: String(info || '').trim(),
+      info: '',
       page: statePage.value,
       pageSize: computedItemsPerPage.value,
       groupIds: [],
@@ -411,6 +363,27 @@ const loadCronjobs = async (): Promise<void> => {
 const loadHotsearchStatus = async (): Promise<void> => {
   await refreshHotsearchStatus();
   stateOnepanelConfigured.value = Boolean(stateHotsearchStatusDatas.value?.configured);
+};
+
+/**
+ * 事件：自动同步热搜 cron
+ */
+const handleAutoSyncHotsearch = async (): Promise<void> => {
+  if (stateHotsearchSyncing.value) {
+    return;
+  }
+
+  if (!computedOnepanelConfigured.value) {
+    return;
+  }
+
+  stateHotsearchSyncing.value = true;
+  try {
+    await refreshHotsearchSync();
+    await loadHotsearchStatus();
+  } finally {
+    stateHotsearchSyncing.value = false;
+  }
 };
 
 /**
@@ -711,28 +684,6 @@ const handleOpenLog = async (item: IPageSettingsCronjobRecord): Promise<void> =>
 };
 
 /**
- * 事件：同步热搜 cron
- */
-const handleHotsearchSync = async (): Promise<void> => {
-  if (stateHotsearchSyncing.value) {
-    return;
-  }
-
-  if (!computedOnepanelConfigured.value) {
-    await navigateTo(localePath('/settings/connections'));
-    return;
-  }
-
-  stateHotsearchSyncing.value = true;
-  try {
-    await refreshHotsearchSync();
-    await handleRefreshCronjobs();
-  } finally {
-    stateHotsearchSyncing.value = false;
-  }
-};
-
-/**
  * 事件：切换当前页全选
  * @param {boolean} value 是否全选
  */
@@ -890,16 +841,10 @@ const recordColumns: TableColumn<IPageSettingsCronjobRecord>[] = [
 ];
 
 onMounted(async () => {
-  await handleRefreshCronjobs();
+  await loadHotsearchStatus();
+  await handleAutoSyncHotsearch();
+  await loadCronjobs();
 });
-
-watch(
-  () => route.query.info,
-  () => {
-    statePage.value = 1;
-    void handleRefreshCronjobs();
-  }
-);
 
 watch(statePage, () => {
   void loadCronjobs();
@@ -908,13 +853,5 @@ watch(statePage, () => {
 watch(statePageSize, () => {
   statePage.value = 1;
   void loadCronjobs();
-});
-
-watch(stateRefreshNonce, () => {
-  void handleRefreshCronjobs();
-});
-
-watch(stateSyncNonce, async () => {
-  await handleHotsearchSync();
 });
 </script>
