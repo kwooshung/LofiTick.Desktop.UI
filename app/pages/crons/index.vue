@@ -296,25 +296,23 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
     cell: ({ row }) => {
       return h('div', { class: 'min-w-0 space-y-1.5' }, [
         h('div', { class: 'flex items-start gap-2' }, [
-          h('div', { class: 'bg-primary/10 text-primary mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md' }, [
-            h(UIcon, { name: localTaskIconGet(row.original.key), class: 'size-4' })
-          ]),
+          h('div', { class: 'bg-primary/10 text-primary mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md' }, [h(UIcon, { name: localTaskIconGet(row.original.key), class: 'size-4' })]),
           h('div', { class: 'min-w-0 flex-1' }, [
             h('div', { class: 'flex flex-wrap items-center gap-1.5' }, [
               h('div', { class: 'text-highlighted text-sm font-semibold' }, row.original.title),
-                h(UBadge, { color: row.original.statusColor, variant: 'soft' }, () => row.original.statusLabel),
-                h(
-                  UButton,
-                  {
-                    to: localTaskSettingsPathGet(row.original.key),
-                    size: 'xs',
-                    color: 'neutral',
-                    variant: 'ghost',
-                    icon: 'i-lucide:arrow-up-right',
-                    class: 'h-6 px-2 hover:cursor-pointer'
-                  },
-                  () => t('pages.settings.cron.local.actions.openSettings')
-                )
+              h(UBadge, { color: row.original.statusColor, variant: 'soft' }, () => row.original.statusLabel),
+              h(
+                UButton,
+                {
+                  to: localTaskSettingsPathGet(row.original.key),
+                  size: 'xs',
+                  color: 'neutral',
+                  variant: 'ghost',
+                  icon: 'i-lucide:arrow-up-right',
+                  class: 'h-6 px-2 hover:cursor-pointer'
+                },
+                () => t('pages.settings.cron.local.actions.openSettings')
+              )
             ]),
             h('p', { class: 'text-muted mt-1 text-xs leading-5 wrap-break-word' }, row.original.description)
           ])
@@ -338,19 +336,11 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
     },
     header: '详情',
     cell: ({ row }) => {
-      const activity = row.original.key !== 'local-sentinel'
-        ? row.original.scheduleSecondary || t('common.labels.none')
-        : computedSentinelLastSeenAt.value || t('common.labels.none');
+      const activity = row.original.key !== 'local-sentinel' ? row.original.scheduleSecondary || t('common.labels.none') : computedSentinelLastSeenAt.value || t('common.labels.none');
 
       return h('div', { class: 'min-w-0 space-y-2' }, [
-        h('div', { class: 'min-w-0' }, [
-          h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.table.schedule')),
-          h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.original.schedulePrimary)
-        ]),
-        h('div', { class: 'min-w-0' }, [
-          h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.local.card.activity')),
-          h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, activity)
-        ])
+        h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.table.schedule')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.original.schedulePrimary)]),
+        h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.local.card.activity')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, activity)])
       ]);
     }
   },
