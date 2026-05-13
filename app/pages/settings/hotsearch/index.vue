@@ -281,13 +281,6 @@ const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } 
 const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { method: 'PATCH', immediate: false });
 
 /**
- * API：热搜 1Panel cron 状态（GET / POST）
- * 描述：用于进入页面后检测并修复热搜计划任务。
- */
-const { datas: stateHotsearchCronStatus, refresh: refreshHotsearchCronStatus } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/status', { immediate: false });
-const { refresh: refreshHotsearchCronSync } = await useApi<IPageSettingsHotsearchCronStatus>('desktop/crons/service/hotsearch/sync', { method: 'POST', immediate: false });
-
-/**
  * Store：面包屑
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -630,30 +623,6 @@ const loadRuntimeSchedule = async (): Promise<void> => {
 };
 
 /**
- * 函数：按需同步热搜 1Panel cron
- * @param {boolean} force 是否强制同步
- * @returns {Promise<void>} 无返回值
- */
-const syncHotsearchCronIfNeeded = async (force = false): Promise<void> => {
-  try {
-    await refreshHotsearchCronStatus();
-    const status = stateHotsearchCronStatus.value;
-
-    if (!status?.configured) {
-      return;
-    }
-
-    if (!force && status.synchronized) {
-      return;
-    }
-
-    await refreshHotsearchCronSync();
-  } catch {
-    // ignore
-  }
-};
-
-/**
  * 函数：将热搜设置回写到本地 Tauri settings 镜像
  * @param {ISettingsHotsearch} config 热搜设置
  * @returns {Promise<void>} 无返回值
@@ -697,7 +666,6 @@ const persistHotsearchSettings = async (): Promise<void> => {
       }
     });
     await persistHotsearchSettingsToLocal(nextConfig);
-    await syncHotsearchCronIfNeeded(true);
   } finally {
     stateSaving.value = false;
   }
@@ -752,8 +720,6 @@ const loadHotsearchSettings = async (): Promise<void> => {
   } catch {
     await loadRuntimeSchedule();
   }
-
-  await syncHotsearchCronIfNeeded();
 
   stateHydrated.value = true;
 };
