@@ -79,52 +79,71 @@
         </div>
 
         <div class="space-y-3">
-          <UEmpty v-if="openingTemplateEntries.length === 0" icon="i-lucide:file-plus-2" :title="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.empty.title')" :description="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.empty.description')" />
+          <UEmpty v-if="openingTemplateItems.length === 0" icon="i-lucide:file-plus-2" :title="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.empty.title')" :description="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.empty.description')" />
 
-          <div v-if="openingTemplateEntries.length > 0" ref="openingTemplateListElement" class="space-y-3">
-            <div v-for="entry in openingTemplateEntries" :key="entry.renderKey" class="podcast-template-item flex items-center gap-2">
-              <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
-                <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-10 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
-                  <UIcon name="i-lucide:grip-vertical" class="size-4" />
-                </div>
-                <USelect
-                  :model-value="entry.item.voiceKey"
-                  :items="computedVoiceOptions"
-                  value-attribute="value"
-                  option-attribute="label"
-                  variant="none"
-                  class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
-                  :disabled="props.disabled"
-                  @update:model-value="(value) => handleTemplateItemVoiceUpdate(entry.index, value)"
-                />
-                <UInput
-                  :model-value="entry.item.content"
-                  variant="none"
-                  class="bg-default min-w-0 flex-1"
-                  :disabled="props.disabled"
-                  :placeholder="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
-                  @click="handleTemplateItemContentFocus(entry.index, $event)"
-                  @focus="handleTemplateItemContentFocus(entry.index, $event)"
-                  @keyup="handleTemplateItemContentFocus(entry.index, $event)"
-                  @select="handleTemplateItemContentFocus(entry.index, $event)"
-                  @update:model-value="(value) => handleTemplateItemContentUpdate(entry.index, value)"
-                />
-                <USelect
-                  :model-value="entry.item.segmentType"
-                  :items="computedSegmentOptions"
-                  value-attribute="value"
-                  option-attribute="label"
-                  variant="none"
-                  class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
-                  :disabled="props.disabled"
-                  @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(entry.index, value)"
-                />
-                <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
-                  <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(entry.index)" />
+          <VueDraggable
+            v-if="openingTemplateItems.length > 0"
+            v-model="openingTemplateItemsModel"
+            tag="div"
+            class="podcast-template-draggable"
+            target=".podcast-template-list"
+            :animation="240"
+            easing="cubic-bezier(0.22, 1, 0.36, 1)"
+            :disabled="props.disabled"
+            direction="vertical"
+            draggable=".podcast-template-item"
+            chosen-class="podcast-template-item-chosen"
+            drag-class="podcast-template-item-drag"
+            ghost-class="podcast-template-item-ghost"
+            handle=".podcast-template-handle"
+            @start="handleTemplateDragStart"
+            @end="handleTemplateDragEnd"
+          >
+            <TransitionGroup tag="div" class="podcast-template-list space-y-3" type="transition" :name="!stateTemplateDragging ? 'podcast-template-sort' : undefined">
+              <div v-for="item in openingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
+                <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
+                  <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-12 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
+                    <UIcon name="i-lucide:grip-vertical" class="size-4" />
+                  </div>
+                  <USelect
+                    :model-value="item.voiceKey"
+                    :items="computedVoiceOptions"
+                    value-attribute="value"
+                    option-attribute="label"
+                    variant="none"
+                    class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
+                    :disabled="props.disabled"
+                    @update:model-value="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <UInput
+                    :model-value="item.content"
+                    variant="none"
+                    class="bg-default min-w-0 flex-1"
+                    :disabled="props.disabled"
+                    :placeholder="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
+                    @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @select="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @update:model-value="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <USelect
+                    :model-value="item.segmentType"
+                    :items="computedSegmentOptions"
+                    value-attribute="value"
+                    option-attribute="label"
+                    variant="none"
+                    class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
+                    :disabled="props.disabled"
+                    @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
+                    <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(templateItemStateIndexGet(item))" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </TransitionGroup>
+          </VueDraggable>
         </div>
       </section>
 
@@ -141,52 +160,71 @@
         </div>
 
         <div class="space-y-3">
-          <UEmpty v-if="closingTemplateEntries.length === 0" icon="i-lucide:file-plus-2" :title="t('pages.settings.hotsearch.fields.podcastClosingTemplates.empty.title')" :description="t('pages.settings.hotsearch.fields.podcastClosingTemplates.empty.description')" />
+          <UEmpty v-if="closingTemplateItems.length === 0" icon="i-lucide:file-plus-2" :title="t('pages.settings.hotsearch.fields.podcastClosingTemplates.empty.title')" :description="t('pages.settings.hotsearch.fields.podcastClosingTemplates.empty.description')" />
 
-          <div v-if="closingTemplateEntries.length > 0" ref="closingTemplateListElement" class="space-y-3">
-            <div v-for="entry in closingTemplateEntries" :key="entry.renderKey" class="podcast-template-item flex items-center gap-2">
-              <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
-                <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-10 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
-                  <UIcon name="i-lucide:grip-vertical" class="size-4" />
-                </div>
-                <USelect
-                  :model-value="entry.item.voiceKey"
-                  :items="computedVoiceOptions"
-                  value-attribute="value"
-                  option-attribute="label"
-                  variant="none"
-                  class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
-                  :disabled="props.disabled"
-                  @update:model-value="(value) => handleTemplateItemVoiceUpdate(entry.index, value)"
-                />
-                <UInput
-                  :model-value="entry.item.content"
-                  variant="none"
-                  class="bg-default min-w-0 flex-1"
-                  :disabled="props.disabled"
-                  :placeholder="t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
-                  @click="handleTemplateItemContentFocus(entry.index, $event)"
-                  @focus="handleTemplateItemContentFocus(entry.index, $event)"
-                  @keyup="handleTemplateItemContentFocus(entry.index, $event)"
-                  @select="handleTemplateItemContentFocus(entry.index, $event)"
-                  @update:model-value="(value) => handleTemplateItemContentUpdate(entry.index, value)"
-                />
-                <USelect
-                  :model-value="entry.item.segmentType"
-                  :items="computedSegmentOptions"
-                  value-attribute="value"
-                  option-attribute="label"
-                  variant="none"
-                  class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
-                  :disabled="props.disabled"
-                  @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(entry.index, value)"
-                />
-                <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
-                  <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(entry.index)" />
+          <VueDraggable
+            v-if="closingTemplateItems.length > 0"
+            v-model="closingTemplateItemsModel"
+            tag="div"
+            class="podcast-template-draggable"
+            target=".podcast-template-list"
+            :animation="240"
+            easing="cubic-bezier(0.22, 1, 0.36, 1)"
+            :disabled="props.disabled"
+            direction="vertical"
+            draggable=".podcast-template-item"
+            chosen-class="podcast-template-item-chosen"
+            drag-class="podcast-template-item-drag"
+            ghost-class="podcast-template-item-ghost"
+            handle=".podcast-template-handle"
+            @start="handleTemplateDragStart"
+            @end="handleTemplateDragEnd"
+          >
+            <TransitionGroup tag="div" class="podcast-template-list space-y-3" type="transition" :name="!stateTemplateDragging ? 'podcast-template-sort' : undefined">
+              <div v-for="item in closingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
+                <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
+                  <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-12 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
+                    <UIcon name="i-lucide:grip-vertical" class="size-4" />
+                  </div>
+                  <USelect
+                    :model-value="item.voiceKey"
+                    :items="computedVoiceOptions"
+                    value-attribute="value"
+                    option-attribute="label"
+                    variant="none"
+                    class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
+                    :disabled="props.disabled"
+                    @update:model-value="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <UInput
+                    :model-value="item.content"
+                    variant="none"
+                    class="bg-default min-w-0 flex-1"
+                    :disabled="props.disabled"
+                    :placeholder="t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
+                    @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @select="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
+                    @update:model-value="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <USelect
+                    :model-value="item.segmentType"
+                    :items="computedSegmentOptions"
+                    value-attribute="value"
+                    option-attribute="label"
+                    variant="none"
+                    class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
+                    :disabled="props.disabled"
+                    @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
+                  />
+                  <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
+                    <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(templateItemStateIndexGet(item))" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </TransitionGroup>
+          </VueDraggable>
         </div>
       </section>
     </div>
@@ -194,29 +232,11 @@
 </template>
 
 <script setup lang="ts">
-import { useDraggable } from 'vue-draggable-plus';
+import { VueDraggable } from 'vue-draggable-plus';
 
 import type { ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 
 import type { ISettingsHotsearchPodcastScriptSettingsProps } from './index.types';
-
-/**
- * 类型：模板片段渲染项。
- */
-interface IHotsearchPodcastTemplateEntry {
-  /**
-   * 字段：模板片段数据。
-   */
-  item: ISettingsHotsearchPodcastTemplateItem;
-  /**
-   * 字段：模板片段在总列表中的索引。
-   */
-  index: number;
-  /**
-   * 字段：模板片段稳定渲染键。
-   */
-  renderKey: string;
-}
 
 /**
  * 属性：热搜播客文案设置。
@@ -290,16 +310,6 @@ const activeTemplateItemSelectionEnd = ref<number | null>(null);
 const stateTemplateItems = ref<ISettingsHotsearchPodcastTemplateItem[]>([]);
 
 /**
- * 状态：开头模板列表容器。
- */
-const openingTemplateListElement = ref<HTMLElement | null>(null);
-
-/**
- * 状态：结尾模板列表容器。
- */
-const closingTemplateListElement = ref<HTMLElement | null>(null);
-
-/**
  * 状态：模板片段稳定渲染键列表。
  */
 const templateItemRenderKeys = ref<string[]>([]);
@@ -308,6 +318,11 @@ const templateItemRenderKeys = ref<string[]>([]);
  * 变量：片段输入框 DOM 引用。
  */
 const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
+
+/**
+ * 状态：当前是否处于模板拖拽中。
+ */
+const stateTemplateDragging = ref(false);
 
 /**
  * 监听：同步父级模板片段。
@@ -347,12 +362,32 @@ const computedSegmentOptions = computed<Array<{ value: ISettingsHotsearchPodcast
 /**
  * 计算属性：开头模板列表。
  */
-const openingTemplateEntries = computed<IHotsearchPodcastTemplateEntry[]>(() => stateTemplateItems.value.map((item, index) => ({ item, index, renderKey: templateItemRenderKeys.value[index] ?? `template-item-${index}` })).filter((entry) => entry.item.templateType === 'opening'));
+const openingTemplateItems = computed<ISettingsHotsearchPodcastTemplateItem[]>(() => stateTemplateItems.value.filter((item) => item.templateType === 'opening'));
 
 /**
  * 计算属性：结尾模板列表。
  */
-const closingTemplateEntries = computed<IHotsearchPodcastTemplateEntry[]>(() => stateTemplateItems.value.map((item, index) => ({ item, index, renderKey: templateItemRenderKeys.value[index] ?? `template-item-${index}` })).filter((entry) => entry.item.templateType === 'closing'));
+const closingTemplateItems = computed<ISettingsHotsearchPodcastTemplateItem[]>(() => stateTemplateItems.value.filter((item) => item.templateType === 'closing'));
+
+/**
+ * 计算属性：可写的开头模板列表。
+ */
+const openingTemplateItemsModel = computed<ISettingsHotsearchPodcastTemplateItem[]>({
+  get: () => openingTemplateItems.value,
+  set: (value) => {
+    handleTemplateItemsReorder('opening', value);
+  }
+});
+
+/**
+ * 计算属性：可写的结尾模板列表。
+ */
+const closingTemplateItemsModel = computed<ISettingsHotsearchPodcastTemplateItem[]>({
+  get: () => closingTemplateItems.value,
+  set: (value) => {
+    handleTemplateItemsReorder('closing', value);
+  }
+});
 
 /**
  * 计算属性：变量列表。
@@ -370,8 +405,49 @@ const computedVariableOptions = computed(() =>
  * 函数：创建模板片段稳定渲染键。
  * @returns {string} 渲染键。
  */
-const templateItemRenderKeyCreate = (): string => {
+function templateItemRenderKeyCreate(): string {
   return `template-item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * 函数：获取模板片段在总列表中的索引。
+ * @param {ISettingsHotsearchPodcastTemplateItem} item 模板片段。
+ * @returns {number} 总列表索引。
+ */
+const templateItemStateIndexGet = (item: ISettingsHotsearchPodcastTemplateItem): number => {
+  return stateTemplateItems.value.indexOf(item);
+};
+
+/**
+ * 函数：获取模板片段稳定渲染键。
+ * @param {ISettingsHotsearchPodcastTemplateItem} item 模板片段。
+ * @returns {string} 渲染键。
+ */
+const templateItemRenderKeyGet = (item: ISettingsHotsearchPodcastTemplateItem): string => {
+  const index = templateItemStateIndexGet(item);
+
+  if (index < 0) {
+    return templateItemRenderKeyCreate();
+  }
+
+  return templateItemRenderKeys.value[index] ?? `template-item-${index}`;
+};
+
+/**
+ * 函数：标记模板拖拽开始。
+ * @returns {void} 无返回值。
+ */
+const handleTemplateDragStart = (): void => {
+  stateTemplateDragging.value = true;
+};
+
+/**
+ * 函数：标记模板拖拽结束。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleTemplateDragEnd = async (): Promise<void> => {
+  await nextTick();
+  stateTemplateDragging.value = false;
 };
 
 /**
@@ -460,10 +536,8 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
       return vipMorningProgram;
     case '[vipEveningProgramName]':
       return vipEveningProgram;
-    case '[morningGreeting]':
-      return '早上好';
-    case '[eveningGreeting]':
-      return '晚上好';
+    case '[greeting]':
+      return '早上好 或 晚上好';
     case '[solarDateTime]':
       return solarDateTime;
     case '[solarDate]':
@@ -695,10 +769,10 @@ const handleVariableInsert = async (token: string): Promise<void> => {
 /**
  * 函数：按模板类型重排模板片段。
  * @param {'opening' | 'closing'} templateType 模板类型。
- * @param {IHotsearchPodcastTemplateEntry[]} entries 重排后的模板列表。
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} items 重排后的模板列表。
  * @returns {void} 无返回值。
  */
-const handleTemplateEntriesReorder = (templateType: THotsearchPodcastTemplateType, entries: IHotsearchPodcastTemplateEntry[]): void => {
+const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType, items: ISettingsHotsearchPodcastTemplateItem[]): void => {
   if (props.disabled) {
     return;
   }
@@ -711,7 +785,7 @@ const handleTemplateEntriesReorder = (templateType: THotsearchPodcastTemplateTyp
     return result;
   }, []);
 
-  if (targetIndexes.length !== entries.length) {
+  if (targetIndexes.length !== items.length) {
     return;
   }
 
@@ -720,13 +794,17 @@ const handleTemplateEntriesReorder = (templateType: THotsearchPodcastTemplateTyp
   const nextRenderKeys = [...templateItemRenderKeys.value];
   const movedIndexMap = new Map<number, number>();
 
-  entries.forEach((entry, orderIndex) => {
+  items.forEach((item, orderIndex) => {
     const targetIndex = targetIndexes[orderIndex];
+    const sourceIndex = stateTemplateItems.value.indexOf(item);
 
-    nextItems[targetIndex] = entry.item;
-    nextInputElements[targetIndex] = templateItemInputElements.value[entry.index] ?? null;
-    nextRenderKeys[targetIndex] = entry.renderKey;
-    movedIndexMap.set(entry.index, targetIndex);
+    nextItems[targetIndex] = item;
+    nextInputElements[targetIndex] = sourceIndex >= 0 ? (templateItemInputElements.value[sourceIndex] ?? null) : null;
+    nextRenderKeys[targetIndex] = sourceIndex >= 0 ? (templateItemRenderKeys.value[sourceIndex] ?? templateItemRenderKeyCreate()) : templateItemRenderKeyCreate();
+
+    if (sourceIndex >= 0) {
+      movedIndexMap.set(sourceIndex, targetIndex);
+    }
   });
 
   templateItemInputElements.value = nextInputElements;
@@ -737,119 +815,40 @@ const handleTemplateEntriesReorder = (templateType: THotsearchPodcastTemplateTyp
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
 };
-
-/**
- * 函数：按模板类型移动模板片段。
- * @param {'opening' | 'closing'} templateType 模板类型。
- * @param {number} fromIndex 分组内起始索引。
- * @param {number} toIndex 分组内目标索引。
- * @returns {void} 无返回值。
- */
-const handleTemplateEntryMoveByType = (templateType: THotsearchPodcastTemplateType, fromIndex: number, toIndex: number): void => {
-  if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {
-    return;
-  }
-
-  const entries = templateType === 'opening' ? [...openingTemplateEntries.value] : [...closingTemplateEntries.value];
-
-  if (fromIndex >= entries.length || toIndex >= entries.length) {
-    return;
-  }
-
-  const [movedEntry] = entries.splice(fromIndex, 1);
-  entries.splice(toIndex, 0, movedEntry);
-  handleTemplateEntriesReorder(templateType, entries);
-};
-
-const openingTemplateDraggable = useDraggable(openingTemplateListElement, {
-  animation: 180,
-  immediate: false,
-  disabled: props.disabled,
-  chosenClass: 'podcast-template-item-chosen',
-  dragClass: 'podcast-template-item-drag',
-  ghostClass: 'podcast-template-item-ghost',
-  handle: '.podcast-template-handle',
-  onUpdate: (event) => {
-    if (event.oldIndex === undefined || event.newIndex === undefined) {
-      return;
-    }
-
-    handleTemplateEntryMoveByType('opening', event.oldIndex, event.newIndex);
-  }
-});
-
-const closingTemplateDraggable = useDraggable(closingTemplateListElement, {
-  animation: 180,
-  immediate: false,
-  disabled: props.disabled,
-  chosenClass: 'podcast-template-item-chosen',
-  dragClass: 'podcast-template-item-drag',
-  ghostClass: 'podcast-template-item-ghost',
-  handle: '.podcast-template-handle',
-  onUpdate: (event) => {
-    if (event.oldIndex === undefined || event.newIndex === undefined) {
-      return;
-    }
-
-    handleTemplateEntryMoveByType('closing', event.oldIndex, event.newIndex);
-  }
-});
-
-/**
- * 函数：同步模板拖拽实例。
- * @param {UseDraggableReturn} draggable 拖拽实例。
- * @param {HTMLElement | null} element 列表容器。
- * @param {number} length 当前列表长度。
- * @returns {Promise<void>} 无返回值。
- */
-const syncTemplateDraggable = async (draggable: ReturnType<typeof useDraggable>, element: HTMLElement | null, length: number): Promise<void> => {
-  draggable.destroy();
-
-  if (!element || length <= 0 || props.disabled) {
-    return;
-  }
-
-  await nextTick();
-
-  if (!element.isConnected) {
-    return;
-  }
-
-  draggable.start(element);
-};
-
-watch(
-  [openingTemplateListElement, () => openingTemplateEntries.value.length, () => props.disabled],
-  async ([element, length]) => {
-    await syncTemplateDraggable(openingTemplateDraggable, element, length);
-  },
-  {
-    flush: 'post'
-  }
-);
-
-watch(
-  [closingTemplateListElement, () => closingTemplateEntries.value.length, () => props.disabled],
-  async ([element, length]) => {
-    await syncTemplateDraggable(closingTemplateDraggable, element, length);
-  },
-  {
-    flush: 'post'
-  }
-);
-
-onBeforeUnmount(() => {
-  openingTemplateDraggable.destroy();
-  closingTemplateDraggable.destroy();
-});
 </script>
 
 <style scoped>
+.podcast-template-draggable {
+  display: block;
+}
+
+.podcast-template-list {
+  position: relative;
+}
+
 .podcast-template-item {
   transition:
-    transform 180ms ease,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 180ms ease,
     filter 180ms ease;
+  will-change: transform;
+}
+
+.podcast-template-sort-move {
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.podcast-template-sort-enter-active,
+.podcast-template-sort-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.podcast-template-sort-enter-from,
+.podcast-template-sort-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .podcast-template-item :deep(.podcast-template-handle) {
@@ -879,6 +878,7 @@ onBeforeUnmount(() => {
 
 .podcast-template-item-ghost {
   opacity: 0.42;
+  transition: none !important;
 }
 
 .podcast-template-item-ghost :deep(> div) {
@@ -889,6 +889,8 @@ onBeforeUnmount(() => {
 .podcast-template-item-drag {
   z-index: 30;
   transform: scale(1.01);
+  transition: none !important;
+  will-change: transform;
 }
 
 .podcast-template-item-drag :deep(> div) {
@@ -901,5 +903,24 @@ onBeforeUnmount(() => {
 .podcast-template-item-drag :deep(.podcast-template-handle) {
   background-color: color-mix(in srgb, var(--ui-primary) 16%, transparent);
   color: var(--ui-primary);
+}
+
+.podcast-template-item-fallback {
+  pointer-events: none;
+  opacity: 0.96;
+  transform: scale(1.01);
+  transition: none !important;
+  will-change: transform;
+}
+
+.podcast-template-item-drag :deep(> div),
+.podcast-template-item-fallback :deep(> div),
+.podcast-template-item-ghost :deep(> div) {
+  transition: none !important;
+}
+
+.podcast-template-item-fallback :deep(> div) {
+  border-color: color-mix(in srgb, var(--ui-primary) 50%, var(--ui-border));
+  box-shadow: 0 20px 44px -24px color-mix(in srgb, var(--ui-primary) 34%, transparent);
 }
 </style>
