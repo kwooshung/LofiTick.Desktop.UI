@@ -4,6 +4,46 @@
 export type THotsearchPlatformType = 'baidu' | 'sina' | 'sina-news' | 'weibo' | 'toutiao' | 'qq-news' | 'thepaper' | 'netease-news' | 'huxiu' | 'hupu' | 'zhihu' | 'zhihu-daily' | 'ifanr' | 'sspai' | 'guokr' | '36kr' | 'douban-group' | 'helloGitHub' | 'v2ex' | 'history';
 
 /**
+ * 类型：热搜播客音色标识。
+ */
+export type THotsearchPodcastVoiceKey = 'random' | 'xiaoluo' | 'feifei';
+
+/**
+ * 类型：热搜播客模板类型。
+ */
+export type THotsearchPodcastTemplateType = 'opening' | 'closing';
+
+/**
+ * 类型：热搜播客文案类型。
+ */
+export type THotsearchPodcastSegmentType = 'normal' | 'adOpening' | 'adContent' | 'adClosing';
+
+/**
+ * 接口：热搜播客模板片段。
+ */
+export interface ISettingsHotsearchPodcastTemplateItem {
+  /**
+   * 播报音色。
+   */
+  voiceKey: THotsearchPodcastVoiceKey;
+
+  /**
+   * 文案内容。
+   */
+  content: string;
+
+  /**
+   * 文案类型。
+   */
+  segmentType: THotsearchPodcastSegmentType;
+
+  /**
+   * 模板类型。
+   */
+  templateType: THotsearchPodcastTemplateType;
+}
+
+/**
  * 接口：热搜平台项。
  */
 export interface ISettingsHotsearchPlatformItem {
@@ -36,6 +76,41 @@ export interface ISettingsHotsearch {
    * 是否启用播客自动生成。
    */
   podcastEnabled: boolean;
+
+  /**
+   * 男生播报者名称。
+   */
+  podcastMaleSpeakerName: string;
+
+  /**
+   * 女生播报者名称。
+   */
+  podcastFemaleSpeakerName: string;
+
+  /**
+   * 早间节目名称。
+   */
+  podcastMorningProgramName: string;
+
+  /**
+   * 晚间节目名称。
+   */
+  podcastEveningProgramName: string;
+
+  /**
+   * VIP 专项版早间节目名称。
+   */
+  podcastVipMorningProgramName: string;
+
+  /**
+   * VIP 专项版晚间节目名称。
+   */
+  podcastVipEveningProgramName: string;
+
+  /**
+   * 播客模板片段列表。
+   */
+  podcastTemplateItems: ISettingsHotsearchPodcastTemplateItem[];
 
   /**
    * 月度预算积分。

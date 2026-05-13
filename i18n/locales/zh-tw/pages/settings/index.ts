@@ -185,6 +185,10 @@ export const settings = {
         title: '抓取計畫',
         description: '這裡設定 Podcast 時間基準、平台抓取間隔、隨機偏移與失敗補抓策略。'
       },
+      podcast: {
+        title: 'Podcast 文案',
+        description: '這裡配置節目名稱、播報者姓名，以及分開維護的開頭模板和結尾模板；正文由程式自動生成。'
+      },
       platforms: {
         title: '平台選擇',
         description: '只選你真正需要的平台，預算會依已選平台數量即時計算。'
@@ -202,6 +206,62 @@ export const settings = {
       podcastEnabled: {
         label: '自動生成 Podcast',
         description: '啟用後，Podcast 時間會預設跟隨熱搜視窗推導。'
+      },
+      podcastMaleSpeakerName: {
+        label: '男生播報者姓名',
+        description: '用於變數替換中的男生姓名，預設是小洛。',
+        placeholder: '例如：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女生播報者姓名',
+        description: '用於變數替換中的女生姓名，預設是菲菲。',
+        placeholder: '例如：菲菲'
+      },
+      podcastProgramNames: {
+        label: '節目名稱',
+        description: '早間、晚間與 VIP 尊享版都會使用各自的節目名稱變數。'
+      },
+      podcastMorningProgramName: {
+        label: '早間節目名稱',
+        description: '用於普通早間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點早報'
+      },
+      podcastEveningProgramName: {
+        label: '晚間節目名稱',
+        description: '用於普通晚間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點晚報'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 尊享版早間節目名稱',
+        description: '用於 VIP 尊享版早間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點早報 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 尊享版晚間節目名稱',
+        description: '用於 VIP 尊享版晚間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點晚報 尊享版'
+      },
+      podcastVariables: {
+        label: '變數插入',
+        description: '點擊變數按鈕會直接插入到目前聚焦的開頭或結尾模板輸入框。'
+      },
+      podcastOpeningTemplates: {
+        label: '開頭模板',
+        description: '這裡只維護 Podcast 的開頭模板，正文由程式自動生成。',
+        placeholder: '例如：這裡是 [programName]，今天是 [solarDateTime]。',
+        empty: {
+          title: '還沒有開頭模板',
+          description: '先新增一條開頭模板，再選擇音色並輸入開頭文案。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '結尾模板',
+        description: '這裡只維護 Podcast 的結尾模板，正文由程式自動生成。',
+        placeholder: '例如：以上就是今天的 [programName]，我們下次再見。',
+        empty: {
+          title: '還沒有結尾模板',
+          description: '先新增一條結尾模板，再選擇音色並輸入結尾文案。'
+        }
       },
       monthlyBudget: {
         label: '月度預算積分',
@@ -256,6 +316,61 @@ export const settings = {
         }
       }
     },
+    options: {
+      podcastVoice: {
+        random: '隨機',
+        xiaoluo: '小洛',
+        feifei: '菲菲'
+      },
+      podcastTemplate: {
+        opening: '開頭模板',
+        closing: '結尾模板'
+      },
+      podcastSegment: {
+        normal: '普通內容',
+        adOpening: '廣告開頭',
+        adContent: '廣告內容',
+        adClosing: '廣告結尾'
+      }
+    },
+    variables: {
+      speakerName: '播報者名稱',
+      maleSpeakerName: '男生姓名',
+      femaleSpeakerName: '女生姓名',
+      programName: '目前節目名稱',
+      morningProgramName: '早間節目名稱',
+      eveningProgramName: '晚間節目名稱',
+      vipMorningProgramName: 'VIP 尊享版早間節目名稱',
+      vipEveningProgramName: 'VIP 尊享版晚間節目名稱',
+      morningGreeting: '早上好',
+      eveningGreeting: '晚上好',
+      solarDateTime: '陽曆年月日',
+      solarDate: '陽曆月日',
+      solarTime: '時間',
+      lunarDateTime: '農曆年月日',
+      lunarDate: '農曆月日',
+      weekday: '星期',
+      editionLabel: '早晚報標識'
+    },
+    variableDescriptions: {
+      speakerName: '依目前音色自動帶入播報者姓名。',
+      maleSpeakerName: '固定使用男生播報者姓名。',
+      femaleSpeakerName: '固定使用女生播報者姓名。',
+      programName: '依目前節目場景自動帶入節目名稱。',
+      morningProgramName: '普通早間 Podcast 的節目名稱。',
+      eveningProgramName: '普通晚間 Podcast 的節目名稱。',
+      vipMorningProgramName: 'VIP 尊享版早間 Podcast 的節目名稱。',
+      vipEveningProgramName: 'VIP 尊享版晚間 Podcast 的節目名稱。',
+      morningGreeting: '動態輸出早上好的問候語。',
+      eveningGreeting: '動態輸出晚上的問候語。',
+      solarDateTime: '例如 2026年5月14日。',
+      solarDate: '例如 5月14日。',
+      solarTime: '例如 08:30。',
+      lunarDateTime: '例如 農曆三月二十八。',
+      lunarDate: '例如 三月二十八。',
+      weekday: '目前星期。',
+      editionLabel: '目前是早間還是晚間播客。'
+    },
     summary: {
       selectedPlatforms: '已選平台',
       perWindowCost: '單視窗積分',
@@ -279,6 +394,8 @@ export const settings = {
       usage: '查看官網用量',
       selectAll: '全選平台',
       clearAll: '清空平台',
+      addOpeningTemplate: '新增開頭模板',
+      addClosingTemplate: '新增結尾模板',
       reset: '恢復預設',
       save: '儲存設定'
     }

@@ -185,6 +185,10 @@
         title: '抓取计划',
         description: '这里配置播客时间基准、平台抓取间隔、随机偏移与失败补抓策略。'
       },
+      podcast: {
+        title: '播客文案',
+        description: '这里配置播报者姓名、节目名称，以及播客开头和结尾模板；正文由程序自动生成。'
+      },
       platforms: {
         title: '平台选择',
         description: '只抓取你真正需要的平台，预算会按已选平台数量实时估算。'
@@ -202,6 +206,62 @@
       podcastEnabled: {
         label: '自动生成播客',
         description: '启用后，播客时间将默认跟随热搜窗口的推导结果。'
+      },
+      podcastMaleSpeakerName: {
+        label: '男生播报者姓名',
+        description: '用于变量替换中的男生姓名，默认是小洛。',
+        placeholder: '例如：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女生播报者姓名',
+        description: '用于变量替换中的女生姓名，默认是菲菲。',
+        placeholder: '例如：菲菲'
+      },
+      podcastProgramNames: {
+        label: '节目名称',
+        description: '早间、晚间以及 VIP 专项版会按各自的节目名称渲染到模板变量中。'
+      },
+      podcastMorningProgramName: {
+        label: '早间节目名称',
+        description: '用于普通早间播客的节目名称。',
+        placeholder: '例如：洛菲热点早报'
+      },
+      podcastEveningProgramName: {
+        label: '晚间节目名称',
+        description: '用于普通晚间播客的节目名称。',
+        placeholder: '例如：洛菲热点晚报'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 专项版早间节目名称',
+        description: '用于 VIP 专项版早间播客的节目名称。',
+        placeholder: '例如：洛菲热点早报 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 专项版晚间节目名称',
+        description: '用于 VIP 专项版晚间播客的节目名称。',
+        placeholder: '例如：洛菲热点晚报 尊享版'
+      },
+      podcastVariables: {
+        label: '变量插入',
+        description: '点击变量按钮会直接插入到当前聚焦的开头或结尾模板输入框。'
+      },
+      podcastOpeningTemplates: {
+        label: '开头模板',
+        description: '这里只维护播客开头模板，正文由程序自动生成。',
+        placeholder: '例如：这里是 [programName]，今天是 [solarDateTime]。',
+        empty: {
+          title: '还没有开头模板',
+          description: '先新增一条开头模板，再选择音色并输入开头文案。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '结尾模板',
+        description: '这里只维护播客结尾模板，正文由程序自动生成。',
+        placeholder: '例如：以上就是今天的 [programName]，我们下次再见。',
+        empty: {
+          title: '还没有结尾模板',
+          description: '先新增一条结尾模板，再选择音色并输入结尾文案。'
+        }
       },
       monthlyBudget: {
         label: '月度预算积分',
@@ -256,6 +316,61 @@
         }
       }
     },
+    options: {
+      podcastVoice: {
+        random: '随机',
+        xiaoluo: '小洛',
+        feifei: '菲菲'
+      },
+      podcastTemplate: {
+        opening: '开头模板',
+        closing: '结尾模板'
+      },
+      podcastSegment: {
+        normal: '普通内容',
+        adOpening: '广告开头',
+        adContent: '广告内容',
+        adClosing: '广告结尾'
+      }
+    },
+    variables: {
+      speakerName: '播报者名称',
+      maleSpeakerName: '男生姓名',
+      femaleSpeakerName: '女生姓名',
+      programName: '当前节目名称',
+      morningProgramName: '早间节目名称',
+      eveningProgramName: '晚间节目名称',
+      vipMorningProgramName: 'VIP 专项版早间节目名称',
+      vipEveningProgramName: 'VIP 专项版晚间节目名称',
+      morningGreeting: '早上好',
+      eveningGreeting: '晚上好',
+      solarDateTime: '阳历年月日',
+      solarDate: '阳历月日',
+      solarTime: '时间',
+      lunarDateTime: '农历年月日',
+      lunarDate: '农历月日',
+      weekday: '星期',
+      editionLabel: '早晚报标识'
+    },
+    variableDescriptions: {
+      speakerName: '根据当前音色自动取播报者姓名。',
+      maleSpeakerName: '始终使用男生播报者姓名。',
+      femaleSpeakerName: '始终使用女生播报者姓名。',
+      programName: '根据当前节目场景自动取节目名称。',
+      morningProgramName: '普通早间播客的节目名称。',
+      eveningProgramName: '普通晚间播客的节目名称。',
+      vipMorningProgramName: 'VIP 专项版早间播客的节目名称。',
+      vipEveningProgramName: 'VIP 专项版晚间播客的节目名称。',
+      morningGreeting: '动态输出早上好的问候语。',
+      eveningGreeting: '动态输出晚上好的问候语。',
+      solarDateTime: '例如 2026年5月14日。',
+      solarDate: '例如 5月14日。',
+      solarTime: '例如 08:30。',
+      lunarDateTime: '例如 农历三月二十八。',
+      lunarDate: '例如 三月二十八。',
+      weekday: '当前星期。',
+      editionLabel: '当前是早间还是晚间播客。'
+    },
     summary: {
       selectedPlatforms: '已选平台',
       perWindowCost: '单窗口积分',
@@ -279,6 +394,8 @@
       usage: '查看官网用量',
       selectAll: '全选平台',
       clearAll: '清空平台',
+      addOpeningTemplate: '新增开头模板',
+      addClosingTemplate: '新增结尾模板',
       reset: '恢复默认',
       save: '保存设置'
     }

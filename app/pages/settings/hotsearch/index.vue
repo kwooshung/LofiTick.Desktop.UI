@@ -47,6 +47,24 @@
       </UFormField>
     </UPageCard>
 
+    <SettingsHotsearchPodcastScriptSettings
+      :male-speaker-name="stateHotsearchConfig.podcastMaleSpeakerName"
+      :female-speaker-name="stateHotsearchConfig.podcastFemaleSpeakerName"
+      :morning-program-name="stateHotsearchConfig.podcastMorningProgramName"
+      :evening-program-name="stateHotsearchConfig.podcastEveningProgramName"
+      :vip-morning-program-name="stateHotsearchConfig.podcastVipMorningProgramName"
+      :vip-evening-program-name="stateHotsearchConfig.podcastVipEveningProgramName"
+      :template-items="stateHotsearchConfig.podcastTemplateItems"
+      :disabled="stateSaving"
+      @update:male-speaker-name="handlePodcastMaleSpeakerNameUpdate"
+      @update:female-speaker-name="handlePodcastFemaleSpeakerNameUpdate"
+      @update:morning-program-name="handlePodcastMorningProgramNameUpdate"
+      @update:evening-program-name="handlePodcastEveningProgramNameUpdate"
+      @update:vip-morning-program-name="handlePodcastVipMorningProgramNameUpdate"
+      @update:vip-evening-program-name="handlePodcastVipEveningProgramNameUpdate"
+      @update:template-items="handlePodcastTemplateItemsUpdate"
+    />
+
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
@@ -287,6 +305,8 @@
 <script setup lang="ts">
 import { parseTime } from '@internationalized/date';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
+
+import type { ISettingsHotsearchPodcastTemplateItem } from '@@/shared/types/index.types';
 
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
@@ -793,6 +813,90 @@ const handleEnabledUpdate = (value: boolean): void => {
  */
 const handlePodcastEnabledUpdate = (value: boolean): void => {
   stateHotsearchConfig.value.podcastEnabled = value;
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新男生播报者名称
+ * @param {string} value 最新值
+ */
+const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastMaleSpeakerName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新女生播报者名称
+ * @param {string} value 最新值
+ */
+const handlePodcastFemaleSpeakerNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastFemaleSpeakerName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新早间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastMorningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastMorningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新晚间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastEveningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastEveningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新 VIP 专项版早间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastVipMorningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastVipMorningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新 VIP 专项版晚间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastVipEveningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastVipEveningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新播客模板片段
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} value 最新值
+ */
+const handlePodcastTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[]): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastTemplateItems: value
+  });
   requestPersistHotsearchSettings();
 };
 

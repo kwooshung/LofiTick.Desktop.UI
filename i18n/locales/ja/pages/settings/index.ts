@@ -185,6 +185,10 @@ export const settings = {
         title: '取得スケジュール',
         description: 'Podcast 時刻の基準、プラットフォーム間隔、ランダム幅、再試行方針をここで設定します。'
       },
+      podcast: {
+        title: 'Podcast 文案',
+        description: '番組名、読み手の名前、そして分かれた導入テンプレートと締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
+      },
       platforms: {
         title: 'プラットフォーム',
         description: '本当に必要なプラットフォームだけを選びます。予算は選択数から概算します。'
@@ -202,6 +206,62 @@ export const settings = {
       podcastEnabled: {
         label: 'Podcast 自動生成',
         description: '有効にすると、Podcast 時刻はトレンド取得ウィンドウから自動推定されます。'
+      },
+      podcastMaleSpeakerName: {
+        label: '男性読み手の名前',
+        description: '変数置換で使う男性読み手の名前です。初期値は小洛です。',
+        placeholder: '例：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女性読み手の名前',
+        description: '変数置換で使う女性読み手の名前です。初期値は菲菲です。',
+        placeholder: '例：菲菲'
+      },
+      podcastProgramNames: {
+        label: '番組名',
+        description: '朝版、夜版、VIP 尊享版はそれぞれ専用の番組名変数を使います。'
+      },
+      podcastMorningProgramName: {
+        label: '朝版の番組名',
+        description: '通常の朝版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット早報'
+      },
+      podcastEveningProgramName: {
+        label: '夜版の番組名',
+        description: '通常の夜版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット晚報'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 尊享版朝版の番組名',
+        description: 'VIP 尊享版朝版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット早報 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 尊享版夜版の番組名',
+        description: 'VIP 尊享版夜版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット晚報 尊享版'
+      },
+      podcastVariables: {
+        label: '変数を挿入',
+        description: '変数ボタンを押すと、現在フォーカス中の導入または締めテンプレート入力欄に直接挿入されます。'
+      },
+      podcastOpeningTemplates: {
+        label: '導入テンプレート',
+        description: 'ここでは導入テンプレートだけを管理します。本文は自動生成されます。',
+        placeholder: '例：こちらは [programName]、今日は [solarDateTime] です。',
+        empty: {
+          title: '導入テンプレートがまだありません',
+          description: 'まず導入テンプレートを追加して、音声と導入文を設定してください。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '締めテンプレート',
+        description: 'ここでは締めテンプレートだけを管理します。本文は自動生成されます。',
+        placeholder: '例：以上が本日の [programName] でした。また次回お会いしましょう。',
+        empty: {
+          title: '締めテンプレートがまだありません',
+          description: 'まず締めテンプレートを追加して、音声と締め文を設定してください。'
+        }
       },
       monthlyBudget: {
         label: '月間ポイント予算',
@@ -256,6 +316,61 @@ export const settings = {
         }
       }
     },
+    options: {
+      podcastVoice: {
+        random: 'ランダム',
+        xiaoluo: 'XiaoLuo',
+        feifei: 'Feifei'
+      },
+      podcastTemplate: {
+        opening: '導入テンプレート',
+        closing: '締めテンプレート'
+      },
+      podcastSegment: {
+        normal: '通常内容',
+        adOpening: '広告導入',
+        adContent: '広告内容',
+        adClosing: '広告締め'
+      }
+    },
+    variables: {
+      speakerName: '読み手の名前',
+      maleSpeakerName: '男性名',
+      femaleSpeakerName: '女性名',
+      programName: '現在の番組名',
+      morningProgramName: '朝版の番組名',
+      eveningProgramName: '夜版の番組名',
+      vipMorningProgramName: 'VIP 尊享版朝版の番組名',
+      vipEveningProgramName: 'VIP 尊享版夜版の番組名',
+      morningGreeting: 'おはようございます',
+      eveningGreeting: 'こんばんは',
+      solarDateTime: '西暦の年月日',
+      solarDate: '西暦の月日',
+      solarTime: '時刻',
+      lunarDateTime: '旧暦の年月日',
+      lunarDate: '旧暦の月日',
+      weekday: '曜日',
+      editionLabel: '朝夕版の表示'
+    },
+    variableDescriptions: {
+      speakerName: '現在の音声に対応する読み手名を使います。',
+      maleSpeakerName: '男性読み手の名前を固定で使います。',
+      femaleSpeakerName: '女性読み手の名前を固定で使います。',
+      programName: '現在の版に対応する番組名を使います。',
+      morningProgramName: '通常の朝版 Podcast の番組名です。',
+      eveningProgramName: '通常の夜版 Podcast の番組名です。',
+      vipMorningProgramName: 'VIP 尊享版朝版 Podcast の番組名です。',
+      vipEveningProgramName: 'VIP 尊享版夜版 Podcast の番組名です。',
+      morningGreeting: '朝の挨拶を動的に出力します。',
+      eveningGreeting: '夜の挨拶を動的に出力します。',
+      solarDateTime: '例: 2026年5月14日。',
+      solarDate: '例: 5月14日。',
+      solarTime: '例: 08:30。',
+      lunarDateTime: '例: 農曆三月二十八。',
+      lunarDate: '例: 三月二十八。',
+      weekday: '現在の曜日です。',
+      editionLabel: '現在の回が朝版か夜版かを表します。'
+    },
     summary: {
       selectedPlatforms: '選択済みプラットフォーム',
       perWindowCost: '1 ウィンドウあたりのポイント',
@@ -279,6 +394,8 @@ export const settings = {
       usage: '公式使用量を開く',
       selectAll: 'すべて選択',
       clearAll: 'すべて解除',
+      addOpeningTemplate: '導入テンプレートを追加',
+      addClosingTemplate: '締めテンプレートを追加',
       reset: '初期値に戻す',
       save: '設定を保存'
     }

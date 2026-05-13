@@ -1,4 +1,4 @@
-import type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, THotsearchPlatformType } from '@@/shared/types/pages/settings/hotsearch/index.types';
+import type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
 
 /**
  * 常量：热搜官网用量地址。
@@ -32,6 +32,31 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 ];
 
 /**
+ * 常量：热搜播客音色固定列表。
+ */
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei'];
+const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
+const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'adOpening', 'adClosing'];
+const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
+  'speakerName',
+  'maleSpeakerName',
+  'femaleSpeakerName',
+  'programName',
+  'morningProgramName',
+  'eveningProgramName',
+  'vipMorningProgramName',
+  'vipEveningProgramName',
+  'morningGreeting',
+  'eveningGreeting',
+  'solarDateTime',
+  'solarDate',
+  'lunarDate',
+  'weekday',
+  'solarTime',
+  'editionLabel'
+] as const;
+
+/**
  * 函数：列出热搜平台项。
  * @returns {ISettingsHotsearchPlatformItem[]} 平台项列表。
  */
@@ -42,12 +67,71 @@ export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] =>
   }));
 
 /**
+ * 函数：列出热搜播客音色选项。
+ * @returns {{ value: THotsearchPodcastVoiceKey; key: string }[]} 音色选项。
+ */
+export const hotsearchPodcastVoiceOptionsGet = (): Array<{ value: THotsearchPodcastVoiceKey; key: string }> =>
+  HOTSEARCH_PODCAST_VOICE_KEYS.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastVoice.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客模板类型选项。
+ * @returns {{ value: THotsearchPodcastTemplateType; key: string }[]} 模板类型选项。
+ */
+export const hotsearchPodcastTemplateOptionsGet = (): Array<{ value: THotsearchPodcastTemplateType; key: string }> =>
+  HOTSEARCH_PODCAST_TEMPLATE_TYPES.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastTemplate.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客文案类型选项。
+ * @returns {{ value: THotsearchPodcastSegmentType; key: string }[]} 文案类型选项。
+ */
+export const hotsearchPodcastSegmentOptionsGet = (): Array<{ value: THotsearchPodcastSegmentType; key: string }> =>
+  HOTSEARCH_PODCAST_SEGMENT_TYPES.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastSegment.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客变量。
+ * @returns {{ token: string; key: string }[]} 变量列表。
+ */
+export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key: string }> =>
+  HOTSEARCH_PODCAST_VARIABLE_KEYS.map((key) => ({
+    token: `[${key}]`,
+    key: `pages.settings.hotsearch.variables.${key}`,
+    descriptionKey: `pages.settings.hotsearch.variableDescriptions.${key}`
+  }));
+
+/**
+ * 函数：创建默认热搜播客模板片段。
+ * @returns {ISettingsHotsearchPodcastTemplateItem} 默认片段。
+ */
+export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsearchPodcastTemplateType = 'opening'): ISettingsHotsearchPodcastTemplateItem => ({
+  voiceKey: 'random',
+  content: '',
+  segmentType: 'normal',
+  templateType
+});
+
+/**
  * 函数：创建默认热搜设置。
  * @returns {ISettingsHotsearch} 默认设置。
  */
 export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   enabled: false,
   podcastEnabled: false,
+  podcastMaleSpeakerName: '小洛',
+  podcastFemaleSpeakerName: '菲菲',
+  podcastMorningProgramName: '洛菲热点早报',
+  podcastEveningProgramName: '洛菲热点晚报',
+  podcastVipMorningProgramName: '洛菲热点早报 尊享版',
+  podcastVipEveningProgramName: '洛菲热点晚报 尊享版',
+  podcastTemplateItems: [],
   monthlyBudget: 3500,
   platformIds: hotsearchPlatformsList().map((item) => item.id),
   morningStartAt: '06:00',
@@ -58,6 +142,124 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   retryMaxAttempts: 1,
   retryDelaySeconds: 600
 });
+
+/**
+ * 函数：归一化热搜播客音色。
+ * @param {unknown} input 输入值。
+ * @param {THotsearchPodcastVoiceKey} fallback 默认值。
+ * @returns {THotsearchPodcastVoiceKey} 归一化后的音色。
+ */
+const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchPodcastVoiceKey): THotsearchPodcastVoiceKey => {
+  const value = String(input ?? '').trim() as THotsearchPodcastVoiceKey;
+  return HOTSEARCH_PODCAST_VOICE_KEYS.includes(value) ? value : fallback;
+};
+
+/**
+ * 函数：归一化热搜播客文案。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @param {number} maxLength 最大长度。
+ * @returns {string} 归一化后的文案。
+ */
+const hotsearchPodcastTextNormalize = (input: unknown, fallback: string, maxLength: number): string => {
+  const value = String(input ?? '')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+
+  if (!value) {
+    return fallback;
+  }
+
+  return value.slice(0, maxLength);
+};
+
+/**
+ * 函数：归一化热搜播报者姓名。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @returns {string} 归一化后的姓名。
+ */
+const hotsearchPodcastSpeakerNameNormalize = (input: unknown, fallback: string): string => {
+  return hotsearchPodcastTextNormalize(input, fallback, 40) || fallback;
+};
+
+/**
+ * 函数：归一化热搜播客模板类型。
+ * @param {unknown} input 输入值。
+ * @param {THotsearchPodcastTemplateType} fallback 默认值。
+ * @returns {THotsearchPodcastTemplateType} 归一化后的模板类型。
+ */
+const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsearchPodcastTemplateType): THotsearchPodcastTemplateType => {
+  const rawValue = String(input ?? '').trim();
+
+  switch (rawValue) {
+    case 'closing':
+    case 'adClosing':
+      return 'closing';
+    case 'opening':
+    case 'normal':
+    case 'adOpening':
+    case 'adContent':
+      return 'opening';
+    default:
+      return fallback;
+  }
+};
+
+/**
+ * 函数：归一化热搜播客文案类型。
+ * @param {unknown} input 输入值。
+ * @returns {THotsearchPodcastSegmentType} 归一化后的文案类型。
+ */
+const hotsearchPodcastSegmentTypeNormalize = (input: unknown): THotsearchPodcastSegmentType => {
+  const rawValue = String(input ?? '').trim();
+
+  switch (rawValue) {
+    case 'adOpening':
+    case 'ad_opening':
+      return 'adOpening';
+    case 'adContent':
+    case 'ad_content':
+      return 'adOpening';
+    case 'adClosing':
+    case 'ad_closing':
+      return 'adClosing';
+    default:
+      return 'normal';
+  }
+};
+
+/**
+ * 函数：归一化热搜节目名称。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @returns {string} 归一化后的节目名称。
+ */
+const hotsearchPodcastProgramNameNormalize = (input: unknown, fallback: string): string => {
+  return hotsearchPodcastTextNormalize(input, fallback, 80) || fallback;
+};
+
+/**
+ * 函数：归一化热搜播客模板片段。
+ * @param {unknown} input 输入值。
+ * @returns {ISettingsHotsearchPodcastTemplateItem[]} 归一化后的模板列表。
+ */
+const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsearchPodcastTemplateItem[] => {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input.map((item) => {
+    const source = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+
+    return {
+      voiceKey: hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
+      content: hotsearchPodcastTextNormalize(source.content, '', 2000),
+      segmentType: hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type),
+      templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
+    } satisfies ISettingsHotsearchPodcastTemplateItem;
+  });
+};
 
 /**
  * 函数：归一化热搜时间。
@@ -126,10 +328,41 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
   const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
   const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
   const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
+  const legacyVoiceKey = hotsearchPodcastVoiceKeyNormalize(source.podcastVoiceKey, 'random');
+  const legacyOpeningText = hotsearchPodcastTextNormalize(source.podcastOpeningText, '', 2000);
+  const legacyClosingText = hotsearchPodcastTextNormalize(source.podcastClosingText, '', 2000);
+  const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems ?? source.podcastScriptItems);
+
+  if (podcastTemplateItems.length === 0) {
+    if (legacyOpeningText) {
+      podcastTemplateItems.push({
+        voiceKey: legacyVoiceKey,
+        content: legacyOpeningText,
+        segmentType: 'normal',
+        templateType: 'opening'
+      });
+    }
+
+    if (legacyClosingText) {
+      podcastTemplateItems.push({
+        voiceKey: legacyVoiceKey,
+        content: legacyClosingText,
+        segmentType: 'normal',
+        templateType: 'closing'
+      });
+    }
+  }
 
   return {
     enabled: Boolean(source.enabled),
     podcastEnabled: Boolean(source.podcastEnabled),
+    podcastMaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastMaleSpeakerName, defaults.podcastMaleSpeakerName),
+    podcastFemaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastFemaleSpeakerName, defaults.podcastFemaleSpeakerName),
+    podcastMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastMorningProgramName, defaults.podcastMorningProgramName),
+    podcastEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastEveningProgramName, defaults.podcastEveningProgramName),
+    podcastVipMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipMorningProgramName, defaults.podcastVipMorningProgramName),
+    podcastVipEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipEveningProgramName, defaults.podcastVipEveningProgramName),
+    podcastTemplateItems,
     monthlyBudget: hotsearchIntegerNormalize(source.monthlyBudget, defaults.monthlyBudget, 1, 999999),
     platformIds: hotsearchPlatformIdsNormalize(source.platformIds),
     morningStartAt: hotsearchTimeNormalize(source.morningStartAt, defaults.morningStartAt),
