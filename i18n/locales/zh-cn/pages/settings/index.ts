@@ -333,6 +333,9 @@
         lastSeenLabel: '最后心跳：',
         pending: '等待本地运行时快照'
       },
+      actions: {
+        openSettings: '前往设置'
+      },
       card: {
         activity: '最近活动'
       },
