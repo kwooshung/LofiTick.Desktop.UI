@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+
 import type { IPageSettingsLocalCronRow } from '@@/shared/types/pages/settings/cron/page/index.types';
 
 /**
@@ -214,6 +215,44 @@ const localTaskSettingsPathGet = (key: string): string => {
 };
 
 /**
+ * 函数：渲染任务最近活动。
+ *
+ * 当最近活动为可展示的时间值时，统一使用 Datetime 组件输出。
+ *
+ * # Arguments
+ *
+ * * `row` - 当前本地任务行数据。
+ * * `labelVisible` - 是否显示最近活动标签。
+ *
+ * # Returns
+ *
+ * 返回最近活动节点。
+ */
+const localTaskActivityNodeGet = (row: IPageSettingsLocalCronRow, labelVisible = false) => {
+  if (row.key !== 'local-sentinel') {
+    return h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.scheduleSecondary || t('common.labels.none'));
+  }
+
+  if (!computedSentinelLastSeenAt.value) {
+    return h('div', { class: 'text-highlighted mt-1 text-sm leading-6' }, t('common.labels.none'));
+  }
+
+  return h('div', { class: labelVisible ? 'mt-1 space-y-1' : 'space-y-1' }, [
+    labelVisible ? h('div', { class: 'text-muted text-xs' }, t('pages.settings.cron.local.schedule.lastSeenLabel')) : null,
+    h(Datetime, {
+      class: 'w-auto max-w-full',
+      datetime: computedSentinelLastSeenAt.value,
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  ]);
+};
+
+/**
  * 计算属性：哨兵最后心跳时间。
  */
 const computedSentinelLastSeenAt = computed(() => String(stateSentinelStatus.value?.attach.lastSeenAt || '').trim());
@@ -336,11 +375,9 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
     },
     header: '详情',
     cell: ({ row }) => {
-      const activity = row.original.key !== 'local-sentinel' ? row.original.scheduleSecondary || t('common.labels.none') : computedSentinelLastSeenAt.value || t('common.labels.none');
-
       return h('div', { class: 'min-w-0 space-y-2' }, [
         h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.table.schedule')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.original.schedulePrimary)]),
-        h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.local.card.activity')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, activity)])
+        h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.local.card.activity')), localTaskActivityNodeGet(row.original)])
       ]);
     }
   },
@@ -367,21 +404,7 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
     },
     header: t('pages.settings.cron.local.card.activity'),
     cell: ({ row }) => {
-      if (row.original.key !== 'local-sentinel') {
-        return h('div', { class: 'min-w-0 text-sm leading-6 wrap-break-word text-highlighted' }, row.original.scheduleSecondary || t('common.labels.none'));
-      }
-
-      if (!computedSentinelLastSeenAt.value) {
-        return h('div', { class: 'min-w-0 text-sm leading-6 text-highlighted' }, t('common.labels.none'));
-      }
-
-      return h('div', { class: 'min-w-0 space-y-1' }, [
-        h('div', { class: 'text-muted text-xs' }, t('pages.settings.cron.local.schedule.lastSeenLabel')),
-        h(Datetime, {
-          class: 'w-auto max-w-full text-sm leading-6',
-          datetime: computedSentinelLastSeenAt.value
-        })
-      ]);
+      return h('div', { class: 'min-w-0' }, [localTaskActivityNodeGet(row.original, true)]);
     }
   }
 ];
