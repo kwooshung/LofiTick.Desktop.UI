@@ -333,6 +333,9 @@ export const settings = {
         lastSeenLabel: '最終ハートビート：',
         pending: 'ローカル実行時スナップショット待ち'
       },
+      actions: {
+        openSettings: '設定を開く'
+      },
       card: {
         activity: '最近のアクティビティ'
       },
@@ -378,12 +381,6 @@ export const settings = {
         overview: '1Panel 概要を開く',
         terminal: '1Panel ターミナルを開く',
         logs: '1Panel 操作ログを開く'
-      },
-      reminders: {
-        title: '利用メモ',
-        one: 'このページは入口です。1Panel cron UI をそのままデスクトップに再現するページではありません。',
-        two: '1Panel のドメインが変わった場合は、「サービス接続」でルート URL を 1 回だけ更新してください。',
-        three: 'ローカルタスクは引き続きデスクトップシェルで実行され、サーバータスクは 1Panel 側で直接管理します。'
       }
     },
     system: {

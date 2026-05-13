@@ -35,8 +35,8 @@
         </UFormField>
       </UPageCard>
 
-      <section class="grid items-start gap-8 xl:grid-cols-[14rem_minmax(0,1fr)]">
-        <aside class="space-y-8 xl:sticky xl:top-6">
+      <section class="grid items-start gap-8 pt-8 xl:grid-cols-[14rem_minmax(0,1fr)] xl:pt-10">
+        <aside class="space-y-8 pb-8 xl:sticky xl:top-6 xl:pb-10">
           <div class="space-y-3">
             <div class="text-muted text-[11px] tracking-[0.18em] uppercase">常用入口</div>
 

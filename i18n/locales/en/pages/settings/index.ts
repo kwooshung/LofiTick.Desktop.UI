@@ -333,6 +333,9 @@ export const settings = {
         lastSeenLabel: 'Last heartbeat: ',
         pending: 'Waiting for local runtime snapshot'
       },
+      actions: {
+        openSettings: 'Open settings'
+      },
       card: {
         activity: 'Recent activity'
       },
@@ -378,12 +381,6 @@ export const settings = {
         overview: 'Open 1Panel overview',
         terminal: 'Open 1Panel terminal',
         logs: 'Open 1Panel operation logs'
-      },
-      reminders: {
-        title: 'Notes',
-        one: 'This page is now an entry portal, not a one-to-one desktop mirror of the 1Panel cron UI.',
-        two: 'If the 1Panel domain changes, update the root URL once in Service Connections.',
-        three: 'Local jobs stay in the desktop shell, while server jobs are managed directly by 1Panel.'
       }
     },
     system: {

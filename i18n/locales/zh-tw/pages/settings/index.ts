@@ -333,6 +333,9 @@ export const settings = {
         lastSeenLabel: '最後心跳：',
         pending: '等待本地執行時快照'
       },
+      actions: {
+        openSettings: '前往設定'
+      },
       card: {
         activity: '最近活動'
       },
@@ -378,12 +381,6 @@ export const settings = {
         overview: '開啟 1Panel 概覽',
         terminal: '開啟 1Panel 終端',
         logs: '開啟 1Panel 面板日誌'
-      },
-      reminders: {
-        title: '使用提醒',
-        one: '這裡現在是面板入口，不再承諾把 1Panel 排程頁一比一搬到桌面端。',
-        two: '如果你更換了 1Panel 網域，只需要到「服務連線」修改一次根網址。',
-        three: '本地任務仍由桌面殼執行，伺服器任務則直接交給 1Panel 管理。'
       }
     },
     system: {
