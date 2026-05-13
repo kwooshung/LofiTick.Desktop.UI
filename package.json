@@ -39,6 +39,7 @@
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.2",
     "@nuxt/test-utils": "4.0.0",
+    "@nuxt/ui": "^4.7.1",
     "@nuxtjs/i18n": "^10.2.3",
     "@nuxtjs/mdc": "^0.20.1",
     "@nuxtjs/seo": "3.4.0",
@@ -59,6 +60,8 @@
     "nuxt-qrcode": "^0.4.8",
     "nuxt-security": "^2.5.1",
     "plyr": "^3.8.4",
+    "tailwindcss": "^4.3.0",
+    "vue-draggable-plus": "^0.6.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {

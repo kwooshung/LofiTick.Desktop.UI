@@ -96,6 +96,11 @@ const computedLinks = computed<NavigationMenuItem[]>(() => [
     to: localePath('/incomes')
   },
   {
+    label: t('pages.settings.cron.title'),
+    icon: 'i-lucide:timer-reset',
+    to: localePath('/crons')
+  },
+  {
     label: t('pages.settings.unattended.title'),
     icon: 'i-mdi:robot-outline',
     to: localePath('/unattended')

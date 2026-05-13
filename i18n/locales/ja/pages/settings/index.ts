@@ -1,5 +1,28 @@
 export const settings = {
   title: '設定',
+  connections: {
+    title: 'サービス接続',
+    description: 'Rust API と 1Panel の入口をここでまとめて管理します。',
+    apiBase: {
+      label: 'Rust API ドメイン',
+      description: 'デスクトップシェルが Rust API に直接接続するときに使う基底ドメインです。デフォルト値は http://localhost:8180/ です。',
+      placeholder: 'http://localhost:8180/'
+    },
+    onepanelPanelBase: {
+      label: '1Panel ルート URL',
+      description: 'ここには 1Panel ホームのルート URL だけを入力します。下の各リンクはこの値から自動生成されます。',
+      placeholder: 'https://one-panel.lofitick.com/'
+    },
+    onepanelLinks: {
+      title: '1Panel ナビゲーション一覧',
+      description: 'この一覧はルート URL に合わせて即時更新されます。デスクトップ側では 1Panel の cron 管理画面をもう内蔵しません。',
+      currentBase: '現在の 1Panel ルート URL',
+      actions: {
+        openCronjobs: '計画タスクを開く',
+        openScriptLibrary: 'スクリプトライブラリを開く'
+      }
+    }
+  },
   general: {
     title: '一般設定',
     description: 'アプリの基本的な動作や言語など、共通の設定を行います。',
@@ -156,11 +179,15 @@ export const settings = {
   },
   hotsearch: {
     title: 'トレンド設定',
-    description: 'この端末で使うトレンド取得ウィンドウ、対象プラットフォーム、予算、Podcast 生成の余裕時間を設定します。',
+    description: 'この端末で使う取得頻度、対象プラットフォーム、予算、Podcast 生成時刻を設定します。',
     sections: {
       schedule: {
         title: '取得スケジュール',
-        description: '取得ウィンドウの基準時刻、プラットフォーム間隔、再試行方針をここで設定します。'
+        description: 'Podcast 時刻の基準、プラットフォーム間隔、ランダム幅、再試行方針をここで設定します。'
+      },
+      podcast: {
+        title: 'Podcast 文案',
+        description: '番組名、読み手の名前、そして分かれた導入テンプレートと締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
       },
       platforms: {
         title: 'プラットフォーム',
@@ -180,34 +207,167 @@ export const settings = {
         label: 'Podcast 自動生成',
         description: '有効にすると、Podcast 時刻はトレンド取得ウィンドウから自動推定されます。'
       },
+      podcastMaleSpeakerName: {
+        label: '男性読み手の名前',
+        description: '変数置換で使う男性読み手の名前です。初期値は小洛です。',
+        placeholder: '例：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女性読み手の名前',
+        description: '変数置換で使う女性読み手の名前です。初期値は菲菲です。',
+        placeholder: '例：菲菲'
+      },
+      podcastProgramNames: {
+        label: '番組名',
+        description: '朝版、夜版、VIP 尊享版はそれぞれ専用の番組名変数を使います。'
+      },
+      podcastMorningProgramName: {
+        label: '朝版の番組名',
+        description: '通常の朝版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット早報'
+      },
+      podcastEveningProgramName: {
+        label: '夜版の番組名',
+        description: '通常の夜版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット晚報'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 尊享版朝版の番組名',
+        description: 'VIP 尊享版朝版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット早報 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 尊享版夜版の番組名',
+        description: 'VIP 尊享版夜版 Podcast に使う番組名です。',
+        placeholder: '例：洛菲ホット晚報 尊享版'
+      },
+      podcastVariables: {
+        label: '変数を挿入',
+        description: '変数ボタンを押すと、現在フォーカス中の導入または締めテンプレート入力欄に直接挿入されます。'
+      },
+      podcastOpeningTemplates: {
+        label: '導入テンプレート',
+        description: 'ここでは導入テンプレートだけを管理します。本文は自動生成されます。',
+        placeholder: '例：こちらは [programName]、今日は [solarDateTime] です。',
+        empty: {
+          title: '導入テンプレートがまだありません',
+          description: 'まず導入テンプレートを追加して、音声と導入文を設定してください。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '締めテンプレート',
+        description: 'ここでは締めテンプレートだけを管理します。本文は自動生成されます。',
+        placeholder: '例：以上が本日の [programName] でした。また次回お会いしましょう。',
+        empty: {
+          title: '締めテンプレートがまだありません',
+          description: 'まず締めテンプレートを追加して、音声と締め文を設定してください。'
+        }
+      },
       monthlyBudget: {
         label: '月間ポイント予算',
         description: '初期値は 3500 です。実際の残高は公式コンソールで確認してください。'
       },
       morningStartAt: {
         label: '朝の取得開始時刻',
-        description: '朝ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+        description: '朝の Podcast 推奨生成時刻を計算するための基準です。取得頻度には影響しません。'
       },
       eveningStartAt: {
         label: '夜の取得開始時刻',
-        description: '夜ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+        description: '夜の Podcast 推奨生成時刻を計算するための基準です。取得頻度には影響しません。'
       },
-      platformIntervalMinutes: {
+      platformIntervalSeconds: {
         label: 'プラットフォーム間隔',
-        description: '1 つのウィンドウ内で各プラットフォームをずらして実行する間隔（分）です。'
+        description: '各プラットフォームを発火する間の待機時間です。単位は秒です。たとえば 360 秒は約 6 分です。',
+        input: {
+          prefix: '間隔',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      scheduleJitterSeconds: {
+        label: '開始時刻のランダム幅',
+        description: '計画時刻に前後のランダム秒数を加えます。初期値の 1800 は前後 30 分を意味します。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
+      },
+      podcastBufferSeconds: {
         label: 'Podcast バッファ',
-        description: 'トレンド取得完了後に追加で待つ時間（分）です。'
+        description: '取得完了後に、整理・仕上げ・Podcast 生成のために追加で確保する待機時間（秒）です。Podcast 時刻だけに影響し、取得頻度には影響しません。',
+        input: {
+          prefix: '緩衝',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '再試行回数',
-        description: '1 プラットフォームが失敗した場合に許可する自動再試行の最大回数です。'
+        description: '1 プラットフォームが失敗した場合に許可する自動再試行の最大回数です。',
+        input: {
+          prefix: '回数',
+          unit: '回'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '再試行間隔',
-        description: '失敗後に再試行するまでの待機時間（分）です。'
+        description: '失敗後に再試行するまでの待機時間（秒）です。',
+        input: {
+          prefix: '遅延',
+          unit: '秒'
+        }
       }
+    },
+    options: {
+      podcastVoice: {
+        random: 'ランダム',
+        xiaoluo: 'XiaoLuo',
+        feifei: 'Feifei'
+      },
+      podcastTemplate: {
+        opening: '導入テンプレート',
+        closing: '締めテンプレート'
+      },
+      podcastSegment: {
+        normal: '通常内容',
+        adOpening: '広告導入',
+        adContent: '広告内容',
+        adClosing: '広告締め'
+      }
+    },
+    variables: {
+      speakerName: '読み手の名前',
+      maleSpeakerName: '男性名',
+      femaleSpeakerName: '女性名',
+      programName: '現在の番組名',
+      morningProgramName: '朝版の番組名',
+      eveningProgramName: '夜版の番組名',
+      vipMorningProgramName: 'VIP 尊享版朝版の番組名',
+      vipEveningProgramName: 'VIP 尊享版夜版の番組名',
+      greeting: '動的あいさつ',
+      solarDateTime: '西暦の年月日',
+      solarDate: '西暦の月日',
+      solarTime: '時刻',
+      lunarDateTime: '旧暦の年月日',
+      lunarDate: '旧暦の月日',
+      weekday: '曜日',
+      editionLabel: '朝夕版の表示'
+    },
+    variableDescriptions: {
+      speakerName: '現在の音声に対応する読み手名を使います。',
+      maleSpeakerName: '男性読み手の名前を固定で使います。',
+      femaleSpeakerName: '女性読み手の名前を固定で使います。',
+      programName: '現在の版に対応する番組名を使います。',
+      morningProgramName: '通常の朝版 Podcast の番組名です。',
+      eveningProgramName: '通常の夜版 Podcast の番組名です。',
+      vipMorningProgramName: 'VIP 尊享版朝版 Podcast の番組名です。',
+      vipEveningProgramName: 'VIP 尊享版夜版 Podcast の番組名です。',
+      greeting: '現在の時間帯に応じて朝か夜のあいさつを動的に出力します。',
+      solarDateTime: '例: 2026年5月14日。',
+      solarDate: '例: 5月14日。',
+      solarTime: '例: 08:30。',
+      lunarDateTime: '例: 農曆三月二十八。',
+      lunarDate: '例: 三月二十八。',
+      weekday: '現在の曜日です。',
+      editionLabel: '現在の回が朝版か夜版かを表します。'
     },
     summary: {
       selectedPlatforms: '選択済みプラットフォーム',
@@ -217,18 +377,342 @@ export const settings = {
       windowDuration: 'ウィンドウ所要時間',
       suggestedMorningPodcast: '朝の Podcast 推奨時刻',
       suggestedEveningPodcast: '夜の Podcast 推奨時刻',
-      budgetStatus: '予算状態',
+      budgetStatus: '予算残高',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '注意',
       budgetStatusExceeded: '超過',
+      scopeMonth: '今月',
+      scopeYear: '今年',
+      budgetStatusRemainingDetail: '{scope}：予算 {budget}、想定 {estimate}、残り {remaining}',
+      budgetStatusExceededDetail: '{scope}：予算 {budget}、想定 {estimate}、超過 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分'
     },
     actions: {
       usage: '公式使用量を開く',
       selectAll: 'すべて選択',
       clearAll: 'すべて解除',
+      addOpeningTemplate: '導入テンプレートを追加',
+      addClosingTemplate: '締めテンプレートを追加',
       reset: '初期値に戻す',
       save: '設定を保存'
+    }
+  },
+  cron: {
+    title: 'スケジュールタスク',
+    description: 'ローカルタスク、サーバータスク、システムタスクをまとめて管理します。',
+    tabs: {
+      local: 'ローカルタスク',
+      server: 'サーバータスク',
+      system: 'システムタスク'
+    },
+    actions: {
+      refresh: '更新',
+      search: '検索',
+      resetSearch: 'クリア',
+      syncHotsearch: 'トレンド cron を同期',
+      create: '作成',
+      edit: '編集',
+      enableSelected: '選択項目を有効化',
+      disableSelected: '選択項目を無効化',
+      stopSelected: '選択項目を停止',
+      deleteSelected: '選択項目を削除',
+      run: '実行',
+      stop: '停止',
+      records: '記録',
+      delete: '削除',
+      viewLog: 'ログ'
+    },
+    hotsearch: {
+      label: 'トレンド cron',
+      description: 'トレンド取得の有効状態と 1Panel cron の状態が一致しているかを表示します。',
+      enabled: 'トレンド取得：{value}',
+      callbackUnset: '1Panel 用のコールバック URL はまだ導出されていません。',
+      states: {
+        ready: '同期済み',
+        outOfSync: '要修復',
+        unconfigured: '1Panel 未設定'
+      }
+    },
+    local: {
+      runtimeOnly: {
+        title: '現在は Tauri 実行環境ではありません',
+        description: 'ローカルタスクはデスクトップシェルが提供する計画スナップショットに依存するため、ブラウザー環境では実際の計画を表示できません。'
+      },
+      snapshot: {
+        title: 'ローカルバックグラウンドタスク一覧',
+        description: 'この端末でデスクトップシェルが担当しているバックグラウンドタスクを表示し、サーバー側の 1Panel cron と混在させません。'
+      },
+      summary: {
+        enabled: '自動取得：{value}',
+        podcastEnabled: '自動ポッドキャスト：{value}',
+        platformCount: 'プラットフォーム数：{value}',
+        monthlyBudget: '月間予算：{value}',
+        sceneCount: '有効シーン数：{value}',
+        recoveryState: '復旧状態：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: 'ローカル熱搜スケジューラ',
+          description: 'デスクトップシェルがローカル熱搜設定を常駐監視し、朝夕ウィンドウ内で取得ティックを実行します。'
+        },
+        sentinel: {
+          title: 'ローカル Sentinel ポーリング',
+          description: 'デスクトップシェルが無人運用 Sentinel 状態を常駐監視し、ローカル復旧戦略を適用します。'
+        }
+      },
+      schedule: {
+        windowsLabel: '実行ウィンドウ：',
+        podcastLabel: '推奨ポッドキャスト：',
+        sentinelPolling: 'アプリ起動中は継続ポーリング',
+        lastSeenLabel: '最終ハートビート：',
+        pending: 'ローカル実行時スナップショット待ち'
+      },
+      actions: {
+        openSettings: '設定を開く'
+      },
+      card: {
+        activity: '最近のアクティビティ'
+      },
+      states: {
+        hotsearchEnabled: '稼働中',
+        hotsearchDisabled: '停止中',
+        sentinelOnline: 'オンライン',
+        sentinelOffline: 'オフライン',
+        sentinelError: 'エラー',
+        sentinelIdle: 'アイドル',
+        sentinelUnknown: '未報告'
+      },
+      windowKeys: {
+        morning: '朝のウィンドウ',
+        evening: '夜のウィンドウ'
+      },
+      window: {
+        title: '{name}',
+        startAt: '開始時刻',
+        endAt: '終了時刻',
+        suggestedPodcastAt: '推奨ポッドキャスト時刻',
+        duration: '所要時間',
+        durationValue: '{value} 分',
+        platformCount: 'プラットフォーム数',
+        points: '想定ポイント'
+      },
+      empty: {
+        title: 'ローカルタスクは利用できません',
+        description: '表示に使えるローカルバックグラウンドタスク情報をデスクトップシェルから取得できませんでした。'
+      }
+    },
+    serverShortcut: {
+      title: 'サーバータスク入口',
+      description: 'サーバータスクは 1Panel へ直接移動する方式に変更しました。このページには入口と注意事項だけを残します。',
+      heroTitle: '本物のサーバー cron は 1Panel で管理する',
+      heroDescription: 'デスクトップ側では 1Panel の cron 一覧をミラーしません。また、この画面で API Key を管理する必要もありません。1Panel のルート URL を 1 つ設定し、ここから計画タスクやスクリプトライブラリへ直接移動してください。',
+      actions: {
+        openCronjobs: '1Panel 計画タスクを開く',
+        openScriptLibrary: '1Panel スクリプトライブラリを開く',
+        openConnections: 'サービス接続を開く'
+      },
+      quickLinks: {
+        overview: '1Panel 概要を開く',
+        terminal: '1Panel ターミナルを開く',
+        logs: '1Panel 操作ログを開く'
+      }
+    },
+    system: {
+      readonly: '読み取り専用',
+      groups: {
+        system: 'システムタスク',
+        hook: '公開ティッカー'
+      },
+      snapshot: {
+        title: '内蔵システムタスク一覧',
+        description: 'これらのタスクは Rust API 側で固定されており、デスクトップ側から新規作成・編集・削除はできません。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '朝の熱搜生成',
+          description: '熱搜設定で定義した朝のウィンドウ内で、システムが熱搜生成フローを進めます。'
+        },
+        hotsearchEveningGenerate: {
+          title: '夜の熱搜生成',
+          description: '熱搜設定で定義した夜のウィンドウ内で、システムが熱搜生成フローを進めます。'
+        },
+        hotsearchStep: {
+          title: '熱搜の単発ステップ実行',
+          description: '外部 cron ティッカー用の入口で、1 回の呼び出しで 1 プラットフォームだけ進めます。'
+        },
+        quoteRandom: {
+          title: 'ランダム名句の取得',
+          description: 'ランダムな名句を 1 件取得し、冪等ルールで保存します。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '熱搜設定の朝ウィンドウに従って実行',
+          secondary: 'システム内蔵の熱搜生成フロー'
+        },
+        hotsearchEveningGenerate: {
+          primary: '熱搜設定の夜ウィンドウに従って実行',
+          secondary: 'システム内蔵の熱搜生成フロー'
+        },
+        hotsearchStep: {
+          primary: '外部 cron / 1Panel ティッカーから固定間隔で呼び出し',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '必要に応じてシステム計画タスクから起動',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
+      empty: {
+        title: 'システムタスクは読み取り専用です',
+        description: 'ここではシステム内蔵タスクの定義のみを表示し、編集操作は提供しません。'
+      }
+    },
+    search: {
+      label: 'ジョブ検索',
+      description: '1Panel の cron ジョブを名前で絞り込みます。',
+      placeholder: 'ジョブ名キーワードを入力'
+    },
+    table: {
+      name: 'ジョブ',
+      group: 'グループ',
+      path: 'パス',
+      method: 'メソッド',
+      schedule: 'スケジュール',
+      retainCopies: '保持世代',
+      lastExecutedAt: '最終実行時刻',
+      createdAt: '作成日時',
+      status: '状態',
+      actions: '操作',
+      enabled: '有効',
+      disabled: '無効',
+      executing: '実行中'
+    },
+    records: {
+      title: '{name} の実行履歴',
+      actions: {
+        clean: '記録をクリア'
+      },
+      empty: {
+        title: '実行履歴はありません',
+        description: 'このジョブにはまだ表示できる実行履歴がありません。'
+      },
+      table: {
+        startedAt: '開始時刻',
+        status: '状態',
+        message: '概要',
+        interval: '所要時間',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '記録 #{id} のログ',
+      empty: {
+        title: 'ログはありません',
+        description: 'この記録には表示できるテキストログがありません。'
+      }
+    },
+    operate: {
+      createTitle: 'スケジュールタスクを作成',
+      editTitle: 'スケジュールタスクを編集',
+      description: 'よく使う項目をフォームで編集し、保存時に 1Panel の設定構造へ自動変換します。',
+      previewNext: '次回実行をプレビュー',
+      nextTimes: '次回の実行時刻',
+      nextEmpty: 'まだプレビュー結果はありません',
+      save: '設定を保存',
+      sections: {
+        basic: '基本情報',
+        schedule: '実行周期',
+        execution: '実行内容',
+        preview: '実行プレビュー',
+        runtime: '実行ポリシー'
+      },
+      descriptions: {
+        basic: 'タスク名、タスク種別、1Panel グループを取得済みメタデータに合わせます。',
+        execution: 'タスク種別に応じて URL、スクリプト、コマンド、実行ユーザーを設定します。',
+        preview: '保存前に生成される Cron 式と次回実行時刻を確認します。',
+        runtime: '保持件数、再試行、タイムアウト、アラート回数をまとめて調整します。'
+      },
+      form: {
+        name: 'タスク名',
+        type: 'タスク種別',
+        groupId: 'タスクグループ',
+        spec: '実行周期',
+        url: 'アクセス先 URL',
+        executor: '実行器',
+        script: 'スクリプト内容',
+        command: 'コマンド内容',
+        user: '実行ユーザー',
+        retainCopies: '実行履歴の保持件数',
+        retryTimes: '再試行回数',
+        timeout: 'タイムアウト',
+        ignoreErr: 'エラーを無視',
+        alertCount: 'アラート回数',
+        typeOptions: {
+          url: 'URL アクセス',
+          shell: 'Shell スクリプト',
+          command: 'コマンド実行'
+        }
+      },
+      schedule: {
+        description: '通常の周期はフォームで設定し、特殊な式だけ自定义に切り替えます。',
+        custom: '自定義',
+        customPlaceholder: '例: 30 1 * * 1',
+        generated: '現在の式: {value}',
+        labels: {
+          mode: '周期モード',
+          dayOfMonth: '毎月の日付',
+          weekday: '曜日',
+          interval: '繰り返し間隔',
+          every: '毎',
+          hour: '実行時',
+          minute: '実行分'
+        },
+        options: {
+          monthly: '毎月',
+          weekly: '毎週',
+          daily: '毎日',
+          everySeconds: 'N 秒ごと',
+          everyHours: 'N 時間ごと',
+          everyDays: 'N 日ごと',
+          everyMinutes: 'N 分ごと'
+        },
+        weekdays: {
+          mon: '月',
+          tue: '火',
+          wed: '水',
+          thu: '木',
+          fri: '金',
+          sat: '土',
+          sun: '日'
+        },
+        units: {
+          day: '日',
+          hour: '時間',
+          minute: '分',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: 'タスク名は必須です',
+        customSpecRequired: 'カスタム周期式を入力してください',
+        urlRequired: 'アクセス先 URL は必須です',
+        executorRequired: '実行器は必須です',
+        scriptRequired: 'スクリプト内容は必須です',
+        commandRequired: 'コマンド内容は必須です',
+        userRequired: '実行ユーザーは必須です'
+      }
+    },
+    delete: {
+      title: 'cron を削除',
+      description: '関連データを消さずに {name} を削除します。',
+      confirm: '削除する'
+    },
+    footer: {
+      total: '合計 {total} 件',
+      selected: '{total} 件を選択中'
     }
   },
   unattended: {

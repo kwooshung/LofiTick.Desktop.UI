@@ -63,6 +63,22 @@ export const useTauriApiClient = () => {
   };
 
   /**
+   * 函数：读取壳侧 API 客户端配置
+   * @returns {Promise<IApiClientConfig>} 当前完整配置
+   */
+  const configGet = async (): Promise<IApiClientConfig> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return await invoke<IApiClientConfig>('api_client_config_get');
+  };
+
+  /**
    * 函数：更新壳侧 API 客户端配置
    * @param {IApiClientConfigPatch} patch 配置补丁
    * @returns {Promise<IApiClientConfig>} 更新后的完整配置
@@ -79,5 +95,5 @@ export const useTauriApiClient = () => {
     return await invoke<IApiClientConfig>('api_client_config_update', { patch });
   };
 
-  return { request, configUpdate };
+  return { request, configGet, configUpdate };
 };

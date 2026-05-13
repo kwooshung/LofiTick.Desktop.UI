@@ -1,5 +1,28 @@
 export const settings = {
   title: '設定',
+  connections: {
+    title: '服務連線',
+    description: '集中管理桌面端連接 Rust API 與 1Panel 面板入口所需的設定。',
+    apiBase: {
+      label: 'Rust API 網域',
+      description: '桌面殼直連 Rust API 時使用的基礎網域，預設值為 http://localhost:8180/。',
+      placeholder: 'http://localhost:8180/'
+    },
+    onepanelPanelBase: {
+      label: '1Panel 根網址',
+      description: '這裡只填 1Panel 面板首頁根網址，下面所有跳轉位址都會依它自動推導。',
+      placeholder: 'https://one-panel.lofitick.com/'
+    },
+    onepanelLinks: {
+      title: '1Panel 導航目錄',
+      description: '這份目錄會隨根網址即時變化，桌面端不再直接內嵌 1Panel 排程管理頁。',
+      currentBase: '目前的 1Panel 根網址',
+      actions: {
+        openCronjobs: '開啟排程任務',
+        openScriptLibrary: '開啟腳本庫'
+      }
+    }
+  },
   general: {
     title: '一般設定',
     description: '調整應用程式的基本行為、介面語言與常用偏好。',
@@ -156,11 +179,15 @@ export const settings = {
   },
   hotsearch: {
     title: '熱搜設定',
-    description: '設定本機熱搜抓取視窗、平台選擇、預算與 Podcast 緩衝時間。',
+    description: '設定本機熱搜抓取頻率、平台選擇、預算與 Podcast 生成時間。',
     sections: {
       schedule: {
         title: '抓取計畫',
-        description: '這裡設定熱搜視窗的來源時間、平台執行間隔與失敗補抓策略。'
+        description: '這裡設定 Podcast 時間基準、平台抓取間隔、隨機偏移與失敗補抓策略。'
+      },
+      podcast: {
+        title: 'Podcast 文案',
+        description: '這裡配置節目名稱、播報者姓名，以及分開維護的開頭模板和結尾模板；正文由程式自動生成。'
       },
       platforms: {
         title: '平台選擇',
@@ -180,34 +207,167 @@ export const settings = {
         label: '自動生成 Podcast',
         description: '啟用後，Podcast 時間會預設跟隨熱搜視窗推導。'
       },
+      podcastMaleSpeakerName: {
+        label: '男生播報者姓名',
+        description: '用於變數替換中的男生姓名，預設是小洛。',
+        placeholder: '例如：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女生播報者姓名',
+        description: '用於變數替換中的女生姓名，預設是菲菲。',
+        placeholder: '例如：菲菲'
+      },
+      podcastProgramNames: {
+        label: '節目名稱',
+        description: '早間、晚間與 VIP 尊享版都會使用各自的節目名稱變數。'
+      },
+      podcastMorningProgramName: {
+        label: '早間節目名稱',
+        description: '用於普通早間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點早報'
+      },
+      podcastEveningProgramName: {
+        label: '晚間節目名稱',
+        description: '用於普通晚間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點晚報'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 尊享版早間節目名稱',
+        description: '用於 VIP 尊享版早間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點早報 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 尊享版晚間節目名稱',
+        description: '用於 VIP 尊享版晚間 Podcast 的節目名稱。',
+        placeholder: '例如：洛菲熱點晚報 尊享版'
+      },
+      podcastVariables: {
+        label: '變數插入',
+        description: '點擊變數按鈕會直接插入到目前聚焦的開頭或結尾模板輸入框。'
+      },
+      podcastOpeningTemplates: {
+        label: '開頭模板',
+        description: '這裡只維護 Podcast 的開頭模板，正文由程式自動生成。',
+        placeholder: '例如：這裡是 [programName]，今天是 [solarDateTime]。',
+        empty: {
+          title: '還沒有開頭模板',
+          description: '先新增一條開頭模板，再選擇音色並輸入開頭文案。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '結尾模板',
+        description: '這裡只維護 Podcast 的結尾模板，正文由程式自動生成。',
+        placeholder: '例如：以上就是今天的 [programName]，我們下次再見。',
+        empty: {
+          title: '還沒有結尾模板',
+          description: '先新增一條結尾模板，再選擇音色並輸入結尾文案。'
+        }
+      },
       monthlyBudget: {
         label: '月度預算積分',
         description: '預設以 3500 規劃；真實剩餘積分請以官網為準。'
       },
       morningStartAt: {
         label: '早間熱搜開始時間',
-        description: '這是早間視窗的來源時間，其餘推導時間都會跟著變化。'
+        description: '用來推導早間熱搜 Podcast 的建議生成時間，不影響熱搜抓取頻率。'
       },
       eveningStartAt: {
         label: '晚間熱搜開始時間',
-        description: '這是晚間視窗的來源時間，其餘推導時間都會跟著變化。'
+        description: '用來推導晚間熱搜 Podcast 的建議生成時間，不影響熱搜抓取頻率。'
       },
-      platformIntervalMinutes: {
-        label: '平台抓取間隔',
-        description: '單一視窗內各平台錯峰執行的間隔，單位為分鐘。'
+      platformIntervalSeconds: {
+        label: '單一平台抓取間隔',
+        description: '每個平台觸發之間的等待時間，單位為秒。例如 360 秒約等於 6 分鐘。',
+        input: {
+          prefix: '間隔',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      scheduleJitterSeconds: {
+        label: '開始時間隨機偏移',
+        description: '對計畫時間做正負隨機秒數偏移，預設 1800 代表正負 30 分鐘。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
+      },
+      podcastBufferSeconds: {
         label: 'Podcast 緩衝時長',
-        description: '熱搜視窗結束後額外保留的緩衝時間，單位為分鐘。'
+        description: '在抓取階段完成後，再額外保留給整理、潤飾與生成 Podcast 的等待時間，單位為秒。它只影響 Podcast 建議時間，不影響熱搜抓取頻率。',
+        input: {
+          prefix: '緩衝',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '失敗重試次數',
-        description: '單一平台抓取失敗後允許自動補抓的最大次數。'
+        description: '單一平台抓取失敗後允許自動補抓的最大次數。',
+        input: {
+          prefix: '計數',
+          unit: '次數'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '重試間隔',
-        description: '失敗後再次嘗試抓取的等待時間，單位為分鐘。'
+        description: '失敗後再次嘗試抓取的等待時間，單位為秒。',
+        input: {
+          prefix: '延時',
+          unit: '秒'
+        }
       }
+    },
+    options: {
+      podcastVoice: {
+        random: '隨機',
+        xiaoluo: '小洛',
+        feifei: '菲菲'
+      },
+      podcastTemplate: {
+        opening: '開頭模板',
+        closing: '結尾模板'
+      },
+      podcastSegment: {
+        normal: '普通內容',
+        adOpening: '廣告開頭',
+        adContent: '廣告內容',
+        adClosing: '廣告結尾'
+      }
+    },
+    variables: {
+      speakerName: '播報者名稱',
+      maleSpeakerName: '男生姓名',
+      femaleSpeakerName: '女生姓名',
+      programName: '目前節目名稱',
+      morningProgramName: '早間節目名稱',
+      eveningProgramName: '晚間節目名稱',
+      vipMorningProgramName: 'VIP 尊享版早間節目名稱',
+      vipEveningProgramName: 'VIP 尊享版晚間節目名稱',
+      greeting: '動態問候語',
+      solarDateTime: '陽曆年月日',
+      solarDate: '陽曆月日',
+      solarTime: '時間',
+      lunarDateTime: '農曆年月日',
+      lunarDate: '農曆月日',
+      weekday: '星期',
+      editionLabel: '早晚報標識'
+    },
+    variableDescriptions: {
+      speakerName: '依目前音色自動帶入播報者姓名。',
+      maleSpeakerName: '固定使用男生播報者姓名。',
+      femaleSpeakerName: '固定使用女生播報者姓名。',
+      programName: '依目前節目場景自動帶入節目名稱。',
+      morningProgramName: '普通早間 Podcast 的節目名稱。',
+      eveningProgramName: '普通晚間 Podcast 的節目名稱。',
+      vipMorningProgramName: 'VIP 尊享版早間 Podcast 的節目名稱。',
+      vipEveningProgramName: 'VIP 尊享版晚間 Podcast 的節目名稱。',
+      greeting: '依目前時段動態輸出早上好或晚上的問候語。',
+      solarDateTime: '例如 2026年5月14日。',
+      solarDate: '例如 5月14日。',
+      solarTime: '例如 08:30。',
+      lunarDateTime: '例如 農曆三月二十八。',
+      lunarDate: '例如 三月二十八。',
+      weekday: '目前星期。',
+      editionLabel: '目前是早間還是晚間播客。'
     },
     summary: {
       selectedPlatforms: '已選平台',
@@ -217,18 +377,342 @@ export const settings = {
       windowDuration: '視窗耗時',
       suggestedMorningPodcast: '建議早間 Podcast 時間',
       suggestedEveningPodcast: '建議晚間 Podcast 時間',
-      budgetStatus: '預算狀態',
+      budgetStatus: '預算結餘',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '提醒',
       budgetStatusExceeded: '超出預算',
+      scopeMonth: '本月',
+      scopeYear: '本年',
+      budgetStatusRemainingDetail: '{scope}：預算 {budget}，預估 {estimate}，剩餘 {remaining}',
+      budgetStatusExceededDetail: '{scope}：預算 {budget}，預估 {estimate}，超出 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分鐘'
     },
     actions: {
       usage: '查看官網用量',
       selectAll: '全選平台',
       clearAll: '清空平台',
+      addOpeningTemplate: '新增開頭模板',
+      addClosingTemplate: '新增結尾模板',
       reset: '恢復預設',
       save: '儲存設定'
+    }
+  },
+  cron: {
+    title: '計畫任務',
+    description: '集中管理本地任務、伺服器任務與系統任務。',
+    tabs: {
+      local: '本地任務',
+      server: '伺服器任務',
+      system: '系統任務'
+    },
+    actions: {
+      refresh: '重新整理',
+      search: '查詢',
+      resetSearch: '清空',
+      syncHotsearch: '同步熱搜 cron',
+      create: '建立',
+      edit: '編輯',
+      enableSelected: '批次啟用',
+      disableSelected: '批次停用',
+      stopSelected: '批次停止',
+      deleteSelected: '批次刪除',
+      run: '執行',
+      stop: '停止',
+      records: '紀錄',
+      delete: '刪除',
+      viewLog: '日誌'
+    },
+    hotsearch: {
+      label: '熱搜計畫任務',
+      description: '這裡顯示熱搜開關與 1Panel cron 是否已經一致。',
+      enabled: '熱搜開關：{value}',
+      callbackUnset: '尚未推導出可供 1Panel 回呼的位址',
+      states: {
+        ready: '已同步',
+        outOfSync: '待修復',
+        unconfigured: '尚未設定 1Panel'
+      }
+    },
+    local: {
+      runtimeOnly: {
+        title: '目前不在 Tauri 執行環境',
+        description: '本地任務依賴桌面殼提供的計畫快照，瀏覽器環境下不顯示實際計畫。'
+      },
+      snapshot: {
+        title: '本地背景任務清單',
+        description: '這裡展示桌面殼在本機負責的背景任務，不和伺服器端的 1Panel cron 混在一起。'
+      },
+      summary: {
+        enabled: '自動抓取：{value}',
+        podcastEnabled: '自動播客：{value}',
+        platformCount: '平台數：{value}',
+        monthlyBudget: '月預算：{value}',
+        sceneCount: '啟用場景：{value}',
+        recoveryState: '恢復狀態：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: '本地熱搜調度',
+          description: '桌面殼常駐輪詢本地熱搜設定，並在早晚時段內執行抓取節拍。'
+        },
+        sentinel: {
+          title: '本地哨兵輪詢',
+          description: '桌面殼常駐輪詢無人值守哨兵狀態，並依恢復策略處理異常。'
+        }
+      },
+      schedule: {
+        windowsLabel: '執行視窗：',
+        podcastLabel: '建議播客：',
+        sentinelPolling: '應用執行期間持續輪詢',
+        lastSeenLabel: '最後心跳：',
+        pending: '等待本地執行時快照'
+      },
+      actions: {
+        openSettings: '前往設定'
+      },
+      card: {
+        activity: '最近活動'
+      },
+      states: {
+        hotsearchEnabled: '執行中',
+        hotsearchDisabled: '已停用',
+        sentinelOnline: '在線',
+        sentinelOffline: '離線',
+        sentinelError: '錯誤',
+        sentinelIdle: '空閒',
+        sentinelUnknown: '未回報'
+      },
+      windowKeys: {
+        morning: '早間視窗',
+        evening: '晚間視窗'
+      },
+      window: {
+        title: '{name}',
+        startAt: '開始時間',
+        endAt: '結束時間',
+        suggestedPodcastAt: '建議播客時間',
+        duration: '視窗耗時',
+        durationValue: '{value} 分鐘',
+        platformCount: '平台數量',
+        points: '預估積分'
+      },
+      empty: {
+        title: '本地任務暫不可用',
+        description: '目前未讀取到桌面殼可展示的本地背景任務資訊。'
+      }
+    },
+    serverShortcut: {
+      title: '伺服器任務入口',
+      description: '伺服器任務改為直接跳到 1Panel，桌面端這裡只保留入口與提醒。',
+      heroTitle: '真正的伺服器排程請直接到 1Panel 管理',
+      heroDescription: '桌面端不再鏡像 1Panel 排程列表，也不再要求你在這裡維護 API Key。你只需要設定 1Panel 根網址，之後從這裡一鍵打開排程任務或腳本庫。',
+      actions: {
+        openCronjobs: '開啟 1Panel 排程任務',
+        openScriptLibrary: '開啟 1Panel 腳本庫',
+        openConnections: '前往服務連線'
+      },
+      quickLinks: {
+        overview: '開啟 1Panel 概覽',
+        terminal: '開啟 1Panel 終端',
+        logs: '開啟 1Panel 面板日誌'
+      }
+    },
+    system: {
+      readonly: '唯讀',
+      groups: {
+        system: '系統任務',
+        hook: '公開節拍器'
+      },
+      snapshot: {
+        title: '系統內建任務清單',
+        description: '這些任務由 Rust API 固定提供，不允許在桌面端新增、編輯或刪除。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '早間熱搜生成',
+          description: '系統會在熱搜設定定義的早間視窗內推進熱搜生成流程。'
+        },
+        hotsearchEveningGenerate: {
+          title: '晚間熱搜生成',
+          description: '系統會在熱搜設定定義的晚間視窗內推進熱搜生成流程。'
+        },
+        hotsearchStep: {
+          title: '熱搜單步推進',
+          description: '供外部 cron 節拍器呼叫，每次只推進一個平台。'
+        },
+        quoteRandom: {
+          title: '隨機名句抓取',
+          description: '抓取一條隨機名句並依冪等規則入庫。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '依熱搜設定中的早間視窗執行',
+          secondary: '系統內建熱搜生成流程'
+        },
+        hotsearchEveningGenerate: {
+          primary: '依熱搜設定中的晚間視窗執行',
+          secondary: '系統內建熱搜生成流程'
+        },
+        hotsearchStep: {
+          primary: '由外部 cron / 1Panel 節拍器按固定週期回呼',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '由系統計畫任務按需觸發',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
+      empty: {
+        title: '系統任務為唯讀視圖',
+        description: '這裡展示的是系統內建任務定義，不提供任何編輯入口。'
+      }
+    },
+    search: {
+      label: '任務篩選',
+      description: '依名稱篩選 1Panel 計畫任務。',
+      placeholder: '輸入任務名稱關鍵字'
+    },
+    table: {
+      name: '任務',
+      group: '分組',
+      path: '路徑',
+      method: '方法',
+      schedule: '排程',
+      retainCopies: '保留份數',
+      lastExecutedAt: '上次執行時間',
+      createdAt: '建立時間',
+      status: '狀態',
+      actions: '操作',
+      enabled: '啟用',
+      disabled: '停用',
+      executing: '執行中'
+    },
+    records: {
+      title: '{name} 的執行紀錄',
+      actions: {
+        clean: '清理紀錄'
+      },
+      empty: {
+        title: '暫無執行紀錄',
+        description: '目前任務還沒有可顯示的執行歷史。'
+      },
+      table: {
+        startedAt: '開始時間',
+        status: '狀態',
+        message: '摘要',
+        interval: '耗時',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '執行紀錄 #{id} 日誌',
+      empty: {
+        title: '暫無日誌內容',
+        description: '目前紀錄沒有可顯示的文字日誌。'
+      }
+    },
+    operate: {
+      createTitle: '建立計畫任務',
+      editTitle: '編輯計畫任務',
+      description: '使用圖形表單編輯常用任務欄位，儲存時會自動映射成 1Panel 所需的設定結構。',
+      previewNext: '預覽下一次執行',
+      nextTimes: '下一次執行時間',
+      nextEmpty: '尚未產生預覽結果',
+      save: '儲存設定',
+      sections: {
+        basic: '基本資訊',
+        schedule: '執行週期',
+        execution: '執行內容',
+        preview: '執行預覽',
+        runtime: '執行策略'
+      },
+      descriptions: {
+        basic: '任務名稱、任務類型與 1Panel 分組直接對齊回傳的中繼資料。',
+        execution: '依任務類型填寫回呼位址、腳本、命令與執行使用者。',
+        preview: '儲存前先檢查即將產生的 Cron 表達式與下一次執行時間。',
+        runtime: '執行記錄保留、重試、逾時與告警次數在這裡集中設定。'
+      },
+      form: {
+        name: '任務名稱',
+        type: '任務類型',
+        groupId: '任務分組',
+        spec: '執行週期',
+        url: '存取位址',
+        executor: '執行器',
+        script: '腳本內容',
+        command: '命令內容',
+        user: '執行使用者',
+        retainCopies: '執行記錄保留份數',
+        retryTimes: '失敗重試次數',
+        timeout: '逾時時間',
+        ignoreErr: '忽略錯誤',
+        alertCount: '告警次數',
+        typeOptions: {
+          url: '存取 URL',
+          shell: 'Shell 腳本',
+          command: '命令執行'
+        }
+      },
+      schedule: {
+        description: '一般週期優先用圖形方式設定，只有特殊表達式時再切換成自訂。',
+        custom: '自訂',
+        customPlaceholder: '例如：30 1 * * 1',
+        generated: '目前表達式：{value}',
+        labels: {
+          mode: '週期模式',
+          dayOfMonth: '每月日期',
+          weekday: '執行星期',
+          interval: '重複間隔',
+          every: '每',
+          hour: '執行小時',
+          minute: '執行分鐘'
+        },
+        options: {
+          monthly: '每月',
+          weekly: '每週',
+          daily: '每天',
+          everySeconds: '每 N 秒',
+          everyHours: '每 N 小時',
+          everyDays: '每 N 天',
+          everyMinutes: '每 N 分鐘'
+        },
+        weekdays: {
+          mon: '週一',
+          tue: '週二',
+          wed: '週三',
+          thu: '週四',
+          fri: '週五',
+          sat: '週六',
+          sun: '週日'
+        },
+        units: {
+          day: '日',
+          hour: '小時',
+          minute: '分鐘',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: '任務名稱不能為空',
+        customSpecRequired: '請輸入自訂週期表達式',
+        urlRequired: '存取位址不能為空',
+        executorRequired: '執行器不能為空',
+        scriptRequired: '腳本內容不能為空',
+        commandRequired: '命令內容不能為空',
+        userRequired: '執行使用者不能為空'
+      }
+    },
+    delete: {
+      title: '確認刪除任務',
+      description: '將刪除 {name}，但不會清理關聯資料。',
+      confirm: '確認刪除'
+    },
+    footer: {
+      total: '共 {total} 筆任務',
+      selected: '已選 {total} 筆'
     }
   },
   unattended: {

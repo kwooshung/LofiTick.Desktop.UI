@@ -1,4 +1,4 @@
-import type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, THotsearchPlatformType } from '@@/shared/types/pages/settings/hotsearch/index.types';
+import type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
 
 /**
  * 常量：热搜官网用量地址。
@@ -32,6 +32,30 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 ];
 
 /**
+ * 常量：热搜播客音色固定列表。
+ */
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei'];
+const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
+const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'adOpening', 'adClosing'];
+const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
+  'speakerName',
+  'maleSpeakerName',
+  'femaleSpeakerName',
+  'programName',
+  'morningProgramName',
+  'eveningProgramName',
+  'vipMorningProgramName',
+  'vipEveningProgramName',
+  'greeting',
+  'solarDateTime',
+  'solarDate',
+  'lunarDate',
+  'weekday',
+  'solarTime',
+  'editionLabel'
+] as const;
+
+/**
  * 函数：列出热搜平台项。
  * @returns {ISettingsHotsearchPlatformItem[]} 平台项列表。
  */
@@ -42,21 +66,199 @@ export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] =>
   }));
 
 /**
+ * 函数：列出热搜播客音色选项。
+ * @returns {{ value: THotsearchPodcastVoiceKey; key: string }[]} 音色选项。
+ */
+export const hotsearchPodcastVoiceOptionsGet = (): Array<{ value: THotsearchPodcastVoiceKey; key: string }> =>
+  HOTSEARCH_PODCAST_VOICE_KEYS.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastVoice.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客模板类型选项。
+ * @returns {{ value: THotsearchPodcastTemplateType; key: string }[]} 模板类型选项。
+ */
+export const hotsearchPodcastTemplateOptionsGet = (): Array<{ value: THotsearchPodcastTemplateType; key: string }> =>
+  HOTSEARCH_PODCAST_TEMPLATE_TYPES.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastTemplate.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客文案类型选项。
+ * @returns {{ value: THotsearchPodcastSegmentType; key: string }[]} 文案类型选项。
+ */
+export const hotsearchPodcastSegmentOptionsGet = (): Array<{ value: THotsearchPodcastSegmentType; key: string }> =>
+  HOTSEARCH_PODCAST_SEGMENT_TYPES.map((value) => ({
+    value,
+    key: `pages.settings.hotsearch.options.podcastSegment.${value}`
+  }));
+
+/**
+ * 函数：列出热搜播客变量。
+ * @returns {{ token: string; key: string }[]} 变量列表。
+ */
+export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key: string }> =>
+  HOTSEARCH_PODCAST_VARIABLE_KEYS.map((key) => ({
+    token: `[${key}]`,
+    key: `pages.settings.hotsearch.variables.${key}`,
+    descriptionKey: `pages.settings.hotsearch.variableDescriptions.${key}`
+  }));
+
+/**
+ * 函数：创建默认热搜播客模板片段。
+ * @returns {ISettingsHotsearchPodcastTemplateItem} 默认片段。
+ */
+export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsearchPodcastTemplateType = 'opening'): ISettingsHotsearchPodcastTemplateItem => ({
+  voiceKey: 'random',
+  content: '',
+  segmentType: 'normal',
+  templateType
+});
+
+/**
  * 函数：创建默认热搜设置。
  * @returns {ISettingsHotsearch} 默认设置。
  */
 export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   enabled: false,
   podcastEnabled: false,
+  podcastMaleSpeakerName: '小洛',
+  podcastFemaleSpeakerName: '菲菲',
+  podcastMorningProgramName: '洛菲热点早报',
+  podcastEveningProgramName: '洛菲热点晚报',
+  podcastVipMorningProgramName: '洛菲热点早报 尊享版',
+  podcastVipEveningProgramName: '洛菲热点晚报 尊享版',
+  podcastTemplateItems: [],
   monthlyBudget: 3500,
   platformIds: hotsearchPlatformsList().map((item) => item.id),
   morningStartAt: '06:00',
   eveningStartAt: '18:00',
-  platformIntervalMinutes: 2,
-  podcastBufferMinutes: 20,
+  platformIntervalSeconds: 360,
+  scheduleJitterSeconds: 1800,
+  podcastBufferSeconds: 1200,
   retryMaxAttempts: 1,
-  retryDelayMinutes: 10
+  retryDelaySeconds: 600
 });
+
+/**
+ * 函数：归一化热搜播客音色。
+ * @param {unknown} input 输入值。
+ * @param {THotsearchPodcastVoiceKey} fallback 默认值。
+ * @returns {THotsearchPodcastVoiceKey} 归一化后的音色。
+ */
+const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchPodcastVoiceKey): THotsearchPodcastVoiceKey => {
+  const value = String(input ?? '').trim() as THotsearchPodcastVoiceKey;
+  return HOTSEARCH_PODCAST_VOICE_KEYS.includes(value) ? value : fallback;
+};
+
+/**
+ * 函数：归一化热搜播客文案。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @param {number} maxLength 最大长度。
+ * @returns {string} 归一化后的文案。
+ */
+const hotsearchPodcastTextNormalize = (input: unknown, fallback: string, maxLength: number): string => {
+  const value = String(input ?? '')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+
+  if (!value) {
+    return fallback;
+  }
+
+  return value.slice(0, maxLength);
+};
+
+/**
+ * 函数：归一化热搜播报者姓名。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @returns {string} 归一化后的姓名。
+ */
+const hotsearchPodcastSpeakerNameNormalize = (input: unknown, fallback: string): string => {
+  return hotsearchPodcastTextNormalize(input, fallback, 40) || fallback;
+};
+
+/**
+ * 函数：归一化热搜播客模板类型。
+ * @param {unknown} input 输入值。
+ * @param {THotsearchPodcastTemplateType} fallback 默认值。
+ * @returns {THotsearchPodcastTemplateType} 归一化后的模板类型。
+ */
+const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsearchPodcastTemplateType): THotsearchPodcastTemplateType => {
+  const rawValue = String(input ?? '').trim();
+
+  switch (rawValue) {
+    case 'closing':
+    case 'adClosing':
+      return 'closing';
+    case 'opening':
+    case 'normal':
+    case 'adOpening':
+    case 'adContent':
+      return 'opening';
+    default:
+      return fallback;
+  }
+};
+
+/**
+ * 函数：归一化热搜播客文案类型。
+ * @param {unknown} input 输入值。
+ * @returns {THotsearchPodcastSegmentType} 归一化后的文案类型。
+ */
+const hotsearchPodcastSegmentTypeNormalize = (input: unknown): THotsearchPodcastSegmentType => {
+  const rawValue = String(input ?? '').trim();
+
+  switch (rawValue) {
+    case 'adOpening':
+    case 'ad_opening':
+      return 'adOpening';
+    case 'adContent':
+    case 'ad_content':
+      return 'adOpening';
+    case 'adClosing':
+    case 'ad_closing':
+      return 'adClosing';
+    default:
+      return 'normal';
+  }
+};
+
+/**
+ * 函数：归一化热搜节目名称。
+ * @param {unknown} input 输入值。
+ * @param {string} fallback 默认值。
+ * @returns {string} 归一化后的节目名称。
+ */
+const hotsearchPodcastProgramNameNormalize = (input: unknown, fallback: string): string => {
+  return hotsearchPodcastTextNormalize(input, fallback, 80) || fallback;
+};
+
+/**
+ * 函数：归一化热搜播客模板片段。
+ * @param {unknown} input 输入值。
+ * @returns {ISettingsHotsearchPodcastTemplateItem[]} 归一化后的模板列表。
+ */
+const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsearchPodcastTemplateItem[] => {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input.map((item) => {
+    const source = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+
+    return {
+      voiceKey: hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
+      content: hotsearchPodcastTextNormalize(source.content, '', 2000),
+      segmentType: hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type),
+      templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
+    } satisfies ISettingsHotsearchPodcastTemplateItem;
+  });
+};
 
 /**
  * 函数：归一化热搜时间。
@@ -122,31 +324,98 @@ const hotsearchPlatformIdsNormalize = (input: unknown): number[] => {
 export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch => {
   const defaults = hotsearchSettingsDefaultCreate();
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+  const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
+  const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
+  const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
+  const legacyVoiceKey = hotsearchPodcastVoiceKeyNormalize(source.podcastVoiceKey, 'random');
+  const legacyOpeningText = hotsearchPodcastTextNormalize(source.podcastOpeningText, '', 2000);
+  const legacyClosingText = hotsearchPodcastTextNormalize(source.podcastClosingText, '', 2000);
+  const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems ?? source.podcastScriptItems);
+
+  if (podcastTemplateItems.length === 0) {
+    if (legacyOpeningText) {
+      podcastTemplateItems.push({
+        voiceKey: legacyVoiceKey,
+        content: legacyOpeningText,
+        segmentType: 'normal',
+        templateType: 'opening'
+      });
+    }
+
+    if (legacyClosingText) {
+      podcastTemplateItems.push({
+        voiceKey: legacyVoiceKey,
+        content: legacyClosingText,
+        segmentType: 'normal',
+        templateType: 'closing'
+      });
+    }
+  }
 
   return {
     enabled: Boolean(source.enabled),
     podcastEnabled: Boolean(source.podcastEnabled),
+    podcastMaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastMaleSpeakerName, defaults.podcastMaleSpeakerName),
+    podcastFemaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastFemaleSpeakerName, defaults.podcastFemaleSpeakerName),
+    podcastMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastMorningProgramName, defaults.podcastMorningProgramName),
+    podcastEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastEveningProgramName, defaults.podcastEveningProgramName),
+    podcastVipMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipMorningProgramName, defaults.podcastVipMorningProgramName),
+    podcastVipEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipEveningProgramName, defaults.podcastVipEveningProgramName),
+    podcastTemplateItems,
     monthlyBudget: hotsearchIntegerNormalize(source.monthlyBudget, defaults.monthlyBudget, 1, 999999),
     platformIds: hotsearchPlatformIdsNormalize(source.platformIds),
     morningStartAt: hotsearchTimeNormalize(source.morningStartAt, defaults.morningStartAt),
     eveningStartAt: hotsearchTimeNormalize(source.eveningStartAt, defaults.eveningStartAt),
-    platformIntervalMinutes: hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalMinutes, 1, 120),
-    podcastBufferMinutes: hotsearchIntegerNormalize(source.podcastBufferMinutes, defaults.podcastBufferMinutes, 0, 240),
+    platformIntervalSeconds: hotsearchIntegerNormalize(source.platformIntervalSeconds, legacyPlatformIntervalMinutes * 60, 1, 7200),
+    scheduleJitterSeconds: hotsearchIntegerNormalize(source.scheduleJitterSeconds, defaults.scheduleJitterSeconds, 0, 43200),
+    podcastBufferSeconds: hotsearchIntegerNormalize(source.podcastBufferSeconds, legacyPodcastBufferMinutes * 60, 0, 14400),
     retryMaxAttempts: hotsearchIntegerNormalize(source.retryMaxAttempts, defaults.retryMaxAttempts, 0, 10),
-    retryDelayMinutes: hotsearchIntegerNormalize(source.retryDelayMinutes, defaults.retryDelayMinutes, 1, 240)
+    retryDelaySeconds: hotsearchIntegerNormalize(source.retryDelaySeconds, legacyRetryDelayMinutes * 60, 1, 14400)
   };
+};
+
+/**
+ * 函数：计算窗口耗时秒数。
+ * @param {number} platformCount 平台数量。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
+ * @returns {number} 预计窗口耗时。
+ */
+export const hotsearchWindowDurationSecondsGet = (platformCount: number, intervalSeconds: number): number => {
+  const count = Math.max(0, Math.trunc(platformCount));
+  const interval = Math.max(1, Math.trunc(intervalSeconds));
+  return count <= 0 ? 0 : count * interval;
 };
 
 /**
  * 函数：计算窗口耗时分钟数。
  * @param {number} platformCount 平台数量。
- * @param {number} intervalMinutes 平台间隔分钟数。
+ * @param {number} intervalSeconds 平台间隔秒数。
  * @returns {number} 预计窗口耗时。
  */
-export const hotsearchWindowDurationMinutesGet = (platformCount: number, intervalMinutes: number): number => {
-  const count = Math.max(0, Math.trunc(platformCount));
-  const interval = Math.max(1, Math.trunc(intervalMinutes));
-  return count <= 1 ? 0 : (count - 1) * interval;
+export const hotsearchWindowDurationMinutesGet = (platformCount: number, intervalSeconds: number): number => {
+  return Math.ceil(hotsearchWindowDurationSecondsGet(platformCount, intervalSeconds) / 60);
+};
+
+/**
+ * 函数：在 HH:mm 时间上增加秒数。
+ * @param {string} time 时间字符串。
+ * @param {number} seconds 追加秒数。
+ * @returns {string} 结果时间。
+ */
+export const hotsearchTimeAddSeconds = (time: string, seconds: number): string => {
+  const normalized = hotsearchTimeNormalize(time, '00:00');
+  const [hourText, minuteText] = normalized.split(':');
+  const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  const nextSeconds = (((baseSeconds + Math.max(0, Math.trunc(seconds))) % 86400) + 86400) % 86400;
+  const nextHour = Math.floor(nextSeconds / 3600);
+  const nextMinute = Math.floor((nextSeconds % 3600) / 60);
+  const nextSecond = nextSeconds % 60;
+
+  if (nextSecond === 0) {
+    return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
+  }
+
+  return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}:${String(nextSecond).padStart(2, '0')}`;
 };
 
 /**
@@ -172,20 +441,36 @@ export const hotsearchTimeAddMinutes = (time: string, minutes: number): string =
  * @returns {string} 建议播客时间。
  */
 export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, startAt: string): string => {
-  const duration = hotsearchWindowDurationMinutesGet(settings.platformIds.length, settings.platformIntervalMinutes);
-  return hotsearchTimeAddMinutes(startAt, duration + settings.podcastBufferMinutes);
+  const durationSeconds = hotsearchWindowDurationSecondsGet(settings.platformIds.length, settings.platformIntervalSeconds);
+  return hotsearchTimeAddSeconds(startAt, durationSeconds + settings.podcastBufferSeconds);
+};
+
+/**
+ * 函数：计算预计每日积分消耗。
+ * @param {number} platformCount 平台数量。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
+ * @returns {number} 预计积分消耗。
+ */
+export const hotsearchEstimatedDayPointsGet = (platformCount: number, intervalSeconds: number): number => {
+  const count = Math.max(0, Math.trunc(platformCount));
+  const windowDurationSeconds = hotsearchWindowDurationSecondsGet(platformCount, intervalSeconds);
+
+  if (count <= 0 || windowDurationSeconds <= 0) {
+    return 0;
+  }
+
+  const fullRoundsPerDay = Math.max(1, Math.floor(86400 / windowDurationSeconds));
+  return fullRoundsPerDay * count;
 };
 
 /**
  * 函数：计算预计月度积分消耗。
  * @param {number} platformCount 平台数量。
- * @param {number} windowsPerDay 每日窗口数。
+ * @param {number} intervalSeconds 平台抓取间隔秒数。
  * @param {number} daysInMonth 当月天数。
  * @returns {number} 预计积分消耗。
  */
-export const hotsearchEstimatedMonthPointsGet = (platformCount: number, windowsPerDay: number, daysInMonth: number): number => {
-  const count = Math.max(0, Math.trunc(platformCount));
-  const windows = Math.max(0, Math.trunc(windowsPerDay));
+export const hotsearchEstimatedMonthPointsGet = (platformCount: number, intervalSeconds: number, daysInMonth: number): number => {
   const days = Math.max(1, Math.trunc(daysInMonth));
-  return count * windows * days;
+  return hotsearchEstimatedDayPointsGet(platformCount, intervalSeconds) * days;
 };

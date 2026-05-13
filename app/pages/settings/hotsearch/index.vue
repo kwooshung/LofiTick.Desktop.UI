@@ -6,10 +6,6 @@
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
-
-        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetDefaults">
-          {{ t('pages.settings.hotsearch.actions.reset') }}
-        </UButton>
       </template>
     </UPageCard>
 
@@ -51,7 +47,36 @@
       </UFormField>
     </UPageCard>
 
-    <UPageCard :title="t('pages.settings.hotsearch.sections.schedule.title')" :description="t('pages.settings.hotsearch.sections.schedule.description')" variant="naked" />
+    <SettingsHotsearchPodcastScriptSettings
+      :male-speaker-name="stateHotsearchConfig.podcastMaleSpeakerName"
+      :female-speaker-name="stateHotsearchConfig.podcastFemaleSpeakerName"
+      :morning-program-name="stateHotsearchConfig.podcastMorningProgramName"
+      :evening-program-name="stateHotsearchConfig.podcastEveningProgramName"
+      :vip-morning-program-name="stateHotsearchConfig.podcastVipMorningProgramName"
+      :vip-evening-program-name="stateHotsearchConfig.podcastVipEveningProgramName"
+      :template-items="stateHotsearchConfig.podcastTemplateItems"
+      :disabled="stateSaving"
+      @update:male-speaker-name="handlePodcastMaleSpeakerNameUpdate"
+      @update:female-speaker-name="handlePodcastFemaleSpeakerNameUpdate"
+      @update:morning-program-name="handlePodcastMorningProgramNameUpdate"
+      @update:evening-program-name="handlePodcastEveningProgramNameUpdate"
+      @update:vip-morning-program-name="handlePodcastVipMorningProgramNameUpdate"
+      @update:vip-evening-program-name="handlePodcastVipEveningProgramNameUpdate"
+      @update:template-items="handlePodcastTemplateItemsUpdate"
+    />
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.schedule.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.schedule.description') }}</p>
+        </div>
+
+        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
+          {{ t('pages.settings.hotsearch.actions.reset') }}
+        </UButton>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField
@@ -81,43 +106,84 @@
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.platformIntervalMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.platformIntervalMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.platformIntervalSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.platformIntervalSeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.platformIntervalMinutes"
-          orientation="vertical"
-          :min="1"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handlePlatformIntervalMinutesUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchPlatformIntervalSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.platformIntervalSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchPlatformIntervalSeconds"
+              :model-value="stateHotsearchConfig.platformIntervalSeconds"
+              orientation="vertical"
+              :min="1"
+              :step="1"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handlePlatformIntervalSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchPlatformIntervalSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.platformIntervalSeconds.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.podcastBufferMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.podcastBufferMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.scheduleJitterSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.scheduleJitterSeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.podcastBufferMinutes"
-          orientation="vertical"
-          :min="0"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handlePodcastBufferMinutesUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchScheduleJitterSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.scheduleJitterSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchScheduleJitterSeconds"
+              :model-value="stateHotsearchConfig.scheduleJitterSeconds"
+              orientation="vertical"
+              :min="0"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleScheduleJitterSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchScheduleJitterSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.scheduleJitterSeconds.input.unit') }}</label>
+        </div>
+      </UFormField>
+
+      <UFormField
+        :label="t('pages.settings.hotsearch.fields.podcastBufferSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.podcastBufferSeconds.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-3 not-last:pb-4"
+      >
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchPodcastBufferSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.podcastBufferSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchPodcastBufferSeconds"
+              :model-value="stateHotsearchConfig.podcastBufferSeconds"
+              orientation="vertical"
+              :min="0"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handlePodcastBufferSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchPodcastBufferSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.podcastBufferSeconds.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
@@ -126,38 +192,52 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.retryMaxAttempts"
-          orientation="vertical"
-          :min="0"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handleRetryMaxAttemptsUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchRetryMaxAttempts" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryMaxAttempts.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchRetryMaxAttempts"
+              :model-value="stateHotsearchConfig.retryMaxAttempts"
+              orientation="vertical"
+              :min="0"
+              :step="1"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleRetryMaxAttemptsUpdate"
+            />
+          </div>
+          <label for="hotsearchRetryMaxAttempts" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryMaxAttempts.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.retryDelayMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.retryDelayMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.retryDelaySeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.retryDelaySeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.retryDelayMinutes"
-          orientation="vertical"
-          :min="1"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handleRetryDelayMinutesUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchRetryDelaySeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryDelaySeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchRetryDelaySeconds"
+              :model-value="stateHotsearchConfig.retryDelaySeconds"
+              orientation="vertical"
+              :min="1"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleRetryDelaySecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchRetryDelaySeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryDelaySeconds.input.unit') }}</label>
+        </div>
       </UFormField>
     </UPageCard>
 
@@ -206,10 +286,17 @@
       <UPageCard icon="i-lucide:timer" :title="t('pages.settings.hotsearch.summary.windowDuration')" :description="t('pages.settings.hotsearch.summary.minutesValue', { value: computedWindowDurationMinutes })" />
       <UPageCard icon="i-lucide:clock-3" :title="t('pages.settings.hotsearch.summary.suggestedMorningPodcast')" :description="computedSuggestedMorningPodcastTime" />
       <UPageCard icon="i-lucide:clock-9" :title="t('pages.settings.hotsearch.summary.suggestedEveningPodcast')" :description="computedSuggestedEveningPodcastTime" />
-      <UPageCard icon="i-lucide:shield-alert" :title="t('pages.settings.hotsearch.summary.budgetStatus')" :description="computedBudgetStatusLabel">
-        <template #footer>
-          <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
+      <UPageCard icon="i-lucide:shield-alert">
+        <template #title>
+          <div class="flex items-center gap-2">
+            <span>{{ t('pages.settings.hotsearch.summary.budgetStatus') }}</span>
+            <UBadge :color="computedBudgetStatusColor" variant="soft">{{ computedBudgetStatusLabel }}</UBadge>
+          </div>
         </template>
+        <div class="space-y-1.5">
+          <p class="text-toned text-sm leading-6">{{ computedBudgetStatusMonthDescription }}</p>
+          <p class="text-toned text-sm leading-6">{{ computedBudgetStatusYearDescription }}</p>
+        </div>
       </UPageCard>
     </div>
   </DashboardPage>
@@ -218,6 +305,8 @@
 <script setup lang="ts">
 import { parseTime } from '@internationalized/date';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
+
+import type { ISettingsHotsearchPodcastTemplateItem } from '@@/shared/types/index.types';
 
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
@@ -245,6 +334,13 @@ const tauriTasks = useTauriTasks();
  * Hook：Tauri 窗口
  */
 const tauriWindow = useTauriWindow();
+
+/**
+ * API：热搜配置（GET / PATCH）
+ * 描述：用于与服务端 Redis 同步热搜设置。
+ */
+const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
+const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { method: 'PATCH', immediate: false });
 
 /**
  * Store：面包屑
@@ -334,6 +430,66 @@ const computedSelectedPlatformCount = computed(() => stateHotsearchConfig.value.
 const computedAllPlatformsSelected = computed(() => computedPlatforms.value.length > 0 && computedSelectedPlatformCount.value === computedPlatforms.value.length);
 
 /**
+ * 计算属性：本地热搜计划窗口
+ */
+const computedLocalScheduleWindows = computed(() => {
+  const platformCount = computedSelectedPlatformCount.value;
+  const windowDurationMinutes = hotsearchWindowDurationMinutesGet(platformCount, stateHotsearchConfig.value.platformIntervalSeconds);
+
+  return [
+    {
+      key: 'morning',
+      estimatedPoints: platformCount,
+      windowDurationMinutes,
+      suggestedPodcastAt: hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.morningStartAt)
+    },
+    {
+      key: 'evening',
+      estimatedPoints: platformCount,
+      windowDurationMinutes,
+      suggestedPodcastAt: hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.eveningStartAt)
+    }
+  ];
+});
+
+/**
+ * 函数：按秒偏移时间文本。
+ * @param {string} value 时间文本
+ * @param {string} fallback 回退时间
+ * @param {number} deltaSeconds 偏移秒数
+ * @returns {string} 偏移后的时间文本
+ */
+const hotsearchTimeShiftText = (value: string, fallback: string, deltaSeconds: number): string => {
+  const normalized = typeof value === 'string' && /^\d{2}:\d{2}$/.test(value.trim()) ? value.trim() : fallback;
+  const [hourText, minuteText] = normalized.split(':');
+  const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  const nextSeconds = (((baseSeconds + Math.trunc(deltaSeconds)) % 86400) + 86400) % 86400;
+  const nextHour = Math.floor(nextSeconds / 3600);
+  const nextMinute = Math.floor((nextSeconds % 3600) / 60);
+  return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
+};
+
+/**
+ * 函数：格式化随机时间范围。
+ * @param {string} value 基准时间
+ * @param {string} fallback 回退时间
+ * @returns {string} 时间范围文本
+ */
+const hotsearchTimeRangeText = (value: string, fallback: string): string => {
+  const jitterSeconds = stateHotsearchConfig.value.scheduleJitterSeconds;
+  const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+
+  if (jitterSeconds <= 0) {
+    return normalized;
+  }
+
+  return t('pages.settings.hotsearch.summary.rangeValue', {
+    start: hotsearchTimeShiftText(normalized, fallback, -jitterSeconds),
+    end: hotsearchTimeShiftText(normalized, fallback, jitterSeconds)
+  });
+};
+
+/**
  * 计算属性：早间时间输入值
  */
 const computedMorningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.morningStartAt, '06:00'));
@@ -344,44 +500,71 @@ const computedMorningStartAtValue = computed(() => hotsearchTimeValueFromText(st
 const computedEveningStartAtValue = computed(() => hotsearchTimeValueFromText(stateHotsearchConfig.value.eveningStartAt, '18:00'));
 
 /**
- * 计算属性：壳侧早间窗口快照
- */
-const computedRuntimeMorningWindow = computed(() => stateRuntimeSchedule.value?.windows.find((window) => window.key === 'morning') || null);
-
-/**
- * 计算属性：壳侧晚间窗口快照
- */
-const computedRuntimeEveningWindow = computed(() => stateRuntimeSchedule.value?.windows.find((window) => window.key === 'evening') || null);
-
-/**
  * 计算属性：单窗口积分消耗
  */
-const computedPerWindowCost = computed(() => computedRuntimeMorningWindow.value?.estimatedPoints ?? computedSelectedPlatformCount.value);
+const computedPerWindowCost = computed(() => computedLocalScheduleWindows.value[0]?.estimatedPoints ?? 0);
 
 /**
  * 计算属性：每天积分消耗
  */
-const computedDailyCost = computed(() => computedPerWindowCost.value * 2);
+const computedDailyCost = computed(() => hotsearchEstimatedDayPointsGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalSeconds));
 
 /**
  * 计算属性：月度预计积分消耗
  */
-const computedMonthlyEstimate = computed(() => hotsearchEstimatedMonthPointsGet(computedSelectedPlatformCount.value, 2, computedDaysInCurrentMonth.value));
+const computedMonthlyEstimate = computed(() => hotsearchEstimatedMonthPointsGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalSeconds, computedDaysInCurrentMonth.value));
+
+/**
+ * 计算属性：当前年份天数
+ */
+const computedDaysInCurrentYear = computed(() => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const start = new Date(year, 0, 1);
+  const end = new Date(year + 1, 0, 1);
+  return Math.round((end.getTime() - start.getTime()) / 86400000);
+});
+
+/**
+ * 计算属性：年度预计积分消耗
+ */
+const computedYearlyEstimate = computed(() => computedDailyCost.value * computedDaysInCurrentYear.value);
 
 /**
  * 计算属性：窗口耗时
  */
-const computedWindowDurationMinutes = computed(() => computedRuntimeMorningWindow.value?.windowDurationMinutes ?? hotsearchWindowDurationMinutesGet(computedSelectedPlatformCount.value, stateHotsearchConfig.value.platformIntervalMinutes));
+const computedWindowDurationMinutes = computed(() => computedLocalScheduleWindows.value[0]?.windowDurationMinutes ?? 0);
 
 /**
  * 计算属性：建议早间播客时间
  */
-const computedSuggestedMorningPodcastTime = computed(() => computedRuntimeMorningWindow.value?.suggestedPodcastAt ?? hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.morningStartAt));
+const computedSuggestedMorningPodcastTime = computed(() => {
+  const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'morning')?.suggestedPodcastAt ?? stateHotsearchConfig.value.morningStartAt;
+  return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.morningStartAt);
+});
 
 /**
  * 计算属性：建议晚间播客时间
  */
-const computedSuggestedEveningPodcastTime = computed(() => computedRuntimeEveningWindow.value?.suggestedPodcastAt ?? hotsearchSuggestedPodcastTimeGet(stateHotsearchConfig.value, stateHotsearchConfig.value.eveningStartAt));
+const computedSuggestedEveningPodcastTime = computed(() => {
+  const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'evening')?.suggestedPodcastAt ?? stateHotsearchConfig.value.eveningStartAt;
+  return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.eveningStartAt);
+});
+
+/**
+ * 计算属性：预算剩余额度
+ */
+const computedBudgetRemaining = computed(() => stateHotsearchConfig.value.monthlyBudget - computedMonthlyEstimate.value);
+
+/**
+ * 计算属性：年度预算积分
+ */
+const computedYearlyBudget = computed(() => stateHotsearchConfig.value.monthlyBudget * 12);
+
+/**
+ * 计算属性：年度预算剩余额度
+ */
+const computedYearlyBudgetRemaining = computed(() => computedYearlyBudget.value - computedYearlyEstimate.value);
 
 /**
  * 计算属性：预算状态标签
@@ -407,6 +590,48 @@ const computedBudgetStatusColor = computed(() => {
     return 'warning';
   }
   return 'success';
+});
+
+/**
+ * 计算属性：预算状态详情
+ */
+const computedBudgetStatusMonthDescription = computed(() => {
+  if (computedBudgetRemaining.value < 0) {
+    return t('pages.settings.hotsearch.summary.budgetStatusExceededDetail', {
+      scope: t('pages.settings.hotsearch.summary.scopeMonth'),
+      budget: stateHotsearchConfig.value.monthlyBudget,
+      estimate: computedMonthlyEstimate.value,
+      exceeded: Math.abs(computedBudgetRemaining.value)
+    });
+  }
+
+  return t('pages.settings.hotsearch.summary.budgetStatusRemainingDetail', {
+    scope: t('pages.settings.hotsearch.summary.scopeMonth'),
+    budget: stateHotsearchConfig.value.monthlyBudget,
+    estimate: computedMonthlyEstimate.value,
+    remaining: computedBudgetRemaining.value
+  });
+});
+
+/**
+ * 计算属性：预算状态年详情
+ */
+const computedBudgetStatusYearDescription = computed(() => {
+  if (computedYearlyBudgetRemaining.value < 0) {
+    return t('pages.settings.hotsearch.summary.budgetStatusExceededDetail', {
+      scope: t('pages.settings.hotsearch.summary.scopeYear'),
+      budget: computedYearlyBudget.value,
+      estimate: computedYearlyEstimate.value,
+      exceeded: Math.abs(computedYearlyBudgetRemaining.value)
+    });
+  }
+
+  return t('pages.settings.hotsearch.summary.budgetStatusRemainingDetail', {
+    scope: t('pages.settings.hotsearch.summary.scopeYear'),
+    budget: computedYearlyBudget.value,
+    estimate: computedYearlyEstimate.value,
+    remaining: computedYearlyBudgetRemaining.value
+  });
 });
 
 /**
@@ -460,6 +685,27 @@ const loadRuntimeSchedule = async (): Promise<void> => {
 };
 
 /**
+ * 函数：将热搜设置回写到本地 Tauri settings 镜像
+ * @param {ISettingsHotsearch} config 热搜设置
+ * @returns {Promise<void>} 无返回值
+ */
+const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearch): Promise<void> => {
+  const normalized = hotsearchSettingsNormalize(config);
+
+  if (!isTauriRuntime.value) {
+    stateHotsearchConfig.value = normalized;
+    stateRuntimeSchedule.value = null;
+    return;
+  }
+
+  const result = await tauriSettings.update({
+    hotsearch: normalized
+  });
+  stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
+  await loadRuntimeSchedule();
+};
+
+/**
  * 函数：持久化热搜设置
  * @returns {Promise<void>} 无返回值
  */
@@ -475,11 +721,13 @@ const persistHotsearchSettings = async (): Promise<void> => {
 
   stateSaving.value = true;
   try {
-    const result = await tauriSettings.update({
-      hotsearch: stateHotsearchConfig.value
+    const nextConfig = hotsearchSettingsNormalize(stateHotsearchConfig.value);
+    await refreshHotsearchRemotePatch({
+      body: {
+        datas: nextConfig
+      }
     });
-    stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
-    await loadRuntimeSchedule();
+    await persistHotsearchSettingsToLocal(nextConfig);
   } finally {
     stateSaving.value = false;
   }
@@ -513,9 +761,28 @@ const requestPersistHotsearchSettings = (): void => {
  * @returns {Promise<void>} 无返回值
  */
 const loadHotsearchSettings = async (): Promise<void> => {
-  const settings = await tauriSettings.get();
-  stateHotsearchConfig.value = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
-  await loadRuntimeSchedule();
+  let nextConfig = hotsearchSettingsDefaultCreate();
+
+  if (isTauriRuntime.value) {
+    const settings = await tauriSettings.get();
+    nextConfig = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
+  }
+
+  stateHotsearchConfig.value = nextConfig;
+
+  try {
+    await refreshHotsearchRemoteGet();
+    if (stateHotsearchRemoteConfig.value) {
+      const remoteConfig = hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value);
+      stateHotsearchConfig.value = remoteConfig;
+      await persistHotsearchSettingsToLocal(remoteConfig);
+    } else {
+      await loadRuntimeSchedule();
+    }
+  } catch {
+    await loadRuntimeSchedule();
+  }
+
   stateHydrated.value = true;
 };
 
@@ -546,6 +813,90 @@ const handleEnabledUpdate = (value: boolean): void => {
  */
 const handlePodcastEnabledUpdate = (value: boolean): void => {
   stateHotsearchConfig.value.podcastEnabled = value;
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新男生播报者名称
+ * @param {string} value 最新值
+ */
+const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastMaleSpeakerName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新女生播报者名称
+ * @param {string} value 最新值
+ */
+const handlePodcastFemaleSpeakerNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastFemaleSpeakerName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新早间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastMorningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastMorningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新晚间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastEveningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastEveningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新 VIP 专项版早间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastVipMorningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastVipMorningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新 VIP 专项版晚间节目名称
+ * @param {string} value 最新值
+ */
+const handlePodcastVipEveningProgramNameUpdate = (value: string): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastVipEveningProgramName: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新播客模板片段
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} value 最新值
+ */
+const handlePodcastTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[]): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastTemplateItems: value
+  });
   requestPersistHotsearchSettings();
 };
 
@@ -589,10 +940,22 @@ const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
  * 函数：更新平台抓取间隔
  * @param {number | undefined} value 最新值
  */
-const handlePlatformIntervalMinutesUpdate = (value: number | undefined): void => {
+const handlePlatformIntervalSecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    platformIntervalMinutes: value
+    platformIntervalSeconds: value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：更新计划随机偏移
+ * @param {number | undefined} value 最新值
+ */
+const handleScheduleJitterSecondsUpdate = (value: number | undefined): void => {
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    scheduleJitterSeconds: value
   });
   requestPersistHotsearchSettings();
 };
@@ -601,10 +964,10 @@ const handlePlatformIntervalMinutesUpdate = (value: number | undefined): void =>
  * 函数：更新播客缓冲时间
  * @param {number | undefined} value 最新值
  */
-const handlePodcastBufferMinutesUpdate = (value: number | undefined): void => {
+const handlePodcastBufferSecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastBufferMinutes: value
+    podcastBufferSeconds: value
   });
   requestPersistHotsearchSettings();
 };
@@ -625,10 +988,10 @@ const handleRetryMaxAttemptsUpdate = (value: number | undefined): void => {
  * 函数：更新重试间隔
  * @param {number | undefined} value 最新值
  */
-const handleRetryDelayMinutesUpdate = (value: number | undefined): void => {
+const handleRetryDelaySecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    retryDelayMinutes: value
+    retryDelaySeconds: value
   });
   requestPersistHotsearchSettings();
 };
@@ -661,10 +1024,21 @@ const handlePlatformsToggleAll = (enabled: boolean): void => {
 };
 
 /**
- * 函数：恢复默认设置
+ * 函数：恢复抓取计划默认设置
  */
-const handleResetDefaults = (): void => {
-  stateHotsearchConfig.value = hotsearchSettingsDefaultCreate();
+const handleResetScheduleDefaults = (): void => {
+  const defaults = hotsearchSettingsDefaultCreate();
+
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    morningStartAt: defaults.morningStartAt,
+    eveningStartAt: defaults.eveningStartAt,
+    platformIntervalSeconds: defaults.platformIntervalSeconds,
+    scheduleJitterSeconds: defaults.scheduleJitterSeconds,
+    podcastBufferSeconds: defaults.podcastBufferSeconds,
+    retryMaxAttempts: defaults.retryMaxAttempts,
+    retryDelaySeconds: defaults.retryDelaySeconds
+  });
   requestPersistHotsearchSettings();
 };
 

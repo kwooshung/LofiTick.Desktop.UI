@@ -80,7 +80,7 @@ const runtimeConfig = useRuntimeConfig();
 /**
  * Hook：Tauri 直连 API 客户端
  */
-const { configUpdate: tauriApiClientConfigUpdate } = useTauriApiClient();
+const { configGet: tauriApiClientConfigGet, configUpdate: tauriApiClientConfigUpdate } = useTauriApiClient();
 
 /**
  * Hook：Tauri 设置
@@ -221,7 +221,7 @@ const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
 
   const apiBase = String(runtimeConfig.public.apiBase || '').trim();
   const signAesSeed = String(runtimeConfig.public.signAesSeed || '').trim();
-  if (!apiBase || !signAesSeed) {
+  if (!apiBase && !signAesSeed) {
     console.warn('[tauri-api-client] runtime config missing', {
       apiBaseReady: Boolean(apiBase),
       signAesSeedReady: Boolean(signAesSeed)
@@ -229,7 +229,21 @@ const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
     return;
   }
 
-  await tauriApiClientConfigUpdate({ apiBase, signAesSeed });
+  const currentConfig = await tauriApiClientConfigGet();
+  const nextPatch: IApiClientConfigPatch = {};
+
+  if (!String(currentConfig.apiBase || '').trim() && apiBase) {
+    nextPatch.apiBase = apiBase;
+  }
+
+  if (!String(currentConfig.signAesSeed || '').trim() && signAesSeed) {
+    nextPatch.signAesSeed = signAesSeed;
+  }
+
+  if (Object.keys(nextPatch).length > 0) {
+    await tauriApiClientConfigUpdate(nextPatch);
+  }
+
   stateTauriApiClientConfigured.value = true;
 };
 

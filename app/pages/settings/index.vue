@@ -151,6 +151,11 @@ const stateSelectingStorage = ref(false);
 const stateRememberWindowStateValue = ref(true);
 
 /**
+ * 状态：设置项是否已完成首轮加载
+ */
+const stateSettingsHydrated = ref(false);
+
+/**
  * 计算属性：语言列表（去重）
  * 描述：避免 i18n 运行时 locales 出现重复项导致下拉重复
  */
@@ -317,6 +322,8 @@ const loadSettings = async (): Promise<void> => {
     stateCloseBehaviorValue.value = String(src.closeBehaviors || 'unset');
     stateRememberWindowStateValue.value = Boolean(src.remember);
   }
+
+  stateSettingsHydrated.value = true;
 };
 
 /**
@@ -328,3 +335,9 @@ onMounted(async () => {
   await loadSettings();
 });
 </script>
+
+<style>
+::-ms-reveal {
+  display: none;
+}
+</style>

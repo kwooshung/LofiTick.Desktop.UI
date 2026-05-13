@@ -1,5 +1,28 @@
 ﻿export const settings = {
   title: '设置',
+  connections: {
+    title: '服务连接',
+    description: '统一管理桌面端连接 Rust API 与 1Panel 面板入口所需的接入配置。',
+    apiBase: {
+      label: 'Rust API 域名',
+      description: '桌面壳直连 Rust API 时使用的基础域名，默认值为 http://localhost:8180/。',
+      placeholder: 'http://localhost:8180/'
+    },
+    onepanelPanelBase: {
+      label: '1Panel 根域名',
+      description: '这里只填写 1Panel 面板首页根域名，页面内所有跳转地址都会基于它自动推导。',
+      placeholder: 'https://one-panel.lofitick.com/'
+    },
+    onepanelLinks: {
+      title: '1Panel 导航目录',
+      description: '下面这份目录会随着根域名实时变化，桌面端不再直接托管 1Panel 计划任务页面。',
+      currentBase: '当前 1Panel 根域名',
+      actions: {
+        openCronjobs: '打开计划任务',
+        openScriptLibrary: '打开脚本库'
+      }
+    }
+  },
   general: {
     title: '常规设置',
     description: '应用程序基础行为、语言等通用偏好配置',
@@ -156,11 +179,15 @@
   },
   hotsearch: {
     title: '热搜设置',
-    description: '配置本机热搜抓取窗口、平台选择、预算与播客缓冲时间。',
+    description: '配置本机热搜抓取频次、平台选择、预算与播客生成时间。',
     sections: {
       schedule: {
         title: '抓取计划',
-        description: '这里配置热搜窗口的源时间、平台执行间隔和失败补抓策略。'
+        description: '这里配置播客时间基准、平台抓取间隔、随机偏移与失败补抓策略。'
+      },
+      podcast: {
+        title: '播客文案',
+        description: '这里配置播报者姓名、节目名称，以及播客开头和结尾模板；正文由程序自动生成。'
       },
       platforms: {
         title: '平台选择',
@@ -180,34 +207,167 @@
         label: '自动生成播客',
         description: '启用后，播客时间将默认跟随热搜窗口的推导结果。'
       },
+      podcastMaleSpeakerName: {
+        label: '男生播报者姓名',
+        description: '用于变量替换中的男生姓名，默认是小洛。',
+        placeholder: '例如：小洛'
+      },
+      podcastFemaleSpeakerName: {
+        label: '女生播报者姓名',
+        description: '用于变量替换中的女生姓名，默认是菲菲。',
+        placeholder: '例如：菲菲'
+      },
+      podcastProgramNames: {
+        label: '节目名称',
+        description: '早间、晚间以及 VIP 专项版会按各自的节目名称渲染到模板变量中。'
+      },
+      podcastMorningProgramName: {
+        label: '早间节目名称',
+        description: '用于普通早间播客的节目名称。',
+        placeholder: '例如：洛菲热点早报'
+      },
+      podcastEveningProgramName: {
+        label: '晚间节目名称',
+        description: '用于普通晚间播客的节目名称。',
+        placeholder: '例如：洛菲热点晚报'
+      },
+      podcastVipMorningProgramName: {
+        label: 'VIP 专项版早间节目名称',
+        description: '用于 VIP 专项版早间播客的节目名称。',
+        placeholder: '例如：洛菲热点早报 尊享版'
+      },
+      podcastVipEveningProgramName: {
+        label: 'VIP 专项版晚间节目名称',
+        description: '用于 VIP 专项版晚间播客的节目名称。',
+        placeholder: '例如：洛菲热点晚报 尊享版'
+      },
+      podcastVariables: {
+        label: '变量插入',
+        description: '点击变量按钮会直接插入到当前聚焦的开头或结尾模板输入框。'
+      },
+      podcastOpeningTemplates: {
+        label: '开头模板',
+        description: '这里只维护播客开头模板，正文由程序自动生成。',
+        placeholder: '例如：这里是 [programName]，今天是 [solarDateTime]。',
+        empty: {
+          title: '还没有开头模板',
+          description: '先新增一条开头模板，再选择音色并输入开头文案。'
+        }
+      },
+      podcastClosingTemplates: {
+        label: '结尾模板',
+        description: '这里只维护播客结尾模板，正文由程序自动生成。',
+        placeholder: '例如：以上就是今天的 [programName]，我们下次再见。',
+        empty: {
+          title: '还没有结尾模板',
+          description: '先新增一条结尾模板，再选择音色并输入结尾文案。'
+        }
+      },
       monthlyBudget: {
         label: '月度预算积分',
         description: '默认按 3500 规划；真实剩余积分请以官网为准。'
       },
       morningStartAt: {
         label: '早间热搜开始时间',
-        description: '这是早间窗口的源时间，其他推导时间都会跟随变化。'
+        description: '用于推导早间热搜播客的建议生成时间，不影响热搜抓取频次。'
       },
       eveningStartAt: {
         label: '晚间热搜开始时间',
-        description: '这是晚间窗口的源时间，其他推导时间都会跟随变化。'
+        description: '用于推导晚间热搜播客的建议生成时间，不影响热搜抓取频次。'
       },
-      platformIntervalMinutes: {
-        label: '平台抓取间隔',
-        description: '窗口内各平台错峰执行的间隔，单位为分钟。'
+      platformIntervalSeconds: {
+        label: '单个平台抓取间隔',
+        description: '每个平台触发之间的等待时间，单位为秒。比如 360 秒约等于 6 分钟。',
+        input: {
+          prefix: '间隔',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      scheduleJitterSeconds: {
+        label: '开始时间随机偏移',
+        description: '对计划时间做正负随机秒数偏移，默认 1800 表示正负 30 分钟。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
+      },
+      podcastBufferSeconds: {
         label: '播客缓冲时长',
-        description: '热搜窗口结束后额外预留的缓冲时间，单位为分钟。'
+        description: '在抓取阶段完成后，再额外预留给整理、润色和生成播客的等待时间，单位为秒。它只影响播客建议时间，不影响热搜抓取频次。',
+        input: {
+          prefix: '缓冲',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '失败重试次数',
-        description: '单个平台抓取失败后允许自动补抓的最大次数。'
+        description: '单个平台抓取失败后允许自动补抓的最大次数。',
+        input: {
+          prefix: '计数',
+          unit: '次数'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '重试间隔',
-        description: '失败后再次尝试抓取的等待时间，单位为分钟。'
+        description: '失败后再次尝试抓取的等待时间，单位为秒。',
+        input: {
+          prefix: '延时',
+          unit: '秒'
+        }
       }
+    },
+    options: {
+      podcastVoice: {
+        random: '随机',
+        xiaoluo: '小洛',
+        feifei: '菲菲'
+      },
+      podcastTemplate: {
+        opening: '开头模板',
+        closing: '结尾模板'
+      },
+      podcastSegment: {
+        normal: '普通内容',
+        adOpening: '广告开头',
+        adContent: '广告内容',
+        adClosing: '广告结尾'
+      }
+    },
+    variables: {
+      speakerName: '播报者名称',
+      maleSpeakerName: '男生姓名',
+      femaleSpeakerName: '女生姓名',
+      programName: '当前节目名称',
+      morningProgramName: '早间节目名称',
+      eveningProgramName: '晚间节目名称',
+      vipMorningProgramName: 'VIP 专项版早间节目名称',
+      vipEveningProgramName: 'VIP 专项版晚间节目名称',
+      greeting: '动态问候语',
+      solarDateTime: '阳历年月日',
+      solarDate: '阳历月日',
+      solarTime: '时间',
+      lunarDateTime: '农历年月日',
+      lunarDate: '农历月日',
+      weekday: '星期',
+      editionLabel: '早晚报标识'
+    },
+    variableDescriptions: {
+      speakerName: '根据当前音色自动取播报者姓名。',
+      maleSpeakerName: '始终使用男生播报者姓名。',
+      femaleSpeakerName: '始终使用女生播报者姓名。',
+      programName: '根据当前节目场景自动取节目名称。',
+      morningProgramName: '普通早间播客的节目名称。',
+      eveningProgramName: '普通晚间播客的节目名称。',
+      vipMorningProgramName: 'VIP 专项版早间播客的节目名称。',
+      vipEveningProgramName: 'VIP 专项版晚间播客的节目名称。',
+      greeting: '根据当前时段动态输出早上好或晚上的问候语。',
+      solarDateTime: '例如 2026年5月14日。',
+      solarDate: '例如 5月14日。',
+      solarTime: '例如 08:30。',
+      lunarDateTime: '例如 农历三月二十八。',
+      lunarDate: '例如 三月二十八。',
+      weekday: '当前星期。',
+      editionLabel: '当前是早间还是晚间播客。'
     },
     summary: {
       selectedPlatforms: '已选平台',
@@ -217,18 +377,342 @@
       windowDuration: '窗口耗时',
       suggestedMorningPodcast: '建议早间播客时间',
       suggestedEveningPodcast: '建议晚间播客时间',
-      budgetStatus: '预算状态',
+      budgetStatus: '预算结余',
       budgetStatusSafe: '安全',
       budgetStatusWarning: '提醒',
       budgetStatusExceeded: '超预算',
+      scopeMonth: '本月',
+      scopeYear: '本年',
+      budgetStatusRemainingDetail: '{scope}：预算 {budget}，预计 {estimate}，剩余 {remaining}',
+      budgetStatusExceededDetail: '{scope}：预算 {budget}，预计 {estimate}，超出 {exceeded}',
+      rangeValue: '{start} ~ {end}',
       minutesValue: '{value} 分钟'
     },
     actions: {
       usage: '查看官网用量',
       selectAll: '全选平台',
       clearAll: '清空平台',
+      addOpeningTemplate: '新增开头模板',
+      addClosingTemplate: '新增结尾模板',
       reset: '恢复默认',
       save: '保存设置'
+    }
+  },
+  cron: {
+    title: '计划任务',
+    description: '统一管理本地任务、服务器任务与系统任务。',
+    tabs: {
+      local: '本地任务',
+      server: '服务器任务',
+      system: '系统任务'
+    },
+    actions: {
+      refresh: '刷新',
+      search: '查询',
+      resetSearch: '清空',
+      syncHotsearch: '同步热搜 cron',
+      create: '创建',
+      edit: '编辑',
+      enableSelected: '批量启用',
+      disableSelected: '批量停用',
+      stopSelected: '批量停止',
+      deleteSelected: '批量删除',
+      run: '执行',
+      stop: '停止',
+      records: '记录',
+      delete: '删除',
+      viewLog: '日志'
+    },
+    hotsearch: {
+      label: '热搜计划任务',
+      description: '这里展示热搜开关与 1Panel cron 是否已经保持一致。',
+      enabled: '热搜开关：{value}',
+      callbackUnset: '尚未推导出可供 1Panel 回调的地址',
+      states: {
+        ready: '已同步',
+        outOfSync: '待修复',
+        unconfigured: '未配置 1Panel'
+      }
+    },
+    local: {
+      runtimeOnly: {
+        title: '当前不在 Tauri 运行环境',
+        description: '本地任务依赖桌面壳提供的计划快照，浏览器环境下不显示实际计划。'
+      },
+      snapshot: {
+        title: '本地后台任务清单',
+        description: '这里展示桌面壳在本机负责的后台任务，不和服务器 1Panel cron 混在一起。'
+      },
+      summary: {
+        enabled: '自动抓取：{value}',
+        podcastEnabled: '自动播客：{value}',
+        platformCount: '平台数：{value}',
+        monthlyBudget: '月预算：{value}',
+        sceneCount: '启用场景：{value}',
+        recoveryState: '恢复状态：{value}'
+      },
+      items: {
+        hotsearch: {
+          title: '本地热搜调度',
+          description: '桌面壳常驻轮询本地热搜配置，并在早晚时间段内执行抓取节拍。'
+        },
+        sentinel: {
+          title: '本地哨兵轮询',
+          description: '桌面壳常驻轮询无人值守哨兵状态，并按恢复策略处理异常。'
+        }
+      },
+      schedule: {
+        windowsLabel: '执行窗口：',
+        podcastLabel: '建议播客：',
+        sentinelPolling: '应用运行期间持续轮询',
+        lastSeenLabel: '最后心跳：',
+        pending: '等待本地运行时快照'
+      },
+      actions: {
+        openSettings: '前往设置'
+      },
+      card: {
+        activity: '最近活动'
+      },
+      states: {
+        hotsearchEnabled: '运行中',
+        hotsearchDisabled: '已停用',
+        sentinelOnline: '在线',
+        sentinelOffline: '离线',
+        sentinelError: '错误',
+        sentinelIdle: '空闲',
+        sentinelUnknown: '未上报'
+      },
+      windowKeys: {
+        morning: '早间窗口',
+        evening: '晚间窗口'
+      },
+      window: {
+        title: '{name}',
+        startAt: '开始时间',
+        endAt: '结束时间',
+        suggestedPodcastAt: '建议播客时间',
+        duration: '窗口耗时',
+        durationValue: '{value} 分钟',
+        platformCount: '平台数量',
+        points: '预计积分'
+      },
+      empty: {
+        title: '本地任务暂不可用',
+        description: '当前未读取到桌面壳可展示的本地后台任务信息。'
+      }
+    },
+    serverShortcut: {
+      title: '服务器任务入口',
+      description: '服务器任务改为直达 1Panel，桌面端这里只保留跳转和提醒。',
+      heroTitle: '去 1Panel 里管理真实的服务器计划任务',
+      heroDescription: '桌面端不再镜像 1Panel 计划任务列表，也不再要求你在这里维护 API Key。你只需要配置 1Panel 根域名，然后从这里一键跳到计划任务或脚本库。',
+      actions: {
+        openCronjobs: '打开 1Panel 计划任务',
+        openScriptLibrary: '打开 1Panel 脚本库',
+        openConnections: '前往服务连接'
+      },
+      quickLinks: {
+        overview: '打开 1Panel 概览',
+        terminal: '打开 1Panel 终端',
+        logs: '打开 1Panel 面板日志'
+      }
+    },
+    system: {
+      readonly: '只读',
+      groups: {
+        system: '系统任务',
+        hook: '公开节拍器'
+      },
+      snapshot: {
+        title: '系统内建任务清单',
+        description: '这些任务由 Rust API 固定提供，不允许在桌面端新增、编辑或删除。'
+      },
+      items: {
+        hotsearchMorningGenerate: {
+          title: '早间热搜生成',
+          description: '系统会在热搜配置定义的早间窗口内推进热搜生成流程。'
+        },
+        hotsearchEveningGenerate: {
+          title: '晚间热搜生成',
+          description: '系统会在热搜配置定义的晚间窗口内推进热搜生成流程。'
+        },
+        hotsearchStep: {
+          title: '热搜单步推进',
+          description: '供外部 cron 节拍器调用，每次仅推进一个平台。'
+        },
+        quoteRandom: {
+          title: '随机名句抓取',
+          description: '抓取一条随机名句并按幂等规则入库。'
+        }
+      },
+      schedules: {
+        hotsearchMorningGenerate: {
+          primary: '按热搜设置中的早间窗口执行',
+          secondary: '系统内建热搜生成流程'
+        },
+        hotsearchEveningGenerate: {
+          primary: '按热搜设置中的晚间窗口执行',
+          secondary: '系统内建热搜生成流程'
+        },
+        hotsearchStep: {
+          primary: '由外部 cron / 1Panel 节拍器按固定周期回调',
+          secondary: '/crons/system/hot_searchs/step'
+        },
+        quoteRandom: {
+          primary: '由系统计划任务按需触发',
+          secondary: '/crons/system/quotes/random'
+        }
+      },
+      empty: {
+        title: '系统任务为只读视图',
+        description: '这里展示的是系统内建任务定义，不提供任何编辑入口。'
+      }
+    },
+    search: {
+      label: '任务筛选',
+      description: '按名称筛选 1Panel 计划任务。',
+      placeholder: '输入任务名称关键字'
+    },
+    table: {
+      name: '任务',
+      group: '分组',
+      path: '路径',
+      method: '方法',
+      schedule: '计划',
+      retainCopies: '保留份数',
+      lastExecutedAt: '上次执行时间',
+      createdAt: '创建时间',
+      status: '状态',
+      actions: '操作',
+      enabled: '启用',
+      disabled: '停用',
+      executing: '执行中'
+    },
+    records: {
+      title: '{name} 的执行记录',
+      actions: {
+        clean: '清理记录'
+      },
+      empty: {
+        title: '暂无执行记录',
+        description: '当前任务还没有可展示的执行历史。'
+      },
+      table: {
+        startedAt: '开始时间',
+        status: '状态',
+        message: '摘要',
+        interval: '耗时',
+        actions: '操作',
+        intervalValue: '{value} ms'
+      }
+    },
+    logs: {
+      title: '执行记录 #{id} 日志',
+      empty: {
+        title: '暂无日志内容',
+        description: '当前记录没有返回可展示的文本日志。'
+      }
+    },
+    operate: {
+      createTitle: '创建计划任务',
+      editTitle: '编辑计划任务',
+      description: '使用图形表单编辑常用任务字段，保存时会自动映射到 1Panel 所需的配置结构。',
+      previewNext: '预览下一次执行',
+      nextTimes: '下一次执行时间',
+      nextEmpty: '暂未生成预览结果',
+      save: '保存配置',
+      sections: {
+        basic: '基础信息',
+        schedule: '执行周期',
+        execution: '执行内容',
+        preview: '执行预览',
+        runtime: '运行策略'
+      },
+      descriptions: {
+        basic: '任务名称、任务类型和 1Panel 分组直接和返回的元数据对齐。',
+        execution: '根据任务类型填写回调地址、脚本、命令和执行用户。',
+        preview: '保存前先检查即将生成的 Cron 表达式与下一次执行时间。',
+        runtime: '执行记录保留、重试、超时和告警次数在这里统一控制。'
+      },
+      form: {
+        name: '任务名称',
+        type: '任务类型',
+        groupId: '任务分组',
+        spec: '执行周期',
+        url: '访问地址',
+        executor: '执行器',
+        script: '脚本内容',
+        command: '命令内容',
+        user: '执行用户',
+        retainCopies: '执行记录保留份数',
+        retryTimes: '失败重试次数',
+        timeout: '超时时间',
+        ignoreErr: '忽略错误',
+        alertCount: '告警次数',
+        typeOptions: {
+          url: '访问 URL',
+          shell: 'Shell 脚本',
+          command: '命令执行'
+        }
+      },
+      schedule: {
+        description: '优先使用图形方式配置周期；只有特殊表达式时再切到自定义。',
+        custom: '自定义',
+        customPlaceholder: '例如：30 1 * * 1',
+        generated: '当前表达式：{value}',
+        labels: {
+          mode: '周期模式',
+          dayOfMonth: '每月日期',
+          weekday: '执行星期',
+          interval: '重复间隔',
+          every: '每',
+          hour: '执行小时',
+          minute: '执行分钟'
+        },
+        options: {
+          monthly: '每月',
+          weekly: '每周',
+          daily: '每天',
+          everySeconds: '每 N 秒',
+          everyHours: '每 N 小时',
+          everyDays: '每 N 天',
+          everyMinutes: '每 N 分钟'
+        },
+        weekdays: {
+          mon: '周一',
+          tue: '周二',
+          wed: '周三',
+          thu: '周四',
+          fri: '周五',
+          sat: '周六',
+          sun: '周日'
+        },
+        units: {
+          day: '日',
+          hour: '小时',
+          minute: '分钟',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: '任务名称不能为空',
+        customSpecRequired: '请输入自定义周期表达式',
+        urlRequired: '访问地址不能为空',
+        executorRequired: '执行器不能为空',
+        scriptRequired: '脚本内容不能为空',
+        commandRequired: '命令内容不能为空',
+        userRequired: '执行用户不能为空'
+      }
+    },
+    delete: {
+      title: '确认删除任务',
+      description: '将删除 {name}，但不会清理关联数据。',
+      confirm: '确认删除'
+    },
+    footer: {
+      total: '共 {total} 条任务',
+      selected: '已选 {total} 条'
     }
   },
   unattended: {

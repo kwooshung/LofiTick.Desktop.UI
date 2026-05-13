@@ -10,33 +10,18 @@
 
   <UPageCard variant="outline" :ui="{ root: 'mb-10', container: 'divide-y divide-default' }">
     <UFormField
-      :label="t('pages.settings.unattended.sections.ue5.modal.summary.upstreamHost')"
-      :description="t('pages.settings.unattended.sections.ue5.form.upstreamHost.description')"
-      :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-      class="flex items-center justify-between gap-2 not-last:pb-4"
-    >
-      <UInput readonly :model-value="computedUpstreamAddress || '-'" :ui="{ trailing: 'pr-0.5' }" class="w-full max-w-full md:w-136 2xl:w-160">
-        <template #trailing>
-          <UTooltip v-if="computedUpstreamAddress" arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-            <UButton :color="copiedGet('upstreamHost') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('upstreamHost') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('upstreamHost', computedUpstreamAddress)" />
-          </UTooltip>
-        </template>
-      </UInput>
-    </UFormField>
-
-    <UFormField
       :label="t('pages.settings.unattended.sections.ue5.form.endpoint.label')"
       :description="t('pages.settings.unattended.sections.ue5.form.endpoint.description')"
       :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
       class="flex items-center justify-between gap-2 not-last:pb-4"
     >
-      <UInput readonly :model-value="computedBaseUrl || '-'" :ui="{ trailing: 'pr-0.5' }" class="w-full max-w-full md:w-136 2xl:w-160">
-        <template #trailing>
+      <FormUrlInput readonly :model-value="computedBaseUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
+        <template #actions>
           <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
             <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
           </UTooltip>
         </template>
-      </UInput>
+      </FormUrlInput>
     </UFormField>
   </UPageCard>
 
@@ -67,8 +52,8 @@
           </div>
         </div>
 
-        <UInput readonly :model-value="request.url" :ui="{ trailing: 'pr-0.5' }" class="w-full max-w-full md:w-136 2xl:w-160">
-          <template #trailing>
+        <FormUrlInput readonly :model-value="request.url" class="w-full max-w-full md:w-136 2xl:w-160">
+          <template #actions>
             <div class="flex items-center gap-0.5">
               <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
                 <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
@@ -78,7 +63,7 @@
               </UTooltip>
             </div>
           </template>
-        </UInput>
+        </FormUrlInput>
       </div>
     </template>
 
@@ -113,11 +98,6 @@ const { get: settingsGet, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet } = us
  * 状态：当前接入地址
  */
 const stateAccessUrl = ref('');
-
-/**
- * 状态：上游地址
- */
-const stateUpstreamHost = ref('');
 
 /**
  * 状态：详情错误信息
@@ -206,45 +186,9 @@ const urlParamsGet = (url: string): IPageSettingsUe5RequestParamItem[] => {
 };
 
 /**
- * 函数：将上游地址归一为展示值
- * @param {string} url 上游地址
- * @returns {string} 统一展示地址
- */
-const upstreamHostGet = (url: string): string => {
-  const value = String(url || '').trim();
-  if (!value) {
-    return '';
-  }
-
-  try {
-    const parsed = new URL(value);
-    const host = String(parsed.host || '').trim();
-    if (!host) {
-      return '';
-    }
-
-    return `https://${host}/`;
-  } catch {
-    const host = String(value.replace(/^https?:\/\//i, '').split('/')[0] || '').trim();
-    if (!host) {
-      return '';
-    }
-
-    return `https://${host.replace(/\/+$/, '')}/`;
-  }
-};
-
-/**
  * 计算属性：本地接入基地址
  */
 const computedBaseUrl = computed((): string => urlBaseDirectoryGet(stateAccessUrl.value));
-
-/**
- * 计算属性：上游地址展示值
- */
-const computedUpstreamAddress = computed((): string => {
-  return String(stateUpstreamHost.value || '').trim();
-});
 
 /**
  * 计算属性：当前请求列表
@@ -339,21 +283,6 @@ const handleLinkOpen = (url: string): void => {
  * @returns {Promise<void>} 无返回值
  */
 const handleDetailRefresh = async (): Promise<void> => {
-  let upstreamUrl = '';
-
-  try {
-    const settings = await settingsGet();
-    const unattended = settings && typeof settings.unattended === 'object' && !Array.isArray(settings.unattended) ? (settings.unattended as Record<string, unknown>) : {};
-    const sentinel = unattended && typeof unattended.sentinel === 'object' && !Array.isArray(unattended.sentinel) ? (unattended.sentinel as Record<string, unknown>) : {};
-    const request = sentinel && typeof sentinel.request === 'object' && !Array.isArray(sentinel.request) ? (sentinel.request as Record<string, unknown>) : {};
-
-    upstreamUrl = String(request.url || '').trim();
-  } catch {
-    // ignore
-  }
-
-  stateUpstreamHost.value = upstreamHostGet(upstreamUrl);
-
   if (!isTauriRuntime.value) {
     stateDetailError.value = '';
     return;
@@ -364,7 +293,6 @@ const handleDetailRefresh = async (): Promise<void> => {
   try {
     const detail = await ue5BridgeAccessDetailGet();
     stateAccessUrl.value = String(detail.accessUrl || '').trim() || stateAccessUrl.value;
-    stateUpstreamHost.value = upstreamHostGet(String(detail.upstreamUrl || '').trim()) || stateUpstreamHost.value;
   } catch (error) {
     stateDetailError.value = error instanceof Error ? error.message : String(error || '').trim() || 'UE5 bridge unavailable';
     try {

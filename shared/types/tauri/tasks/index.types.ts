@@ -13,6 +13,16 @@ export interface ITauriHotsearchScheduleWindow {
   startAt: string;
 
   /**
+   * 最早开始时间
+   */
+  earliestStartAt: string;
+
+  /**
+   * 最晚开始时间
+   */
+  latestStartAt: string;
+
+  /**
    * 结束时间
    */
   endAt: string;
@@ -21,6 +31,16 @@ export interface ITauriHotsearchScheduleWindow {
    * 建议播客时间
    */
   suggestedPodcastAt: string;
+
+  /**
+   * 最早建议播客时间
+   */
+  earliestSuggestedPodcastAt: string;
+
+  /**
+   * 最晚建议播客时间
+   */
+  latestSuggestedPodcastAt: string;
 
   /**
    * 平台数量
@@ -63,14 +83,19 @@ export interface ITauriHotsearchScheduleSnapshot {
   selectedPlatformCount: number;
 
   /**
-   * 平台抓取间隔（分钟）
+   * 平台抓取间隔（秒）
    */
-  platformIntervalMinutes: number;
+  platformIntervalSeconds: number;
 
   /**
-   * 播客缓冲时间（分钟）
+   * 计划随机偏移范围（秒）
    */
-  podcastBufferMinutes: number;
+  scheduleJitterSeconds: number;
+
+  /**
+   * 播客缓冲时间（秒）
+   */
+  podcastBufferSeconds: number;
 
   /**
    * 最大重试次数
@@ -78,9 +103,9 @@ export interface ITauriHotsearchScheduleSnapshot {
   retryMaxAttempts: number;
 
   /**
-   * 重试间隔（分钟）
+   * 重试间隔（秒）
    */
-  retryDelayMinutes: number;
+  retryDelaySeconds: number;
 
   /**
    * 早晚窗口计划

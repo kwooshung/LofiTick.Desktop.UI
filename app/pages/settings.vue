@@ -52,6 +52,11 @@ const links = [
       to: localePath('/settings/hotsearch')
     },
     {
+      label: t('pages.settings.connections.title'),
+      icon: 'i-lucide:cable',
+      to: localePath('/settings/connections')
+    },
+    {
       label: t('pages.settings.unattended.sections.ue5.title'),
       icon: 'i-file-icons:unrealscript',
       to: localePath('/settings/ue5')
