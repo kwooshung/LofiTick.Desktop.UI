@@ -15,13 +15,13 @@
       :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
       class="flex items-center justify-between gap-2 not-last:pb-4"
     >
-      <UInput readonly :model-value="computedBaseUrl || '-'" :ui="{ trailing: 'pr-0.5' }" class="w-full max-w-full md:w-136 2xl:w-160">
-        <template #trailing>
+      <FormUrlInput readonly :model-value="computedBaseUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
+        <template #actions>
           <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
             <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
           </UTooltip>
         </template>
-      </UInput>
+      </FormUrlInput>
     </UFormField>
   </UPageCard>
 
@@ -52,8 +52,8 @@
           </div>
         </div>
 
-        <UInput readonly :model-value="request.url" :ui="{ trailing: 'pr-0.5' }" class="w-full max-w-full md:w-136 2xl:w-160">
-          <template #trailing>
+        <FormUrlInput readonly :model-value="request.url" class="w-full max-w-full md:w-136 2xl:w-160">
+          <template #actions>
             <div class="flex items-center gap-0.5">
               <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
                 <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
@@ -63,7 +63,7 @@
               </UTooltip>
             </div>
           </template>
-        </UInput>
+        </FormUrlInput>
       </div>
     </template>
 

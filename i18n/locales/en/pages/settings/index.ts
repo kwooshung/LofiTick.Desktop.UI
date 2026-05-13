@@ -2,21 +2,25 @@ export const settings = {
   title: 'Settings',
   connections: {
     title: 'Service connections',
-    description: 'Manage the desktop-side connection settings used for the Rust API and 1Panel in one place.',
+    description: 'Manage the desktop-side connection settings used for the Rust API and the 1Panel entry point in one place.',
     apiBase: {
-      label: 'Rust API base',
-      description: 'Base URL used by the desktop shell when it talks directly to the Rust API.',
-      placeholder: 'https://api.example.com'
+      label: 'Rust API domain',
+      description: 'Base domain used by the desktop shell when it talks directly to the Rust API. The default value is http://localhost:8180/.',
+      placeholder: 'http://localhost:8180/'
     },
-    onepanelApiBase: {
-      label: '1Panel base URL',
-      description: 'Base URL of the 1Panel panel. It defaults to https://one-panel.lofitick.com/.',
+    onepanelPanelBase: {
+      label: '1Panel root URL',
+      description: 'Only enter the 1Panel homepage root URL here. Every navigation link below is derived from it automatically.',
       placeholder: 'https://one-panel.lofitick.com/'
     },
-    onepanelApiKey: {
-      label: '1Panel API Key',
-      description: 'Stored only in server-side Redis for cron proxying and hot search cron sync.',
-      placeholder: 'Enter the 1Panel API Key'
+    onepanelLinks: {
+      title: '1Panel navigation directory',
+      description: 'This directory updates with the root URL in real time. The desktop app no longer embeds the 1Panel cron management page.',
+      currentBase: 'Current 1Panel root URL',
+      actions: {
+        openCronjobs: 'Open cronjobs',
+        openScriptLibrary: 'Open script library'
+      }
     }
   },
   general: {
@@ -329,6 +333,9 @@ export const settings = {
         lastSeenLabel: 'Last heartbeat: ',
         pending: 'Waiting for local runtime snapshot'
       },
+      card: {
+        activity: 'Recent activity'
+      },
       states: {
         hotsearchEnabled: 'Running',
         hotsearchDisabled: 'Disabled',
@@ -355,6 +362,28 @@ export const settings = {
       empty: {
         title: 'Local tasks are unavailable',
         description: 'The desktop shell did not provide any local background task data to display.'
+      }
+    },
+    serverShortcut: {
+      title: 'Server task entry',
+      description: 'Server tasks now open directly in 1Panel. This page only keeps the jump entry and reminders.',
+      heroTitle: 'Manage real server cronjobs inside 1Panel',
+      heroDescription: 'The desktop app no longer mirrors the 1Panel cron list and no longer asks you to maintain an API key here. Configure one 1Panel root URL, then jump straight to cronjobs or the script library from this page.',
+      actions: {
+        openCronjobs: 'Open 1Panel cronjobs',
+        openScriptLibrary: 'Open 1Panel script library',
+        openConnections: 'Open service connections'
+      },
+      quickLinks: {
+        overview: 'Open 1Panel overview',
+        terminal: 'Open 1Panel terminal',
+        logs: 'Open 1Panel operation logs'
+      },
+      reminders: {
+        title: 'Notes',
+        one: 'This page is now an entry portal, not a one-to-one desktop mirror of the 1Panel cron UI.',
+        two: 'If the 1Panel domain changes, update the root URL once in Service Connections.',
+        three: 'Local jobs stay in the desktop shell, while server jobs are managed directly by 1Panel.'
       }
     },
     system: {
@@ -415,12 +444,17 @@ export const settings = {
     },
     table: {
       name: 'Job',
+      group: 'Group',
       path: 'Path',
       method: 'Method',
       schedule: 'Schedule',
+      retainCopies: 'Retained copies',
+      lastExecutedAt: 'Last execution',
       createdAt: 'Created at',
       status: 'Status',
       actions: 'Actions',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
       executing: 'Running'
     },
     records: {
@@ -451,12 +485,93 @@ export const settings = {
     operate: {
       createTitle: 'Create cron job',
       editTitle: 'Edit cron job',
-      description: 'This stage forwards the native 1Panel JSON payload directly so the full capability chain can work first.',
-      payloadLabel: 'Cron job JSON payload',
+      description: 'Edit common job fields with a visual form, then map them to the 1Panel payload automatically when saving.',
       previewNext: 'Preview next run',
       nextTimes: 'Next execution times',
       nextEmpty: 'No preview has been generated yet',
-      save: 'Save configuration'
+      save: 'Save configuration',
+      sections: {
+        basic: 'Basics',
+        schedule: 'Schedule',
+        execution: 'Execution',
+        preview: 'Preview',
+        runtime: 'Runtime policy'
+      },
+      descriptions: {
+        basic: 'Keep the task name, task type, and 1Panel group aligned with upstream metadata.',
+        execution: 'Fill the callback URL, script, command, and execution user based on the task type.',
+        preview: 'Check the generated cron expression and next run times before saving.',
+        runtime: 'Manage retention, retries, timeout, and alert count together in one place.'
+      },
+      form: {
+        name: 'Job name',
+        type: 'Job type',
+        groupId: 'Task group',
+        spec: 'Schedule',
+        url: 'Target URL',
+        executor: 'Executor',
+        script: 'Script content',
+        command: 'Command',
+        user: 'Run as user',
+        retainCopies: 'Retained execution records',
+        retryTimes: 'Retry attempts',
+        timeout: 'Timeout',
+        ignoreErr: 'Ignore errors',
+        alertCount: 'Alert count',
+        typeOptions: {
+          url: 'Request URL',
+          shell: 'Shell script',
+          command: 'Run command'
+        }
+      },
+      schedule: {
+        description: 'Use the visual builder for normal schedules, and switch to custom only for special expressions.',
+        custom: 'Custom',
+        customPlaceholder: 'For example: 30 1 * * 1',
+        generated: 'Generated expression: {value}',
+        labels: {
+          mode: 'Mode',
+          dayOfMonth: 'Day of month',
+          weekday: 'Weekday',
+          interval: 'Repeat interval',
+          every: 'Every',
+          hour: 'Hour',
+          minute: 'Minute'
+        },
+        options: {
+          monthly: 'Monthly',
+          weekly: 'Weekly',
+          daily: 'Daily',
+          everySeconds: 'Every N seconds',
+          everyHours: 'Every N hours',
+          everyDays: 'Every N days',
+          everyMinutes: 'Every N minutes'
+        },
+        weekdays: {
+          mon: 'Mon',
+          tue: 'Tue',
+          wed: 'Wed',
+          thu: 'Thu',
+          fri: 'Fri',
+          sat: 'Sat',
+          sun: 'Sun'
+        },
+        units: {
+          day: 'day',
+          hour: 'hour',
+          minute: 'minute',
+          second: 'second'
+        }
+      },
+      validation: {
+        nameRequired: 'Job name is required',
+        customSpecRequired: 'Enter a custom schedule expression',
+        urlRequired: 'Target URL is required',
+        executorRequired: 'Executor is required',
+        scriptRequired: 'Script content is required',
+        commandRequired: 'Command content is required',
+        userRequired: 'Run as user is required'
+      }
     },
     delete: {
       title: 'Delete cron job',

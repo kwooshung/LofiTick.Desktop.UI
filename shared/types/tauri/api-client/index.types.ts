@@ -51,7 +51,7 @@ export interface IApiClientRequestOutput {
  */
 export interface IApiClientConfig {
   /**
-   * 后端 API 基础地址
+   * Rust API 域名
    */
   apiBase: string;
 
@@ -67,7 +67,7 @@ export interface IApiClientConfig {
  */
 export interface IApiClientConfigPatch {
   /**
-   * 后端 API 基础地址
+   * Rust API 域名
    */
   apiBase?: string;
 

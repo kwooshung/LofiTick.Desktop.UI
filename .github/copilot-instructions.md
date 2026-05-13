@@ -82,6 +82,8 @@
 - 如果你发现变量/函数未显式导入：先确认是否 Nuxt 自动导入导致的；不要擅自补 import。
 - 在 `app/` 的 Nuxt 编译上下文中，Vue 组合式 API（例如 `ref`/`computed`/`watch`/生命周期函数等）默认已通过 auto-import 全局可用；不要再显式 `import ... from "vue"`。
 - 该规则以 `.nuxt/imports.d.ts` 的生成清单为准；不确定时优先查该文件再决定是否补 import。
+- `app/pages/**` 与 `app/components/**` 中，凡是可由 Nuxt 自动注册的本地 `.vue` 组件，禁止显式 `import xxx from './xxx.vue'` 或 `../index.vue` 这类写法；优先直接在模板中使用组件名。
+- 页面层级职责强制：父级路由文件（例如 `app/pages/foo.vue` 或 `app/pages/foo/index.vue`）不能承载某个子路由页面的完整业务实现；子路由页面必须在各自目录中独立实现，禁止通过子页反向导入父页页面来复用整页逻辑。
 - 共享类型的全局导入入口固定为 `shared/types/index.types.ts`：凡是需要被页面、组件、composable 高频复用的共享类型，必须先汇总到该文件，再交给 Nuxt 自动导入；禁止在 `app/**` 中长期保留本可通过全局导入获得的 `@@/shared/types/**` 显式 `import type`。
 - 共享值/工具的全局导入入口固定为 `shared/utils/index.ts`：凡是需要被页面、组件、composable 高频复用的常量、枚举值、纯工具函数，必须先确认是否已经从该总出口导出；不要因为“当前文件报未定义”就直接在局部补 `import`。
 - 如果怀疑是“没有全局导入”而不是“类型/变量不存在”，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。

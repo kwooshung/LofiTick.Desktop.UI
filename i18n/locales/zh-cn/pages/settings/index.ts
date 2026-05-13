@@ -2,21 +2,25 @@
   title: '设置',
   connections: {
     title: '服务连接',
-    description: '统一管理桌面端连接 Rust API 与 1Panel 所需的接入配置。',
+    description: '统一管理桌面端连接 Rust API 与 1Panel 面板入口所需的接入配置。',
     apiBase: {
-      label: 'Rust API 地址',
-      description: '桌面壳直连 Rust API 时使用的基础地址。',
-      placeholder: 'https://api.example.com'
+      label: 'Rust API 域名',
+      description: '桌面壳直连 Rust API 时使用的基础域名，默认值为 http://localhost:8180/。',
+      placeholder: 'http://localhost:8180/'
     },
-    onepanelApiBase: {
-      label: '1Panel 基础域名',
-      description: '1Panel 面板基础域名，默认会使用 https://one-panel.lofitick.com/。',
+    onepanelPanelBase: {
+      label: '1Panel 根域名',
+      description: '这里只填写 1Panel 面板首页根域名，页面内所有跳转地址都会基于它自动推导。',
       placeholder: 'https://one-panel.lofitick.com/'
     },
-    onepanelApiKey: {
-      label: '1Panel API Key',
-      description: '只保存到服务端 Redis，用于计划任务代理与热搜 cron 同步。',
-      placeholder: '请输入 1Panel API Key'
+    onepanelLinks: {
+      title: '1Panel 导航目录',
+      description: '下面这份目录会随着根域名实时变化，桌面端不再直接托管 1Panel 计划任务页面。',
+      currentBase: '当前 1Panel 根域名',
+      actions: {
+        openCronjobs: '打开计划任务',
+        openScriptLibrary: '打开脚本库'
+      }
     }
   },
   general: {
@@ -329,6 +333,9 @@
         lastSeenLabel: '最后心跳：',
         pending: '等待本地运行时快照'
       },
+      card: {
+        activity: '最近活动'
+      },
       states: {
         hotsearchEnabled: '运行中',
         hotsearchDisabled: '已停用',
@@ -355,6 +362,28 @@
       empty: {
         title: '本地任务暂不可用',
         description: '当前未读取到桌面壳可展示的本地后台任务信息。'
+      }
+    },
+    serverShortcut: {
+      title: '服务器任务入口',
+      description: '服务器任务改为直达 1Panel，桌面端这里只保留跳转和提醒。',
+      heroTitle: '去 1Panel 里管理真实的服务器计划任务',
+      heroDescription: '桌面端不再镜像 1Panel 计划任务列表，也不再要求你在这里维护 API Key。你只需要配置 1Panel 根域名，然后从这里一键跳到计划任务或脚本库。',
+      actions: {
+        openCronjobs: '打开 1Panel 计划任务',
+        openScriptLibrary: '打开 1Panel 脚本库',
+        openConnections: '前往服务连接'
+      },
+      quickLinks: {
+        overview: '打开 1Panel 概览',
+        terminal: '打开 1Panel 终端',
+        logs: '打开 1Panel 面板日志'
+      },
+      reminders: {
+        title: '使用提醒',
+        one: '这里显示的是面板入口，不再承诺与 1Panel 页面做一套一比一的桌面镜像。',
+        two: '如果你更换了 1Panel 域名，只需要去“服务连接”里改一次根域名。',
+        three: '本地任务和服务器任务职责已经拆开：本地任务继续由桌面壳执行，服务器任务直接交给 1Panel。'
       }
     },
     system: {
@@ -415,12 +444,17 @@
     },
     table: {
       name: '任务',
+      group: '分组',
       path: '路径',
       method: '方法',
       schedule: '计划',
+      retainCopies: '保留份数',
+      lastExecutedAt: '上次执行时间',
       createdAt: '创建时间',
       status: '状态',
       actions: '操作',
+      enabled: '启用',
+      disabled: '停用',
       executing: '执行中'
     },
     records: {
@@ -451,12 +485,93 @@
     operate: {
       createTitle: '创建计划任务',
       editTitle: '编辑计划任务',
-      description: '当前阶段直接透传 1Panel 原生 JSON 配置，适合先把完整能力打通。',
-      payloadLabel: '任务 JSON 配置',
+      description: '使用图形表单编辑常用任务字段，保存时会自动映射到 1Panel 所需的配置结构。',
       previewNext: '预览下一次执行',
       nextTimes: '下一次执行时间',
       nextEmpty: '暂未生成预览结果',
-      save: '保存配置'
+      save: '保存配置',
+      sections: {
+        basic: '基础信息',
+        schedule: '执行周期',
+        execution: '执行内容',
+        preview: '执行预览',
+        runtime: '运行策略'
+      },
+      descriptions: {
+        basic: '任务名称、任务类型和 1Panel 分组直接和返回的元数据对齐。',
+        execution: '根据任务类型填写回调地址、脚本、命令和执行用户。',
+        preview: '保存前先检查即将生成的 Cron 表达式与下一次执行时间。',
+        runtime: '执行记录保留、重试、超时和告警次数在这里统一控制。'
+      },
+      form: {
+        name: '任务名称',
+        type: '任务类型',
+        groupId: '任务分组',
+        spec: '执行周期',
+        url: '访问地址',
+        executor: '执行器',
+        script: '脚本内容',
+        command: '命令内容',
+        user: '执行用户',
+        retainCopies: '执行记录保留份数',
+        retryTimes: '失败重试次数',
+        timeout: '超时时间',
+        ignoreErr: '忽略错误',
+        alertCount: '告警次数',
+        typeOptions: {
+          url: '访问 URL',
+          shell: 'Shell 脚本',
+          command: '命令执行'
+        }
+      },
+      schedule: {
+        description: '优先使用图形方式配置周期；只有特殊表达式时再切到自定义。',
+        custom: '自定义',
+        customPlaceholder: '例如：30 1 * * 1',
+        generated: '当前表达式：{value}',
+        labels: {
+          mode: '周期模式',
+          dayOfMonth: '每月日期',
+          weekday: '执行星期',
+          interval: '重复间隔',
+          every: '每',
+          hour: '执行小时',
+          minute: '执行分钟'
+        },
+        options: {
+          monthly: '每月',
+          weekly: '每周',
+          daily: '每天',
+          everySeconds: '每 N 秒',
+          everyHours: '每 N 小时',
+          everyDays: '每 N 天',
+          everyMinutes: '每 N 分钟'
+        },
+        weekdays: {
+          mon: '周一',
+          tue: '周二',
+          wed: '周三',
+          thu: '周四',
+          fri: '周五',
+          sat: '周六',
+          sun: '周日'
+        },
+        units: {
+          day: '日',
+          hour: '小时',
+          minute: '分钟',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: '任务名称不能为空',
+        customSpecRequired: '请输入自定义周期表达式',
+        urlRequired: '访问地址不能为空',
+        executorRequired: '执行器不能为空',
+        scriptRequired: '脚本内容不能为空',
+        commandRequired: '命令内容不能为空',
+        userRequired: '执行用户不能为空'
+      }
     },
     delete: {
       title: '确认删除任务',

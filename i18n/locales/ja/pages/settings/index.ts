@@ -2,21 +2,25 @@ export const settings = {
   title: '設定',
   connections: {
     title: 'サービス接続',
-    description: 'Rust API と 1Panel に接続するための設定をここでまとめて管理します。',
+    description: 'Rust API と 1Panel の入口をここでまとめて管理します。',
     apiBase: {
-      label: 'Rust API アドレス',
-      description: 'デスクトップシェルが Rust API に直接接続するときに使う基底 URL です。',
-      placeholder: 'https://api.example.com'
+      label: 'Rust API ドメイン',
+      description: 'デスクトップシェルが Rust API に直接接続するときに使う基底ドメインです。デフォルト値は http://localhost:8180/ です。',
+      placeholder: 'http://localhost:8180/'
     },
-    onepanelApiBase: {
-      label: '1Panel ベース URL',
-      description: '1Panel パネルの基底 URL です。デフォルトは https://one-panel.lofitick.com/ です。',
+    onepanelPanelBase: {
+      label: '1Panel ルート URL',
+      description: 'ここには 1Panel ホームのルート URL だけを入力します。下の各リンクはこの値から自動生成されます。',
       placeholder: 'https://one-panel.lofitick.com/'
     },
-    onepanelApiKey: {
-      label: '1Panel API Key',
-      description: 'cron 代理とトレンド cron 同期のために、サーバー側 Redis にのみ保存します。',
-      placeholder: '1Panel API Key を入力'
+    onepanelLinks: {
+      title: '1Panel ナビゲーション一覧',
+      description: 'この一覧はルート URL に合わせて即時更新されます。デスクトップ側では 1Panel の cron 管理画面をもう内蔵しません。',
+      currentBase: '現在の 1Panel ルート URL',
+      actions: {
+        openCronjobs: '計画タスクを開く',
+        openScriptLibrary: 'スクリプトライブラリを開く'
+      }
     }
   },
   general: {
@@ -329,6 +333,9 @@ export const settings = {
         lastSeenLabel: '最終ハートビート：',
         pending: 'ローカル実行時スナップショット待ち'
       },
+      card: {
+        activity: '最近のアクティビティ'
+      },
       states: {
         hotsearchEnabled: '稼働中',
         hotsearchDisabled: '停止中',
@@ -355,6 +362,28 @@ export const settings = {
       empty: {
         title: 'ローカルタスクは利用できません',
         description: '表示に使えるローカルバックグラウンドタスク情報をデスクトップシェルから取得できませんでした。'
+      }
+    },
+    serverShortcut: {
+      title: 'サーバータスク入口',
+      description: 'サーバータスクは 1Panel へ直接移動する方式に変更しました。このページには入口と注意事項だけを残します。',
+      heroTitle: '本物のサーバー cron は 1Panel で管理する',
+      heroDescription: 'デスクトップ側では 1Panel の cron 一覧をミラーしません。また、この画面で API Key を管理する必要もありません。1Panel のルート URL を 1 つ設定し、ここから計画タスクやスクリプトライブラリへ直接移動してください。',
+      actions: {
+        openCronjobs: '1Panel 計画タスクを開く',
+        openScriptLibrary: '1Panel スクリプトライブラリを開く',
+        openConnections: 'サービス接続を開く'
+      },
+      quickLinks: {
+        overview: '1Panel 概要を開く',
+        terminal: '1Panel ターミナルを開く',
+        logs: '1Panel 操作ログを開く'
+      },
+      reminders: {
+        title: '利用メモ',
+        one: 'このページは入口です。1Panel cron UI をそのままデスクトップに再現するページではありません。',
+        two: '1Panel のドメインが変わった場合は、「サービス接続」でルート URL を 1 回だけ更新してください。',
+        three: 'ローカルタスクは引き続きデスクトップシェルで実行され、サーバータスクは 1Panel 側で直接管理します。'
       }
     },
     system: {
@@ -415,12 +444,17 @@ export const settings = {
     },
     table: {
       name: 'ジョブ',
+      group: 'グループ',
       path: 'パス',
       method: 'メソッド',
       schedule: 'スケジュール',
+      retainCopies: '保持世代',
+      lastExecutedAt: '最終実行時刻',
       createdAt: '作成日時',
       status: '状態',
       actions: '操作',
+      enabled: '有効',
+      disabled: '無効',
       executing: '実行中'
     },
     records: {
@@ -451,12 +485,93 @@ export const settings = {
     operate: {
       createTitle: 'スケジュールタスクを作成',
       editTitle: 'スケジュールタスクを編集',
-      description: '現段階では 1Panel のネイティブ JSON 設定をそのまま透過し、まず完全な機能連携を優先します。',
-      payloadLabel: 'タスク JSON 設定',
+      description: 'よく使う項目をフォームで編集し、保存時に 1Panel の設定構造へ自動変換します。',
       previewNext: '次回実行をプレビュー',
       nextTimes: '次回の実行時刻',
       nextEmpty: 'まだプレビュー結果はありません',
-      save: '設定を保存'
+      save: '設定を保存',
+      sections: {
+        basic: '基本情報',
+        schedule: '実行周期',
+        execution: '実行内容',
+        preview: '実行プレビュー',
+        runtime: '実行ポリシー'
+      },
+      descriptions: {
+        basic: 'タスク名、タスク種別、1Panel グループを取得済みメタデータに合わせます。',
+        execution: 'タスク種別に応じて URL、スクリプト、コマンド、実行ユーザーを設定します。',
+        preview: '保存前に生成される Cron 式と次回実行時刻を確認します。',
+        runtime: '保持件数、再試行、タイムアウト、アラート回数をまとめて調整します。'
+      },
+      form: {
+        name: 'タスク名',
+        type: 'タスク種別',
+        groupId: 'タスクグループ',
+        spec: '実行周期',
+        url: 'アクセス先 URL',
+        executor: '実行器',
+        script: 'スクリプト内容',
+        command: 'コマンド内容',
+        user: '実行ユーザー',
+        retainCopies: '実行履歴の保持件数',
+        retryTimes: '再試行回数',
+        timeout: 'タイムアウト',
+        ignoreErr: 'エラーを無視',
+        alertCount: 'アラート回数',
+        typeOptions: {
+          url: 'URL アクセス',
+          shell: 'Shell スクリプト',
+          command: 'コマンド実行'
+        }
+      },
+      schedule: {
+        description: '通常の周期はフォームで設定し、特殊な式だけ自定义に切り替えます。',
+        custom: '自定義',
+        customPlaceholder: '例: 30 1 * * 1',
+        generated: '現在の式: {value}',
+        labels: {
+          mode: '周期モード',
+          dayOfMonth: '毎月の日付',
+          weekday: '曜日',
+          interval: '繰り返し間隔',
+          every: '毎',
+          hour: '実行時',
+          minute: '実行分'
+        },
+        options: {
+          monthly: '毎月',
+          weekly: '毎週',
+          daily: '毎日',
+          everySeconds: 'N 秒ごと',
+          everyHours: 'N 時間ごと',
+          everyDays: 'N 日ごと',
+          everyMinutes: 'N 分ごと'
+        },
+        weekdays: {
+          mon: '月',
+          tue: '火',
+          wed: '水',
+          thu: '木',
+          fri: '金',
+          sat: '土',
+          sun: '日'
+        },
+        units: {
+          day: '日',
+          hour: '時間',
+          minute: '分',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: 'タスク名は必須です',
+        customSpecRequired: 'カスタム周期式を入力してください',
+        urlRequired: 'アクセス先 URL は必須です',
+        executorRequired: '実行器は必須です',
+        scriptRequired: 'スクリプト内容は必須です',
+        commandRequired: 'コマンド内容は必須です',
+        userRequired: '実行ユーザーは必須です'
+      }
     },
     delete: {
       title: 'cron を削除',

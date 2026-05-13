@@ -368,10 +368,9 @@ const networkGroupsFingerprint = (groups: IPageSettingsUnattendedMachineNetworkG
 const computedLocalNetworkGroups = computed(() => networkSnapshotToGroups(stateLocalNetworkSnapshot.value));
 
 /**
- * 状态：请求地址（协议 + 主体）
+ * 状态：请求地址。
  */
-const stateRequestProtocol = ref<'http' | 'https'>('https');
-const stateRequestHost = ref('');
+const stateRequestUrl = ref('');
 
 /**
  * 状态：在线窗口（秒）
@@ -392,12 +391,17 @@ const ONLINE_WINDOW_SECONDS_MAX = 600;
  * 计算属性：请求完整 URL
  */
 const computedRequestUrl = computed(() => {
-  const proto = stateRequestProtocol.value;
-  const host = String(stateRequestHost.value || '').trim();
+  const raw = String(stateRequestUrl.value || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  const { protocol, host } = requestUrlSplit(raw);
   if (!host) {
     return '';
   }
-  return `${proto}://${host.replace(/^https?:\/\//, '')}`;
+
+  return `${protocol}://${host.replace(/^https?:\/\//, '')}`;
 });
 
 /**
@@ -711,20 +715,16 @@ onMounted(async () => {
   stateStartBehaviors.value = toUnattendedStartBehavior(unattendedStart.behaviors) || stateStartBehaviors.value;
   stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(unattendedSentinel.onlineWindowSeconds);
 
-  const url = String(unattendedSentinelRequest.url || '');
-  const { protocol, host } = requestUrlSplit(url);
-  stateRequestProtocol.value = protocol;
-  stateRequestHost.value = host;
+  const url = String(unattendedSentinelRequest.url || '').trim();
+  stateRequestUrl.value = url;
 
   let requestUrlFilled = false;
 
-  if (String(host || '').trim() === '') {
+  if (!computedRequestUrl.value) {
     await refreshSentinelRequestUrlDefaultGet();
     const nextUrl = String(stateSentinelRequestUrlDefault.value?.url || '').trim();
     if (nextUrl) {
-      const parsed = requestUrlSplit(nextUrl);
-      stateRequestProtocol.value = parsed.protocol;
-      stateRequestHost.value = parsed.host;
+      stateRequestUrl.value = nextUrl;
       requestUrlFilled = true;
     }
   }
@@ -1017,7 +1017,7 @@ const handleSentinelConfigChanged = (): void => {
 /**
  * 监听：页面任意配置项变化即写回设置
  */
-watch([stateStartBehaviors, stateRequestProtocol, stateRequestHost], () => {
+watch([stateStartBehaviors, stateRequestUrl], () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1050,7 +1050,7 @@ watch(stateOnlineWindowSeconds, (next) => {
 /**
  * 监听：请求地址变化时同步哨兵配置到 Redis
  */
-watch([stateRequestProtocol, stateRequestHost], () => {
+watch(stateRequestUrl, () => {
   if (!stateHydrated.value) {
     return;
   }
@@ -1083,9 +1083,7 @@ const handleSentinelSync = async () => {
     }
 
     const currentOnlineWindowSeconds = onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value);
-    const { protocol, host } = requestUrlSplit(remote.request?.url || '');
-    stateRequestProtocol.value = protocol;
-    stateRequestHost.value = host;
+    stateRequestUrl.value = String(remote.request?.url || '').trim();
     stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(remote.onlineWindowSeconds ?? currentOnlineWindowSeconds);
 
     refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));

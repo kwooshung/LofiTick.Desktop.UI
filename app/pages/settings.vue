@@ -32,6 +32,11 @@ const links = [
       exact: true
     },
     {
+      label: t('pages.settings.connections.title'),
+      icon: 'i-lucide:cable',
+      to: localePath('/settings/connections')
+    },
+    {
       label: t('pages.settings.ui.title'),
       icon: 'i-lucide:brush-cleaning',
       to: localePath('/settings/ui')
@@ -50,11 +55,6 @@ const links = [
       label: t('pages.settings.hotsearch.title'),
       icon: 'i-material-symbols:bigtop-updates-rounded',
       to: localePath('/settings/hotsearch')
-    },
-    {
-      label: t('pages.settings.connections.title'),
-      icon: 'i-lucide:cable',
-      to: localePath('/settings/connections')
     },
     {
       label: t('pages.settings.unattended.sections.ue5.title'),

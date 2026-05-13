@@ -2,21 +2,25 @@ export const settings = {
   title: '設定',
   connections: {
     title: '服務連線',
-    description: '集中管理桌面端連接 Rust API 與 1Panel 所需的接入設定。',
+    description: '集中管理桌面端連接 Rust API 與 1Panel 面板入口所需的設定。',
     apiBase: {
-      label: 'Rust API 位址',
-      description: '桌面殼直連 Rust API 時使用的基礎位址。',
-      placeholder: 'https://api.example.com'
+      label: 'Rust API 網域',
+      description: '桌面殼直連 Rust API 時使用的基礎網域，預設值為 http://localhost:8180/。',
+      placeholder: 'http://localhost:8180/'
     },
-    onepanelApiBase: {
-      label: '1Panel 基礎網域',
-      description: '1Panel 面板基礎網域，預設會使用 https://one-panel.lofitick.com/。',
+    onepanelPanelBase: {
+      label: '1Panel 根網址',
+      description: '這裡只填 1Panel 面板首頁根網址，下面所有跳轉位址都會依它自動推導。',
       placeholder: 'https://one-panel.lofitick.com/'
     },
-    onepanelApiKey: {
-      label: '1Panel API Key',
-      description: '只會儲存在伺服器 Redis，用於排程代理與熱搜 cron 同步。',
-      placeholder: '請輸入 1Panel API Key'
+    onepanelLinks: {
+      title: '1Panel 導航目錄',
+      description: '這份目錄會隨根網址即時變化，桌面端不再直接內嵌 1Panel 排程管理頁。',
+      currentBase: '目前的 1Panel 根網址',
+      actions: {
+        openCronjobs: '開啟排程任務',
+        openScriptLibrary: '開啟腳本庫'
+      }
     }
   },
   general: {
@@ -329,6 +333,9 @@ export const settings = {
         lastSeenLabel: '最後心跳：',
         pending: '等待本地執行時快照'
       },
+      card: {
+        activity: '最近活動'
+      },
       states: {
         hotsearchEnabled: '執行中',
         hotsearchDisabled: '已停用',
@@ -355,6 +362,28 @@ export const settings = {
       empty: {
         title: '本地任務暫不可用',
         description: '目前未讀取到桌面殼可展示的本地背景任務資訊。'
+      }
+    },
+    serverShortcut: {
+      title: '伺服器任務入口',
+      description: '伺服器任務改為直接跳到 1Panel，桌面端這裡只保留入口與提醒。',
+      heroTitle: '真正的伺服器排程請直接到 1Panel 管理',
+      heroDescription: '桌面端不再鏡像 1Panel 排程列表，也不再要求你在這裡維護 API Key。你只需要設定 1Panel 根網址，之後從這裡一鍵打開排程任務或腳本庫。',
+      actions: {
+        openCronjobs: '開啟 1Panel 排程任務',
+        openScriptLibrary: '開啟 1Panel 腳本庫',
+        openConnections: '前往服務連線'
+      },
+      quickLinks: {
+        overview: '開啟 1Panel 概覽',
+        terminal: '開啟 1Panel 終端',
+        logs: '開啟 1Panel 面板日誌'
+      },
+      reminders: {
+        title: '使用提醒',
+        one: '這裡現在是面板入口，不再承諾把 1Panel 排程頁一比一搬到桌面端。',
+        two: '如果你更換了 1Panel 網域，只需要到「服務連線」修改一次根網址。',
+        three: '本地任務仍由桌面殼執行，伺服器任務則直接交給 1Panel 管理。'
       }
     },
     system: {
@@ -415,12 +444,17 @@ export const settings = {
     },
     table: {
       name: '任務',
+      group: '分組',
       path: '路徑',
       method: '方法',
       schedule: '排程',
+      retainCopies: '保留份數',
+      lastExecutedAt: '上次執行時間',
       createdAt: '建立時間',
       status: '狀態',
       actions: '操作',
+      enabled: '啟用',
+      disabled: '停用',
       executing: '執行中'
     },
     records: {
@@ -451,12 +485,93 @@ export const settings = {
     operate: {
       createTitle: '建立計畫任務',
       editTitle: '編輯計畫任務',
-      description: '目前階段先直接透傳 1Panel 原生 JSON 設定，優先把完整能力鏈路打通。',
-      payloadLabel: '任務 JSON 設定',
+      description: '使用圖形表單編輯常用任務欄位，儲存時會自動映射成 1Panel 所需的設定結構。',
       previewNext: '預覽下一次執行',
       nextTimes: '下一次執行時間',
       nextEmpty: '尚未產生預覽結果',
-      save: '儲存設定'
+      save: '儲存設定',
+      sections: {
+        basic: '基本資訊',
+        schedule: '執行週期',
+        execution: '執行內容',
+        preview: '執行預覽',
+        runtime: '執行策略'
+      },
+      descriptions: {
+        basic: '任務名稱、任務類型與 1Panel 分組直接對齊回傳的中繼資料。',
+        execution: '依任務類型填寫回呼位址、腳本、命令與執行使用者。',
+        preview: '儲存前先檢查即將產生的 Cron 表達式與下一次執行時間。',
+        runtime: '執行記錄保留、重試、逾時與告警次數在這裡集中設定。'
+      },
+      form: {
+        name: '任務名稱',
+        type: '任務類型',
+        groupId: '任務分組',
+        spec: '執行週期',
+        url: '存取位址',
+        executor: '執行器',
+        script: '腳本內容',
+        command: '命令內容',
+        user: '執行使用者',
+        retainCopies: '執行記錄保留份數',
+        retryTimes: '失敗重試次數',
+        timeout: '逾時時間',
+        ignoreErr: '忽略錯誤',
+        alertCount: '告警次數',
+        typeOptions: {
+          url: '存取 URL',
+          shell: 'Shell 腳本',
+          command: '命令執行'
+        }
+      },
+      schedule: {
+        description: '一般週期優先用圖形方式設定，只有特殊表達式時再切換成自訂。',
+        custom: '自訂',
+        customPlaceholder: '例如：30 1 * * 1',
+        generated: '目前表達式：{value}',
+        labels: {
+          mode: '週期模式',
+          dayOfMonth: '每月日期',
+          weekday: '執行星期',
+          interval: '重複間隔',
+          every: '每',
+          hour: '執行小時',
+          minute: '執行分鐘'
+        },
+        options: {
+          monthly: '每月',
+          weekly: '每週',
+          daily: '每天',
+          everySeconds: '每 N 秒',
+          everyHours: '每 N 小時',
+          everyDays: '每 N 天',
+          everyMinutes: '每 N 分鐘'
+        },
+        weekdays: {
+          mon: '週一',
+          tue: '週二',
+          wed: '週三',
+          thu: '週四',
+          fri: '週五',
+          sat: '週六',
+          sun: '週日'
+        },
+        units: {
+          day: '日',
+          hour: '小時',
+          minute: '分鐘',
+          second: '秒'
+        }
+      },
+      validation: {
+        nameRequired: '任務名稱不能為空',
+        customSpecRequired: '請輸入自訂週期表達式',
+        urlRequired: '存取位址不能為空',
+        executorRequired: '執行器不能為空',
+        scriptRequired: '腳本內容不能為空',
+        commandRequired: '命令內容不能為空',
+        userRequired: '執行使用者不能為空'
+      }
     },
     delete: {
       title: '確認刪除任務',
