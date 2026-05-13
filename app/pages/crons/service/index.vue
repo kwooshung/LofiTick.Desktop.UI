@@ -57,15 +57,6 @@
               </button>
             </div>
           </div>
-
-          <div class="border-default/80 space-y-3 border-t pt-6">
-            <div class="text-highlighted text-sm font-semibold">{{ t('pages.settings.cron.serverShortcut.reminders.title') }}</div>
-            <ul class="text-muted space-y-3 text-sm leading-7">
-              <li>{{ t('pages.settings.cron.serverShortcut.reminders.one') }}</li>
-              <li>{{ t('pages.settings.cron.serverShortcut.reminders.two') }}</li>
-              <li>{{ t('pages.settings.cron.serverShortcut.reminders.three') }}</li>
-            </ul>
-          </div>
         </aside>
 
         <div class="min-w-0 space-y-6">

@@ -381,12 +381,6 @@
         overview: '打开 1Panel 概览',
         terminal: '打开 1Panel 终端',
         logs: '打开 1Panel 面板日志'
-      },
-      reminders: {
-        title: '使用提醒',
-        one: '这里显示的是面板入口，不再承诺与 1Panel 页面做一套一比一的桌面镜像。',
-        two: '如果你更换了 1Panel 域名，只需要去“服务连接”里改一次根域名。',
-        three: '本地任务和服务器任务职责已经拆开：本地任务继续由桌面壳执行，服务器任务直接交给 1Panel。'
       }
     },
     system: {
