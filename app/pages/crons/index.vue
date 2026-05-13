@@ -65,11 +65,6 @@ const { isTauriRuntime } = useTauriEnv();
 const { statusGet: sentinelStatusGet } = useTauriSentinel();
 
 /**
- * Hook：Tauri 任务。
- */
-const tauriTasks = useTauriTasks();
-
-/**
  * Hook：国际化。
  */
 const { t } = useI18n();
@@ -80,44 +75,9 @@ const { t } = useI18n();
 const localePath = useLocalePath();
 
 /**
- * 状态：本地任务计划快照。
- */
-const stateSchedule = ref<ITauriHotsearchScheduleSnapshot | null>(null);
-
-/**
  * 状态：本地哨兵状态。
  */
 const stateSentinelStatus = ref<ISentinelStatusPayload | null>(null);
-
-/**
- * 函数：格式化本地热搜窗口范围。
- *
- * @return {string} 返回窗口范围文本
- */
-const localHotsearchWindowRangeTextGet = (): string => {
-  const windows = stateSchedule.value?.windows ?? [];
-
-  if (windows.length === 0) {
-    return t('pages.settings.cron.local.schedule.pending');
-  }
-
-  return windows.map((window) => `${t(`pages.settings.cron.local.windowKeys.${window.key}`)} ${window.startAt}-${window.endAt}`).join(' / ');
-};
-
-/**
- * 函数：格式化建议播客时间。
- *
- * @return {string} 返回建议播客文本
- */
-const localHotsearchPodcastTextGet = (): string => {
-  const windows = stateSchedule.value?.windows ?? [];
-
-  if (windows.length === 0) {
-    return t('pages.settings.cron.local.schedule.pending');
-  }
-
-  return windows.map((window) => `${t(`pages.settings.cron.local.windowKeys.${window.key}`)} ${window.suggestedPodcastAt}`).join(' / ');
-};
 
 /**
  * 函数：获取哨兵状态文案。
@@ -176,21 +136,7 @@ const localSentinelStatusColorGet = (): IPageSettingsLocalCronRow['statusColor']
  * @return {string} 图标名称
  */
 const localTaskIconGet = (key: string): string => {
-  if (key === 'local-sentinel') {
-    return 'i-lucide:shield-check';
-  }
-
-  return 'i-lucide:podcast';
-};
-
-/**
- * 函数：获取启用状态文案。
- *
- * @param {boolean} enabled 是否启用
- * @return {string} 状态文案
- */
-const localEnabledLabelGet = (enabled: boolean): string => {
-  return enabled ? t('pages.settings.cron.table.enabled') : t('pages.settings.cron.table.disabled');
+  return key === 'local-sentinel' ? 'i-lucide:shield-check' : 'i-lucide:podcast';
 };
 
 /**
@@ -265,37 +211,10 @@ const computedLocalTasks = computed<IPageSettingsLocalCronRow[]>(() => {
     return [];
   }
 
-  const hotsearchEnabled = stateSchedule.value?.enabled ?? false;
-  const podcastEnabled = stateSchedule.value?.podcastEnabled ?? false;
-  const selectedPlatformCount = stateSchedule.value?.selectedPlatformCount ?? 0;
-  const monthlyBudget = stateSchedule.value?.monthlyBudget ?? 0;
   const enabledSceneCount = stateSentinelStatus.value?.attach.enabledSceneCount ?? 0;
   const recoveryState = stateSentinelStatus.value?.attach.recoveryState ?? t('common.labels.none');
 
   return [
-    {
-      key: 'local-hotsearch',
-      title: t('pages.settings.cron.local.items.hotsearch.title'),
-      description: t('pages.settings.cron.local.items.hotsearch.description'),
-      schedulePrimary: `${t('pages.settings.cron.local.schedule.windowsLabel')} ${localHotsearchWindowRangeTextGet()}`,
-      scheduleSecondary: `${t('pages.settings.cron.local.schedule.podcastLabel')} ${localHotsearchPodcastTextGet()}`,
-      statusLabel: hotsearchEnabled ? t('pages.settings.cron.local.states.hotsearchEnabled') : t('pages.settings.cron.local.states.hotsearchDisabled'),
-      statusColor: hotsearchEnabled ? 'success' : 'neutral',
-      badges: [
-        {
-          color: podcastEnabled ? 'success' : 'neutral',
-          label: t('pages.settings.cron.local.summary.podcastEnabled', { value: localEnabledLabelGet(podcastEnabled) })
-        },
-        {
-          color: 'neutral',
-          label: t('pages.settings.cron.local.summary.platformCount', { value: selectedPlatformCount })
-        },
-        {
-          color: 'primary',
-          label: t('pages.settings.cron.local.summary.monthlyBudget', { value: monthlyBudget })
-        }
-      ]
-    },
     {
       key: 'local-sentinel',
       title: t('pages.settings.cron.local.items.sentinel.title'),
@@ -424,9 +343,7 @@ const loadLocalTasks = async (): Promise<void> => {
     return;
   }
 
-  const [schedule, sentinelStatus] = await Promise.all([tauriTasks.hotsearchScheduleGet(), sentinelStatusGet()]);
-  stateSchedule.value = schedule;
-  stateSentinelStatus.value = sentinelStatus;
+  stateSentinelStatus.value = await sentinelStatusGet();
 };
 
 /**

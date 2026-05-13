@@ -6,10 +6,6 @@
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
-
-        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetDefaults">
-          {{ t('pages.settings.hotsearch.actions.reset') }}
-        </UButton>
       </template>
     </UPageCard>
 
@@ -51,7 +47,18 @@
       </UFormField>
     </UPageCard>
 
-    <UPageCard :title="t('pages.settings.hotsearch.sections.schedule.title')" :description="t('pages.settings.hotsearch.sections.schedule.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.schedule.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.schedule.description') }}</p>
+        </div>
+
+        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
+          {{ t('pages.settings.hotsearch.actions.reset') }}
+        </UButton>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField
@@ -86,18 +93,25 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.platformIntervalSeconds"
-          orientation="vertical"
-          :min="1"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handlePlatformIntervalSecondsUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchPlatformIntervalSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.platformIntervalSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchPlatformIntervalSeconds"
+              :model-value="stateHotsearchConfig.platformIntervalSeconds"
+              orientation="vertical"
+              :min="1"
+              :step="1"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handlePlatformIntervalSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchPlatformIntervalSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.platformIntervalSeconds.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
@@ -106,38 +120,52 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.scheduleJitterSeconds"
-          orientation="vertical"
-          :min="0"
-          :step="60"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handleScheduleJitterSecondsUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchScheduleJitterSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.scheduleJitterSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchScheduleJitterSeconds"
+              :model-value="stateHotsearchConfig.scheduleJitterSeconds"
+              orientation="vertical"
+              :min="0"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleScheduleJitterSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchScheduleJitterSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.scheduleJitterSeconds.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.podcastBufferMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.podcastBufferMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.podcastBufferSeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.podcastBufferSeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.podcastBufferMinutes"
-          orientation="vertical"
-          :min="0"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handlePodcastBufferMinutesUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchPodcastBufferSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.podcastBufferSeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchPodcastBufferSeconds"
+              :model-value="stateHotsearchConfig.podcastBufferSeconds"
+              orientation="vertical"
+              :min="0"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handlePodcastBufferSecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchPodcastBufferSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.podcastBufferSeconds.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
@@ -146,38 +174,52 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.retryMaxAttempts"
-          orientation="vertical"
-          :min="0"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handleRetryMaxAttemptsUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchRetryMaxAttempts" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryMaxAttempts.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchRetryMaxAttempts"
+              :model-value="stateHotsearchConfig.retryMaxAttempts"
+              orientation="vertical"
+              :min="0"
+              :step="1"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleRetryMaxAttemptsUpdate"
+            />
+          </div>
+          <label for="hotsearchRetryMaxAttempts" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryMaxAttempts.input.unit') }}</label>
+        </div>
       </UFormField>
 
       <UFormField
-        :label="t('pages.settings.hotsearch.fields.retryDelayMinutes.label')"
-        :description="t('pages.settings.hotsearch.fields.retryDelayMinutes.description')"
+        :label="t('pages.settings.hotsearch.fields.retryDelaySeconds.label')"
+        :description="t('pages.settings.hotsearch.fields.retryDelaySeconds.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputNumber
-          :model-value="stateHotsearchConfig.retryDelayMinutes"
-          orientation="vertical"
-          :min="1"
-          :step="1"
-          color="primary"
-          variant="outline"
-          class="w-36"
-          :increment="{ color: 'neutral', variant: 'ghost' }"
-          :decrement="{ color: 'neutral', variant: 'ghost' }"
-          @update:model-value="handleRetryDelayMinutesUpdate"
-        />
+        <div class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
+          <label for="hotsearchRetryDelaySeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-l-sm border border-r-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryDelaySeconds.input.prefix') }}</label>
+          <div class="border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300">
+            <UInputNumber
+              id="hotsearchRetryDelaySeconds"
+              :model-value="stateHotsearchConfig.retryDelaySeconds"
+              orientation="vertical"
+              :min="1"
+              :step="60"
+              color="primary"
+              variant="none"
+              class="h-8 w-full"
+              :increment="{ color: 'neutral', variant: 'soft' }"
+              :decrement="{ color: 'neutral', variant: 'soft' }"
+              @update:model-value="handleRetryDelaySecondsUpdate"
+            />
+          </div>
+          <label for="hotsearchRetryDelaySeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.hotsearch.fields.retryDelaySeconds.input.unit') }}</label>
+        </div>
       </UFormField>
     </UPageCard>
 
@@ -818,10 +860,10 @@ const handleScheduleJitterSecondsUpdate = (value: number | undefined): void => {
  * 函数：更新播客缓冲时间
  * @param {number | undefined} value 最新值
  */
-const handlePodcastBufferMinutesUpdate = (value: number | undefined): void => {
+const handlePodcastBufferSecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastBufferMinutes: value
+    podcastBufferSeconds: value
   });
   requestPersistHotsearchSettings();
 };
@@ -842,10 +884,10 @@ const handleRetryMaxAttemptsUpdate = (value: number | undefined): void => {
  * 函数：更新重试间隔
  * @param {number | undefined} value 最新值
  */
-const handleRetryDelayMinutesUpdate = (value: number | undefined): void => {
+const handleRetryDelaySecondsUpdate = (value: number | undefined): void => {
   stateHotsearchConfig.value = hotsearchSettingsNormalize({
     ...stateHotsearchConfig.value,
-    retryDelayMinutes: value
+    retryDelaySeconds: value
   });
   requestPersistHotsearchSettings();
 };
@@ -878,10 +920,21 @@ const handlePlatformsToggleAll = (enabled: boolean): void => {
 };
 
 /**
- * 函数：恢复默认设置
+ * 函数：恢复抓取计划默认设置
  */
-const handleResetDefaults = (): void => {
-  stateHotsearchConfig.value = hotsearchSettingsDefaultCreate();
+const handleResetScheduleDefaults = (): void => {
+  const defaults = hotsearchSettingsDefaultCreate();
+
+  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    morningStartAt: defaults.morningStartAt,
+    eveningStartAt: defaults.eveningStartAt,
+    platformIntervalSeconds: defaults.platformIntervalSeconds,
+    scheduleJitterSeconds: defaults.scheduleJitterSeconds,
+    podcastBufferSeconds: defaults.podcastBufferSeconds,
+    retryMaxAttempts: defaults.retryMaxAttempts,
+    retryDelaySeconds: defaults.retryDelaySeconds
+  });
   requestPersistHotsearchSettings();
 };
 

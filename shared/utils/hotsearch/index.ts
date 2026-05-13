@@ -53,10 +53,10 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   morningStartAt: '06:00',
   eveningStartAt: '18:00',
   platformIntervalSeconds: 360,
-  scheduleJitterSeconds: 0,
-  podcastBufferMinutes: 20,
+  scheduleJitterSeconds: 1800,
+  podcastBufferSeconds: 1200,
   retryMaxAttempts: 1,
-  retryDelayMinutes: 10
+  retryDelaySeconds: 600
 });
 
 /**
@@ -124,6 +124,8 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
   const defaults = hotsearchSettingsDefaultCreate();
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
   const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
+  const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
+  const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
 
   return {
     enabled: Boolean(source.enabled),
@@ -134,9 +136,9 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
     eveningStartAt: hotsearchTimeNormalize(source.eveningStartAt, defaults.eveningStartAt),
     platformIntervalSeconds: hotsearchIntegerNormalize(source.platformIntervalSeconds, legacyPlatformIntervalMinutes * 60, 1, 7200),
     scheduleJitterSeconds: hotsearchIntegerNormalize(source.scheduleJitterSeconds, defaults.scheduleJitterSeconds, 0, 43200),
-    podcastBufferMinutes: hotsearchIntegerNormalize(source.podcastBufferMinutes, defaults.podcastBufferMinutes, 0, 240),
+    podcastBufferSeconds: hotsearchIntegerNormalize(source.podcastBufferSeconds, legacyPodcastBufferMinutes * 60, 0, 14400),
     retryMaxAttempts: hotsearchIntegerNormalize(source.retryMaxAttempts, defaults.retryMaxAttempts, 0, 10),
-    retryDelayMinutes: hotsearchIntegerNormalize(source.retryDelayMinutes, defaults.retryDelayMinutes, 1, 240)
+    retryDelaySeconds: hotsearchIntegerNormalize(source.retryDelaySeconds, legacyRetryDelayMinutes * 60, 1, 14400)
   };
 };
 
@@ -208,7 +210,7 @@ export const hotsearchTimeAddMinutes = (time: string, minutes: number): string =
  */
 export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, startAt: string): string => {
   const durationSeconds = hotsearchWindowDurationSecondsGet(settings.platformIds.length, settings.platformIntervalSeconds);
-  return hotsearchTimeAddSeconds(startAt, durationSeconds + settings.podcastBufferMinutes * 60);
+  return hotsearchTimeAddSeconds(startAt, durationSeconds + settings.podcastBufferSeconds);
 };
 
 /**

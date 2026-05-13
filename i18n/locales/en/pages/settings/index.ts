@@ -179,11 +179,11 @@ export const settings = {
   },
   hotsearch: {
     title: 'Hot Search',
-    description: 'Configure local trending windows, selected platforms, budget, and podcast buffer time.',
+    description: 'Configure local fetch cadence, selected platforms, budget, and podcast generation timing.',
     sections: {
       schedule: {
         title: 'Fetch schedule',
-        description: 'Configure the source window times, platform interval, and retry policy here.'
+        description: 'Configure the podcast timing baseline, platform interval, jitter, and retry policy here.'
       },
       platforms: {
         title: 'Platforms',
@@ -209,31 +209,51 @@ export const settings = {
       },
       morningStartAt: {
         label: 'Morning hot search start',
-        description: 'This is the source time for the morning window. Derived times follow it automatically.'
+        description: 'Used to derive the suggested morning podcast generation time. It does not affect fetch cadence.'
       },
       eveningStartAt: {
         label: 'Evening hot search start',
-        description: 'This is the source time for the evening window. Derived times follow it automatically.'
+        description: 'Used to derive the suggested evening podcast generation time. It does not affect fetch cadence.'
       },
       platformIntervalSeconds: {
         label: 'Per-platform interval',
-        description: 'Delay between platform triggers, in seconds. For example, 360 seconds is about 6 minutes.'
+        description: 'Delay between platform triggers, in seconds. For example, 360 seconds is about 6 minutes.',
+        input: {
+          prefix: 'Every',
+          unit: 'sec'
+        }
       },
       scheduleJitterSeconds: {
         label: 'Start time jitter',
-        description: 'Apply a symmetric random offset around the morning and evening base times. For example, 1800 means plus or minus 30 minutes.'
+        description: 'Apply a symmetric random offset to planned times. The default 1800 means plus or minus 30 minutes.',
+        input: {
+          prefix: 'Offset',
+          unit: 'sec'
+        }
       },
-      podcastBufferMinutes: {
+      podcastBufferSeconds: {
         label: 'Podcast buffer',
-        description: 'Extra wait time after the window finishes, in minutes.'
+        description: 'Extra wait time reserved after fetching finishes for organizing, polishing, and generating the podcast, in seconds. It only affects podcast timing, not fetch cadence.',
+        input: {
+          prefix: 'Buffer',
+          unit: 'sec'
+        }
       },
       retryMaxAttempts: {
         label: 'Retry attempts',
-        description: 'Maximum automatic retries for one failed platform.'
+        description: 'Maximum automatic retries for one failed platform.',
+        input: {
+          prefix: 'Count',
+          unit: 'times'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: 'Retry delay',
-        description: 'Wait time before retrying a failed platform, in minutes.'
+        description: 'Wait time before retrying a failed platform, in seconds.',
+        input: {
+          prefix: 'Delay',
+          unit: 'sec'
+        }
       }
     },
     summary: {

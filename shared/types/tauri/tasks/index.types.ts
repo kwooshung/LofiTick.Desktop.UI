@@ -93,9 +93,9 @@ export interface ITauriHotsearchScheduleSnapshot {
   scheduleJitterSeconds: number;
 
   /**
-   * 播客缓冲时间（分钟）
+   * 播客缓冲时间（秒）
    */
-  podcastBufferMinutes: number;
+  podcastBufferSeconds: number;
 
   /**
    * 最大重试次数
@@ -103,9 +103,9 @@ export interface ITauriHotsearchScheduleSnapshot {
   retryMaxAttempts: number;
 
   /**
-   * 重试间隔（分钟）
+   * 重试间隔（秒）
    */
-  retryDelayMinutes: number;
+  retryDelaySeconds: number;
 
   /**
    * 早晚窗口计划

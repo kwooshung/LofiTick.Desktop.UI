@@ -68,9 +68,9 @@ export interface ISettingsHotsearch {
   scheduleJitterSeconds: number;
 
   /**
-   * 播客生成缓冲时长（单位：分钟）。
+   * 播客生成缓冲时长（单位：秒）。
    */
-  podcastBufferMinutes: number;
+  podcastBufferSeconds: number;
 
   /**
    * 失败后的最大重试次数。
@@ -78,7 +78,7 @@ export interface ISettingsHotsearch {
   retryMaxAttempts: number;
 
   /**
-   * 重试间隔（单位：分钟）。
+   * 重试间隔（单位：秒）。
    */
-  retryDelayMinutes: number;
+  retryDelaySeconds: number;
 }

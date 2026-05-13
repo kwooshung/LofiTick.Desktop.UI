@@ -179,11 +179,11 @@ export const settings = {
   },
   hotsearch: {
     title: '熱搜設定',
-    description: '設定本機熱搜抓取視窗、平台選擇、預算與 Podcast 緩衝時間。',
+    description: '設定本機熱搜抓取頻率、平台選擇、預算與 Podcast 生成時間。',
     sections: {
       schedule: {
         title: '抓取計畫',
-        description: '這裡設定熱搜視窗的來源時間、平台執行間隔與失敗補抓策略。'
+        description: '這裡設定 Podcast 時間基準、平台抓取間隔、隨機偏移與失敗補抓策略。'
       },
       platforms: {
         title: '平台選擇',
@@ -209,31 +209,51 @@ export const settings = {
       },
       morningStartAt: {
         label: '早間熱搜開始時間',
-        description: '這是早間視窗的來源時間，其餘推導時間都會跟著變化。'
+        description: '用來推導早間熱搜 Podcast 的建議生成時間，不影響熱搜抓取頻率。'
       },
       eveningStartAt: {
         label: '晚間熱搜開始時間',
-        description: '這是晚間視窗的來源時間，其餘推導時間都會跟著變化。'
+        description: '用來推導晚間熱搜 Podcast 的建議生成時間，不影響熱搜抓取頻率。'
       },
       platformIntervalSeconds: {
         label: '單一平台抓取間隔',
-        description: '每個平台觸發之間的等待時間，單位為秒。例如 360 秒約等於 6 分鐘。'
+        description: '每個平台觸發之間的等待時間，單位為秒。例如 360 秒約等於 6 分鐘。',
+        input: {
+          prefix: '間隔',
+          unit: '秒'
+        }
       },
       scheduleJitterSeconds: {
         label: '開始時間隨機偏移',
-        description: '以早晚基準時間為中心做正負隨機秒數偏移。例如 1800 代表正負 30 分鐘。'
+        description: '對計畫時間做正負隨機秒數偏移，預設 1800 代表正負 30 分鐘。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      podcastBufferSeconds: {
         label: 'Podcast 緩衝時長',
-        description: '熱搜視窗結束後額外保留的緩衝時間，單位為分鐘。'
+        description: '在抓取階段完成後，再額外保留給整理、潤飾與生成 Podcast 的等待時間，單位為秒。它只影響 Podcast 建議時間，不影響熱搜抓取頻率。',
+        input: {
+          prefix: '緩衝',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '失敗重試次數',
-        description: '單一平台抓取失敗後允許自動補抓的最大次數。'
+        description: '單一平台抓取失敗後允許自動補抓的最大次數。',
+        input: {
+          prefix: '計數',
+          unit: '次數'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '重試間隔',
-        description: '失敗後再次嘗試抓取的等待時間，單位為分鐘。'
+        description: '失敗後再次嘗試抓取的等待時間，單位為秒。',
+        input: {
+          prefix: '延時',
+          unit: '秒'
+        }
       }
     },
     summary: {

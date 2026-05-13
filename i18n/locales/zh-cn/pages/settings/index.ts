@@ -179,11 +179,11 @@
   },
   hotsearch: {
     title: '热搜设置',
-    description: '配置本机热搜抓取窗口、平台选择、预算与播客缓冲时间。',
+    description: '配置本机热搜抓取频次、平台选择、预算与播客生成时间。',
     sections: {
       schedule: {
         title: '抓取计划',
-        description: '这里配置热搜窗口的源时间、平台执行间隔和失败补抓策略。'
+        description: '这里配置播客时间基准、平台抓取间隔、随机偏移与失败补抓策略。'
       },
       platforms: {
         title: '平台选择',
@@ -209,31 +209,51 @@
       },
       morningStartAt: {
         label: '早间热搜开始时间',
-        description: '这是早间窗口的源时间，其他推导时间都会跟随变化。'
+        description: '用于推导早间热搜播客的建议生成时间，不影响热搜抓取频次。'
       },
       eveningStartAt: {
         label: '晚间热搜开始时间',
-        description: '这是晚间窗口的源时间，其他推导时间都会跟随变化。'
+        description: '用于推导晚间热搜播客的建议生成时间，不影响热搜抓取频次。'
       },
       platformIntervalSeconds: {
         label: '单个平台抓取间隔',
-        description: '每个平台触发之间的等待时间，单位为秒。比如 360 秒约等于 6 分钟。'
+        description: '每个平台触发之间的等待时间，单位为秒。比如 360 秒约等于 6 分钟。',
+        input: {
+          prefix: '间隔',
+          unit: '秒'
+        }
       },
       scheduleJitterSeconds: {
         label: '开始时间随机偏移',
-        description: '以早晚基准时间为中心做正负随机秒数偏移。比如 1800 表示正负 30 分钟。'
+        description: '对计划时间做正负随机秒数偏移，默认 1800 表示正负 30 分钟。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      podcastBufferSeconds: {
         label: '播客缓冲时长',
-        description: '热搜窗口结束后额外预留的缓冲时间，单位为分钟。'
+        description: '在抓取阶段完成后，再额外预留给整理、润色和生成播客的等待时间，单位为秒。它只影响播客建议时间，不影响热搜抓取频次。',
+        input: {
+          prefix: '缓冲',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '失败重试次数',
-        description: '单个平台抓取失败后允许自动补抓的最大次数。'
+        description: '单个平台抓取失败后允许自动补抓的最大次数。',
+        input: {
+          prefix: '计数',
+          unit: '次数'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '重试间隔',
-        description: '失败后再次尝试抓取的等待时间，单位为分钟。'
+        description: '失败后再次尝试抓取的等待时间，单位为秒。',
+        input: {
+          prefix: '延时',
+          unit: '秒'
+        }
       }
     },
     summary: {

@@ -179,11 +179,11 @@ export const settings = {
   },
   hotsearch: {
     title: 'トレンド設定',
-    description: 'この端末で使うトレンド取得ウィンドウ、対象プラットフォーム、予算、Podcast 生成の余裕時間を設定します。',
+    description: 'この端末で使う取得頻度、対象プラットフォーム、予算、Podcast 生成時刻を設定します。',
     sections: {
       schedule: {
         title: '取得スケジュール',
-        description: '取得ウィンドウの基準時刻、プラットフォーム間隔、再試行方針をここで設定します。'
+        description: 'Podcast 時刻の基準、プラットフォーム間隔、ランダム幅、再試行方針をここで設定します。'
       },
       platforms: {
         title: 'プラットフォーム',
@@ -209,31 +209,51 @@ export const settings = {
       },
       morningStartAt: {
         label: '朝の取得開始時刻',
-        description: '朝ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+        description: '朝の Podcast 推奨生成時刻を計算するための基準です。取得頻度には影響しません。'
       },
       eveningStartAt: {
         label: '夜の取得開始時刻',
-        description: '夜ウィンドウの基準時刻です。派生時刻はこの値に追従します。'
+        description: '夜の Podcast 推奨生成時刻を計算するための基準です。取得頻度には影響しません。'
       },
       platformIntervalSeconds: {
         label: 'プラットフォーム間隔',
-        description: '各プラットフォームを発火する間の待機時間です。単位は秒です。たとえば 360 秒は約 6 分です。'
+        description: '各プラットフォームを発火する間の待機時間です。単位は秒です。たとえば 360 秒は約 6 分です。',
+        input: {
+          prefix: '間隔',
+          unit: '秒'
+        }
       },
       scheduleJitterSeconds: {
         label: '開始時刻のランダム幅',
-        description: '朝と夜の基準時刻を中心に、前後へランダム秒数を加えます。たとえば 1800 なら前後 30 分です。'
+        description: '計画時刻に前後のランダム秒数を加えます。初期値の 1800 は前後 30 分を意味します。',
+        input: {
+          prefix: '偏移',
+          unit: '秒'
+        }
       },
-      podcastBufferMinutes: {
+      podcastBufferSeconds: {
         label: 'Podcast バッファ',
-        description: 'トレンド取得完了後に追加で待つ時間（分）です。'
+        description: '取得完了後に、整理・仕上げ・Podcast 生成のために追加で確保する待機時間（秒）です。Podcast 時刻だけに影響し、取得頻度には影響しません。',
+        input: {
+          prefix: '緩衝',
+          unit: '秒'
+        }
       },
       retryMaxAttempts: {
         label: '再試行回数',
-        description: '1 プラットフォームが失敗した場合に許可する自動再試行の最大回数です。'
+        description: '1 プラットフォームが失敗した場合に許可する自動再試行の最大回数です。',
+        input: {
+          prefix: '回数',
+          unit: '回'
+        }
       },
-      retryDelayMinutes: {
+      retryDelaySeconds: {
         label: '再試行間隔',
-        description: '失敗後に再試行するまでの待機時間（分）です。'
+        description: '失敗後に再試行するまでの待機時間（秒）です。',
+        input: {
+          prefix: '遅延',
+          unit: '秒'
+        }
       }
     },
     summary: {
