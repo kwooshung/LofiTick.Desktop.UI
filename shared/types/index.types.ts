@@ -2,6 +2,25 @@ export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.typ
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
 export type { IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload } from '@@/shared/types/pages/home/index.types';
 export type {
+  IHotsearchArchiveDateSummary,
+  IHotsearchDataRow,
+  IHotsearchMediaPlatformOption,
+  IHotsearchPodcastMediaAsset,
+  IHotsearchPodcastMediaSource,
+  IHotsearchPodcastSentence,
+  IHotsearchPodcastViewModel,
+  IQueryResultHotSearchCronAllResponse,
+  IQueryResultHotSearchCronPlatformResponse,
+  IQueryResultHotSearchDateRecountRequest,
+  IQueryResultHotSearchDateRecountResponse,
+  IQueryResultHotSearchStoredRow,
+  IQueryResultHotSearchUpdateRequest,
+  IQueryResultHotSearchUpdateResponse,
+  THotsearchMediaPlatformKey,
+  THotsearchPodcastVariantKey,
+  THotsearchSectionKey
+} from '@@/shared/types/pages/hotsearch/index.types';
+export type {
   IPagePoetrysDetailInfo,
   IPageTableColumnPoetryAuthors,
   IPageTableColumnPoetryDynasties,
@@ -23,6 +42,7 @@ export type {
   IQueryResultPoetrysSummaryRow,
   TPoetryKind
 } from '@@/shared/types/pages/poetrys/index.types';
+export type { IPageQqGroupForm, IPageQqGroupsProps, IPageTableColumnQqGroup, IQueryResultQqGroupsSummaryPage, IQueryResultQqGroupsSummaryRow, IQueryResultSocialQqGroupSummaryPage } from '@@/shared/types/pages/qq-groups/index.types';
 export type {
   IPageTableColumnQuoteAuthors,
   IPageTableColumnQuotes,
@@ -45,7 +65,8 @@ export type {
   IQueryResultQuotesSummaryRow,
   TQueryResultQuotesSearchUuidResponse
 } from '@@/shared/types/pages/quotes/index.types';
-export type { IPageQqGroupForm, IPageQqGroupsProps, IPageTableColumnQqGroup, IQueryResultQqGroupsSummaryPage, IQueryResultQqGroupsSummaryRow, IQueryResultSocialQqGroupSummaryPage } from '@@/shared/types/pages/qq-groups/index.types';
+export type { IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
+export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
 export type {
   IPageSettingsUnattendedMachineCardInfo,
   IPageSettingsUnattendedMachineNetworkGroup,
@@ -70,9 +91,7 @@ export type {
   TPageSettingsUnattendedMachineNetwork,
   TUnattendedStartBehavior
 } from '@@/shared/types/pages/settings/unattended/index.types';
-export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
-export type { IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
-export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

@@ -116,3 +116,197 @@ export interface IQueryResultHotSearchDateRecountResponse {
   /** 该日期的热搜条数 */
   count: number;
 }
+
+/**
+ * 类型：热搜页面主分区。
+ */
+export type THotsearchSectionKey = 'data' | 'podcast' | 'music';
+
+/**
+ * 类型：热搜播客页面变体。
+ */
+export type THotsearchPodcastVariantKey = 'morning-short' | 'morning-long' | 'evening-short' | 'evening-long';
+
+/**
+ * 类型：热搜自媒体平台键。
+ */
+export type THotsearchMediaPlatformKey = 'general' | 'bilibili' | 'toutiao' | 'ixigua' | 'douyin' | 'xiaohongshu' | 'kuaishou' | 'weibo' | 'shengbo' | 'youtube' | 'ximalaya' | 'qingtingfm' | 'wangyi-podcast' | 'pipixia' | 'pipigaoxiao';
+
+/**
+ * 接口：热搜日期归档摘要。
+ */
+export interface IHotsearchArchiveDateSummary {
+  /** 日期（YYYY-MM-DD） */
+  date: string;
+
+  /** 当天总条数 */
+  totalCount: number;
+
+  /** 当天新增条数 */
+  newCount: number;
+
+  /** 当天已生成播客条数 */
+  podcastCount: number;
+
+  /** 当天涉及平台数 */
+  platformCount: number;
+
+  /** 是否已有完整媒体产物 */
+  mediaReady: boolean;
+
+  /** 最近更新时间文本 */
+  updatedAt: string;
+}
+
+/**
+ * 接口：热搜数据表格行。
+ */
+export interface IHotsearchDataRow {
+  /** 主键 ID */
+  id: number;
+
+  /** 日期（YYYY-MM-DD） */
+  date: string;
+
+  /** 排名 */
+  rank: number;
+
+  /** 标题 */
+  title: string;
+
+  /** 摘要 */
+  summary: string;
+
+  /** 链接 */
+  url: string;
+
+  /** 分类 i18n key */
+  categoryKey: string;
+
+  /** 平台 ID */
+  platform: number;
+
+  /** 平台类型 */
+  platformType: THotsearchPlatformType;
+
+  /** 热度 */
+  popularity: number;
+
+  /** 是否已生成播客 */
+  isPodcast: boolean;
+
+  /** 是否为新增 */
+  isNew: boolean;
+
+  /** 入库时间文本 */
+  publishedAt: string;
+}
+
+/**
+ * 接口：热搜播客单句脚本。
+ */
+export interface IHotsearchPodcastSentence {
+  /** 句子 ID */
+  id: string;
+
+  /** 播报者姓名 */
+  speakerName: string;
+
+  /** 文案内容 */
+  text: string;
+
+  /** 音频时长文本 */
+  durationLabel: string;
+
+  /** 音频地址 */
+  audioUrl: string;
+
+  /** 波形路径 */
+  waveformPath: string;
+}
+
+/**
+ * 接口：热搜完整媒体源。
+ */
+export interface IHotsearchPodcastMediaSource {
+  /** 媒体地址 */
+  src: string;
+
+  /** MIME 类型 */
+  type?: string;
+
+  /** 清晰度或尺寸 */
+  size?: number;
+}
+
+/**
+ * 接口：热搜完整媒体资产。
+ */
+export interface IHotsearchPodcastMediaAsset {
+  /** 资产 ID */
+  id: string;
+
+  /** 标题 */
+  title: string;
+
+  /** 描述 */
+  description: string;
+
+  /** 媒体类型 */
+  kind: 'audio' | 'video';
+
+  /** 封面图 */
+  poster?: string;
+
+  /** 波形路径（仅音频） */
+  waveformPath?: string;
+
+  /** 媒体源列表 */
+  sources: IHotsearchPodcastMediaSource[];
+}
+
+/**
+ * 接口：热搜自媒体平台选项。
+ */
+export interface IHotsearchMediaPlatformOption {
+  /** 平台键 */
+  key: THotsearchMediaPlatformKey;
+
+  /** 平台名称 i18n key */
+  labelKey: string;
+
+  /** 平台类别 */
+  category: 'general' | 'video' | 'audio' | 'community';
+
+  /** 是否禁用 */
+  disabled?: boolean;
+}
+
+/**
+ * 接口：热搜播客页面视图模型。
+ */
+export interface IHotsearchPodcastViewModel {
+  /** 日期 */
+  date: string;
+
+  /** 当前播客变体 */
+  variant: THotsearchPodcastVariantKey;
+
+  /** 标题 */
+  title: string;
+
+  /** 描述 */
+  description: string;
+
+  /** 当前选中平台 */
+  selectedPlatformKey: THotsearchMediaPlatformKey;
+
+  /** 可选平台列表 */
+  availablePlatforms: IHotsearchMediaPlatformOption[];
+
+  /** 句子列表 */
+  sentences: IHotsearchPodcastSentence[];
+
+  /** 完整媒体资产 */
+  assets: IHotsearchPodcastMediaAsset[];
+}
