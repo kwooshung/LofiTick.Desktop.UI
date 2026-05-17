@@ -180,6 +180,9 @@
   hotsearch: {
     title: '热搜设置',
     description: '配置本机热搜抓取频次、平台选择、预算与播客生成时间。',
+    header: {
+      enter: '前往热搜'
+    },
     sections: {
       schedule: {
         title: '抓取计划',

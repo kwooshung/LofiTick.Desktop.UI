@@ -21,68 +21,85 @@
 
     <template v-else>
       <UPageCard variant="outline">
-        <div class="space-y-4">
-          <div class="space-y-4">
-            <section class="space-y-5">
-              <div class="space-y-2">
-                <div
-                  v-for="(item, index) in computedPodcastView.sentences"
-                  :key="item.id"
-                  class="group grid gap-3 rounded-xl px-3 py-4 transition-all duration-200 md:grid-cols-[auto_fit-content(100%)_auto] md:items-start md:px-4"
-                  :class="item.id === stateCurrentSentenceId ? 'hover:bg-muted/40' : 'hover:bg-muted/40'"
-                >
-                  <div class="flex items-center gap-3 md:items-start">
-                    <div class="flex flex-col items-center">
-                      <div class="flex size-8 items-center justify-center rounded-full border text-xs font-semibold transition-colors duration-200" :class="item.id === stateCurrentSentenceId ? 'border-primary bg-primary/8 text-primary' : 'border-default text-toned'">
-                        {{ index + 1 }}
-                      </div>
-                    </div>
+        <div class="border-default/70 bg-default/95 overflow-hidden border">
+          <section class="border-default/70 bg-muted/30 border-b backdrop-blur-sm">
+            <div class="grid items-center gap-3 px-4 py-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-5">
+              <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
+                <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
+                <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />
+                <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-forward" :disabled="!computedHasNextSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handleNextSentence" />
+              </div>
 
-                    <div class="min-w-0 pt-0.5">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-highlighted text-sm font-semibold">{{ item.speakerName }}</span>
-                        <span class="text-muted text-xs">{{ item.durationLabel }}</span>
-                      </div>
+              <div class="border-default/70 bg-default/65 min-w-0 rounded-lg border px-3 py-2.5">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="text-highlighted truncate text-sm font-medium">
+                      {{ computedHeaderPrimaryLabel }}
                     </div>
+                    <p class="text-muted mt-1 line-clamp-1 text-sm leading-6">
+                      {{ computedHeaderSecondaryLabel }}
+                    </p>
                   </div>
 
-                  <div class="min-w-0 space-y-3 pt-0.5">
-                    <div v-if="item.id === stateCurrentSentenceId" class="bg-primary/6 ring-primary/15 inline-block w-fit max-w-full rounded-lg px-3 py-2 ring-1">
-                      <p class="text-highlighted leading-7 font-medium wrap-break-word">{{ item.text }}</p>
-                    </div>
-                    <p v-else class="text-toned inline-block max-w-full leading-7 transition-colors duration-200">{{ item.text }}</p>
-
-                    <div class="w-fit max-w-full pb-1">
-                      <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedAudioDuration" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
-                    </div>
-                  </div>
-
-                  <div class="flex shrink-0 items-center justify-end md:pt-1">
-                    <UButton color="primary" :variant="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'solid' : 'soft'" :icon="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'i-lucide:pause' : 'i-lucide:play'" @click="handleSentenceToggle(item.id)" />
+                  <div class="border-default/60 text-toned shrink-0 border-l pl-3 text-right text-xs tabular-nums">
+                    {{ computedHeaderCurrentSentenceProgressLabel }}
                   </div>
                 </div>
               </div>
 
-              <div v-if="computedCurrentSentence" class="sticky bottom-0 z-10 w-full min-w-0 pt-3">
-                <div class="border-default bg-default/95 flex w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-sm backdrop-blur">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <div class="text-primary bg-primary/8 flex size-9 shrink-0 items-center justify-center rounded-full border border-current/20">
-                      <UIcon :name="stateAudioPlaying ? 'i-lucide:audio-lines' : 'i-lucide:radio'" class="size-4" />
-                    </div>
-                    <div class="min-w-0">
-                      <div class="text-primary text-[11px] font-medium tracking-[0.18em] uppercase">{{ t('pages.hotsearch.podcast.playAll') }}</div>
-                      <p class="text-highlighted mt-1 truncate text-sm leading-6">{{ t('pages.hotsearch.podcast.nowPlaying', { text: computedCurrentSentence.text }) }}</p>
-                    </div>
+              <div class="flex shrink-0 items-center gap-3 sm:gap-4">
+                <div class="text-right">
+                  <div class="text-highlighted text-[1.65rem] leading-none font-semibold tracking-tight tabular-nums">
+                    {{ computedQueueCounterLabel }}
                   </div>
-
-                  <div class="flex min-w-0 items-center gap-2">
-                    <span class="text-muted hidden max-w-36 truncate text-xs sm:inline">{{ computedCurrentSentence.speakerName }} / {{ computedCurrentSentence.durationLabel }}</span>
-                    <UButton class="shrink-0" color="primary" :variant="stateAudioPlaying ? 'solid' : 'soft'" :icon="stateAudioPlaying ? 'i-lucide:pause' : 'i-lucide:play'" @click="handleSentenceToggle(computedCurrentSentence.id)" />
+                  <div class="mt-1 flex items-center justify-end gap-2 text-xs tabular-nums">
+                    <span class="text-toned">{{ computedCurrentOverallProgressLabel }}</span>
+                    <span class="text-default/30">/</span>
+                    <span class="text-muted">{{ computedTotalDurationLabel }}</span>
                   </div>
                 </div>
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
+
+          <section class="divide-default/70 divide-y">
+            <div v-for="(item, index) in computedPodcastView.sentences" :key="item.id" :ref="sentenceRowRefGet(item.id)" class="group px-4 py-3 transition-[background-color,transform] duration-200 sm:px-5" :class="item.id === stateCurrentSentenceId ? 'bg-primary/4.5' : 'hover:bg-muted/25'">
+              <div class="grid gap-3 md:grid-cols-[8.25rem_minmax(0,1fr)_10.25rem] md:items-center md:gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="text-muted text-xs tracking-[0.16em] uppercase tabular-nums">
+                    {{ sentenceOrderLabelGet(index) }}
+                  </div>
+                  <div class="text-highlighted min-w-0 text-base font-semibold">
+                    {{ item.speakerName }}
+                  </div>
+                </div>
+
+                <div class="min-w-0 space-y-2">
+                  <div class="w-full overflow-hidden rounded-xl pb-0.5">
+                    <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedSentenceDurationGet(item.id)" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
+                  </div>
+
+                  <p class="text-muted truncate text-sm leading-6" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
+                    {{ item.text }}
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 md:justify-end">
+                  <span class="text-muted min-w-26 text-right text-xs font-medium tabular-nums">{{ sentencePlaybackLabelGet(item.id) }}</span>
+                  <UButton
+                    color="primary"
+                    :variant="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'solid' : 'soft'"
+                    class="h-9 min-w-11 justify-center rounded-lg px-0 active:scale-[0.98]"
+                    :ui="{ base: 'shadow-none ring-0' }"
+                    :aria-label="item.id === stateCurrentSentenceId && stateAudioPlaying ? t('pages.hotsearch.podcast.pause') : t('pages.hotsearch.podcast.playAll')"
+                    @click="handleSentenceToggle(item.id)"
+                  >
+                    <UIcon :name="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'i-lucide:pause' : 'i-lucide:play'" class="size-4" />
+                  </UButton>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </UPageCard>
     </template>
@@ -90,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import type { THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
+import type { IHotsearchPodcastSentence, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
 
 /**
  * Hook：国际化。
@@ -128,6 +145,11 @@ const stateCurrentSentenceProgress = ref(0);
 const stateCurrentSentenceDuration = ref(0);
 
 /**
+ * 状态：待处理的波形定位百分比。
+ */
+const statePendingSeekPercent = ref<number | null>(null);
+
+/**
  * 状态：是否正在播放。
  */
 const stateAudioPlaying = ref(false);
@@ -138,29 +160,14 @@ const stateAudioPlaying = ref(false);
 const stateSequenceMode = ref(false);
 
 /**
- * 状态：页头主播放按钮文案。
+ * 状态：句子行元素映射。
  */
-const stateHeaderPlaybackPrimaryLabel = useState('hotsearch-podcast-playback-primary-label', () => '');
+const stateSentenceRowElements: Record<string, HTMLElement | null> = {};
 
 /**
- * 状态：页头主播放按钮图标。
+ * 变量：稳定的句子行 ref 回调缓存。
  */
-const stateHeaderPlaybackPrimaryIcon = useState('hotsearch-podcast-playback-primary-icon', () => 'i-lucide:play');
-
-/**
- * 状态：页头停止按钮是否可用。
- */
-const stateHeaderPlaybackStopEnabled = useState('hotsearch-podcast-playback-stop-enabled', () => false);
-
-/**
- * 状态：页头主播放命令版本号。
- */
-const stateHeaderPlaybackPrimaryCommand = useState('hotsearch-podcast-playback-primary-command', () => 0);
-
-/**
- * 状态：页头停止命令版本号。
- */
-const stateHeaderPlaybackStopCommand = useState('hotsearch-podcast-playback-stop-command', () => 0);
+const sentenceRowRefCallbacks: Record<string, (element: unknown) => void> = {};
 
 /**
  * 计算属性：当前日期。
@@ -209,11 +216,37 @@ const computedCurrentSentence = computed(() => {
 });
 
 /**
- * 计算属性：主播放按钮文案。
+ * 计算属性：头部展示句子。
  */
-const computedPlaybackPrimaryLabel = computed(() => {
-  return stateAudioPlaying.value ? t('pages.hotsearch.podcast.pause') : t('pages.hotsearch.podcast.playAll');
+const computedHeaderSentence = computed(() => {
+  return computedCurrentSentence.value ?? computedPodcastView.value.sentences[0] ?? null;
 });
+
+/**
+ * 计算属性：当前句子索引。
+ */
+const computedCurrentSentenceIndex = computed(() => {
+  if (!stateCurrentSentenceId.value) {
+    return -1;
+  }
+
+  return computedPodcastView.value.sentences.findIndex((item) => item.id === stateCurrentSentenceId.value);
+});
+
+/**
+ * 计算属性：句子总数。
+ */
+const computedSentenceTotal = computed(() => computedPodcastView.value.sentences.length);
+
+/**
+ * 计算属性：是否存在上一句。
+ */
+const computedHasPreviousSentence = computed(() => computedCurrentSentenceIndex.value > 0);
+
+/**
+ * 计算属性：是否存在下一句。
+ */
+const computedHasNextSentence = computed(() => computedCurrentSentenceIndex.value >= 0 && computedCurrentSentenceIndex.value < computedPodcastView.value.sentences.length - 1);
 
 /**
  * 计算属性：主播放按钮图标。
@@ -223,27 +256,115 @@ const computedPlaybackPrimaryIcon = computed(() => {
 });
 
 /**
- * 计算属性：停止按钮是否可用。
+ * 计算属性：顶部队列计数标签。
  */
-const computedPlaybackStopEnabled = computed(() => {
-  return stateCurrentSentenceId.value !== null;
+const computedQueueCounterLabel = computed(() => {
+  const padWidth = Math.max(3, String(computedSentenceTotal.value).length);
+  const currentIndex = computedCurrentSentenceIndex.value >= 0 ? computedCurrentSentenceIndex.value + 1 : 0;
+
+  return `${String(currentIndex).padStart(padWidth, '0')}/${String(computedSentenceTotal.value).padStart(padWidth, '0')}`;
 });
 
 /**
- * 计算属性：当前音频时长。
+ * 计算属性：当前句已播秒数。
  */
-const computedAudioDuration = computed(() => {
-  return stateCurrentSentenceDuration.value > 0 ? stateCurrentSentenceDuration.value : undefined;
+const computedCurrentSentenceElapsedSeconds = computed(() => {
+  if (!computedCurrentSentence.value) {
+    return 0;
+  }
+
+  const durationSeconds = sentenceDurationSecondsGet(computedCurrentSentence.value);
+
+  if (durationSeconds <= 0) {
+    return 0;
+  }
+
+  if (stateCurrentSentenceId.value !== computedCurrentSentence.value.id || stateCurrentSentenceDuration.value <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(stateCurrentSentenceDuration.value * stateCurrentSentenceProgress.value, durationSeconds));
 });
 
 /**
- * 监听：同步页头播放按钮状态。
+ * 计算属性：当前整体播放进度标签。
  */
-watchEffect(() => {
-  stateHeaderPlaybackPrimaryLabel.value = computedPlaybackPrimaryLabel.value;
-  stateHeaderPlaybackPrimaryIcon.value = computedPlaybackPrimaryIcon.value;
-  stateHeaderPlaybackStopEnabled.value = computedPlaybackStopEnabled.value;
+const computedCurrentOverallProgressLabel = computed(() => {
+  if (computedCurrentSentenceIndex.value < 0) {
+    return '00:00';
+  }
+
+  const finishedSeconds = computedPodcastView.value.sentences.slice(0, computedCurrentSentenceIndex.value).reduce((total, item) => total + sentenceDurationSecondsGet(item), 0);
+  const elapsedSeconds = Math.min(finishedSeconds + computedCurrentSentenceElapsedSeconds.value, computedTotalDurationSeconds.value);
+
+  return podcastDurationLabelGet(elapsedSeconds);
 });
+
+/**
+ * 计算属性：头部主标签。
+ */
+const computedHeaderPrimaryLabel = computed(() => {
+  if (!computedHeaderSentence.value) {
+    return t('pages.hotsearch.podcast.notStarted');
+  }
+
+  const headerSentenceIndex = computedPodcastView.value.sentences.findIndex((item) => item.id === computedHeaderSentence.value?.id);
+
+  return `${sentenceOrderLabelGet(Math.max(headerSentenceIndex, 0))} · ${computedHeaderSentence.value.speakerName}`;
+});
+
+/**
+ * 计算属性：头部次级信息。
+ */
+const computedHeaderSecondaryLabel = computed(() => {
+  if (!computedHeaderSentence.value) {
+    return `${computedSentenceTotal.value} · ${computedTotalDurationLabel.value}`;
+  }
+
+  return computedHeaderSentence.value.text;
+});
+
+/**
+ * 计算属性：头部当前句进度标签。
+ */
+const computedHeaderCurrentSentenceProgressLabel = computed(() => {
+  if (!computedHeaderSentence.value) {
+    return '00:00 / 00:00';
+  }
+
+  return sentencePlaybackLabelGet(computedHeaderSentence.value.id);
+});
+
+/**
+ * 函数：获取句子播放时间标签。
+ *
+ * # Arguments
+ *
+ * * `sentenceId` - 句子 ID。
+ *
+ * # Returns
+ *
+ * 返回统一的已播/总长时间标签。
+ */
+const sentencePlaybackLabelGet = (sentenceId: string): string => {
+  const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
+  const durationSeconds = sentence ? sentenceDurationSecondsGet(sentence) : 0;
+  const elapsedSeconds = stateCurrentSentenceId.value === sentenceId ? Math.min(computedCurrentSentenceElapsedSeconds.value, durationSeconds) : 0;
+
+  return `${podcastDurationLabelGet(elapsedSeconds)} / ${podcastDurationLabelGet(durationSeconds)}`;
+};
+
+/**
+ * 计算属性：总时长秒数。
+ */
+const computedTotalDurationSeconds = computed(() => {
+  return computedPodcastView.value.sentences.reduce((total, item) => total + sentenceDurationSecondsGet(item), 0);
+});
+
+/**
+ * 计算属性：总时长标签。
+ */
+const computedTotalDurationLabel = computed(() => podcastDurationLabelGet(computedTotalDurationSeconds.value));
 
 /**
  * 生命周期：初始化音频实例。
@@ -261,6 +382,19 @@ onMounted(() => {
     stateCurrentSentenceProgress.value = audio.currentTime / audio.duration;
   });
 
+  audio.addEventListener('loadedmetadata', () => {
+    if (statePendingSeekPercent.value === null) {
+      return;
+    }
+
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+      return;
+    }
+
+    audio.currentTime = Math.max(0, Math.min(1, statePendingSeekPercent.value)) * audio.duration;
+    statePendingSeekPercent.value = null;
+  });
+
   audio.addEventListener('play', () => {
     stateAudioPlaying.value = true;
   });
@@ -276,8 +410,7 @@ onMounted(() => {
       return;
     }
 
-    const index = computedPodcastView.value.sentences.findIndex((item) => item.id === stateCurrentSentenceId.value);
-    const nextSentence = computedPodcastView.value.sentences[index + 1];
+    const nextSentence = sentenceNeighborGet(1);
 
     if (!nextSentence) {
       handleStopAudio();
@@ -314,30 +447,18 @@ watch(
 );
 
 /**
- * 监听：页头主播放命令。
+ * 监听：当前句变化时滚动到可视范围。
  */
 watch(
-  () => stateHeaderPlaybackPrimaryCommand.value,
-  (value, oldValue) => {
-    if (value === oldValue) {
+  () => stateCurrentSentenceId.value,
+  (sentenceId) => {
+    if (!sentenceId) {
       return;
     }
 
-    handlePlaybackPrimaryAction();
-  }
-);
-
-/**
- * 监听：页头停止命令。
- */
-watch(
-  () => stateHeaderPlaybackStopCommand.value,
-  (value, oldValue) => {
-    if (value === oldValue) {
-      return;
-    }
-
-    handleStopAudio();
+    void nextTick(() => {
+      sentenceScrollIntoView(sentenceId);
+    });
   }
 );
 
@@ -363,6 +484,117 @@ const handleVariantNavigate = (variant: THotsearchPodcastVariantKey): void => {
 };
 
 /**
+ * 函数：设置句子行元素引用。
+ *
+ * # Arguments
+ *
+ * * `sentenceId` - 句子 ID。
+ * * `element` - 句子行元素。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const sentenceRowRefSet = (sentenceId: string, element: Element | null): void => {
+  if (element instanceof HTMLElement) {
+    if (stateSentenceRowElements[sentenceId] === element) {
+      return;
+    }
+
+    stateSentenceRowElements[sentenceId] = element;
+    return;
+  }
+
+  if (!(sentenceId in stateSentenceRowElements)) {
+    return;
+  }
+
+  stateSentenceRowElements[sentenceId] = null;
+};
+
+/**
+ * 函数：获取句子行引用设置器。
+ *
+ * # Arguments
+ *
+ * * `sentenceId` - 句子 ID。
+ *
+ * # Returns
+ *
+ * 返回模板可直接复用的 ref 设置函数。
+ */
+const sentenceRowRefGet = (sentenceId: string) => {
+  if (!sentenceRowRefCallbacks[sentenceId]) {
+    sentenceRowRefCallbacks[sentenceId] = (element: unknown): void => {
+      sentenceRowRefSet(sentenceId, element instanceof Element ? element : null);
+    };
+  }
+
+  return sentenceRowRefCallbacks[sentenceId];
+};
+
+/**
+ * 函数：将句序号格式化为四位补零。
+ *
+ * # Arguments
+ *
+ * * `index` - 句子索引。
+ *
+ * # Returns
+ *
+ * 四位补零后的序号。
+ */
+const sentenceOrderLabelGet = (index: number): string => {
+  return String(index + 1).padStart(4, '0');
+};
+
+/**
+ * 函数：解析句子时长秒数。
+ *
+ * # Arguments
+ *
+ * * `sentence` - 句子对象。
+ *
+ * # Returns
+ *
+ * 对应的秒数。
+ */
+const sentenceDurationSecondsGet = (sentence: IHotsearchPodcastSentence): number => {
+  const matched = /([\d.]+)\s*s/i.exec(sentence.durationLabel.trim());
+
+  if (!matched) {
+    return 0;
+  }
+
+  const seconds = Number(matched[1]);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+};
+
+/**
+ * 函数：格式化播客总时长标签。
+ *
+ * # Arguments
+ *
+ * * `seconds` - 总秒数。
+ *
+ * # Returns
+ *
+ * 格式化后的时长标签。
+ */
+const podcastDurationLabelGet = (seconds: number): string => {
+  const totalSeconds = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+};
+
+/**
  * 函数：获取句子播放进度。
  *
  * # Arguments
@@ -375,6 +607,66 @@ const handleVariantNavigate = (variant: THotsearchPodcastVariantKey): void => {
  */
 const computedSentenceProgressGet = (sentenceId: string): number => {
   return stateCurrentSentenceId.value === sentenceId ? stateCurrentSentenceProgress.value : 0;
+};
+
+/**
+ * 函数：获取句子显示时长。
+ *
+ * # Arguments
+ *
+ * * `sentenceId` - 句子 ID。
+ *
+ * # Returns
+ *
+ * 当前句返回实际时长，其余句返回标签反解秒数。
+ */
+const computedSentenceDurationGet = (sentenceId: string): number | undefined => {
+  if (stateCurrentSentenceId.value === sentenceId && stateCurrentSentenceDuration.value > 0) {
+    return stateCurrentSentenceDuration.value;
+  }
+
+  const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
+
+  if (!sentence) {
+    return undefined;
+  }
+
+  const seconds = sentenceDurationSecondsGet(sentence);
+  return seconds > 0 ? seconds : undefined;
+};
+
+/**
+ * 函数：获取相邻句子。
+ *
+ * # Arguments
+ *
+ * * `delta` - 相对偏移量，`-1` 为上一句，`1` 为下一句。
+ *
+ * # Returns
+ *
+ * 返回相邻句子；若不存在则返回 `null`。
+ */
+const sentenceNeighborGet = (delta: number): IHotsearchPodcastSentence | null => {
+  if (computedCurrentSentenceIndex.value < 0) {
+    return null;
+  }
+
+  return computedPodcastView.value.sentences[computedCurrentSentenceIndex.value + delta] ?? null;
+};
+
+/**
+ * 函数：滚动指定句子到可视范围。
+ *
+ * # Arguments
+ *
+ * * `sentenceId` - 句子 ID。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const sentenceScrollIntoView = (sentenceId: string): void => {
+  stateSentenceRowElements[sentenceId]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 
 /**
@@ -434,7 +726,15 @@ const handleSentenceToggle = (sentenceId: string): void => {
     return;
   }
 
-  void handleSentencePlay(sentenceId);
+  if (stateCurrentSentenceId.value === sentenceId) {
+    stateSequenceMode.value = true;
+    void stateAudio.value.play().catch(() => {
+      stateAudioPlaying.value = false;
+    });
+    return;
+  }
+
+  void handleSentencePlay(sentenceId, true);
 };
 
 /**
@@ -470,6 +770,7 @@ const handlePlaybackPrimaryAction = (): void => {
   }
 
   if (stateAudio.value && stateCurrentSentenceId.value !== null) {
+    stateSequenceMode.value = true;
     void stateAudio.value.play().catch(() => {
       stateAudioPlaying.value = false;
     });
@@ -477,6 +778,40 @@ const handlePlaybackPrimaryAction = (): void => {
   }
 
   handlePlayAll();
+};
+
+/**
+ * 函数：播放上一句。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePreviousSentence = (): void => {
+  const previousSentence = sentenceNeighborGet(-1);
+
+  if (!previousSentence) {
+    return;
+  }
+
+  void handleSentencePlay(previousSentence.id, stateSequenceMode.value);
+};
+
+/**
+ * 函数：播放下一句。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handleNextSentence = (): void => {
+  const nextSentence = sentenceNeighborGet(1);
+
+  if (!nextSentence) {
+    return;
+  }
+
+  void handleSentencePlay(nextSentence.id, stateSequenceMode.value);
 };
 
 /**
@@ -508,6 +843,7 @@ const handleStopAudio = (): void => {
   stateSequenceMode.value = false;
   stateCurrentSentenceProgress.value = 0;
   stateCurrentSentenceDuration.value = 0;
+  statePendingSeekPercent.value = null;
 };
 
 /**
@@ -530,7 +866,8 @@ const handleSentenceSeek = (sentenceId: string, percent: number): void => {
   }
 
   if (stateCurrentSentenceId.value !== sentenceId) {
-    void handleSentencePlay(sentenceId);
+    statePendingSeekPercent.value = Math.max(0, Math.min(1, percent));
+    void handleSentencePlay(sentenceId, true);
     return;
   }
 
@@ -540,13 +877,4 @@ const handleSentenceSeek = (sentenceId: string, percent: number): void => {
 
   stateAudio.value.currentTime = Math.max(0, Math.min(1, percent)) * stateAudio.value.duration;
 };
-
-/**
- * 生命周期：清理页头播放状态。
- */
-onBeforeUnmount(() => {
-  stateHeaderPlaybackPrimaryLabel.value = '';
-  stateHeaderPlaybackPrimaryIcon.value = 'i-lucide:play';
-  stateHeaderPlaybackStopEnabled.value = false;
-});
 </script>

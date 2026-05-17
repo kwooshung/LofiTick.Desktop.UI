@@ -6,6 +6,9 @@
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
+        <UButton color="primary" variant="outline" icon="i-material-symbols:bigtop-updates-rounded" :to="localePath('/hotsearch')">
+          {{ t('pages.settings.hotsearch.header.enter') }}
+        </UButton>
       </template>
     </UPageCard>
 

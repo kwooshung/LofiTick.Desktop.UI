@@ -180,6 +180,9 @@ export const settings = {
   hotsearch: {
     title: 'Hot Search',
     description: 'Configure local fetch cadence, selected platforms, budget, and podcast generation timing.',
+    header: {
+      enter: 'Open Hot Search'
+    },
     sections: {
       schedule: {
         title: 'Fetch schedule',

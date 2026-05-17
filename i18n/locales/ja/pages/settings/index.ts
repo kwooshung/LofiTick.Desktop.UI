@@ -180,6 +180,9 @@ export const settings = {
   hotsearch: {
     title: 'トレンド設定',
     description: 'この端末で使う取得頻度、対象プラットフォーム、予算、Podcast 生成時刻を設定します。',
+    header: {
+      enter: 'トレンドへ'
+    },
     sections: {
       schedule: {
         title: '取得スケジュール',

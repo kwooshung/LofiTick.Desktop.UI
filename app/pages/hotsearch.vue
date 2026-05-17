@@ -57,6 +57,10 @@
             </div>
           </template>
         </UPopover>
+
+        <UButton color="neutral" variant="ghost" icon="i-proicons:settings" class="shrink-0 rounded-lg" :to="localePath('/settings/hotsearch')">
+          {{ t('pages.settings.title') }}
+        </UButton>
       </div>
     </template>
 
@@ -70,12 +74,6 @@
               </div>
 
               <div class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
-                <UButton color="primary" :variant="statePodcastPlaybackPrimaryLabel === t('pages.hotsearch.podcast.pause') ? 'solid' : 'soft'" :icon="statePodcastPlaybackPrimaryIcon" @click="handlePodcastPlaybackPrimaryCommand">
-                  {{ statePodcastPlaybackPrimaryLabel || t('pages.hotsearch.podcast.playAll') }}
-                </UButton>
-                <UButton color="neutral" variant="soft" icon="i-lucide:square" :disabled="!statePodcastPlaybackStopEnabled" @click="handlePodcastPlaybackStopCommand">
-                  {{ t('pages.hotsearch.podcast.stop') }}
-                </UButton>
                 <UButton color="neutral" variant="soft" icon="i-lucide:clapperboard" :disabled="!computedPodcastHeaderVideoAsset" @click="handlePodcastVideoModalOpen">
                   {{ t('pages.hotsearch.podcast.openVideoModal') }}
                 </UButton>
@@ -114,11 +112,11 @@
         :open="statePodcastVideoModalOpen"
         :title="computedPodcastHeaderVideoAsset?.title ?? t('pages.hotsearch.podcast.openVideoModal')"
         :description="computedPodcastHeaderVideoAsset?.description"
-        :ui="{ content: 'z-50 max-w-6xl', body: 'space-y-4' }"
+        :ui="{ content: 'z-50 max-w-5xl', body: 'space-y-4 overflow-hidden' }"
         @update:open="handlePodcastVideoModalUpdateOpen"
       >
         <template #body>
-          <div v-if="computedPodcastHeaderVideoAsset" class="space-y-4">
+          <div v-if="computedPodcastHeaderVideoAsset" class="mx-auto w-full max-w-5xl space-y-4">
             <MediaPlayerPlyr v-if="statePodcastVideoModalPlayerVisible" ref="refPodcastVideoPlayer" :poster="computedPodcastHeaderVideoAsset.poster" :waveform-path="computedPodcastHeaderVideoAsset.waveformPath" :sources="computedPodcastHeaderVideoAsset.sources" autoplay />
           </div>
         </template>
@@ -211,31 +209,6 @@ const refPodcastVideoPlayer = ref<TMediaPlyrExposed | null>(null);
  * 引用：播客完整音频播放器实例。
  */
 const refPodcastAudioPlayer = ref<TMediaPlyrExposed | null>(null);
-
-/**
- * 状态：播客主播放按钮文案。
- */
-const statePodcastPlaybackPrimaryLabel = useState('hotsearch-podcast-playback-primary-label', () => '');
-
-/**
- * 状态：播客主播放按钮图标。
- */
-const statePodcastPlaybackPrimaryIcon = useState('hotsearch-podcast-playback-primary-icon', () => 'i-lucide:play');
-
-/**
- * 状态：播客停止按钮是否可用。
- */
-const statePodcastPlaybackStopEnabled = useState('hotsearch-podcast-playback-stop-enabled', () => false);
-
-/**
- * 状态：播客主播放命令版本号。
- */
-const statePodcastPlaybackPrimaryCommand = useState('hotsearch-podcast-playback-primary-command', () => 0);
-
-/**
- * 状态：播客停止命令版本号。
- */
-const statePodcastPlaybackStopCommand = useState('hotsearch-podcast-playback-stop-command', () => 0);
 
 /**
  * Store：面包屑。
@@ -503,28 +476,6 @@ const handlePodcastMediaPlatformSelect = (platformKey: string): void => {
       mediaPlatform: platformKey === 'general' ? undefined : platformKey
     }
   });
-};
-
-/**
- * 函数：触发播客主播放命令。
- *
- * # Returns
- *
- * 无返回值。
- */
-const handlePodcastPlaybackPrimaryCommand = (): void => {
-  statePodcastPlaybackPrimaryCommand.value += 1;
-};
-
-/**
- * 函数：触发播客停止命令。
- *
- * # Returns
- *
- * 无返回值。
- */
-const handlePodcastPlaybackStopCommand = (): void => {
-  statePodcastPlaybackStopCommand.value += 1;
 };
 
 /**
