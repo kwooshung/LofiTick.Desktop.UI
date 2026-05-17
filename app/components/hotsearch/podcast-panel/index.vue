@@ -20,8 +20,8 @@
     </UPageCard>
 
     <template v-else>
-      <UPageCard variant="outline">
-        <div class="border-default/70 bg-default/95 overflow-hidden border">
+      <UPageCard variant="outline" :ui="{ root: 'rounded-none border-0 bg-transparent shadow-none', container: 'p-0' }">
+        <div class="border-default/70 bg-default/95 overflow-hidden rounded-lg border">
           <section class="border-default/70 bg-muted/30 border-b backdrop-blur-sm">
             <div class="grid items-center gap-3 px-4 py-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-5">
               <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
