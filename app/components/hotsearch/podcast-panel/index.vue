@@ -21,7 +21,7 @@
 
     <template v-else>
       <Teleport to="#hotsearch-podcast-player-header">
-        <header class="border-default/70 bg-default/92 grid items-center gap-3 border-y px-4 py-4 backdrop-blur-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-6">
+        <header class="border-default/70 bg-default/92 grid items-center gap-3 border-y px-4 py-4 shadow-sm shadow-black/5 backdrop-blur-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-6">
           <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
             <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
             <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />

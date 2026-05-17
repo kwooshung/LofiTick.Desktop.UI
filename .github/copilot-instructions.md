@@ -123,6 +123,7 @@
   1. 优先在模板里使用 Tailwind utility（不要为了"写得像传统 CSS"而回退到大段自定义 CSS）。
   2. 需要全局/跨组件复用的基础样式与工具类，新增到 [`app/assets/css/main.css`](../app/assets/css/main.css)（例如 `@utility`）。
   3. 页面/组件局部样式再考虑 `scoped`（仅在确有必要且能说明边界时）。
+- 编写 `class` 时，必须优先使用 Tailwind CSS v4 内置 utility class；只有当内置 utility 无法准确表达需求时，才允许补充项目级 `@utility` 或局部样式。
 - 断点来自 [`app/assets/css/main.css`](../app/assets/css/main.css) 的 `@theme` 定义，除 Tailwind 默认断点外，项目额外提供：
   - `3xl`：`120rem`（1920px）
   - `4xl`：`130rem`（2080px）
