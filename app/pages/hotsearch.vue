@@ -98,6 +98,8 @@
                 </UButton>
               </div>
             </div>
+
+            <div id="hotsearch-podcast-player-header" class="relative z-10 -mx-4 sm:-mx-6"></div>
           </div>
         </template>
       </div>

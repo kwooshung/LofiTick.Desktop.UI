@@ -20,88 +20,86 @@
     </UPageCard>
 
     <template v-else>
-      <UPageCard variant="outline" :ui="{ root: 'rounded-none border-0 bg-transparent shadow-none', container: 'p-0' }">
-        <div class="border-default/70 bg-default/95 overflow-hidden rounded-lg border">
-          <section class="border-default/70 bg-muted/30 border-b backdrop-blur-sm">
-            <div class="grid items-center gap-3 px-4 py-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-5">
-              <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
-                <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
-                <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />
-                <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-forward" :disabled="!computedHasNextSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handleNextSentence" />
-              </div>
-
-              <div class="border-default/70 bg-default/65 min-w-0 rounded-lg border px-3 py-2.5">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0 flex-1">
-                    <div class="text-highlighted truncate text-sm font-medium">
-                      {{ computedHeaderPrimaryLabel }}
-                    </div>
-                    <p class="text-muted mt-1 line-clamp-1 text-sm leading-6">
-                      {{ computedHeaderSecondaryLabel }}
-                    </p>
-                  </div>
-
-                  <div class="border-default/60 text-toned shrink-0 border-l pl-3 text-right text-xs tabular-nums">
-                    {{ computedHeaderCurrentSentenceProgressLabel }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex shrink-0 items-center gap-3 sm:gap-4">
-                <div class="text-right">
-                  <div class="text-highlighted text-[1.65rem] leading-none font-semibold tracking-tight tabular-nums">
-                    {{ computedQueueCounterLabel }}
-                  </div>
-                  <div class="mt-1 flex items-center justify-end gap-2 text-xs tabular-nums">
-                    <span class="text-toned">{{ computedCurrentOverallProgressLabel }}</span>
-                    <span class="text-default/30">/</span>
-                    <span class="text-muted">{{ computedTotalDurationLabel }}</span>
-                  </div>
-                </div>
-              </div>
+      <Teleport to="#hotsearch-podcast-player-header">
+        <header class="border-default/70 bg-default/92 border-t px-4 py-4 backdrop-blur-sm sm:px-6">
+          <div class="grid items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+            <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
+              <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
+              <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />
+              <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-forward" :disabled="!computedHasNextSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handleNextSentence" />
             </div>
-          </section>
 
-          <section class="divide-default/70 divide-y">
-            <div v-for="(item, index) in computedPodcastView.sentences" :key="item.id" :ref="sentenceRowRefGet(item.id)" class="group px-4 py-3 transition-[background-color,transform] duration-200 sm:px-5" :class="item.id === stateCurrentSentenceId ? 'bg-primary/4.5' : 'hover:bg-muted/25'">
-              <div class="grid gap-3 md:grid-cols-[8.25rem_minmax(0,1fr)_10.25rem] md:items-start md:gap-3">
-                <div class="flex items-center gap-3 md:self-start">
-                  <div class="text-muted text-xs tracking-[0.16em] uppercase tabular-nums">
-                    {{ sentenceOrderLabelGet(index) }}
+            <div class="border-default/70 bg-default/65 min-w-0 rounded-lg border px-3 py-2.5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="text-highlighted truncate text-sm font-medium">
+                    {{ computedHeaderPrimaryLabel }}
                   </div>
-                  <div class="text-highlighted min-w-0 text-base font-semibold">
-                    {{ item.speakerName }}
-                  </div>
-                </div>
-
-                <div class="min-w-0 space-y-2">
-                  <div class="w-full overflow-hidden rounded-xl pb-0.5">
-                    <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedSentenceDurationGet(item.id)" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
-                  </div>
-
-                  <p class="text-muted text-sm leading-6 wrap-break-word whitespace-normal" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
-                    {{ item.text }}
+                  <p class="text-muted mt-1 line-clamp-1 text-sm leading-6">
+                    {{ computedHeaderSecondaryLabel }}
                   </p>
                 </div>
 
-                <div class="flex items-center justify-between gap-3 md:justify-end md:self-start">
-                  <span class="text-muted min-w-26 text-right text-xs font-medium tabular-nums">{{ sentencePlaybackLabelGet(item.id) }}</span>
-                  <UButton
-                    color="primary"
-                    :variant="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'solid' : 'soft'"
-                    class="h-9 min-w-11 justify-center rounded-lg px-0 active:scale-[0.98]"
-                    :ui="{ base: 'shadow-none ring-0' }"
-                    :aria-label="item.id === stateCurrentSentenceId && stateAudioPlaying ? t('pages.hotsearch.podcast.pause') : t('pages.hotsearch.podcast.playAll')"
-                    @click="handleSentenceToggle(item.id)"
-                  >
-                    <UIcon :name="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'i-lucide:pause' : 'i-lucide:play'" class="size-4" />
-                  </UButton>
+                <div class="border-default/60 text-toned shrink-0 border-l pl-3 text-right text-xs tabular-nums">
+                  {{ computedHeaderCurrentSentenceProgressLabel }}
                 </div>
               </div>
             </div>
-          </section>
+
+            <div class="flex shrink-0 items-center gap-3 sm:gap-4">
+              <div class="text-right">
+                <div class="text-highlighted text-[1.65rem] leading-none font-semibold tracking-tight tabular-nums">
+                  {{ computedQueueCounterLabel }}
+                </div>
+                <div class="mt-1 flex items-center justify-end gap-2 text-xs tabular-nums">
+                  <span class="text-toned">{{ computedCurrentOverallProgressLabel }}</span>
+                  <span class="text-default/30">/</span>
+                  <span class="text-muted">{{ computedTotalDurationLabel }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      </Teleport>
+
+      <section class="border-default/70 bg-default/95 divide-default/70 min-h-0 flex-1 divide-y overflow-y-auto border-b">
+        <div v-for="(item, index) in computedPodcastView.sentences" :key="item.id" :ref="sentenceRowRefGet(item.id)" class="group px-4 py-3 transition-[background-color,transform] duration-200 sm:px-5" :class="item.id === stateCurrentSentenceId ? 'bg-primary/4.5' : 'hover:bg-muted/25'">
+          <div class="grid gap-3 md:grid-cols-[8.25rem_minmax(0,1fr)_10.25rem] md:items-start md:gap-3">
+            <div class="flex items-center gap-3 md:self-start">
+              <div class="text-muted text-xs tracking-[0.16em] uppercase tabular-nums">
+                {{ sentenceOrderLabelGet(index) }}
+              </div>
+              <div class="text-highlighted min-w-0 text-base font-semibold">
+                {{ item.speakerName }}
+              </div>
+            </div>
+
+            <div class="min-w-0 space-y-2">
+              <div class="w-full overflow-hidden rounded-xl pb-0.5">
+                <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedSentenceDurationGet(item.id)" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
+              </div>
+
+              <p class="text-muted text-sm leading-6 wrap-break-word whitespace-normal" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
+                {{ item.text }}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 md:justify-end md:self-start">
+              <span class="text-muted min-w-26 text-right text-xs font-medium tabular-nums">{{ sentencePlaybackLabelGet(item.id) }}</span>
+              <UButton
+                color="primary"
+                :variant="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'solid' : 'soft'"
+                class="h-9 min-w-11 justify-center rounded-lg px-0 active:scale-[0.98]"
+                :ui="{ base: 'shadow-none ring-0' }"
+                :aria-label="item.id === stateCurrentSentenceId && stateAudioPlaying ? t('pages.hotsearch.podcast.pause') : t('pages.hotsearch.podcast.playAll')"
+                @click="handleSentenceToggle(item.id)"
+              >
+                <UIcon :name="item.id === stateCurrentSentenceId && stateAudioPlaying ? 'i-lucide:pause' : 'i-lucide:play'" class="size-4" />
+              </UButton>
+            </div>
+          </div>
         </div>
-      </UPageCard>
+      </section>
     </template>
   </div>
 </template>
