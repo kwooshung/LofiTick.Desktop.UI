@@ -87,15 +87,15 @@ export const hotsearch = {
       },
       morningLong: {
         title: '朝報ロング',
-        description: '音声・長尺動画向けの朝版フルサイズです。'
+        description: '音声・長尺動画向けの朝のロング版です。'
       },
       eveningShort: {
         title: '夕報ショート',
-        description: '夜の振り返り向け短尺版です。'
+        description: '夜間公開向けの短い夕報版です。'
       },
       eveningLong: {
         title: '夕報ロング',
-        description: '夜向けの拡張フルバージョンです。'
+        description: '音声・長尺動画向けの夜のロング版です。'
       }
     }
   },

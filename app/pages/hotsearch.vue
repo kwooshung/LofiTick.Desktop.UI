@@ -5,49 +5,61 @@
     </template>
 
     <template #toolbar-right>
-      <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
-        <UButton color="neutral" variant="ghost" icon="i-lucide-calendar-days" class="shrink-0">
-          {{ computedDatePickerButtonLabel }}
-        </UButton>
+      <div class="flex min-w-0 items-center gap-2">
+        <template v-if="computedRouteIsData">
+          <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" class="hidden min-w-0 md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
+            <template #leading>
+              <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+            </template>
+          </UInput>
+          <UButton color="primary" icon="i-lucide:search" @click="handleKeywordApply">{{ t('pages.hotsearch.data.searchAction') }}</UButton>
+          <UButton color="neutral" variant="soft" icon="i-lucide:rotate-ccw" @click="handleFilterReset">{{ t('pages.hotsearch.actions.resetFilters') }}</UButton>
+        </template>
 
-        <template #content>
-          <div class="w-88 space-y-3 p-3 sm:w-96">
-            <UCalendar v-model="computedCalendarModelValue" color="neutral" variant="subtle" :min-value="computedCalendarMinValue" :max-value="computedCalendarMaxValue" :is-date-disabled="calendarDateDisabledGet" class="mx-auto" @mouseleave="handleDatePreviewReset">
-              <template #day="{ day }">
-                <span class="inline-flex" :class="calendarDateSummaryGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
-                  <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryGet(day)?.mediaReady ? 'warning' : 'primary'" size="2xs" inset>
-                    {{ day.day }}
-                  </UChip>
-                </span>
-              </template>
-            </UCalendar>
+        <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
+          <UButton color="neutral" variant="ghost" icon="i-lucide-calendar-days" class="shrink-0">
+            {{ computedDatePickerButtonLabel }}
+          </UButton>
 
-            <div class="border-default bg-default/80 space-y-3 rounded-xl border px-3 py-3">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-highlighted text-sm font-medium">{{ computedDatePickerDisplaySummary?.updatedAt || hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
-                  <div class="text-muted mt-1 text-xs">{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+          <template #content>
+            <div class="w-88 space-y-3 p-3 sm:w-96">
+              <UCalendar v-model="computedCalendarModelValue" color="neutral" variant="subtle" :min-value="computedCalendarMinValue" :max-value="computedCalendarMaxValue" :is-date-disabled="calendarDateDisabledGet" class="mx-auto" @mouseleave="handleDatePreviewReset">
+                <template #day="{ day }">
+                  <span class="inline-flex" :class="calendarDateSummaryGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
+                    <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryGet(day)?.mediaReady ? 'warning' : 'primary'" size="2xs" inset>
+                      {{ day.day }}
+                    </UChip>
+                  </span>
+                </template>
+              </UCalendar>
+
+              <div class="border-default bg-default/80 space-y-3 rounded-xl border px-3 py-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="text-highlighted text-sm font-medium">{{ computedDatePickerDisplaySummary?.updatedAt || hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+                    <div class="text-muted mt-1 text-xs">{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+                  </div>
+
+                  <UBadge :color="computedDatePickerDisplaySummary?.mediaReady ? 'warning' : 'neutral'" variant="soft">
+                    {{ computedDatePickerDisplaySummary?.mediaReady ? t('pages.hotsearch.data.status.podcastReady') : t('pages.hotsearch.data.status.pending') }}
+                  </UBadge>
                 </div>
 
-                <UBadge :color="computedDatePickerDisplaySummary?.mediaReady ? 'warning' : 'neutral'" variant="soft">
-                  {{ computedDatePickerDisplaySummary?.mediaReady ? t('pages.hotsearch.data.status.podcastReady') : t('pages.hotsearch.data.status.pending') }}
-                </UBadge>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-2">
-                <UBadge color="primary" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedDatePickerDisplaySummary?.totalCount ?? 0 }) }}</UBadge>
-                <UBadge color="warning" variant="soft">{{ t('pages.hotsearch.layout.dates.podcastCount', { value: computedDatePickerDisplaySummary?.podcastCount ?? 0 }) }}</UBadge>
+                <div class="flex flex-wrap items-center gap-2">
+                  <UBadge color="primary" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedDatePickerDisplaySummary?.totalCount ?? 0 }) }}</UBadge>
+                  <UBadge color="warning" variant="soft">{{ t('pages.hotsearch.layout.dates.podcastCount', { value: computedDatePickerDisplaySummary?.podcastCount ?? 0 }) }}</UBadge>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
-      </UPopover>
+          </template>
+        </UPopover>
+      </div>
     </template>
 
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex min-w-0 shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
         <template v-if="computedRouteIsData">
-          <div class="flex min-w-0 flex-col gap-3 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-4">
+          <div class="flex min-w-0 flex-col gap-3 py-3">
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 <div class="text-highlighted text-sm font-semibold">{{ computedToolbarPanelTitle }}</div>
@@ -55,16 +67,6 @@
                 <span v-if="computedSelectedPlatformLabel !== ''" class="text-muted text-xs">/ {{ computedSelectedPlatformLabel }}</span>
               </div>
               <p class="text-muted mt-1 text-xs leading-5">{{ computedToolbarPanelDescription }}</p>
-            </div>
-
-            <div class="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
-              <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" class="w-full min-w-0 xl:w-80" @keyup.enter="handleKeywordApply">
-                <template #leading>
-                  <UIcon name="i-lucide:search" class="text-dimmed size-4" />
-                </template>
-              </UInput>
-              <UButton color="primary" icon="i-lucide:search" @click="handleKeywordApply">{{ t('pages.hotsearch.data.searchAction') }}</UButton>
-              <UButton color="neutral" variant="soft" icon="i-lucide:rotate-ccw" @click="handleFilterReset">{{ t('pages.hotsearch.actions.resetFilters') }}</UButton>
             </div>
           </div>
         </template>

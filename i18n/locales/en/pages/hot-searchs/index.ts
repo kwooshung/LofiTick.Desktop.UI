@@ -87,15 +87,15 @@ export const hotsearch = {
       },
       morningLong: {
         title: 'Morning long',
-        description: 'A full morning version for audio and long-form video platforms.'
+        description: 'A longer morning edition for audio and long-form video platforms.'
       },
       eveningShort: {
         title: 'Evening short',
-        description: 'A short recap edition for the evening.'
+        description: 'A short evening edition for evening publishing.'
       },
       eveningLong: {
         title: 'Evening long',
-        description: 'An extended evening edition for full playback.'
+        description: 'A longer evening edition for audio and long-form video platforms.'
       }
     }
   },

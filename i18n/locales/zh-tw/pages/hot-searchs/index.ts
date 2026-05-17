@@ -87,15 +87,15 @@ export const hotsearch = {
       },
       morningLong: {
         title: '早報長篇',
-        description: '適合音訊或長影片平台的晨間完整版。'
+        description: '適合音訊或長影片平台的晨間長版。'
       },
       eveningShort: {
         title: '晚報短篇',
-        description: '適合晚間資訊回顧的短時版本。'
+        description: '適合晚間時段發布的短播版本。'
       },
       eveningLong: {
         title: '晚報長篇',
-        description: '適合夜間完整收聽或觀看的延展版本。'
+        description: '適合音訊或長影片平台的晚間長版。'
       }
     }
   },

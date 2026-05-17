@@ -93,15 +93,15 @@ export const hotsearch = {
       },
       morningLong: {
         title: '早报长篇',
-        description: '适合音频或长视频平台的晨间完整版。'
+        description: '适合音频或长视频平台的晨间长版。'
       },
       eveningShort: {
         title: '晚报短篇',
-        description: '适合晚间信息回顾的短时版本。'
+        description: '适合晚间时段发布的短播版本。'
       },
       eveningLong: {
         title: '晚报长篇',
-        description: '适合夜间完整收听或收看的扩展版本。'
+        description: '适合音频或长视频平台的晚间长版。'
       }
     }
   },
