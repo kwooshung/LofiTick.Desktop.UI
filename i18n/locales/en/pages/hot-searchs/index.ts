@@ -65,7 +65,6 @@ export const hotsearch = {
   podcast: {
     description: 'Switch between morning/evening and short/long podcast variants with assets.',
     enterVariant: 'Open variant',
-    mediaPlatformTitle: 'Creator platform version',
     scriptTitle: 'Sentence timeline',
     scriptDescription: 'Play the script sentence by sentence with waveform seeking.',
     playAll: 'Play all',

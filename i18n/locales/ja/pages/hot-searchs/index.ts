@@ -65,7 +65,6 @@ export const hotsearch = {
   podcast: {
     description: '朝/夕と短編/長編を切り替えて台本と完成素材を確認します。',
     enterVariant: 'この版を開く',
-    mediaPlatformTitle: 'メディア別バージョン',
     scriptTitle: '台本プレビュー',
     scriptDescription: '文ごとの試聴と波形シークに対応します。',
     playAll: '連続再生',

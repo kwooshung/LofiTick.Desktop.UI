@@ -22,47 +22,8 @@
     <template v-else>
       <UPageCard variant="outline">
         <div class="space-y-4">
-          <div class="border-default flex flex-wrap items-center gap-2 border-b pb-4">
-            <div class="text-muted text-xs font-medium tracking-[0.14em] uppercase">{{ t('pages.hotsearch.podcast.mediaPlatformTitle') }}</div>
-            <div class="flex flex-wrap gap-2">
-              <UButton
-                v-for="item in computedPodcastView.availablePlatforms"
-                :key="item.key"
-                :disabled="item.disabled"
-                :color="computedPodcastView.selectedPlatformKey === item.key ? 'primary' : 'neutral'"
-                :variant="computedPodcastView.selectedPlatformKey === item.key ? 'solid' : 'soft'"
-                size="sm"
-                @click="handleMediaPlatformSelect(item.key)"
-              >
-                {{ t(item.labelKey) }}
-              </UButton>
-            </div>
-          </div>
-
           <div class="space-y-4">
             <section class="space-y-5">
-              <div class="border-default flex w-full flex-col gap-3 border-b pb-4">
-                <div class="flex w-full items-start justify-between gap-3">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <UButton color="primary" :variant="stateAudioPlaying ? 'solid' : 'soft'" :icon="computedPlaybackPrimaryIcon" @click="handlePlaybackPrimaryAction">
-                      {{ computedPlaybackPrimaryLabel }}
-                    </UButton>
-                    <UButton color="neutral" variant="soft" icon="i-lucide:square" :disabled="!computedPlaybackStopEnabled" @click="handleStopAudio">
-                      {{ t('pages.hotsearch.podcast.stop') }}
-                    </UButton>
-                  </div>
-
-                  <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
-                    <UButton color="neutral" variant="soft" icon="i-lucide:clapperboard" :disabled="!computedPodcastVideoAsset" @click="stateVideoModalOpen = true">
-                      {{ t('pages.hotsearch.podcast.openVideoModal') }}
-                    </UButton>
-                    <UButton color="neutral" variant="soft" icon="i-lucide:audio-lines" :disabled="!computedPodcastAudioAsset" @click="stateAudioModalOpen = true">
-                      {{ t('pages.hotsearch.podcast.openAudioModal') }}
-                    </UButton>
-                  </div>
-                </div>
-              </div>
-
               <div class="space-y-2">
                 <div
                   v-for="(item, index) in computedPodcastView.sentences"
@@ -124,22 +85,6 @@
           </div>
         </div>
       </UPageCard>
-
-      <UModal v-model:open="stateVideoModalOpen" :title="computedPodcastVideoAsset?.title ?? t('pages.hotsearch.podcast.openVideoModal')" :description="computedPodcastVideoAsset?.description" :ui="{ content: 'z-50 max-w-6xl', body: 'space-y-4' }">
-        <template #body>
-          <div v-if="stateVideoModalOpen && computedPodcastVideoAsset" class="space-y-4">
-            <MediaPlayerPlyr :poster="computedPodcastVideoAsset.poster" :waveform-path="computedPodcastVideoAsset.waveformPath" :sources="computedPodcastVideoAsset.sources" autoplay />
-          </div>
-        </template>
-      </UModal>
-
-      <UModal v-model:open="stateAudioModalOpen" :title="computedPodcastAudioAsset?.title ?? t('pages.hotsearch.podcast.openAudioModal')" :description="computedPodcastAudioAsset?.description" :ui="{ content: 'z-50 max-w-4xl', body: 'space-y-4' }">
-        <template #body>
-          <div v-if="stateAudioModalOpen && computedPodcastAudioAsset" class="space-y-4">
-            <MediaPlayerPlyr :poster="computedPodcastAudioAsset.poster" :waveform-path="computedPodcastAudioAsset.waveformPath" :sources="computedPodcastAudioAsset.sources" autoplay />
-          </div>
-        </template>
-      </UModal>
     </template>
   </div>
 </template>
@@ -193,14 +138,29 @@ const stateAudioPlaying = ref(false);
 const stateSequenceMode = ref(false);
 
 /**
- * 状态：完整视频弹窗是否打开。
+ * 状态：页头主播放按钮文案。
  */
-const stateVideoModalOpen = ref(false);
+const stateHeaderPlaybackPrimaryLabel = useState('hotsearch-podcast-playback-primary-label', () => '');
 
 /**
- * 状态：完整音频弹窗是否打开。
+ * 状态：页头主播放按钮图标。
  */
-const stateAudioModalOpen = ref(false);
+const stateHeaderPlaybackPrimaryIcon = useState('hotsearch-podcast-playback-primary-icon', () => 'i-lucide:play');
+
+/**
+ * 状态：页头停止按钮是否可用。
+ */
+const stateHeaderPlaybackStopEnabled = useState('hotsearch-podcast-playback-stop-enabled', () => false);
+
+/**
+ * 状态：页头主播放命令版本号。
+ */
+const stateHeaderPlaybackPrimaryCommand = useState('hotsearch-podcast-playback-primary-command', () => 0);
+
+/**
+ * 状态：页头停止命令版本号。
+ */
+const stateHeaderPlaybackStopCommand = useState('hotsearch-podcast-playback-stop-command', () => 0);
 
 /**
  * 计算属性：当前日期。
@@ -242,20 +202,6 @@ const computedPodcastView = computed(() => {
 });
 
 /**
- * 计算属性：当前完整视频资源。
- */
-const computedPodcastVideoAsset = computed(() => {
-  return computedPodcastView.value.assets.find((item) => item.kind === 'video');
-});
-
-/**
- * 计算属性：当前完整音频资源。
- */
-const computedPodcastAudioAsset = computed(() => {
-  return computedPodcastView.value.assets.find((item) => item.kind === 'audio');
-});
-
-/**
  * 计算属性：当前句子标签。
  */
 const computedCurrentSentence = computed(() => {
@@ -288,6 +234,15 @@ const computedPlaybackStopEnabled = computed(() => {
  */
 const computedAudioDuration = computed(() => {
   return stateCurrentSentenceDuration.value > 0 ? stateCurrentSentenceDuration.value : undefined;
+});
+
+/**
+ * 监听：同步页头播放按钮状态。
+ */
+watchEffect(() => {
+  stateHeaderPlaybackPrimaryLabel.value = computedPlaybackPrimaryLabel.value;
+  stateHeaderPlaybackPrimaryIcon.value = computedPlaybackPrimaryIcon.value;
+  stateHeaderPlaybackStopEnabled.value = computedPlaybackStopEnabled.value;
 });
 
 /**
@@ -359,6 +314,34 @@ watch(
 );
 
 /**
+ * 监听：页头主播放命令。
+ */
+watch(
+  () => stateHeaderPlaybackPrimaryCommand.value,
+  (value, oldValue) => {
+    if (value === oldValue) {
+      return;
+    }
+
+    handlePlaybackPrimaryAction();
+  }
+);
+
+/**
+ * 监听：页头停止命令。
+ */
+watch(
+  () => stateHeaderPlaybackStopCommand.value,
+  (value, oldValue) => {
+    if (value === oldValue) {
+      return;
+    }
+
+    handleStopAudio();
+  }
+);
+
+/**
  * 函数：跳转播客变体。
  *
  * # Arguments
@@ -375,27 +358,6 @@ const handleVariantNavigate = (variant: THotsearchPodcastVariantKey): void => {
     query: {
       date: computedSelectedDate.value,
       mediaPlatform: hotsearchQueryStringGet(route.query.mediaPlatform as string | null | Array<string | null> | undefined) || undefined
-    }
-  });
-};
-
-/**
- * 函数：切换媒体平台。
- *
- * # Arguments
- *
- * * `platformKey` - 平台键。
- *
- * # Returns
- *
- * 无返回值。
- */
-const handleMediaPlatformSelect = (platformKey: string): void => {
-  navigateTo({
-    path: route.path,
-    query: {
-      ...route.query,
-      mediaPlatform: platformKey === 'general' ? undefined : platformKey
     }
   });
 };
@@ -578,4 +540,13 @@ const handleSentenceSeek = (sentenceId: string, percent: number): void => {
 
   stateAudio.value.currentTime = Math.max(0, Math.min(1, percent)) * stateAudio.value.duration;
 };
+
+/**
+ * 生命周期：清理页头播放状态。
+ */
+onBeforeUnmount(() => {
+  stateHeaderPlaybackPrimaryLabel.value = '';
+  stateHeaderPlaybackPrimaryIcon.value = 'i-lucide:play';
+  stateHeaderPlaybackStopEnabled.value = false;
+});
 </script>

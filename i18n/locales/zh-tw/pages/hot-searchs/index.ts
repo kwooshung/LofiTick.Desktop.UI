@@ -65,7 +65,6 @@ export const hotsearch = {
   podcast: {
     description: '依早報/晚報與短篇/長篇切換腳本，並查看完整音訊與影片成品。',
     enterVariant: '進入此版本',
-    mediaPlatformTitle: '自媒體平台版本',
     scriptTitle: '腳本逐句預覽',
     scriptDescription: '整段支援順播，逐句支援單獨試聽與波形拖動。',
     playAll: '順播全部',

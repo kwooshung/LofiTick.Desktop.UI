@@ -5,15 +5,19 @@
     </template>
 
     <template #toolbar-right>
-      <div class="flex min-w-0 items-center gap-2">
+      <div class="flex items-center gap-2">
         <template v-if="computedRouteIsData">
-          <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" class="hidden min-w-0 md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
+          <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="hidden md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
             <template #leading>
               <UIcon name="i-lucide:search" class="text-dimmed size-4" />
             </template>
+
+            <template #trailing>
+              <div class="flex items-center">
+                <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+              </div>
+            </template>
           </UInput>
-          <UButton color="primary" icon="i-lucide:search" @click="handleKeywordApply">{{ t('pages.hotsearch.data.searchAction') }}</UButton>
-          <UButton color="neutral" variant="soft" icon="i-lucide:rotate-ccw" @click="handleFilterReset">{{ t('pages.hotsearch.actions.resetFilters') }}</UButton>
         </template>
 
         <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
@@ -56,48 +60,44 @@
       </div>
     </template>
 
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex min-w-0 shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
-        <template v-if="computedRouteIsData">
-          <div class="flex min-w-0 flex-col gap-3 py-3">
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <div class="text-highlighted text-sm font-semibold">{{ computedToolbarPanelTitle }}</div>
-                <span class="text-muted text-xs">{{ hotsearchDateLabelGet(computedSelectedDate) }}</span>
-                <span v-if="computedSelectedPlatformLabel !== ''" class="text-muted text-xs">/ {{ computedSelectedPlatformLabel }}</span>
-              </div>
-              <p class="text-muted mt-1 text-xs leading-5">{{ computedToolbarPanelDescription }}</p>
-            </div>
-          </div>
-        </template>
-
-        <template v-else-if="computedRouteIsPodcast">
-          <div class="flex min-w-0 flex-col pt-5">
-            <div class="relative min-w-0 pr-22 pb-2 sm:pr-24">
-              <div class="max-w-2xl min-w-0 space-y-2.5">
-                <div class="text-highlighted text-2xl leading-none font-semibold">{{ computedToolbarPanelTitle }}</div>
-                <p class="text-muted max-w-2xl text-sm leading-6">{{ computedToolbarPanelDescription }}</p>
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
+        <template v-if="computedRouteIsPodcast">
+          <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 pb-3 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
+            <div class="border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
+              <div class="relative z-10 min-w-0 flex-1">
+                <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
               </div>
 
-              <div class="absolute top-1.5 right-0 z-1 flex shrink-0 items-start">
-                <div class="border-default bg-default flex w-16 shrink-0 flex-col overflow-hidden rounded-lg border shadow-sm">
-                  <div class="bg-primary px-2 py-1 text-center text-xs font-semibold tracking-[0.08em] text-white">
-                    {{ computedToolbarDateParts.month }}
-                  </div>
-                  <div class="flex min-h-13 flex-col items-center justify-center px-2 py-2">
-                    <div class="text-highlighted text-3xl leading-none font-semibold tracking-[-0.04em]">{{ computedToolbarDateParts.day }}</div>
-                  </div>
-                </div>
+              <div class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
+                <UButton color="primary" :variant="statePodcastPlaybackPrimaryLabel === t('pages.hotsearch.podcast.pause') ? 'solid' : 'soft'" :icon="statePodcastPlaybackPrimaryIcon" @click="handlePodcastPlaybackPrimaryCommand">
+                  {{ statePodcastPlaybackPrimaryLabel || t('pages.hotsearch.podcast.playAll') }}
+                </UButton>
+                <UButton color="neutral" variant="soft" icon="i-lucide:square" :disabled="!statePodcastPlaybackStopEnabled" @click="handlePodcastPlaybackStopCommand">
+                  {{ t('pages.hotsearch.podcast.stop') }}
+                </UButton>
+                <UButton color="neutral" variant="soft" icon="i-lucide:clapperboard" :disabled="!computedPodcastHeaderVideoAsset" @click="handlePodcastVideoModalOpen">
+                  {{ t('pages.hotsearch.podcast.openVideoModal') }}
+                </UButton>
+                <UButton color="neutral" variant="soft" icon="i-lucide:audio-lines" :disabled="!computedPodcastHeaderAudioAsset" @click="handlePodcastAudioModalOpen">
+                  {{ t('pages.hotsearch.podcast.openAudioModal') }}
+                </UButton>
               </div>
             </div>
 
-            <div
-              class="bg-default/75 border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6"
-            >
-              <div class="relative z-10 flex w-full items-center justify-between gap-1.5">
-                <div class="flex items-center justify-start gap-1.5">
-                  <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
-                </div>
+            <div class="relative z-10 flex w-full flex-wrap items-center gap-2">
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-for="item in computedPodcastHeaderView.availablePlatforms"
+                  :key="item.key"
+                  :disabled="item.disabled"
+                  :color="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'primary' : 'neutral'"
+                  :variant="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'solid' : 'soft'"
+                  size="sm"
+                  @click="handlePodcastMediaPlatformSelect(item.key)"
+                >
+                  {{ t(item.labelKey) }}
+                </UButton>
               </div>
             </div>
           </div>
@@ -109,6 +109,22 @@
           <NuxtPage />
         </div>
       </div>
+
+      <UModal v-model:open="statePodcastVideoModalOpen" :title="computedPodcastHeaderVideoAsset?.title ?? t('pages.hotsearch.podcast.openVideoModal')" :description="computedPodcastHeaderVideoAsset?.description" :ui="{ content: 'z-50 max-w-6xl', body: 'space-y-4' }">
+        <template #body>
+          <div v-if="statePodcastVideoModalOpen && computedPodcastHeaderVideoAsset" ref="refPodcastVideoModalBody" class="space-y-4">
+            <MediaPlayerPlyr :poster="computedPodcastHeaderVideoAsset.poster" :waveform-path="computedPodcastHeaderVideoAsset.waveformPath" :sources="computedPodcastHeaderVideoAsset.sources" autoplay />
+          </div>
+        </template>
+      </UModal>
+
+      <UModal v-model:open="statePodcastAudioModalOpen" :title="computedPodcastHeaderAudioAsset?.title ?? t('pages.hotsearch.podcast.openAudioModal')" :description="computedPodcastHeaderAudioAsset?.description" :ui="{ content: 'z-50 max-w-4xl', body: 'space-y-4' }">
+        <template #body>
+          <div v-if="statePodcastAudioModalOpen && computedPodcastHeaderAudioAsset" ref="refPodcastAudioModalBody" class="space-y-4">
+            <MediaPlayerPlyr :poster="computedPodcastHeaderAudioAsset.poster" :waveform-path="computedPodcastHeaderAudioAsset.waveformPath" :sources="computedPodcastHeaderAudioAsset.sources" autoplay />
+          </div>
+        </template>
+      </UModal>
     </div>
   </Dashboard>
 </template>
@@ -117,6 +133,8 @@
 import type { DateValue } from '@internationalized/date';
 import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
+
+import type { THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
 
 /**
  * Hook：国际化。
@@ -147,6 +165,51 @@ const stateDatePickerOpen = ref(false);
  * 状态：悬停预览日期。
  */
 const stateDatePickerPreviewDate = ref('');
+
+/**
+ * 状态：播客完整视频弹窗是否打开。
+ */
+const statePodcastVideoModalOpen = ref(false);
+
+/**
+ * 状态：播客完整音频弹窗是否打开。
+ */
+const statePodcastAudioModalOpen = ref(false);
+
+/**
+ * 引用：播客完整视频弹窗内容容器。
+ */
+const refPodcastVideoModalBody = ref<HTMLElement | null>(null);
+
+/**
+ * 引用：播客完整音频弹窗内容容器。
+ */
+const refPodcastAudioModalBody = ref<HTMLElement | null>(null);
+
+/**
+ * 状态：播客主播放按钮文案。
+ */
+const statePodcastPlaybackPrimaryLabel = useState('hotsearch-podcast-playback-primary-label', () => '');
+
+/**
+ * 状态：播客主播放按钮图标。
+ */
+const statePodcastPlaybackPrimaryIcon = useState('hotsearch-podcast-playback-primary-icon', () => 'i-lucide:play');
+
+/**
+ * 状态：播客停止按钮是否可用。
+ */
+const statePodcastPlaybackStopEnabled = useState('hotsearch-podcast-playback-stop-enabled', () => false);
+
+/**
+ * 状态：播客主播放命令版本号。
+ */
+const statePodcastPlaybackPrimaryCommand = useState('hotsearch-podcast-playback-primary-command', () => 0);
+
+/**
+ * 状态：播客停止命令版本号。
+ */
+const statePodcastPlaybackStopCommand = useState('hotsearch-podcast-playback-stop-command', () => 0);
 
 /**
  * Store：面包屑。
@@ -301,6 +364,8 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
     return [];
   }
 
+  const mediaPlatform = hotsearchQueryStringGet(route.query.mediaPlatform as string | null | Array<string | null> | undefined) || undefined;
+
   return [
     [
       {
@@ -309,7 +374,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-short'),
         to: {
           path: localePath('/hotsearch/podcast/morning-short'),
-          query: { date: computedSelectedDate.value }
+          query: { date: computedSelectedDate.value, mediaPlatform }
         },
         exact: true
       },
@@ -319,7 +384,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-long'),
         to: {
           path: localePath('/hotsearch/podcast/morning-long'),
-          query: { date: computedSelectedDate.value }
+          query: { date: computedSelectedDate.value, mediaPlatform }
         },
         exact: true
       },
@@ -329,7 +394,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-short'),
         to: {
           path: localePath('/hotsearch/podcast/evening-short'),
-          query: { date: computedSelectedDate.value }
+          query: { date: computedSelectedDate.value, mediaPlatform }
         },
         exact: true
       },
@@ -339,7 +404,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-long'),
         to: {
           path: localePath('/hotsearch/podcast/evening-long'),
-          query: { date: computedSelectedDate.value }
+          query: { date: computedSelectedDate.value, mediaPlatform }
         },
         exact: true
       }
@@ -348,72 +413,156 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
 });
 
 /**
+ * 计算属性：当前播客变体。
+ */
+const computedPodcastVariant = computed<THotsearchPodcastVariantKey | null>(() => {
+  if (route.path === localePath('/hotsearch/podcast/morning-short')) {
+    return 'morning-short';
+  }
+  if (route.path === localePath('/hotsearch/podcast/morning-long')) {
+    return 'morning-long';
+  }
+  if (route.path === localePath('/hotsearch/podcast/evening-short')) {
+    return 'evening-short';
+  }
+  if (route.path === localePath('/hotsearch/podcast/evening-long')) {
+    return 'evening-long';
+  }
+
+  return null;
+});
+
+/**
+ * 计算属性：页头播客视图模型。
+ */
+const computedPodcastHeaderView = computed(() => {
+  return hotsearchPodcastViewGet(computedSelectedDate.value, computedPodcastVariant.value ?? 'morning-short', hotsearchQueryStringGet(route.query.mediaPlatform as string | null | Array<string | null> | undefined));
+});
+
+/**
+ * 计算属性：页头完整视频资源。
+ */
+const computedPodcastHeaderVideoAsset = computed(() => {
+  return computedPodcastHeaderView.value.assets.find((item) => item.kind === 'video');
+});
+
+/**
+ * 计算属性：页头完整音频资源。
+ */
+const computedPodcastHeaderAudioAsset = computed(() => {
+  return computedPodcastHeaderView.value.assets.find((item) => item.kind === 'audio');
+});
+
+/**
  * 计算属性：工具区面板是否显示。
  */
-const computedToolbarPanelVisible = computed(() => computedRouteIsData.value || computedRouteIsPodcast.value);
+const computedToolbarPanelVisible = computed(() => computedRouteIsPodcast.value);
 
 /**
- * 计算属性：工具区面板标题。
+ * 函数：安全触发原生媒体播放。
+ *
+ * 在宿主环境拦截自动播放时吞掉 Promise rejection，避免污染控制台。
+ *
+ * # Arguments
+ *
+ * * `container` - 承载媒体元素的容器。
+ *
+ * # Returns
+ *
+ * 无返回值。
  */
-const computedToolbarPanelTitle = computed(() => {
-  if (computedRouteIsData.value) {
-    return t('pages.hotsearch.sections.data.title');
+const mediaElementPlaySafe = (container: HTMLElement | null): void => {
+  const mediaElement = container?.querySelector('video, audio');
+
+  if (!(mediaElement instanceof HTMLMediaElement)) {
+    return;
   }
 
-  const variantOption = hotsearchPodcastVariantOptionsGet().find((item) => route.path === localePath(`/hotsearch/podcast/${item.key}`));
+  try {
+    const result = mediaElement.play();
 
-  if (variantOption) {
-    return t(variantOption.labelKey);
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => {
+        // ignore
+      });
+    }
+  } catch {
+    // ignore
   }
-
-  return t('pages.hotsearch.sections.podcast.title');
-});
+};
 
 /**
- * 计算属性：工具区面板描述。
+ * 函数：切换播客媒体平台。
+ *
+ * # Arguments
+ *
+ * * `platformKey` - 目标平台键。
+ *
+ * # Returns
+ *
+ * 无返回值。
  */
-const computedToolbarPanelDescription = computed(() => {
-  if (computedRouteIsData.value) {
-    return t('pages.hotsearch.data.description');
-  }
-
-  const variantOption = hotsearchPodcastVariantOptionsGet().find((item) => route.path === localePath(`/hotsearch/podcast/${item.key}`));
-
-  if (variantOption) {
-    return t(variantOption.descriptionKey);
-  }
-
-  return t('pages.hotsearch.podcast.description');
-});
+const handlePodcastMediaPlatformSelect = (platformKey: string): void => {
+  navigateTo({
+    path: route.path,
+    query: {
+      ...route.query,
+      mediaPlatform: platformKey === 'general' ? undefined : platformKey
+    }
+  });
+};
 
 /**
- * 计算属性：工具区日期块。
+ * 函数：触发播客主播放命令。
+ *
+ * # Returns
+ *
+ * 无返回值。
  */
-const computedToolbarDateParts = computed(() => {
-  const [year = '', month = '', day = ''] = computedSelectedDate.value.split('-');
-
-  return {
-    year,
-    month,
-    day,
-    label: hotsearchDateLabelGet(computedSelectedDate.value)
-  };
-});
+const handlePodcastPlaybackPrimaryCommand = (): void => {
+  statePodcastPlaybackPrimaryCommand.value += 1;
+};
 
 /**
- * 计算属性：当前选中平台标签。
+ * 函数：触发播客停止命令。
+ *
+ * # Returns
+ *
+ * 无返回值。
  */
-const computedSelectedPlatformLabel = computed(() => {
-  const platformType = hotsearchQueryStringGet(route.query.platform as string | null | Array<string | null> | undefined);
+const handlePodcastPlaybackStopCommand = (): void => {
+  statePodcastPlaybackStopCommand.value += 1;
+};
 
-  if (platformType === '') {
-    return '';
-  }
+/**
+ * 函数：打开播客完整视频弹窗并尝试自动播放。
+ *
+ * 借助当前点击的用户手势，在弹窗内容挂载后立即触发原生播放，降低宿主环境拦截概率。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePodcastVideoModalOpen = async (): Promise<void> => {
+  statePodcastVideoModalOpen.value = true;
+  await nextTick();
+  mediaElementPlaySafe(refPodcastVideoModalBody.value);
+};
 
-  const matchedPlatform = hotsearchPlatformsList().find((item) => item.type === platformType);
-
-  return matchedPlatform ? t(matchedPlatform.key) : '';
-});
+/**
+ * 函数：打开播客完整音频弹窗并尝试自动播放。
+ *
+ * 借助当前点击的用户手势，在弹窗内容挂载后立即触发原生播放，降低宿主环境拦截概率。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePodcastAudioModalOpen = async (): Promise<void> => {
+  statePodcastAudioModalOpen.value = true;
+  await nextTick();
+  mediaElementPlaySafe(refPodcastAudioModalBody.value);
+};
 
 /**
  * 函数：解析 ISO 日期为日历日期。
