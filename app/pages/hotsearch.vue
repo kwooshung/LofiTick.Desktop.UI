@@ -1,11 +1,47 @@
 <template>
   <Dashboard>
-    <template #panel-left>
-      <HotsearchDateSidebar :summaries="computedDateSummaries" :selected-date="computedSelectedDate" @change="handleDateChange" />
-    </template>
-
     <template #toolbar-left>
       <UNavigationMenu :items="computedSectionLinks" highlight class="-translate-x-2.5" />
+    </template>
+
+    <template #toolbar-right>
+      <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
+        <UButton color="neutral" variant="ghost" icon="i-lucide-calendar-days" class="shrink-0">
+          {{ computedDatePickerButtonLabel }}
+        </UButton>
+
+        <template #content>
+          <div class="w-88 space-y-3 p-3 sm:w-96">
+            <UCalendar v-model="computedCalendarModelValue" color="neutral" variant="subtle" :min-value="computedCalendarMinValue" :max-value="computedCalendarMaxValue" :is-date-disabled="calendarDateDisabledGet" class="mx-auto" @mouseleave="handleDatePreviewReset">
+              <template #day="{ day }">
+                <span class="inline-flex" :class="calendarDateSummaryGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
+                  <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryGet(day)?.mediaReady ? 'warning' : 'primary'" size="2xs" inset>
+                    {{ day.day }}
+                  </UChip>
+                </span>
+              </template>
+            </UCalendar>
+
+            <div class="border-default bg-default/80 space-y-3 rounded-xl border px-3 py-3">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-highlighted text-sm font-medium">{{ computedDatePickerDisplaySummary?.updatedAt || hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+                  <div class="text-muted mt-1 text-xs">{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+                </div>
+
+                <UBadge :color="computedDatePickerDisplaySummary?.mediaReady ? 'warning' : 'neutral'" variant="soft">
+                  {{ computedDatePickerDisplaySummary?.mediaReady ? t('pages.hotsearch.data.status.podcastReady') : t('pages.hotsearch.data.status.pending') }}
+                </UBadge>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <UBadge color="primary" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedDatePickerDisplaySummary?.totalCount ?? 0 }) }}</UBadge>
+                <UBadge color="warning" variant="soft">{{ t('pages.hotsearch.layout.dates.podcastCount', { value: computedDatePickerDisplaySummary?.podcastCount ?? 0 }) }}</UBadge>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UPopover>
     </template>
 
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -34,25 +70,20 @@
         </template>
 
         <template v-else-if="computedRouteIsPodcast">
-          <div class="flex min-w-0 flex-col pt-3">
-            <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-6 pb-3">
-              <div class="min-w-0 space-y-2.5">
-                <div class="flex min-w-0 flex-wrap items-center gap-2">
-                  <span class="text-muted text-xs font-medium tracking-[0.16em] uppercase">{{ t('pages.hotsearch.sections.podcast.title') }}</span>
-                  <span class="text-muted text-xs">{{ computedToolbarDateParts.year }}</span>
-                </div>
-
+          <div class="flex min-w-0 flex-col pt-5">
+            <div class="relative min-w-0 pr-22 pb-2 sm:pr-24">
+              <div class="max-w-2xl min-w-0 space-y-2.5">
                 <div class="text-highlighted text-2xl leading-none font-semibold">{{ computedToolbarPanelTitle }}</div>
                 <p class="text-muted max-w-2xl text-sm leading-6">{{ computedToolbarPanelDescription }}</p>
               </div>
 
-              <div class="flex shrink-0 items-start gap-3">
-                <div class="border-default bg-default flex w-18 shrink-0 flex-col overflow-hidden rounded-lg border shadow-sm">
-                  <div class="bg-primary px-2 py-1.5 text-center text-sm font-semibold tracking-[0.08em] text-white">
+              <div class="absolute top-1.5 right-0 z-1 flex shrink-0 items-start">
+                <div class="border-default bg-default flex w-16 shrink-0 flex-col overflow-hidden rounded-lg border shadow-sm">
+                  <div class="bg-primary px-2 py-1 text-center text-xs font-semibold tracking-[0.08em] text-white">
                     {{ computedToolbarDateParts.month }}
                   </div>
-                  <div class="flex min-h-15 flex-col items-center justify-center px-2 py-2.25">
-                    <div class="text-highlighted text-4xl leading-none font-semibold tracking-[-0.04em]">{{ computedToolbarDateParts.day }}</div>
+                  <div class="flex min-h-13 flex-col items-center justify-center px-2 py-2">
+                    <div class="text-highlighted text-3xl leading-none font-semibold tracking-[-0.04em]">{{ computedToolbarDateParts.day }}</div>
                   </div>
                 </div>
               </div>
@@ -81,12 +112,14 @@
 </template>
 
 <script setup lang="ts">
+import type { DateValue } from '@internationalized/date';
+import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
 
 /**
  * Hook：国际化。
  */
-const { t } = useI18n();
+const { locale, locales, t } = useI18n();
 
 /**
  * Hook：本地化路由。
@@ -99,6 +132,21 @@ const localePath = useLocalePath();
 const route = useRoute();
 
 /**
+ * 常量：日历时区。
+ */
+const calendarTimeZone = getLocalTimeZone();
+
+/**
+ * 状态：日期选择器是否打开。
+ */
+const stateDatePickerOpen = ref(false);
+
+/**
+ * 状态：悬停预览日期。
+ */
+const stateDatePickerPreviewDate = ref('');
+
+/**
  * Store：面包屑。
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -109,9 +157,24 @@ const storeBreadcrumb = useStoreBreadcrumb();
 const stateToolbarKeyword = ref('');
 
 /**
+ * 计算属性：日期格式化器。
+ */
+const computedDateFormatterLocale = computed(() => String(locales.value.find((item) => item.code === locale.value)?.language || locale.value.replace(/_/g, '-')));
+
+/**
+ * 计算属性：日期格式化器。
+ */
+const computedDateFormatter = computed(() => new DateFormatter(computedDateFormatterLocale.value, { dateStyle: 'medium' }));
+
+/**
  * 计算属性：日期摘要列表。
  */
 const computedDateSummaries = computed(() => hotsearchArchiveDateSummariesGet());
+
+/**
+ * 计算属性：日期摘要映射。
+ */
+const computedDateSummaryMap = computed(() => new Map(computedDateSummaries.value.map((item) => [item.date, item])));
 
 /**
  * 计算属性：当前选中日期。
@@ -124,6 +187,57 @@ const computedSelectedDate = computed(() => {
   }
 
   return computedDateSummaries.value[0]?.date ?? '';
+});
+
+/**
+ * 计算属性：日期按钮标题。
+ */
+const computedDatePickerButtonLabel = computed(() => {
+  const selectedCalendarDate = calendarDateFromIsoGet(computedSelectedDate.value);
+
+  if (!selectedCalendarDate) {
+    return hotsearchDateLabelGet(computedSelectedDate.value);
+  }
+
+  return computedDateFormatter.value.format(selectedCalendarDate.toDate(calendarTimeZone));
+});
+
+/**
+ * 计算属性：日期选择器当前展示日期。
+ */
+const computedDatePickerDisplayDate = computed(() => stateDatePickerPreviewDate.value || computedSelectedDate.value);
+
+/**
+ * 计算属性：日期选择器当前展示摘要。
+ */
+const computedDatePickerDisplaySummary = computed(() => computedDateSummaryMap.value.get(computedDatePickerDisplayDate.value) ?? null);
+
+/**
+ * 计算属性：日历最小日期。
+ */
+const computedCalendarMinValue = computed(() => calendarDateFromIsoGet(computedDateSummaries.value.at(-1)?.date ?? computedSelectedDate.value) ?? today(calendarTimeZone));
+
+/**
+ * 计算属性：日历最大日期。
+ */
+const computedCalendarMaxValue = computed(() => today(calendarTimeZone));
+
+/**
+ * 计算属性：日历当前值。
+ */
+const computedCalendarModelValue = computed<CalendarDate>({
+  get: () => calendarDateFromIsoGet(computedSelectedDate.value) ?? today(calendarTimeZone),
+  set: (value) => {
+    const nextDate = calendarIsoDateGet(value);
+
+    if (!nextDate || calendarDateDisabledGet(value)) {
+      return;
+    }
+
+    stateDatePickerPreviewDate.value = '';
+    stateDatePickerOpen.value = false;
+    handleDateChange(nextDate);
+  }
 });
 
 /**
@@ -298,6 +412,77 @@ const computedSelectedPlatformLabel = computed(() => {
 
   return matchedPlatform ? t(matchedPlatform.key) : '';
 });
+
+/**
+ * 函数：解析 ISO 日期为日历日期。
+ *
+ * @param {string} value ISO 日期。
+ * @return {CalendarDate | null}
+ */
+const calendarDateFromIsoGet = (value: string): CalendarDate | null => {
+  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+
+  if (!matched) {
+    return null;
+  }
+
+  return new CalendarDate(Number(matched[1]), Number(matched[2]), Number(matched[3]));
+};
+
+/**
+ * 函数：格式化日历日期为 ISO 日期。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {string}
+ */
+const calendarIsoDateGet = (value: DateValue): string => {
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+};
+
+/**
+ * 函数：获取日历日期摘要。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {IHotsearchArchiveDateSummary | null}
+ */
+const calendarDateSummaryGet = (value: DateValue): IHotsearchArchiveDateSummary | null => {
+  return computedDateSummaryMap.value.get(calendarIsoDateGet(value)) ?? null;
+};
+
+/**
+ * 函数：判断日期是否禁选。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {boolean}
+ */
+const calendarDateDisabledGet = (value: DateValue): boolean => {
+  return !computedDateSummaryMap.value.has(calendarIsoDateGet(value));
+};
+
+/**
+ * 函数：设置日期悬停预览。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {void}
+ */
+const handleDatePreview = (value: DateValue): void => {
+  const nextDate = calendarIsoDateGet(value);
+
+  if (!computedDateSummaryMap.value.has(nextDate)) {
+    return;
+  }
+
+  stateDatePickerPreviewDate.value = nextDate;
+};
+
+/**
+ * 函数：重置日期悬停预览。
+ *
+ * @return {void}
+ */
+const handleDatePreviewReset = (): void => {
+  stateDatePickerPreviewDate.value = '';
+};
 
 watch(
   () => route.query.keyword,

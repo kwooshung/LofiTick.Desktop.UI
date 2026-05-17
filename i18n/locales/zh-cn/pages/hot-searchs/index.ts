@@ -39,7 +39,7 @@ export const hotsearch = {
     entertainment: '娱乐'
   },
   data: {
-    description: '按平台和关键词筛选热搜条目，右侧表格聚焦当天的数据明细。',
+    description: '按平台和关键词筛选当天热搜',
     searchPlaceholder: '搜索标题、摘要或关键词',
     searchAction: '搜索',
     platformsTitle: '热搜平台',
