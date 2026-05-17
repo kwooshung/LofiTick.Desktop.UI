@@ -419,7 +419,7 @@ onMounted(() => {
     const nextSentence = sentenceNeighborGet(1);
 
     if (!nextSentence) {
-      handleStopAudio();
+      handlePlaybackCompleted();
       return;
     }
 
@@ -463,7 +463,7 @@ onMounted(() => {
     const nextSentence = sentenceNeighborGet(1);
 
     if (!nextSentence) {
-      handleStopAudio();
+      handlePlaybackCompleted();
       return;
     }
 
@@ -874,6 +874,42 @@ const handleNextSentence = (): void => {
  */
 const handlePauseAudio = (): void => {
   stateAudio.value?.pause();
+};
+
+/**
+ * 函数：处理播放完成。
+ *
+ * 当顺播到最后一条自然结束时，切回第一条作为当前激活项，
+ * 但保持暂停状态，避免自动重新开始播放。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePlaybackCompleted = (): void => {
+  const firstSentence = computedPodcastView.value.sentences[0];
+
+  if (!stateAudio.value || !firstSentence) {
+    handleStopAudio();
+    return;
+  }
+
+  stateAudio.value.pause();
+
+  if (stateAudio.value.src !== firstSentence.audioUrl) {
+    stateAudio.value.src = firstSentence.audioUrl;
+    stateAudio.value.load();
+  } else {
+    stateAudio.value.currentTime = 0;
+  }
+
+  stateCurrentSentenceId.value = firstSentence.id;
+  stateCurrentSentenceProgress.value = 0;
+  stateCurrentSentenceDuration.value = sentenceDurationSecondsGet(firstSentence);
+  stateAudioPlaying.value = false;
+  stateSequenceMode.value = false;
+  statePendingSeekPercent.value = null;
+  stateSentenceAutoAdvanceLock.value = null;
 };
 
 /**
