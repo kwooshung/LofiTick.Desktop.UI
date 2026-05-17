@@ -67,7 +67,7 @@
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
         <template v-if="computedRouteIsPodcast">
-          <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 pb-3 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
+          <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
             <div class="border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
               <div class="relative z-10 min-w-0 flex-1">
                 <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
@@ -84,19 +84,17 @@
             </div>
 
             <div class="relative z-10 flex w-full flex-wrap items-center gap-2">
-              <div class="flex flex-wrap gap-2">
-                <UButton
-                  v-for="item in computedPodcastHeaderView.availablePlatforms"
-                  :key="item.key"
-                  :disabled="item.disabled"
-                  :color="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'primary' : 'neutral'"
-                  :variant="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'solid' : 'soft'"
-                  size="sm"
-                  @click="handlePodcastMediaPlatformSelect(item.key)"
-                >
-                  {{ t(item.labelKey) }}
-                </UButton>
-              </div>
+              <UButton
+                v-for="item in computedPodcastHeaderView.availablePlatforms"
+                :key="item.key"
+                :disabled="item.disabled"
+                :color="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'primary' : 'neutral'"
+                :variant="computedPodcastHeaderView.selectedPlatformKey === item.key ? 'solid' : 'soft'"
+                size="sm"
+                @click="handlePodcastMediaPlatformSelect(item.key)"
+              >
+                {{ t(item.labelKey) }}
+              </UButton>
             </div>
 
             <div id="hotsearch-podcast-player-header" class="relative z-10 -mx-4 sm:-mx-6"></div>
