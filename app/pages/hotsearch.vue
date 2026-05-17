@@ -110,18 +110,30 @@
         </div>
       </div>
 
-      <UModal v-model:open="statePodcastVideoModalOpen" :title="computedPodcastHeaderVideoAsset?.title ?? t('pages.hotsearch.podcast.openVideoModal')" :description="computedPodcastHeaderVideoAsset?.description" :ui="{ content: 'z-50 max-w-6xl', body: 'space-y-4' }">
+      <UModal
+        :open="statePodcastVideoModalOpen"
+        :title="computedPodcastHeaderVideoAsset?.title ?? t('pages.hotsearch.podcast.openVideoModal')"
+        :description="computedPodcastHeaderVideoAsset?.description"
+        :ui="{ content: 'z-50 max-w-6xl', body: 'space-y-4' }"
+        @update:open="handlePodcastVideoModalUpdateOpen"
+      >
         <template #body>
-          <div v-if="statePodcastVideoModalOpen && computedPodcastHeaderVideoAsset" ref="refPodcastVideoModalBody" class="space-y-4">
-            <MediaPlayerPlyr :poster="computedPodcastHeaderVideoAsset.poster" :waveform-path="computedPodcastHeaderVideoAsset.waveformPath" :sources="computedPodcastHeaderVideoAsset.sources" autoplay />
+          <div v-if="computedPodcastHeaderVideoAsset" class="space-y-4">
+            <MediaPlayerPlyr v-if="statePodcastVideoModalPlayerVisible" ref="refPodcastVideoPlayer" :poster="computedPodcastHeaderVideoAsset.poster" :waveform-path="computedPodcastHeaderVideoAsset.waveformPath" :sources="computedPodcastHeaderVideoAsset.sources" autoplay />
           </div>
         </template>
       </UModal>
 
-      <UModal v-model:open="statePodcastAudioModalOpen" :title="computedPodcastHeaderAudioAsset?.title ?? t('pages.hotsearch.podcast.openAudioModal')" :description="computedPodcastHeaderAudioAsset?.description" :ui="{ content: 'z-50 max-w-4xl', body: 'space-y-4' }">
+      <UModal
+        :open="statePodcastAudioModalOpen"
+        :title="computedPodcastHeaderAudioAsset?.title ?? t('pages.hotsearch.podcast.openAudioModal')"
+        :description="computedPodcastHeaderAudioAsset?.description"
+        :ui="{ content: 'z-50 max-w-4xl', body: 'space-y-4' }"
+        @update:open="handlePodcastAudioModalUpdateOpen"
+      >
         <template #body>
-          <div v-if="statePodcastAudioModalOpen && computedPodcastHeaderAudioAsset" ref="refPodcastAudioModalBody" class="space-y-4">
-            <MediaPlayerPlyr :poster="computedPodcastHeaderAudioAsset.poster" :waveform-path="computedPodcastHeaderAudioAsset.waveformPath" :sources="computedPodcastHeaderAudioAsset.sources" autoplay />
+          <div v-if="computedPodcastHeaderAudioAsset" class="space-y-4">
+            <MediaPlayerPlyr v-if="statePodcastAudioModalPlayerVisible" ref="refPodcastAudioPlayer" :poster="computedPodcastHeaderAudioAsset.poster" :waveform-path="computedPodcastHeaderAudioAsset.waveformPath" :sources="computedPodcastHeaderAudioAsset.sources" autoplay />
           </div>
         </template>
       </UModal>
@@ -135,6 +147,10 @@ import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internati
 import type { NavigationMenuItem } from '@nuxt/ui';
 
 import type { THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
+
+type TMediaPlyrExposed = {
+  play: () => Promise<void>;
+};
 
 /**
  * Hook：国际化。
@@ -172,19 +188,29 @@ const stateDatePickerPreviewDate = ref('');
 const statePodcastVideoModalOpen = ref(false);
 
 /**
+ * 状态：播客完整视频播放器是否挂载。
+ */
+const statePodcastVideoModalPlayerVisible = ref(false);
+
+/**
  * 状态：播客完整音频弹窗是否打开。
  */
 const statePodcastAudioModalOpen = ref(false);
 
 /**
- * 引用：播客完整视频弹窗内容容器。
+ * 状态：播客完整音频播放器是否挂载。
  */
-const refPodcastVideoModalBody = ref<HTMLElement | null>(null);
+const statePodcastAudioModalPlayerVisible = ref(false);
 
 /**
- * 引用：播客完整音频弹窗内容容器。
+ * 引用：播客完整视频播放器实例。
  */
-const refPodcastAudioModalBody = ref<HTMLElement | null>(null);
+const refPodcastVideoPlayer = ref<TMediaPlyrExposed | null>(null);
+
+/**
+ * 引用：播客完整音频播放器实例。
+ */
+const refPodcastAudioPlayer = ref<TMediaPlyrExposed | null>(null);
 
 /**
  * 状态：播客主播放按钮文案。
@@ -459,39 +485,6 @@ const computedPodcastHeaderAudioAsset = computed(() => {
 const computedToolbarPanelVisible = computed(() => computedRouteIsPodcast.value);
 
 /**
- * 函数：安全触发原生媒体播放。
- *
- * 在宿主环境拦截自动播放时吞掉 Promise rejection，避免污染控制台。
- *
- * # Arguments
- *
- * * `container` - 承载媒体元素的容器。
- *
- * # Returns
- *
- * 无返回值。
- */
-const mediaElementPlaySafe = (container: HTMLElement | null): void => {
-  const mediaElement = container?.querySelector('video, audio');
-
-  if (!(mediaElement instanceof HTMLMediaElement)) {
-    return;
-  }
-
-  try {
-    const result = mediaElement.play();
-
-    if (result && typeof result.catch === 'function') {
-      result.catch(() => {
-        // ignore
-      });
-    }
-  } catch {
-    // ignore
-  }
-};
-
-/**
  * 函数：切换播客媒体平台。
  *
  * # Arguments
@@ -535,9 +528,53 @@ const handlePodcastPlaybackStopCommand = (): void => {
 };
 
 /**
+ * 函数：更新播客完整视频弹窗开关。
+ *
+ * 关闭时同步卸载播放器，避免下次打开沿用旧实例状态。
+ *
+ * # Arguments
+ *
+ * * `open` - 弹窗开关状态。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePodcastVideoModalUpdateOpen = (open: boolean): void => {
+  statePodcastVideoModalOpen.value = open;
+
+  if (open === false) {
+    statePodcastVideoModalPlayerVisible.value = false;
+    refPodcastVideoPlayer.value = null;
+  }
+};
+
+/**
+ * 函数：更新播客完整音频弹窗开关。
+ *
+ * 关闭时同步卸载播放器，避免下次打开沿用旧实例状态。
+ *
+ * # Arguments
+ *
+ * * `open` - 弹窗开关状态。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const handlePodcastAudioModalUpdateOpen = (open: boolean): void => {
+  statePodcastAudioModalOpen.value = open;
+
+  if (open === false) {
+    statePodcastAudioModalPlayerVisible.value = false;
+    refPodcastAudioPlayer.value = null;
+  }
+};
+
+/**
  * 函数：打开播客完整视频弹窗并尝试自动播放。
  *
- * 借助当前点击的用户手势，在弹窗内容挂载后立即触发原生播放，降低宿主环境拦截概率。
+ * 先打开弹窗壳体，再延后一拍挂载播放器并显式触发播放。
  *
  * # Returns
  *
@@ -545,14 +582,17 @@ const handlePodcastPlaybackStopCommand = (): void => {
  */
 const handlePodcastVideoModalOpen = async (): Promise<void> => {
   statePodcastVideoModalOpen.value = true;
+  statePodcastVideoModalPlayerVisible.value = false;
   await nextTick();
-  mediaElementPlaySafe(refPodcastVideoModalBody.value);
+  statePodcastVideoModalPlayerVisible.value = true;
+  await nextTick();
+  await refPodcastVideoPlayer.value?.play();
 };
 
 /**
  * 函数：打开播客完整音频弹窗并尝试自动播放。
  *
- * 借助当前点击的用户手势，在弹窗内容挂载后立即触发原生播放，降低宿主环境拦截概率。
+ * 先打开弹窗壳体，再延后一拍挂载播放器并显式触发播放。
  *
  * # Returns
  *
@@ -560,8 +600,11 @@ const handlePodcastVideoModalOpen = async (): Promise<void> => {
  */
 const handlePodcastAudioModalOpen = async (): Promise<void> => {
   statePodcastAudioModalOpen.value = true;
+  statePodcastAudioModalPlayerVisible.value = false;
   await nextTick();
-  mediaElementPlaySafe(refPodcastAudioModalBody.value);
+  statePodcastAudioModalPlayerVisible.value = true;
+  await nextTick();
+  await refPodcastAudioPlayer.value?.play();
 };
 
 /**
