@@ -1,84 +1,61 @@
 <template>
   <DashboardPage class="gap-4">
-    <div class="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(13rem,14rem)_minmax(0,1fr)]">
-      <UPageCard variant="outline" class="min-h-0" :ui="{ body: 'flex h-full min-h-0 flex-col gap-4 p-3' }">
-        <div class="space-y-3">
-          <div>
-            <div class="text-highlighted text-sm font-semibold">{{ t('pages.hotsearch.data.platformsTitle') }}</div>
-            <div class="text-muted mt-1 text-xs leading-5">{{ t('pages.hotsearch.data.platformsDescription') }}</div>
-          </div>
+    <div class="flex min-h-0 flex-1 flex-col gap-4">
+      <div class="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+        <UPageCard icon="i-lucide:list-ordered" :title="t('pages.hotsearch.data.cards.totalRows')" :description="String(computedRows.length)" />
+        <UPageCard icon="i-lucide:badge-plus" :title="t('pages.hotsearch.data.cards.newRows')" :description="String(computedRows.filter((item) => item.isNew).length)" />
+        <UPageCard icon="i-lucide:mic-2" :title="t('pages.hotsearch.data.cards.podcastRows')" :description="String(computedRows.filter((item) => item.isPodcast).length)" />
+      </div>
 
-          <div class="flex flex-wrap gap-2">
-            <UBadge color="neutral" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedPlatformOptions.length }) }}</UBadge>
-            <UBadge :color="computedSelectedPlatformType === '' ? 'primary' : 'warning'" variant="soft">
-              {{ computedSelectedPlatformType === '' ? t('pages.hotsearch.data.allPlatforms') : computedSelectedPlatformLabel }}
-            </UBadge>
-          </div>
-        </div>
-
-        <div class="scrollbar flex-1 space-y-2 overflow-y-auto">
-          <UButton block :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" class="justify-start" @click="handlePlatformSelect('')">
-            {{ t('pages.hotsearch.data.allPlatforms') }}
-          </UButton>
-          <UButton
-            v-for="item in computedPlatformOptions"
-            :key="item.type"
-            block
-            :color="computedSelectedPlatformType === item.type ? 'primary' : 'neutral'"
-            :variant="computedSelectedPlatformType === item.type ? 'solid' : 'soft'"
-            size="sm"
-            class="justify-start"
-            @click="handlePlatformSelect(item.type)"
-          >
-            {{ t(item.key) }}
-          </UButton>
-        </div>
-      </UPageCard>
-
-      <div class="flex min-w-0 flex-1 flex-col gap-4">
-        <div class="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
-          <UPageCard icon="i-lucide:list-ordered" :title="t('pages.hotsearch.data.cards.totalRows')" :description="String(computedRows.length)" />
-          <UPageCard icon="i-lucide:badge-plus" :title="t('pages.hotsearch.data.cards.newRows')" :description="String(computedRows.filter((item) => item.isNew).length)" />
-          <UPageCard icon="i-lucide:mic-2" :title="t('pages.hotsearch.data.cards.podcastRows')" :description="String(computedRows.filter((item) => item.isPodcast).length)" />
-        </div>
-
-        <UPageCard variant="outline" class="min-h-0 flex-1" :ui="{ body: 'flex min-h-0 flex-1 flex-col p-0' }">
-          <template #header>
+      <UPageCard variant="outline" class="min-h-0 flex-1" :ui="{ body: 'flex min-h-0 flex-1 flex-col p-0' }">
+        <template #header>
+          <div class="flex flex-col gap-3">
             <div class="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <div class="text-highlighted text-sm font-semibold">{{ t('pages.hotsearch.sections.data.title') }}</div>
                 <div class="text-muted mt-1 text-xs leading-5">{{ t('pages.hotsearch.data.description') }}</div>
               </div>
 
-              <div class="flex flex-wrap gap-2">
-                <UBadge color="primary" variant="soft">{{ hotsearchDateLabelGet(computedSelectedDate) }}</UBadge>
-                <UBadge color="neutral" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedRows.length }) }}</UBadge>
-              </div>
+              <div class="text-muted text-xs">{{ hotsearchDateLabelGet(computedSelectedDate) }} / {{ t('pages.hotsearch.layout.dates.total', { value: computedRows.length }) }}</div>
             </div>
-          </template>
 
-          <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center px-4 py-8">
-            <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" />
-          </div>
+            <div>
+              <div class="text-highlighted text-xs font-semibold">{{ t('pages.hotsearch.data.platformsTitle') }}</div>
+              <div class="text-muted mt-1 text-xs leading-5">{{ t('pages.hotsearch.data.platformsDescription') }}</div>
+            </div>
 
-          <div v-else class="min-h-0 flex-1 overflow-auto px-4 pb-4">
-            <UTable
-              :columns="columns"
-              :data="computedRows"
-              sticky
-              class="shrink-0"
-              :ui="{
-                base: 'table-fixed border-separate border-spacing-0',
-                thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-                tbody: '[&>tr]:last:[&>td]:border-b-0',
-                th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-                td: 'border-b border-default align-top',
-                separator: 'h-0'
-              }"
-            />
+            <div class="flex flex-wrap gap-2">
+              <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
+                {{ t('pages.hotsearch.data.allPlatforms') }}
+              </UButton>
+              <UButton v-for="item in computedPlatformOptions" :key="item.type" :color="computedSelectedPlatformType === item.type ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === item.type ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect(item.type)">
+                {{ t(item.key) }}
+              </UButton>
+            </div>
           </div>
-        </UPageCard>
-      </div>
+        </template>
+
+        <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center px-4 py-8">
+          <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" />
+        </div>
+
+        <div v-else class="min-h-0 flex-1 overflow-auto px-4 pb-4">
+          <UTable
+            :columns="columns"
+            :data="computedRows"
+            sticky
+            class="shrink-0"
+            :ui="{
+              base: 'table-fixed border-separate border-spacing-0',
+              thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+              tbody: '[&>tr]:last:[&>td]:border-b-0',
+              th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+              td: 'border-b border-default align-top',
+              separator: 'h-0'
+            }"
+          />
+        </div>
+      </UPageCard>
     </div>
 
     <USlideover v-model:open="stateDetailOpen" side="right" :title="stateDetailRow.title" :description="t(stateDetailRow.categoryKey || 'pages.hotsearch.categories.tech')" :ui="{ content: 'w-auto max-w-180', close: 'no-drag', body: 'scrollbar space-y-4' }">
@@ -164,15 +141,6 @@ const computedSelectedPlatformType = computed(() => hotsearchQueryStringGet(rout
 const computedPlatformOptions = computed(() => hotsearchPlatformsList());
 
 /**
- * 计算属性：当前平台标签。
- */
-const computedSelectedPlatformLabel = computed(() => {
-  const matchedPlatform = computedPlatformOptions.value.find((item) => item.type === computedSelectedPlatformType.value);
-
-  return matchedPlatform ? t(matchedPlatform.key) : t('pages.hotsearch.data.allPlatforms');
-});
-
-/**
  * 计算属性：筛选后的数据行。
  */
 const computedRows = computed(() => {
@@ -207,9 +175,9 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
           'div',
           { class: 'flex flex-wrap gap-2' },
           [
-            h('span', { class: 'inline-flex items-center rounded-full bg-elevated px-2 py-1 text-[11px] text-toned' }, t(item.categoryKey)),
-            item.isNew ? h('span', { class: 'inline-flex items-center rounded-full bg-success/10 px-2 py-1 text-[11px] text-success' }, t('pages.hotsearch.data.status.new')) : null,
-            item.isPodcast ? h('span', { class: 'inline-flex items-center rounded-full bg-warning/10 px-2 py-1 text-[11px] text-warning' }, t('pages.hotsearch.data.status.podcastReady')) : null
+            h('span', { class: 'inline-flex items-center rounded-full bg-elevated px-2 py-1 text-xs text-toned' }, t(item.categoryKey)),
+            item.isNew ? h('span', { class: 'inline-flex items-center rounded-full bg-success/10 px-2 py-1 text-xs text-success' }, t('pages.hotsearch.data.status.new')) : null,
+            item.isPodcast ? h('span', { class: 'inline-flex items-center rounded-full bg-warning/10 px-2 py-1 text-xs text-warning' }, t('pages.hotsearch.data.status.podcastReady')) : null
           ].filter(Boolean)
         )
       ]);

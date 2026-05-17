@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/lora':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource/ma-shan-zheng':
         specifier: ^5.2.9
         version: 5.2.9
@@ -1005,6 +1008,9 @@ packages:
 
   '@floating-ui/vue@1.1.11':
     resolution: {integrity: sha512-HzHKCNVxnGS35r9fCHBc3+uCnjw9IWIlCPL683cGgM9Kgj2BiAl8x1mS7vtvP6F9S/e/q4O6MApwSHj8hNLGfw==}
+
+  '@fontsource/lora@5.2.8':
+    resolution: {integrity: sha512-AQlfsHw4TP1x/eb2IZ6VjQ70ctKa39m9JN9A4zlvDOeKYLrCs+GaYIEQ86Y6YfSPGHn01bErXkRcyktOW0LOPQ==}
 
   '@fontsource/ma-shan-zheng@5.2.9':
     resolution: {integrity: sha512-5Pvpb5q6sq00/g+yLLE8iYWcsAqnoIqCloBsjN0bphkGWU3Wp3EfT0CgTsKOiLsPM8GN3AUP0ZaFM2/JR33C/g==}
@@ -9823,6 +9829,8 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@fontsource/lora@5.2.8': {}
 
   '@fontsource/ma-shan-zheng@5.2.9': {}
 

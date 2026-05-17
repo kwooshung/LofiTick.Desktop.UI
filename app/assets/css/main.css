@@ -5,6 +5,7 @@
 @import '@fontsource/roboto-mono/400.css'; /* Roboto Mono（Regular） */
 @import '@fontsource/ma-shan-zheng/400.css'; /* 马善政（Regular） */
 @import '@fontsource/zhi-mang-xing/400.css'; /* 知芒星（Regular） */
+@import '@fontsource/lora/400.css'; /* Lora（Regular） */
 
 @source inline('{dark:,}bg-{amber,blue,cyan,emerald,fuchsia,gray,green,indigo,ink,lime,mauve,mist,neutral,old-neutral,olive,orange,pink,purple,red,rose,sky,slate,stone,taupe,teal,violet,yellow,zinc}-{50,{100..900..100},950}');
 @source inline('{dark:,}text-{amber,blue,cyan,emerald,fuchsia,gray,green,indigo,ink,lime,mauve,mist,neutral,old-neutral,olive,orange,pink,purple,red,rose,sky,slate,stone,taupe,teal,violet,yellow,zinc}-{50,{100..900..100},950}');
@@ -15,6 +16,7 @@
   --font-sans: 'Roboto Mono', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-zhi-mang-xing: 'Roboto Mono', Quotes, -apple-system, 'Zhi Mang Xing', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-ma-shan-zheng: 'Roboto Mono', Quotes, -apple-system, 'Ma Shan Zheng', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-lora: 'Roboto Mono', Quotes, -apple-system, 'Lora', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
   --breakpoint-3xl: 120rem; /* 1920px */
   --breakpoint-4xl: 130rem; /* 2080px */

@@ -4,7 +4,7 @@
       <template #header>
         <div class="flex-1">
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.sentinel.logs.title') }}</div>
-          <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.sentinel.logs.description') }}</div>
+          <div class="text-muted mt-1 text-sm text-pretty">{{ t('pages.sentinel.logs.description') }}</div>
         </div>
         <div class="flex shrink-0 flex-col items-end gap-2">
           <div class="flex items-center gap-2">

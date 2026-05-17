@@ -38,11 +38,11 @@
             <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-6 pb-3">
               <div class="min-w-0 space-y-2.5">
                 <div class="flex min-w-0 flex-wrap items-center gap-2">
-                  <span class="text-muted text-[11px] font-medium tracking-[0.16em] uppercase">{{ t('pages.hotsearch.sections.podcast.title') }}</span>
+                  <span class="text-muted text-xs font-medium tracking-[0.16em] uppercase">{{ t('pages.hotsearch.sections.podcast.title') }}</span>
                   <span class="text-muted text-xs">{{ computedToolbarDateParts.year }}</span>
                 </div>
 
-                <div class="text-highlighted text-[1.625rem] leading-none font-semibold">{{ computedToolbarPanelTitle }}</div>
+                <div class="text-highlighted text-2xl leading-none font-semibold">{{ computedToolbarPanelTitle }}</div>
                 <p class="text-muted max-w-2xl text-sm leading-6">{{ computedToolbarPanelDescription }}</p>
               </div>
 
@@ -52,7 +52,7 @@
                     {{ computedToolbarDateParts.month }}
                   </div>
                   <div class="flex min-h-15 flex-col items-center justify-center px-2 py-2.25">
-                    <div class="text-highlighted text-[2.2rem] leading-none font-semibold tracking-[-0.04em]">{{ computedToolbarDateParts.day }}</div>
+                    <div class="text-highlighted text-4xl leading-none font-semibold tracking-[-0.04em]">{{ computedToolbarDateParts.day }}</div>
                   </div>
                 </div>
               </div>

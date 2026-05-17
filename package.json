@@ -30,6 +30,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@fontsource/lora": "^5.2.8",
     "@fontsource/ma-shan-zheng": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
     "@fontsource/zhi-mang-xing": "^5.2.8",

@@ -114,7 +114,7 @@
                       <UIcon :name="stateAudioPlaying ? 'i-lucide:audio-lines' : 'i-lucide:radio'" class="size-4" />
                     </div>
                     <div class="min-w-0">
-                      <div class="text-primary text-[11px] font-medium tracking-[0.18em] uppercase">{{ t('pages.hotsearch.podcast.playAll') }}</div>
+                      <div class="text-primary text-xs font-medium tracking-[0.18em] uppercase">{{ t('pages.hotsearch.podcast.playAll') }}</div>
                       <p class="text-highlighted mt-1 truncate text-sm leading-6">{{ t('pages.hotsearch.podcast.nowPlaying', { text: computedCurrentSentence.text }) }}</p>
                     </div>
                   </div>
