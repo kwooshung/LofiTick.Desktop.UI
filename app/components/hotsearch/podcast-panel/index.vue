@@ -42,11 +42,6 @@
           <div class="space-y-4">
             <section class="space-y-5">
               <div class="border-default flex w-full flex-col gap-3 border-b pb-4">
-                <div class="min-w-0">
-                  <h4 class="text-highlighted text-sm font-semibold">{{ t('pages.hotsearch.podcast.scriptTitle') }}</h4>
-                  <p class="text-muted mt-1 text-xs leading-5">{{ t('pages.hotsearch.podcast.scriptDescription') }}</p>
-                </div>
-
                 <div class="flex w-full items-start justify-between gap-3">
                   <div class="flex flex-wrap items-center gap-2">
                     <UButton color="primary" :variant="stateAudioPlaying ? 'solid' : 'soft'" :icon="computedPlaybackPrimaryIcon" @click="handlePlaybackPrimaryAction">

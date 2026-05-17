@@ -275,7 +275,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       icon: 'i-lucide:mic-2',
       active: computedRouteIsPodcast.value,
       to: {
-        path: localePath('/hotsearch/podcast'),
+        path: localePath('/hotsearch/podcast/morning-short'),
         query: { date: computedSelectedDate.value }
       }
     },
