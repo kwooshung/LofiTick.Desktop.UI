@@ -64,8 +64,8 @@
 
           <section class="divide-default/70 divide-y">
             <div v-for="(item, index) in computedPodcastView.sentences" :key="item.id" :ref="sentenceRowRefGet(item.id)" class="group px-4 py-3 transition-[background-color,transform] duration-200 sm:px-5" :class="item.id === stateCurrentSentenceId ? 'bg-primary/4.5' : 'hover:bg-muted/25'">
-              <div class="grid gap-3 md:grid-cols-[8.25rem_minmax(0,1fr)_10.25rem] md:items-center md:gap-3">
-                <div class="flex items-center gap-3">
+              <div class="grid gap-3 md:grid-cols-[8.25rem_minmax(0,1fr)_10.25rem] md:items-start md:gap-3">
+                <div class="flex items-center gap-3 md:self-start">
                   <div class="text-muted text-xs tracking-[0.16em] uppercase tabular-nums">
                     {{ sentenceOrderLabelGet(index) }}
                   </div>
@@ -79,12 +79,12 @@
                     <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedSentenceDurationGet(item.id)" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
                   </div>
 
-                  <p class="text-muted truncate text-sm leading-6" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
+                  <p class="text-muted text-sm leading-6 wrap-break-word whitespace-normal" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
                     {{ item.text }}
                   </p>
                 </div>
 
-                <div class="flex items-center justify-between gap-3 md:justify-end">
+                <div class="flex items-center justify-between gap-3 md:justify-end md:self-start">
                   <span class="text-muted min-w-26 text-right text-xs font-medium tabular-nums">{{ sentencePlaybackLabelGet(item.id) }}</span>
                   <UButton
                     color="primary"
@@ -148,6 +148,11 @@ const stateCurrentSentenceDuration = ref(0);
  * 状态：待处理的波形定位百分比。
  */
 const statePendingSeekPercent = ref<number | null>(null);
+
+/**
+ * 状态：自动切句锁。
+ */
+const stateSentenceAutoAdvanceLock = ref<string | null>(null);
 
 /**
  * 状态：是否正在播放。
@@ -287,6 +292,17 @@ const computedCurrentSentenceElapsedSeconds = computed(() => {
 });
 
 /**
+ * 计算属性：当前句目标时长秒数。
+ */
+const computedCurrentSentenceTargetDurationSeconds = computed(() => {
+  if (!computedCurrentSentence.value) {
+    return 0;
+  }
+
+  return sentenceDurationSecondsGet(computedCurrentSentence.value);
+});
+
+/**
  * 计算属性：当前整体播放进度标签。
  */
 const computedCurrentOverallProgressLabel = computed(() => {
@@ -373,13 +389,41 @@ onMounted(() => {
   const audio = new Audio();
 
   audio.addEventListener('timeupdate', () => {
-    if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+    const targetDurationSeconds = computedCurrentSentenceTargetDurationSeconds.value;
+
+    if (targetDurationSeconds <= 0) {
+      stateCurrentSentenceDuration.value = 0;
       stateCurrentSentenceProgress.value = 0;
       return;
     }
 
-    stateCurrentSentenceDuration.value = audio.duration;
-    stateCurrentSentenceProgress.value = audio.currentTime / audio.duration;
+    stateCurrentSentenceDuration.value = targetDurationSeconds;
+    stateCurrentSentenceProgress.value = Math.min(audio.currentTime, targetDurationSeconds) / targetDurationSeconds;
+
+    if (audio.currentTime + 0.05 < targetDurationSeconds || !stateCurrentSentenceId.value) {
+      stateSentenceAutoAdvanceLock.value = null;
+      return;
+    }
+
+    if (stateSentenceAutoAdvanceLock.value === stateCurrentSentenceId.value) {
+      return;
+    }
+
+    stateSentenceAutoAdvanceLock.value = stateCurrentSentenceId.value;
+
+    if (!stateSequenceMode.value) {
+      audio.pause();
+      return;
+    }
+
+    const nextSentence = sentenceNeighborGet(1);
+
+    if (!nextSentence) {
+      handleStopAudio();
+      return;
+    }
+
+    void handleSentencePlay(nextSentence.id, true);
   });
 
   audio.addEventListener('loadedmetadata', () => {
@@ -387,11 +431,13 @@ onMounted(() => {
       return;
     }
 
-    if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+    const targetDurationSeconds = computedCurrentSentenceTargetDurationSeconds.value;
+
+    if (targetDurationSeconds <= 0) {
       return;
     }
 
-    audio.currentTime = Math.max(0, Math.min(1, statePendingSeekPercent.value)) * audio.duration;
+    audio.currentTime = Math.max(0, Math.min(1, statePendingSeekPercent.value)) * targetDurationSeconds;
     statePendingSeekPercent.value = null;
   });
 
@@ -407,6 +453,10 @@ onMounted(() => {
     if (!stateSequenceMode.value || stateCurrentSentenceId.value === null) {
       stateAudioPlaying.value = false;
       stateCurrentSentenceProgress.value = 0;
+      return;
+    }
+
+    if (computedCurrentSentenceTargetDurationSeconds.value > 0 && audio.currentTime + 0.05 < computedCurrentSentenceTargetDurationSeconds.value) {
       return;
     }
 
@@ -691,7 +741,8 @@ const handleSentencePlay = async (sentenceId: string, fromSequence = false): Pro
   stateSequenceMode.value = fromSequence;
   stateCurrentSentenceId.value = sentence.id;
   stateCurrentSentenceProgress.value = 0;
-  stateCurrentSentenceDuration.value = 0;
+  stateCurrentSentenceDuration.value = sentenceDurationSecondsGet(sentence);
+  stateSentenceAutoAdvanceLock.value = null;
 
   if (stateAudio.value.src !== sentence.audioUrl) {
     stateAudio.value.src = sentence.audioUrl;
@@ -844,6 +895,7 @@ const handleStopAudio = (): void => {
   stateCurrentSentenceProgress.value = 0;
   stateCurrentSentenceDuration.value = 0;
   statePendingSeekPercent.value = null;
+  stateSentenceAutoAdvanceLock.value = null;
 };
 
 /**
