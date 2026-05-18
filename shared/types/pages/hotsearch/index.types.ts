@@ -198,7 +198,7 @@ export interface IHotsearchDataRow {
   /** 是否为新增 */
   isNew: boolean;
 
-  /** 入库时间文本 */
+  /** 创建时间文本 */
   publishedAt: string;
 }
 
