@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { debounce, throttle } from 'es-toolkit';
 
+import { DEFAULT_SIGN_BLOB_COOKIE_NAME, getPublicSignAesSeedFromConfig, pickSignRefreshBlob, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH } from '@@/shared/utils';
 import type { UseFetchOptions } from '#app';
 
 import type { IApiResponseWrapper, IApiToastTryEmitArgs, IServerError, ISignRefreshPayload, ISignState, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
-import { DEFAULT_SIGN_BLOB_COOKIE_NAME, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH, getPublicSignAesSeedFromConfig, pickSignRefreshBlob } from '@@/shared/utils';
 
 /**
  * 常量：支持 Body 传参的方法集合
@@ -876,6 +876,40 @@ const shouldRefreshNuxtCsrfOnError = (err: unknown): boolean => {
 };
 
 /**
+ * 函数：判断本次错误是否应先静默，等待自愈重试结果。
+ *
+ * 该判断只覆盖当前链路已支持“自动自愈一次”的错误：
+ * - 后端安全层的签名过期 / 签名不匹配
+ * - 后端安全层的 CSRF 缺失 / 缺 header / 不匹配
+ * - Nuxt 同源代理层的 CSRF 拒绝
+ *
+ * # Arguments
+ *
+ * * `args` - 判定所需参数。
+ *
+ * # Returns
+ *
+ * 命中可自愈错误时返回 `true`。
+ */
+const shouldSilenceToastForRecoverableError = (args: { status: unknown; raw?: unknown; fallbackHttp?: number }): boolean => {
+  if (shouldRefreshOnStatus(args.status) || shouldReinitCsrfOnStatus(args.status)) {
+    return true;
+  }
+
+  const rawObj = args.raw && typeof args.raw === 'object' && !Array.isArray(args.raw) ? (args.raw as Record<string, unknown>) : {};
+  const statusCode = Number(args.fallbackHttp ?? rawObj.statusCode ?? 0);
+  const errorName = String(rawObj.name ?? '').trim();
+  const statusMessage = String(rawObj.statusMessage ?? '').trim();
+  const message = String(rawObj.message ?? '').trim();
+
+  if (statusCode !== 403) {
+    return false;
+  }
+
+  return errorName === 'EBADCSRFTOKEN' || statusMessage === 'CSRF Token Mismatch' || message === 'CSRF Token invalid' || message === 'CSRF Token not found' || message === 'CSRF Cookie not found';
+};
+
+/**
  * 函数：刷新当前页面可用的 Nuxt CSRF token。
  *
  * 该函数通过本地 `/api/security/csrf` 获取最新 token，并同步写回当前文档的 meta，
@@ -885,7 +919,7 @@ const shouldRefreshNuxtCsrfOnError = (err: unknown): boolean => {
  *
  * 成功刷新时返回 `true`，否则返回 `false`。
  */
-const refreshNuxtCsrfToken = async (): Promise<boolean> => {
+const refreshNuxtCsrfToken = async (onUpdated?: (token: string) => void): Promise<boolean> => {
   if (import.meta.server) {
     return false;
   }
@@ -908,6 +942,7 @@ const refreshNuxtCsrfToken = async (): Promise<boolean> => {
   }
 
   meta.setAttribute('content', token);
+  onUpdated?.(token);
   return true;
 };
 
@@ -984,7 +1019,6 @@ const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<IS
     });
 
     const datas = raw?.datas && typeof raw.datas === 'object' && !Array.isArray(raw.datas) ? (raw.datas as Record<string, unknown>) : {};
-    const attach = raw?.attach && typeof raw.attach === 'object' && !Array.isArray(raw.attach) ? (raw.attach as Record<string, unknown>) : null;
     const signRefreshBlob = pickSignRefreshBlob(raw);
 
     return {
@@ -1404,12 +1438,21 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     let lastResponseStatus: unknown = undefined;
 
     /**
+     * 变量：当前请求周期是否允许静默吞掉首个可自愈错误 Toast。
+     *
+     * 每次外层 `refresh()` / `retry()` 会重置为 `true`，
+     * 如果首个失败命中签名或 CSRF 自愈条件，则先静默，等待自动补救后的最终结果再决定是否提示。
+     */
+    let canSilenceRecoverableToast = true;
+
+    /**
      * 状态：本次请求签名相关参数（稳定引用，避免 useFetch 捕获旧 options 导致 ts 固化）。
      */
     const sigTsRef = ref('');
     const sigNonceRef = ref('');
     const sigSignRef = ref('');
     const sigExtraHeadersRef = ref<Record<string, string>>({});
+    const nuxtCsrfTokenRef = ref('');
 
     /**
      * 计算：Nuxt CSRF 请求头。
@@ -1423,7 +1466,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       }
 
       const { csrf, headerName } = useCsrf();
-      const token = String(csrf ?? '').trim();
+      const token = String((nuxtCsrfTokenRef.value || csrf) ?? '').trim();
       const name = String(headerName ?? '').trim();
 
       if (token === '' || name === '') {
@@ -1475,15 +1518,21 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       headers: headersObj,
       onResponseError(ctx: any) {
         const raw = ctx?.response?._data as IApiResponseWrapper<unknown> | undefined;
+        const fallbackHttp = ctx?.response?.status;
 
         lastResponseStatus = raw?.status;
+
+        if (canSilenceRecoverableToast && shouldSilenceToastForRecoverableError({ status: raw?.status, raw, fallbackHttp })) {
+          canSilenceRecoverableToast = false;
+          return;
+        }
 
         apiToastTryEmit({
           method,
           backendPath,
           keyHash,
           raw,
-          fallbackHttp: ctx?.response?.status,
+          fallbackHttp,
           toastSet: toastStore.set
         });
       },
@@ -1609,7 +1658,9 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
 
       if (shouldRefreshNuxtCsrf) {
         try {
-          await refreshNuxtCsrfToken();
+          await refreshNuxtCsrfToken((token) => {
+            nuxtCsrfTokenRef.value = token;
+          });
         } catch {
           return;
         }
@@ -1627,6 +1678,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
       await runWithSignature();
       finalOptions.key = `${staticKey}-${Date.now()}`;
+      canSilenceRecoverableToast = false;
 
       try {
         if (refreshArgs !== undefined) {
@@ -1642,6 +1694,8 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     };
 
     const retry = async (opts?: IUseFetchExtraOptions) => {
+      canSilenceRecoverableToast = true;
+
       if (opts) {
         const rest = { ...opts } as Partial<IUseFetchExtraOptions>;
         delete (rest as any).datas;
@@ -1690,10 +1744,13 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     const executeRefreshOnce = async (): Promise<void> => {
       applyQueuedSources();
       finalOptions.key = `${staticKey}-${Date.now()}`;
+      canSilenceRecoverableToast = true;
 
       if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
         try {
-          await refreshNuxtCsrfToken();
+          await refreshNuxtCsrfToken((token) => {
+            nuxtCsrfTokenRef.value = token;
+          });
         } catch {
           // ignore
         }

@@ -81,6 +81,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：开关
  */
 const USwitch = resolveComponent('USwitch');
@@ -89,6 +94,16 @@ const USwitch = resolveComponent('USwitch');
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
+
+/**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口能力
+ */
+const { openExternalUrl } = useTauriWindow();
 
 /**
  * Hook：国际化
@@ -100,12 +115,9 @@ const { t } = useI18n();
  */
 const route = useRoute();
 
-const props = withDefaults(
-  defineProps<IPageQqGroupsProps>(),
-  {
-    createNonce: 0
-  }
-);
+const props = withDefaults(defineProps<IPageQqGroupsProps>(), {
+  createNonce: 0
+});
 
 /**
  * 函数：从路由查询参数构建接口查询参数
@@ -376,20 +388,28 @@ const handleCopyGroupNumber = async (row: IPageTableColumnQqGroup): Promise<void
 };
 
 /**
- * 事件：打开群链接（预留函数）
+ * 函数：构建群链接地址。
+ * @param {IPageTableColumnQqGroup} row 行数据
+ * @returns {string} 链接地址
+ */
+const buildGroupLinkUrl = (row: IPageTableColumnQqGroup): string => String(row.url ?? '').trim();
+
+/**
+ * 事件：点击群链接。
+ * @param {MouseEvent} event 点击事件
  * @param {IPageTableColumnQqGroup} row 行数据
  */
-const handleOpenGroupLink = (row: IPageTableColumnQqGroup): void => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const url = String(row.url ?? '').trim();
+const handleGroupLinkClick = async (event: MouseEvent, row: IPageTableColumnQqGroup): Promise<void> => {
+  const url = buildGroupLinkUrl(row);
   if (!url) {
+    event.preventDefault();
     return;
   }
 
-  window.open(url, '_blank', 'noopener,noreferrer');
+  if (isTauriRuntime.value) {
+    event.preventDefault();
+    await openExternalUrl(url);
+  }
 };
 
 /**
@@ -768,14 +788,14 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
 
       return h('div', { class: 'flex items-center gap-1' }, [
         h(
-          UButton,
+          ULink,
           {
-            color: 'primary',
-            variant: 'link',
-            size: 'xs',
-            label: row.original.number,
-            class: 'px-0',
-            onClick: () => handleOpenGroupLink(row.original)
+            raw: true,
+            href: buildGroupLinkUrl(row.original),
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'px-0 no-underline text-primary text-xs hover:underline',
+            onClick: (event: MouseEvent) => void handleGroupLinkClick(event, row.original)
           },
           () => row.original.number
         ),

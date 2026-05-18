@@ -42,6 +42,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
@@ -100,7 +105,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   return query;
 };
 
-const navigateWithSingleFilter = (sourceId: number | string) => {
+const buildSingleFilterLocation = (sourceId: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
 
   if (typeof route.query.pagesize !== 'undefined') {
@@ -109,7 +114,7 @@ const navigateWithSingleFilter = (sourceId: number | string) => {
 
   q.source_ids = String(sourceId);
 
-  navigateTo({ path: localePath('/quotes'), query: q });
+  return { path: localePath('/quotes'), query: q };
 };
 
 /**
@@ -219,13 +224,15 @@ const columns: TableColumn<IPageTableColumnQuoteSources>[] = [
     },
     header: t('pages.quotes.result.table.source'),
     cell: ({ row }) =>
-      h(UButton, {
-        color: 'neutral',
-        variant: 'link',
-        label: `${row.original.infos.name}（${row.original.infos.count}）`,
-        class: 'p-0 text-default hover:text-primary hover:underline',
-        onClick: () => navigateWithSingleFilter(row.original.id)
-      })
+      h(
+        ULink,
+        {
+          raw: true,
+          class: 'p-0 no-underline text-default hover:text-primary hover:underline',
+          to: buildSingleFilterLocation(row.original.id)
+        },
+        () => `${row.original.infos.name}（${row.original.infos.count}）`
+      )
   },
   {
     accessorKey: 'time',

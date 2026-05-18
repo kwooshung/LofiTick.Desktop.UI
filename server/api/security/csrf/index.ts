@@ -1,4 +1,5 @@
 import { createError, defineEventHandler, getMethod } from 'h3';
+import { useRuntimeConfig } from 'nitropack/runtime';
 
 /**
  * 接口：Nuxt CSRF token 刷新响应。
@@ -30,10 +31,9 @@ export default defineEventHandler((event): IApiSecurityCsrfResponse => {
     throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' });
   }
 
-  const { csrf, headerName } = useCsrf();
-
-  const token = String(csrf ?? '').trim();
-  const header = String(headerName ?? '').trim();
+  const runtimeConfig = useRuntimeConfig(event);
+  const token = String((event.context as Record<string, unknown>).csrfToken ?? '').trim();
+  const header = String((runtimeConfig.public as Record<string, unknown>)?.csurf?.headerName ?? '').trim();
 
   if (token === '' || header === '') {
     throw createError({ statusCode: 500, statusMessage: 'CSRF Token Unavailable' });
