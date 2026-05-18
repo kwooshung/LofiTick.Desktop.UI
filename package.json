@@ -30,10 +30,12 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@fontsource/lora": "^5.2.8",
     "@fontsource/ma-shan-zheng": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
     "@fontsource/zhi-mang-xing": "^5.2.8",
     "@formkit/auto-animate": "^0.9.0",
+    "@internationalized/date": "^3.12.1",
     "@kwooshung/console-badge": "^1.0.7",
     "@nuxt/hints": "1.0.0-alpha.8",
     "@nuxt/image": "2.0.0",

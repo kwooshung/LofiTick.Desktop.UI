@@ -9,7 +9,7 @@ const envConfig = isDev ? development : production;
 
 export const configs = {
   compatibilityDate: '2025-09-15',
-  ssr: false,
+  ssr: true,
 
   future: {
     // 启用 Nuxt 5 兼容模式，逐步对齐 v5 行为

@@ -1,8 +1,8 @@
 <template>
   <ClientOnly>
     <div :id="stateId" :class="stateRootClass" :style="stateRootStyle">
-      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="props.poster" class="size-full" controls playsinline />
-      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full" controls />
+      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="props.poster" :autoplay="props.autoplay" class="size-full" controls playsinline />
+      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" :autoplay="props.autoplay" class="size-full" controls />
       <div v-else ref="refElement" class="size-full" :data-plyr-provider="stateEmbedProvider" :data-plyr-embed-id="stateEmbedId" />
 
       <Teleport v-if="stateWaveformEnabled && stateWaveformTeleportTarget" :to="stateWaveformTeleportTarget">
@@ -707,6 +707,11 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
     options.seekToPlay = true;
   }
 
+  // 组件级 autoplay 语义优先透传到 Plyr 配置。
+  if (options.autoplay === undefined && props.autoplay !== undefined) {
+    options.autoplay = props.autoplay;
+  }
+
   return {
     ...options,
     i18n: tm('components.plyr') as unknown as TMediaPlyrI18nDict
@@ -1085,9 +1090,36 @@ const mediaPlyrCreate = async (): Promise<void> => {
     mediaPlyrWaveformTeleportTargetResolve(player);
     mediaPlyrWaveformSync(player);
   });
+
+  /**
+   * 函数：安全调用 play。
+   *
+   * 在浏览器或宿主环境拒绝播放时吞掉 Promise rejection，避免污染控制台。
+   *
+   * # Returns
+   *
+   * 无返回值。
+   */
+  const playerPlaySafe = (): void => {
+    try {
+      const result = player.play() as unknown;
+      if (result && typeof (result as Promise<unknown>).catch === 'function') {
+        (result as Promise<unknown>).catch(() => {
+          // ignore
+        });
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   player.on('ready', () => {
     mediaPlyrWaveformTeleportTargetResolve(player);
     mediaPlyrWaveformSync(player);
+
+    if (props.autoplay === true) {
+      playerPlaySafe();
+    }
   });
 
   /**
@@ -1139,23 +1171,6 @@ const mediaPlyrCreate = async (): Promise<void> => {
     let stateSeekInteractEndAt = 0;
 
     const container = mediaPlyrContainerGet(player);
-
-    /**
-     * 函数：安全调用 play（避免未处理的 Promise rejection）
-     * @returns {void} 无返回值
-     */
-    const playerPlaySafe = (): void => {
-      try {
-        const result = player.play() as unknown;
-        if (result && typeof (result as Promise<unknown>).catch === 'function') {
-          (result as Promise<unknown>).catch(() => {
-            // ignore
-          });
-        }
-      } catch {
-        // ignore
-      }
-    };
 
     /**
      * 函数：是否为 seek 交互目标

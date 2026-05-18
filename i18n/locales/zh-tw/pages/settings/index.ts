@@ -180,6 +180,9 @@ export const settings = {
   hotsearch: {
     title: '熱搜設定',
     description: '設定本機熱搜抓取頻率、平台選擇、預算與 Podcast 生成時間。',
+    header: {
+      enter: '前往熱搜'
+    },
     sections: {
       schedule: {
         title: '抓取計畫',

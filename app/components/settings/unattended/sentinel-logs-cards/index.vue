@@ -5,21 +5,21 @@
         <template #body>
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
-              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
+              <div class="text-muted flex items-center justify-center gap-1 text-xs leading-4">
                 <UIcon name="i-lucide:file-text" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.logs') }}</span>
               </div>
               <div class="text-highlighted mt-1 text-center text-lg leading-6 font-semibold">{{ machine.logs.length }}</div>
             </div>
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
-              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
+              <div class="text-muted flex items-center justify-center gap-1 text-xs leading-4">
                 <UIcon name="i-lucide:monitor-dot" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.machineLogs') }}</span>
               </div>
               <div class="mt-1 text-center text-lg leading-6 font-semibold text-cyan-500">{{ machineLogsCountGet(machine) }}</div>
             </div>
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
-              <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
+              <div class="text-muted flex items-center justify-center gap-1 text-xs leading-4">
                 <UIcon name="i-lucide:layout-grid" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.sceneLogs') }}</span>
               </div>
@@ -33,7 +33,7 @@
                 <div class="flex items-center gap-2">
                   <UBadge :color="levelColorGet(item.level)" variant="soft" size="xs">{{ item.level || '-' }}</UBadge>
                   <UBadge color="neutral" variant="outline" size="xs">{{ item.scope || '-' }}</UBadge>
-                  <span class="text-muted ml-auto text-[11px]"><Datetime :datetime="String(item.ts || '').trim()" /></span>
+                  <span class="text-muted ml-auto text-xs"><Datetime :datetime="String(item.ts || '').trim()" /></span>
                 </div>
                 <div class="text-highlighted mt-1.5 line-clamp-2 leading-5 wrap-break-word">{{ previewLogMessageGet(item) }}</div>
               </article>
