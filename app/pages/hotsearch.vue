@@ -221,6 +221,14 @@ const storeBreadcrumb = useStoreBreadcrumb();
 const stateToolbarKeyword = ref('');
 
 /**
+ * API：热搜日期摘要。
+ */
+const { datas: stateHotsearchDateSummaries, refresh: refreshHotsearchDateSummariesGet } = await useApi<IHotsearchArchiveDateSummary[]>('hotsearch/dates', {
+  immediate: true,
+  server: false
+});
+
+/**
  * 计算属性：日期格式化器。
  */
 const computedDateFormatterLocale = computed(() => String(locales.value.find((item) => item.code === locale.value)?.language || locale.value.replace(/_/g, '-')));
@@ -233,7 +241,7 @@ const computedDateFormatter = computed(() => new DateFormatter(computedDateForma
 /**
  * 计算属性：日期摘要列表。
  */
-const computedDateSummaries = computed(() => hotsearchArchiveDateSummariesGet());
+const computedDateSummaries = computed(() => stateHotsearchDateSummaries.value ?? []);
 
 /**
  * 计算属性：日期摘要映射。
@@ -241,16 +249,33 @@ const computedDateSummaries = computed(() => hotsearchArchiveDateSummariesGet())
 const computedDateSummaryMap = computed(() => new Map(computedDateSummaries.value.map((item) => [item.date, item])));
 
 /**
+ * 计算属性：当前日期字符串。
+ */
+const computedTodayDate = computed(() => {
+  const value = today(calendarTimeZone);
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+});
+
+/**
  * 计算属性：当前选中日期。
  */
 const computedSelectedDate = computed(() => {
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
-  if (computedDateSummaries.value.some((item) => item.date === queryDate)) {
+  if (queryDate !== '' && computedDateSummaryMap.value.has(queryDate)) {
     return queryDate;
   }
 
-  return computedDateSummaries.value[0]?.date ?? '';
+  if (computedDateSummaryMap.value.has(computedTodayDate.value)) {
+    return computedTodayDate.value;
+  }
+
+  if (queryDate !== '') {
+    return queryDate;
+  }
+
+  return computedDateSummaries.value[0]?.date ?? computedTodayDate.value;
 });
 
 /**
@@ -633,6 +658,41 @@ watch(
   () => route.query.keyword,
   (value) => {
     stateToolbarKeyword.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined);
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(stateDatePickerOpen, (open) => {
+  if (!open) {
+    return;
+  }
+
+  void refreshHotsearchDateSummariesGet({ replace: true });
+});
+
+watch(
+  () => ({
+    routeDate: hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined),
+    selectedDate: computedSelectedDate.value,
+    summaryCount: computedDateSummaries.value.length
+  }),
+  ({ routeDate, selectedDate, summaryCount }) => {
+    if (summaryCount <= 0 || selectedDate === '' || routeDate === selectedDate) {
+      return;
+    }
+
+    navigateTo(
+      {
+        path: route.path,
+        query: {
+          ...route.query,
+          date: selectedDate
+        }
+      },
+      { replace: true }
+    );
   },
   {
     immediate: true

@@ -21,6 +21,7 @@
           <UTable
             :columns="columns"
             :data="computedRows"
+            :loading="loading"
             sticky
             class="w-full min-w-0"
             :ui="{
@@ -80,9 +81,20 @@ const { isTauriRuntime } = useTauriEnv();
 const { openExternalUrl } = useTauriWindow();
 
 /**
+ * API：热搜数据行。
+ */
+const {
+  datas: stateHotsearchRowsRemote,
+  loading,
+  refresh: refreshHotsearchRowsGet
+} = await useApi<IHotsearchDataRow[]>('hotsearch/rows', {
+  immediate: false
+});
+
+/**
  * 计算属性：当前日期。
  */
-const computedSelectedDate = computed(() => hotsearchQueryStringGet(route.query.date) || hotsearchArchiveDateSummariesGet()[0]?.date || '');
+const computedSelectedDate = computed(() => hotsearchQueryStringGet(route.query.date));
 
 /**
  * 计算属性：当前平台类型。
@@ -117,7 +129,8 @@ const computedSortDirection = computed(() => {
  */
 const computedRows = computed(() => {
   const keyword = hotsearchQueryStringGet(route.query.keyword).toLowerCase();
-  const rows = hotsearchDataRowsGet(computedSelectedDate.value).filter((item) => {
+  const rowsSource = computedSelectedDate.value === '' ? [] : (stateHotsearchRowsRemote.value ?? []);
+  const rows = rowsSource.filter((item) => {
     const keywordMatched = keyword === '' || item.title.toLowerCase().includes(keyword) || item.summary.toLowerCase().includes(keyword);
     const platformMatched = computedSelectedPlatformType.value === '' || item.platformType === computedSelectedPlatformType.value;
 
@@ -130,6 +143,25 @@ const computedRows = computed(() => {
     return computedSortDirection.value === 'asc' ? result : -result;
   });
 });
+
+watch(
+  computedSelectedDate,
+  (value) => {
+    if (value.trim() === '') {
+      return;
+    }
+
+    void refreshHotsearchRowsGet({
+      datas: {
+        date: value
+      },
+      replace: true
+    });
+  },
+  {
+    immediate: true
+  }
+);
 
 /**
  * 函数：获取热搜展示 ID。
