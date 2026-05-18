@@ -123,6 +123,13 @@ GET /security/sign/refresh
 - Nitro 通用代理：`server/api/[...path]/index.ts`
 - Nuxt CSRF（nuxt-csurf）配置：`configs/nuxt/index.ts`（`security.csrf`）
 
+## SSR 首屏规则（当前仓库强制口径）
+
+- 当前仓库以 `configs/nuxt/index.ts` 的 `ssr: true` 为准，不允许把项目理解成纯客户端渲染。
+- 只要页面“刚打开就应该看到数据”，该请求就必须作为 SSR 首屏请求处理：在页面或首屏必渲染组件的 `setup` 顶层使用 `await useApi(..., { immediate: true })`。
+- 禁止把这类首屏数据请求降级成 `onMounted`、事件触发或其他仅客户端执行的补请求；否则 HTML 首屏会缺少真实数据。
+- 对带签名、cookie、CSRF 的接口，`useApi` 与 `/api` 代理链路也必须兼容 SSR 首包，不能再走“先创建 `immediate:false`，再手动 `refresh()` 触发首包”的实现路径。
+
 ## 角色与链路（从浏览器到后端）
 
 ### Client（浏览器）发起普通 API 请求

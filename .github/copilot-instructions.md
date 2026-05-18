@@ -23,7 +23,7 @@
 ## 1. 项目与工作区
 
 - 本项目基于 **Nuxt 5**（nightly 日更版，通过 `pnpm.overrides` 将 `nuxt` 别名到 `nuxt-nightly@5x`）。
-- 本项目是 **LofiTick Desktop UI**，定位为 Tauri 桌面客户端的前端层，纯客户端渲染（`ssr: false`）。
+- 本项目是 **LofiTick Desktop UI**，定位为 Tauri 桌面客户端的前端层，当前启用服务端渲染（`ssr: true`，以 [configs/nuxt/index.ts](configs/nuxt/index.ts) 为准）。
 - 本仓库只有一个前端项目，路径为 `i:/Frontends/LofiTick.Desktop.UI`。
 - 关联只读项目（**只能读取，不能修改**）：
   - `I:\Desktops\LofiTickDesktop\frontend` — 参考配置来源
@@ -158,12 +158,19 @@
 - API composable 禁止写在函数体内：必须在 `setup` 顶层声明。
 - API composable 返回值必须解构取需要字段；禁止整体接收对象。
 
-#### 4.2.1 Composables 顶层调用（强制：零容忍）
+#### 4.2.1 SSR 首屏数据（强制：零容忍）
+
+- 只要页面在“首次打开时就应该看到数据”，该请求就必须作为 SSR 首屏请求处理：必须在 `setup` 顶层通过 `await useApi(..., { immediate: true })` 声明，并保证服务端首包就返回真实数据。
+- 禁止把这类首屏数据请求降级为 `onMounted`、事件回调或其他仅客户端触发的补请求；禁止用“先渲染空壳，再等客户端补数据”的方式规避 SSR。
+- `useApi` / 代理层 / 签名链路的实现必须兼容 SSR 首包：即使请求需要签名、cookie 或 CSRF，自定义封装也必须让服务端首包拿到真实结果，不能因为手动 `refresh()`、上下文丢失或 client-only 分支导致 HTML 首屏缺数。
+- 只有用户主动触发、非首屏必需、或会造成不必要 SSR 开销的请求，才允许继续使用 `immediate: false`。
+
+#### 4.2.2 Composables 顶层调用（强制：零容忍）
 
 - 任何返回实例/句柄/方法的 `useXxx`：必须在 `setup` 顶层调用。
 - 禁止在任意函数体内调用，包括但不限于：`onMounted/onBeforeUnmount/watch/watchEffect` 回调、事件回调、普通工具函数等。
 
-#### 4.2.2 句柄与响应式（强制）
+#### 4.2.3 句柄与响应式（强制）
 
 - 订阅函数返回的"取消订阅句柄"（例如 `unsubscribe`）、计时器句柄等运行时句柄：默认使用普通变量保存（`let unsubscribe: null | (() => void) = null`），不要强行改成 `ref/shallowRef`。
 - 是否使用响应式的判断标准：是否需要驱动模板渲染/被 `watch` 追踪/参与计算属性；仅用于生命周期清理的句柄不需要响应式。

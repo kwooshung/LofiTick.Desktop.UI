@@ -88,12 +88,6 @@ const { configGet: tauriApiClientConfigGet, configUpdate: tauriApiClientConfigUp
 const { get: settingsGet, machineNetworkGet, machineHostnameGet } = useTauriSettings();
 
 /**
- * API：场景配置（PATCH）
- * 描述：用于启动时静默上报本机网络信息。
- */
-const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
-
-/**
  * 状态：启动静默上报是否已执行
  */
 const stateUnattendedStartupReported = useState<boolean>('unattended-startup-reported', () => false);
@@ -102,6 +96,12 @@ const stateUnattendedStartupReported = useState<boolean>('unattended-startup-rep
  * 状态：壳侧 API 客户端配置是否已同步
  */
 const stateTauriApiClientConfigured = useState<boolean>('tauri-api-client-configured', () => false);
+
+/**
+ * API：场景配置（PATCH）
+ * 描述：用于启动时静默上报本机网络信息。
+ */
+const { refresh: refreshScenesRemotePatch } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { method: 'PATCH', immediate: false });
 
 /**
  * 工具：转为普通对象
