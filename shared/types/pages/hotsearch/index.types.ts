@@ -12,8 +12,13 @@
  * 当前已确认接口：
  * - `/crons/hot_searchs/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
  * - `/crons/hot_searchs/all` -> `IQueryResultHotSearchCronAllResponse`
- * - `/hot_searchs/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
- * - `/hot_search_dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
+ * - `/hotsearch/rows/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
+ * - `/hotsearch/dates` GET -> `IHotsearchArchiveDateSummary[]`
+ * - `/hotsearch/dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
+ *
+ * 说明：
+ * - `/hotsearch/dates` 是热搜页面右上角日历使用的只读日期摘要接口。
+ * - `/hotsearch/dates/recount` 是管理侧按日期重算 `hot_search_dates.count` 的独立接口。
  */
 
 /**
