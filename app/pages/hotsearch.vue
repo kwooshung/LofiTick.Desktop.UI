@@ -183,6 +183,11 @@ const localePath = useLocalePath();
 const route = useRoute();
 
 /**
+ * 状态：是否已存在显式日期选择。
+ */
+const stateHasExplicitDateSelection = ref(hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined) !== '');
+
+/**
  * 常量：日历时区。
  */
 const calendarTimeZone = getLocalTimeZone();
@@ -266,7 +271,9 @@ const computedDateFormatter = computed(() => new DateFormatter(computedDateForma
 /**
  * 计算属性：日期摘要列表。
  */
-const computedDateSummaries = computed(() => stateHotsearchDateSummaries.value ?? []);
+const computedDateSummaries = computed(() => {
+  return [...(stateHotsearchDateSummaries.value ?? [])].sort((left, right) => right.date.localeCompare(left.date));
+});
 
 /**
  * 计算属性：日期摘要映射。
@@ -307,6 +314,15 @@ const computedTodayDate = computed(() => {
 });
 
 /**
+ * 计算属性：当前月份最近可用日期。
+ */
+const computedCurrentMonthAvailableDate = computed(() => {
+  const todayMonthKey = `${computedTodayDate.value.slice(0, 7)}`;
+
+  return computedDateSummaries.value.find((item) => item.date.slice(0, 7) === todayMonthKey)?.date ?? '';
+});
+
+/**
  * 计算属性：当前选中日期。
  */
 const computedSelectedDate = computed(() => {
@@ -320,7 +336,11 @@ const computedSelectedDate = computed(() => {
     return computedTodayDate.value;
   }
 
-  return computedLatestAvailableDate.value || computedTodayDate.value;
+  if (computedCurrentMonthAvailableDate.value !== '') {
+    return computedCurrentMonthAvailableDate.value;
+  }
+
+  return computedLatestAvailableDate.value;
 });
 
 /**
@@ -328,6 +348,13 @@ const computedSelectedDate = computed(() => {
  */
 const computedSelectedMonthValue = computed(() => {
   return calendarMonthValueFromIsoGet(computedSelectedDate.value) ?? computedAvailableCalendarMonths.value.at(-1) ?? calendarMonthValueGet(today(calendarTimeZone));
+});
+
+/**
+ * 计算属性：默认打开月份。
+ */
+const computedCalendarDefaultMonthValue = computed(() => {
+  return calendarNearestMonthGet(today(calendarTimeZone)) ?? computedAvailableCalendarMonths.value.at(-1) ?? calendarMonthValueGet(today(calendarTimeZone));
 });
 
 /**
@@ -881,7 +908,7 @@ watch(stateDatePickerOpen, (open) => {
     return;
   }
 
-  stateCalendarPlaceholder.value = computedSelectedMonthValue.value;
+  stateCalendarPlaceholder.value = stateHasExplicitDateSelection.value ? computedSelectedMonthValue.value : computedCalendarDefaultMonthValue.value;
   void refreshHotsearchDateSummariesGet({ replace: true });
 });
 
@@ -948,6 +975,8 @@ storeBreadcrumb.states = [
  * @return {void}
  */
 const handleDateChange = (date: string): void => {
+  stateHasExplicitDateSelection.value = true;
+
   navigateTo({
     path: route.path,
     query: {

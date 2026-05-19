@@ -146,7 +146,7 @@ const localePath = useLocalePath();
 /**
  * API：1Panel 设置。
  */
-const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/onepanel', { immediate: false });
+const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { immediate: false });
 
 /**
  * 计算属性：当前 1Panel 根域名。
