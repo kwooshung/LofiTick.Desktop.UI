@@ -46,7 +46,7 @@
                 @mouseleave="handleDatePreviewReset"
               >
                 <template #day="{ day }">
-                  <span class="inline-flex" :class="calendarDateSummaryGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
+                  <span class="inline-flex" :class="calendarDateSelectableGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
                     <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryColorGet(day)" size="2xs" inset>
                       {{ day.day }}
                     </UChip>
@@ -296,6 +296,10 @@ const computedAvailableCalendarMonths = computed<CalendarDate[]>(() => {
     monthMap.set(calendarMonthKeyGet(dateValue), new CalendarDate(dateValue.year, dateValue.month, 1));
   }
 
+  const todayValue = today(calendarTimeZone);
+
+  monthMap.set(calendarMonthKeyGet(todayValue), new CalendarDate(todayValue.year, todayValue.month, 1));
+
   return Array.from(monthMap.values()).sort((left, right) => left.compare(right));
 });
 
@@ -314,33 +318,20 @@ const computedTodayDate = computed(() => {
 });
 
 /**
- * 计算属性：当前月份最近可用日期。
- */
-const computedCurrentMonthAvailableDate = computed(() => {
-  const todayMonthKey = `${computedTodayDate.value.slice(0, 7)}`;
-
-  return computedDateSummaries.value.find((item) => item.date.slice(0, 7) === todayMonthKey)?.date ?? '';
-});
-
-/**
  * 计算属性：当前选中日期。
  */
 const computedSelectedDate = computed(() => {
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
+  if (queryDate === computedTodayDate.value) {
+    return queryDate;
+  }
+
   if (queryDate !== '' && computedDateSummaryMap.value.has(queryDate)) {
     return queryDate;
   }
 
-  if (computedDateSummaryMap.value.has(computedTodayDate.value)) {
-    return computedTodayDate.value;
-  }
-
-  if (computedCurrentMonthAvailableDate.value !== '') {
-    return computedCurrentMonthAvailableDate.value;
-  }
-
-  return computedLatestAvailableDate.value;
+  return computedTodayDate.value;
 });
 
 /**
@@ -388,7 +379,16 @@ const computedCalendarMinValue = computed(() => calendarDateFromIsoGet(computedD
 /**
  * 计算属性：日历最大日期。
  */
-const computedCalendarMaxValue = computed(() => calendarDateFromIsoGet(computedLatestAvailableDate.value || computedSelectedDate.value) ?? today(calendarTimeZone));
+const computedCalendarMaxValue = computed(() => {
+  const latestAvailableDate = calendarDateFromIsoGet(computedLatestAvailableDate.value);
+  const todayValue = today(calendarTimeZone);
+
+  if (!latestAvailableDate) {
+    return todayValue;
+  }
+
+  return latestAvailableDate.compare(todayValue) >= 0 ? latestAvailableDate : todayValue;
+});
 
 /**
  * 计算属性：当前是否位于首个可选月份。
@@ -737,13 +737,27 @@ const calendarDateSummaryColorGet = (value: DateValue): 'primary' | 'success' =>
 };
 
 /**
+ * 函数：判断日期是否可选。
+ *
+ * 今天在当天结束前始终允许选择；历史日期仍必须真实存在热搜摘要数据。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {boolean}
+ */
+const calendarDateSelectableGet = (value: DateValue): boolean => {
+  const isoDate = calendarIsoDateGet(value);
+
+  return isoDate === computedTodayDate.value || computedDateSummaryMap.value.has(isoDate);
+};
+
+/**
  * 函数：判断日期是否禁选。
  *
  * @param {DateValue} value 日历日期。
  * @return {boolean}
  */
 const calendarDateDisabledGet = (value: DateValue): boolean => {
-  return !computedDateSummaryMap.value.has(calendarIsoDateGet(value));
+  return !calendarDateSelectableGet(value);
 };
 
 /**
@@ -875,7 +889,7 @@ const handleCalendarPlaceholderUpdate = (value: DateValue): void => {
 const handleDatePreview = (value: DateValue): void => {
   const nextDate = calendarIsoDateGet(value);
 
-  if (!computedDateSummaryMap.value.has(nextDate)) {
+  if (!calendarDateSelectableGet(value)) {
     return;
   }
 
@@ -913,6 +927,28 @@ watch(stateDatePickerOpen, (open) => {
 });
 
 watch(
+  () => ({
+    open: stateDatePickerOpen.value,
+    explicit: stateHasExplicitDateSelection.value,
+    selectedMonthKey: calendarMonthKeyGet(computedSelectedMonthValue.value),
+    summaryCount: computedDateSummaries.value.length
+  }),
+  ({ open, explicit, selectedMonthKey, summaryCount }) => {
+    if (!open || summaryCount <= 0) {
+      return;
+    }
+
+    if (explicit && selectedMonthKey !== '') {
+      stateCalendarPlaceholder.value = computedSelectedMonthValue.value;
+
+      return;
+    }
+
+    stateCalendarPlaceholder.value = computedCalendarDefaultMonthValue.value;
+  }
+);
+
+watch(
   computedSelectedMonthValue,
   (value) => {
     if (stateDatePickerOpen.value) {
@@ -930,10 +966,13 @@ watch(
   () => ({
     routeDate: hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined),
     selectedDate: computedSelectedDate.value,
-    summaryCount: computedDateSummaries.value.length
+    hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
   }),
-  ({ routeDate, selectedDate, summaryCount }) => {
-    if (summaryCount <= 0 || selectedDate === '' || routeDate === selectedDate) {
+  ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
+    const nextRouteDate = hasSelectedDateSummary && selectedDate !== '' ? selectedDate : undefined;
+    const normalizedNextRouteDate = nextRouteDate ?? '';
+
+    if (routeDate === normalizedNextRouteDate) {
       return;
     }
 
@@ -942,7 +981,7 @@ watch(
         path: route.path,
         query: {
           ...route.query,
-          date: selectedDate
+          date: nextRouteDate
         }
       },
       { replace: true }
@@ -977,11 +1016,13 @@ storeBreadcrumb.states = [
 const handleDateChange = (date: string): void => {
   stateHasExplicitDateSelection.value = true;
 
+  const nextRouteDate = computedDateSummaryMap.value.has(date) ? date : undefined;
+
   navigateTo({
     path: route.path,
     query: {
       ...route.query,
-      date
+      date: nextRouteDate
     }
   });
 };
