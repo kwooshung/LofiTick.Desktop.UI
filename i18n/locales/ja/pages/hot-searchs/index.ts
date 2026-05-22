@@ -27,10 +27,20 @@ export const hotsearch = {
     openSource: '元リンクを開く'
   },
   categories: {
-    tech: 'テック',
-    social: '社会',
-    business: 'ビジネス',
-    entertainment: 'エンタメ'
+    social: '社会・民生',
+    politics: '政治・国際',
+    legal: '法務・安全',
+    finance: '経済・金融',
+    tech: 'テック・IT',
+    auto: '自動車・モビリティ',
+    sports: 'スポーツ',
+    entertainment: '芸能・ゴシップ',
+    filmTv: '映画・テレビ',
+    games: 'ゲーム・eスポーツ',
+    anime: 'アニメ・二次元',
+    lifestyle: '暮らし・感情',
+    health: '健康・医療',
+    history: '歴史・人文'
   },
   data: {
     description: 'プラットフォームとキーワードで急上昇データを絞り込みます。',

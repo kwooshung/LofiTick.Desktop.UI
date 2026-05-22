@@ -27,10 +27,20 @@ export const hotsearch = {
     openSource: 'Open source'
   },
   categories: {
+    social: 'Society',
+    politics: 'Politics',
+    legal: 'Legal & Safety',
+    finance: 'Finance',
     tech: 'Tech',
-    social: 'Social',
-    business: 'Business',
-    entertainment: 'Entertainment'
+    auto: 'Auto & Mobility',
+    sports: 'Sports',
+    entertainment: 'Entertainment',
+    filmTv: 'Film & TV',
+    games: 'Games & Esports',
+    anime: 'Anime & ACG',
+    lifestyle: 'Lifestyle',
+    health: 'Health',
+    history: 'History & Culture'
   },
   data: {
     description: 'Filter hotsearch records by platform and keyword with a clear table view.',

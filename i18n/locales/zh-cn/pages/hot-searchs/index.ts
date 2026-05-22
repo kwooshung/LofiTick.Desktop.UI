@@ -33,10 +33,20 @@ export const hotsearch = {
     openSource: '打开来源'
   },
   categories: {
-    tech: '科技',
-    social: '社会',
-    business: '商业',
-    entertainment: '娱乐'
+    social: '社会民生',
+    politics: '时政国际',
+    legal: '法治安全',
+    finance: '财经经济',
+    tech: '科技互联网',
+    auto: '汽车出行',
+    sports: '体育赛事',
+    entertainment: '娱乐八卦',
+    filmTv: '影视综艺',
+    games: '游戏电竞',
+    anime: '动漫二次元',
+    lifestyle: '生活情感',
+    health: '健康医疗',
+    history: '历史人文'
   },
   data: {
     description: '按平台和关键词筛选当天热搜',

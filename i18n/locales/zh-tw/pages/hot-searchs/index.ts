@@ -27,10 +27,20 @@ export const hotsearch = {
     openSource: '打開來源'
   },
   categories: {
-    tech: '科技',
-    social: '社會',
-    business: '商業',
-    entertainment: '娛樂'
+    social: '社會民生',
+    politics: '時政國際',
+    legal: '法治安全',
+    finance: '財經經濟',
+    tech: '科技網路',
+    auto: '汽車出行',
+    sports: '體育賽事',
+    entertainment: '娛樂八卦',
+    filmTv: '影視綜藝',
+    games: '遊戲電競',
+    anime: '動漫二次元',
+    lifestyle: '生活情感',
+    health: '健康醫療',
+    history: '歷史人文'
   },
   data: {
     description: '依平台與關鍵字篩選熱搜條目，右側表格聚焦當天資料明細。',

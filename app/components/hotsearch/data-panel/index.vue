@@ -428,11 +428,11 @@ const hotsearchPlatformCellRender = (item: IHotsearchDataRow) =>
         variant: 'link',
         class:
           computedSelectedPlatformType.value === item.platformType
-            ? 'p-0 self-start h-auto min-h-0 w-full max-w-full justify-start text-left text-primary hover:text-primary hover:underline'
-            : 'p-0 self-start h-auto min-h-0 w-full max-w-full justify-start text-left text-muted hover:text-primary hover:underline',
+            ? 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-primary hover:text-primary hover:underline'
+            : 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-muted hover:text-primary hover:underline',
         onClick: () => handlePlatformSelect(item.platformType)
       },
-      () => h('span', { class: 'block w-full whitespace-normal break-words' }, `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`)
+      () => h('span', { class: 'inline whitespace-normal break-words' }, `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`)
     )
   );
 
@@ -448,10 +448,10 @@ const hotsearchTitleWithSummaryCellRender = (item: IHotsearchDataRow) =>
       {
         color: 'neutral',
         variant: 'link',
-        class: 'p-0 self-start h-auto min-h-0 w-full max-w-full justify-start text-left text-default hover:text-primary hover:underline',
+        class: 'inline-flex self-start p-0 h-auto min-h-0 max-w-full justify-start text-left text-default hover:text-primary hover:underline',
         onClick: () => void handleSourceOpen(item.url)
       },
-      () => h('span', { class: 'block w-full max-w-full whitespace-normal break-all' }, item.title)
+      () => h('span', { class: 'inline max-w-full whitespace-normal break-all' }, item.title)
     ),
     h('p', { class: 'w-full max-w-full text-sm text-dimmed whitespace-normal break-all' }, item.summary)
   ]);
@@ -558,7 +558,7 @@ const handlePlatformSelect = (platformType: string): void => {
     query: {
       ...route.query,
       platform: platformType || undefined,
-      page: undefined
+      page: '1'
     }
   });
 };
@@ -574,7 +574,7 @@ const handleCategorySelect = (categoryKey: string): void => {
     query: {
       ...route.query,
       category_key: categoryKey || undefined,
-      page: undefined
+      page: '1'
     }
   });
 };
