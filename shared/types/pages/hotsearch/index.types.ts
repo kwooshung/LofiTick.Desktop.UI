@@ -1,3 +1,5 @@
+import type { THotsearchPlatformType } from '@@/shared/types/pages/settings/hotsearch/index.types';
+
 /**
  * 类型：热搜接口字段契约。
  *
@@ -205,6 +207,85 @@ export interface IHotsearchDataRow {
 
   /** 创建时间文本 */
   publishedAt: string;
+}
+
+/**
+ * 接口：热搜数据分页结果。
+ */
+export interface IHotsearchDataPage {
+  /** 行列表 */
+  rows: IHotsearchDataRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
+}
+
+/**
+ * 接口：热搜平台统计行。
+ */
+export interface IHotsearchPlatformSummaryRow {
+  /** 平台 ID */
+  platform: number;
+
+  /** 平台类型 */
+  platformType: THotsearchPlatformType;
+
+  /** 数量 */
+  count: number;
+}
+
+/**
+ * 接口：热搜平台统计分页结果。
+ */
+export interface IHotsearchPlatformSummaryPage {
+  /** 行列表 */
+  rows: IHotsearchPlatformSummaryRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
+}
+
+/**
+ * 接口：热搜标签统计行。
+ */
+export interface IHotsearchTagSummaryRow {
+  /** 分类 ID */
+  category: number;
+
+  /** 分类 i18n key */
+  categoryKey: string;
+
+  /** 数量 */
+  count: number;
+}
+
+/**
+ * 接口：热搜标签统计分页结果。
+ */
+export interface IHotsearchTagSummaryPage {
+  /** 行列表 */
+  rows: IHotsearchTagSummaryRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
 }
 
 /**

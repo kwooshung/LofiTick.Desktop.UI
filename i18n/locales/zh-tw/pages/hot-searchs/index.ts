@@ -39,12 +39,19 @@ export const hotsearch = {
     platformsTitle: '熱搜平台',
     platformsDescription: '用垂直切換方式快速縮小表格範圍。',
     allPlatforms: '全部平台',
+    allTags: '全部標籤',
+    variants: {
+      content: '內容',
+      tags: '標籤',
+      platforms: '平台'
+    },
     cards: {
       totalRows: '熱搜總條數',
       newRows: '新增條數',
       podcastRows: '已生成播客'
     },
     table: {
+      rank: '編號',
       title: '標題 / 摘要',
       platform: '平台',
       popularity: '熱度',
@@ -60,6 +67,18 @@ export const hotsearch = {
     empty: {
       title: '目前篩選下沒有熱搜資料',
       description: '可切換日期、平台或清空關鍵字後再查看。'
+    }
+  },
+  tags: {
+    table: {
+      tag: '標籤',
+      count: '數量'
+    }
+  },
+  platforms: {
+    table: {
+      platform: '平台',
+      count: '數量'
     }
   },
   podcast: {

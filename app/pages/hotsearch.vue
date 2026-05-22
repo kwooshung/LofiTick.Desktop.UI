@@ -6,7 +6,9 @@
 
     <template #toolbar-right>
       <div class="flex items-center gap-2">
-        <template v-if="computedRouteIsData">
+        <template v-if="computedRouteIsDataSection">
+          <SelectsPagesizes cache-key="hotsearch" />
+
           <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="hidden md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
             <template #leading>
               <UIcon name="i-lucide:search" class="text-dimmed size-4" />
@@ -83,7 +85,15 @@
 
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
-        <template v-if="computedRouteIsPodcast">
+        <template v-if="computedRouteIsDataSection">
+          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center gap-1.5 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
+            <div class="relative z-10 min-w-0 flex-1">
+              <UNavigationMenu :items="computedDataVariantLinks" highlight class="-translate-x-2.5" />
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="computedRouteIsPodcast">
           <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
             <div class="border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
               <div class="relative z-10 min-w-0 flex-1">
@@ -440,6 +450,17 @@ const computedCalendarModelValue = computed<CalendarDate>({
 const computedRouteIsData = computed(() => route.path === localePath('/hotsearch'));
 
 /**
+ * 计算属性：当前是否位于数据分区。
+ */
+const computedRouteIsDataSection = computed(() => {
+  const dataPath = localePath('/hotsearch');
+  const platformsPath = localePath('/hotsearch/platforms');
+  const tagsPath = localePath('/hotsearch/tags');
+
+  return route.path === dataPath || route.path === platformsPath || route.path === tagsPath;
+});
+
+/**
  * 计算属性：当前是否为播客页。
  */
 const computedRouteIsPodcast = computed(() => route.path.startsWith(localePath('/hotsearch/podcast')));
@@ -457,7 +478,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('pages.hotsearch.sections.data.title'),
       icon: 'i-lucide:table-properties',
-      active: computedRouteIsData.value,
+      active: computedRouteIsDataSection.value,
       to: {
         path: localePath('/hotsearch'),
         query: { date: computedSelectedDate.value }
@@ -484,6 +505,62 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
     }
   ]
 ]);
+
+/**
+ * 计算属性：数据分区子页链接。
+ */
+const computedDataVariantLinks = computed<NavigationMenuItem[][]>(() => {
+  if (!computedRouteIsDataSection.value) {
+    return [];
+  }
+
+  const sharedQuery = {
+    date: computedSelectedDate.value,
+    keyword: hotsearchQueryStringGet(route.query.keyword as string | null | Array<string | null> | undefined) || undefined,
+    platform: hotsearchQueryStringGet(route.query.platform as string | null | Array<string | null> | undefined) || undefined,
+    category_key: hotsearchQueryStringGet(route.query.category_key as string | null | Array<string | null> | undefined) || undefined,
+    pagesize: hotsearchQueryStringGet(route.query.pagesize as string | null | Array<string | null> | undefined) || undefined
+  };
+
+  return [
+    [
+      {
+        label: t('pages.hotsearch.data.variants.content'),
+        icon: 'i-lucide:file-text',
+        active: route.path === localePath('/hotsearch'),
+        to: {
+          path: localePath('/hotsearch'),
+          query: {
+            ...sharedQuery,
+            order_by: hotsearchQueryStringGet(route.query.order_by as string | null | Array<string | null> | undefined) || undefined,
+            order_dir: hotsearchQueryStringGet(route.query.order_dir as string | null | Array<string | null> | undefined) || undefined
+          }
+        },
+        exact: true
+      },
+      {
+        label: t('pages.hotsearch.data.variants.tags'),
+        icon: 'i-lucide:tags',
+        active: route.path === localePath('/hotsearch/tags'),
+        to: {
+          path: localePath('/hotsearch/tags'),
+          query: sharedQuery
+        },
+        exact: true
+      },
+      {
+        label: t('pages.hotsearch.data.variants.platforms'),
+        icon: 'i-lucide:layout-grid',
+        active: route.path === localePath('/hotsearch/platforms'),
+        to: {
+          path: localePath('/hotsearch/platforms'),
+          query: sharedQuery
+        },
+        exact: true
+      }
+    ]
+  ];
+});
 
 /**
  * 计算属性：播客变体链接。
@@ -585,7 +662,7 @@ const computedPodcastHeaderAudioAsset = computed(() => {
 /**
  * 计算属性：工具区面板是否显示。
  */
-const computedToolbarPanelVisible = computed(() => computedRouteIsPodcast.value);
+const computedToolbarPanelVisible = computed(() => computedRouteIsDataSection.value || computedRouteIsPodcast.value);
 
 /**
  * 函数：切换播客媒体平台。
@@ -969,7 +1046,7 @@ watch(
     hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
   }),
   ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
-    const nextRouteDate = hasSelectedDateSummary && selectedDate !== '' ? selectedDate : undefined;
+    const nextRouteDate = selectedDate !== '' && (hasSelectedDateSummary || selectedDate === computedTodayDate.value) ? selectedDate : undefined;
     const normalizedNextRouteDate = nextRouteDate ?? '';
 
     if (routeDate === normalizedNextRouteDate) {
@@ -1016,7 +1093,7 @@ storeBreadcrumb.states = [
 const handleDateChange = (date: string): void => {
   stateHasExplicitDateSelection.value = true;
 
-  const nextRouteDate = computedDateSummaryMap.value.has(date) ? date : undefined;
+  const nextRouteDate = computedDateSummaryMap.value.has(date) || date === computedTodayDate.value ? date : undefined;
 
   navigateTo({
     path: route.path,

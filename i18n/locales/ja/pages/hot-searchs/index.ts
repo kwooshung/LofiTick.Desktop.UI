@@ -39,12 +39,19 @@ export const hotsearch = {
     platformsTitle: 'プラットフォーム',
     platformsDescription: '縦並びの一覧で対象プラットフォームを切り替えます。',
     allPlatforms: 'すべてのプラットフォーム',
+    allTags: 'すべてのタグ',
+    variants: {
+      content: '内容',
+      tags: 'タグ',
+      platforms: 'プラットフォーム'
+    },
     cards: {
       totalRows: '総件数',
       newRows: '新規件数',
       podcastRows: 'Podcast 化済み'
     },
     table: {
+      rank: '番号',
       title: 'タイトル / 要約',
       platform: 'プラットフォーム',
       popularity: '人気度',
@@ -60,6 +67,18 @@ export const hotsearch = {
     empty: {
       title: '現在の条件ではデータがありません',
       description: '日付やプラットフォームを切り替えるか、キーワードをクリアしてください。'
+    }
+  },
+  tags: {
+    table: {
+      tag: 'タグ',
+      count: '件数'
+    }
+  },
+  platforms: {
+    table: {
+      platform: 'プラットフォーム',
+      count: '件数'
     }
   },
   podcast: {
