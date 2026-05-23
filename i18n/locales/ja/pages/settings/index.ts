@@ -252,6 +252,7 @@ export const settings = {
         label: '導入テンプレート',
         description: 'ここでは導入テンプレートだけを管理します。本文は自動生成されます。',
         placeholder: '例：こちらは [programName]、今日は [solarDateTime] です。',
+        placeholderAdContent: '広告内容は広告システムによって自動挿入・生成されます。',
         empty: {
           title: '導入テンプレートがまだありません',
           description: 'まず導入テンプレートを追加して、音声と導入文を設定してください。'
@@ -261,6 +262,7 @@ export const settings = {
         label: '締めテンプレート',
         description: 'ここでは締めテンプレートだけを管理します。本文は自動生成されます。',
         placeholder: '例：以上が本日の [programName] でした。また次回お会いしましょう。',
+        placeholderAdContent: '広告内容は広告システムによって自動挿入・生成されます。',
         empty: {
           title: '締めテンプレートがまだありません',
           description: 'まず締めテンプレートを追加して、音声と締め文を設定してください。'
@@ -323,14 +325,17 @@ export const settings = {
       podcastVoice: {
         random: 'ランダム',
         xiaoluo: 'XiaoLuo',
-        feifei: 'Feifei'
+        feifei: 'Feifei',
+        duet: '合'
       },
       podcastTemplate: {
         opening: '導入テンプレート',
         closing: '締めテンプレート'
       },
       podcastSegment: {
-        normal: '通常内容',
+        normal: '共通内容',
+        morningOnly: '朝のみ',
+        eveningOnly: '夜のみ',
         adOpening: '広告導入',
         adContent: '広告内容',
         adClosing: '広告締め'
@@ -367,7 +372,7 @@ export const settings = {
       solarDateTime: '例: 2026年5月14日。',
       solarDate: '例: 5月14日。',
       solarTime: '例: 08:30。',
-      lunarDateTime: '例: 農曆三月二十八。',
+      lunarDateTime: '例: 農曆丙午年三月二十八。',
       lunarDate: '例: 三月二十八。',
       weekday: '現在の曜日です。',
       editionLabel: '現在の回が朝版か夜版かを表します。'

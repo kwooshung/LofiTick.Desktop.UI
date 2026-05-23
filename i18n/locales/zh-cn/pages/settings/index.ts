@@ -252,6 +252,7 @@
         label: '开头模板',
         description: '这里只维护播客开头模板，正文由程序自动生成。',
         placeholder: '例如：这里是 [programName]，今天是 [solarDateTime]。',
+        placeholderAdContent: '广告内容由广告系统自动插入生成。',
         empty: {
           title: '还没有开头模板',
           description: '先新增一条开头模板，再选择音色并输入开头文案。'
@@ -261,6 +262,7 @@
         label: '结尾模板',
         description: '这里只维护播客结尾模板，正文由程序自动生成。',
         placeholder: '例如：以上就是今天的 [programName]，我们下次再见。',
+        placeholderAdContent: '广告内容由广告系统自动插入生成。',
         empty: {
           title: '还没有结尾模板',
           description: '先新增一条结尾模板，再选择音色并输入结尾文案。'
@@ -323,14 +325,17 @@
       podcastVoice: {
         random: '随机',
         xiaoluo: '小洛',
-        feifei: '菲菲'
+        feifei: '菲菲',
+        duet: '合'
       },
       podcastTemplate: {
         opening: '开头模板',
         closing: '结尾模板'
       },
       podcastSegment: {
-        normal: '普通内容',
+        normal: '通用内容',
+        morningOnly: '仅早间',
+        eveningOnly: '仅晚间',
         adOpening: '广告开头',
         adContent: '广告内容',
         adClosing: '广告结尾'
@@ -367,7 +372,7 @@
       solarDateTime: '例如 2026年5月14日。',
       solarDate: '例如 5月14日。',
       solarTime: '例如 08:30。',
-      lunarDateTime: '例如 农历三月二十八。',
+      lunarDateTime: '例如 农历丙午年三月二十八。',
       lunarDate: '例如 三月二十八。',
       weekday: '当前星期。',
       editionLabel: '当前是早间还是晚间播客。'
