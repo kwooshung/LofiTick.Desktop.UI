@@ -1,6 +1,13 @@
 ﻿<template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.playback.title')" :description="t('pages.settings.playback.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.playback.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.playback.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.playback.fade.label')" :description="t('pages.settings.playback.fade.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">

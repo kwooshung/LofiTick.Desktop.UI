@@ -1,15 +1,15 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.services.title')" :description="t('pages.settings.services.description')" variant="naked" />
-
-    <UPageCard variant="outline" :ui="{ root: 'rounded-lg', header: 'py-4', container: 'divide-y divide-default' }">
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
-        <div class="min-w-0 flex-1">
-          <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.services.volcSpeech.title') }}</div>
-          <div class="text-muted mt-1 text-[15px] leading-6 text-pretty">{{ t('pages.settings.services.volcSpeech.description') }}</div>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.services.volcSpeech.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.services.volcSpeech.description') }}</p>
         </div>
       </template>
+    </UPageCard>
 
+    <UPageCard variant="outline" :ui="{ root: 'rounded-lg', container: 'divide-y divide-default' }">
       <UFormField
         :label="t('pages.settings.services.volcSpeech.appId.label')"
         :description="t('pages.settings.services.volcSpeech.appId.description')"

@@ -1,6 +1,13 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.connections.title')" :description="t('pages.settings.connections.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.connections.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.connections.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
 
     <div class="space-y-6">
       <UPageCard variant="outline" :ui="{ root: 'rounded-lg', container: 'divide-y divide-default' }">

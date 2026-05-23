@@ -25,7 +25,6 @@ export const settings = {
   },
   services: {
     title: 'Service credentials',
-    description: 'Manage third-party service credentials in one place. When podcast generation does not pass Volc Speech credentials explicitly, the desktop app falls back to these defaults first.',
     actions: {
       showAccessToken: 'Show token',
       hideAccessToken: 'Hide token',

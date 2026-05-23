@@ -25,7 +25,6 @@ export const settings = {
   },
   services: {
     title: '服務憑證',
-    description: '集中管理第三方服務的接入憑證；當 Podcast 生成沒有明確帶入豆包語音設定時，桌面端會優先讀取這裡的預設值。',
     actions: {
       showAccessToken: '顯示權杖',
       hideAccessToken: '隱藏權杖',
@@ -52,7 +51,7 @@ export const settings = {
     }
   },
   general: {
-    title: '一般設定',
+    title: '一般',
     description: '調整應用程式的基本行為、介面語言與常用偏好。',
     closeBehavior: {
       label: '關閉行為',
@@ -100,7 +99,7 @@ export const settings = {
     }
   },
   ui: {
-    title: '介面外觀',
+    title: '介面',
     description: '主題、亮暗模式、版面配置與介面元素的相關設定。',
     colorMode: {
       label: '顏色模式',
@@ -157,7 +156,7 @@ export const settings = {
     }
   },
   playback: {
-    title: '播放設定',
+    title: '播放',
     description: '與音訊播放相關的各項參數。',
     fade: {
       label: '淡入淡出',
@@ -182,7 +181,7 @@ export const settings = {
     }
   },
   power: {
-    title: '電源設定',
+    title: '電源',
     description: '調整應用程式的電源管理選項，以節省電力。',
     startup: {
       enabled: {
@@ -206,7 +205,7 @@ export const settings = {
     }
   },
   hotsearch: {
-    title: '熱搜設定',
+    title: '熱搜',
     description: '設定本機熱搜抓取頻率、平台選擇、預算與 Podcast 生成時間。',
     header: {
       enter: '前往熱搜'

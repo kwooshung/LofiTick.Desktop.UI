@@ -25,7 +25,6 @@
   },
   services: {
     title: '服务凭证',
-    description: '统一管理第三方服务的接入凭证；播客生成未显式传入豆包语音配置时，会优先读取这里的默认值。',
     actions: {
       showAccessToken: '显示令牌',
       hideAccessToken: '隐藏令牌',
@@ -52,7 +51,7 @@
     }
   },
   general: {
-    title: '常规设置',
+    title: '常规',
     description: '应用程序基础行为、语言等通用偏好配置',
     closeBehavior: {
       label: '关闭行为',
@@ -100,7 +99,7 @@
     }
   },
   ui: {
-    title: '界面设置',
+    title: '界面',
     description: '主题、深浅色模式、布局与界面元素显示相关的选项',
     colorMode: {
       label: '颜色模式',
@@ -157,7 +156,7 @@
     }
   },
   playback: {
-    title: '播放设置',
+    title: '播放',
     description: '音频播放参数等',
     fade: {
       label: '淡入淡出',
@@ -182,7 +181,7 @@
     }
   },
   power: {
-    title: '电源设置',
+    title: '电源',
     description: '调整应用的电源管理选项，以节省电量',
     startup: {
       enabled: {
@@ -206,7 +205,7 @@
     }
   },
   hotsearch: {
-    title: '热搜设置',
+    title: '热搜',
     description: '配置本机热搜抓取频次、平台选择、预算与播客生成时间。',
     header: {
       enter: '前往热搜'

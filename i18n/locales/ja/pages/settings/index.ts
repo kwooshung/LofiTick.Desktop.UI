@@ -25,7 +25,6 @@ export const settings = {
   },
   services: {
     title: 'サービス認証情報',
-    description: '外部サービスの接続認証情報をまとめて管理します。Podcast 生成時に Volc Speech の認証情報が明示されていない場合、まずここに保存した既定値を使います。',
     actions: {
       showAccessToken: 'トークンを表示',
       hideAccessToken: 'トークンを隠す',
@@ -52,7 +51,7 @@ export const settings = {
     }
   },
   general: {
-    title: '一般設定',
+    title: '一般',
     description: 'アプリの基本的な動作や言語など、共通の設定を行います。',
     closeBehavior: {
       label: 'ウィンドウを閉じるとき',
@@ -157,7 +156,7 @@ export const settings = {
     }
   },
   playback: {
-    title: '再生設定',
+    title: '再生',
     description: 'オーディオ再生に関する各種パラメータです。',
     fade: {
       label: 'フェードイン／アウト',
@@ -182,7 +181,7 @@ export const settings = {
     }
   },
   power: {
-    title: '電源設定',
+    title: '電源',
     description: '省電力のため、アプリの電源管理オプションを調整します。',
     startup: {
       enabled: {
@@ -206,7 +205,7 @@ export const settings = {
     }
   },
   hotsearch: {
-    title: 'トレンド設定',
+    title: 'トレンド',
     description: 'この端末で使う取得頻度、対象プラットフォーム、予算、Podcast 生成時刻を設定します。',
     header: {
       enter: 'トレンドへ'
