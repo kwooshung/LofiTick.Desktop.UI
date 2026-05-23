@@ -42,6 +42,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：开关
  */
 const USwitch = resolveComponent('USwitch');
@@ -75,6 +80,28 @@ const { openExternalUrl } = useTauriWindow();
  * 路由
  */
 const route = useRoute();
+
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
+};
 
 /**
  * 函数：从路由查询参数构建接口查询参数
@@ -140,9 +167,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   if (typeof route.query.page !== 'undefined') {
     query.page = String(route.query.page);
   }
-  if (typeof route.query.pagesize !== 'undefined') {
-    query.pagesize = String(route.query.pagesize);
-  }
+  query.pagesize = currentPageSizeGet();
 
   // 排序：orderBy（id/updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
@@ -252,6 +277,10 @@ const computedItemsPerPage = computed<number>(() => {
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
+  }
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -275,32 +304,37 @@ const handleToggleEnabled = async (row: IPageTableColumnQuotes, value: boolean) 
 };
 
 /**
- * 事件：点击名句句子
+ * 函数：构建名句详情外链。
+ * @param {string} uuid 名句 UUID
+ * @returns {string} 外链地址
+ */
+const buildQuoteDetailUrl = (uuid: string): string => `https://hitokoto.cn?uuid=${uuid}`;
+
+/**
+ * 事件：点击名句句子链接。
+ * @param {MouseEvent} event 点击事件
  * @param {string} uuid 名句 UUID
  */
-const handleClickSentence = async (uuid: string): Promise<void> => {
-  const url = `https://hitokoto.cn?uuid=${uuid}`;
+const handleClickSentenceLink = async (event: MouseEvent, uuid: string): Promise<void> => {
+  const url = buildQuoteDetailUrl(uuid);
 
   if (isTauriRuntime.value) {
+    event.preventDefault();
     await openExternalUrl(url);
-    return;
   }
-
-  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 /**
- * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/uuid/content/translate），移除 page
+ * 函数：构建单一筛选跳转位置（保留 pagesize/enabled/isAnd/uuid/content/translate），移除 page。
  * @param {'type_ids' | 'source_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
+ * @returns {{ path: string; query: Record<string, string | string[]> }} 路由位置
  */
-const navigateWithSingleFilter = (key: 'type_ids' | 'source_ids' | 'author_ids', value: number | string) => {
+const buildSingleFilterLocation = (key: 'type_ids' | 'source_ids' | 'author_ids', value: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
 
   // 保留必要参数
-  if (typeof route.query.pagesize !== 'undefined') {
-    q.pagesize = String(route.query.pagesize);
-  }
+  q.pagesize = currentPageSizeGet();
   if (typeof route.query.enabled !== 'undefined') {
     q.enabled = String(route.query.enabled);
   }
@@ -329,8 +363,7 @@ const navigateWithSingleFilter = (key: 'type_ids' | 'source_ids' | 'author_ids',
   // 设置单选筛选
   q[key] = String(value);
 
-  // 跳转（移除 page，使用 replace 以清爽历史栈）
-  navigateTo({ path: localePath('/quotes'), query: q });
+  return { path: localePath('/quotes'), query: q };
 };
 
 /**
@@ -380,13 +413,14 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const bookTitleSuffix = t('common.content.bookTitle.suffix');
       const nodes = [
         h(
-          UButton,
+          ULink,
           {
-            color: 'neutral',
-            variant: 'link',
-            label: sentence,
-            class: 'p-0 self-start w-auto max-w-full text-default text-left hover:text-primary hover:underline',
-            onClick: () => handleClickSentence(row.original.uuid)
+            raw: true,
+            href: buildQuoteDetailUrl(row.original.uuid),
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'p-0 self-start w-auto max-w-full no-underline text-default text-left hover:text-primary hover:underline',
+            onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
           },
           () => sentence
         )
@@ -401,37 +435,31 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       nodes.push(
         h('div', { class: 'text-xs text-muted mt-1' }, [
           h(
-            UButton,
+            ULink,
             {
-              color: 'neutral',
-              variant: 'link',
-              label: typeLabel,
-              class: 'p-0 text-xs text-muted hover:text-primary hover:underline',
-              onClick: () => navigateWithSingleFilter('type_ids', typeId)
+              raw: true,
+              class: 'p-0 no-underline text-xs text-muted hover:text-primary hover:underline',
+              to: buildSingleFilterLocation('type_ids', typeId)
             },
             () => typeLabel
           ),
           ' · ',
           h(
-            UButton,
+            ULink,
             {
-              color: 'neutral',
-              variant: 'link',
-              label: `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`,
-              class: 'p-0 text-xs text-muted hover:text-primary hover:underline',
-              onClick: () => navigateWithSingleFilter('source_ids', source?.id ?? 0)
+              raw: true,
+              class: 'p-0 no-underline text-xs text-muted hover:text-primary hover:underline',
+              to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
             },
             () => `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`
           ),
           ' · ',
           h(
-            UButton,
+            ULink,
             {
-              color: 'neutral',
-              variant: 'link',
-              label: authorName,
-              class: 'p-0 text-xs text-muted hover:text-primary hover:underline',
-              onClick: () => navigateWithSingleFilter('author_ids', author?.id ?? 0)
+              raw: true,
+              class: 'p-0 no-underline text-xs text-muted hover:text-primary hover:underline',
+              to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
             },
             () => authorName
           )
@@ -455,13 +483,14 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const { sentence, translate } = row.original.infos;
       const nodes = [
         h(
-          UButton,
+          ULink,
           {
-            color: 'neutral',
-            variant: 'link',
-            label: sentence,
-            class: 'p-0 text-default break-words text-left hover:text-primary hover:underline',
-            onClick: () => handleClickSentence(row.original.uuid)
+            raw: true,
+            href: buildQuoteDetailUrl(row.original.uuid),
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'p-0 self-start w-auto max-w-full no-underline text-default break-words text-left hover:text-primary hover:underline',
+            onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
           },
           () => sentence
         )
@@ -492,29 +521,35 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const authorName = author?.name || 'unknown';
 
       return h('div', { class: 'text-sm text-muted mt-1' }, [
-        h(UButton, {
-          color: 'neutral',
-          variant: 'link',
-          label: typeLabel,
-          class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-          onClick: () => navigateWithSingleFilter('type_ids', typeId)
-        }),
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            to: buildSingleFilterLocation('type_ids', typeId)
+          },
+          () => typeLabel
+        ),
         ' · ',
-        h(UButton, {
-          color: 'neutral',
-          variant: 'link',
-          label: `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`,
-          class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-          onClick: () => navigateWithSingleFilter('source_ids', source?.id ?? 0)
-        }),
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
+          },
+          () => `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`
+        ),
         ' · ',
-        h(UButton, {
-          color: 'neutral',
-          variant: 'link',
-          label: authorName,
-          class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-          onClick: () => navigateWithSingleFilter('author_ids', author?.id ?? 0)
-        })
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
+          },
+          () => authorName
+        )
       ]);
     }
   },
@@ -531,13 +566,15 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     cell: ({ row }) => {
       const { typeId } = row.original.infos;
       const typeLabel = t(`components.quotes.search.types.${typeId}`);
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'link',
-        label: typeLabel,
-        class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-        onClick: () => navigateWithSingleFilter('type_ids', typeId)
-      });
+      return h(
+        ULink,
+        {
+          raw: true,
+          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          to: buildSingleFilterLocation('type_ids', typeId)
+        },
+        () => typeLabel
+      );
     }
   },
   {
@@ -553,13 +590,15 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const { source } = row.original.infos;
       const sourceName = source?.name || 'unknown';
 
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'link',
-        label: sourceName,
-        class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-        onClick: () => navigateWithSingleFilter('source_ids', source?.id ?? 0)
-      });
+      return h(
+        ULink,
+        {
+          raw: true,
+          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
+        },
+        () => sourceName
+      );
     }
   },
   {
@@ -575,13 +614,15 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const { author } = row.original.infos;
       const authorName = author?.name || 'unknown';
 
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'link',
-        label: authorName,
-        class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline',
-        onClick: () => navigateWithSingleFilter('author_ids', author?.id ?? 0)
-      });
+      return h(
+        ULink,
+        {
+          raw: true,
+          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
+        },
+        () => authorName
+      );
     }
   },
   {

@@ -69,6 +69,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：复选框
  */
 // const UCheckbox = resolveComponent('UCheckbox');
@@ -230,6 +235,28 @@ const poetrySentencePreviewGet = (sentence: string, maxLength: number): string =
 const route = useRoute();
 
 /**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'poetrys'));
+};
+
+/**
  * 函数：从路由查询参数构建接口查询参数
  * @returns {Record<string,string|string[]>} 查询参数
  */
@@ -281,9 +308,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   if (typeof route.query.page !== 'undefined') {
     query.page = String(route.query.page);
   }
-  if (typeof route.query.pagesize !== 'undefined') {
-    query.pagesize = String(route.query.pagesize);
-  }
+  query.pagesize = currentPageSizeGet();
 
   // 排序：orderBy（updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
@@ -303,16 +328,15 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 };
 
 /**
- * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/title/content），移除 page
+ * 函数：构建单一筛选跳转位置（保留 pagesize/enabled/isAnd/title/content），移除 page。
  * @param {'dynasty_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
+ * @returns {{ path: string; query: Record<string, string | string[]> }} 路由位置
  */
-const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids', value: number | string) => {
+const buildSingleFilterLocation = (key: 'dynasty_ids' | 'author_ids', value: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
   // 保留必要参数
-  if (typeof route.query.pagesize !== 'undefined') {
-    q.pagesize = String(route.query.pagesize);
-  }
+  q.pagesize = currentPageSizeGet();
   if (typeof route.query.enabled !== 'undefined') {
     q.enabled = String(route.query.enabled);
   }
@@ -334,8 +358,7 @@ const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids', value: numb
   // 设置单选筛选
   q[key] = String(value);
 
-  // 跳转（移除 page，使用 replace 以清爽历史栈）
-  navigateTo({ path: '/poetrys', query: q });
+  return { path: '/poetrys', query: q };
 };
 
 /**
@@ -439,6 +462,10 @@ const computedItemsPerPage = computed<number>(() => {
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
+  }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'poetrys');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
   }
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
@@ -564,25 +591,29 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
                 ...(dynastyName === ''
                   ? []
                   : [
-                      h(UButton, {
-                        color: 'neutral',
-                        variant: 'link',
-                        label: dynastyName,
-                        class: 'p-0 h-auto min-h-0 text-muted hover:text-primary hover:underline',
-                        onClick: () => navigateWithSingleFilter('dynasty_ids', infos.dynasty.id)
-                      })
+                      h(
+                        ULink,
+                        {
+                          raw: true,
+                          class: 'p-0 h-auto min-h-0 no-underline text-muted hover:text-primary hover:underline',
+                          to: buildSingleFilterLocation('dynasty_ids', infos.dynasty.id)
+                        },
+                        () => dynastyName
+                      )
                     ]),
                 ...(dynastyName !== '' && authorName !== '' ? ['·'] : []),
                 ...(authorName === ''
                   ? []
                   : [
-                      h(UButton, {
-                        color: 'neutral',
-                        variant: 'link',
-                        label: authorName,
-                        class: 'p-0 h-auto min-h-0 text-muted hover:text-primary hover:underline',
-                        onClick: () => navigateWithSingleFilter('author_ids', infos.author.id)
-                      })
+                      h(
+                        ULink,
+                        {
+                          raw: true,
+                          class: 'p-0 h-auto min-h-0 no-underline text-muted hover:text-primary hover:underline',
+                          to: buildSingleFilterLocation('author_ids', infos.author.id)
+                        },
+                        () => authorName
+                      )
                     ])
               ])
             ]),
@@ -696,9 +727,9 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
 
       return h('div', { class: 'text-sm text-muted mt-1' }, [
-        ...(dynastyName === '' ? [] : [h(UButton, { color: 'neutral', variant: 'link', label: `${dynastyName}（${dynasty.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', dynasty.id) })]),
+        ...(dynastyName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', dynasty.id) }, () => `${dynastyName}（${dynasty.count}）`)]),
         ...(dynastyName !== '' && authorName !== '' ? [' · '] : []),
-        ...(authorName === '' ? [] : [h(UButton, { color: 'neutral', variant: 'link', label: `${authorName}（${author.count}）`, class: 'p-0 self-start w-auto max-w-full text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', author.id) })])
+        ...(authorName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', author.id) }, () => `${authorName}（${author.count}）`)])
       ]);
     }
   },
@@ -715,13 +746,15 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     cell: ({ row }) =>
       poetryLinkedNameGet(row.original.infos.dynasty) === ''
         ? ''
-        : h(UButton, {
-            color: 'neutral',
-            variant: 'link',
-            label: `${poetryLinkedNameGet(row.original.infos.dynasty)}（${row.original.infos.dynasty.count}）`,
-            class: 'p-0 text-muted hover:text-primary hover:underline',
-            onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id)
-          })
+        : h(
+            ULink,
+            {
+              raw: true,
+              class: 'p-0 no-underline text-muted hover:text-primary hover:underline',
+              to: buildSingleFilterLocation('dynasty_ids', row.original.infos.dynasty.id)
+            },
+            () => `${poetryLinkedNameGet(row.original.infos.dynasty)}（${row.original.infos.dynasty.count}）`
+          )
   },
   {
     accessorKey: 'poemAuthorFull',
@@ -735,13 +768,15 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     cell: ({ row }) =>
       poetryLinkedNameGet(row.original.infos.author) === ''
         ? ''
-        : h(UButton, {
-            color: 'neutral',
-            variant: 'link',
-            label: `${poetryLinkedNameGet(row.original.infos.author)}（${row.original.infos.author.count}）`,
-            class: 'p-0 text-muted hover:text-primary hover:underline',
-            onClick: () => navigateWithSingleFilter('author_ids', row.original.infos.author.id)
-          })
+        : h(
+            ULink,
+            {
+              raw: true,
+              class: 'p-0 no-underline text-muted hover:text-primary hover:underline',
+              to: buildSingleFilterLocation('author_ids', row.original.infos.author.id)
+            },
+            () => `${poetryLinkedNameGet(row.original.infos.author)}（${row.original.infos.author.count}）`
+          )
   },
   {
     id: 'times',

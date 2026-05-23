@@ -106,6 +106,7 @@
                     <UIcon name="i-lucide:grip-vertical" class="size-4" />
                   </div>
                   <USelect
+                    v-if="item.segmentType !== 'adContent'"
                     :model-value="item.voiceKey"
                     :items="computedVoiceOptions"
                     value-attribute="value"
@@ -119,8 +120,8 @@
                     :model-value="item.content"
                     variant="none"
                     class="bg-default min-w-0 flex-1"
-                    :disabled="props.disabled"
-                    :placeholder="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
+                    :disabled="props.disabled || item.segmentType === 'adContent'"
+                    :placeholder="item.segmentType === 'adContent' ? t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholderAdContent') : t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
                     @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
                     @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
                     @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
@@ -187,6 +188,7 @@
                     <UIcon name="i-lucide:grip-vertical" class="size-4" />
                   </div>
                   <USelect
+                    v-if="item.segmentType !== 'adContent'"
                     :model-value="item.voiceKey"
                     :items="computedVoiceOptions"
                     value-attribute="value"
@@ -200,8 +202,8 @@
                     :model-value="item.content"
                     variant="none"
                     class="bg-default min-w-0 flex-1"
-                    :disabled="props.disabled"
-                    :placeholder="t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
+                    :disabled="props.disabled || item.segmentType === 'adContent'"
+                    :placeholder="item.segmentType === 'adContent' ? t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholderAdContent') : t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
                     @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
                     @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
                     @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
@@ -325,11 +327,33 @@ const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
 const stateTemplateDragging = ref(false);
 
 /**
+ * 函数：判断模板片段列表是否一致。
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} left 左侧模板列表。
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} right 右侧模板列表。
+ * @returns {boolean} 是否一致。
+ */
+const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right: ISettingsHotsearchPodcastTemplateItem[]): boolean => {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((item, index) => {
+    const target = right[index];
+
+    return Boolean(target) && item.voiceKey === target.voiceKey && item.content === target.content && item.segmentType === target.segmentType && item.templateType === target.templateType;
+  });
+};
+
+/**
  * 监听：同步父级模板片段。
  */
 watch(
   () => props.templateItems,
   (value) => {
+    if (templateItemsEqual(stateTemplateItems.value, value)) {
+      return;
+    }
+
     stateTemplateItems.value = [...value];
     templateItemRenderKeys.value = value.map((_, index) => templateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
   },
@@ -490,6 +514,22 @@ const lunarDateTextNormalize = (value: string): string => {
 };
 
 /**
+ * 函数：生成带干支年的农历年月日文本。
+ * @param {Date} value 日期。
+ * @returns {string} 归一化后的农历年月日。
+ */
+const lunarDateTimeTextGet = (value: Date): string => {
+  const lunarRawDateTime = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(value);
+  const normalized = lunarDateTextNormalize(lunarRawDateTime.replace(/^\d+/, ''));
+
+  return normalized.startsWith('农历') ? normalized : `农历${normalized}`;
+};
+
+/**
  * 函数：按当前设置生成变量示例值。
  * @param {string} token 变量 token。
  * @returns {string} 示例值。
@@ -509,6 +549,7 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
     day: 'numeric'
   }).format(now);
   const lunarDate = `农历${lunarDateTextNormalize(lunarRawDate)}`;
+  const lunarDateTime = lunarDateTimeTextGet(now);
   const weekday = new Intl.DateTimeFormat('zh-CN', {
     weekday: 'long'
   }).format(now);
@@ -545,7 +586,7 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
     case '[solarTime]':
       return solarTime;
     case '[lunarDateTime]':
-      return lunarDate;
+      return lunarDateTime;
     case '[lunarDate]':
       return lunarDate;
     case '[weekday]':
@@ -661,11 +702,21 @@ const handleTemplateItemContentUpdate = (index: number, value: string | number):
  * @returns {void} 无返回值。
  */
 const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | number): void => {
+  const nextSegmentType = String(value || 'normal') as ISettingsHotsearchPodcastSegmentType;
   const nextItems = [...stateTemplateItems.value];
   nextItems[index] = {
     ...nextItems[index],
-    segmentType: String(value || 'normal') as ISettingsHotsearchPodcastSegmentType
+    voiceKey: nextSegmentType === 'adContent' ? 'random' : nextItems[index].voiceKey,
+    segmentType: nextSegmentType
   };
+
+  if (nextSegmentType === 'adContent' && activeTemplateItemIndex.value === index) {
+    activeTemplateItemIndex.value = null;
+    activeTemplateItemSelectionStart.value = null;
+    activeTemplateItemSelectionEnd.value = null;
+    templateItemInputElements.value[index]?.blur();
+  }
+
   emitTemplateItemsUpdate(nextItems);
 };
 
@@ -743,6 +794,11 @@ const handleVariableInsert = async (token: string): Promise<void> => {
   if (activeTemplateItemIndex.value !== null && stateTemplateItems.value[activeTemplateItemIndex.value]) {
     const index = activeTemplateItemIndex.value;
     const currentItem = stateTemplateItems.value[index];
+
+    if (currentItem.segmentType === 'adContent') {
+      return;
+    }
+
     const selectionStart = activeTemplateItemSelectionStart.value ?? currentItem.content.length;
     const selectionEnd = activeTemplateItemSelectionEnd.value ?? selectionStart;
     const nextContent = `${currentItem.content.slice(0, selectionStart)}${token}${currentItem.content.slice(selectionEnd)}`;

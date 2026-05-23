@@ -3,12 +3,17 @@ export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
 export type { IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload } from '@@/shared/types/pages/home/index.types';
 export type {
   IHotsearchArchiveDateSummary,
+  IHotsearchDataPage,
   IHotsearchDataRow,
   IHotsearchMediaPlatformOption,
+  IHotsearchPlatformSummaryPage,
+  IHotsearchPlatformSummaryRow,
   IHotsearchPodcastMediaAsset,
   IHotsearchPodcastMediaSource,
   IHotsearchPodcastSentence,
   IHotsearchPodcastViewModel,
+  IHotsearchTagSummaryPage,
+  IHotsearchTagSummaryRow,
   IQueryResultHotSearchCronAllResponse,
   IQueryResultHotSearchCronPlatformResponse,
   IQueryResultHotSearchDateRecountRequest,
@@ -66,7 +71,7 @@ export type {
   TQueryResultQuotesSearchUuidResponse
 } from '@@/shared/types/pages/quotes/index.types';
 export type { IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
-export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
+export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
 export type {
   IPageSettingsUnattendedMachineCardInfo,
   IPageSettingsUnattendedMachineNetworkGroup,

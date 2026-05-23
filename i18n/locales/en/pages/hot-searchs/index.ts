@@ -27,10 +27,20 @@ export const hotsearch = {
     openSource: 'Open source'
   },
   categories: {
+    social: 'Society',
+    politics: 'Politics',
+    legal: 'Legal & Safety',
+    finance: 'Finance',
     tech: 'Tech',
-    social: 'Social',
-    business: 'Business',
-    entertainment: 'Entertainment'
+    auto: 'Auto & Mobility',
+    sports: 'Sports',
+    entertainment: 'Entertainment',
+    filmTv: 'Film & TV',
+    games: 'Games & Esports',
+    anime: 'Anime & ACG',
+    lifestyle: 'Lifestyle',
+    health: 'Health',
+    history: 'History & Culture'
   },
   data: {
     description: 'Filter hotsearch records by platform and keyword with a clear table view.',
@@ -39,12 +49,19 @@ export const hotsearch = {
     platformsTitle: 'Platforms',
     platformsDescription: 'Use the vertical platform list to narrow the table quickly.',
     allPlatforms: 'All platforms',
+    allTags: 'All tags',
+    variants: {
+      content: 'Content',
+      tags: 'Tags',
+      platforms: 'Platforms'
+    },
     cards: {
       totalRows: 'Total records',
       newRows: 'New records',
       podcastRows: 'Podcast-ready'
     },
     table: {
+      rank: 'No.',
       title: 'Title / Summary',
       platform: 'Platform',
       popularity: 'Popularity',
@@ -60,6 +77,24 @@ export const hotsearch = {
     empty: {
       title: 'No hotsearch records match the current filters',
       description: 'Try another date, platform, or clear the keyword.'
+    }
+  },
+  tags: {
+    table: {
+      no: 'No.',
+      tag: 'Tag',
+      count: 'Count',
+      updatedAt: 'Updated at',
+      createdAt: 'Created at'
+    }
+  },
+  platforms: {
+    table: {
+      no: 'No.',
+      platform: 'Platform',
+      count: 'Count',
+      updatedAt: 'Updated at',
+      createdAt: 'Created at'
     }
   },
   podcast: {

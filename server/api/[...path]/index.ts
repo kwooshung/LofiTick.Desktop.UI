@@ -1,16 +1,7 @@
 import { createError, defineEventHandler, getCookie, getHeaders, getRequestHeader, getRequestURL, readRawBody, setCookie, setResponseHeaders, setResponseStatus } from 'h3';
 import { useRuntimeConfig } from 'nitropack/runtime';
 import { $fetch } from 'ofetch';
-
-/**
- * 常量：刷新 blob 的默认 Cookie 名称。
- */
-const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
-
-/**
- * 常量：签名刷新 blob 的格式前缀（用于兜底识别）。
- */
-const SIGN_REFRESH_BLOB_PREFIX = 'v1.';
+import { DEFAULT_SIGN_BLOB_COOKIE_NAME, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH, pickSignRefreshBlob, resolveSignBlobCookieName, stripSignRefreshAttach } from '@@/shared/utils';
 
 /**
  * 常量：假参数 nonce 的期望长度。
@@ -21,16 +12,6 @@ const FAKE_NONCE_LEN = 8;
  * 常量：假参数 sign 的期望长度。
  */
 const FAKE_SIGN_LEN = 24;
-
-/**
- * 常量：签名 init 路径。
- */
-const SIGN_INIT_PATH = '/security/sign/init';
-
-/**
- * 常量：签名 refresh 路径。
- */
-const SIGN_REFRESH_PATH = '/security/sign/refresh';
 
 /**
  * 常量：CSRF Cookie 名称（兜底）。
@@ -126,74 +107,6 @@ const toResponseHeaders = (headers: Headers): Record<string, string> => {
 
     out[key] = value;
   });
-
-  return out;
-};
-
-/**
- * 函数：从请求中推断写入 refresh blob 的 Cookie 名称。
- * @param {object} args 参数
- * @param {unknown} args.datas 响应 datas
- * @param {string | undefined} args.hintHeader 请求头提示值
- * @return {string} Cookie 名称
- */
-const resolveSignBlobCookieName = (args: { datas: unknown; hintHeader: string | undefined }): string => {
-  const { datas, hintHeader } = args;
-
-  const hinted = String(hintHeader ?? '').trim();
-  if (hinted !== '') {
-    return hinted;
-  }
-
-  const d = (datas ?? {}) as Record<string, unknown>;
-  const name = String(d.sign_blob_cookie_name ?? '').trim();
-  if (name !== '') {
-    return name;
-  }
-
-  return DEFAULT_SIGN_BLOB_COOKIE_NAME;
-};
-
-/**
- * 函数：尝试从响应体中提取 attach.sign_refresh。
- * @param {unknown} raw 上游 JSON
- * @return {string} 刷新 blob（不存在则空字符串）
- */
-const pickSignRefreshBlob = (raw: unknown): string => {
-  const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
-  const attach = src?.attach && typeof src.attach === 'object' && !Array.isArray(src.attach) ? (src.attach as Record<string, unknown>) : null;
-  const blob = String(attach?.sign_refresh ?? '').trim();
-  if (!blob.startsWith(SIGN_REFRESH_BLOB_PREFIX)) {
-    return '';
-  }
-  return blob;
-};
-
-/**
- * 函数：删除响应体中的 attach.sign_refresh。
- * @param {unknown} raw 上游 JSON
- * @return {unknown} 改写后的 JSON
- */
-const stripSignRefreshAttach = (raw: unknown): unknown => {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return raw;
-  }
-
-  const out = { ...(raw as Record<string, unknown>) };
-  const attach = out.attach;
-
-  if (!attach || typeof attach !== 'object' || Array.isArray(attach)) {
-    return out;
-  }
-
-  const attachObj = { ...(attach as Record<string, unknown>) };
-  delete attachObj.sign_refresh;
-
-  if (Object.keys(attachObj).length === 0) {
-    delete out.attach;
-  } else {
-    out.attach = attachObj;
-  }
 
   return out;
 };

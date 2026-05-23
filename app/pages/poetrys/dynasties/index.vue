@@ -40,6 +40,11 @@ const Datetime = resolveComponent('Datetime');
  * 组件：按钮
  */
 const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
 /**
  * 组件：分页
  */
@@ -96,11 +101,12 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 };
 
 /**
- * 函数：导航到单一筛选（保留 pagesize/enabled/isAnd/title/content），移除 page
+ * 函数：构建单一筛选跳转位置（保留 pagesize/enabled/isAnd/title/content），移除 page。
  * @param {'dynasty_ids'} key 筛选键
  * @param {number | string} value 筛选值
+ * @returns {{ path: string; query: Record<string, string | string[]> }} 路由位置
  */
-const navigateWithSingleFilter = (key: 'dynasty_ids', value: number | string) => {
+const buildSingleFilterLocation = (key: 'dynasty_ids', value: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
   // 保留必要参数
   if (typeof route.query.pagesize !== 'undefined') {
@@ -109,8 +115,7 @@ const navigateWithSingleFilter = (key: 'dynasty_ids', value: number | string) =>
   // 设置单选筛选
   q[key] = String(value);
 
-  // 跳转（移除 page，使用 replace 以清爽历史栈）
-  navigateTo({ path: '/poetrys', query: q });
+  return { path: '/poetrys', query: q };
 };
 
 /**
@@ -222,7 +227,7 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: t('pages.poetrys.result.table.dynasty'),
-    cell: ({ row }) => h(UButton, { color: 'neutral', variant: 'link', label: row.original.name, class: 'p-0 text-default hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.id) })
+    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline text-default hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', row.original.id) }, () => row.original.name)
   },
   {
     accessorKey: 'count',

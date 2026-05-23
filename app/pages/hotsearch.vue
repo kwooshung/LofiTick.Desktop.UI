@@ -6,7 +6,9 @@
 
     <template #toolbar-right>
       <div class="flex items-center gap-2">
-        <template v-if="computedRouteIsData">
+        <template v-if="computedRouteIsDataSection">
+          <SelectsPagesizes cache-key="hotsearch" />
+
           <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="hidden md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
             <template #leading>
               <UIcon name="i-lucide:search" class="text-dimmed size-4" />
@@ -27,10 +29,27 @@
 
           <template #content>
             <div class="w-88 space-y-3 p-3 sm:w-96">
-              <UCalendar v-model="computedCalendarModelValue" color="neutral" variant="subtle" :min-value="computedCalendarMinValue" :max-value="computedCalendarMaxValue" :is-date-disabled="calendarDateDisabledGet" class="mx-auto" @mouseleave="handleDatePreviewReset">
+              <UCalendar
+                v-model="computedCalendarModelValue"
+                color="neutral"
+                variant="subtle"
+                :min-value="computedCalendarMinValue"
+                :max-value="computedCalendarMaxValue"
+                :placeholder="stateCalendarPlaceholder"
+                :prev-page="calendarPrevPageGet"
+                :next-page="calendarNextPageGet"
+                :prev-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtFirstMonth }"
+                :next-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtLastMonth }"
+                :year-controls="false"
+                :disable-days-outside-current-view="true"
+                :is-date-disabled="calendarDateDisabledGet"
+                class="mx-auto"
+                @update:placeholder="handleCalendarPlaceholderUpdate"
+                @mouseleave="handleDatePreviewReset"
+              >
                 <template #day="{ day }">
-                  <span class="inline-flex" :class="calendarDateSummaryGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
-                    <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryGet(day)?.mediaReady ? 'warning' : 'primary'" size="2xs" inset>
+                  <span class="inline-flex" :class="calendarDateSelectableGet(day) ? 'cursor-pointer' : 'pointer-events-none cursor-default'" @mouseenter="handleDatePreview(day)">
+                    <UChip :show="calendarDateSummaryGet(day) !== null" :color="calendarDateSummaryColorGet(day)" size="2xs" inset>
                       {{ day.day }}
                     </UChip>
                   </span>
@@ -66,7 +85,15 @@
 
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
-        <template v-if="computedRouteIsPodcast">
+        <template v-if="computedRouteIsDataSection">
+          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center gap-1.5 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
+            <div class="relative z-10 min-w-0 flex-1">
+              <UNavigationMenu :items="computedDataVariantLinks" highlight class="-translate-x-2.5" />
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="computedRouteIsPodcast">
           <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
             <div class="border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
               <div class="relative z-10 min-w-0 flex-1">
@@ -103,7 +130,7 @@
       </div>
 
       <div class="scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        <div class="min-h-full">
+        <div class="flex min-h-full flex-col">
           <NuxtPage />
         </div>
       </div>
@@ -166,6 +193,11 @@ const localePath = useLocalePath();
 const route = useRoute();
 
 /**
+ * 状态：是否已存在显式日期选择。
+ */
+const stateHasExplicitDateSelection = ref(hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined) !== '');
+
+/**
  * 常量：日历时区。
  */
 const calendarTimeZone = getLocalTimeZone();
@@ -174,6 +206,11 @@ const calendarTimeZone = getLocalTimeZone();
  * 状态：日期选择器是否打开。
  */
 const stateDatePickerOpen = ref(false);
+
+/**
+ * 状态：日历当前展示月份。
+ */
+const stateCalendarPlaceholder = ref<CalendarDate>(today(calendarTimeZone));
 
 /**
  * 状态：悬停预览日期。
@@ -221,6 +258,17 @@ const storeBreadcrumb = useStoreBreadcrumb();
 const stateToolbarKeyword = ref('');
 
 /**
+ * API：热搜日期摘要。
+ *
+ * 该接口对应 Rust API 的 `GET /hotsearch/dates`。
+ * 它只用于热搜页面日历的只读日期摘要，不是管理侧的日期重算接口。
+ */
+const { datas: stateHotsearchDateSummaries, refresh: refreshHotsearchDateSummariesGet } = await useApi<IHotsearchArchiveDateSummary[]>('hotsearch/dates', {
+  immediate: true,
+  server: false
+});
+
+/**
  * 计算属性：日期格式化器。
  */
 const computedDateFormatterLocale = computed(() => String(locales.value.find((item) => item.code === locale.value)?.language || locale.value.replace(/_/g, '-')));
@@ -233,7 +281,9 @@ const computedDateFormatter = computed(() => new DateFormatter(computedDateForma
 /**
  * 计算属性：日期摘要列表。
  */
-const computedDateSummaries = computed(() => hotsearchArchiveDateSummariesGet());
+const computedDateSummaries = computed(() => {
+  return [...(stateHotsearchDateSummaries.value ?? [])].sort((left, right) => right.date.localeCompare(left.date));
+});
 
 /**
  * 计算属性：日期摘要映射。
@@ -241,16 +291,71 @@ const computedDateSummaries = computed(() => hotsearchArchiveDateSummariesGet())
 const computedDateSummaryMap = computed(() => new Map(computedDateSummaries.value.map((item) => [item.date, item])));
 
 /**
+ * 计算属性：可选月份列表。
+ */
+const computedAvailableCalendarMonths = computed<CalendarDate[]>(() => {
+  const monthMap = new Map<string, CalendarDate>();
+
+  for (const item of computedDateSummaries.value) {
+    const dateValue = calendarDateFromIsoGet(item.date);
+
+    if (!dateValue) {
+      continue;
+    }
+
+    monthMap.set(calendarMonthKeyGet(dateValue), new CalendarDate(dateValue.year, dateValue.month, 1));
+  }
+
+  const todayValue = today(calendarTimeZone);
+
+  monthMap.set(calendarMonthKeyGet(todayValue), new CalendarDate(todayValue.year, todayValue.month, 1));
+
+  return Array.from(monthMap.values()).sort((left, right) => left.compare(right));
+});
+
+/**
+ * 计算属性：最新可选日期。
+ */
+const computedLatestAvailableDate = computed(() => computedDateSummaries.value[0]?.date ?? '');
+
+/**
+ * 计算属性：当前日期字符串。
+ */
+const computedTodayDate = computed(() => {
+  const value = today(calendarTimeZone);
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+});
+
+/**
  * 计算属性：当前选中日期。
  */
 const computedSelectedDate = computed(() => {
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
-  if (computedDateSummaries.value.some((item) => item.date === queryDate)) {
+  if (queryDate === computedTodayDate.value) {
     return queryDate;
   }
 
-  return computedDateSummaries.value[0]?.date ?? '';
+  if (queryDate !== '' && computedDateSummaryMap.value.has(queryDate)) {
+    return queryDate;
+  }
+
+  return computedTodayDate.value;
+});
+
+/**
+ * 计算属性：当前选中日期对应的展示月份。
+ */
+const computedSelectedMonthValue = computed(() => {
+  return calendarMonthValueFromIsoGet(computedSelectedDate.value) ?? computedAvailableCalendarMonths.value.at(-1) ?? calendarMonthValueGet(today(calendarTimeZone));
+});
+
+/**
+ * 计算属性：默认打开月份。
+ */
+const computedCalendarDefaultMonthValue = computed(() => {
+  return calendarNearestMonthGet(today(calendarTimeZone)) ?? computedAvailableCalendarMonths.value.at(-1) ?? calendarMonthValueGet(today(calendarTimeZone));
 });
 
 /**
@@ -284,7 +389,42 @@ const computedCalendarMinValue = computed(() => calendarDateFromIsoGet(computedD
 /**
  * 计算属性：日历最大日期。
  */
-const computedCalendarMaxValue = computed(() => today(calendarTimeZone));
+const computedCalendarMaxValue = computed(() => {
+  const latestAvailableDate = calendarDateFromIsoGet(computedLatestAvailableDate.value);
+  const todayValue = today(calendarTimeZone);
+
+  if (!latestAvailableDate) {
+    return todayValue;
+  }
+
+  return latestAvailableDate.compare(todayValue) >= 0 ? latestAvailableDate : todayValue;
+});
+
+/**
+ * 计算属性：当前是否位于首个可选月份。
+ */
+const computedCalendarAtFirstMonth = computed(() => {
+  const firstMonth = computedAvailableCalendarMonths.value[0];
+
+  if (!firstMonth) {
+    return true;
+  }
+
+  return calendarMonthKeyGet(stateCalendarPlaceholder.value) === calendarMonthKeyGet(firstMonth);
+});
+
+/**
+ * 计算属性：当前是否位于最后一个可选月份。
+ */
+const computedCalendarAtLastMonth = computed(() => {
+  const lastMonth = computedAvailableCalendarMonths.value.at(-1);
+
+  if (!lastMonth) {
+    return true;
+  }
+
+  return calendarMonthKeyGet(stateCalendarPlaceholder.value) === calendarMonthKeyGet(lastMonth);
+});
 
 /**
  * 计算属性：日历当前值。
@@ -310,6 +450,17 @@ const computedCalendarModelValue = computed<CalendarDate>({
 const computedRouteIsData = computed(() => route.path === localePath('/hotsearch'));
 
 /**
+ * 计算属性：当前是否位于数据分区。
+ */
+const computedRouteIsDataSection = computed(() => {
+  const dataPath = localePath('/hotsearch');
+  const platformsPath = localePath('/hotsearch/platforms');
+  const tagsPath = localePath('/hotsearch/tags');
+
+  return route.path === dataPath || route.path === platformsPath || route.path === tagsPath;
+});
+
+/**
  * 计算属性：当前是否为播客页。
  */
 const computedRouteIsPodcast = computed(() => route.path.startsWith(localePath('/hotsearch/podcast')));
@@ -327,7 +478,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('pages.hotsearch.sections.data.title'),
       icon: 'i-lucide:table-properties',
-      active: computedRouteIsData.value,
+      active: computedRouteIsDataSection.value,
       to: {
         path: localePath('/hotsearch'),
         query: { date: computedSelectedDate.value }
@@ -354,6 +505,62 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
     }
   ]
 ]);
+
+/**
+ * 计算属性：数据分区子页链接。
+ */
+const computedDataVariantLinks = computed<NavigationMenuItem[][]>(() => {
+  if (!computedRouteIsDataSection.value) {
+    return [];
+  }
+
+  const sharedQuery = {
+    date: computedSelectedDate.value,
+    keyword: hotsearchQueryStringGet(route.query.keyword as string | null | Array<string | null> | undefined) || undefined,
+    platform: hotsearchQueryStringGet(route.query.platform as string | null | Array<string | null> | undefined) || undefined,
+    category_key: hotsearchQueryStringGet(route.query.category_key as string | null | Array<string | null> | undefined) || undefined,
+    pagesize: hotsearchQueryStringGet(route.query.pagesize as string | null | Array<string | null> | undefined) || undefined
+  };
+
+  return [
+    [
+      {
+        label: t('pages.hotsearch.data.variants.content'),
+        icon: 'i-lucide:file-text',
+        active: route.path === localePath('/hotsearch'),
+        to: {
+          path: localePath('/hotsearch'),
+          query: {
+            ...sharedQuery,
+            order_by: hotsearchQueryStringGet(route.query.order_by as string | null | Array<string | null> | undefined) || undefined,
+            order_dir: hotsearchQueryStringGet(route.query.order_dir as string | null | Array<string | null> | undefined) || undefined
+          }
+        },
+        exact: true
+      },
+      {
+        label: t('pages.hotsearch.data.variants.tags'),
+        icon: 'i-lucide:tags',
+        active: route.path === localePath('/hotsearch/tags'),
+        to: {
+          path: localePath('/hotsearch/tags'),
+          query: sharedQuery
+        },
+        exact: true
+      },
+      {
+        label: t('pages.hotsearch.data.variants.platforms'),
+        icon: 'i-lucide:layout-grid',
+        active: route.path === localePath('/hotsearch/platforms'),
+        to: {
+          path: localePath('/hotsearch/platforms'),
+          query: sharedQuery
+        },
+        exact: true
+      }
+    ]
+  ];
+});
 
 /**
  * 计算属性：播客变体链接。
@@ -455,7 +662,7 @@ const computedPodcastHeaderAudioAsset = computed(() => {
 /**
  * 计算属性：工具区面板是否显示。
  */
-const computedToolbarPanelVisible = computed(() => computedRouteIsPodcast.value);
+const computedToolbarPanelVisible = computed(() => computedRouteIsDataSection.value || computedRouteIsPodcast.value);
 
 /**
  * 函数：切换播客媒体平台。
@@ -595,13 +802,159 @@ const calendarDateSummaryGet = (value: DateValue): IHotsearchArchiveDateSummary 
 };
 
 /**
+ * 函数：获取日期点位颜色。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {'primary' | 'success'}
+ */
+const calendarDateSummaryColorGet = (value: DateValue): 'primary' | 'success' => {
+  const summary = calendarDateSummaryGet(value);
+
+  return summary && summary.podcastCount > 0 ? 'success' : 'primary';
+};
+
+/**
+ * 函数：判断日期是否可选。
+ *
+ * 今天在当天结束前始终允许选择；历史日期仍必须真实存在热搜摘要数据。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {boolean}
+ */
+const calendarDateSelectableGet = (value: DateValue): boolean => {
+  const isoDate = calendarIsoDateGet(value);
+
+  return isoDate === computedTodayDate.value || computedDateSummaryMap.value.has(isoDate);
+};
+
+/**
  * 函数：判断日期是否禁选。
  *
  * @param {DateValue} value 日历日期。
  * @return {boolean}
  */
 const calendarDateDisabledGet = (value: DateValue): boolean => {
-  return !computedDateSummaryMap.value.has(calendarIsoDateGet(value));
+  return !calendarDateSelectableGet(value);
+};
+
+/**
+ * 函数：获取月份键。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {string}
+ */
+const calendarMonthKeyGet = (value: DateValue): string => {
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}`;
+};
+
+/**
+ * 函数：获取月份起始值。
+ *
+ * @param {DateValue} value 日历日期。
+ * @return {CalendarDate}
+ */
+const calendarMonthValueGet = (value: DateValue): CalendarDate => {
+  return new CalendarDate(value.year, value.month, 1);
+};
+
+/**
+ * 函数：从 ISO 日期解析月份起始值。
+ *
+ * @param {string} value ISO 日期。
+ * @return {CalendarDate | null}
+ */
+const calendarMonthValueFromIsoGet = (value: string): CalendarDate | null => {
+  const dateValue = calendarDateFromIsoGet(value);
+
+  if (!dateValue) {
+    return null;
+  }
+
+  return calendarMonthValueGet(dateValue);
+};
+
+/**
+ * 函数：查找最接近的可选月份。
+ *
+ * @param {DateValue} value 目标月份。
+ * @return {CalendarDate | null}
+ */
+const calendarNearestMonthGet = (value: DateValue): CalendarDate | null => {
+  const months = computedAvailableCalendarMonths.value;
+
+  if (months.length <= 0) {
+    return null;
+  }
+
+  const monthValue = calendarMonthValueGet(value);
+  let fallback = months[0] ?? null;
+
+  for (const item of months) {
+    if (item.compare(monthValue) <= 0) {
+      fallback = item;
+      continue;
+    }
+
+    return fallback;
+  }
+
+  return months.at(-1) ?? fallback;
+};
+
+/**
+ * 函数：获取相邻可选月份。
+ *
+ * @param {DateValue} value 当前月份。
+ * @param {number} delta 偏移量。
+ * @return {CalendarDate}
+ */
+const calendarAdjacentMonthGet = (value: DateValue, delta: number): CalendarDate => {
+  const months = computedAvailableCalendarMonths.value;
+
+  if (months.length <= 0) {
+    return calendarMonthValueGet(value);
+  }
+
+  const monthKey = calendarMonthKeyGet(value);
+  const currentIndex = months.findIndex((item) => calendarMonthKeyGet(item) === monthKey);
+
+  if (currentIndex === -1) {
+    return calendarNearestMonthGet(value) ?? months.at(-1) ?? calendarMonthValueGet(value);
+  }
+
+  const nextIndex = Math.min(Math.max(currentIndex + delta, 0), months.length - 1);
+
+  return months[nextIndex] ?? months[currentIndex] ?? calendarMonthValueGet(value);
+};
+
+/**
+ * 函数：获取上一可选月份。
+ *
+ * @param {DateValue} value 当前月份。
+ * @return {CalendarDate}
+ */
+const calendarPrevPageGet = (value: DateValue): CalendarDate => {
+  return calendarAdjacentMonthGet(value, -1);
+};
+
+/**
+ * 函数：获取下一可选月份。
+ *
+ * @param {DateValue} value 当前月份。
+ * @return {CalendarDate}
+ */
+const calendarNextPageGet = (value: DateValue): CalendarDate => {
+  return calendarAdjacentMonthGet(value, 1);
+};
+
+/**
+ * 函数：更新日历展示月份。
+ *
+ * @param {value} value 日历月份值。
+ * @return {void}
+ */
+const handleCalendarPlaceholderUpdate = (value: DateValue): void => {
+  stateCalendarPlaceholder.value = calendarNearestMonthGet(value) ?? computedSelectedMonthValue.value;
 };
 
 /**
@@ -613,7 +966,7 @@ const calendarDateDisabledGet = (value: DateValue): boolean => {
 const handleDatePreview = (value: DateValue): void => {
   const nextDate = calendarIsoDateGet(value);
 
-  if (!computedDateSummaryMap.value.has(nextDate)) {
+  if (!calendarDateSelectableGet(value)) {
     return;
   }
 
@@ -633,6 +986,83 @@ watch(
   () => route.query.keyword,
   (value) => {
     stateToolbarKeyword.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined);
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(stateDatePickerOpen, (open) => {
+  if (!open) {
+    stateDatePickerPreviewDate.value = '';
+
+    return;
+  }
+
+  stateCalendarPlaceholder.value = stateHasExplicitDateSelection.value ? computedSelectedMonthValue.value : computedCalendarDefaultMonthValue.value;
+  void refreshHotsearchDateSummariesGet({ replace: true });
+});
+
+watch(
+  () => ({
+    open: stateDatePickerOpen.value,
+    explicit: stateHasExplicitDateSelection.value,
+    selectedMonthKey: calendarMonthKeyGet(computedSelectedMonthValue.value),
+    summaryCount: computedDateSummaries.value.length
+  }),
+  ({ open, explicit, selectedMonthKey, summaryCount }) => {
+    if (!open || summaryCount <= 0) {
+      return;
+    }
+
+    if (explicit && selectedMonthKey !== '') {
+      stateCalendarPlaceholder.value = computedSelectedMonthValue.value;
+
+      return;
+    }
+
+    stateCalendarPlaceholder.value = computedCalendarDefaultMonthValue.value;
+  }
+);
+
+watch(
+  computedSelectedMonthValue,
+  (value) => {
+    if (stateDatePickerOpen.value) {
+      return;
+    }
+
+    stateCalendarPlaceholder.value = value;
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(
+  () => ({
+    routeDate: hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined),
+    selectedDate: computedSelectedDate.value,
+    hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
+  }),
+  ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
+    const nextRouteDate = selectedDate !== '' && (hasSelectedDateSummary || selectedDate === computedTodayDate.value) ? selectedDate : undefined;
+    const normalizedNextRouteDate = nextRouteDate ?? '';
+
+    if (routeDate === normalizedNextRouteDate) {
+      return;
+    }
+
+    navigateTo(
+      {
+        path: route.path,
+        query: {
+          ...route.query,
+          date: nextRouteDate
+        }
+      },
+      { replace: true }
+    );
   },
   {
     immediate: true
@@ -661,11 +1091,15 @@ storeBreadcrumb.states = [
  * @return {void}
  */
 const handleDateChange = (date: string): void => {
+  stateHasExplicitDateSelection.value = true;
+
+  const nextRouteDate = computedDateSummaryMap.value.has(date) || date === computedTodayDate.value ? date : undefined;
+
   navigateTo({
     path: route.path,
     query: {
       ...route.query,
-      date
+      date: nextRouteDate
     }
   });
 };

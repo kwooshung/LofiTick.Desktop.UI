@@ -58,7 +58,6 @@
       :vip-morning-program-name="stateHotsearchConfig.podcastVipMorningProgramName"
       :vip-evening-program-name="stateHotsearchConfig.podcastVipEveningProgramName"
       :template-items="stateHotsearchConfig.podcastTemplateItems"
-      :disabled="stateSaving"
       @update:male-speaker-name="handlePodcastMaleSpeakerNameUpdate"
       @update:female-speaker-name="handlePodcastFemaleSpeakerNameUpdate"
       @update:morning-program-name="handlePodcastMorningProgramNameUpdate"

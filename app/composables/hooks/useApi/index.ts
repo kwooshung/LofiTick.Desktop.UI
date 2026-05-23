@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { debounce, throttle } from 'es-toolkit';
 
+import { DEFAULT_SIGN_BLOB_COOKIE_NAME, getPublicSignAesSeedFromConfig, pickSignRefreshBlob, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH } from '@@/shared/utils';
 import type { UseFetchOptions } from '#app';
 
 import type { IApiResponseWrapper, IApiToastTryEmitArgs, IServerError, ISignRefreshPayload, ISignState, IUseApiDebounceOptions, IUseApiResult, IUseApiThrottleOptions, IUseFetchExtraOptions, TUseApiRateLimitedFn } from './index.types';
@@ -118,29 +119,9 @@ export const apiToastTryEmit = (args: IApiToastTryEmitArgs): void => {
 };
 
 /**
- * 常量：签名 init 路径。
- */
-const SIGN_INIT_PATH = '/security/sign/init';
-
-/**
- * 常量：签名 refresh 路径。
- */
-const SIGN_REFRESH_PATH = '/security/sign/refresh';
-
-/**
- * 常量：默认 refresh blob Cookie 名称（兜底）。
- */
-const DEFAULT_SIGN_BLOB_COOKIE_NAME = 'sign_refresh';
-
-/**
  * 常量：Nuxt CSRF token 刷新接口。
  */
 const NUXT_CSRF_REFRESH_PATH = '/api/security/csrf';
-
-/**
- * 常量：代理层提示 Cookie 名称的 header。
- */
-const SIGN_BLOB_COOKIE_NAME_HINT_HEADER = 'X-Sign-Blob-Cookie-Name';
 
 /**
  * 常量：迷惑 Header（Soc-Fetch-Dest）。
@@ -161,16 +142,6 @@ const FAKE_NONCE_LEN = 8;
  * 常量：假参数 sign 的期望长度。
  */
 const FAKE_SIGN_LEN = 24;
-
-/**
- * 函数：从公开 runtimeConfig 获取签名 AES seed。
- * @param {unknown} publicConfig runtimeConfig.public
- * @return {string} AES seed
- */
-const getPublicSignAesSeedFromConfig = (publicConfig: unknown): string => {
-  const v = (publicConfig ?? {}) as Record<string, unknown>;
-  return String(v.signAesSeed ?? v.apiSignAesSeed ?? '').trim();
-};
 
 /**
  * 函数：Base64URL 解码为字节数组。
@@ -905,6 +876,40 @@ const shouldRefreshNuxtCsrfOnError = (err: unknown): boolean => {
 };
 
 /**
+ * 函数：判断本次错误是否应先静默，等待自愈重试结果。
+ *
+ * 该判断只覆盖当前链路已支持“自动自愈一次”的错误：
+ * - 后端安全层的签名过期 / 签名不匹配
+ * - 后端安全层的 CSRF 缺失 / 缺 header / 不匹配
+ * - Nuxt 同源代理层的 CSRF 拒绝
+ *
+ * # Arguments
+ *
+ * * `args` - 判定所需参数。
+ *
+ * # Returns
+ *
+ * 命中可自愈错误时返回 `true`。
+ */
+const shouldSilenceToastForRecoverableError = (args: { status: unknown; raw?: unknown; fallbackHttp?: number }): boolean => {
+  if (shouldRefreshOnStatus(args.status) || shouldReinitCsrfOnStatus(args.status)) {
+    return true;
+  }
+
+  const rawObj = args.raw && typeof args.raw === 'object' && !Array.isArray(args.raw) ? (args.raw as Record<string, unknown>) : {};
+  const statusCode = Number(args.fallbackHttp ?? rawObj.statusCode ?? 0);
+  const errorName = String(rawObj.name ?? '').trim();
+  const statusMessage = String(rawObj.statusMessage ?? '').trim();
+  const message = String(rawObj.message ?? '').trim();
+
+  if (statusCode !== 403) {
+    return false;
+  }
+
+  return errorName === 'EBADCSRFTOKEN' || statusMessage === 'CSRF Token Mismatch' || message === 'CSRF Token invalid' || message === 'CSRF Token not found' || message === 'CSRF Cookie not found';
+};
+
+/**
  * 函数：刷新当前页面可用的 Nuxt CSRF token。
  *
  * 该函数通过本地 `/api/security/csrf` 获取最新 token，并同步写回当前文档的 meta，
@@ -914,7 +919,7 @@ const shouldRefreshNuxtCsrfOnError = (err: unknown): boolean => {
  *
  * 成功刷新时返回 `true`，否则返回 `false`。
  */
-const refreshNuxtCsrfToken = async (): Promise<boolean> => {
+const refreshNuxtCsrfToken = async (onUpdated?: (token: string) => void): Promise<boolean> => {
   if (import.meta.server) {
     return false;
   }
@@ -937,6 +942,7 @@ const refreshNuxtCsrfToken = async (): Promise<boolean> => {
   }
 
   meta.setAttribute('content', token);
+  onUpdated?.(token);
   return true;
 };
 
@@ -1013,16 +1019,7 @@ const fetchSignBootstrap = async (args: { backendPath: string; signState: Ref<IS
     });
 
     const datas = raw?.datas && typeof raw.datas === 'object' && !Array.isArray(raw.datas) ? (raw.datas as Record<string, unknown>) : {};
-    const attach = raw?.attach && typeof raw.attach === 'object' && !Array.isArray(raw.attach) ? (raw.attach as Record<string, unknown>) : null;
-    const signRefreshBlob = String(attach?.sign_refresh ?? '').trim();
-
-    // SSR：sign/init 下发的 csrf token 需要由当前响应显式 set-cookie（SSR 直连后端不会经过 /api 代理）。
-    const csrfRaw = attach?.csrf && typeof attach.csrf === 'object' && !Array.isArray(attach.csrf) ? (attach.csrf as Record<string, unknown>) : null;
-    const csrfToken = String(csrfRaw?.token ?? '').trim();
-    const csrfCookieName = String(csrfRaw?.cookie_name ?? '').trim();
-    if (csrfToken !== '' && csrfCookieName !== '' && typeof args.setHttpOnlyCookieIfMissing === 'function') {
-      await args.setHttpOnlyCookieIfMissing({ name: csrfCookieName, value: csrfToken });
-    }
+    const signRefreshBlob = pickSignRefreshBlob(raw);
 
     return {
       datas,
@@ -1114,6 +1111,11 @@ const readCookieValueFromDocument = (name: string): string => {
  */
 const consumeRefreshCookieIfPresent = async (args: { signState: Ref<ISignState>; aesSeed: string; getCookieRef: TGetCookieRef }): Promise<void> => {
   const { signState, aesSeed, getCookieRef } = args;
+
+  if (import.meta.server) {
+    return;
+  }
+
   const cookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
 
   const cookie = await getCookieRef(cookieName);
@@ -1295,52 +1297,73 @@ const normalizeMethod = (method?: unknown): string =>
  * 函数：统一封装 API 请求
  */
 const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Promise<any> => {
-  const apiPath = toApiPath(path);
-  const backendPathWithSearch = toBackendPath(path);
-  const backendParts = splitPathAndSearch(backendPathWithSearch);
-  const backendPath = backendParts.pathOnly;
-  const backendQueryFromPath = toParamsObjectFromSearch(backendParts.search);
-  const signatureBackendPath = toBackendPathForSignature(backendPath);
-  const method = normalizeMethod(options.method);
-  const hasBodyMethod = HAS_BODY_METHODS.has(method as any);
-  const isWriteMethod = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+  if (import.meta.server && options.immediate !== true) {
+    const noopAsync = async (): Promise<void> => {};
+    const noopRateLimited: TUseApiRateLimitedFn = () => {};
 
-  /**
-   * 常量：Nuxt 上下文（用于在异步链路中安全获取 cookie ref）。
-   */
+    return {
+      data: ref<T | undefined>(undefined),
+      loading: ref(false),
+      error: ref(null),
+      retry: noopAsync,
+      refresh: noopAsync,
+      refreshDebounced: noopRateLimited,
+      retryDebounced: noopRateLimited,
+      refreshThrottled: noopRateLimited,
+      retryThrottled: noopRateLimited
+    };
+  }
+
   const nuxtApp = useNuxtApp();
+  return await nuxtApp.runWithContext(async () => {
+    const apiPath = toApiPath(path);
+    const backendPathWithSearch = toBackendPath(path);
+    const backendParts = splitPathAndSearch(backendPathWithSearch);
+    const backendPath = backendParts.pathOnly;
+    const backendQueryFromPath = toParamsObjectFromSearch(backendParts.search);
+    const signatureBackendPath = toBackendPathForSignature(backendPath);
+    const method = normalizeMethod(options.method);
+    const hasBodyMethod = HAS_BODY_METHODS.has(method as any);
+    const isWriteMethod = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
 
-  /**
-   * 常量：运行时配置（必须在首次 await 之前读取，避免 async setup 上下文丢失）。
-   */
-  const runtimeConfig = useRuntimeConfig();
-  const publicConfig = (runtimeConfig.public as Record<string, unknown> | undefined) ?? {};
-  const apiBase = String(publicConfig.apiBase ?? '').trim();
-  const aesSeed = getPublicSignAesSeedFromConfig(publicConfig);
+    /**
+     * 常量：运行时配置（必须在首次 await 之前读取，避免 async setup 上下文丢失）。
+     */
+    const runtimeConfig = useRuntimeConfig();
+    const publicConfig = (runtimeConfig.public as Record<string, unknown> | undefined) ?? {};
+    const apiBase = String(publicConfig.apiBase ?? '').trim();
+    const aesSeed = getPublicSignAesSeedFromConfig(publicConfig);
 
-  /**
-   * 状态：签名状态（必须在首次 await 之前获取）。
-   */
-  const signState = useSignState();
+    /**
+     * 状态：签名状态（必须在首次 await 之前获取）。
+     */
+    const signState = useSignState();
 
-  /**
-   * 函数：获取 cookie ref（通过 Nuxt 上下文执行，避免异步回调里直接调用 composable）。
-   * @param {string} name Cookie 名称
-   * @return {Ref<string | null>} cookie ref
-   */
-  const getCookieRef: TGetCookieRef = async (name: string): Promise<Ref<string | null>> => {
-    return await nuxtApp.runWithContext(() => useCookie<string | null>(name, { default: () => null }));
-  };
+    /**
+     * 函数：获取 cookie ref（通过 Nuxt 上下文执行，避免异步回调里直接调用 composable）。
+     * @param {string} name Cookie 名称
+     * @return {Ref<string | null>} cookie ref
+     */
+    const getCookieRef: TGetCookieRef = async (name: string): Promise<Ref<string | null>> => {
+      if (import.meta.server) {
+        return ref<string | null>(null);
+      }
 
-  /**
-   * 函数：仅当缺失时写入 HttpOnly Cookie。
-   * @param {object} args 参数
-   * @param {string} args.name Cookie 名称
-   * @param {string} args.value Cookie 值
-   * @return {Promise<void>} 无返回
-   */
-  const setHttpOnlyCookieIfMissing: TSetHttpOnlyCookieIfMissing = async (cookieArgs): Promise<void> => {
-    await nuxtApp.runWithContext(() => {
+      return useCookie<string | null>(name, { default: () => null });
+    };
+
+    /**
+     * 函数：仅当缺失时写入 HttpOnly Cookie。
+     * @param {object} args 参数
+     * @param {string} args.name Cookie 名称
+     * @param {string} args.value Cookie 值
+     * @return {Promise<void>} 无返回
+     */
+    const setHttpOnlyCookieIfMissing: TSetHttpOnlyCookieIfMissing = async (cookieArgs): Promise<void> => {
+      if (import.meta.server) {
+        return;
+      }
+
       const name = String(cookieArgs.name ?? '').trim();
       const value = String(cookieArgs.value ?? '').trim();
       if (name === '' || value === '') {
@@ -1360,415 +1383,449 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       if (tokenExisting === '') {
         cookieRef.value = value;
       }
-    });
-  };
+    };
 
-  /**
-   * 状态：Toast store（必须在 setup 上下文中获取，避免回调里调用 composable 触发 Nuxt 报错）
-   */
-  const toastStore = useStoreToastApi();
+    /**
+     * 状态：Toast store（必须在 setup 上下文中获取，避免回调里调用 composable 触发 Nuxt 报错）
+     */
+    const toastStore = useStoreToastApi();
 
-  const querySource = isRef(options.query) ? (options.query as Ref<unknown>) : ref(options.query);
-  const bodySource = isRef(options.body) ? (options.body as Ref<unknown>) : ref(options.body);
-  const datasSource = isRef(options.datas) ? (options.datas as Ref<Record<string, unknown>>) : ref(options.datas);
+    const querySource = isRef(options.query) ? (options.query as Ref<unknown>) : ref(options.query);
+    const bodySource = isRef(options.body) ? (options.body as Ref<unknown>) : ref(options.body);
+    const datasSource = isRef(options.datas) ? (options.datas as Ref<Record<string, unknown>>) : ref(options.datas);
 
-  const baseQueryRef = computed<Record<string, unknown>>(() => omitUndefined(resolve(querySource.value)));
-  const baseBodyRef = computed<Record<string, unknown>>(() => ({
-    ...omitUndefined(resolve(bodySource.value)),
-    ...toSpreadableObject(resolve(datasSource.value))
-  }));
-  const baseGetQueryRef = computed<Record<string, unknown>>(() => ({
-    ...omitUndefined(resolve(querySource.value)),
-    ...toSpreadableObject(resolve(datasSource.value))
-  }));
+    const baseQueryRef = computed<Record<string, unknown>>(() => omitUndefined(resolve(querySource.value)));
+    const baseBodyRef = computed<Record<string, unknown>>(() => ({
+      ...omitUndefined(resolve(bodySource.value)),
+      ...toSpreadableObject(resolve(datasSource.value))
+    }));
+    const baseGetQueryRef = computed<Record<string, unknown>>(() => ({
+      ...omitUndefined(resolve(querySource.value)),
+      ...toSpreadableObject(resolve(datasSource.value))
+    }));
 
-  const baseAllParamsRef = computed<Record<string, unknown>>(() => {
-    if (hasBodyMethod) {
+    const baseAllParamsRef = computed<Record<string, unknown>>(() => {
+      if (hasBodyMethod) {
+        return {
+          ...toSpreadableObject(resolve(querySource.value)),
+          ...toSpreadableObject(resolve(bodySource.value)),
+          ...toSpreadableObject(resolve(datasSource.value))
+        };
+      }
       return {
         ...toSpreadableObject(resolve(querySource.value)),
-        ...toSpreadableObject(resolve(bodySource.value)),
         ...toSpreadableObject(resolve(datasSource.value))
       };
-    }
-    return {
-      ...toSpreadableObject(resolve(querySource.value)),
-      ...toSpreadableObject(resolve(datasSource.value))
-    };
-  });
-
-  const keyHash = JSON.stringify({ method, apiPath, params: baseAllParamsRef.value });
-  const staticKey = `api-${keyHash.length}-${Date.now()}`;
-
-  const headersObj = mergeHeaders(options.headers as HeadersInit | undefined, {});
-
-  // 提示代理层：当前 refresh cookie name（用于条件2自动注入时落盘）
-  const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
-  headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
-  const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, immediate: immediateOption, ...restOptions } = options;
-  const shouldRunImmediate = immediateOption === true;
-
-  /**
-   * 变量：最近一次响应的服务端 status。
-   *
-   * 用于在 `immediate: false` 场景下，可靠判断本次 `base.refresh()` 是否命中
-   * `SIGN_TS_EXPIRED` / `SIGN_MISMATCH`，从而触发签名 refresh 并重试一次。
-   */
-  let lastResponseStatus: unknown = undefined;
-
-  /**
-   * 状态：本次请求签名相关参数（稳定引用，避免 useFetch 捕获旧 options 导致 ts 固化）。
-   */
-  const sigTsRef = ref('');
-  const sigNonceRef = ref('');
-  const sigSignRef = ref('');
-  const sigExtraHeadersRef = ref<Record<string, string>>({});
-
-  /**
-   * 计算：Nuxt CSRF 请求头。
-   *
-   * 写请求在真正发出前总是读取当前文档中的最新 token，
-   * 避免长生命周期 `useFetch` 实例沿用过期 header。
-   */
-  const nuxtCsrfHeadersRef = computed<Record<string, string>>(() => {
-    if (!isWriteMethod || isSignBootstrapPath(backendPath)) {
-      return {};
-    }
-
-    const { csrf, headerName } = useCsrf();
-    const token = String(csrf ?? '').trim();
-    const name = String(headerName ?? '').trim();
-
-    if (token === '' || name === '') {
-      return {};
-    }
-
-    return { [name]: token };
-  });
-
-  /**
-   * 计算：带签名字段的 query。
-   *
-   * 迷惑假参数 `ts/nonce/sign` 一律显示在 URL 中，便于对外观测时保持一致。
-   */
-  const signedQueryRef = computed<Record<string, unknown>>(() => {
-    const ts = sigTsRef.value;
-    if (ts === '') {
-      return hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value;
-    }
-
-    return {
-      ...(hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value),
-      ts,
-      nonce: sigNonceRef.value,
-      sign: sigSignRef.value
-    };
-  });
-
-  /**
-   * 计算：最终请求 body。
-   *
-   * 写请求仅携带业务参数，迷惑假参数不再混入 body。
-   */
-  const signedBodyRef = computed<Record<string, unknown>>(() => baseBodyRef.value);
-
-  /**
-   * 计算：最终请求 headers（稳定引用）。
-   */
-  const signedHeadersRef = computed<Record<string, string>>(() => mergeHeaders(headersObj as any, mergeHeaders(nuxtCsrfHeadersRef.value, sigExtraHeadersRef.value)));
-
-  const finalOptions: UseFetchOptions<unknown> & Record<string, unknown> = {
-    watch: false,
-    immediate: false,
-    ...restOptions,
-    headers: headersObj,
-    onResponseError(ctx: any) {
-      const raw = ctx?.response?._data as IApiResponseWrapper<unknown> | undefined;
-
-      lastResponseStatus = raw?.status;
-
-      apiToastTryEmit({
-        method,
-        backendPath,
-        keyHash,
-        raw,
-        fallbackHttp: ctx?.response?.status,
-        toastSet: toastStore.set
-      });
-    },
-    key: staticKey
-  };
-
-  if (hasBodyMethod) {
-    finalOptions.body = signedBodyRef as any;
-    finalOptions.query = signedQueryRef as any;
-  } else {
-    finalOptions.query = signedQueryRef as any;
-
-    // GET/HEAD/DELETE：强制不发送 body，避免与服务端“GET 不解析 body”的规则冲突。
-    delete (finalOptions as any).body;
-  }
-
-  finalOptions.headers = signedHeadersRef as any;
-
-  // 计算签名：仅对非 sign init/refresh 生效
-  const runWithSignature = async (): Promise<void> => {
-    if (isSignBootstrapPath(backendPath)) {
-      return;
-    }
-
-    await ensureSignReady({ signState, apiBase, aesSeed, getCookieRef, setHttpOnlyCookieIfMissing });
-    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-
-    const tsMs = Date.now();
-    const ts = String(tsMs);
-
-    sigTsRef.value = ts;
-
-    // 迷惑假参数：nonce/sign（不参与真实签名计算，但会随请求携带并由服务端校验格式）
-    const nonce = randomHexLower(FAKE_NONCE_LEN / 2);
-    const sign = randomHexLower(FAKE_SIGN_LEN / 2);
-
-    sigNonceRef.value = nonce;
-    sigSignRef.value = sign;
-
-    // 计算签名参数（合并 query/body/datas 后排序）
-    const finalQueryParams = toParamsObjectForSignature(resolve(finalOptions.query as any));
-    const finalBodyParams = hasBodyMethod ? toParamsObjectForSignature(signedBodyRef.value) : {};
-
-    const allParams: Record<string, unknown> = hasBodyMethod
-      ? {
-          ...backendQueryFromPath,
-          ...finalQueryParams,
-          ...finalBodyParams,
-          ts
-        }
-      : {
-          ...backendQueryFromPath,
-          ...finalQueryParams,
-          ts
-        };
-
-    const canonicalParams: Record<string, string> = {};
-    for (const [k, v] of Object.entries(allParams)) {
-      upsertSignatureParam({ out: canonicalParams, key: k, value: v });
-    }
-
-    const sortedPairs = Object.keys(canonicalParams)
-      .sort()
-      .map((key) => `${key}=${encodeURIComponent(canonicalParams[key] ?? '')}`);
-
-    const payload = signState.value.payload as ISignRefreshPayload | null;
-    if (!payload || String(payload.signKeyHex ?? '').trim() === '') {
-      throw new Error('sign payload missing');
-    }
-
-    const sig = await computeSignatureBase64({
-      backendPath: signatureBackendPath,
-      sortedParamPairs: sortedPairs,
-      signKeyHex: payload.signKeyHex
     });
 
-    const extraHeaders: Record<string, string> = {
-      [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`,
-      [SOC_FETCH_DEST_HEADER_NAME]: SOC_FETCH_DEST_HEADER_VALUE
+    const keyHash = JSON.stringify({ method, apiPath, params: baseAllParamsRef.value });
+    const staticKey = `api-${keyHash.length}-${Date.now()}`;
+
+    const headersObj = mergeHeaders(options.headers as HeadersInit | undefined, {});
+
+    // 提示代理层：当前 refresh cookie name（用于条件2自动注入时落盘）
+    const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
+    headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
+    const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, immediate: immediateOption, ...restOptions } = options;
+    const shouldRunImmediate = immediateOption === true;
+
+    /**
+     * 变量：最近一次响应的服务端 status。
+     *
+     * 用于在 `immediate: false` 场景下，可靠判断本次 `base.refresh()` 是否命中
+     * `SIGN_TS_EXPIRED` / `SIGN_MISMATCH`，从而触发签名 refresh 并重试一次。
+     */
+    let lastResponseStatus: unknown = undefined;
+
+    /**
+     * 变量：当前请求周期是否允许静默吞掉首个可自愈错误 Toast。
+     *
+     * 每次外层 `refresh()` / `retry()` 会重置为 `true`，
+     * 如果首个失败命中签名或 CSRF 自愈条件，则先静默，等待自动补救后的最终结果再决定是否提示。
+     */
+    let canSilenceRecoverableToast = true;
+
+    /**
+     * 状态：本次请求签名相关参数（稳定引用，避免 useFetch 捕获旧 options 导致 ts 固化）。
+     */
+    const sigTsRef = ref('');
+    const sigNonceRef = ref('');
+    const sigSignRef = ref('');
+    const sigExtraHeadersRef = ref<Record<string, string>>({});
+    const nuxtCsrfTokenRef = ref('');
+
+    /**
+     * 计算：Nuxt CSRF 请求头。
+     *
+     * 写请求在真正发出前总是读取当前文档中的最新 token，
+     * 避免长生命周期 `useFetch` 实例沿用过期 header。
+     */
+    const nuxtCsrfHeadersRef = computed<Record<string, string>>(() => {
+      if (import.meta.server || !isWriteMethod || isSignBootstrapPath(backendPath)) {
+        return {};
+      }
+
+      const { csrf, headerName } = useCsrf();
+      const token = String((nuxtCsrfTokenRef.value || csrf) ?? '').trim();
+      const name = String(headerName ?? '').trim();
+
+      if (token === '' || name === '') {
+        return {};
+      }
+
+      return { [name]: token };
+    });
+
+    /**
+     * 计算：带签名字段的 query。
+     *
+     * 迷惑假参数 `ts/nonce/sign` 一律显示在 URL 中，便于对外观测时保持一致。
+     */
+    const signedQueryRef = computed<Record<string, unknown>>(() => {
+      const ts = sigTsRef.value;
+      if (ts === '') {
+        return hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value;
+      }
+
+      return {
+        ...(hasBodyMethod ? baseQueryRef.value : baseGetQueryRef.value),
+        ts,
+        nonce: sigNonceRef.value,
+        sign: sigSignRef.value
+      };
+    });
+
+    /**
+     * 计算：最终请求 body。
+     *
+     * 写请求仅携带业务参数，迷惑假参数不再混入 body。
+     */
+    const signedBodyRef = computed<Record<string, unknown>>(() => baseBodyRef.value);
+
+    /**
+     * 计算：最终请求 headers（稳定引用）。
+     */
+    const signedHeadersRef = computed<Record<string, string>>(() => mergeHeaders(headersObj as any, mergeHeaders(nuxtCsrfHeadersRef.value, sigExtraHeadersRef.value)));
+
+    // SSR 首屏数据必须在服务端首包阶段直接发出，避免先建 immediate:false 实例再手动 refresh
+    // 导致 async setup 上下文断裂，最终让 HTML 首屏缺失真实数据。
+    const shouldUseServerImmediateFetch = import.meta.server && shouldRunImmediate;
+
+    const finalOptions: UseFetchOptions<unknown> & Record<string, unknown> = {
+      watch: false,
+      immediate: false,
+      ...restOptions,
+      headers: headersObj,
+      onResponseError(ctx: any) {
+        const raw = ctx?.response?._data as IApiResponseWrapper<unknown> | undefined;
+        const fallbackHttp = ctx?.response?.status;
+
+        lastResponseStatus = raw?.status;
+
+        if (canSilenceRecoverableToast && shouldSilenceToastForRecoverableError({ status: raw?.status, raw, fallbackHttp })) {
+          canSilenceRecoverableToast = false;
+          return;
+        }
+
+        apiToastTryEmit({
+          method,
+          backendPath,
+          keyHash,
+          raw,
+          fallbackHttp,
+          toastSet: toastStore.set
+        });
+      },
+      key: staticKey
     };
 
-    sigExtraHeadersRef.value = extraHeaders;
-  };
+    if (hasBodyMethod) {
+      finalOptions.body = signedBodyRef as any;
+      finalOptions.query = signedQueryRef as any;
+    } else {
+      finalOptions.query = signedQueryRef as any;
 
-  const fetch = useFetch;
-  const base: any = await nuxtApp.runWithContext(() => fetch(apiPath as any, finalOptions as any));
-
-  const { error, pending } = base;
-
-  // 条件2：只要代理层写入了 refresh cookie，就尝试解密并缓存
-  await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-
-  /**
-   * 函数：当遇到“窗口切换/完全过期”导致的拒绝时，refresh 并重试一次。
-   *
-   * 由于本项目默认使用 `immediate: false`，首次创建 useFetch 实例时并不会真正发起请求。
-   * 因此“条件3”的处理必须落在 `refresh()` / `retry()` 这类真正触发请求的 wrapper 内。
-   *
-   * # Arguments
-   *
-   * * `refreshArgs` - 透传给 `base.refresh(...)` 的参数。
-   *
-   * # Returns
-   *
-   * 无返回。
-   */
-  const refreshOnceIfSecurityRejected = async (refreshArgs?: unknown): Promise<void> => {
-    if (isSignBootstrapPath(backendPath)) {
-      return;
+      // GET/HEAD/DELETE：强制不发送 body，避免与服务端“GET 不解析 body”的规则冲突。
+      delete (finalOptions as any).body;
     }
 
-    const errStatus = lastResponseStatus ?? pickStatusFromUseFetchError(error.value);
-    const shouldRefreshNuxtCsrf = shouldRefreshNuxtCsrfOnError(error.value);
+    finalOptions.headers = signedHeadersRef as any;
 
-    if (!error.value || (!shouldRefreshOnStatus(errStatus) && !shouldReinitCsrfOnStatus(errStatus) && !shouldRefreshNuxtCsrf)) {
-      return;
-    }
-
-    if (shouldRefreshNuxtCsrf) {
-      try {
-        await refreshNuxtCsrfToken();
-      } catch {
+    // 计算签名：仅对非 sign init/refresh 生效
+    const runWithSignature = async (): Promise<void> => {
+      if (isSignBootstrapPath(backendPath)) {
         return;
       }
-    } else if (shouldRefreshOnStatus(errStatus)) {
-      await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
-    } else {
-      // CSRF 自愈：通过 sign/init 的 server-to-server 下发，让代理补齐 CSRF cookie。
-      const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
-      const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
-      if (cookieName !== '') {
-        signState.value.signBlobCookieName = cookieName;
-      }
-    }
 
-    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-    await runWithSignature();
-    finalOptions.key = `${staticKey}-${Date.now()}`;
-
-    try {
-      if (refreshArgs !== undefined) {
-        await base.refresh(refreshArgs as any);
-      } else {
-        await base.refresh();
-      }
-    } catch {
-      // ignore
-    }
-
-    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-  };
-
-  const retry = async (opts?: IUseFetchExtraOptions) => {
-    if (opts) {
-      const rest = { ...opts } as Partial<IUseFetchExtraOptions>;
-      delete (rest as any).datas;
-      delete (rest as any).query;
-      delete (rest as any).body;
-      await runWithSignature();
-      try {
-        await base.refresh(rest as any);
-      } catch {
-        // ignore
-      }
+      await ensureSignReady({ signState, apiBase, aesSeed, getCookieRef, setHttpOnlyCookieIfMissing });
       await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-      await refreshOnceIfSecurityRejected(rest as any);
-    } else {
+
+      const tsMs = Date.now();
+      const ts = String(tsMs);
+
+      sigTsRef.value = ts;
+
+      // 迷惑假参数：nonce/sign（不参与真实签名计算，但会随请求携带并由服务端校验格式）
+      const nonce = randomHexLower(FAKE_NONCE_LEN / 2);
+      const sign = randomHexLower(FAKE_SIGN_LEN / 2);
+
+      sigNonceRef.value = nonce;
+      sigSignRef.value = sign;
+
+      // 计算签名参数（合并 query/body/datas 后排序）
+      const finalQueryParams = toParamsObjectForSignature(resolve(finalOptions.query as any));
+      const finalBodyParams = hasBodyMethod ? toParamsObjectForSignature(signedBodyRef.value) : {};
+
+      const allParams: Record<string, unknown> = hasBodyMethod
+        ? {
+            ...backendQueryFromPath,
+            ...finalQueryParams,
+            ...finalBodyParams,
+            ts
+          }
+        : {
+            ...backendQueryFromPath,
+            ...finalQueryParams,
+            ts
+          };
+
+      const canonicalParams: Record<string, string> = {};
+      for (const [k, v] of Object.entries(allParams)) {
+        upsertSignatureParam({ out: canonicalParams, key: k, value: v });
+      }
+
+      const sortedPairs = Object.keys(canonicalParams)
+        .sort()
+        .map((key) => `${key}=${encodeURIComponent(canonicalParams[key] ?? '')}`);
+
+      const payload = signState.value.payload as ISignRefreshPayload | null;
+      if (!payload || String(payload.signKeyHex ?? '').trim() === '') {
+        throw new Error('sign payload missing');
+      }
+
+      const sig = await computeSignatureBase64({
+        backendPath: signatureBackendPath,
+        sortedParamPairs: sortedPairs,
+        signKeyHex: payload.signKeyHex
+      });
+
+      const extraHeaders: Record<string, string> = {
+        [payload.signHeaderName]: `${payload.signSigPrefix}${sig}`,
+        [SOC_FETCH_DEST_HEADER_NAME]: SOC_FETCH_DEST_HEADER_VALUE
+      };
+
+      sigExtraHeadersRef.value = extraHeaders;
+    };
+
+    if (shouldUseServerImmediateFetch) {
+      await runWithSignature();
+      finalOptions.immediate = true;
+    }
+
+    const fetch = useFetch;
+    const base: any = await nuxtApp.runWithContext(() => fetch(apiPath as any, finalOptions as any));
+
+    const { error, pending } = base;
+
+    // 条件2：只要代理层写入了 refresh cookie，就尝试解密并缓存
+    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+
+    /**
+     * 函数：当遇到“窗口切换/完全过期”导致的拒绝时，refresh 并重试一次。
+     *
+     * 由于本项目默认使用 `immediate: false`，首次创建 useFetch 实例时并不会真正发起请求。
+     * 因此“条件3”的处理必须落在 `refresh()` / `retry()` 这类真正触发请求的 wrapper 内。
+     *
+     * # Arguments
+     *
+     * * `refreshArgs` - 透传给 `base.refresh(...)` 的参数。
+     *
+     * # Returns
+     *
+     * 无返回。
+     */
+    const refreshOnceIfSecurityRejected = async (refreshArgs?: unknown): Promise<void> => {
+      if (isSignBootstrapPath(backendPath)) {
+        return;
+      }
+
+      const errStatus = lastResponseStatus ?? pickStatusFromUseFetchError(error.value);
+      const shouldRefreshNuxtCsrf = shouldRefreshNuxtCsrfOnError(error.value);
+
+      if (!error.value || (!shouldRefreshOnStatus(errStatus) && !shouldReinitCsrfOnStatus(errStatus) && !shouldRefreshNuxtCsrf)) {
+        return;
+      }
+
+      if (shouldRefreshNuxtCsrf) {
+        try {
+          await refreshNuxtCsrfToken((token) => {
+            nuxtCsrfTokenRef.value = token;
+          });
+        } catch {
+          return;
+        }
+      } else if (shouldRefreshOnStatus(errStatus)) {
+        await performSignRefresh({ signState, apiBase, aesSeed, getCookieRef });
+      } else {
+        // CSRF 自愈：通过 sign/init 的 server-to-server 下发，让代理补齐 CSRF cookie。
+        const res = await fetchSignBootstrap({ backendPath: SIGN_INIT_PATH, signState, apiBase });
+        const cookieName = String(res.datas.sign_blob_cookie_name ?? '').trim();
+        if (cookieName !== '') {
+          signState.value.signBlobCookieName = cookieName;
+        }
+      }
+
+      await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+      await runWithSignature();
+      finalOptions.key = `${staticKey}-${Date.now()}`;
+      canSilenceRecoverableToast = false;
+
+      try {
+        if (refreshArgs !== undefined) {
+          await base.refresh(refreshArgs as any);
+        } else {
+          await base.refresh();
+        }
+      } catch {
+        // ignore
+      }
+
+      await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+    };
+
+    const retry = async (opts?: IUseFetchExtraOptions) => {
+      canSilenceRecoverableToast = true;
+
+      if (opts) {
+        const rest = { ...opts } as Partial<IUseFetchExtraOptions>;
+        delete (rest as any).datas;
+        delete (rest as any).query;
+        delete (rest as any).body;
+        await runWithSignature();
+        try {
+          await base.refresh(rest as any);
+        } catch {
+          // ignore
+        }
+        await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+        await refreshOnceIfSecurityRejected(rest as any);
+      } else {
+        await runWithSignature();
+        try {
+          await base.refresh();
+        } catch {
+          // ignore
+        }
+        await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+        await refreshOnceIfSecurityRejected();
+      }
+    };
+
+    let latestRefreshVersion = 0;
+    let activeRefreshPromise: Promise<void> | null = null;
+    let queuedDatasSource: Record<string, unknown> | null = null;
+    let queuedQuerySource: Record<string, unknown> | null = null;
+    let queuedBodySource: Record<string, unknown> | null = null;
+
+    const snapshotRecord = (input: unknown): Record<string, unknown> => toSpreadableObject(resolve(input));
+
+    const captureQueuedSources = (opts: IUseFetchExtraOptions): void => {
+      queuedDatasSource = opts.datas !== undefined ? snapshotRecord(opts.datas) : snapshotRecord(datasSource.value);
+      queuedQuerySource = opts.query !== undefined ? snapshotRecord(opts.query) : snapshotRecord(querySource.value);
+      queuedBodySource = opts.body !== undefined ? snapshotRecord(opts.body) : snapshotRecord(bodySource.value);
+    };
+
+    const applyQueuedSources = (): void => {
+      datasSource.value = { ...(queuedDatasSource ?? snapshotRecord(datasSource.value)) } as any;
+      querySource.value = { ...(queuedQuerySource ?? snapshotRecord(querySource.value)) };
+      bodySource.value = { ...(queuedBodySource ?? snapshotRecord(bodySource.value)) };
+    };
+
+    const executeRefreshOnce = async (): Promise<void> => {
+      applyQueuedSources();
+      finalOptions.key = `${staticKey}-${Date.now()}`;
+      canSilenceRecoverableToast = true;
+
+      if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
+        try {
+          await refreshNuxtCsrfToken((token) => {
+            nuxtCsrfTokenRef.value = token;
+          });
+        } catch {
+          // ignore
+        }
+      }
+
       await runWithSignature();
       try {
         await base.refresh();
-      } catch {
-        // ignore
+      } catch (refreshError) {
+        if (import.meta.server && shouldRunImmediate) {
+          throw refreshError;
+        }
       }
       await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
       await refreshOnceIfSecurityRejected();
-    }
-  };
+    };
 
-  let latestRefreshVersion = 0;
-  let activeRefreshPromise: Promise<void> | null = null;
-  let queuedDatasSource: Record<string, unknown> | null = null;
-  let queuedQuerySource: Record<string, unknown> | null = null;
-  let queuedBodySource: Record<string, unknown> | null = null;
+    const refresh = async (opts: IUseFetchExtraOptions = {}) => {
+      captureQueuedSources(opts);
 
-  const snapshotRecord = (input: unknown): Record<string, unknown> => toSpreadableObject(resolve(input));
+      latestRefreshVersion += 1;
 
-  const captureQueuedSources = (opts: IUseFetchExtraOptions): void => {
-    queuedDatasSource = opts.datas !== undefined ? snapshotRecord(opts.datas) : snapshotRecord(datasSource.value);
-    queuedQuerySource = opts.query !== undefined ? snapshotRecord(opts.query) : snapshotRecord(querySource.value);
-    queuedBodySource = opts.body !== undefined ? snapshotRecord(opts.body) : snapshotRecord(bodySource.value);
-  };
+      if (activeRefreshPromise) {
+        await activeRefreshPromise;
+        return;
+      }
 
-  const applyQueuedSources = (): void => {
-    datasSource.value = { ...(queuedDatasSource ?? snapshotRecord(datasSource.value)) } as any;
-    querySource.value = { ...(queuedQuerySource ?? snapshotRecord(querySource.value)) };
-    bodySource.value = { ...(queuedBodySource ?? snapshotRecord(bodySource.value)) };
-  };
+      const refreshPromise = (async () => {
+        let processedVersion = 0;
 
-  const executeRefreshOnce = async (): Promise<void> => {
-    applyQueuedSources();
-    finalOptions.key = `${staticKey}-${Date.now()}`;
+        while (processedVersion !== latestRefreshVersion) {
+          processedVersion = latestRefreshVersion;
+          await executeRefreshOnce();
+        }
+      })();
 
-    if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
+      activeRefreshPromise = refreshPromise;
+
       try {
-        await refreshNuxtCsrfToken();
-      } catch {
-        // ignore
+        await refreshPromise;
+      } finally {
+        if (activeRefreshPromise === refreshPromise) {
+          activeRefreshPromise = null;
+        }
       }
+    };
+
+    const debounceOpts: IUseApiDebounceOptions = {
+      wait: options.rateLimit?.debounce?.wait ?? 300,
+      leading: options.rateLimit?.debounce?.leading ?? false,
+      trailing: options.rateLimit?.debounce?.trailing ?? true,
+      maxWait: options.rateLimit?.debounce?.maxWait
+    };
+    const throttleOpts: IUseApiThrottleOptions = {
+      wait: options.rateLimit?.throttle?.wait ?? 500,
+      leading: options.rateLimit?.throttle?.leading ?? true,
+      trailing: options.rateLimit?.throttle?.trailing ?? false
+    };
+
+    if (shouldRunImmediate && !shouldUseServerImmediateFetch) {
+      await refresh();
     }
 
-    await runWithSignature();
-    try {
-      await base.refresh();
-    } catch {
-      // ignore
-    }
-    await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-    await refreshOnceIfSecurityRejected();
-  };
-
-  const refresh = async (opts: IUseFetchExtraOptions = {}) => {
-    captureQueuedSources(opts);
-
-    latestRefreshVersion += 1;
-
-    if (activeRefreshPromise) {
-      await activeRefreshPromise;
-      return;
-    }
-
-    const refreshPromise = (async () => {
-      let processedVersion = 0;
-
-      while (processedVersion !== latestRefreshVersion) {
-        processedVersion = latestRefreshVersion;
-        await executeRefreshOnce();
-      }
-    })();
-
-    activeRefreshPromise = refreshPromise;
-
-    try {
-      await refreshPromise;
-    } finally {
-      if (activeRefreshPromise === refreshPromise) {
-        activeRefreshPromise = null;
-      }
-    }
-  };
-
-  const debounceOpts: IUseApiDebounceOptions = {
-    wait: options.rateLimit?.debounce?.wait ?? 300,
-    leading: options.rateLimit?.debounce?.leading ?? false,
-    trailing: options.rateLimit?.debounce?.trailing ?? true,
-    maxWait: options.rateLimit?.debounce?.maxWait
-  };
-  const throttleOpts: IUseApiThrottleOptions = {
-    wait: options.rateLimit?.throttle?.wait ?? 500,
-    leading: options.rateLimit?.throttle?.leading ?? true,
-    trailing: options.rateLimit?.throttle?.trailing ?? false
-  };
-
-  if (shouldRunImmediate) {
-    await refresh();
-  }
-
-  return {
-    data: base.data,
-    loading: pending,
-    error,
-    retry,
-    refresh,
-    refreshDebounced: createDebounced(refresh, debounceOpts),
-    retryDebounced: createDebounced(retry, debounceOpts),
-    refreshThrottled: createThrottled(refresh, throttleOpts),
-    retryThrottled: createThrottled(retry, throttleOpts)
-  } as T;
+    return {
+      data: base.data,
+      loading: pending,
+      error,
+      retry,
+      refresh,
+      refreshDebounced: createDebounced(refresh, debounceOpts),
+      retryDebounced: createDebounced(retry, debounceOpts),
+      refreshThrottled: createThrottled(refresh, throttleOpts),
+      retryThrottled: createThrottled(retry, throttleOpts)
+    } as T;
+  });
 };
 
 /**

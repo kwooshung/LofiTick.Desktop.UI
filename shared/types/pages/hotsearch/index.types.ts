@@ -1,3 +1,5 @@
+import type { THotsearchPlatformType } from '@@/shared/types/pages/settings/hotsearch/index.types';
+
 /**
  * 类型：热搜接口字段契约。
  *
@@ -10,10 +12,15 @@
  * - `LofiTick.API/src/handler/hot_search.rs`
  *
  * 当前已确认接口：
- * - `/crons/hot_searchs/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
- * - `/crons/hot_searchs/all` -> `IQueryResultHotSearchCronAllResponse`
- * - `/hot_searchs/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
- * - `/hot_search_dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
+ * - `/crons/hot_searches/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
+ * - `/crons/hot_searches/all` -> `IQueryResultHotSearchCronAllResponse`
+ * - `/hotsearch/rows/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
+ * - `/hotsearch/dates` GET -> `IHotsearchArchiveDateSummary[]`
+ * - `/hotsearch/dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
+ *
+ * 说明：
+ * - `/hotsearch/dates` 是热搜页面右上角日历使用的只读日期摘要接口。
+ * - `/hotsearch/dates/recount` 是管理侧按日期重算 `hot_search_dates.count` 的独立接口。
  */
 
 /**
@@ -198,8 +205,99 @@ export interface IHotsearchDataRow {
   /** 是否为新增 */
   isNew: boolean;
 
-  /** 入库时间文本 */
+  /** 创建时间文本 */
   publishedAt: string;
+}
+
+/**
+ * 接口：热搜数据分页结果。
+ */
+export interface IHotsearchDataPage {
+  /** 行列表 */
+  rows: IHotsearchDataRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
+}
+
+/**
+ * 接口：热搜平台统计行。
+ */
+export interface IHotsearchPlatformSummaryRow {
+  /** 平台 ID */
+  platform: number;
+
+  /** 平台类型 */
+  platformType: THotsearchPlatformType;
+
+  /** 数量 */
+  count: number;
+
+  /** 创建时间文本 */
+  createdAt: string;
+
+  /** 更新时间文本 */
+  updatedAt: string;
+}
+
+/**
+ * 接口：热搜平台统计分页结果。
+ */
+export interface IHotsearchPlatformSummaryPage {
+  /** 行列表 */
+  rows: IHotsearchPlatformSummaryRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
+}
+
+/**
+ * 接口：热搜标签统计行。
+ */
+export interface IHotsearchTagSummaryRow {
+  /** 分类 ID */
+  category: number;
+
+  /** 分类 i18n key */
+  categoryKey: string;
+
+  /** 数量 */
+  count: number;
+
+  /** 创建时间文本 */
+  createdAt: string;
+
+  /** 更新时间文本 */
+  updatedAt: string;
+}
+
+/**
+ * 接口：热搜标签统计分页结果。
+ */
+export interface IHotsearchTagSummaryPage {
+  /** 行列表 */
+  rows: IHotsearchTagSummaryRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
 }
 
 /**

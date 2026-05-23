@@ -252,6 +252,7 @@ export const settings = {
         label: '開頭模板',
         description: '這裡只維護 Podcast 的開頭模板，正文由程式自動生成。',
         placeholder: '例如：這裡是 [programName]，今天是 [solarDateTime]。',
+        placeholderAdContent: '廣告內容由廣告系統自動插入生成。',
         empty: {
           title: '還沒有開頭模板',
           description: '先新增一條開頭模板，再選擇音色並輸入開頭文案。'
@@ -261,6 +262,7 @@ export const settings = {
         label: '結尾模板',
         description: '這裡只維護 Podcast 的結尾模板，正文由程式自動生成。',
         placeholder: '例如：以上就是今天的 [programName]，我們下次再見。',
+        placeholderAdContent: '廣告內容由廣告系統自動插入生成。',
         empty: {
           title: '還沒有結尾模板',
           description: '先新增一條結尾模板，再選擇音色並輸入結尾文案。'
@@ -323,14 +325,17 @@ export const settings = {
       podcastVoice: {
         random: '隨機',
         xiaoluo: '小洛',
-        feifei: '菲菲'
+        feifei: '菲菲',
+        duet: '合'
       },
       podcastTemplate: {
         opening: '開頭模板',
         closing: '結尾模板'
       },
       podcastSegment: {
-        normal: '普通內容',
+        normal: '通用內容',
+        morningOnly: '僅早間',
+        eveningOnly: '僅晚間',
         adOpening: '廣告開頭',
         adContent: '廣告內容',
         adClosing: '廣告結尾'
@@ -367,7 +372,7 @@ export const settings = {
       solarDateTime: '例如 2026年5月14日。',
       solarDate: '例如 5月14日。',
       solarTime: '例如 08:30。',
-      lunarDateTime: '例如 農曆三月二十八。',
+      lunarDateTime: '例如 農曆丙午年三月二十八。',
       lunarDate: '例如 三月二十八。',
       weekday: '目前星期。',
       editionLabel: '目前是早間還是晚間播客。'

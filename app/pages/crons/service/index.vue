@@ -27,7 +27,7 @@
             <div class="text-highlighted w-full text-sm leading-6 break-all xl:max-w-4xl xl:text-right">{{ computedPanelBase }}</div>
 
             <div class="flex flex-wrap items-center justify-end gap-2">
-              <UButton color="neutral" variant="soft" icon="i-lucide:settings-2" @click="navigateTo(localePath('/settings/connections'))">
+              <UButton color="neutral" variant="soft" icon="i-lucide:settings-2" :to="localePath('/settings/connections')">
                 {{ t('pages.settings.cron.serverShortcut.actions.openConnections') }}
               </UButton>
             </div>
@@ -146,7 +146,7 @@ const localePath = useLocalePath();
 /**
  * API：1Panel 设置。
  */
-const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/onepanel', { immediate: false });
+const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { immediate: false });
 
 /**
  * 计算属性：当前 1Panel 根域名。

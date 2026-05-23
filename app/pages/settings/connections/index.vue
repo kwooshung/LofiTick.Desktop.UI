@@ -80,8 +80,6 @@
 </template>
 
 <script setup lang="ts">
-import { ONEPANEL_CRONJOBS_PATH, ONEPANEL_CRON_LIBRARY_PATH, ONEPANEL_PANEL_BASE_DEFAULT, onepanelLinkBuild, onepanelLinkSections, onepanelPanelBaseNormalize } from '@@/shared/utils';
-
 /**
  * 组件：徽标。
  */
@@ -105,8 +103,8 @@ const tauriApiClient = useTauriApiClient();
 /**
  * API：1Panel 设置。
  */
-const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/onepanel', { immediate: false });
-const { refresh: refreshOnepanelSettingsPatch } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/onepanel', { method: 'PATCH', immediate: false });
+const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { immediate: false });
+const { refresh: refreshOnepanelSettingsPatch } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { method: 'PATCH', immediate: false });
 
 /**
  * Hook：i18n。

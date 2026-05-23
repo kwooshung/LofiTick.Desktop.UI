@@ -33,10 +33,20 @@ export const hotsearch = {
     openSource: '打开来源'
   },
   categories: {
-    tech: '科技',
-    social: '社会',
-    business: '商业',
-    entertainment: '娱乐'
+    social: '社会民生',
+    politics: '时政国际',
+    legal: '法治安全',
+    finance: '财经经济',
+    tech: '科技互联网',
+    auto: '汽车出行',
+    sports: '体育赛事',
+    entertainment: '娱乐八卦',
+    filmTv: '影视综艺',
+    games: '游戏电竞',
+    anime: '动漫二次元',
+    lifestyle: '生活情感',
+    health: '健康医疗',
+    history: '历史人文'
   },
   data: {
     description: '按平台和关键词筛选当天热搜',
@@ -45,12 +55,19 @@ export const hotsearch = {
     platformsTitle: '热搜平台',
     platformsDescription: '垂直切换平台分类，快速缩小表格范围。',
     allPlatforms: '全部平台',
+    allTags: '全部标签',
+    variants: {
+      content: '内容',
+      tags: '标签',
+      platforms: '平台'
+    },
     cards: {
       totalRows: '热搜总条数',
       newRows: '新增条数',
       podcastRows: '已生成播客'
     },
     table: {
+      rank: '编号',
       title: '标题 / 摘要',
       platform: '平台',
       popularity: '热度',
@@ -66,6 +83,24 @@ export const hotsearch = {
     empty: {
       title: '当前筛选下暂无热搜数据',
       description: '可以切换日期、平台或清空关键词后再看。'
+    }
+  },
+  tags: {
+    table: {
+      no: '编号',
+      tag: '标签',
+      count: '数量',
+      updatedAt: '更新时间',
+      createdAt: '创建时间'
+    }
+  },
+  platforms: {
+    table: {
+      no: '编号',
+      platform: '平台',
+      count: '数量',
+      updatedAt: '更新时间',
+      createdAt: '创建时间'
     }
   },
   podcast: {

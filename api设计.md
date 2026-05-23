@@ -123,6 +123,20 @@ GET /security/sign/refresh
 - Nitro 通用代理：`server/api/[...path]/index.ts`
 - Nuxt CSRF（nuxt-csurf）配置：`configs/nuxt/index.ts`（`security.csrf`）
 
+## SSR 首屏规则（当前仓库强制口径）
+
+- 当前仓库以 `configs/nuxt/index.ts` 的 `ssr: true` 为准，不允许把项目理解成纯客户端渲染。
+- 只要页面“刚打开就应该看到数据”，该请求就必须作为 SSR 首屏请求处理：在页面或首屏必渲染组件的 `setup` 顶层使用 `await useApi(..., { immediate: true })`。
+- 禁止把这类首屏数据请求降级成 `onMounted`、事件触发或其他仅客户端执行的补请求；否则 HTML 首屏会缺少真实数据。
+- 对带签名、cookie、CSRF 的接口，`useApi` 与 `/api` 代理链路也必须兼容 SSR 首包，不能再走“先创建 `immediate:false`，再手动 `refresh()` 触发首包”的实现路径。
+
+## 导航组件规则（当前仓库强制口径）
+
+- 纯导航场景优先使用 `ULink`，或使用带 `to` / `href` 的链接型组件；不要把单纯的路由跳转、筛选跳转、外链跳转默认写成 `UButton + onClick + navigateTo`。
+- 如果只是为了保持按钮外观，但行为本质仍是导航，允许继续使用带 `to` / `href` 的 `UButton`；关键是保留链接语义，而不是执着于组件名必须叫 `ULink`。
+- 当 `ULink` 承接原本无下划线的文本按钮样式时，必须优先使用 `raw` 去掉 Nuxt UI 默认的底边装饰，再显式加 `no-underline`，最后按需要补 `hover:underline`；不要叠加组件默认底边线和自定义下划线。
+- 排序、复制、开关、保存、打开弹窗、调用桌面能力等动作型交互，仍然按按钮处理，不要误建模成链接。
+
 ## 角色与链路（从浏览器到后端）
 
 ### Client（浏览器）发起普通 API 请求
@@ -360,6 +374,13 @@ useApi 会在 `onResponseError` 中读取响应体的统一 `status`，用于判
 4. `base.refresh(...)` 再发一次
 
 > 由于默认 `immediate: false`，该自愈逻辑只会在你调用 `refresh()` / `retry()` 时执行。
+
+首个命中上述自愈条件的失败会保持静默，不会立刻发 API 错误 toast。
+
+- 如果自愈后的第二次请求成功：整个过程不提示用户
+- 如果自愈后的第二次请求仍失败：以第二次请求的最终结果为准再发 toast
+
+这样可以避免“网页首次打开 / Tauri 首次启动时，签名或 CSRF 已过期但系统马上自愈成功，界面仍先弹一次错误”的误提示。
 
 ## 常见踩坑（按真实经历）
 

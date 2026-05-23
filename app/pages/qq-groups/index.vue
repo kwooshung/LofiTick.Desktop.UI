@@ -81,6 +81,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：开关
  */
 const USwitch = resolveComponent('USwitch');
@@ -89,6 +94,16 @@ const USwitch = resolveComponent('USwitch');
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
+
+/**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口能力
+ */
+const { openExternalUrl } = useTauriWindow();
 
 /**
  * Hook：国际化
@@ -100,12 +115,31 @@ const { t } = useI18n();
  */
 const route = useRoute();
 
-const props = withDefaults(
-  defineProps<IPageQqGroupsProps>(),
-  {
-    createNonce: 0
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
   }
-);
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
+};
+
+const props = withDefaults(defineProps<IPageQqGroupsProps>(), {
+  createNonce: 0
+});
 
 /**
  * 函数：从路由查询参数构建接口查询参数
@@ -147,9 +181,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
     query.page = String(route.query.page);
   }
 
-  if (typeof route.query.pagesize !== 'undefined') {
-    query.pagesize = String(route.query.pagesize);
-  }
+  query.pagesize = currentPageSizeGet();
 
   if (typeof route.query.order_by !== 'undefined') {
     const by = String(route.query.order_by);
@@ -376,20 +408,28 @@ const handleCopyGroupNumber = async (row: IPageTableColumnQqGroup): Promise<void
 };
 
 /**
- * 事件：打开群链接（预留函数）
+ * 函数：构建群链接地址。
+ * @param {IPageTableColumnQqGroup} row 行数据
+ * @returns {string} 链接地址
+ */
+const buildGroupLinkUrl = (row: IPageTableColumnQqGroup): string => String(row.url ?? '').trim();
+
+/**
+ * 事件：点击群链接。
+ * @param {MouseEvent} event 点击事件
  * @param {IPageTableColumnQqGroup} row 行数据
  */
-const handleOpenGroupLink = (row: IPageTableColumnQqGroup): void => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const url = String(row.url ?? '').trim();
+const handleGroupLinkClick = async (event: MouseEvent, row: IPageTableColumnQqGroup): Promise<void> => {
+  const url = buildGroupLinkUrl(row);
   if (!url) {
+    event.preventDefault();
     return;
   }
 
-  window.open(url, '_blank', 'noopener,noreferrer');
+  if (isTauriRuntime.value) {
+    event.preventDefault();
+    await openExternalUrl(url);
+  }
 };
 
 /**
@@ -446,6 +486,10 @@ const computedItemsPerPage = computed<number>(() => {
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
+  }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
   }
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
@@ -768,14 +812,14 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
 
       return h('div', { class: 'flex items-center gap-1' }, [
         h(
-          UButton,
+          ULink,
           {
-            color: 'primary',
-            variant: 'link',
-            size: 'xs',
-            label: row.original.number,
-            class: 'px-0',
-            onClick: () => handleOpenGroupLink(row.original)
+            raw: true,
+            href: buildGroupLinkUrl(row.original),
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'px-0 no-underline text-primary text-xs hover:underline',
+            onClick: (event: MouseEvent) => void handleGroupLinkClick(event, row.original)
           },
           () => row.original.number
         ),

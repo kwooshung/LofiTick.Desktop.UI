@@ -27,10 +27,20 @@ export const hotsearch = {
     openSource: '元リンクを開く'
   },
   categories: {
-    tech: 'テック',
-    social: '社会',
-    business: 'ビジネス',
-    entertainment: 'エンタメ'
+    social: '社会・民生',
+    politics: '政治・国際',
+    legal: '法務・安全',
+    finance: '経済・金融',
+    tech: 'テック・IT',
+    auto: '自動車・モビリティ',
+    sports: 'スポーツ',
+    entertainment: '芸能・ゴシップ',
+    filmTv: '映画・テレビ',
+    games: 'ゲーム・eスポーツ',
+    anime: 'アニメ・二次元',
+    lifestyle: '暮らし・感情',
+    health: '健康・医療',
+    history: '歴史・人文'
   },
   data: {
     description: 'プラットフォームとキーワードで急上昇データを絞り込みます。',
@@ -39,12 +49,19 @@ export const hotsearch = {
     platformsTitle: 'プラットフォーム',
     platformsDescription: '縦並びの一覧で対象プラットフォームを切り替えます。',
     allPlatforms: 'すべてのプラットフォーム',
+    allTags: 'すべてのタグ',
+    variants: {
+      content: '内容',
+      tags: 'タグ',
+      platforms: 'プラットフォーム'
+    },
     cards: {
       totalRows: '総件数',
       newRows: '新規件数',
       podcastRows: 'Podcast 化済み'
     },
     table: {
+      rank: '番号',
       title: 'タイトル / 要約',
       platform: 'プラットフォーム',
       popularity: '人気度',
@@ -60,6 +77,24 @@ export const hotsearch = {
     empty: {
       title: '現在の条件ではデータがありません',
       description: '日付やプラットフォームを切り替えるか、キーワードをクリアしてください。'
+    }
+  },
+  tags: {
+    table: {
+      no: '番号',
+      tag: 'タグ',
+      count: '件数',
+      updatedAt: '更新日時',
+      createdAt: '作成日時'
+    }
+  },
+  platforms: {
+    table: {
+      no: '番号',
+      platform: 'プラットフォーム',
+      count: '件数',
+      updatedAt: '更新日時',
+      createdAt: '作成日時'
     }
   },
   podcast: {

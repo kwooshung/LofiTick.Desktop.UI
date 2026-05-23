@@ -34,9 +34,9 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 /**
  * 常量：热搜播客音色固定列表。
  */
-const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei'];
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei', 'duet'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
-const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'adOpening', 'adClosing'];
+const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adOpening', 'adContent', 'adClosing'];
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
   'maleSpeakerName',
@@ -49,6 +49,7 @@ const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'greeting',
   'solarDateTime',
   'solarDate',
+  'lunarDateTime',
   'lunarDate',
   'weekday',
   'solarTime',
@@ -214,12 +215,18 @@ const hotsearchPodcastSegmentTypeNormalize = (input: unknown): THotsearchPodcast
   const rawValue = String(input ?? '').trim();
 
   switch (rawValue) {
+    case 'morningOnly':
+    case 'morning_only':
+      return 'morningOnly';
+    case 'eveningOnly':
+    case 'evening_only':
+      return 'eveningOnly';
     case 'adOpening':
     case 'ad_opening':
       return 'adOpening';
     case 'adContent':
     case 'ad_content':
-      return 'adOpening';
+      return 'adContent';
     case 'adClosing':
     case 'ad_closing':
       return 'adClosing';
@@ -250,11 +257,12 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
 
   return input.map((item) => {
     const source = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+    const segmentType = hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type);
 
     return {
-      voiceKey: hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
+      voiceKey: segmentType === 'adContent' ? 'random' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
       content: hotsearchPodcastTextNormalize(source.content, '', 2000),
-      segmentType: hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type),
+      segmentType,
       templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
     } satisfies ISettingsHotsearchPodcastTemplateItem;
   });

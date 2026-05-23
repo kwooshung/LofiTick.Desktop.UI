@@ -42,6 +42,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：分页
  */
 const UPagination = resolveComponent('UPagination');
@@ -101,11 +106,12 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 };
 
 /**
- * 函数：导航到单一筛选并重置分页。
+ * 函数：构建单一筛选跳转位置并重置分页。
  * @param {'dynasty_ids' | 'author_ids'} key 筛选键
  * @param {number | string} value 筛选值
+ * @returns {{ path: string; query: Record<string, string | string[]> }} 路由位置
  */
-const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids', value: number | string) => {
+const buildSingleFilterLocation = (key: 'dynasty_ids' | 'author_ids', value: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
   // 保留必要参数
   if (typeof route.query.pagesize !== 'undefined') {
@@ -114,8 +120,7 @@ const navigateWithSingleFilter = (key: 'dynasty_ids' | 'author_ids', value: numb
   // 设置单选筛选
   q[key] = String(value);
 
-  // 跳转（移除 page，使用 replace 以清爽历史栈）
-  navigateTo({ path: '/poetrys', query: q });
+  return { path: '/poetrys', query: q };
 };
 
 /**
@@ -236,13 +241,21 @@ const columns: TableColumn<IPageTableColumnPoetryAuthors>[] = [
       }
     },
     header: t('pages.poetrys.result.table.author'),
-    cell: ({ row }) => h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.name}（${row.original.infos.count}）`, class: 'p-0 text-default hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('author_ids', row.original.id) })
+    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline text-default hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', row.original.id) }, () => `${row.original.infos.name}（${row.original.infos.count}）`)
   },
   {
     accessorKey: 'infos',
     header: t('pages.poetrys.result.table.dynasty'),
     cell: ({ row }) =>
-      h(UButton, { color: 'neutral', variant: 'link', label: `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`, class: 'p-0 text-muted hover:text-primary hover:underline', onClick: () => navigateWithSingleFilter('dynasty_ids', row.original.infos.dynasty.id) })
+      h(
+        ULink,
+        {
+          raw: true,
+          class: 'p-0 no-underline text-muted hover:text-primary hover:underline',
+          to: buildSingleFilterLocation('dynasty_ids', row.original.infos.dynasty.id)
+        },
+        () => `${row.original.infos.dynasty.name}（${row.original.infos.dynasty.count}）`
+      )
   },
   {
     accessorKey: 'time',
