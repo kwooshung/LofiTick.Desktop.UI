@@ -1,30 +1,30 @@
 <template>
   <DashboardPage class="min-h-full">
     <div ref="refHotsearchDataPanelTop" class="space-y-3">
-        <div class="flex flex-wrap gap-2">
-          <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
-            {{ t('pages.hotsearch.data.allPlatforms') }}
-          </UButton>
-          <UButton
-            v-for="item in computedPlatformRows"
-            :key="item.platformType"
-            :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'"
-            :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'"
-            size="sm"
-            @click="handlePlatformSelect(item.platformType)"
-          >
-            {{ platformSummaryLabelGet(item) }}
-          </UButton>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
+          {{ t('pages.hotsearch.data.allPlatforms') }}
+        </UButton>
+        <UButton
+          v-for="item in computedPlatformRows"
+          :key="item.platformType"
+          :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'"
+          :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'"
+          size="sm"
+          @click="handlePlatformSelect(item.platformType)"
+        >
+          {{ platformSummaryLabelGet(item) }}
+        </UButton>
+      </div>
 
-        <div class="flex flex-wrap gap-2">
-          <UButton :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect('')">
-            {{ t('pages.hotsearch.data.allTags') }}
-          </UButton>
-          <UButton v-for="item in computedTagRows" :key="item.categoryKey" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect(item.categoryKey)">
-            {{ tagSummaryLabelGet(item) }}
-          </UButton>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <UButton :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect('')">
+          {{ t('pages.hotsearch.data.allTags') }}
+        </UButton>
+        <UButton v-for="item in computedTagRows" :key="item.categoryKey" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect(item.categoryKey)">
+          {{ tagSummaryLabelGet(item) }}
+        </UButton>
+      </div>
     </div>
 
     <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center py-10">

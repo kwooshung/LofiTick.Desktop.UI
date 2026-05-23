@@ -329,6 +329,17 @@ const columns: TableColumn<IHotsearchPlatformSummaryRow>[] = [
       )
   },
   {
+    accessorKey: 'count',
+    header: t('pages.hotsearch.platforms.table.count'),
+    cell: ({ row }) => h('div', { class: 'text-sm text-default' }, row.original.count.toLocaleString()),
+    meta: {
+      class: {
+        th: 'w-24 text-right',
+        td: 'w-24 text-right'
+      }
+    }
+  },
+  {
     accessorKey: 'updatedAt',
     header: () => {
       const isSorted = computedSortBy.value === 'updated_at' ? computedSortDirection.value : false;

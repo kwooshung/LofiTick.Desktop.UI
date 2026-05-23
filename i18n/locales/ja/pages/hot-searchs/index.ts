@@ -83,6 +83,7 @@ export const hotsearch = {
     table: {
       no: '番号',
       tag: 'タグ',
+      count: '件数',
       updatedAt: '更新日時',
       createdAt: '作成日時'
     }
@@ -91,6 +92,7 @@ export const hotsearch = {
     table: {
       no: '番号',
       platform: 'プラットフォーム',
+      count: '件数',
       updatedAt: '更新日時',
       createdAt: '作成日時'
     }

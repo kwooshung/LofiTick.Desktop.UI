@@ -83,6 +83,7 @@ export const hotsearch = {
     table: {
       no: '編號',
       tag: '標籤',
+      count: '數量',
       updatedAt: '更新時間',
       createdAt: '建立時間'
     }
@@ -91,6 +92,7 @@ export const hotsearch = {
     table: {
       no: '編號',
       platform: '平台',
+      count: '數量',
       updatedAt: '更新時間',
       createdAt: '建立時間'
     }
