@@ -23,6 +23,34 @@ export const settings = {
       }
     }
   },
+  services: {
+    title: 'Service credentials',
+    description: 'Manage third-party service credentials in one place. When podcast generation does not pass Volc Speech credentials explicitly, the desktop app falls back to these defaults first.',
+    actions: {
+      showAccessToken: 'Show token',
+      hideAccessToken: 'Hide token',
+      resetDefaultResourceId: 'Reset default Resource ID'
+    },
+    volcSpeech: {
+      title: 'Volc Speech',
+      description: 'Default desktop credentials for the Volc podcast WebSocket endpoint. After saving here, podcast commands automatically fill missing App ID, Access Token, and Resource ID values.',
+      appId: {
+        label: 'App ID',
+        description: 'Enter the App ID for the Volc Speech service.',
+        placeholder: 'For example: 1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: 'Enter the Access Token for the Volc Speech service.',
+        placeholder: 'Enter the Volc Speech Access Token'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: 'The default value fits the current podcast endpoint. Change it only when the service side requires another resource.',
+        placeholder: 'volc.service_type.10050'
+      }
+    }
+  },
   general: {
     title: 'General',
     description: 'Configure basic app behavior, language, and common preferences.',

@@ -437,7 +437,16 @@ let unsubscribeSentinelStatus: null | UnlistenFn = null;
  * 描述：用于跨设备同步哨兵配置。
  */
 const { datas: stateSentinelRemote, refresh: refreshSentinelRemoteGet } = await useApi<ISettingsUnattendedSentinel>('desktop/settings/unattended/sentinel');
-const { refresh: refreshSentinelRemotePatch } = await useApi<ISettingsUnattendedSentinel>('desktop/settings/unattended/sentinel', { method: 'PATCH' });
+const { refreshDebounced: refreshSentinelRemotePatchDebounced } = await useApi<ISettingsUnattendedSentinel>('desktop/settings/unattended/sentinel', {
+  method: 'PATCH',
+  rateLimit: {
+    debounce: {
+      wait: 300,
+      leading: false,
+      trailing: true
+    }
+  }
+});
 
 /**
  * API：哨兵请求地址默认值（GET）
@@ -986,19 +995,12 @@ const persistSentinelToRedis = async (): Promise<void> => {
     return;
   }
 
-  await refreshSentinelRemotePatch({
+  refreshSentinelRemotePatchDebounced({
     body: {
       datas: sentinel as unknown as Record<string, unknown>
     }
   });
 };
-
-/**
- * 函数：写回 Redis（哨兵，防抖）
- */
-const persistSentinelToRedisDebounced = useDebounceFn(() => {
-  void persistSentinelToRedis();
-}, 300);
 
 /**
  * 事件：哨兵表单内部配置变化
@@ -1011,7 +1013,7 @@ const handleSentinelConfigChanged = (): void => {
     return;
   }
   persistToSettingsDebounced();
-  persistSentinelToRedisDebounced();
+  void persistSentinelToRedis();
 };
 
 /**
@@ -1044,7 +1046,7 @@ watch(stateOnlineWindowSeconds, (next) => {
   }
 
   persistToSettingsDebounced();
-  persistSentinelToRedisDebounced();
+  void persistSentinelToRedis();
 });
 
 /**
@@ -1059,7 +1061,7 @@ watch(stateRequestUrl, () => {
   }
 
   persistToSettingsDebounced();
-  persistSentinelToRedisDebounced();
+  void persistSentinelToRedis();
 });
 
 /**

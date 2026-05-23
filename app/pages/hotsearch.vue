@@ -333,11 +333,11 @@ const computedTodayDate = computed(() => {
 const computedSelectedDate = computed(() => {
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
-  if (queryDate === computedTodayDate.value) {
-    return queryDate;
+  if (queryDate === '') {
+    return computedTodayDate.value;
   }
 
-  if (queryDate !== '' && computedDateSummaryMap.value.has(queryDate)) {
+  if (calendarDateFromIsoGet(queryDate)) {
     return queryDate;
   }
 
@@ -443,11 +443,6 @@ const computedCalendarModelValue = computed<CalendarDate>({
     handleDateChange(nextDate);
   }
 });
-
-/**
- * 计算属性：当前是否为数据页。
- */
-const computedRouteIsData = computed(() => route.path === localePath('/hotsearch'));
 
 /**
  * 计算属性：当前是否位于数据分区。
@@ -1046,6 +1041,10 @@ watch(
     hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
   }),
   ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
+    if (routeDate !== '') {
+      return;
+    }
+
     const nextRouteDate = selectedDate !== '' && (hasSelectedDateSummary || selectedDate === computedTodayDate.value) ? selectedDate : undefined;
     const normalizedNextRouteDate = nextRouteDate ?? '';
 

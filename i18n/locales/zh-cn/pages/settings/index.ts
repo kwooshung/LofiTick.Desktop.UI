@@ -23,6 +23,34 @@
       }
     }
   },
+  services: {
+    title: '服务凭证',
+    description: '统一管理第三方服务的接入凭证；播客生成未显式传入豆包语音配置时，会优先读取这里的默认值。',
+    actions: {
+      showAccessToken: '显示令牌',
+      hideAccessToken: '隐藏令牌',
+      resetDefaultResourceId: '恢复默认 Resource ID'
+    },
+    volcSpeech: {
+      title: '豆包语音',
+      description: '用于火山播客 WebSocket 接口的桌面端默认凭证。这里保存后，播客命令会自动补齐缺省的 App ID、Access Token 和 Resource ID。',
+      appId: {
+        label: 'App ID',
+        description: '填写豆包语音服务的应用 ID。',
+        placeholder: '例如：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: '填写豆包语音服务的 Access Token。',
+        placeholder: '请输入豆包语音 Access Token'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '默认值适用于当前播客接口；只有服务侧要求切换资源时才需要修改。',
+        placeholder: 'volc.service_type.10050'
+      }
+    }
+  },
   general: {
     title: '常规设置',
     description: '应用程序基础行为、语言等通用偏好配置',

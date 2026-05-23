@@ -23,6 +23,34 @@ export const settings = {
       }
     }
   },
+  services: {
+    title: '服務憑證',
+    description: '集中管理第三方服務的接入憑證；當 Podcast 生成沒有明確帶入豆包語音設定時，桌面端會優先讀取這裡的預設值。',
+    actions: {
+      showAccessToken: '顯示權杖',
+      hideAccessToken: '隱藏權杖',
+      resetDefaultResourceId: '恢復預設 Resource ID'
+    },
+    volcSpeech: {
+      title: '豆包語音',
+      description: '用於火山 Podcast WebSocket 介面的桌面端預設憑證。儲存在這裡之後，Podcast 指令會自動補齊缺省的 App ID、Access Token 與 Resource ID。',
+      appId: {
+        label: 'App ID',
+        description: '填寫豆包語音服務的應用 ID。',
+        placeholder: '例如：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: '填寫豆包語音服務的 Access Token。',
+        placeholder: '請輸入豆包語音 Access Token'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '預設值適用於目前的 Podcast 介面；只有在服務端要求切換資源時才需要修改。',
+        placeholder: 'volc.service_type.10050'
+      }
+    }
+  },
   general: {
     title: '一般設定',
     description: '調整應用程式的基本行為、介面語言與常用偏好。',

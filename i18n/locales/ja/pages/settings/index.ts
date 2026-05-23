@@ -23,6 +23,34 @@ export const settings = {
       }
     }
   },
+  services: {
+    title: 'サービス認証情報',
+    description: '外部サービスの接続認証情報をまとめて管理します。Podcast 生成時に Volc Speech の認証情報が明示されていない場合、まずここに保存した既定値を使います。',
+    actions: {
+      showAccessToken: 'トークンを表示',
+      hideAccessToken: 'トークンを隠す',
+      resetDefaultResourceId: '既定の Resource ID に戻す'
+    },
+    volcSpeech: {
+      title: 'Volc Speech',
+      description: 'Volc Podcast WebSocket エンドポイント用のデスクトップ既定認証情報です。ここに保存すると、Podcast コマンドは不足している App ID、Access Token、Resource ID を自動補完します。',
+      appId: {
+        label: 'App ID',
+        description: 'Volc Speech サービスの App ID を入力します。',
+        placeholder: '例：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: 'Volc Speech サービスの Access Token を入力します。',
+        placeholder: 'Volc Speech の Access Token を入力'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '既定値は現在の Podcast エンドポイント向けです。サービス側から別のリソース指定を求められた場合のみ変更してください。',
+        placeholder: 'volc.service_type.10050'
+      }
+    }
+  },
   general: {
     title: '一般設定',
     description: 'アプリの基本的な動作や言語など、共通の設定を行います。',

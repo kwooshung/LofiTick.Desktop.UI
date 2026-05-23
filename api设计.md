@@ -403,3 +403,36 @@ useApi 会在 `onResponseError` 中读取响应体的统一 `status`，用于判
 ---
 
 > 这章如果你希望我再补“最小可运行示例（首页一个 GET + 一个 POST）”，我可以继续按你现有 `useApi` 的 `immediate:false` 约定写一段示例代码与注意事项。
+
+## useApi 限流口径（设置页必读）
+
+`useApi` 返回值自带以下限流函数：
+
+- `refreshDebounced`
+- `retryDebounced`
+- `refreshThrottled`
+- `retryThrottled`
+
+对应配置入口是 `rateLimit`：
+
+```ts
+const { refreshDebounced } = await useApi('desktop/settings/connections', {
+  method: 'PATCH',
+  immediate: false,
+  rateLimit: {
+    debounce: {
+      wait: 300,
+      leading: false,
+      trailing: true
+    }
+  }
+});
+```
+
+设置页口径统一如下：
+
+- 只要是“同步 Redis / 远端设置”的 HTTP 写请求，优先使用 `useApi` 自带的 `rateLimit + refreshDebounced`，不要再在页面层额外包一层 `useDebounceFn` 去防抖同一条 HTTP 写链路。
+- 如果同一个页面同时还要写本地 Tauri settings、窗口状态或其他非 HTTP 本地镜像，这类“非 useApi 请求”可以继续使用独立的页面层防抖；本地镜像与 Redis 同步分开处理即可。
+- 查询列表、搜索建议、筛选联动等读请求，继续按现有模式使用 `refreshDebounced` / `refreshThrottled` 即可。
+
+换句话说：防抖的归属应当和副作用归属一致。HTTP 请求由 `useApi` 自己限流，本地副作用由本地逻辑自己限流，避免同一条远端写链路被页面层和请求层重复防抖。

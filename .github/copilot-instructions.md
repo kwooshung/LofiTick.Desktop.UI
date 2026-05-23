@@ -185,6 +185,14 @@
 - 是否使用响应式的判断标准：是否需要驱动模板渲染/被 `watch` 追踪/参与计算属性；仅用于生命周期清理的句柄不需要响应式。
 - 注释必须反映真实语义；如果实现是普通变量，就用"变量/句柄"，不要误标为"状态"。
 
+#### 4.2.4 useApi 限流（强制）
+
+- `useApi` 返回值已内建限流句柄：`refreshDebounced`、`retryDebounced`、`refreshThrottled`、`retryThrottled`；优先复用，不要为同一条 HTTP 请求链路再额外包一层页面级 `useDebounceFn` / `useThrottleFn`。
+- 需要限流时，必须优先通过 `useApi(..., { rateLimit: { debounce / throttle } })` 配置，而不是把 HTTP 写请求放到页面层手写防抖/节流包装里。
+- 只要是“同步 Redis / 远端设置”的 HTTP 写请求，优先使用 `useApi` 自带的 `rateLimit + refreshDebounced`。
+- 如果同一个页面同时还要写本地 Tauri settings、窗口状态或其他非 HTTP 本地镜像，这类本地副作用可以继续单独使用页面层防抖；但 HTTP 远端写链路仍必须交给 `useApi` 自己限流。
+- 查询列表、搜索建议、筛选联动等读请求，可以继续按现有模式使用 `refreshDebounced` / `refreshThrottled`。
+
 ---
 
 ## 5. TypeScript 与注释规范

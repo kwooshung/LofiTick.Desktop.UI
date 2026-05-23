@@ -342,7 +342,17 @@ const tauriWindow = useTauriWindow();
  * 描述：用于与服务端 Redis 同步热搜设置。
  */
 const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
-const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { method: 'PATCH', immediate: false });
+const { refreshDebounced: refreshHotsearchRemotePatchDebounced } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', {
+  method: 'PATCH',
+  immediate: false,
+  rateLimit: {
+    debounce: {
+      wait: 300,
+      leading: false,
+      trailing: true
+    }
+  }
+});
 
 /**
  * Store：面包屑
@@ -373,11 +383,6 @@ const stateSaving = ref(false);
  * 状态：页面数据已完成初始化
  */
 const stateHydrated = ref(false);
-
-/**
- * 状态：保存请求排队中
- */
-const statePersistQueued = ref(false);
 
 /**
  * 设置面包屑导航状态
@@ -708,44 +713,27 @@ const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearch): Prom
 };
 
 /**
- * 函数：持久化热搜设置
- * @returns {Promise<void>} 无返回值
+ * 函数：防抖写回热搜设置到本地镜像。
  */
-const persistHotsearchSettings = async (): Promise<void> => {
-  if (!stateHydrated.value) {
-    return;
-  }
-
-  if (stateSaving.value) {
-    statePersistQueued.value = true;
-    return;
-  }
-
+const persistHotsearchSettingsLocalDebounced = useDebounceFn(async () => {
   stateSaving.value = true;
   try {
-    const nextConfig = hotsearchSettingsNormalize(stateHotsearchConfig.value);
-    await refreshHotsearchRemotePatch({
-      body: {
-        datas: nextConfig
-      }
-    });
-    await persistHotsearchSettingsToLocal(nextConfig);
+    await persistHotsearchSettingsToLocal(hotsearchSettingsNormalize(stateHotsearchConfig.value));
   } finally {
     stateSaving.value = false;
   }
-
-  if (statePersistQueued.value) {
-    statePersistQueued.value = false;
-    persistHotsearchSettingsDebounced();
-  }
-};
+}, 300);
 
 /**
- * 函数：延迟写回热搜设置
+ * 函数：防抖写回热搜设置到 Redis。
  */
-const persistHotsearchSettingsDebounced = useDebounceFn(() => {
-  void persistHotsearchSettings();
-}, 300);
+const persistHotsearchSettingsRemoteDebounced = (): void => {
+  refreshHotsearchRemotePatchDebounced({
+    body: {
+      datas: hotsearchSettingsNormalize(stateHotsearchConfig.value)
+    }
+  });
+};
 
 /**
  * 函数：请求写回热搜设置
@@ -755,7 +743,8 @@ const requestPersistHotsearchSettings = (): void => {
   if (!stateHydrated.value) {
     return;
   }
-  persistHotsearchSettingsDebounced();
+  persistHotsearchSettingsLocalDebounced();
+  persistHotsearchSettingsRemoteDebounced();
 };
 
 /**

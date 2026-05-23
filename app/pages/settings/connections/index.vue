@@ -101,10 +101,20 @@ const tauriWindow = useTauriWindow();
 const tauriApiClient = useTauriApiClient();
 
 /**
- * API：1Panel 设置。
+ * API：服务连接设置。
  */
-const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { immediate: false });
-const { refresh: refreshOnepanelSettingsPatch } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { method: 'PATCH', immediate: false });
+const { datas: stateConnectionsSettingsRemote, refresh: refreshConnectionsSettingsGet } = await useApi<IPageSettingsConnectionsSettings>('desktop/settings/connections', { immediate: false });
+const { refreshDebounced: refreshConnectionsSettingsPatchDebounced } = await useApi<IPageSettingsConnectionsSettings>('desktop/settings/connections', {
+  method: 'PATCH',
+  immediate: false,
+  rateLimit: {
+    debounce: {
+      wait: 300,
+      leading: false,
+      trailing: true
+    }
+  }
+});
 
 /**
  * Hook：i18n。
@@ -160,16 +170,6 @@ const stateApiBaseValue = ref('');
 const stateOnepanelPanelBaseValue = ref(ONEPANEL_PANEL_BASE_DEFAULT);
 
 /**
- * 状态：API Base 保存中。
- */
-const stateApiBaseSaving = ref(false);
-
-/**
- * 状态：1Panel 设置保存中。
- */
-const stateOnepanelSettingsSaving = ref(false);
-
-/**
  * 状态：设置项是否已完成首轮加载。
  */
 const stateSettingsHydrated = ref(false);
@@ -215,83 +215,66 @@ const handleOpenExternal = async (href: string): Promise<void> => {
 };
 
 /**
- * 事件：保存 API 域名设置。
+ * 函数：防抖同步 Tauri 本地 API 配置镜像。
  */
-const handleSaveApiBase = async (): Promise<void> => {
-  if (!isTauriRuntime.value || stateApiBaseSaving.value) {
+const persistApiBaseLocalDebounced = useDebounceFn(async () => {
+  if (!isTauriRuntime.value) {
     return;
   }
 
-  stateApiBaseSaving.value = true;
-  try {
-    const config = await tauriApiClient.configUpdate({ apiBase: String(stateApiBaseValue.value || '').trim() });
-    stateApiBaseValue.value = String(config.apiBase || '').trim();
-  } finally {
-    stateApiBaseSaving.value = false;
-  }
+  const config = await tauriApiClient.configUpdate({
+    apiBase: String(stateApiBaseValue.value || '').trim()
+  });
+  stateApiBaseValue.value = String(config.apiBase || '').trim();
+}, 300);
+
+/**
+ * 函数：构建当前服务连接远端配置。
+ */
+const currentConnectionsSettingsGet = (): IPageSettingsConnectionsSettings => ({
+  apiBase: String(stateApiBaseValue.value || '').trim(),
+  panelBase: computedPanelBase.value
+});
+
+/**
+ * 函数：防抖同步服务连接到 Redis。
+ */
+const persistConnectionsRemoteDebounced = (): void => {
+  refreshConnectionsSettingsPatchDebounced({
+    body: {
+      datas: currentConnectionsSettingsGet()
+    }
+  });
 };
 
 /**
  * 函数：回填 1Panel 设置。
  */
 const applyOnepanelSettings = (): void => {
-  stateOnepanelPanelBaseValue.value = onepanelPanelBaseNormalize(String(stateOnepanelSettingsRemote.value?.panelBase || '').trim() || ONEPANEL_PANEL_BASE_DEFAULT);
+  stateOnepanelPanelBaseValue.value = onepanelPanelBaseNormalize(String(stateConnectionsSettingsRemote.value?.panelBase || '').trim() || ONEPANEL_PANEL_BASE_DEFAULT);
 };
-
-/**
- * 事件：保存 1Panel 设置。
- */
-const handleSaveOnepanelSettings = async (): Promise<void> => {
-  if (stateOnepanelSettingsSaving.value) {
-    return;
-  }
-
-  stateOnepanelSettingsSaving.value = true;
-  try {
-    await refreshOnepanelSettingsPatch({
-      body: {
-        datas: {
-          ...(stateOnepanelSettingsRemote.value || {}),
-          panelBase: computedPanelBase.value
-        }
-      }
-    });
-
-    await refreshOnepanelSettingsGet();
-    applyOnepanelSettings();
-  } finally {
-    stateOnepanelSettingsSaving.value = false;
-  }
-};
-
-/**
- * 函数：自动保存 API Base（防抖）。
- */
-const persistApiBaseDebounced = useDebounceFn(() => {
-  void handleSaveApiBase();
-}, 300);
-
-/**
- * 函数：自动保存 1Panel 设置（防抖）。
- */
-const persistOnepanelSettingsDebounced = useDebounceFn(() => {
-  void handleSaveOnepanelSettings();
-}, 300);
 
 /**
  * 函数：加载并填充设置。
  */
 const loadSettings = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    return;
+  if (isTauriRuntime.value) {
+    const apiClientConfig = await tauriApiClient.configGet();
+
+    stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim() || DEFAULT_API_BASE;
   }
-
-  const apiClientConfig = await tauriApiClient.configGet();
-
-  stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim() || DEFAULT_API_BASE;
   stateOnepanelPanelBaseValue.value = ONEPANEL_PANEL_BASE_DEFAULT;
 
-  await refreshOnepanelSettingsGet();
+  await refreshConnectionsSettingsGet();
+
+  if (stateConnectionsSettingsRemote.value?.apiBase) {
+    stateApiBaseValue.value = String(stateConnectionsSettingsRemote.value.apiBase || '').trim() || DEFAULT_API_BASE;
+
+    if (isTauriRuntime.value) {
+      await tauriApiClient.configUpdate({ apiBase: stateApiBaseValue.value });
+    }
+  }
+
   applyOnepanelSettings();
   stateSettingsHydrated.value = true;
 };
@@ -304,7 +287,8 @@ watch(stateApiBaseValue, () => {
     return;
   }
 
-  persistApiBaseDebounced();
+  persistApiBaseLocalDebounced();
+  persistConnectionsRemoteDebounced();
 });
 
 /**
@@ -315,7 +299,7 @@ watch(stateOnepanelPanelBaseValue, () => {
     return;
   }
 
-  persistOnepanelSettingsDebounced();
+  persistConnectionsRemoteDebounced();
 });
 
 /**
