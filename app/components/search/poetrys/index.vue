@@ -1,12 +1,7 @@
 <template>
   <template v-if="routeIsList">
-    <UModal v-model:open="stateOpen" :title="t('components.poetrys.search.header.title')" :dismissible="false" :ui="{ body: 'flex flex-col', footer: 'justify-between' }" @update:open="handleUpdateOpen">
-      <UButton icon="i-lucide-search" :label="computedHasSearchConditions ? t('components.poetrys.search.header.conditions') : t('components.poetrys.search.header.startLabel')" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }">
-        <template #trailing>
-          <UKbd value="/" class="ms-auto" />
-        </template>
-      </UButton>
-      <template #body>
+    <DefinePoetrySearchPanelBody>
+      <div class="flex flex-col gap-4">
         <UInput v-model="stateTitle" icon="i-mdi:format-title" variant="outline" :placeholder="t('components.poetrys.search.body.title.placeholder')" autofocus clear class="mb-4">
           <template v-if="stateTitle.length" #trailing>
             <UButton color="neutral" variant="link" size="sm" icon="i-tabler:x" aria-label="Clear input" @click="stateTitle = ''" />
@@ -55,15 +50,61 @@
             <span class="text-muted">{{ item?.count }}</span>
           </template>
         </USelectMenu>
-      </template>
-      <template #footer>
-        <USwitch v-model="stateIsAnd" :label="stateIsAnd ? t('components.poetrys.search.footer.match.all') : t('components.poetrys.search.footer.match.any')" />
-        <div class="flex gap-2">
-          <UButton color="neutral" variant="outline" @click="handleReset">{{ t('components.poetrys.search.buttons.reset') }}</UButton>
-          <UButton icon="i-lucide-search" color="primary" @click="handleSearch">{{ t('components.poetrys.search.buttons.search') }}</UButton>
-        </div>
-      </template>
-    </UModal>
+      </div>
+    </DefinePoetrySearchPanelBody>
+
+    <DefinePoetrySearchPanelActions>
+      <USwitch v-model="stateIsAnd" :label="stateIsAnd ? t('components.poetrys.search.footer.match.all') : t('components.poetrys.search.footer.match.any')" />
+      <div class="flex gap-2">
+        <UButton color="neutral" variant="outline" @click="handleReset">{{ t('components.poetrys.search.buttons.reset') }}</UButton>
+        <UButton icon="i-lucide-search" color="primary" @click="handleSearch">{{ t('components.poetrys.search.buttons.search') }}</UButton>
+      </div>
+    </DefinePoetrySearchPanelActions>
+
+    <template v-if="stateSearchPanelMobile">
+      <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }" @click="stateOpen = true">
+        <template #trailing>
+          <UKbd value="/" class="ms-auto" />
+        </template>
+      </UButton>
+
+      <USlideover v-model:open="stateOpen" :title="t('components.poetrys.search.header.title')" :ui="{ body: 'space-y-4', footer: 'justify-between' }">
+        <template #body>
+          <ReusePoetrySearchPanelBody />
+        </template>
+        <template #footer>
+          <ReusePoetrySearchPanelActions />
+        </template>
+      </USlideover>
+    </template>
+    <template v-else>
+      <UPopover v-model:open="stateOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,52rem)] p-0 overflow-hidden' }">
+        <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }">
+          <template #trailing>
+            <UKbd value="/" class="ms-auto" />
+          </template>
+        </UButton>
+
+        <template #content>
+          <div class="bg-default flex flex-col gap-4 p-4 sm:p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-highlighted text-sm font-semibold">{{ t('components.poetrys.search.header.title') }}</div>
+                <div class="text-muted mt-1 text-xs">{{ computedSearchTriggerLabel }}</div>
+              </div>
+            </div>
+
+            <div class="max-h-[min(72vh,34rem)] overflow-y-auto pr-1">
+              <ReusePoetrySearchPanelBody />
+            </div>
+
+            <div class="border-default flex items-center justify-between gap-3 border-t pt-4">
+              <ReusePoetrySearchPanelActions />
+            </div>
+          </div>
+        </template>
+      </UPopover>
+    </template>
   </template>
   <template v-else-if="routeIsAuthors">
     <div class="flex items-center gap-2">
@@ -158,6 +199,16 @@ import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem
 const props = defineProps<IComponentPropsPoetrysSearch>();
 
 /**
+ * 模板：诗词搜索面板主体。
+ */
+const [DefinePoetrySearchPanelBody, ReusePoetrySearchPanelBody] = createReusableTemplate();
+
+/**
+ * 模板：诗词搜索面板操作区。
+ */
+const [DefinePoetrySearchPanelActions, ReusePoetrySearchPanelActions] = createReusableTemplate();
+
+/**
  * Hook：国际化
  */
 const { t } = useI18n();
@@ -186,6 +237,11 @@ const refDynastyMenu = useTemplateRef('refDynastyMenu');
  * 状态：模态框开关
  */
 const stateOpen = ref(false);
+
+/**
+ * 状态：搜索面板是否使用移动端抽屉模式。
+ */
+const stateSearchPanelMobile = ref(false);
 
 /**
  * 状态：标题关键词
@@ -262,6 +318,11 @@ const computedHasSearchConditions = computed(() => {
 
   return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids');
 });
+
+/**
+ * 计算属性：搜索入口按钮文案。
+ */
+const computedSearchTriggerLabel = computed(() => (computedHasSearchConditions.value ? t('components.poetrys.search.header.conditions') : t('components.poetrys.search.header.startLabel')));
 
 /**
  * 计算属性：作者页搜索类型选项
@@ -576,22 +637,30 @@ watch(
 );
 
 /**
- * 事件：模态框打开后，加载默认联想数据
- * @param {boolean} isOpen 模态框是否打开
+ * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
-const handleUpdateOpen = async (isOpen: boolean) => {
-  if (isOpen) {
-    /**
-     * 列表页：仅在模态打开时读取路由默认值
-     */
-    if (props.routeIsList) {
-      await applyListDefaultsFromRoute();
-    }
-    stateLoadingDynasties.value = true;
-    stateLoadingAuthors.value = true;
-    refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
-    refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
+watch(stateOpen, async (isOpen) => {
+  if (!isOpen || !props.routeIsList) {
+    return;
   }
+
+  await applyListDefaultsFromRoute();
+  stateLoadingDynasties.value = true;
+  stateLoadingAuthors.value = true;
+  refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
+  refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
+});
+
+/**
+ * 函数：同步搜索面板视口模式。
+ */
+const syncSearchPanelViewportMode = (): void => {
+  if (!import.meta.client) {
+    stateSearchPanelMobile.value = false;
+    return;
+  }
+
+  stateSearchPanelMobile.value = window.innerWidth < 768;
 };
 
 /**
@@ -728,6 +797,12 @@ const handleSearch = (): void => {
  * 生命周期：初始化时加载默认联想数据，并在非列表页应用默认值
  */
 onMounted(() => {
+  syncSearchPanelViewportMode();
+
+  if (import.meta.client) {
+    window.addEventListener('resize', syncSearchPanelViewportMode);
+  }
+
   // 加载默认联想数据
   requestDefaultsForCurrentRoute();
 
@@ -741,6 +816,15 @@ onMounted(() => {
       applyDynastiesDefaultsFromRoute();
       return;
     }
+  }
+});
+
+/**
+ * 生命周期：卸载时清理视口监听。
+ */
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    window.removeEventListener('resize', syncSearchPanelViewportMode);
   }
 });
 
