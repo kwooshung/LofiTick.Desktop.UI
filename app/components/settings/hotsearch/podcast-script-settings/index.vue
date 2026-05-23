@@ -325,11 +325,37 @@ const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
 const stateTemplateDragging = ref(false);
 
 /**
+ * 函数：判断模板片段列表是否一致。
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} left 左侧模板列表。
+ * @param {ISettingsHotsearchPodcastTemplateItem[]} right 右侧模板列表。
+ * @returns {boolean} 是否一致。
+ */
+const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right: ISettingsHotsearchPodcastTemplateItem[]): boolean => {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((item, index) => {
+    const target = right[index];
+
+    return Boolean(target)
+      && item.voiceKey === target.voiceKey
+      && item.content === target.content
+      && item.segmentType === target.segmentType
+      && item.templateType === target.templateType;
+  });
+};
+
+/**
  * 监听：同步父级模板片段。
  */
 watch(
   () => props.templateItems,
   (value) => {
+    if (templateItemsEqual(stateTemplateItems.value, value)) {
+      return;
+    }
+
     stateTemplateItems.value = [...value];
     templateItemRenderKeys.value = value.map((_, index) => templateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
   },
