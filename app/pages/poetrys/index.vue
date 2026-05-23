@@ -235,6 +235,28 @@ const poetrySentencePreviewGet = (sentence: string, maxLength: number): string =
 const route = useRoute();
 
 /**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'poetrys'));
+};
+
+/**
  * 函数：从路由查询参数构建接口查询参数
  * @returns {Record<string,string|string[]>} 查询参数
  */
@@ -286,9 +308,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   if (typeof route.query.page !== 'undefined') {
     query.page = String(route.query.page);
   }
-  if (typeof route.query.pagesize !== 'undefined') {
-    query.pagesize = String(route.query.pagesize);
-  }
+  query.pagesize = currentPageSizeGet();
 
   // 排序：orderBy（updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
@@ -316,9 +336,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 const buildSingleFilterLocation = (key: 'dynasty_ids' | 'author_ids', value: number | string): { path: string; query: Record<string, string | string[]> } => {
   const q: Record<string, string | string[]> = {};
   // 保留必要参数
-  if (typeof route.query.pagesize !== 'undefined') {
-    q.pagesize = String(route.query.pagesize);
-  }
+  q.pagesize = currentPageSizeGet();
   if (typeof route.query.enabled !== 'undefined') {
     q.enabled = String(route.query.enabled);
   }
@@ -444,6 +462,10 @@ const computedItemsPerPage = computed<number>(() => {
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
+  }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'poetrys');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
   }
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;

@@ -87,14 +87,18 @@ export const hotsearch = {
   },
   tags: {
     table: {
+      no: '编号',
       tag: '标签',
-      count: '数量'
+      updatedAt: '更新时间',
+      createdAt: '创建时间'
     }
   },
   platforms: {
     table: {
+      no: '编号',
       platform: '平台',
-      count: '数量'
+      updatedAt: '更新时间',
+      createdAt: '创建时间'
     }
   },
   podcast: {

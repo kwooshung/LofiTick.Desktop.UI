@@ -1,7 +1,6 @@
 <template>
-  <DashboardPage class="gap-4">
-    <div class="flex min-h-0 flex-1 flex-col gap-4">
-      <div class="space-y-3">
+  <DashboardPage class="min-h-full">
+    <div ref="refHotsearchDataPanelTop" class="space-y-3">
         <div class="flex flex-wrap gap-2">
           <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
             {{ t('pages.hotsearch.data.allPlatforms') }}
@@ -26,30 +25,29 @@
             {{ tagSummaryLabelGet(item) }}
           </UButton>
         </div>
-      </div>
+    </div>
 
-      <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center py-8">
-        <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" />
-      </div>
+    <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center py-10">
+      <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" class="py-8" />
+    </div>
 
-      <div v-else class="flex min-h-0 w-full flex-1 gap-1">
-        <div class="flex-1">
-          <UTable
-            :columns="columns"
-            :data="computedRows"
-            :loading="computedLoading"
-            sticky
-            class="w-full min-w-0"
-            :ui="{
-              base: 'w-full table-fixed border-separate border-spacing-0',
-              thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-              tbody: '[&>tr]:last:[&>td]:border-b-0',
-              th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-              td: 'border-b border-default align-top',
-              separator: 'h-0'
-            }"
-          />
-        </div>
+    <div v-else class="flex min-h-0 w-full flex-1 gap-1">
+      <div class="flex-1">
+        <UTable
+          :columns="columns"
+          :data="computedRows"
+          :loading="computedLoading"
+          sticky
+          class="w-full min-w-0"
+          :ui="{
+            base: 'w-full table-fixed border-separate border-spacing-0',
+            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+            tbody: '[&>tr]:last:[&>td]:border-b-0',
+            th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+            td: 'border-b border-default align-top',
+            separator: 'h-0'
+          }"
+        />
       </div>
     </div>
 
@@ -99,6 +97,19 @@ const { t } = useI18n();
 const route = useRoute();
 
 /**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 引用：热搜数据面板顶部锚点。
+ */
+const refHotsearchDataPanelTop = useTemplateRef('refHotsearchDataPanelTop');
+
+/**
  * Hook：Tauri 运行环境。
  */
 const { isTauriRuntime } = useTauriEnv();
@@ -119,6 +130,20 @@ const currentDateGet = (): string => new Date().toISOString().slice(0, 10);
  * @returns {string} YYYY-MM-DD。
  */
 const selectedDateGet = (): string => hotsearchQueryStringGet(route.query.date) || currentDateGet();
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const pagesize = hotsearchQueryStringGet(route.query.pagesize);
+
+  if (pagesize !== '') {
+    return pagesize;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'hotsearch'));
+};
 
 /**
  * 函数：从路由构建热搜数据分页查询。
@@ -148,10 +173,7 @@ const buildRowsQueryFromRoute = (): Record<string, string> => {
     query.page = page;
   }
 
-  const pagesize = hotsearchQueryStringGet(route.query.pagesize);
-  if (pagesize !== '') {
-    query.pagesize = pagesize;
-  }
+  query.pagesize = currentPageSizeGet();
 
   const orderBy = hotsearchQueryStringGet(route.query.order_by);
   if (orderBy !== '') {
@@ -345,6 +367,11 @@ const computedItemsPerPage = computed<number>(() => {
     return parsed;
   }
 
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'hotsearch');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
+  }
+
   const apiSize = Number(stateHotsearchRowsRemote.value?.pageSize ?? 20);
 
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
@@ -362,11 +389,10 @@ const refreshCurrentPanels = (): void => {
 
 watch(
   () => route.query,
-  () => {
+  async () => {
+    await nextTick();
+    refHotsearchDataPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     refreshCurrentPanels();
-  },
-  {
-    immediate: true
   }
 );
 

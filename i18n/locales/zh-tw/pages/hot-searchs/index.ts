@@ -81,14 +81,18 @@ export const hotsearch = {
   },
   tags: {
     table: {
+      no: '編號',
       tag: '標籤',
-      count: '數量'
+      updatedAt: '更新時間',
+      createdAt: '建立時間'
     }
   },
   platforms: {
     table: {
+      no: '編號',
       platform: '平台',
-      count: '數量'
+      updatedAt: '更新時間',
+      createdAt: '建立時間'
     }
   },
   podcast: {

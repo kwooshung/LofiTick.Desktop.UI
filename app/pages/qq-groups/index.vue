@@ -115,6 +115,28 @@ const { t } = useI18n();
  */
 const route = useRoute();
 
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
+};
+
 const props = withDefaults(defineProps<IPageQqGroupsProps>(), {
   createNonce: 0
 });
@@ -159,9 +181,7 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
     query.page = String(route.query.page);
   }
 
-  if (typeof route.query.pagesize !== 'undefined') {
-    query.pagesize = String(route.query.pagesize);
-  }
+  query.pagesize = currentPageSizeGet();
 
   if (typeof route.query.order_by !== 'undefined') {
     const by = String(route.query.order_by);
@@ -466,6 +486,10 @@ const computedItemsPerPage = computed<number>(() => {
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
+  }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
   }
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;

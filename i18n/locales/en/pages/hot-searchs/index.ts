@@ -81,14 +81,18 @@ export const hotsearch = {
   },
   tags: {
     table: {
+      no: 'No.',
       tag: 'Tag',
-      count: 'Count'
+      updatedAt: 'Updated at',
+      createdAt: 'Created at'
     }
   },
   platforms: {
     table: {
+      no: 'No.',
       platform: 'Platform',
-      count: 'Count'
+      updatedAt: 'Updated at',
+      createdAt: 'Created at'
     }
   },
   podcast: {

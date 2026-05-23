@@ -130,7 +130,7 @@
       </div>
 
       <div class="scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        <div class="min-h-full">
+        <div class="flex min-h-full flex-col">
           <NuxtPage />
         </div>
       </div>

@@ -12,8 +12,8 @@ import type { THotsearchPlatformType } from '@@/shared/types/pages/settings/hots
  * - `LofiTick.API/src/handler/hot_search.rs`
  *
  * 当前已确认接口：
- * - `/crons/hot_searchs/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
- * - `/crons/hot_searchs/all` -> `IQueryResultHotSearchCronAllResponse`
+ * - `/crons/hot_searches/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
+ * - `/crons/hot_searches/all` -> `IQueryResultHotSearchCronAllResponse`
  * - `/hotsearch/rows/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
  * - `/hotsearch/dates` GET -> `IHotsearchArchiveDateSummary[]`
  * - `/hotsearch/dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
@@ -238,6 +238,12 @@ export interface IHotsearchPlatformSummaryRow {
 
   /** 数量 */
   count: number;
+
+  /** 创建时间文本 */
+  createdAt: string;
+
+  /** 更新时间文本 */
+  updatedAt: string;
 }
 
 /**
@@ -269,6 +275,12 @@ export interface IHotsearchTagSummaryRow {
 
   /** 数量 */
   count: number;
+
+  /** 创建时间文本 */
+  createdAt: string;
+
+  /** 更新时间文本 */
+  updatedAt: string;
 }
 
 /**
