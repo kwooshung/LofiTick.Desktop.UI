@@ -17,7 +17,7 @@
     >
       <FormUrlInput readonly :model-value="computedBaseUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
         <template #actions>
-          <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+          <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
             <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
           </UTooltip>
         </template>
@@ -55,10 +55,10 @@
         <FormUrlInput readonly :model-value="request.url" class="w-full max-w-full md:w-136 2xl:w-160">
           <template #actions>
             <div class="flex items-center gap-0.5">
-              <UTooltip arrow :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+              <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
                 <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
               </UTooltip>
-              <UTooltip arrow :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
+              <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
                 <UButton color="neutral" variant="link" size="sm" icon="i-lucide-external-link" @click.stop="handleLinkOpen(request.url)" />
               </UTooltip>
             </div>

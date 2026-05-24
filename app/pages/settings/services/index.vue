@@ -61,11 +61,14 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
       >
-        <div class="flex w-full max-w-6xl min-w-0 items-center gap-2 justify-self-end">
-          <UInput v-model="stateVolcSpeechResourceIdValue" class="flex-1" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" />
-          <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechResourceId">
-            {{ t('pages.settings.services.actions.resetDefaultResourceId') }}
-          </UButton>
+        <div class="w-full max-w-6xl min-w-0 justify-self-end">
+          <UInput v-model="stateVolcSpeechResourceIdValue" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
+            <template #trailing>
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechResourceId">
+                {{ t('pages.settings.services.actions.resetDefaultResourceId') }}
+              </UButton>
+            </template>
+          </UInput>
         </div>
       </UFormField>
     </UPageCard>

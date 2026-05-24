@@ -1,11 +1,13 @@
 <template>
   <UApp :locale="locales[locale]" :toaster="appConfig.toaster">
-    <NuxtRouteAnnouncer />
-    <NuxtLoadingIndicator color="var(--ui-primary)" />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <SettingsUnattendedScenesSyncDialog />
+    <UTheme :props="{ tooltip: { arrow: true } }">
+      <NuxtRouteAnnouncer />
+      <NuxtLoadingIndicator color="var(--ui-primary)" />
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+      <SettingsUnattendedScenesSyncDialog />
+    </UTheme>
   </UApp>
 </template>
 

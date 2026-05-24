@@ -25,7 +25,7 @@
             <span>{{ t('components.sentinel.scenes.card.fields.machineCode') }}</span>
           </div>
           <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ props.machine.machineCode || '-' }}</span>
-          <UTooltip v-if="String(props.machine.machineCode || '').trim()" arrow :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+          <UTooltip v-if="String(props.machine.machineCode || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
             <UButton :color="stateCodeCopied ? 'success' : 'neutral'" variant="link" size="xs" :icon="stateCodeCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" @click.stop="handleMachineCodeCopy" />
           </UTooltip>
         </li>

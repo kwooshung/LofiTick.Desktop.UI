@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+    <div v-if="computedHasPagination" class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('components.pagination.total', { total: Number(datas?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(datas?.total ?? 0)" />
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { h } from 'vue';
 
 import type { IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow } from '@@/shared/types/index.types';
@@ -85,7 +86,11 @@ const refHotsearchPlatformPanelTop = useTemplateRef('refHotsearchPlatformPanelTo
  * 函数：获取当前默认日期。
  * @returns {string} YYYY-MM-DD。
  */
-const currentDateGet = (): string => new Date().toISOString().slice(0, 10);
+const currentDateGet = (): string => {
+  const value = today(getLocalTimeZone());
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+};
 
 /**
  * 函数：获取当前生效日期。
@@ -192,6 +197,11 @@ const hotsearchDatetimeValueGet = (value: string): string => {
  * 计算属性：平台行。
  */
 const computedRows = computed(() => datas.value?.rows ?? []);
+
+/**
+ * 计算属性：当前是否需要显示分页栏。
+ */
+const computedHasPagination = computed(() => Number(datas.value?.total ?? 0) > 0);
 
 /**
  * 计算属性：当前排序字段。

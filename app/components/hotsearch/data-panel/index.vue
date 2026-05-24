@@ -1,6 +1,6 @@
 <template>
   <DashboardPage class="min-h-full">
-    <div ref="refHotsearchDataPanelTop" class="space-y-3">
+    <div v-if="computedHasRows" ref="refHotsearchDataPanelTop" class="space-y-3">
       <div class="flex flex-wrap gap-2">
         <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
           {{ t('pages.hotsearch.data.allPlatforms') }}
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+    <div v-if="computedHasPagination" class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('components.pagination.total', { total: Number(stateHotsearchRowsRemote?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(stateHotsearchRowsRemote?.total ?? 0)" />
@@ -62,6 +62,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { h } from 'vue';
 
 import type { IHotsearchDataPage, IHotsearchDataRow, IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow, IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
@@ -123,7 +124,11 @@ const { openExternalUrl } = useTauriWindow();
  * 函数：获取当前默认日期。
  * @returns {string} YYYY-MM-DD。
  */
-const currentDateGet = (): string => new Date().toISOString().slice(0, 10);
+const currentDateGet = (): string => {
+  const value = today(getLocalTimeZone());
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+};
 
 /**
  * 函数：获取当前生效日期。
@@ -311,6 +316,11 @@ const computedSortDirection = computed(() => {
 const computedRows = computed(() => stateHotsearchRowsRemote.value?.rows ?? []);
 
 /**
+ * 计算属性：当前是否存在热搜数据。
+ */
+const computedHasRows = computed(() => computedRows.value.length > 0);
+
+/**
  * 计算属性：平台统计行。
  */
 const computedPlatformRows = computed(() => stateHotsearchPlatformsRemote.value?.rows ?? []);
@@ -334,6 +344,11 @@ const computedTagCountMap = computed(() => new Map(computedTagRows.value.map((it
  * 计算属性：加载状态。
  */
 const computedLoading = computed(() => stateHotsearchRowsLoading.value || stateHotsearchPlatformsLoading.value || stateHotsearchTagsLoading.value);
+
+/**
+ * 计算属性：当前是否需要显示分页栏。
+ */
+const computedHasPagination = computed(() => Number(stateHotsearchRowsRemote.value?.total ?? 0) > 0);
 
 /**
  * 计算属性：当前页。

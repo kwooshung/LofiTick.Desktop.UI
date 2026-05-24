@@ -42,16 +42,16 @@
           class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
         >
           <div class="flex w-full max-w-6xl min-w-0 flex-col gap-2 justify-self-end">
-            <FormUrlInput :model-value="computedPanelBase" readonly />
-
-            <div class="flex flex-wrap justify-end gap-2">
-              <UButton color="primary" size="sm" icon="i-lucide:arrow-up-right" @click="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))">
-                {{ t('pages.settings.connections.onepanelLinks.actions.openCronjobs') }}
-              </UButton>
-              <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:library" @click="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))">
-                {{ t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary') }}
-              </UButton>
-            </div>
+            <FormUrlInput :model-value="computedPanelBase" readonly>
+              <template #actions>
+                <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" :content="{ side: 'top' }">
+                  <UButton color="neutral" variant="link" size="sm" icon="i-lucide:calendar-clock" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" @click.stop="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))" />
+                </UTooltip>
+                <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" :content="{ side: 'top' }">
+                  <UButton color="neutral" variant="link" size="sm" icon="i-lucide:library-big" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" @click.stop="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))" />
+                </UTooltip>
+              </template>
+            </FormUrlInput>
           </div>
         </UFormField>
 
@@ -71,9 +71,14 @@
 
                 <div class="space-y-3">
                   <UFormField v-for="link in group.links" :key="link.href" :label="link.label" :description="link.path" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted text-xs' }" class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
-                    <div class="flex w-full max-w-6xl min-w-0 items-center gap-2 justify-self-end">
-                      <FormUrlInput :model-value="link.href" readonly class="flex-1" />
-                      <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:arrow-up-right" @click="handleOpenExternal(link.href)" />
+                    <div class="w-full max-w-6xl min-w-0 justify-self-end">
+                      <FormUrlInput :model-value="link.href" readonly class="w-full">
+                        <template #actions>
+                          <UTooltip :text="link.label" :content="{ side: 'top' }">
+                            <UButton color="neutral" variant="link" size="sm" icon="i-lucide:external-link" :aria-label="link.label" @click.stop="handleOpenExternal(link.href)" />
+                          </UTooltip>
+                        </template>
+                      </FormUrlInput>
                     </div>
                   </UFormField>
                 </div>

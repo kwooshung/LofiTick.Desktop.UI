@@ -195,7 +195,7 @@ const route = useRoute();
 /**
  * 状态：是否已存在显式日期选择。
  */
-const stateHasExplicitDateSelection = ref(hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined) !== '');
+const stateHasExplicitDateSelection = ref(false);
 
 /**
  * 常量：日历时区。
@@ -345,6 +345,13 @@ const computedSelectedDate = computed(() => {
 });
 
 /**
+ * 计算属性：当前路由应保留的日期参数。
+ */
+const computedSelectedDateQuery = computed(() => {
+  return stateHasExplicitDateSelection.value ? computedSelectedDate.value : undefined;
+});
+
+/**
  * 计算属性：当前选中日期对应的展示月份。
  */
 const computedSelectedMonthValue = computed(() => {
@@ -476,7 +483,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsDataSection.value,
       to: {
         path: localePath('/hotsearch'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
       },
       exact: true
     },
@@ -486,7 +493,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsPodcast.value,
       to: {
         path: localePath('/hotsearch/podcast/morning-short'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
       }
     },
     {
@@ -495,7 +502,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsMusic.value,
       to: {
         path: localePath('/hotsearch/music'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
       }
     }
   ]
@@ -510,7 +517,7 @@ const computedDataVariantLinks = computed<NavigationMenuItem[][]>(() => {
   }
 
   const sharedQuery = {
-    date: computedSelectedDate.value,
+    date: computedSelectedDateQuery.value,
     keyword: hotsearchQueryStringGet(route.query.keyword as string | null | Array<string | null> | undefined) || undefined,
     platform: hotsearchQueryStringGet(route.query.platform as string | null | Array<string | null> | undefined) || undefined,
     category_key: hotsearchQueryStringGet(route.query.category_key as string | null | Array<string | null> | undefined) || undefined,
@@ -575,7 +582,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-short'),
         to: {
           path: localePath('/hotsearch/podcast/morning-short'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -585,7 +592,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-long'),
         to: {
           path: localePath('/hotsearch/podcast/morning-long'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -595,7 +602,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-short'),
         to: {
           path: localePath('/hotsearch/podcast/evening-short'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -605,7 +612,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-long'),
         to: {
           path: localePath('/hotsearch/podcast/evening-long'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       }
@@ -978,6 +985,16 @@ const handleDatePreviewReset = (): void => {
 };
 
 watch(
+  () => route.query.date,
+  (value) => {
+    stateHasExplicitDateSelection.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined) !== '';
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(
   () => route.query.keyword,
   (value) => {
     stateToolbarKeyword.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined);
@@ -1028,40 +1045,6 @@ watch(
     }
 
     stateCalendarPlaceholder.value = value;
-  },
-  {
-    immediate: true
-  }
-);
-
-watch(
-  () => ({
-    routeDate: hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined),
-    selectedDate: computedSelectedDate.value,
-    hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
-  }),
-  ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
-    if (routeDate !== '') {
-      return;
-    }
-
-    const nextRouteDate = selectedDate !== '' && (hasSelectedDateSummary || selectedDate === computedTodayDate.value) ? selectedDate : undefined;
-    const normalizedNextRouteDate = nextRouteDate ?? '';
-
-    if (routeDate === normalizedNextRouteDate) {
-      return;
-    }
-
-    navigateTo(
-      {
-        path: route.path,
-        query: {
-          ...route.query,
-          date: nextRouteDate
-        }
-      },
-      { replace: true }
-    );
   },
   {
     immediate: true
@@ -1127,7 +1110,7 @@ const handleFilterReset = (): void => {
   navigateTo({
     path: route.path,
     query: {
-      date: computedSelectedDate.value
+      date: computedSelectedDateQuery.value
     }
   });
 };
