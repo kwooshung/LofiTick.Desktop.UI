@@ -99,6 +99,6 @@ export type {
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
-export type { ITauriPodcastVoiceCatalogItem, ITauriPodcastVoiceSampleResult, ITauriPodcastVoicesState, TPodcastVoiceRole } from '@@/shared/types/tauri/podcast-voices/index.types';
+export type { ITauriPodcastVoiceSampleResult, TPodcastVoiceRole } from '@@/shared/types/tauri/podcast-voices/index.types';
 export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

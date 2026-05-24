@@ -236,7 +236,7 @@
 <script setup lang="ts">
 import { VueDraggable } from 'vue-draggable-plus';
 
-import type { ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, ITauriPodcastVoicesState, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
+import type { ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 
 import type { ISettingsHotsearchPodcastScriptSettingsProps } from './index.types';
 
@@ -337,11 +337,6 @@ const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
 const stateTemplateDragging = ref(false);
 
 /**
- * 状态：Tauri 播客音色 catalog。
- */
-const stateTauriPodcastVoices = ref<ITauriPodcastVoicesState | null>(null);
-
-/**
  * 函数：判断模板片段列表是否一致。
  * @param {ISettingsHotsearchPodcastTemplateItem[]} left 左侧模板列表。
  * @param {ISettingsHotsearchPodcastTemplateItem[]} right 右侧模板列表。
@@ -382,42 +377,10 @@ watch(
  * 计算属性：播客音色选项。
  */
 const computedVoiceOptions = computed(() => {
-  const fallbackOptions = hotsearchPodcastVoiceOptionsGet().map((item) => ({
+  return hotsearchPodcastVoiceOptionsGet().map((item) => ({
     value: item.value,
     label: t(item.key)
   }));
-  const fallbackKeys = new Set(fallbackOptions.map((item) => item.value));
-  const catalogItems = stateTauriPodcastVoices.value?.items ?? [];
-
-  const resolvedOptions = catalogItems
-    .filter((item) => fallbackKeys.has(item.key as THotsearchPodcastVoiceKey))
-    .map((item) => ({
-      value: item.key as THotsearchPodcastVoiceKey,
-      label: item.name
-    }));
-
-  return resolvedOptions.length > 0 ? resolvedOptions : fallbackOptions;
-});
-
-/**
- * 函数：加载 Tauri 播客音色 catalog。
- * @returns {Promise<void>} 无返回值。
- */
-const loadTauriPodcastVoices = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    stateTauriPodcastVoices.value = null;
-    return;
-  }
-
-  try {
-    stateTauriPodcastVoices.value = await tauriPodcastVoices.stateGet();
-  } catch {
-    stateTauriPodcastVoices.value = null;
-  }
-};
-
-onMounted(() => {
-  void loadTauriPodcastVoices();
 });
 
 /**

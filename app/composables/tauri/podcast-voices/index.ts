@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
 
 /**
- * Hook：Tauri 播客音色元数据
- * 描述：统一封装 Desktop 壳侧的播客音色 catalog 读写命令。
- * @returns {object} 音色元数据方法
+ * Hook：Tauri 播客试听能力
+ * 描述：统一封装 Desktop 壳侧的首页固定播客预览读取与生成命令。
+ * @returns {object} 试听能力方法
  */
 export const useTauriPodcastVoices = () => {
   /**
-   * 函数：读取首页官方音色示例文件列表
+   * 函数：读取首页固定播客预览文件列表
    * @returns {Promise<ITauriPodcastVoiceSampleResult[]>} 音色示例结果
    */
   const samplesListGet = async (): Promise<ITauriPodcastVoiceSampleResult[]> => {
@@ -15,28 +15,11 @@ export const useTauriPodcastVoices = () => {
   };
 
   /**
-   * 函数：获取首页官方音色示例支持数量
-   * @returns {Promise<number>} 当前支持的官方音色数量
+   * 函数：获取首页固定播客预览支持数量
+   * @returns {Promise<number>} 当前支持的预览条目数量
    */
   const supportedCountGet = async (): Promise<number> => {
     return invoke<number>('podcast_voice_samples_supported_count_get');
-  };
-
-  /**
-   * 函数：获取播客音色状态
-   * @returns {Promise<ITauriPodcastVoicesState>} 音色状态
-   */
-  const stateGet = async (): Promise<ITauriPodcastVoicesState> => {
-    return invoke<ITauriPodcastVoicesState>('podcast_voices_state_get');
-  };
-
-  /**
-   * 函数：更新播客音色状态
-   * @param {ITauriPodcastVoicesState} state 音色状态
-   * @returns {Promise<ITauriPodcastVoicesState>} 写入后的音色状态
-   */
-  const stateUpdate = async (state: ITauriPodcastVoicesState): Promise<ITauriPodcastVoicesState> => {
-    return invoke<ITauriPodcastVoicesState>('podcast_voices_state_update', { state });
   };
 
   /**
@@ -51,8 +34,6 @@ export const useTauriPodcastVoices = () => {
   return {
     samplesGenerate,
     samplesListGet,
-    supportedCountGet,
-    stateGet,
-    stateUpdate
+    supportedCountGet
   };
 };
