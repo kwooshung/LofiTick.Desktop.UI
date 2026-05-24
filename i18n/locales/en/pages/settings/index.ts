@@ -350,10 +350,7 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: 'Random',
-        xiaoluo: 'Xiaoluo',
-        feifei: 'Feifei',
-        duet: 'Dual'
+        duet: 'Dual podcast'
       },
       podcastTemplate: {
         opening: 'Opening template',

@@ -350,10 +350,7 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: '隨機',
-        xiaoluo: '小洛',
-        feifei: '菲菲',
-        duet: '合'
+        duet: '雙人播客'
       },
       podcastTemplate: {
         opening: '開頭模板',

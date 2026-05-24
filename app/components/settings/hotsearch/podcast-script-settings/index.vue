@@ -716,7 +716,7 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
   const nextItems = [...stateTemplateItems.value];
   nextItems[index] = {
     ...nextItems[index],
-    voiceKey: nextSegmentType === 'adContent' ? 'random' : nextItems[index].voiceKey,
+    voiceKey: nextSegmentType === 'adContent' ? hotsearchPodcastVoiceOptionsGet()[0].value : nextItems[index].voiceKey,
     segmentType: nextSegmentType
   };
 
