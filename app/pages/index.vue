@@ -48,15 +48,7 @@
 
             <UAlert v-if="item.errorMessage" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.home.voicePreview.result.itemErrorTitle')" :description="item.errorMessage" />
 
-            <audio
-              v-else-if="computedVoicePreviewAudioUrls[item.key]"
-              :ref="(element) => handleVoicePreviewAudioElementRef(item.key, element)"
-              class="w-full"
-              controls
-              :src="computedVoicePreviewAudioUrls[item.key]"
-              preload="none"
-              @play="handleVoicePreviewAudioPlay(item.key)"
-            />
+            <audio v-else-if="computedVoicePreviewAudioUrls[item.key]" :ref="(element) => handleVoicePreviewAudioElementRef(item.key, element)" class="w-full" controls :src="computedVoicePreviewAudioUrls[item.key]" preload="none" @play="handleVoicePreviewAudioPlay(item.key)" />
           </UPageCard>
         </div>
       </UPageCard>
