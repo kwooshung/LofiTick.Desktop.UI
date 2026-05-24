@@ -24,7 +24,7 @@ export interface ITauriPodcastVoiceSampleResult {
   description: string;
 
   /**
-     * 试听角色。
+   * 试听角色。
    */
   role: TPodcastVoiceRole;
 
