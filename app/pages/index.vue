@@ -57,8 +57,6 @@
 </template>
 
 <script setup lang="ts">
-import { convertFileSrc } from '@tauri-apps/api/core';
-
 /**
  * 国际化：i18n
  */
@@ -102,7 +100,7 @@ const stateResultMessage = ref('');
 /**
  * 状态：音色示例输入文案
  */
-const stateVoicePreviewText = ref('亲爱的听众朋友们，大家好，我是小洛菲，欢迎收听今天的《洛菲热点播报》，首先感谢小米手机对本期节目的陪伴支持～不管是日常通勤刷资讯、宅家追更看视频，还是出门随手拍风景，小米全系机型都能适配各种生活场景，感谢小米手机对本节目的大力支持！');
+const stateVoicePreviewText = ref('今天想和你聊一件很多人都能共鸣的事：白天我们被海量消息推着走，到了晚上才发现，真正让人放不下的，不只是事件本身，而是这些变化会怎样落到每个人的生活里。');
 
 /**
  * 状态：音色示例结果列表
@@ -310,23 +308,6 @@ const voicePreviewUrlsHydrate = async (items: ITauriPodcastVoiceSampleResult[]):
       continue;
     }
 
-    if (item.audioFilePath && isTauriRuntime.value) {
-      try {
-        const assetUrl = convertFileSrc(item.audioFilePath);
-        const response = await fetch(assetUrl);
-        if (!response.ok) {
-          continue;
-        }
-
-        const blob = await response.blob();
-        nextUrls[item.key] = URL.createObjectURL(blob);
-      } catch {
-        continue;
-      }
-
-      continue;
-    }
-
     if (!item.audioBase64) {
       continue;
     }
@@ -361,8 +342,25 @@ const handleVoicePreviewGenerate = async (): Promise<void> => {
     }
 
     const results = await tauriPodcastVoices.samplesGenerate(String(stateVoicePreviewText.value || '').trim());
-    stateVoicePreviewResults.value = results;
-    await voicePreviewUrlsHydrate(results);
+    const resultMap = new Map(results.map((item) => [item.key, item]));
+
+    await loadVoicePreviewCards();
+
+    stateVoicePreviewResults.value = stateVoicePreviewResults.value.map((item) => {
+      const generated = resultMap.get(item.key);
+      if (!generated) {
+        return item;
+      }
+
+      if (!generated.errorMessage) {
+        return item;
+      }
+
+      return {
+        ...item,
+        errorMessage: generated.errorMessage
+      };
+    });
   } catch (error) {
     stateVoicePreviewResults.value = [];
     voicePreviewUrlsRevoke();
