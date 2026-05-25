@@ -70,6 +70,106 @@
           </VueDraggable>
         </section>
 
+        <section class="space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="text-highlighted text-sm font-semibold">{{ t('pages.home.podcastScript.adOpening.label') }}</h3>
+                <p class="text-muted mt-1 text-sm leading-6">{{ t('pages.home.podcastScript.adOpening.description') }}</p>
+              </div>
+
+              <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="statePodcastScriptLoading" @click="handlePodcastAdOpeningItemAppend">
+                {{ t('pages.home.podcastScript.adOpening.add') }}
+              </UButton>
+            </div>
+
+            <UEmpty v-if="statePodcastAdOpeningItems.length === 0" icon="i-lucide:audio-lines" :title="t('pages.home.podcastScript.adOpening.emptyTitle')" :description="t('pages.home.podcastScript.adOpening.emptyDescription')" />
+
+            <VueDraggable
+              v-else
+              v-model="statePodcastAdOpeningItems"
+              tag="div"
+              class="podcast-template-draggable"
+              target=".podcast-ad-opening-list"
+              :animation="240"
+              easing="cubic-bezier(0.22, 1, 0.36, 1)"
+              :disabled="statePodcastScriptLoading"
+              direction="vertical"
+              draggable=".podcast-template-item"
+              chosen-class="podcast-template-item-chosen"
+              drag-class="podcast-template-item-drag"
+              ghost-class="podcast-template-item-ghost"
+              handle=".podcast-template-handle"
+            >
+              <TransitionGroup tag="div" class="podcast-ad-opening-list space-y-3" type="transition" name="podcast-template-sort">
+                <div v-for="(item, index) in statePodcastAdOpeningItems" :key="`opening-${index}`" class="podcast-template-item flex items-center gap-2">
+                  <SettingsHotsearchPodcastScriptListItem
+                    :item="item"
+                    :disabled="statePodcastScriptLoading"
+                    editor-mode="advertisement"
+                    :voice-options="computedPodcastVoiceOptions"
+                    :segment-options="[]"
+                    :placeholder="t('pages.home.podcastScript.adOpening.placeholder')"
+                    :ad-content-placeholder="t('pages.home.podcastScript.adOpening.placeholder')"
+                    @update:voice-key="(value) => handlePodcastAdOpeningVoiceUpdate(index, value)"
+                    @update:content="(value) => handlePodcastAdOpeningContentUpdate(index, value)"
+                    @remove="handlePodcastAdOpeningItemRemove(index)"
+                  />
+                </div>
+              </TransitionGroup>
+            </VueDraggable>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="text-highlighted text-sm font-semibold">{{ t('pages.home.podcastScript.adClosing.label') }}</h3>
+                <p class="text-muted mt-1 text-sm leading-6">{{ t('pages.home.podcastScript.adClosing.description') }}</p>
+              </div>
+
+              <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="statePodcastScriptLoading" @click="handlePodcastAdClosingItemAppend">
+                {{ t('pages.home.podcastScript.adClosing.add') }}
+              </UButton>
+            </div>
+
+            <UEmpty v-if="statePodcastAdClosingItems.length === 0" icon="i-lucide:audio-lines" :title="t('pages.home.podcastScript.adClosing.emptyTitle')" :description="t('pages.home.podcastScript.adClosing.emptyDescription')" />
+
+            <VueDraggable
+              v-else
+              v-model="statePodcastAdClosingItems"
+              tag="div"
+              class="podcast-template-draggable"
+              target=".podcast-ad-closing-list"
+              :animation="240"
+              easing="cubic-bezier(0.22, 1, 0.36, 1)"
+              :disabled="statePodcastScriptLoading"
+              direction="vertical"
+              draggable=".podcast-template-item"
+              chosen-class="podcast-template-item-chosen"
+              drag-class="podcast-template-item-drag"
+              ghost-class="podcast-template-item-ghost"
+              handle=".podcast-template-handle"
+            >
+              <TransitionGroup tag="div" class="podcast-ad-closing-list space-y-3" type="transition" name="podcast-template-sort">
+                <div v-for="(item, index) in statePodcastAdClosingItems" :key="`closing-${index}`" class="podcast-template-item flex items-center gap-2">
+                  <SettingsHotsearchPodcastScriptListItem
+                    :item="item"
+                    :disabled="statePodcastScriptLoading"
+                    editor-mode="advertisement"
+                    :voice-options="computedPodcastVoiceOptions"
+                    :segment-options="[]"
+                    :placeholder="t('pages.home.podcastScript.adClosing.placeholder')"
+                    :ad-content-placeholder="t('pages.home.podcastScript.adClosing.placeholder')"
+                    @update:voice-key="(value) => handlePodcastAdClosingVoiceUpdate(index, value)"
+                    @update:content="(value) => handlePodcastAdClosingContentUpdate(index, value)"
+                    @remove="handlePodcastAdClosingItemRemove(index)"
+                  />
+                </div>
+              </TransitionGroup>
+            </VueDraggable>
+          </div>
+        </section>
+
         <div class="border-default space-y-4 rounded-xl border p-4">
           <div class="text-sm font-medium">
             {{ t('pages.home.podcastScript.actions.title') }}
@@ -114,7 +214,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageHomePodcastScriptBodyItem, IPageHomePodcastScriptGenerateResponse, IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload, TPageHomePodcastEdition, TPageHomePodcastLength, THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
+import type { IPageHomePodcastScriptAdvertisementItem, IPageHomePodcastScriptBodyItem, IPageHomePodcastScriptGenerateResponse, IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload, TPageHomePodcastEdition, TPageHomePodcastLength, THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 import { hotsearchPodcastSegmentOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils/hotsearch';
 import { VueDraggable } from 'vue-draggable-plus';
 
@@ -152,6 +252,18 @@ const createPodcastBodyItem = (voiceKey: THotsearchPodcastVoiceKey = 'M', conten
 });
 
 /**
+ * 函数：创建默认播客广告片段。
+ * @param {THotsearchPodcastVoiceKey} voiceKey 播报角色
+ * @param {string} content 文本内容
+ * @returns {IPageHomePodcastScriptAdvertisementItem} 默认广告片段
+ */
+const createPodcastAdvertisementItem = (voiceKey: THotsearchPodcastVoiceKey = 'M', content = ''): IPageHomePodcastScriptAdvertisementItem => ({
+  voiceKey,
+  content,
+  segmentType: 'adContent'
+});
+
+/**
  * 状态：默认收件邮箱。
  */
 const stateTargetEmail = 'kwooshung@qq.com';
@@ -175,6 +287,16 @@ const stateResultMessage = ref('');
  * 状态：当前脚本结果。
  */
 const statePodcastScriptDatas = ref<IPageHomePodcastScriptGenerateResponse | null>(null);
+
+/**
+ * 状态：广告开头测试内容。
+ */
+const statePodcastAdOpeningItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([createPodcastAdvertisementItem()]);
+
+/**
+ * 状态：广告结尾测试内容。
+ */
+const statePodcastAdClosingItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([createPodcastAdvertisementItem()]);
 
 /**
  * 状态：正文测试片段。
@@ -303,6 +425,20 @@ const buildPodcastScriptBodyItems = (): IPageHomePodcastScriptBodyItem[] =>
     .filter((item) => item.content.trim() !== '');
 
 /**
+ * 函数：构造广告请求片段。
+ * @param {IPageHomePodcastScriptAdvertisementItem[]} items 广告片段列表
+ * @returns {IPageHomePodcastScriptAdvertisementItem[]} 结构化广告片段列表
+ */
+const buildPodcastAdvertisementItems = (items: IPageHomePodcastScriptAdvertisementItem[]): IPageHomePodcastScriptAdvertisementItem[] =>
+  items
+    .map((item) => ({
+      voiceKey: item.voiceKey,
+      content: String(item.content ?? ''),
+      segmentType: 'adContent' as const
+    }))
+    .filter((item) => item.content.trim() !== '');
+
+/**
  * 事件：新增正文片段。
  * @returns {void} 无返回值
  */
@@ -352,6 +488,104 @@ const handlePodcastBodyItemContentUpdate = (index: number, value: string): void 
 };
 
 /**
+ * 事件：更新广告开头角色。
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdOpeningItemAppend = (): void => {
+  statePodcastAdOpeningItems.value.push(createPodcastAdvertisementItem());
+};
+
+/**
+ * 事件：移除广告开头片段。
+ * @param {number} index 片段索引
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdOpeningItemRemove = (index: number): void => {
+  statePodcastAdOpeningItems.value.splice(index, 1);
+};
+
+/**
+ * 事件：更新广告开头角色。
+ * @param {number} index 片段索引
+ * @param {THotsearchPodcastVoiceKey} value 角色值
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdOpeningVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  const item = statePodcastAdOpeningItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.voiceKey = value;
+};
+
+/**
+ * 事件：更新广告开头内容。
+ * @param {number} index 片段索引
+ * @param {string} value 文本内容
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdOpeningContentUpdate = (index: number, value: string): void => {
+  const item = statePodcastAdOpeningItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.content = value;
+};
+
+/**
+ * 事件：新增广告结尾片段。
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdClosingItemAppend = (): void => {
+  statePodcastAdClosingItems.value.push(createPodcastAdvertisementItem());
+};
+
+/**
+ * 事件：移除广告结尾片段。
+ * @param {number} index 片段索引
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdClosingItemRemove = (index: number): void => {
+  statePodcastAdClosingItems.value.splice(index, 1);
+};
+
+/**
+ * 事件：更新广告结尾角色。
+ * @param {number} index 片段索引
+ * @param {THotsearchPodcastVoiceKey} value 角色值
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdClosingVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  const item = statePodcastAdClosingItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.voiceKey = value;
+};
+
+/**
+ * 事件：更新广告结尾内容。
+ * @param {number} index 片段索引
+ * @param {string} value 文本内容
+ * @returns {void} 无返回值
+ */
+const handlePodcastAdClosingContentUpdate = (index: number, value: string): void => {
+  const item = statePodcastAdClosingItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.content = value;
+};
+
+/**
  * 事件：更新正文片段类型。
  * @param {number} index 片段索引
  * @param {ISettingsHotsearchPodcastSegmentType} value 片段类型
@@ -381,6 +615,8 @@ const handlePodcastScriptGenerate = async (edition: TPageHomePodcastEdition, len
     statePodcastScriptDatas.value = await hotsearchScript.build({
       edition,
       length,
+      adOpeningItems: buildPodcastAdvertisementItems(statePodcastAdOpeningItems.value),
+      adClosingItems: buildPodcastAdvertisementItems(statePodcastAdClosingItems.value),
       bodyItems: buildPodcastScriptBodyItems()
     });
   } finally {

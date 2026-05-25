@@ -56,6 +56,26 @@ export type TPageHomePodcastLength = 'short' | 'long';
 export type TPageHomePodcastBodySegmentType = Exclude<THotsearchPodcastSegmentType, 'adContent' | 'adPlaceholder'>;
 
 /**
+ * 接口：首页播客广告片段。
+ */
+export interface IPageHomePodcastScriptAdvertisementItem {
+  /**
+   * 播报角色。
+   */
+  voiceKey: THotsearchPodcastVoiceKey;
+
+  /**
+   * 文本内容。
+   */
+  content: string;
+
+  /**
+   * 片段类型。
+   */
+  segmentType: 'adContent';
+}
+
+/**
  * 接口：首页播客脚本生成请求。
  */
 export interface IPageHomePodcastScriptGenerateRequest {
@@ -68,6 +88,16 @@ export interface IPageHomePodcastScriptGenerateRequest {
    * 篇幅。
    */
   length: TPageHomePodcastLength;
+
+  /**
+   * 广告开头片段列表。
+   */
+  adOpeningItems: IPageHomePodcastScriptAdvertisementItem[];
+
+  /**
+   * 广告结尾片段列表。
+   */
+  adClosingItems: IPageHomePodcastScriptAdvertisementItem[];
 
   /**
    * 正文片段列表。

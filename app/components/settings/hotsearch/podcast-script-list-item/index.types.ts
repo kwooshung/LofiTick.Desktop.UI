@@ -60,6 +60,11 @@ export interface ISettingsHotsearchPodcastScriptListItemProps {
   showHandle?: boolean;
 
   /**
+   * 是否显示删除按钮。
+   */
+  showRemove?: boolean;
+
+  /**
    * 文本占位。
    */
   placeholder: string;

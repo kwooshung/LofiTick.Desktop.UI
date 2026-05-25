@@ -13,6 +13,22 @@ export const home = {
       emptyTitle: '还没有正文片段',
       emptyDescription: '先添加一条正文片段，再选择对应播报角色和片段类型。'
     },
+    adOpening: {
+      label: '播客开头广告内容',
+      description: '只影响本次首页测试；当开头模板里存在广告占位时，会优先用这里的内容替换。',
+      placeholder: '输入本次测试要插入的开头广告文案',
+      add: '新增开头广告片段',
+      emptyTitle: '还没有开头广告片段',
+      emptyDescription: '先添加一条开头广告片段，再设置不同角色和文案顺序。'
+    },
+    adClosing: {
+      label: '播客结尾广告内容',
+      description: '只影响本次首页测试；当结尾模板里存在广告占位时，会优先用这里的内容替换。',
+      placeholder: '输入本次测试要插入的结尾广告文案',
+      add: '新增结尾广告片段',
+      emptyTitle: '还没有结尾广告片段',
+      emptyDescription: '先添加一条结尾广告片段，再设置不同角色和文案顺序。'
+    },
     names: {
       maleLabel: '男播报者名称',
       femaleLabel: '女播报者名称',

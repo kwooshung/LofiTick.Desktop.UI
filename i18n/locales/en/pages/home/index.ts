@@ -13,6 +13,22 @@ export const home = {
       emptyTitle: 'No body segments yet',
       emptyDescription: 'Add a body segment first, then choose its speaker role and segment type.'
     },
+    adOpening: {
+      label: 'Opening Ad Copy',
+      description: 'This affects only the current homepage test. If the opening template contains an ad placeholder, this copy will override it first.',
+      placeholder: 'Enter the opening ad copy for this test',
+      add: 'Add Opening Ad Segment',
+      emptyTitle: 'No opening ad segments yet',
+      emptyDescription: 'Add an opening ad segment first, then arrange different speakers and copy in order.'
+    },
+    adClosing: {
+      label: 'Closing Ad Copy',
+      description: 'This affects only the current homepage test. If the closing template contains an ad placeholder, this copy will override it first.',
+      placeholder: 'Enter the closing ad copy for this test',
+      add: 'Add Closing Ad Segment',
+      emptyTitle: 'No closing ad segments yet',
+      emptyDescription: 'Add a closing ad segment first, then arrange different speakers and copy in order.'
+    },
     names: {
       maleLabel: 'Male speaker name',
       femaleLabel: 'Female speaker name',
