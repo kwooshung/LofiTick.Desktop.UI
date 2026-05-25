@@ -15,11 +15,11 @@ import type { THotsearchPlatformType } from '@@/shared/types/pages/settings/hots
  * - `/crons/hot_searches/{platform}` -> `IQueryResultHotSearchCronPlatformResponse`
  * - `/crons/hot_searches/all` -> `IQueryResultHotSearchCronAllResponse`
  * - `/hotsearch/rows/{id}` PATCH -> `IQueryResultHotSearchUpdateResponse`
- * - `/hotsearch/dates` GET -> `IHotsearchArchiveDateSummary[]`
+ * - `/hotsearch/dates?timezone=<IANA_TZ>` GET -> `IHotsearchArchiveDateSummary[]`
  * - `/hotsearch/dates/recount` -> `IQueryResultHotSearchDateRecountResponse`
  *
  * 说明：
- * - `/hotsearch/dates` 是热搜页面右上角日历使用的只读日期摘要接口。
+ * - `/hotsearch/dates` 是热搜页面右上角日历使用的只读日期摘要接口，需携带 `timezone` 以按本地业务日期聚合。
  * - `/hotsearch/dates/recount` 是管理侧按日期重算 `hot_search_dates.count` 的独立接口。
  */
 

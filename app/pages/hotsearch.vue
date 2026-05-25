@@ -203,6 +203,11 @@ const stateHasExplicitDateSelection = ref(false);
 const calendarTimeZone = getLocalTimeZone();
 
 /**
+ * 常量：热搜查询时区。
+ */
+const hotsearchQueryTimezone = hotsearchLocalTimezoneGet();
+
+/**
  * 状态：日期选择器是否打开。
  */
 const stateDatePickerOpen = ref(false);
@@ -264,6 +269,9 @@ const stateToolbarKeyword = ref('');
  * 它只用于热搜页面日历的只读日期摘要，不是管理侧的日期重算接口。
  */
 const { datas: stateHotsearchDateSummaries, refresh: refreshHotsearchDateSummariesGet } = await useApi<IHotsearchArchiveDateSummary[]>('hotsearch/dates', {
+  datas: {
+    timezone: hotsearchQueryTimezone
+  },
   immediate: true,
   server: false
 });
@@ -1012,7 +1020,12 @@ watch(stateDatePickerOpen, (open) => {
   }
 
   stateCalendarPlaceholder.value = stateHasExplicitDateSelection.value ? computedSelectedMonthValue.value : computedCalendarDefaultMonthValue.value;
-  void refreshHotsearchDateSummariesGet({ replace: true });
+  void refreshHotsearchDateSummariesGet({
+    datas: {
+      timezone: hotsearchQueryTimezone
+    },
+    replace: true
+  });
 });
 
 watch(

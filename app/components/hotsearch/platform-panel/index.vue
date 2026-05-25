@@ -99,6 +99,12 @@ const currentDateGet = (): string => {
 const selectedDateGet = (): string => hotsearchQueryStringGet(route.query.date) || currentDateGet();
 
 /**
+ * 函数：获取当前查询时区。
+ * @returns {string} IANA 时区名称。
+ */
+const currentTimezoneGet = (): string => hotsearchLocalTimezoneGet();
+
+/**
  * 函数：获取当前生效分页大小。
  * @returns {string} 分页大小文本。
  */
@@ -119,6 +125,7 @@ const currentPageSizeGet = (): string => {
 const buildApiQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   query.date = selectedDateGet();
+  query.timezone = currentTimezoneGet();
 
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {

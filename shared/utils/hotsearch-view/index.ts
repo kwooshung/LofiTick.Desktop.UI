@@ -1,5 +1,7 @@
 import type { IHotsearchArchiveDateSummary, IHotsearchDataRow, IHotsearchMediaPlatformOption, IHotsearchPodcastMediaAsset, IHotsearchPodcastSentence, IHotsearchPodcastViewModel, THotsearchMediaPlatformKey, THotsearchPlatformType, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
 
+import { getLocalTimeZone } from '@internationalized/date';
+
 import { hotsearchPlatformsList } from '../hotsearch';
 
 const HOTSEARCH_SAMPLE_TOPICS = [
@@ -100,6 +102,15 @@ export const hotsearchQueryStringGet = (value: string | null | Array<string | nu
 
   return String(value ?? '').trim();
 };
+
+/**
+ * 函数：获取热搜查询应附带的本地时区。
+ *
+ * # Returns
+ *
+ * 返回当前设备的 IANA 时区名称。
+ */
+export const hotsearchLocalTimezoneGet = (): string => getLocalTimeZone();
 
 /**
  * 函数：获取热搜日期归档摘要列表。
