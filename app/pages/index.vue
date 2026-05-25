@@ -214,7 +214,17 @@
 </template>
 
 <script setup lang="ts">
-import type { IPageHomePodcastScriptAdvertisementItem, IPageHomePodcastScriptBodyItem, IPageHomePodcastScriptGenerateResponse, IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload, TPageHomePodcastEdition, TPageHomePodcastLength, THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
+import type {
+  IPageHomePodcastScriptAdvertisementItem,
+  IPageHomePodcastScriptBodyItem,
+  IPageHomePodcastScriptGenerateResponse,
+  IPageHomeSendWelcomeEmailResponse,
+  IPageHomeWelcomeEmailPayload,
+  TPageHomePodcastEdition,
+  TPageHomePodcastLength,
+  THotsearchPodcastSegmentType,
+  THotsearchPodcastVoiceKey
+} from '@@/shared/types/index.types';
 import { hotsearchPodcastSegmentOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils/hotsearch';
 import { VueDraggable } from 'vue-draggable-plus';
 
