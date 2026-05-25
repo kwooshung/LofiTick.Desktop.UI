@@ -1,7 +1,7 @@
 <template>
   <Dashboard>
     <DashboardPage class="gap-6">
-      <UPageCard :title="t('pages.home.title')" :description="t('pages.home.welcomeEmail.description')" variant="naked" />
+      <UPageCard :title="t('pages.home.title')" :description="t('pages.home.podcastScript.description')" variant="naked" />
 
       <UPageCard variant="outline" :ui="{ container: 'space-y-5' }">
         <div class="flex flex-col gap-3">
@@ -19,129 +19,175 @@
         <UAlert v-if="stateResultVisible" :color="stateResultSuccess ? 'success' : 'error'" variant="soft" :title="stateResultSuccess ? t('pages.home.welcomeEmail.result.successTitle') : t('pages.home.welcomeEmail.result.errorTitle')" :description="stateResultMessage" />
       </UPageCard>
 
-      <UPageCard variant="outline" :title="t('pages.home.voicePreview.title')" :description="t('pages.home.voicePreview.description')" :ui="{ container: 'space-y-5' }">
-        <UFormField :label="t('pages.home.voicePreview.input.label')" :description="t('pages.home.voicePreview.input.description')">
-          <UTextarea v-model="stateVoicePreviewText" :rows="4" :placeholder="t('pages.home.voicePreview.input.placeholder')" class="w-full" />
-        </UFormField>
+      <UPageCard variant="outline" :title="t('pages.home.podcastScript.title')" :description="t('pages.home.podcastScript.editorDescription')" :ui="{ container: 'space-y-5' }">
+        <section class="space-y-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-highlighted text-sm font-semibold">{{ t('pages.home.podcastScript.body.label') }}</h3>
+              <p class="text-muted mt-1 text-sm leading-6">{{ t('pages.home.podcastScript.body.description') }}</p>
+            </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <UButton icon="i-lucide:audio-lines" color="primary" :loading="stateVoicePreviewLoading" :disabled="!computedCanGenerateVoicePreview" @click="handleVoicePreviewGenerate">
-            {{ t('pages.home.voicePreview.generate') }}
-          </UButton>
-          <UBadge color="neutral" variant="soft">
-            {{ t('pages.home.voicePreview.supportedCount', { count: computedVoicePreviewSupportedCount }) }}
-          </UBadge>
-        </div>
+            <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="statePodcastScriptLoading" @click="handlePodcastBodyItemAppend">
+              {{ t('pages.home.podcastScript.body.add') }}
+            </UButton>
+          </div>
 
-        <UAlert v-if="stateVoicePreviewErrorMessage" color="error" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.home.voicePreview.result.errorTitle')" :description="stateVoicePreviewErrorMessage" />
+          <UEmpty v-if="statePodcastScriptBodyItems.length === 0" icon="i-lucide:file-plus-2" :title="t('pages.home.podcastScript.body.emptyTitle')" :description="t('pages.home.podcastScript.body.emptyDescription')" />
 
-        <UEmpty v-if="!stateVoicePreviewLoading && stateVoicePreviewResults.length === 0" icon="i-lucide:audio-lines" :title="t('pages.home.voicePreview.empty.title')" :description="t('pages.home.voicePreview.empty.description')" />
-
-        <div v-else class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          <UPageCard v-for="item in stateVoicePreviewResults" :key="item.key" variant="subtle" :title="item.name" :description="item.description" :ui="{ container: 'space-y-4' }">
-            <template #footer>
-              <div class="flex items-center justify-between gap-3 text-xs">
-                <UBadge color="neutral" variant="outline">{{ item.role }}</UBadge>
-                <span class="text-muted">{{ item.key }}</span>
+          <VueDraggable
+            v-else
+            v-model="statePodcastScriptBodyItems"
+            tag="div"
+            class="podcast-template-draggable"
+            target=".podcast-template-list"
+            :animation="240"
+            easing="cubic-bezier(0.22, 1, 0.36, 1)"
+            :disabled="statePodcastScriptLoading"
+            direction="vertical"
+            draggable=".podcast-template-item"
+            chosen-class="podcast-template-item-chosen"
+            drag-class="podcast-template-item-drag"
+            ghost-class="podcast-template-item-ghost"
+            handle=".podcast-template-handle"
+          >
+            <TransitionGroup tag="div" class="podcast-template-list space-y-3" type="transition" name="podcast-template-sort">
+              <div v-for="(item, index) in statePodcastScriptBodyItems" :key="index" class="podcast-template-item flex items-center gap-2">
+                <SettingsHotsearchPodcastScriptListItem
+                  :item="item"
+                  :disabled="statePodcastScriptLoading"
+                  editor-mode="body"
+                  :voice-options="computedPodcastVoiceOptions"
+                  :segment-options="computedPodcastSegmentOptions"
+                  :placeholder="t('pages.home.podcastScript.body.placeholder')"
+                  :ad-content-placeholder="t('pages.home.podcastScript.body.placeholder')"
+                  @update:voice-key="(value) => handlePodcastBodyItemVoiceUpdate(index, value)"
+                  @update:content="(value) => handlePodcastBodyItemContentUpdate(index, value)"
+                  @update:segment-type="(value) => handlePodcastBodyItemSegmentTypeUpdate(index, value)"
+                  @remove="handlePodcastBodyItemRemove(index)"
+                />
               </div>
-            </template>
+            </TransitionGroup>
+          </VueDraggable>
+        </section>
 
-            <UAlert v-if="item.errorMessage" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.home.voicePreview.result.itemErrorTitle')" :description="item.errorMessage" />
-
-            <audio
-              v-else-if="computedVoicePreviewAudioUrls[item.key]"
-              :ref="(element: Element | globalThis.ComponentPublicInstance | null) => handleVoicePreviewAudioElementRef(item.key, element)"
-              class="w-full"
-              controls
-              :src="computedVoicePreviewAudioUrls[item.key]"
-              preload="none"
-              @play="handleVoicePreviewAudioPlay(item.key)"
-            />
-          </UPageCard>
+        <div class="border-default space-y-4 rounded-xl border p-4">
+          <div class="text-sm font-medium">
+            {{ t('pages.home.podcastScript.actions.title') }}
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <UButton v-for="mode in podcastScriptModes" :key="mode.key" color="primary" variant="soft" :disabled="!computedCanGeneratePodcastScript" :loading="statePodcastScriptLoading && stateGeneratingMode === mode.key" @click="handlePodcastScriptGenerate(mode.edition, mode.length)">
+              {{ t(mode.labelKey) }}
+            </UButton>
+          </div>
+          <div class="text-muted text-xs leading-6">
+            {{ t('pages.home.podcastScript.actions.tip') }}
+          </div>
         </div>
+      </UPageCard>
+
+      <UPageCard variant="outline" :title="t('pages.home.podcastScript.result.title')" :description="t('pages.home.podcastScript.result.description')" :ui="{ container: 'space-y-5' }">
+        <UEmpty v-if="!statePodcastScriptDatas" icon="i-lucide-file-audio" :title="t('pages.home.podcastScript.result.emptyTitle')" :description="t('pages.home.podcastScript.result.emptyDescription')" />
+
+        <template v-else>
+          <div class="flex flex-wrap items-center gap-3">
+            <UBadge color="primary" variant="soft">{{ statePodcastScriptDatas.title }}</UBadge>
+            <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.edition}`) }}</UBadge>
+            <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.length}`) }}</UBadge>
+          </div>
+
+          <div class="grid gap-4 xl:grid-cols-2">
+            <UPageCard v-for="(line, index) in statePodcastScriptDatas.lines" :key="`${line.speakerRole}-${line.segmentType}-${index}`" variant="subtle" :ui="{ container: 'space-y-3' }">
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <UBadge color="neutral" variant="soft">{{ line.speakerRole }}</UBadge>
+                <UBadge color="neutral" variant="outline">{{ line.segmentType }}</UBadge>
+                <UBadge color="neutral" variant="outline">{{ line.speaker }}</UBadge>
+              </div>
+              <div class="text-sm leading-6 whitespace-pre-wrap">
+                {{ line.text }}
+              </div>
+            </UPageCard>
+          </div>
+        </template>
       </UPageCard>
     </DashboardPage>
   </Dashboard>
 </template>
 
 <script setup lang="ts">
+import type { IPageHomePodcastScriptBodyItem, IPageHomePodcastScriptGenerateResponse, IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload, TPageHomePodcastEdition, TPageHomePodcastLength, THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
+import { hotsearchPodcastSegmentOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils/hotsearch';
+import { VueDraggable } from 'vue-draggable-plus';
+
 /**
  * 国际化：i18n
  */
 const { t, locale } = useI18n();
 
 /**
- * Hook：Tauri 环境
- */
-const { isTauriRuntime } = useTauriEnv();
-
-/**
- * Hook：Tauri 播客音色能力
- */
-const tauriPodcastVoices = useTauriPodcastVoices();
-
-/**
- * 函数：本地化路由
+ * 函数：本地化路由。
  */
 const localePath = useLocalePath();
 
 /**
- * 状态：默认收件邮箱
+ * 常量：脚本生成模式。
+ */
+const podcastScriptModes = [
+  { key: 'morning:short', edition: 'morning', length: 'short', labelKey: 'pages.home.podcastScript.actions.morningShort' },
+  { key: 'morning:long', edition: 'morning', length: 'long', labelKey: 'pages.home.podcastScript.actions.morningLong' },
+  { key: 'evening:short', edition: 'evening', length: 'short', labelKey: 'pages.home.podcastScript.actions.eveningShort' },
+  { key: 'evening:long', edition: 'evening', length: 'long', labelKey: 'pages.home.podcastScript.actions.eveningLong' }
+] as const;
+
+/**
+ * 函数：创建默认播客正文片段。
+ * @param {THotsearchPodcastVoiceKey} voiceKey 播报角色
+ * @param {string} content 文本内容
+ * @param {THotsearchPodcastSegmentType} segmentType 片段类型
+ * @returns {IPageHomePodcastScriptBodyItem} 默认正文片段
+ */
+const createPodcastBodyItem = (voiceKey: THotsearchPodcastVoiceKey = 'M', content = '', segmentType: THotsearchPodcastSegmentType = 'normal'): IPageHomePodcastScriptBodyItem => ({
+  voiceKey,
+  content,
+  segmentType
+});
+
+/**
+ * 状态：默认收件邮箱。
  */
 const stateTargetEmail = 'kwooshung@qq.com';
 
 /**
- * 状态：结果是否展示
+ * 状态：结果是否展示。
  */
 const stateResultVisible = ref(false);
 
 /**
- * 状态：结果是否成功
+ * 状态：结果是否成功。
  */
 const stateResultSuccess = ref(false);
 
 /**
- * 状态：结果文案
+ * 状态：结果文案。
  */
 const stateResultMessage = ref('');
 
 /**
- * 状态：音色示例输入文案
+ * 状态：当前脚本结果。
  */
-const stateVoicePreviewText = ref('今天想和你聊一件很多人都能共鸣的事：白天我们被海量消息推着走，到了晚上才发现，真正让人放不下的，不只是事件本身，而是这些变化会怎样落到每个人的生活里。');
+const statePodcastScriptDatas = ref<IPageHomePodcastScriptGenerateResponse | null>(null);
 
 /**
- * 状态：音色示例结果列表
+ * 状态：正文测试片段。
  */
-const stateVoicePreviewResults = ref<ITauriPodcastVoiceSampleResult[]>([]);
+const statePodcastScriptBodyItems = ref<IPageHomePodcastScriptBodyItem[]>([createPodcastBodyItem('M', '今天先带你看一下早报主线。'), createPodcastBodyItem('F', '我们再把其中最值得展开的重点讲清楚。'), createPodcastBodyItem('D', '如果你只想快速听结论，这一段就是给你的摘要。')]);
 
 /**
- * 状态：官方音色真实支持数量
+ * 状态：当前生成模式。
  */
-const stateVoicePreviewSupportedCount = ref(0);
+const stateGeneratingMode = ref('');
 
 /**
- * 状态：音色示例是否正在生成
- */
-const stateVoicePreviewLoading = ref(false);
-
-/**
- * 状态：音色示例全局错误信息
- */
-const stateVoicePreviewErrorMessage = ref('');
-
-/**
- * 状态：音色示例播放地址映射
- */
-const stateVoicePreviewAudioUrls = ref<Record<string, string>>({});
-
-/**
- * 变量：首页音频元素映射
- */
-const voicePreviewAudioElements = new Map<string, HTMLAudioElement>();
-
-/**
- * API：生成欢迎邮件
+ * API：生成欢迎邮件。
  */
 const {
   datas: stateWelcomeEmailDatas,
@@ -153,7 +199,7 @@ const {
 });
 
 /**
- * API：发送邮件
+ * API：发送邮件。
  */
 const {
   datas: stateEmailSendDatas,
@@ -165,58 +211,47 @@ const {
 });
 
 /**
- * 计算属性：是否正在发送
+ * Hook：热搜播客脚本。
+ */
+const hotsearchScript = useTauriHotsearchScript();
+
+/**
+ * 状态：是否正在生成脚本。
+ */
+const statePodcastScriptLoading = ref(false);
+
+/**
+ * 计算属性：是否正在发送。
  */
 const computedSending = computed(() => stateWelcomeEmailLoading.value || stateEmailSendLoading.value);
 
 /**
- * 计算属性：是否允许生成音色示例
+ * 计算属性：播报角色选项。
  */
-const computedCanGenerateVoicePreview = computed(() => String(stateVoicePreviewText.value || '').trim() !== '' && !stateVoicePreviewLoading.value);
+const computedPodcastVoiceOptions = computed(() =>
+  hotsearchPodcastVoiceOptionsGet().map((item) => ({
+    value: item.value,
+    label: t(item.key)
+  }))
+);
 
 /**
- * 计算属性：官方音色支持数量
+ * 计算属性：片段类型选项。
  */
-const computedVoicePreviewSupportedCount = computed(() => {
-  return stateVoicePreviewSupportedCount.value || stateVoicePreviewResults.value.length;
-});
+const computedPodcastSegmentOptions = computed(() =>
+  hotsearchPodcastSegmentOptionsGet('body').map((item) => ({
+    value: item.value,
+    label: t(item.key)
+  }))
+);
 
 /**
- * 计算属性：音色示例播放地址映射
+ * 计算属性：是否允许生成播客脚本。
  */
-const computedVoicePreviewAudioUrls = computed(() => stateVoicePreviewAudioUrls.value);
+const computedCanGeneratePodcastScript = computed(() => statePodcastScriptBodyItems.value.some((item) => String(item.content || '').trim() !== '') && !statePodcastScriptLoading.value);
 
 /**
- * 函数：加载首页官方音色示例卡片
- * @returns {Promise<void>} 无返回值
- */
-const loadVoicePreviewCards = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    stateVoicePreviewResults.value = [];
-    voicePreviewUrlsRevoke();
-    return;
-  }
-
-  const results = await tauriPodcastVoices.samplesListGet();
-  stateVoicePreviewResults.value = results;
-  await voicePreviewUrlsHydrate(results);
-};
-
-/**
- * 函数：加载首页官方音色真实支持数量
- * @returns {Promise<void>} 无返回值
- */
-const loadVoicePreviewSupportedCount = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    stateVoicePreviewSupportedCount.value = 0;
-    return;
-  }
-
-  stateVoicePreviewSupportedCount.value = await tauriPodcastVoices.supportedCountGet();
-};
-
-/**
- * 事件：发送欢迎邮件
+ * 事件：发送欢迎邮件。
  */
 const handleSendWelcomeEmail = async (): Promise<void> => {
   stateResultVisible.value = false;
@@ -255,151 +290,112 @@ const handleSendWelcomeEmail = async (): Promise<void> => {
 };
 
 /**
- * 函数：释放旧的音色示例播放地址
+ * 函数：构造正文请求片段。
+ * @returns {IPageHomePodcastScriptBodyItem[]} 结构化正文片段
  */
-const voicePreviewUrlsRevoke = (): void => {
-  for (const element of voicePreviewAudioElements.values()) {
-    element.pause();
-  }
+const buildPodcastScriptBodyItems = (): IPageHomePodcastScriptBodyItem[] =>
+  statePodcastScriptBodyItems.value
+    .map((item) => ({
+      voiceKey: item.voiceKey,
+      content: String(item.content ?? ''),
+      segmentType: item.segmentType
+    }))
+    .filter((item) => item.content.trim() !== '');
 
-  voicePreviewAudioElements.clear();
-
-  for (const url of Object.values(stateVoicePreviewAudioUrls.value)) {
-    if (url.startsWith('blob:')) {
-      URL.revokeObjectURL(url);
-    }
-  }
-
-  stateVoicePreviewAudioUrls.value = {};
+/**
+ * 事件：新增正文片段。
+ * @returns {void} 无返回值
+ */
+const handlePodcastBodyItemAppend = (): void => {
+  statePodcastScriptBodyItems.value.push(createPodcastBodyItem());
 };
 
 /**
- * 函数：登记首页音频元素引用
- * @param {string} key 音色键
- * @param {Element | ComponentPublicInstance | null} element 音频元素
+ * 事件：移除正文片段。
+ * @param {number} index 片段索引
  * @returns {void} 无返回值
  */
-const handleVoicePreviewAudioElementRef = (key: string, element: Element | ComponentPublicInstance | null): void => {
-  if (element instanceof HTMLAudioElement) {
-    voicePreviewAudioElements.set(key, element);
+const handlePodcastBodyItemRemove = (index: number): void => {
+  statePodcastScriptBodyItems.value.splice(index, 1);
+};
+
+/**
+ * 事件：更新正文片段角色。
+ * @param {number} index 片段索引
+ * @param {THotsearchPodcastVoiceKey} value 角色值
+ * @returns {void} 无返回值
+ */
+const handlePodcastBodyItemVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  const item = statePodcastScriptBodyItems.value[index];
+
+  if (!item) {
     return;
   }
 
-  voicePreviewAudioElements.delete(key);
+  item.voiceKey = value;
 };
 
 /**
- * 函数：暂停其他首页音频
- * @param {string} activeKey 当前正在播放的音色键
+ * 事件：更新正文片段内容。
+ * @param {number} index 片段索引
+ * @param {string} value 文本内容
  * @returns {void} 无返回值
  */
-const handleVoicePreviewAudioPlay = (activeKey: string): void => {
-  for (const [key, element] of voicePreviewAudioElements.entries()) {
-    if (key !== activeKey) {
-      element.pause();
-    }
-  }
-};
+const handlePodcastBodyItemContentUpdate = (index: number, value: string): void => {
+  const item = statePodcastScriptBodyItems.value[index];
 
-/**
- * 函数：把 Base64 音频转成浏览器可播放地址
- * @param {ITauriPodcastVoiceSampleResult[]} items 音色示例结果
- * @returns {void} 无返回值
- */
-const voicePreviewUrlsHydrate = async (items: ITauriPodcastVoiceSampleResult[]): Promise<void> => {
-  voicePreviewUrlsRevoke();
-
-  const nextUrls: Record<string, string> = {};
-
-  for (const item of items) {
-    if (item.errorMessage) {
-      continue;
-    }
-
-    if (!item.audioBase64) {
-      continue;
-    }
-
-    const binary = atob(item.audioBase64);
-    const bytes = new Uint8Array(binary.length);
-
-    for (let index = 0; index < binary.length; index += 1) {
-      bytes[index] = binary.charCodeAt(index);
-    }
-
-    nextUrls[item.key] = URL.createObjectURL(new Blob([bytes], { type: item.mimeType || 'audio/mpeg' }));
-  }
-
-  stateVoicePreviewAudioUrls.value = nextUrls;
-};
-
-/**
- * 事件：生成全部支持音色的示例音频
- */
-const handleVoicePreviewGenerate = async (): Promise<void> => {
-  if (!computedCanGenerateVoicePreview.value) {
+  if (!item) {
     return;
   }
 
-  stateVoicePreviewErrorMessage.value = '';
-  stateVoicePreviewLoading.value = true;
+  item.content = value;
+};
+
+/**
+ * 事件：更新正文片段类型。
+ * @param {number} index 片段索引
+ * @param {ISettingsHotsearchPodcastSegmentType} value 片段类型
+ * @returns {void} 无返回值
+ */
+const handlePodcastBodyItemSegmentTypeUpdate = (index: number, value: THotsearchPodcastSegmentType): void => {
+  const item = statePodcastScriptBodyItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.segmentType = value;
+};
+
+/**
+ * 事件：生成播客脚本。
+ * @param {'morning' | 'evening'} edition 时段
+ * @param {'short' | 'long'} length 篇幅
+ * @returns {Promise<void>} 无返回值
+ */
+const handlePodcastScriptGenerate = async (edition: TPageHomePodcastEdition, length: TPageHomePodcastLength): Promise<void> => {
+  stateGeneratingMode.value = `${edition}:${length}`;
+  statePodcastScriptLoading.value = true;
 
   try {
-    if (!isTauriRuntime.value) {
-      throw new Error(t('pages.home.voicePreview.result.notTauri'));
-    }
-
-    const results = await tauriPodcastVoices.samplesGenerate(String(stateVoicePreviewText.value || '').trim());
-    const resultMap = new Map(results.map((item) => [item.key, item]));
-
-    await loadVoicePreviewCards();
-
-    stateVoicePreviewResults.value = stateVoicePreviewResults.value.map((item) => {
-      const generated = resultMap.get(item.key);
-      if (!generated) {
-        return item;
-      }
-
-      if (!generated.errorMessage) {
-        return item;
-      }
-
-      return {
-        ...item,
-        errorMessage: generated.errorMessage
-      };
+    statePodcastScriptDatas.value = await hotsearchScript.build({
+      edition,
+      length,
+      bodyItems: buildPodcastScriptBodyItems()
     });
-  } catch (error) {
-    stateVoicePreviewResults.value = [];
-    voicePreviewUrlsRevoke();
-    stateVoicePreviewErrorMessage.value = error instanceof Error ? error.message : t('pages.home.voicePreview.result.error');
   } finally {
-    stateVoicePreviewLoading.value = false;
+    statePodcastScriptLoading.value = false;
+    stateGeneratingMode.value = '';
   }
 };
 
 /**
- * 生命周期：页面卸载
- */
-onBeforeUnmount(() => {
-  voicePreviewUrlsRevoke();
-});
-
-/**
- * 生命周期：页面挂载
- */
-onMounted(async () => {
-  await loadVoicePreviewSupportedCount();
-  await loadVoicePreviewCards();
-});
-
-/**
- * Store：面包屑
+ * Store：面包屑。
  */
 const storeBreadcrumb = useStoreBreadcrumb();
 
 /**
- * 设置面包屑导航状态
+ * 设置面包屑导航状态。
  */
 storeBreadcrumb.states = [
   {

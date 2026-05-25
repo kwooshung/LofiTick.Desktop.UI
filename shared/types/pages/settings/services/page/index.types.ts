@@ -16,6 +16,16 @@ export interface ISettingsServiceVolcSpeech {
    * 豆包语音 Resource ID。
    */
   resourceId: string;
+
+  /**
+   * 男声音色代码。
+   */
+  maleSpeakerCode: string;
+
+  /**
+   * 女声音色代码。
+   */
+  femaleSpeakerCode: string;
 }
 
 /**

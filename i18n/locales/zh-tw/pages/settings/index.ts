@@ -47,6 +47,16 @@ export const settings = {
         label: 'Resource ID',
         description: '預設值適用於目前的 Podcast 介面；只有在服務端要求切換資源時才需要修改。',
         placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男聲音色代碼',
+        description: '用於把 M 和 D 中的男聲映射成豆包真實 speaker code。',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女聲音色代碼',
+        description: '用於把 F 和 D 中的女聲映射成豆包真實 speaker code。',
+        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }
   },
@@ -217,7 +227,7 @@ export const settings = {
       },
       podcast: {
         title: 'Podcast 文案',
-        description: '這裡配置節目名稱、播報者姓名，以及分開維護的開頭模板和結尾模板；正文由程式自動生成。'
+        description: '這裡配置播報者姓名、節目名稱，以及播客開頭和結尾模板；正文由程式自動生成。'
       },
       platforms: {
         title: '平台選擇',
@@ -239,13 +249,13 @@ export const settings = {
       },
       podcastMaleSpeakerName: {
         label: '男生播報者姓名',
-        description: '用於變數替換中的男生姓名，預設是小洛。',
-        placeholder: '例如：小洛'
+        description: '用於變數替換中的男生姓名，預設是男聲主播。',
+        placeholder: '例如：男聲主播'
       },
       podcastFemaleSpeakerName: {
         label: '女生播報者姓名',
-        description: '用於變數替換中的女生姓名，預設是菲菲。',
-        placeholder: '例如：菲菲'
+        description: '用於變數替換中的女生姓名，預設是女聲主播。',
+        placeholder: '例如：女聲主播'
       },
       podcastProgramNames: {
         label: '節目名稱',
@@ -350,10 +360,9 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: '隨機',
-        xiaoluo: '小洛',
-        feifei: '菲菲',
-        duet: '合'
+        M: '男聲',
+        F: '女聲',
+        D: '合'
       },
       podcastTemplate: {
         opening: '開頭模板',
@@ -363,9 +372,8 @@ export const settings = {
         normal: '通用內容',
         morningOnly: '僅早間',
         eveningOnly: '僅晚間',
-        adOpening: '廣告開頭',
         adContent: '廣告內容',
-        adClosing: '廣告結尾'
+        adPlaceholder: '廣告佔位'
       }
     },
     variables: {

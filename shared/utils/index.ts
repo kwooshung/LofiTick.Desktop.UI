@@ -6,6 +6,7 @@ export {
   hotsearchEstimatedDayPointsGet,
   hotsearchEstimatedMonthPointsGet,
   hotsearchPlatformsList,
+  hotsearchPodcastAdPlaceholderIs,
   hotsearchPodcastSegmentOptionsGet,
   hotsearchPodcastTemplateItemDefaultCreate,
   hotsearchPodcastTemplateOptionsGet,
@@ -22,6 +23,6 @@ export { ONEPANEL_CRON_LIBRARY_PATH, ONEPANEL_CRONJOBS_PATH, ONEPANEL_PANEL_BASE
 export { calcPagination } from './pagination';
 export type { ISqlOptionsPagination, ISqlResultPagination } from './pagination/index.types';
 export { quoteTypes } from './quotes';
-export { DEFAULT_SIGN_BLOB_COOKIE_NAME, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH, SIGN_REFRESH_BLOB_PREFIX, getPublicSignAesSeedFromConfig, pickSignRefreshBlob, resolveSignBlobCookieName, stripSignRefreshAttach } from './sign';
 export type { IResolveSignBlobCookieNameArgs } from './sign';
+export { DEFAULT_SIGN_BLOB_COOKIE_NAME, getPublicSignAesSeedFromConfig, pickSignRefreshBlob, resolveSignBlobCookieName, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_BLOB_PREFIX, SIGN_REFRESH_PATH, stripSignRefreshAttach } from './sign';
 export { chineseCount, ensureChineseSentence, isChinese, isPrimarilyChinese, normalizeChineseText, toChinesePunctuation } from './string';

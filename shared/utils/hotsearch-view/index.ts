@@ -274,7 +274,7 @@ export const hotsearchPodcastViewGet = (date: string, variant: THotsearchPodcast
     ...item,
     disabled: !supportedPlatforms.includes(item.key)
   }));
-  const speakers = variant.startsWith('morning') ? ['小洛', '菲菲'] : ['菲菲', '小洛'];
+  const speakers = variant.startsWith('morning') ? ['男声主播', '女声主播'] : ['女声主播', '男声主播'];
   const prefix = variant.startsWith('morning') ? '早报' : '晚报';
   const lengthLabel = variant.endsWith('short') ? '短篇' : '长篇';
   const sentences: IHotsearchPodcastSentence[] = Array.from({ length: variant.endsWith('short') ? 5 : 8 }, (_, index) => {
@@ -282,7 +282,7 @@ export const hotsearchPodcastViewGet = (date: string, variant: THotsearchPodcast
 
     return {
       id: `${variant}-${index + 1}`,
-      speakerName: speakers[index % speakers.length] ?? '小洛',
+      speakerName: speakers[index % speakers.length] ?? '男声主播',
       text: `${prefix}${lengthLabel}第 ${index + 1} 句脚本，当前平台为 ${selectedPlatformKey === 'general' ? '通用版本' : selectedPlatformKey}，这里会替换成真实播报文案与广告片段。`,
       durationLabel: `${sample.durationSeconds}s`,
       audioUrl: sample.src,

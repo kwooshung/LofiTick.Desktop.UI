@@ -47,6 +47,16 @@ export const settings = {
         label: 'Resource ID',
         description: '既定値は現在の Podcast エンドポイント向けです。サービス側から別のリソース指定を求められた場合のみ変更してください。',
         placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男性音声コード',
+        description: 'M と D に含まれる男性音声を、Doubao の実際の speaker code にマッピングします。',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女性音声コード',
+        description: 'F と D に含まれる女性音声を、Doubao の実際の speaker code にマッピングします。',
+        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }
   },
@@ -217,7 +227,7 @@ export const settings = {
       },
       podcast: {
         title: 'Podcast 文案',
-        description: '番組名、読み手の名前、そして分かれた導入テンプレートと締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
+        description: '読み手名、番組名、そして Podcast の導入・締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
       },
       platforms: {
         title: 'プラットフォーム',
@@ -239,13 +249,13 @@ export const settings = {
       },
       podcastMaleSpeakerName: {
         label: '男性読み手の名前',
-        description: '変数置換で使う男性読み手の名前です。初期値は小洛です。',
-        placeholder: '例：小洛'
+        description: '変数置換で使う男性読み手の名前です。初期値は男性ナレーターです。',
+        placeholder: '例：男性ナレーター'
       },
       podcastFemaleSpeakerName: {
         label: '女性読み手の名前',
-        description: '変数置換で使う女性読み手の名前です。初期値は菲菲です。',
-        placeholder: '例：菲菲'
+        description: '変数置換で使う女性読み手の名前です。初期値は女性ナレーターです。',
+        placeholder: '例：女性ナレーター'
       },
       podcastProgramNames: {
         label: '番組名',
@@ -350,10 +360,9 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: 'ランダム',
-        xiaoluo: 'XiaoLuo',
-        feifei: 'Feifei',
-        duet: '合'
+        M: '男性',
+        F: '女性',
+        D: '合'
       },
       podcastTemplate: {
         opening: '導入テンプレート',
@@ -363,9 +372,8 @@ export const settings = {
         normal: '共通内容',
         morningOnly: '朝のみ',
         eveningOnly: '夜のみ',
-        adOpening: '広告導入',
         adContent: '広告内容',
-        adClosing: '広告締め'
+        adPlaceholder: '広告プレースホルダー'
       }
     },
     variables: {

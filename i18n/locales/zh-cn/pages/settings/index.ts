@@ -47,6 +47,16 @@
         label: 'Resource ID',
         description: '默认值适用于当前播客接口；只有服务侧要求切换资源时才需要修改。',
         placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男声音色代码',
+        description: '用于把 M 和 D 中的男声映射成豆包真实 speaker code。',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女声音色代码',
+        description: '用于把 F 和 D 中的女声映射成豆包真实 speaker code。',
+        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }
   },
@@ -239,13 +249,13 @@
       },
       podcastMaleSpeakerName: {
         label: '男生播报者姓名',
-        description: '用于变量替换中的男生姓名，默认是小洛。',
-        placeholder: '例如：小洛'
+        description: '用于变量替换中的男生姓名，默认是男声主播。',
+        placeholder: '例如：男声主播'
       },
       podcastFemaleSpeakerName: {
         label: '女生播报者姓名',
-        description: '用于变量替换中的女生姓名，默认是菲菲。',
-        placeholder: '例如：菲菲'
+        description: '用于变量替换中的女生姓名，默认是女声主播。',
+        placeholder: '例如：女声主播'
       },
       podcastProgramNames: {
         label: '节目名称',
@@ -350,10 +360,9 @@
     },
     options: {
       podcastVoice: {
-        random: '随机',
-        xiaoluo: '小洛',
-        feifei: '菲菲',
-        duet: '合'
+        M: '男声',
+        F: '女声',
+        D: '合'
       },
       podcastTemplate: {
         opening: '开头模板',
@@ -363,9 +372,8 @@
         normal: '通用内容',
         morningOnly: '仅早间',
         eveningOnly: '仅晚间',
-        adOpening: '广告开头',
         adContent: '广告内容',
-        adClosing: '广告结尾'
+        adPlaceholder: '广告占位'
       }
     },
     variables: {

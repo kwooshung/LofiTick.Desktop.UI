@@ -1,24 +1,45 @@
 export const home = {
   title: 'Home',
-  voicePreview: {
-    title: 'Voice Sample Generator',
-    description: 'Enter a script and generate preview audio for every currently supported voice in one click.',
-    generate: 'Generate All Voice Samples',
-    supportedCount: 'Current result count: {count}',
-    input: {
-      label: 'Preview Script',
-      description: 'This script is sent to the desktop shell and rendered once for each supported voice.',
-      placeholder: 'For example: Today we are previewing every currently supported LofiTick voice.'
+  podcastScript: {
+    title: 'Podcast Script Sandbox',
+    description: 'This page no longer generates voice samples. It is now a temporary sandbox for assembling hot-search podcast copy into a Doubao-ready script.',
+    editorDescription: 'The initial values are loaded from Settings > Hot Search. Changes here affect only the current test session and are not auto-saved.',
+    templateCount: 'Template segment count: {count}',
+    body: {
+      label: 'Podcast Body',
+      description: 'Add body segments one by one. This area is always the body editor, so you only need to fill the copy, speaker role, and segment type.',
+      placeholder: 'Enter the body copy for this segment',
+      add: 'Add Body Segment',
+      emptyTitle: 'No body segments yet',
+      emptyDescription: 'Add a body segment first, then choose its speaker role and segment type.'
     },
-    empty: {
-      title: 'No voice samples yet',
-      description: 'Enter a script first, then click the generate button.'
+    names: {
+      maleLabel: 'Male speaker name',
+      femaleLabel: 'Female speaker name',
+      morningLabel: 'Morning program name',
+      eveningLabel: 'Evening program name',
+      vipMorningLabel: 'Long morning program name',
+      vipEveningLabel: 'Long evening program name'
+    },
+    actions: {
+      title: 'Generate Modes',
+      morningShort: 'Generate Morning Brief (Short)',
+      morningLong: 'Generate Morning Brief (Long)',
+      eveningShort: 'Generate Evening Brief (Short)',
+      eveningLong: 'Generate Evening Brief (Long)',
+      tip: 'This homepage is only a script sandbox, not the final homepage design.'
+    },
+    badges: {
+      morning: 'Morning',
+      evening: 'Evening',
+      short: 'Short',
+      long: 'Long'
     },
     result: {
-      errorTitle: 'Generation Failed',
-      itemErrorTitle: 'This voice failed to generate',
-      error: 'Failed to generate voice samples. Check the service credentials or the desktop shell response.',
-      notTauri: 'The current runtime is not Tauri, so voice samples cannot be generated directly.'
+      title: 'Generated Result',
+      description: 'The response is already the final speaker + text line array that can be sent directly to the Volc podcast engine.',
+      emptyTitle: 'No script generated yet',
+      emptyDescription: 'Adjust the copy first, then click one of the four generate buttons above.'
     }
   },
   welcomeEmail: {

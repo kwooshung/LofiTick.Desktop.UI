@@ -6,7 +6,7 @@ export type THotsearchPlatformType = 'baidu' | 'sina' | 'sina-news' | 'weibo' | 
 /**
  * 类型：热搜播客音色标识。
  */
-export type THotsearchPodcastVoiceKey = 'random' | 'xiaoluo' | 'feifei' | 'duet';
+export type THotsearchPodcastVoiceKey = 'M' | 'F' | 'D';
 
 /**
  * 类型：热搜播客模板类型。
@@ -16,7 +16,12 @@ export type THotsearchPodcastTemplateType = 'opening' | 'closing';
 /**
  * 类型：热搜播客文案类型。
  */
-export type THotsearchPodcastSegmentType = 'normal' | 'morningOnly' | 'eveningOnly' | 'adOpening' | 'adContent' | 'adClosing';
+export type THotsearchPodcastSegmentType = 'normal' | 'morningOnly' | 'eveningOnly' | 'adContent' | 'adPlaceholder';
+
+/**
+ * 类型：热搜播客模板文案类型。
+ */
+export type THotsearchPodcastTemplateSegmentType = Exclude<THotsearchPodcastSegmentType, 'adContent'>;
 
 /**
  * 接口：热搜播客模板片段。
@@ -35,7 +40,7 @@ export interface ISettingsHotsearchPodcastTemplateItem {
   /**
    * 文案类型。
    */
-  segmentType: THotsearchPodcastSegmentType;
+  segmentType: THotsearchPodcastTemplateSegmentType;
 
   /**
    * 模板类型。

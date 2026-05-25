@@ -1,9 +1,9 @@
 import type { ISettingsHotsearchPodcastTemplateItem } from '@@/shared/types/index.types';
 
 /**
- * 类型：热搜播客文案设置属性。
+ * 类型：热搜播客文案列表属性。
  */
-export interface ISettingsHotsearchPodcastScriptSettingsProps {
+export interface ISettingsHotsearchPodcastScriptListProps {
   /**
    * 是否禁用交互。
    */

@@ -1,24 +1,45 @@
 export const home = {
   title: '首页',
-  voicePreview: {
-    title: '音色示例生成',
-    description: '输入一段文案后，点击按钮即可按当前支持的音色批量生成试听案例。',
-    generate: '生成全部音色示例',
-    supportedCount: '当前结果数：{count}',
-    input: {
-      label: '示例文案',
-      description: '这段文案会被送入桌面壳，按全部支持音色分别生成示例声音。',
-      placeholder: '例如：今天的洛菲音色示例开始了，下面请依次试听当前支持的播报音色。'
+  podcastScript: {
+    title: '播客脚本测试区',
+    description: '这里不再生成音色示例，只用于临时测试热搜播客文案如何拼成豆包脚本。',
+    editorDescription: '会先读取“设置 > 热搜”的配置作为初始值。这里的改动只影响本次测试，不会自动保存回设置页。',
+    templateCount: '当前模板片段：{count}',
+    body: {
+      label: '播客正文',
+      description: '逐条添加正文片段；这里固定就是正文编辑，只需要填写内容、选择角色和片段类型。',
+      placeholder: '输入这一段要播报的正文内容',
+      add: '新增正文片段',
+      emptyTitle: '还没有正文片段',
+      emptyDescription: '先添加一条正文片段，再选择对应播报角色和片段类型。'
     },
-    empty: {
-      title: '还没有音色示例',
-      description: '先输入一段文案，然后点击生成按钮。'
+    names: {
+      maleLabel: '男播报者名称',
+      femaleLabel: '女播报者名称',
+      morningLabel: '早报名称',
+      eveningLabel: '晚报名称',
+      vipMorningLabel: '长篇早报名称',
+      vipEveningLabel: '长篇晚报名称'
+    },
+    actions: {
+      title: '生成模式',
+      morningShort: '生成早报（短篇）',
+      morningLong: '生成早报（长篇）',
+      eveningShort: '生成晚报（短篇）',
+      eveningLong: '生成晚报（长篇）',
+      tip: '首页只做脚本测试，不负责最终首页视觉。'
+    },
+    badges: {
+      morning: '早间',
+      evening: '晚间',
+      short: '短篇',
+      long: '长篇'
     },
     result: {
-      errorTitle: '生成失败',
-      itemErrorTitle: '当前音色生成失败',
-      error: '音色示例生成失败，请检查服务凭证或桌面壳返回。',
-      notTauri: '当前不是 Tauri 运行环境，无法直接生成音色示例。'
+      title: '生成结果',
+      description: '返回结构已经是最终可直接喂给豆包播客引擎的 speaker + text 行数组。',
+      emptyTitle: '还没有生成脚本',
+      emptyDescription: '先调整文案，再点上面的四个生成按钮。'
     }
   },
   welcomeEmail: {

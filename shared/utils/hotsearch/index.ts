@@ -1,4 +1,13 @@
-import type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
+import type {
+  ISettingsHotsearch,
+  ISettingsHotsearchPlatformItem,
+  ISettingsHotsearchPodcastTemplateItem,
+  THotsearchPlatformType,
+  THotsearchPodcastSegmentType,
+  THotsearchPodcastTemplateSegmentType,
+  THotsearchPodcastTemplateType,
+  THotsearchPodcastVoiceKey
+} from '@@/shared/types/pages/settings/hotsearch/index.types';
 
 /**
  * 常量：热搜官网用量地址。
@@ -34,9 +43,9 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 /**
  * 常量：热搜播客音色固定列表。
  */
-const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei', 'duet'];
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'D'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
-const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adOpening', 'adContent', 'adClosing'];
+const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adContent', 'adPlaceholder'];
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
   'maleSpeakerName',
@@ -88,10 +97,21 @@ export const hotsearchPodcastTemplateOptionsGet = (): Array<{ value: THotsearchP
 
 /**
  * 函数：列出热搜播客文案类型选项。
+ * @param {'body' | 'template' | 'advertisement'} editorMode 开发者指定的编辑模式。
  * @returns {{ value: THotsearchPodcastSegmentType; key: string }[]} 文案类型选项。
  */
-export const hotsearchPodcastSegmentOptionsGet = (): Array<{ value: THotsearchPodcastSegmentType; key: string }> =>
-  HOTSEARCH_PODCAST_SEGMENT_TYPES.map((value) => ({
+export const hotsearchPodcastSegmentOptionsGet = (editorMode: 'body' | 'template' | 'advertisement'): Array<{ value: THotsearchPodcastSegmentType; key: string }> =>
+  HOTSEARCH_PODCAST_SEGMENT_TYPES.filter((value) => {
+    if (editorMode === 'body') {
+      return value === 'normal' || value === 'morningOnly' || value === 'eveningOnly';
+    }
+
+    if (editorMode === 'template') {
+      return value === 'normal' || value === 'morningOnly' || value === 'eveningOnly' || value === 'adPlaceholder';
+    }
+
+    return false;
+  }).map((value) => ({
     value,
     key: `pages.settings.hotsearch.options.podcastSegment.${value}`
   }));
@@ -112,11 +132,18 @@ export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key
  * @returns {ISettingsHotsearchPodcastTemplateItem} 默认片段。
  */
 export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsearchPodcastTemplateType = 'opening'): ISettingsHotsearchPodcastTemplateItem => ({
-  voiceKey: 'random',
+  voiceKey: 'D',
   content: '',
   segmentType: 'normal',
   templateType
 });
+
+/**
+ * 函数：判断片段是否为广告占位模板。
+ * @param {Pick<ISettingsHotsearchPodcastTemplateItem, 'segmentType'>} item 当前片段。
+ * @returns {boolean} 是否为广告占位模板。
+ */
+export const hotsearchPodcastAdPlaceholderIs = (item: Pick<ISettingsHotsearchPodcastTemplateItem, 'segmentType'>): boolean => item.segmentType === 'adPlaceholder';
 
 /**
  * 函数：创建默认热搜设置。
@@ -125,8 +152,8 @@ export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsear
 export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   enabled: false,
   podcastEnabled: false,
-  podcastMaleSpeakerName: '小洛',
-  podcastFemaleSpeakerName: '菲菲',
+  podcastMaleSpeakerName: '男声主播',
+  podcastFemaleSpeakerName: '女声主播',
   podcastMorningProgramName: '洛菲热点早报',
   podcastEveningProgramName: '洛菲热点晚报',
   podcastVipMorningProgramName: '洛菲热点早报 尊享版',
@@ -150,8 +177,21 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
  * @returns {THotsearchPodcastVoiceKey} 归一化后的音色。
  */
 const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchPodcastVoiceKey): THotsearchPodcastVoiceKey => {
-  const value = String(input ?? '').trim() as THotsearchPodcastVoiceKey;
-  return HOTSEARCH_PODCAST_VOICE_KEYS.includes(value) ? value : fallback;
+  const rawValue = String(input ?? '').trim();
+
+  switch (rawValue) {
+    case 'M':
+    case 'm':
+      return 'M';
+    case 'F':
+    case 'f':
+      return 'F';
+    case 'D':
+    case 'd':
+      return 'D';
+    default:
+      return fallback;
+  }
 };
 
 /**
@@ -194,12 +234,11 @@ const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsea
 
   switch (rawValue) {
     case 'closing':
-    case 'adClosing':
       return 'closing';
     case 'opening':
     case 'normal':
-    case 'adOpening':
     case 'adContent':
+    case 'adPlaceholder':
       return 'opening';
     default:
       return fallback;
@@ -209,9 +248,9 @@ const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsea
 /**
  * 函数：归一化热搜播客文案类型。
  * @param {unknown} input 输入值。
- * @returns {THotsearchPodcastSegmentType} 归一化后的文案类型。
+ * @returns {THotsearchPodcastTemplateSegmentType} 归一化后的文案类型。
  */
-const hotsearchPodcastSegmentTypeNormalize = (input: unknown): THotsearchPodcastSegmentType => {
+const hotsearchPodcastTemplateSegmentTypeNormalize = (input: unknown): THotsearchPodcastTemplateSegmentType => {
   const rawValue = String(input ?? '').trim();
 
   switch (rawValue) {
@@ -221,15 +260,15 @@ const hotsearchPodcastSegmentTypeNormalize = (input: unknown): THotsearchPodcast
     case 'eveningOnly':
     case 'evening_only':
       return 'eveningOnly';
-    case 'adOpening':
-    case 'ad_opening':
-      return 'adOpening';
+    case 'adPlaceholder':
+    case 'ad_placeholder':
     case 'adContent':
     case 'ad_content':
-      return 'adContent';
     case 'adClosing':
     case 'ad_closing':
-      return 'adClosing';
+    case 'adOpening':
+    case 'ad_opening':
+      return 'adPlaceholder';
     default:
       return 'normal';
   }
@@ -257,11 +296,12 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
 
   return input.map((item) => {
     const source = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
-    const segmentType = hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type);
+    const segmentType = hotsearchPodcastTemplateSegmentTypeNormalize(source.segmentType ?? source.segment_type);
+    const isAdPlaceholder = segmentType === 'adPlaceholder';
 
     return {
-      voiceKey: segmentType === 'adContent' ? 'random' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
-      content: hotsearchPodcastTextNormalize(source.content, '', 2000),
+      voiceKey: isAdPlaceholder ? 'D' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'D'),
+      content: isAdPlaceholder ? '' : hotsearchPodcastTextNormalize(source.content, '', 2000),
       segmentType,
       templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
     } satisfies ISettingsHotsearchPodcastTemplateItem;
@@ -335,30 +375,7 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
   const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
   const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
   const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
-  const legacyVoiceKey = hotsearchPodcastVoiceKeyNormalize(source.podcastVoiceKey, 'random');
-  const legacyOpeningText = hotsearchPodcastTextNormalize(source.podcastOpeningText, '', 2000);
-  const legacyClosingText = hotsearchPodcastTextNormalize(source.podcastClosingText, '', 2000);
-  const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems ?? source.podcastScriptItems);
-
-  if (podcastTemplateItems.length === 0) {
-    if (legacyOpeningText) {
-      podcastTemplateItems.push({
-        voiceKey: legacyVoiceKey,
-        content: legacyOpeningText,
-        segmentType: 'normal',
-        templateType: 'opening'
-      });
-    }
-
-    if (legacyClosingText) {
-      podcastTemplateItems.push({
-        voiceKey: legacyVoiceKey,
-        content: legacyClosingText,
-        segmentType: 'normal',
-        templateType: 'closing'
-      });
-    }
-  }
+  const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems);
 
   return {
     enabled: Boolean(source.enabled),

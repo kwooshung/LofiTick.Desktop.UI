@@ -47,6 +47,16 @@ export const settings = {
         label: 'Resource ID',
         description: 'The default value fits the current podcast endpoint. Change it only when the service side requires another resource.',
         placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: 'Male speaker code',
+        description: 'Maps M and the male half of D to the real Volc speaker code.',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: 'Female speaker code',
+        description: 'Maps F and the female half of D to the real Volc speaker code.',
+        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }
   },
@@ -239,13 +249,13 @@ export const settings = {
       },
       podcastMaleSpeakerName: {
         label: 'Male speaker name',
-        description: 'Used for variable substitution as the male announcer name. The default is Xiaoluo.',
-        placeholder: 'For example: Xiaoluo'
+        description: 'Used for variable substitution as the male announcer name. The default is Male Host.',
+        placeholder: 'For example: Male Host'
       },
       podcastFemaleSpeakerName: {
         label: 'Female speaker name',
-        description: 'Used for variable substitution as the female announcer name. The default is Feifei.',
-        placeholder: 'For example: Feifei'
+        description: 'Used for variable substitution as the female announcer name. The default is Female Host.',
+        placeholder: 'For example: Female Host'
       },
       podcastProgramNames: {
         label: 'Program names',
@@ -350,10 +360,9 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: 'Random',
-        xiaoluo: 'Xiaoluo',
-        feifei: 'Feifei',
-        duet: 'Dual'
+        M: 'Male',
+        F: 'Female',
+        D: 'Dual'
       },
       podcastTemplate: {
         opening: 'Opening template',
@@ -363,9 +372,8 @@ export const settings = {
         normal: 'General content',
         morningOnly: 'Morning only',
         eveningOnly: 'Evening only',
-        adOpening: 'Ad opening',
         adContent: 'Ad content',
-        adClosing: 'Ad closing'
+        adPlaceholder: 'Ad placeholder'
       }
     },
     variables: {

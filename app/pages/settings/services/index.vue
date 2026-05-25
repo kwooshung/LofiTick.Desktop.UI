@@ -71,6 +71,28 @@
           </UInput>
         </div>
       </UFormField>
+
+      <UFormField
+        :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')"
+        :description="t('pages.settings.services.volcSpeech.maleSpeakerCode.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+      >
+        <div class="w-full max-w-6xl min-w-0 justify-self-end">
+          <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
+        </div>
+      </UFormField>
+
+      <UFormField
+        :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')"
+        :description="t('pages.settings.services.volcSpeech.femaleSpeakerCode.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+      >
+        <div class="w-full max-w-6xl min-w-0 justify-self-end">
+          <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
+        </div>
+      </UFormField>
     </UPageCard>
   </DashboardPage>
 </template>
@@ -80,6 +102,8 @@
  * 常量：豆包语音默认资源标识。
  */
 const DEFAULT_VOLC_SPEECH_RESOURCE_ID = 'volc.service_type.10050';
+const DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE = 'zh_male_dayixiansheng_v2_saturn_bigtts';
+const DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE = 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts';
 
 /**
  * Hook：Tauri 环境。
@@ -161,6 +185,16 @@ const stateVolcSpeechAccessTokenValue = ref('');
 const stateVolcSpeechResourceIdValue = ref(DEFAULT_VOLC_SPEECH_RESOURCE_ID);
 
 /**
+ * 状态：豆包语音男声音色代码。
+ */
+const stateVolcSpeechMaleSpeakerCodeValue = ref(DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE);
+
+/**
+ * 状态：豆包语音女声音色代码。
+ */
+const stateVolcSpeechFemaleSpeakerCodeValue = ref(DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE);
+
+/**
  * 状态：是否展示 Access Token 明文。
  */
 const stateVolcSpeechAccessTokenVisible = ref(false);
@@ -179,7 +213,9 @@ const defaultServicesSettingsGet = (): ISettingsServices => ({
   volcSpeech: {
     appId: '',
     accessToken: '',
-    resourceId: DEFAULT_VOLC_SPEECH_RESOURCE_ID
+    resourceId: DEFAULT_VOLC_SPEECH_RESOURCE_ID,
+    maleSpeakerCode: DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE,
+    femaleSpeakerCode: DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE
   }
 });
 
@@ -207,7 +243,9 @@ const servicesSettingsResolve = (settings: Record<string, unknown>): ISettingsSe
     volcSpeech: {
       appId: String((volcSpeechRaw as Record<string, unknown>).appId || '').trim(),
       accessToken: String((volcSpeechRaw as Record<string, unknown>).accessToken || '').trim(),
-      resourceId: String((volcSpeechRaw as Record<string, unknown>).resourceId || '').trim() || DEFAULT_VOLC_SPEECH_RESOURCE_ID
+      resourceId: String((volcSpeechRaw as Record<string, unknown>).resourceId || '').trim() || DEFAULT_VOLC_SPEECH_RESOURCE_ID,
+      maleSpeakerCode: String((volcSpeechRaw as Record<string, unknown>).maleSpeakerCode || '').trim() || DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE,
+      femaleSpeakerCode: String((volcSpeechRaw as Record<string, unknown>).femaleSpeakerCode || '').trim() || DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE
     }
   };
 };
@@ -222,6 +260,8 @@ const applyServicesState = (services: ISettingsServices): void => {
   stateVolcSpeechAppIdValue.value = services.volcSpeech.appId;
   stateVolcSpeechAccessTokenValue.value = services.volcSpeech.accessToken;
   stateVolcSpeechResourceIdValue.value = services.volcSpeech.resourceId;
+  stateVolcSpeechMaleSpeakerCodeValue.value = services.volcSpeech.maleSpeakerCode;
+  stateVolcSpeechFemaleSpeakerCodeValue.value = services.volcSpeech.femaleSpeakerCode;
 };
 
 /**
@@ -243,7 +283,9 @@ const currentServicesSettingsGet = (): ISettingsServices => ({
   volcSpeech: {
     appId: String(stateVolcSpeechAppIdValue.value || '').trim(),
     accessToken: String(stateVolcSpeechAccessTokenValue.value || '').trim(),
-    resourceId: String(stateVolcSpeechResourceIdValue.value || '').trim() || DEFAULT_VOLC_SPEECH_RESOURCE_ID
+    resourceId: String(stateVolcSpeechResourceIdValue.value || '').trim() || DEFAULT_VOLC_SPEECH_RESOURCE_ID,
+    maleSpeakerCode: String(stateVolcSpeechMaleSpeakerCodeValue.value || '').trim() || DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE,
+    femaleSpeakerCode: String(stateVolcSpeechFemaleSpeakerCodeValue.value || '').trim() || DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE
   }
 });
 
@@ -321,7 +363,7 @@ const loadSettings = async (): Promise<void> => {
 /**
  * 监听：服务凭证输入变化后自动保存。
  */
-watch([stateVolcSpeechAppIdValue, stateVolcSpeechAccessTokenValue, stateVolcSpeechResourceIdValue], () => {
+watch([stateVolcSpeechAppIdValue, stateVolcSpeechAccessTokenValue, stateVolcSpeechResourceIdValue, stateVolcSpeechMaleSpeakerCodeValue, stateVolcSpeechFemaleSpeakerCodeValue], () => {
   if (!stateSettingsHydrated.value) {
     return;
   }

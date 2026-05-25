@@ -1,6 +1,15 @@
 export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.types';
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
-export type { IPageHomeSendWelcomeEmailResponse, IPageHomeWelcomeEmailPayload } from '@@/shared/types/pages/home/index.types';
+export type {
+  IPageHomePodcastScriptBodyItem,
+  IPageHomePodcastScriptGenerateRequest,
+  IPageHomePodcastScriptGenerateResponse,
+  IPageHomePodcastScriptLine,
+  IPageHomeSendWelcomeEmailResponse,
+  IPageHomeWelcomeEmailPayload,
+  TPageHomePodcastEdition,
+  TPageHomePodcastLength
+} from '@@/shared/types/pages/home/index.types';
 export type {
   IHotsearchArchiveDateSummary,
   IHotsearchDataPage,
@@ -71,7 +80,16 @@ export type {
   TQueryResultQuotesSearchUuidResponse
 } from '@@/shared/types/pages/quotes/index.types';
 export type { IPageSettingsConnectionsSettings, IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
-export type { ISettingsHotsearch, ISettingsHotsearchPlatformItem, ISettingsHotsearchPodcastTemplateItem, THotsearchPlatformType, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
+export type {
+  ISettingsHotsearch,
+  ISettingsHotsearchPlatformItem,
+  ISettingsHotsearchPodcastTemplateItem,
+  THotsearchPlatformType,
+  THotsearchPodcastSegmentType,
+  THotsearchPodcastTemplateSegmentType,
+  THotsearchPodcastTemplateType,
+  THotsearchPodcastVoiceKey
+} from '@@/shared/types/pages/settings/hotsearch/index.types';
 export type { ISettingsServices, ISettingsServiceVolcSpeech } from '@@/shared/types/pages/settings/services/index.types';
 export type {
   IPageSettingsUnattendedMachineCardInfo,
@@ -99,6 +117,5 @@ export type {
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
-export type { ITauriPodcastVoiceSampleResult, TPodcastVoiceRole } from '@@/shared/types/tauri/podcast-voices/index.types';
 export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

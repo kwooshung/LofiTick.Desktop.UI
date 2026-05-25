@@ -50,7 +50,7 @@
       </UFormField>
     </UPageCard>
 
-    <SettingsHotsearchPodcastScriptSettings
+    <SettingsHotsearchPodcastScriptList
       :male-speaker-name="stateHotsearchConfig.podcastMaleSpeakerName"
       :female-speaker-name="stateHotsearchConfig.podcastFemaleSpeakerName"
       :morning-program-name="stateHotsearchConfig.podcastMorningProgramName"

@@ -1,3 +1,5 @@
+import type { THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/pages/settings/hotsearch/index.types';
+
 /**
  * 接口：首页欢迎邮件生成结果
  */
@@ -36,4 +38,109 @@ export interface IPageHomeSendWelcomeEmailResponse {
    * 属性：实际收件人数
    */
   toCount: number;
+}
+
+/**
+ * 类型：首页播客脚本生成时段。
+ */
+export type TPageHomePodcastEdition = 'morning' | 'evening';
+
+/**
+ * 类型：首页播客脚本生成篇幅。
+ */
+export type TPageHomePodcastLength = 'short' | 'long';
+
+/**
+ * 类型：首页播客正文片段类型。
+ */
+export type TPageHomePodcastBodySegmentType = Exclude<THotsearchPodcastSegmentType, 'adContent' | 'adPlaceholder'>;
+
+/**
+ * 接口：首页播客脚本生成请求。
+ */
+export interface IPageHomePodcastScriptGenerateRequest {
+  /**
+   * 时段。
+   */
+  edition: TPageHomePodcastEdition;
+
+  /**
+   * 篇幅。
+   */
+  length: TPageHomePodcastLength;
+
+  /**
+   * 正文片段列表。
+   */
+  bodyItems: IPageHomePodcastScriptBodyItem[];
+}
+
+/**
+ * 接口：首页播客脚本行。
+ */
+export interface IPageHomePodcastScriptLine {
+  /**
+   * 播报角色。
+   */
+  speakerRole: Exclude<THotsearchPodcastVoiceKey, 'D'>;
+
+  /**
+   * 真实 speaker code。
+   */
+  speaker: string;
+
+  /**
+   * 播报文本。
+   */
+  text: string;
+
+  /**
+   * 文案类型。
+   */
+  segmentType: THotsearchPodcastSegmentType;
+}
+
+/**
+ * 接口：首页播客正文片段。
+ */
+export interface IPageHomePodcastScriptBodyItem {
+  /**
+   * 播报角色。
+   */
+  voiceKey: THotsearchPodcastVoiceKey;
+
+  /**
+   * 文本内容。
+   */
+  content: string;
+
+  /**
+   * 片段类型。
+   */
+  segmentType: TPageHomePodcastBodySegmentType;
+}
+
+/**
+ * 接口：首页播客脚本生成结果。
+ */
+export interface IPageHomePodcastScriptGenerateResponse {
+  /**
+   * 时段。
+   */
+  edition: TPageHomePodcastEdition;
+
+  /**
+   * 篇幅。
+   */
+  length: TPageHomePodcastLength;
+
+  /**
+   * 当前标题。
+   */
+  title: string;
+
+  /**
+   * 最终播报行。
+   */
+  lines: IPageHomePodcastScriptLine[];
 }
