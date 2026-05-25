@@ -301,17 +301,32 @@ const statePodcastScriptDatas = ref<IPageHomePodcastScriptGenerateResponse | nul
 /**
  * 状态：广告开头测试内容。
  */
-const statePodcastAdOpeningItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([createPodcastAdvertisementItem()]);
+const statePodcastAdOpeningItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([
+  createPodcastAdvertisementItem('M', '首先感谢小米手机对本期节目的陪伴支持。'),
+  createPodcastAdvertisementItem('F', '不管是日常通勤刷资讯、宅家追更看视频，还是出门随手拍风景，小米全系机型都能适配各种生活场景。'),
+  createPodcastAdvertisementItem('M', '旗舰机有 2nm 旗舰性能和全焦段影像，千元机也兼顾超长续航和耐用性。'),
+  createPodcastAdvertisementItem('F', '再加上澎湃 OS 2.0 带来的流畅体验，从高端到入门几乎把全价位段都覆盖到了。'),
+  createPodcastAdvertisementItem('M', '现在配合国补入手会更划算，想换机的话，闭眼选也不容易踩雷。'),
+  createPodcastAdvertisementItem('F', '感谢小米手机对本期节目的大力支持。')
+]);
 
 /**
  * 状态：广告结尾测试内容。
  */
-const statePodcastAdClosingItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([createPodcastAdvertisementItem()]);
+const statePodcastAdClosingItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([
+  createPodcastAdvertisementItem('F', '本期节目的结尾，再提醒你一次，洛菲效率时钟已经把专注、计划和复盘这三件事放进同一个桌面流程里。'),
+  createPodcastAdvertisementItem('M', '如果你想进一步了解，可以直接查看节目说明里的体验入口。感谢这次赞助支持，我们下期节目再见。')
+]);
 
 /**
  * 状态：正文测试片段。
  */
-const statePodcastScriptBodyItems = ref<IPageHomePodcastScriptBodyItem[]>([createPodcastBodyItem('M', '今天先带你看一下早报主线。'), createPodcastBodyItem('F', '我们再把其中最值得展开的重点讲清楚。'), createPodcastBodyItem('D', '如果你只想快速听结论，这一段就是给你的摘要。')]);
+const statePodcastScriptBodyItems = ref<IPageHomePodcastScriptBodyItem[]>([
+  createPodcastBodyItem('M', '早上好，这里是今天的洛菲热点早报。先用三分钟，带你快速过一遍今天最值得关注的热搜方向。'),
+  createPodcastBodyItem('F', '今天的主线可以先看两个关键词，一个是平台热度持续抬升，另一个是用户讨论开始从围观转向实际决策。'),
+  createPodcastBodyItem('M', '如果你现在时间不多，先记住一个结论：这波话题已经不只是情绪传播，而是在影响内容消费和产品选择。'),
+  createPodcastBodyItem('F', '接下来我们把讨论度最高的一条拆开看，重点放在它为什么突然爆发，以及后续还有没有继续发酵的空间。')
+]);
 
 /**
  * 状态：当前生成模式。

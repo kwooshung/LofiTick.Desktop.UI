@@ -50,12 +50,16 @@ export const settings = {
       },
       maleSpeakerCode: {
         label: '男聲音色代碼',
-        description: '用於把 M 和 D 中的男聲映射成豆包真實 speaker code。',
+        descriptionPrefix: '用於把 M 和 D 中的男聲映射成豆包真實 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
         placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
       },
       femaleSpeakerCode: {
         label: '女聲音色代碼',
-        description: '用於把 F 和 D 中的女聲映射成豆包真實 speaker code。',
+        descriptionPrefix: '用於把 F 和 D 中的女聲映射成豆包真實 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
         placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }

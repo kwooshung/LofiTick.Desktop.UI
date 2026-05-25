@@ -50,12 +50,16 @@ export const settings = {
       },
       maleSpeakerCode: {
         label: 'Male speaker code',
-        description: 'Maps M and the male half of D to the real Volc speaker code.',
+        descriptionPrefix: 'Maps M and the male half of D to the real Volc ',
+        descriptionSuffix: '.',
+        linkLabel: 'speaker code',
         placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
       },
       femaleSpeakerCode: {
         label: 'Female speaker code',
-        description: 'Maps F and the female half of D to the real Volc speaker code.',
+        descriptionPrefix: 'Maps F and the female half of D to the real Volc ',
+        descriptionSuffix: '.',
+        linkLabel: 'speaker code',
         placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }

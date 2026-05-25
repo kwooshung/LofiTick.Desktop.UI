@@ -87,7 +87,12 @@ const { configGet: tauriApiClientConfigGet, configUpdate: tauriApiClientConfigUp
 /**
  * Hook：Tauri 设置
  */
-const { get: settingsGet, machineNetworkGet, machineHostnameGet } = useTauriSettings();
+const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet, pathsExistGet } = useTauriSettings();
+
+/**
+ * Hook：无人值守场景差异确认弹窗
+ */
+const { request: unattendedScenesSyncRequest } = useUnattendedScenesSyncDialog();
 
 /**
  * 状态：启动静默上报是否已执行
@@ -98,6 +103,34 @@ const stateUnattendedStartupReported = useState<boolean>('unattended-startup-rep
  * 状态：壳侧 API 客户端配置是否已同步
  */
 const stateTauriApiClientConfigured = useState<boolean>('tauri-api-client-configured', () => false);
+
+/**
+ * 状态：启动同步是否已执行
+ */
+const stateStartupSharedSettingsSynced = useState<boolean>('startup-shared-settings-synced', () => false);
+
+/**
+ * 状态：启动场景差异确认是否已执行
+ */
+const stateStartupScenesSyncHandled = useState<boolean>('startup-scenes-sync-handled', () => false);
+
+/**
+ * API：热搜配置（GET）
+ * 描述：用于启动时将 Redis 公共配置镜像到本地 settings。
+ */
+const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
+
+/**
+ * API：服务凭证（GET）
+ * 描述：用于启动时将 Redis 公共配置镜像到本地 settings。
+ */
+const { datas: stateServicesRemoteConfig, refresh: refreshServicesRemoteGet } = await useApi<ISettingsServices>('desktop/settings/services', { immediate: false });
+
+/**
+ * API：场景配置（GET）
+ * 描述：用于启动时发现本地与远程差异并弹出确认。
+ */
+const { datas: stateScenesRemoteFetched, refresh: refreshScenesRemoteGet } = await useApi<IPageSettingsUnattendedScenesMachineRedisConfig>('desktop/settings/unattended/scenes', { immediate: false });
 
 /**
  * API：场景配置（PATCH）
@@ -139,6 +172,194 @@ const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetwork
     .filter((g) => g.ipv4.length > 0 || g.ipv6.length > 0);
 
   return { groups };
+};
+
+/**
+ * 函数：同步 Redis 共享设置到本地镜像。
+ * 描述：当前覆盖热搜配置与服务凭证，避免首次启动必须先进入设置页才能下发到本地。
+ */
+const sharedSettingsSyncOnStartup = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!isTauriRuntime.value) {
+    return;
+  }
+  if (stateStartupSharedSettingsSynced.value) {
+    return;
+  }
+
+  stateStartupSharedSettingsSynced.value = true;
+
+  try {
+    await refreshHotsearchRemoteGet({ ignoreResponseError: true });
+    if (stateHotsearchRemoteConfig.value) {
+      await settingsUpdate({
+        hotsearch: hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value)
+      });
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    await refreshServicesRemoteGet({ ignoreResponseError: true });
+    if (stateServicesRemoteConfig.value) {
+      await settingsUpdate({
+        services: stateServicesRemoteConfig.value
+      });
+    }
+  } catch {
+    // ignore
+  }
+};
+
+/**
+ * 函数：构建路径存在性映射。
+ * @param {string[]} paths 路径列表
+ * @returns {Promise<Record<string, boolean>>} 路径存在性映射
+ */
+const startupExecExistsMapBuild = async (paths: string[]): Promise<Record<string, boolean>> => {
+  const uniquePaths = Array.from(new Set(paths.map((item) => String(item || '').trim()).filter((item) => item !== '')));
+  if (uniquePaths.length === 0) {
+    return {};
+  }
+
+  const results = await pathsExistGet(uniquePaths);
+  return results.reduce<Record<string, boolean>>((acc, item) => {
+    acc[String(item.path || '').trim()] = Boolean(item.exists);
+    return acc;
+  }, {});
+};
+
+/**
+ * 函数：同步一份场景列表到本地与远端。
+ * @param {string} machineCode 机器码
+ * @param {string} machineName 机器名称
+ * @param {IPageSettingsUnattendedScenesItem[]} items 场景列表
+ * @param {ISettingsUnattendedScenesLocal} rollbackState 本地回滚副本
+ * @returns {Promise<void>} 无返回值
+ */
+const startupScenesPersistLocalAndRemote = async (machineCode: string, machineName: string, items: IPageSettingsUnattendedScenesItem[], rollbackState: ISettingsUnattendedScenesLocal): Promise<void> => {
+  const nextLocal = {
+    updatedAt: new Date().toISOString(),
+    items: unattendedScenesItemsNormalize(items)
+  } satisfies ISettingsUnattendedScenesLocal;
+
+  await settingsUpdate({
+    unattended: {
+      scenes: nextLocal
+    }
+  });
+
+  try {
+    await refreshScenesRemotePatch({
+      query: { machineCode },
+      body: {
+        datas: {
+          machineName,
+          machineCode,
+          items: unattendedScenesItemsNormalize(items)
+        }
+      },
+      ignoreResponseError: true
+    });
+  } catch {
+    await settingsUpdate({
+      unattended: {
+        scenes: rollbackState
+      }
+    });
+    throw new Error('startup scenes sync failed');
+  }
+};
+
+/**
+ * 函数：启动时检查本地与远程场景差异。
+ * 描述：发现差异时直接弹出与设置页相同的确认弹窗。
+ */
+const unattendedScenesSyncOnStartup = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+  if (!isTauriRuntime.value) {
+    return;
+  }
+  if (stateStartupScenesSyncHandled.value) {
+    return;
+  }
+
+  stateStartupScenesSyncHandled.value = true;
+
+  let settings: Record<string, unknown> = {};
+  try {
+    settings = await settingsGet();
+  } catch {
+    return;
+  }
+
+  const machine = toRecord(settings.machine) ?? {};
+  const unattended = toRecord(settings.unattended) ?? {};
+  const machineCode = String(machine.code ?? '').trim();
+  if (!machineCode) {
+    return;
+  }
+
+  let machineName = String(machine.name ?? '').trim();
+  if (!machineName) {
+    try {
+      machineName = String(await machineHostnameGet()).trim();
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    await refreshScenesRemoteGet({ query: { machineCode }, ignoreResponseError: true });
+  } catch {
+    // ignore
+  }
+
+  const local = unattendedScenesLocalNormalize(unattended.scenes);
+  const remote = stateScenesRemoteFetched.value
+    ? {
+        ...stateScenesRemoteFetched.value,
+        items: unattendedScenesItemsNormalize(stateScenesRemoteFetched.value.items)
+      }
+    : null;
+
+  if (local.items.length === 0 && (!remote || remote.items.length === 0)) {
+    return;
+  }
+
+  const paths = [...local.items.map((item) => item.execPath), ...(Array.isArray(remote?.items) ? remote.items.map((item) => item.execPath) : [])];
+  const execExistsByPath = await startupExecExistsMapBuild(paths);
+  const entries = unattendedScenesSyncEntriesBuild({ local, remote, execExistsByPath });
+
+  if (entries.every((entry) => entry.status === 'same')) {
+    return;
+  }
+
+  const choice = await unattendedScenesSyncRequest({
+    machineCode,
+    machineName: String(machineName || remote?.machineName || '').trim(),
+    local,
+    remote,
+    entries
+  });
+
+  if (choice === 'remote') {
+    await startupScenesPersistLocalAndRemote(machineCode, machineName, unattendedScenesItemsNormalize(remote?.items), local);
+    return;
+  }
+
+  if (choice === 'local') {
+    await startupScenesPersistLocalAndRemote(machineCode, machineName, local.items, local);
+    return;
+  }
+
+  const mergedItems = unattendedScenesMergePreferLocal(local.items, unattendedScenesItemsNormalize(remote?.items));
+  await startupScenesPersistLocalAndRemote(machineCode, machineName, mergedItems, local);
 };
 
 /**
@@ -351,7 +572,19 @@ onMounted(() => {
       console.warn('[tauri-api-client] config sync failed', error);
     }
 
+    try {
+      await sharedSettingsSyncOnStartup();
+    } catch (error) {
+      console.warn('[startup-sync] shared settings sync failed', error);
+    }
+
     await unattendedStartupReportOnce();
+
+    try {
+      await unattendedScenesSyncOnStartup();
+    } catch (error) {
+      console.warn('[startup-sync] unattended scenes sync failed', error);
+    }
   })();
 
   if (isTauriRuntime.value) {

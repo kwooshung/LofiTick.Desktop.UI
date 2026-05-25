@@ -50,12 +50,16 @@ export const settings = {
       },
       maleSpeakerCode: {
         label: '男性音声コード',
-        description: 'M と D に含まれる男性音声を、Doubao の実際の speaker code にマッピングします。',
+        descriptionPrefix: 'M と D に含まれる男性音声を、Doubao の実際の ',
+        descriptionSuffix: ' にマッピングします。',
+        linkLabel: 'speaker code',
         placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
       },
       femaleSpeakerCode: {
         label: '女性音声コード',
-        description: 'F と D に含まれる女性音声を、Doubao の実際の speaker code にマッピングします。',
+        descriptionPrefix: 'F と D に含まれる女性音声を、Doubao の実際の ',
+        descriptionSuffix: ' にマッピングします。',
+        linkLabel: 'speaker code',
         placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
       }
     }

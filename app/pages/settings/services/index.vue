@@ -59,7 +59,7 @@
         :label="t('pages.settings.services.volcSpeech.resourceId.label')"
         :description="t('pages.settings.services.volcSpeech.resourceId.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechResourceIdValue" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
@@ -72,23 +72,31 @@
         </div>
       </UFormField>
 
-      <UFormField
-        :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')"
-        :description="t('pages.settings.services.volcSpeech.maleSpeakerCode.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
-      >
+      <UFormField :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+        <template #description>
+          <span>
+            {{ t('pages.settings.services.volcSpeech.maleSpeakerCode.descriptionPrefix') }}
+            <ULink raw href="https://www.volcengine.com/docs/6561/1257544" class="text-primary no-underline hover:underline" @click.prevent="handleVolcSpeechDocsOpen">
+              {{ t('pages.settings.services.volcSpeech.maleSpeakerCode.linkLabel') }}
+            </ULink>
+            {{ t('pages.settings.services.volcSpeech.maleSpeakerCode.descriptionSuffix') }}
+          </span>
+        </template>
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
         </div>
       </UFormField>
 
-      <UFormField
-        :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')"
-        :description="t('pages.settings.services.volcSpeech.femaleSpeakerCode.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
-      >
+      <UFormField :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+        <template #description>
+          <span>
+            {{ t('pages.settings.services.volcSpeech.femaleSpeakerCode.descriptionPrefix') }}
+            <ULink raw href="https://www.volcengine.com/docs/6561/1257544" class="text-primary no-underline hover:underline" @click.prevent="handleVolcSpeechDocsOpen">
+              {{ t('pages.settings.services.volcSpeech.femaleSpeakerCode.linkLabel') }}
+            </ULink>
+            {{ t('pages.settings.services.volcSpeech.femaleSpeakerCode.descriptionSuffix') }}
+          </span>
+        </template>
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
         </div>
@@ -109,6 +117,11 @@ const DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE = 'zh_female_tianmeixiaoyuan_v2_sa
  * Hook：Tauri 环境。
  */
 const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口。
+ */
+const tauriWindow = useTauriWindow();
 
 /**
  * Hook：Tauri 设置。
@@ -319,6 +332,22 @@ const handleToggleAccessTokenVisible = (): void => {
  */
 const handleResetVolcSpeechResourceId = (): void => {
   stateVolcSpeechResourceIdValue.value = DEFAULT_VOLC_SPEECH_RESOURCE_ID;
+};
+
+/**
+ * 事件：打开豆包语音文档。
+ *
+ * @returns {Promise<void>} 无返回值
+ */
+const handleVolcSpeechDocsOpen = async (): Promise<void> => {
+  const href = 'https://www.volcengine.com/docs/6561/1257544';
+
+  if (isTauriRuntime.value) {
+    await tauriWindow.openExternalUrl(href);
+    return;
+  }
+
+  window.open(href, '_blank', 'noopener,noreferrer');
 };
 
 /**
