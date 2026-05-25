@@ -350,7 +350,10 @@
     },
     options: {
       podcastVoice: {
-        duet: '双人播客'
+        random: '随机',
+        xiaoluo: '小洛',
+        feifei: '菲菲',
+        duet: '合'
       },
       podcastTemplate: {
         opening: '开头模板',

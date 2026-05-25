@@ -6,7 +6,7 @@ export type THotsearchPlatformType = 'baidu' | 'sina' | 'sina-news' | 'weibo' | 
 /**
  * 类型：热搜播客音色标识。
  */
-export type THotsearchPodcastVoiceKey = 'duet';
+export type THotsearchPodcastVoiceKey = 'random' | 'xiaoluo' | 'feifei' | 'duet';
 
 /**
  * 类型：热搜播客模板类型。

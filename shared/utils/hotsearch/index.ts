@@ -34,8 +34,7 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 /**
  * 常量：热搜播客音色固定列表。
  */
-const HOTSEARCH_PODCAST_VOICE_KEY_DUET: THotsearchPodcastVoiceKey = 'duet';
-const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = [HOTSEARCH_PODCAST_VOICE_KEY_DUET];
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['random', 'xiaoluo', 'feifei', 'duet'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
 const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adOpening', 'adContent', 'adClosing'];
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
@@ -113,7 +112,7 @@ export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key
  * @returns {ISettingsHotsearchPodcastTemplateItem} 默认片段。
  */
 export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsearchPodcastTemplateType = 'opening'): ISettingsHotsearchPodcastTemplateItem => ({
-  voiceKey: HOTSEARCH_PODCAST_VOICE_KEY_DUET,
+  voiceKey: 'random',
   content: '',
   segmentType: 'normal',
   templateType
@@ -151,15 +150,8 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
  * @returns {THotsearchPodcastVoiceKey} 归一化后的音色。
  */
 const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchPodcastVoiceKey): THotsearchPodcastVoiceKey => {
-  switch (String(input ?? '').trim()) {
-    case 'random':
-    case 'xiaoluo':
-    case 'feifei':
-    case 'duet':
-      return HOTSEARCH_PODCAST_VOICE_KEY_DUET;
-    default:
-      return fallback;
-  }
+  const value = String(input ?? '').trim() as THotsearchPodcastVoiceKey;
+  return HOTSEARCH_PODCAST_VOICE_KEYS.includes(value) ? value : fallback;
 };
 
 /**
@@ -268,7 +260,7 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
     const segmentType = hotsearchPodcastSegmentTypeNormalize(source.segmentType ?? source.segment_type);
 
     return {
-      voiceKey: segmentType === 'adContent' ? HOTSEARCH_PODCAST_VOICE_KEY_DUET : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, HOTSEARCH_PODCAST_VOICE_KEY_DUET),
+      voiceKey: segmentType === 'adContent' ? 'random' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'random'),
       content: hotsearchPodcastTextNormalize(source.content, '', 2000),
       segmentType,
       templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
@@ -343,7 +335,7 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
   const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
   const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
   const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
-  const legacyVoiceKey = hotsearchPodcastVoiceKeyNormalize(source.podcastVoiceKey, HOTSEARCH_PODCAST_VOICE_KEY_DUET);
+  const legacyVoiceKey = hotsearchPodcastVoiceKeyNormalize(source.podcastVoiceKey, 'random');
   const legacyOpeningText = hotsearchPodcastTextNormalize(source.podcastOpeningText, '', 2000);
   const legacyClosingText = hotsearchPodcastTextNormalize(source.podcastClosingText, '', 2000);
   const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems ?? source.podcastScriptItems);
