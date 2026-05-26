@@ -88,7 +88,7 @@ const computedLinks = computed<NavigationMenuItem[]>(() => [
   {
     label: t('pages.ads.title'),
     icon: 'i-lucide-megaphone',
-    to: localePath('/ads')
+    to: localePath('/ad')
   },
   {
     label: t('pages.incomes.title'),

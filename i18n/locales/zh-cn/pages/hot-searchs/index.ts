@@ -26,6 +26,12 @@ export const hotsearch = {
     },
     music: {
       title: '背景音乐'
+    },
+    cover: {
+      title: '封面图'
+    },
+    advertisement: {
+      title: '广告'
     }
   },
   actions: {
@@ -146,6 +152,15 @@ export const hotsearch = {
       eveningLong: {
         title: '晚报长篇',
         description: '适合音频或长视频平台的晚间长版。'
+      },
+      cover: {
+        title: '封面图',
+        description: '查看和预留热搜播客封面图配置入口。',
+        placeholder: '封面图页面先占位，后续再接入实际封面图生成与管理。'
+      },
+      advertisement: {
+        title: '广告',
+        description: '跳转到广告页面，后续再接入广告位配置。'
       }
     }
   },

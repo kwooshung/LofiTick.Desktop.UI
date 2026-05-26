@@ -20,6 +20,12 @@ export const hotsearch = {
     },
     music: {
       title: 'BGM'
+    },
+    cover: {
+      title: 'Cover'
+    },
+    advertisement: {
+      title: 'Ads'
     }
   },
   actions: {
@@ -140,6 +146,15 @@ export const hotsearch = {
       eveningLong: {
         title: 'Evening long',
         description: 'A longer evening edition for audio and long-form video platforms.'
+      },
+      cover: {
+        title: 'Cover',
+        description: 'A reserved entry for hotsearch podcast cover assets.',
+        placeholder: 'The cover page is a placeholder for now and will later host real cover generation and management.'
+      },
+      advertisement: {
+        title: 'Ads',
+        description: 'Jump to the advertisement page for future ad slot configuration.'
       }
     }
   },

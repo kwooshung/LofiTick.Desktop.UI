@@ -6,22 +6,6 @@
 
     <template #toolbar-right>
       <div class="flex items-center gap-2">
-        <template v-if="computedRouteIsDataSection">
-          <SelectsPagesizes cache-key="hotsearch" />
-
-          <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="hidden md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
-            <template #leading>
-              <UIcon name="i-lucide:search" class="text-dimmed size-4" />
-            </template>
-
-            <template #trailing>
-              <div class="flex items-center">
-                <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
-              </div>
-            </template>
-          </UInput>
-        </template>
-
         <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
           <UButton color="neutral" variant="ghost" icon="i-lucide-calendar-days" class="shrink-0">
             {{ computedDatePickerButtonLabel }}
@@ -86,9 +70,25 @@
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
         <template v-if="computedRouteIsDataSection">
-          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center gap-1.5 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
+          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-3 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
             <div class="relative z-10 min-w-0 flex-1">
               <UNavigationMenu :items="computedDataVariantLinks" highlight class="-translate-x-2.5" />
+            </div>
+
+            <div class="relative z-10 hidden shrink-0 items-center gap-2 md:flex">
+              <SelectsPagesizes cache-key="hotsearch" />
+
+              <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-72 xl:w-80" @keyup.enter="handleKeywordApply">
+                <template #leading>
+                  <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+                </template>
+
+                <template #trailing>
+                  <div class="flex items-center">
+                    <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+                  </div>
+                </template>
+              </UInput>
             </div>
           </div>
         </template>
@@ -100,7 +100,7 @@
                 <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
               </div>
 
-              <div class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <div v-if="computedRouteIsPodcastVariantPage" class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
                 <UButton color="neutral" variant="soft" icon="i-lucide:clapperboard" :disabled="!computedPodcastHeaderVideoAsset" @click="handlePodcastVideoModalOpen">
                   {{ t('pages.hotsearch.podcast.openVideoModal') }}
                 </UButton>
@@ -110,7 +110,7 @@
               </div>
             </div>
 
-            <div class="relative z-10 flex w-full flex-wrap items-center gap-2">
+            <div v-if="computedRouteIsPodcastVariantPage" class="relative z-10 flex w-full flex-wrap items-center gap-2">
               <UButton
                 v-for="item in computedPodcastHeaderView.availablePlatforms"
                 :key="item.key"
@@ -481,6 +481,11 @@ const computedRouteIsPodcast = computed(() => route.path.startsWith(localePath('
 const computedRouteIsMusic = computed(() => route.path === localePath('/hotsearch/music'));
 
 /**
+ * 计算属性：当前是否为封面图页。
+ */
+const computedRouteIsCover = computed(() => route.path === localePath('/hotsearch/cover'));
+
+/**
  * 计算属性：主分区链接。
  */
 const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
@@ -510,6 +515,24 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsMusic.value,
       to: {
         path: localePath('/hotsearch/music'),
+        query: { date: computedSelectedDateQuery.value }
+      }
+    },
+    {
+      label: t('pages.hotsearch.sections.cover.title'),
+      icon: 'i-lucide:image',
+      active: computedRouteIsCover.value,
+      to: {
+        path: localePath('/hotsearch/cover'),
+        query: { date: computedSelectedDateQuery.value }
+      }
+    },
+    {
+      label: t('pages.hotsearch.sections.advertisement.title'),
+      icon: 'i-lucide-megaphone',
+      active: false,
+      to: {
+        path: localePath('/ad/hotsearch'),
         query: { date: computedSelectedDateQuery.value }
       }
     }
@@ -623,7 +646,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
           query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
-      }
+      },
     ]
   ];
 });
@@ -647,6 +670,11 @@ const computedPodcastVariant = computed<THotsearchPodcastVariantKey | null>(() =
 
   return null;
 });
+
+/**
+ * 计算属性：当前是否为四个真实播客变体页。
+ */
+const computedRouteIsPodcastVariantPage = computed(() => computedPodcastVariant.value !== null);
 
 /**
  * 计算属性：页头播客视图模型。
