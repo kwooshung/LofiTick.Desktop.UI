@@ -176,7 +176,7 @@
           </div>
           <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-neutral-50 px-4 py-3 dark:bg-neutral-900/40">
             <div class="space-y-1">
-              <div class="text-sm font-medium text-highlighted">
+              <div class="text-highlighted text-sm font-medium">
                 {{ t('pages.home.podcastScript.scope.label') }}
               </div>
               <div class="text-muted text-xs leading-6">
