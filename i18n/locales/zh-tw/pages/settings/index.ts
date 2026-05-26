@@ -368,7 +368,7 @@ export const settings = {
       podcastVoice: {
         M: '男聲',
         F: '女聲',
-        D: '合'
+        R: '隨機'
       },
       podcastTemplate: {
         opening: '開頭模板',
@@ -384,8 +384,11 @@ export const settings = {
     },
     variables: {
       speakerName: '播報者名稱',
+      otherSpeakerName: '搭檔名稱',
       maleSpeakerName: '男生姓名',
       femaleSpeakerName: '女生姓名',
+      maleOtherSpeakerName: '男聲搭檔名稱',
+      femaleOtherSpeakerName: '女聲搭檔名稱',
       programName: '目前節目名稱',
       morningProgramName: '早間節目名稱',
       eveningProgramName: '晚間節目名稱',
@@ -402,8 +405,11 @@ export const settings = {
     },
     variableDescriptions: {
       speakerName: '依目前音色自動帶入播報者姓名。',
+      otherSpeakerName: '依目前音色自動帶入目前播報者對應的搭檔姓名。',
       maleSpeakerName: '固定使用男生播報者姓名。',
       femaleSpeakerName: '固定使用女生播報者姓名。',
+      maleOtherSpeakerName: '固定取女聲播報者姓名，可作為男聲目前的搭檔名稱。',
+      femaleOtherSpeakerName: '固定取男聲播報者姓名，可作為女聲目前的搭檔名稱。',
       programName: '依目前節目場景自動帶入節目名稱。',
       morningProgramName: '普通早間 Podcast 的節目名稱。',
       eveningProgramName: '普通晚間 Podcast 的節目名稱。',

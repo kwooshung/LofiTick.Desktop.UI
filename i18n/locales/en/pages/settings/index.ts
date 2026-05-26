@@ -368,7 +368,7 @@ export const settings = {
       podcastVoice: {
         M: 'Male',
         F: 'Female',
-        D: 'Dual'
+        R: 'Random'
       },
       podcastTemplate: {
         opening: 'Opening template',
@@ -384,8 +384,11 @@ export const settings = {
     },
     variables: {
       speakerName: 'Speaker name',
+      otherSpeakerName: 'Partner name',
       maleSpeakerName: 'Male speaker name',
       femaleSpeakerName: 'Female speaker name',
+      maleOtherSpeakerName: 'Male partner name',
+      femaleOtherSpeakerName: 'Female partner name',
       programName: 'Current program name',
       morningProgramName: 'Morning program name',
       eveningProgramName: 'Evening program name',
@@ -402,8 +405,11 @@ export const settings = {
     },
     variableDescriptions: {
       speakerName: 'Uses the speaker name that matches the current voice.',
+      otherSpeakerName: 'Uses the partner name that corresponds to the current speaker voice.',
       maleSpeakerName: 'Always uses the male speaker name.',
       femaleSpeakerName: 'Always uses the female speaker name.',
+      maleOtherSpeakerName: "Always uses the female speaker name as the male speaker's partner.",
+      femaleOtherSpeakerName: "Always uses the male speaker name as the female speaker's partner.",
       programName: 'Uses the program name that matches the current edition.',
       morningProgramName: 'Program name for the regular morning podcast.',
       eveningProgramName: 'Program name for the regular evening podcast.',

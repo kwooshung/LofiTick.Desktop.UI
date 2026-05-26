@@ -368,7 +368,7 @@ export const settings = {
       podcastVoice: {
         M: '男性',
         F: '女性',
-        D: '合'
+        R: 'ランダム'
       },
       podcastTemplate: {
         opening: '導入テンプレート',
@@ -384,8 +384,11 @@ export const settings = {
     },
     variables: {
       speakerName: '読み手の名前',
+      otherSpeakerName: '相方の名前',
       maleSpeakerName: '男性名',
       femaleSpeakerName: '女性名',
+      maleOtherSpeakerName: '男性側の相方名',
+      femaleOtherSpeakerName: '女性側の相方名',
       programName: '現在の番組名',
       morningProgramName: '朝版の番組名',
       eveningProgramName: '夜版の番組名',
@@ -402,8 +405,11 @@ export const settings = {
     },
     variableDescriptions: {
       speakerName: '現在の音声に対応する読み手名を使います。',
+      otherSpeakerName: '現在の話者に対応する相方の名前を使います。',
       maleSpeakerName: '男性読み手の名前を固定で使います。',
       femaleSpeakerName: '女性読み手の名前を固定で使います。',
+      maleOtherSpeakerName: '男性話者の相方として女性読み手名を固定で使います。',
+      femaleOtherSpeakerName: '女性話者の相方として男性読み手名を固定で使います。',
       programName: '現在の版に対応する番組名を使います。',
       morningProgramName: '通常の朝版 Podcast の番組名です。',
       eveningProgramName: '通常の夜版 Podcast の番組名です。',

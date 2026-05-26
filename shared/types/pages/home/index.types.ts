@@ -112,7 +112,7 @@ export interface IPageHomePodcastScriptLine {
   /**
    * 播报角色。
    */
-  speakerRole: Exclude<THotsearchPodcastVoiceKey, 'D'>;
+  speakerRole: Exclude<THotsearchPodcastVoiceKey, 'R'>;
 
   /**
    * 真实 speaker code。
@@ -168,6 +168,11 @@ export interface IPageHomePodcastScriptGenerateResponse {
    * 当前标题。
    */
   title: string;
+
+  /**
+   * 可选的媒体平台英文名。
+   */
+  mediaPlatformName?: string;
 
   /**
    * 最终播报行。

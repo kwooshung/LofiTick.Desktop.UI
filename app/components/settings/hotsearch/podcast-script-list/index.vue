@@ -524,10 +524,16 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
   switch (token) {
     case '[speakerName]':
       return `${maleSpeaker} 或 ${femaleSpeaker}`;
+    case '[otherSpeakerName]':
+      return `${femaleSpeaker} 或 ${maleSpeaker}`;
     case '[maleSpeakerName]':
       return maleSpeaker;
     case '[femaleSpeakerName]':
       return femaleSpeaker;
+    case '[maleOtherSpeakerName]':
+      return femaleSpeaker;
+    case '[femaleOtherSpeakerName]':
+      return maleSpeaker;
     case '[programName]':
       return `${morningProgram} 或 ${eveningProgram} 或 ${vipMorningProgram} 或 ${vipEveningProgram}`;
     case '[morningProgramName]':

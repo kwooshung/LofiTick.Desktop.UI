@@ -368,7 +368,7 @@
       podcastVoice: {
         M: '男声',
         F: '女声',
-        D: '合'
+        R: '随机'
       },
       podcastTemplate: {
         opening: '开头模板',
@@ -384,8 +384,11 @@
     },
     variables: {
       speakerName: '播报者名称',
+      otherSpeakerName: '搭档名称',
       maleSpeakerName: '男生姓名',
       femaleSpeakerName: '女生姓名',
+      maleOtherSpeakerName: '男声搭档名称',
+      femaleOtherSpeakerName: '女声搭档名称',
       programName: '当前节目名称',
       morningProgramName: '早间节目名称',
       eveningProgramName: '晚间节目名称',
@@ -402,8 +405,11 @@
     },
     variableDescriptions: {
       speakerName: '根据当前音色自动取播报者姓名。',
+      otherSpeakerName: '根据当前音色自动取当前播报者对应的搭档姓名。',
       maleSpeakerName: '始终使用男生播报者姓名。',
       femaleSpeakerName: '始终使用女生播报者姓名。',
+      maleOtherSpeakerName: '固定取女声播报者姓名，可作为男声当前搭档名称。',
+      femaleOtherSpeakerName: '固定取男声播报者姓名，可作为女声当前搭档名称。',
       programName: '根据当前节目场景自动取节目名称。',
       morningProgramName: '普通早间播客的节目名称。',
       eveningProgramName: '普通晚间播客的节目名称。',

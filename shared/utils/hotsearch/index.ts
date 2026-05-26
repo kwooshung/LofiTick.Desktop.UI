@@ -43,13 +43,16 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 /**
  * 常量：热搜播客音色固定列表。
  */
-const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'D'];
+const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
 const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adContent', 'adPlaceholder'];
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
+  'otherSpeakerName',
   'maleSpeakerName',
   'femaleSpeakerName',
+  'maleOtherSpeakerName',
+  'femaleOtherSpeakerName',
   'programName',
   'morningProgramName',
   'eveningProgramName',
@@ -132,7 +135,7 @@ export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key
  * @returns {ISettingsHotsearchPodcastTemplateItem} 默认片段。
  */
 export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsearchPodcastTemplateType = 'opening'): ISettingsHotsearchPodcastTemplateItem => ({
-  voiceKey: 'D',
+  voiceKey: 'R',
   content: '',
   segmentType: 'normal',
   templateType
@@ -186,9 +189,11 @@ const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchP
     case 'F':
     case 'f':
       return 'F';
+    case 'R':
+    case 'r':
     case 'D':
     case 'd':
-      return 'D';
+      return 'R';
     default:
       return fallback;
   }
@@ -300,7 +305,7 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
     const isAdPlaceholder = segmentType === 'adPlaceholder';
 
     return {
-      voiceKey: isAdPlaceholder ? 'D' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'D'),
+      voiceKey: isAdPlaceholder ? 'R' : hotsearchPodcastVoiceKeyNormalize(source.voiceKey, 'R'),
       content: isAdPlaceholder ? '' : hotsearchPodcastTextNormalize(source.content, '', 2000),
       segmentType,
       templateType: hotsearchPodcastTemplateTypeNormalize(source.templateType ?? source.segmentType, 'opening')
