@@ -174,6 +174,22 @@
           <div class="text-sm font-medium">
             {{ t('pages.home.podcastScript.actions.title') }}
           </div>
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-neutral-50 px-4 py-3 dark:bg-neutral-900/40">
+            <div class="space-y-1">
+              <div class="text-sm font-medium text-highlighted">
+                {{ t('pages.home.podcastScript.scope.label') }}
+              </div>
+              <div class="text-muted text-xs leading-6">
+                {{ t(statePodcastUseBilibiliScope ? 'pages.home.podcastScript.scope.bilibiliDescription' : 'pages.home.podcastScript.scope.commonDescription') }}
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <UBadge color="neutral" variant="outline">
+                {{ t(statePodcastUseBilibiliScope ? 'pages.home.podcastScript.badges.bilibili' : 'pages.home.podcastScript.badges.common') }}
+              </UBadge>
+              <USwitch v-model="statePodcastUseBilibiliScope" :disabled="statePodcastScriptLoading" />
+            </div>
+          </div>
           <div class="grid gap-3 sm:grid-cols-2">
             <UButton v-for="mode in podcastScriptModes" :key="mode.key" color="primary" variant="soft" :disabled="!computedCanGeneratePodcastScript" :loading="statePodcastScriptLoading && stateGeneratingMode === mode.key" @click="handlePodcastScriptGenerate(mode.edition, mode.length)">
               {{ t(mode.labelKey) }}
@@ -193,6 +209,7 @@
             <UBadge color="primary" variant="soft">{{ statePodcastScriptDatas.title }}</UBadge>
             <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.edition}`) }}</UBadge>
             <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.length}`) }}</UBadge>
+            <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.mediaPlatformName || 'common'}`) }}</UBadge>
           </div>
 
           <div class="border-default space-y-4 rounded-xl border p-4">
@@ -321,6 +338,11 @@ const stateResultMessage = ref('');
  * 状态：当前脚本结果。
  */
 const statePodcastScriptDatas = ref<IPageHomePodcastScriptGenerateResponse | null>(null);
+
+/**
+ * 状态：是否切换到 bilibili 平台测试。
+ */
+const statePodcastUseBilibiliScope = ref(false);
 
 /**
  * 状态：广告开头测试内容。
@@ -475,6 +497,11 @@ const computedPodcastAudioBusy = computed(() => {
 const computedCanGeneratePodcastAudio = computed(() => {
   return Boolean(statePodcastScriptDatas.value) && !statePodcastScriptLoading.value && !computedPodcastAudioBusy.value;
 });
+
+/**
+ * 计算属性：当前媒体平台英文名。
+ */
+const computedPodcastMediaPlatformName = computed<string | undefined>(() => (statePodcastUseBilibiliScope.value ? 'bilibili' : undefined));
 
 /**
  * 计算属性：当前播客输出文件路径。
@@ -867,8 +894,9 @@ const handlePodcastScriptGenerate = async (edition: TPageHomePodcastEdition, len
     statePodcastScriptDatas.value = await hotsearchScript.build({
       edition,
       length,
-      adOpeningItems: buildPodcastAdvertisementItems(statePodcastAdOpeningItems.value),
-      adClosingItems: buildPodcastAdvertisementItems(statePodcastAdClosingItems.value),
+      mediaPlatformName: computedPodcastMediaPlatformName.value,
+      adOpeningItems: computedPodcastMediaPlatformName.value ? buildPodcastAdvertisementItems(statePodcastAdOpeningItems.value) : [],
+      adClosingItems: computedPodcastMediaPlatformName.value ? buildPodcastAdvertisementItems(statePodcastAdClosingItems.value) : [],
       bodyItems: buildPodcastScriptBodyItems()
     });
   } finally {

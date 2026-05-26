@@ -90,6 +90,11 @@ export interface IPageHomePodcastScriptGenerateRequest {
   length: TPageHomePodcastLength;
 
   /**
+    * 可选的媒体平台英文名。
+    */
+    mediaPlatformName?: string;
+
+    /**
    * 广告开头片段列表。
    */
   adOpeningItems: IPageHomePodcastScriptAdvertisementItem[];

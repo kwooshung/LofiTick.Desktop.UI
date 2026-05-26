@@ -45,11 +45,18 @@ export const home = {
       eveningLong: '晚報を生成（長編）',
       tip: 'このホームは台本テスト専用で、最終的なホーム画面デザインではありません。'
     },
+    scope: {
+      label: '生成スコープ',
+      commonDescription: '現在は common 版を生成します。広告は常に除外され、共通本文と共通の冒頭・締めだけを生成します。',
+      bilibiliDescription: '現在は bilibili 版を生成します。広告文案がある場合は、プラットフォーム用の冒頭・締めを生成し、common 本文と結合します。'
+    },
     badges: {
       morning: '朝間',
       evening: '晚間',
       short: '短編',
-      long: '長編'
+      long: '長編',
+      common: 'Common',
+      bilibili: 'Bilibili'
     },
     result: {
       title: '生成結果',

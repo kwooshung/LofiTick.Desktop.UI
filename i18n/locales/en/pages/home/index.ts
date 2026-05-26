@@ -45,11 +45,18 @@ export const home = {
       eveningLong: 'Generate Evening Brief (Long)',
       tip: 'This homepage is only a script sandbox, not the final homepage design.'
     },
+    scope: {
+      label: 'Generation Scope',
+      commonDescription: 'This generates the common version. It never includes ads and only builds the shared body with shared opening and ending.',
+      bilibiliDescription: 'This generates the bilibili version. If ad copy is provided, the platform opening and ending will be generated and merged with the common body.'
+    },
     badges: {
       morning: 'Morning',
       evening: 'Evening',
       short: 'Short',
-      long: 'Long'
+      long: 'Long',
+      common: 'Common',
+      bilibili: 'Bilibili'
     },
     result: {
       title: 'Generated Result',
