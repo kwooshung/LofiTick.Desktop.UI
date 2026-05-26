@@ -83,7 +83,13 @@
           </span>
         </template>
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
-          <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
+          <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
+            <template #trailing>
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechMaleSpeakerCode">
+                {{ t('pages.settings.services.actions.resetDefaultMaleSpeakerCode') }}
+              </UButton>
+            </template>
+          </UInput>
         </div>
       </UFormField>
 
@@ -98,7 +104,13 @@
           </span>
         </template>
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
-          <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" class="w-full" />
+          <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
+            <template #trailing>
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechFemaleSpeakerCode">
+                {{ t('pages.settings.services.actions.resetDefaultFemaleSpeakerCode') }}
+              </UButton>
+            </template>
+          </UInput>
         </div>
       </UFormField>
     </UPageCard>
@@ -111,7 +123,7 @@
  */
 const DEFAULT_VOLC_SPEECH_RESOURCE_ID = 'volc.service_type.10050';
 const DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE = 'zh_male_dayixiansheng_v2_saturn_bigtts';
-const DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE = 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts';
+const DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE = 'zh_female_mizaitongxue_v2_saturn_bigtts';
 
 /**
  * Hook：Tauri 环境。
@@ -332,6 +344,24 @@ const handleToggleAccessTokenVisible = (): void => {
  */
 const handleResetVolcSpeechResourceId = (): void => {
   stateVolcSpeechResourceIdValue.value = DEFAULT_VOLC_SPEECH_RESOURCE_ID;
+};
+
+/**
+ * 事件：恢复默认男声音色代码。
+ *
+ * @returns {void} 无返回值
+ */
+const handleResetVolcSpeechMaleSpeakerCode = (): void => {
+  stateVolcSpeechMaleSpeakerCodeValue.value = DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE;
+};
+
+/**
+ * 事件：恢复默认女声音色代码。
+ *
+ * @returns {void} 无返回值
+ */
+const handleResetVolcSpeechFemaleSpeakerCode = (): void => {
+  stateVolcSpeechFemaleSpeakerCodeValue.value = DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE;
 };
 
 /**

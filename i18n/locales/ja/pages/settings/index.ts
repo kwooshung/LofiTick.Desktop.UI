@@ -28,7 +28,9 @@ export const settings = {
     actions: {
       showAccessToken: 'トークンを表示',
       hideAccessToken: 'トークンを隠す',
-      resetDefaultResourceId: '既定の Resource ID に戻す'
+      resetDefaultResourceId: '既定の Resource ID に戻す',
+      resetDefaultMaleSpeakerCode: '既定の男性音声に戻す',
+      resetDefaultFemaleSpeakerCode: '既定の女性音声に戻す'
     },
     volcSpeech: {
       title: 'Volc Speech',
@@ -60,7 +62,7 @@ export const settings = {
         descriptionPrefix: 'F と D に含まれる女性音声を、Doubao の実際の ',
         descriptionSuffix: ' にマッピングします。',
         linkLabel: 'speaker code',
-        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
       }
     }
   },

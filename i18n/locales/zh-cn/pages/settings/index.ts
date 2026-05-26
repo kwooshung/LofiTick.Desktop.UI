@@ -28,7 +28,9 @@
     actions: {
       showAccessToken: '显示令牌',
       hideAccessToken: '隐藏令牌',
-      resetDefaultResourceId: '恢复默认 Resource ID'
+      resetDefaultResourceId: '恢复默认 Resource ID',
+      resetDefaultMaleSpeakerCode: '恢复默认男声',
+      resetDefaultFemaleSpeakerCode: '恢复默认女声'
     },
     volcSpeech: {
       title: '豆包语音',
@@ -60,7 +62,7 @@
         descriptionPrefix: '用于把 F 和 D 中的女声映射成豆包真实 ',
         descriptionSuffix: '。',
         linkLabel: 'speaker code',
-        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
       }
     }
   },

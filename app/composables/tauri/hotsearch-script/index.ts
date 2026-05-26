@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import type { IPageHomePodcastScriptGenerateRequest, IPageHomePodcastScriptGenerateResponse } from '@@/shared/types/index.types';
+import type { IPageHomePodcastScriptGenerateRequest, IPageHomePodcastScriptGenerateResponse, ITauriPodcastGenerateAccepted } from '@@/shared/types/index.types';
 
 /**
  * Hook：热搜播客脚本。
@@ -26,5 +26,18 @@ export const useTauriHotsearchScript = () => {
     return invoke<IPageHomePodcastScriptGenerateResponse>('hotsearch_podcast_script_build', { payload });
   };
 
-  return { build };
+  /**
+   * 函数：根据当前脚本结果生成真实播客音频。
+   * @param {IPageHomePodcastScriptGenerateResponse} payload 当前脚本结果。
+   * @returns {Promise<ITauriPodcastGenerateAccepted>} 任务受理结果。
+   */
+  const generate = async (payload: IPageHomePodcastScriptGenerateResponse): Promise<ITauriPodcastGenerateAccepted> => {
+    if (!isTauriRuntime.value) {
+      throw new Error('hotsearch podcast audio generate only supports tauri runtime');
+    }
+
+    return invoke<ITauriPodcastGenerateAccepted>('hotsearch_podcast_generate', { payload });
+  };
+
+  return { build, generate };
 };

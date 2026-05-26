@@ -55,7 +55,32 @@ export const home = {
       title: '生成結果',
       description: '返却構造は、そのまま Doubao Podcast エンジンへ渡せる speaker + text の行配列です。',
       emptyTitle: 'まだ台本が生成されていません',
-      emptyDescription: '先に原稿を調整してから、上の 4 つの生成ボタンを押してください。'
+      emptyDescription: '先に原稿を調整してから、上の 4 つの生成ボタンを押してください。',
+      audio: {
+        generate: 'ポッドキャスト音声を生成',
+        openDirectory: '出力フォルダを開く',
+        defaultHint: '生成後の音声は添付ディレクトリ配下のホットサーチ用ポッドキャスト保存先へ保存されます。',
+        statusTitle: '音声生成ステータス',
+        errorTitle: '音声生成に失敗しました',
+        errorFallback: 'ポッドキャスト音声の生成に失敗しました。添付ディレクトリと Volc 音声認証情報を確認してください。',
+        errorVolcRedisNil: 'Volc ポッドキャストサービスが redis: nil を返しました。これは現在の AppID、AccessToken、resourceId、speaker code の組み合わせが対応能力と一致していない場合に起こることが多く、ローカル Redis の欠如を意味するものではありません。元のエラー: {raw}',
+        statusIdle: '台本結果の準備ができました。実際のポッドキャスト音声を生成できます。',
+        statusAccepted: 'タスクは受理されました。デスクトップシェルが Doubao ポッドキャスト接続を準備しています。',
+        statusRunning: '音声を生成中です。現在の段階: {phase}。',
+        statusSucceeded: '音声の生成が完了し、次の場所へ保存されました: {path}',
+        statusFailed: '音声生成に失敗しました: {message}',
+        statusCanceled: '音声生成タスクはキャンセルされました。',
+        phases: {
+          queued: '待機中',
+          connecting: '接続中',
+          sessionStarting: 'セッション開始中',
+          generating: '生成中',
+          finalizing: '仕上げ中',
+          completed: '完了',
+          failed: '失敗',
+          canceled: 'キャンセル済み'
+        }
+      }
     }
   },
   welcomeEmail: {

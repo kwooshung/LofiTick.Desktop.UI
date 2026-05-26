@@ -117,5 +117,18 @@ export type {
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type {
+  ITauriPodcastGenerateAccepted,
+  ITauriPodcastNlpText,
+  ITauriPodcastProgress,
+  ITauriPodcastRound,
+  ITauriPodcastTaskEvent,
+  ITauriPodcastTaskResult,
+  ITauriPodcastTaskSnapshot,
+  ITauriPodcastUsage,
+  TTauraPodcastEventType,
+  TTauraPodcastTaskPhase,
+  TTauraPodcastTaskStatus
+} from '@@/shared/types/tauri/podcast/index.types';
 export type { ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

@@ -28,7 +28,9 @@ export const settings = {
     actions: {
       showAccessToken: '顯示權杖',
       hideAccessToken: '隱藏權杖',
-      resetDefaultResourceId: '恢復預設 Resource ID'
+      resetDefaultResourceId: '恢復預設 Resource ID',
+      resetDefaultMaleSpeakerCode: '恢復預設男聲',
+      resetDefaultFemaleSpeakerCode: '恢復預設女聲'
     },
     volcSpeech: {
       title: '豆包語音',
@@ -60,7 +62,7 @@ export const settings = {
         descriptionPrefix: '用於把 F 和 D 中的女聲映射成豆包真實 ',
         descriptionSuffix: '。',
         linkLabel: 'speaker code',
-        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
       }
     }
   },

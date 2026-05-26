@@ -476,6 +476,21 @@ const lunarDateTimeTextGet = (value: Date): string => {
 };
 
 /**
+ * 函数：将节目名称格式化为带中文书名号的文本。
+ * @param {string} value 原始节目名称。
+ * @returns {string} 带中文书名号的节目名称。
+ */
+const programNameRender = (value: string): string => {
+  const normalized = String(value || '')
+    .trim()
+    .replace(/^《/, '')
+    .replace(/》$/, '')
+    .trim();
+
+  return `《${normalized}》`;
+};
+
+/**
  * 函数：按当前设置生成变量示例值。
  * @param {string} token 变量 token。
  * @returns {string} 示例值。
@@ -501,10 +516,10 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
   }).format(now);
   const maleSpeaker = maleSpeakerName.value || '男声主播';
   const femaleSpeaker = femaleSpeakerName.value || '女声主播';
-  const morningProgram = morningProgramName.value || '洛菲热点早报';
-  const eveningProgram = eveningProgramName.value || '洛菲热点晚报';
-  const vipMorningProgram = vipMorningProgramName.value || '洛菲热点早报 尊享版';
-  const vipEveningProgram = vipEveningProgramName.value || '洛菲热点晚报 尊享版';
+  const morningProgram = programNameRender(morningProgramName.value || '洛菲热点早报');
+  const eveningProgram = programNameRender(eveningProgramName.value || '洛菲热点晚报');
+  const vipMorningProgram = programNameRender(vipMorningProgramName.value || '洛菲热点早报 尊享版');
+  const vipEveningProgram = programNameRender(vipEveningProgramName.value || '洛菲热点晚报 尊享版');
 
   switch (token) {
     case '[speakerName]':

@@ -195,6 +195,26 @@
             <UBadge color="neutral" variant="outline">{{ t(`pages.home.podcastScript.badges.${statePodcastScriptDatas.length}`) }}</UBadge>
           </div>
 
+          <div class="border-default space-y-4 rounded-xl border p-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <UButton color="primary" :disabled="!computedCanGeneratePodcastAudio" :loading="statePodcastAudioLoading" @click="handlePodcastAudioGenerate">
+                {{ t('pages.home.podcastScript.result.audio.generate') }}
+              </UButton>
+
+              <UButton v-if="computedPodcastOutputDirectory" color="neutral" variant="outline" @click="handlePodcastOutputDirectoryOpen">
+                {{ t('pages.home.podcastScript.result.audio.openDirectory') }}
+              </UButton>
+            </div>
+
+            <div class="text-muted text-xs leading-6">
+              {{ t('pages.home.podcastScript.result.audio.defaultHint') }}
+            </div>
+
+            <UAlert v-if="statePodcastAudioError" color="error" variant="soft" :title="t('pages.home.podcastScript.result.audio.errorTitle')" :description="statePodcastAudioError" />
+
+            <UAlert v-if="statePodcastTaskSnapshot" :color="computedPodcastTaskColor" variant="soft" :title="computedPodcastTaskTitle" :description="computedPodcastTaskDescription" />
+          </div>
+
           <div class="grid gap-4 xl:grid-cols-2">
             <UPageCard v-for="(line, index) in statePodcastScriptDatas.lines" :key="`${line.speakerRole}-${line.segmentType}-${index}`" variant="subtle" :ui="{ container: 'space-y-3' }">
               <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -214,12 +234,16 @@
 </template>
 
 <script setup lang="ts">
+import type { UnlistenFn } from '@tauri-apps/api/event';
+
 import type {
   IPageHomePodcastScriptAdvertisementItem,
   IPageHomePodcastScriptBodyItem,
   IPageHomePodcastScriptGenerateResponse,
   IPageHomeSendWelcomeEmailResponse,
   IPageHomeWelcomeEmailPayload,
+  ITauriPodcastGenerateAccepted,
+  ITauriPodcastTaskSnapshot,
   TPageHomePodcastEdition,
   TPageHomePodcastLength,
   THotsearchPodcastSegmentType,
@@ -314,18 +338,18 @@ const statePodcastAdOpeningItems = ref<IPageHomePodcastScriptAdvertisementItem[]
  * 状态：广告结尾测试内容。
  */
 const statePodcastAdClosingItems = ref<IPageHomePodcastScriptAdvertisementItem[]>([
-  createPodcastAdvertisementItem('F', '本期节目的结尾，再提醒你一次，洛菲效率时钟已经把专注、计划和复盘这三件事放进同一个桌面流程里。'),
-  createPodcastAdvertisementItem('M', '如果你想进一步了解，可以直接查看节目说明里的体验入口。感谢这次赞助支持，我们下期节目再见。')
+  createPodcastAdvertisementItem('F', '节目的最后，也把这次赞助信息留给你。洛菲效率时钟不是单纯多一个计时器，而是把一天里最容易断掉的专注、计划和复盘重新串回到同一个节奏里。'),
+  createPodcastAdvertisementItem('M', '如果你最近也在找一个更顺手的桌面效率工具，可以去节目说明里的入口看看。感谢这次赞助支持，我们下一期接着聊。')
 ]);
 
 /**
  * 状态：正文测试片段。
  */
 const statePodcastScriptBodyItems = ref<IPageHomePodcastScriptBodyItem[]>([
-  createPodcastBodyItem('M', '早上好，这里是今天的洛菲热点早报。先用三分钟，带你快速过一遍今天最值得关注的热搜方向。'),
-  createPodcastBodyItem('F', '今天的主线可以先看两个关键词，一个是平台热度持续抬升，另一个是用户讨论开始从围观转向实际决策。'),
-  createPodcastBodyItem('M', '如果你现在时间不多，先记住一个结论：这波话题已经不只是情绪传播，而是在影响内容消费和产品选择。'),
-  createPodcastBodyItem('F', '接下来我们把讨论度最高的一条拆开看，重点放在它为什么突然爆发，以及后续还有没有继续发酵的空间。')
+  createPodcastBodyItem('M', '今天这条热搜我一开始真没太当回事，觉得又是一条大家刷两下就过去的话题。结果越往下看越不对，大家表面上像在吵一句话，实际上已经开始借这件事翻旧账了。'),
+  createPodcastBodyItem('F', '对，我也是这种感觉。前面看着还是玩梗、截图、复读那一套，但你多刷几条就会发现，评论区已经不是单纯围观了，很多人明显是在拿自己的经历往里对。'),
+  createPodcastBodyItem('M', '所以它后面才会一下子变重，因为话题只要开始碰到平台怎么处理、当事人怎么回应、大家还愿不愿意继续信，这个东西就不会是热度过去就算了。'),
+  createPodcastBodyItem('F', '我们这一段也就不急着把过程从头捋到尾了，先挑几个最有代表性的讨论点聊一聊，看看这一波到底是大家反应过头了，还是有些问题本来就一直卡在那里。')
 ]);
 
 /**
@@ -363,9 +387,49 @@ const {
 const hotsearchScript = useTauriHotsearchScript();
 
 /**
+ * Hook：Tauri 播客任务。
+ */
+const tauriPodcast = useTauriPodcast();
+
+/**
+ * Hook：Tauri 窗口。
+ */
+const tauriWindow = useTauriWindow();
+
+/**
+ * Hook：Tauri 环境。
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
  * 状态：是否正在生成脚本。
  */
 const statePodcastScriptLoading = ref(false);
+
+/**
+ * 状态：当前播客音频受理结果。
+ */
+const statePodcastAudioAccepted = ref<ITauriPodcastGenerateAccepted | null>(null);
+
+/**
+ * 状态：当前播客任务快照。
+ */
+const statePodcastTaskSnapshot = ref<ITauriPodcastTaskSnapshot | null>(null);
+
+/**
+ * 状态：是否正在发起播客音频生成。
+ */
+const statePodcastAudioLoading = ref(false);
+
+/**
+ * 状态：播客音频生成错误。
+ */
+const statePodcastAudioError = ref('');
+
+/**
+ * 变量：取消订阅播客任务事件句柄。
+ */
+let unlistenPodcastTaskEvent: UnlistenFn | null = null;
 
 /**
  * 计算属性：是否正在发送。
@@ -396,6 +460,74 @@ const computedPodcastSegmentOptions = computed(() =>
  * 计算属性：是否允许生成播客脚本。
  */
 const computedCanGeneratePodcastScript = computed(() => statePodcastScriptBodyItems.value.some((item) => String(item.content || '').trim() !== '') && !statePodcastScriptLoading.value);
+
+/**
+ * 计算属性：是否正在处理播客音频任务。
+ */
+const computedPodcastAudioBusy = computed(() => {
+  const status = statePodcastTaskSnapshot.value?.status;
+  return statePodcastAudioLoading.value || status === 'accepted' || status === 'running';
+});
+
+/**
+ * 计算属性：是否允许生成播客音频。
+ */
+const computedCanGeneratePodcastAudio = computed(() => {
+  return Boolean(statePodcastScriptDatas.value) && !statePodcastScriptLoading.value && !computedPodcastAudioBusy.value;
+});
+
+/**
+ * 计算属性：当前播客输出文件路径。
+ */
+const computedPodcastFinalFilePath = computed(() => statePodcastTaskSnapshot.value?.result?.finalFilePath || '');
+
+/**
+ * 计算属性：当前播客输出目录。
+ */
+const computedPodcastOutputDirectory = computed(() => podcastOutputDirectoryGet(computedPodcastFinalFilePath.value));
+
+/**
+ * 计算属性：播客任务提示标题。
+ */
+const computedPodcastTaskTitle = computed(() => {
+  const status = statePodcastTaskSnapshot.value?.status;
+
+  if (!status) {
+    return '';
+  }
+
+  if (status === 'failed') {
+    return t('pages.home.podcastScript.result.audio.errorTitle');
+  }
+
+  return t('pages.home.podcastScript.result.audio.statusTitle');
+});
+
+/**
+ * 计算属性：播客任务提示颜色。
+ */
+const computedPodcastTaskColor = computed(() => {
+  const status = statePodcastTaskSnapshot.value?.status;
+
+  if (status === 'succeeded') {
+    return 'success';
+  }
+
+  if (status === 'failed') {
+    return 'error';
+  }
+
+  if (status === 'canceled') {
+    return 'warning';
+  }
+
+  return 'primary';
+});
+
+/**
+ * 计算属性：播客任务提示文案。
+ */
+const computedPodcastTaskDescription = computed(() => podcastTaskDescriptionGet(statePodcastTaskSnapshot.value));
 
 /**
  * 事件：发送欢迎邮件。
@@ -434,6 +566,100 @@ const handleSendWelcomeEmail = async (): Promise<void> => {
       email: stateTargetEmail
     });
   }
+};
+
+/**
+ * 函数：重置当前播客音频任务状态。
+ * @returns {void} 无返回值
+ */
+const resetPodcastAudioState = (): void => {
+  statePodcastAudioAccepted.value = null;
+  statePodcastTaskSnapshot.value = null;
+  statePodcastAudioError.value = '';
+};
+
+/**
+ * 函数：提取播客输出目录。
+ * @param {string} finalFilePath 最终文件路径
+ * @returns {string} 输出目录
+ */
+const podcastOutputDirectoryGet = (finalFilePath: string): string => {
+  const normalized = String(finalFilePath || '').trim();
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/[\\/][^\\/]+$/, '');
+};
+
+/**
+ * 函数：提取播客错误原文。
+ * @param {unknown} input 原始错误输入
+ * @returns {string} 错误原文
+ */
+const podcastAudioErrorRawGet = (input: unknown): string => {
+  if (typeof input === 'string') {
+    return input.trim();
+  }
+
+  if (input instanceof Error) {
+    return String(input.message || '').trim();
+  }
+
+  return '';
+};
+
+/**
+ * 函数：格式化播客错误提示文案。
+ * @param {unknown} input 原始错误输入
+ * @returns {string} 面向用户的错误提示
+ */
+const podcastAudioErrorMessageFormat = (input: unknown): string => {
+  const raw = podcastAudioErrorRawGet(input);
+  if (!raw) {
+    return t('pages.home.podcastScript.result.audio.errorFallback');
+  }
+
+  if (raw.toLowerCase().includes('redis: nil')) {
+    return t('pages.home.podcastScript.result.audio.errorVolcRedisNil', { raw });
+  }
+
+  return raw;
+};
+
+/**
+ * 函数：构建播客任务提示文案。
+ * @param {ITauriPodcastTaskSnapshot | null} snapshot 当前任务快照
+ * @returns {string} 提示文案
+ */
+const podcastTaskDescriptionGet = (snapshot: ITauriPodcastTaskSnapshot | null): string => {
+  if (!snapshot) {
+    return t('pages.home.podcastScript.result.audio.statusIdle');
+  }
+
+  if (snapshot.status === 'accepted') {
+    return t('pages.home.podcastScript.result.audio.statusAccepted');
+  }
+
+  if (snapshot.status === 'running') {
+    return t('pages.home.podcastScript.result.audio.statusRunning', {
+      phase: t(`pages.home.podcastScript.result.audio.phases.${snapshot.phase}`)
+    });
+  }
+
+  if (snapshot.status === 'succeeded') {
+    return t('pages.home.podcastScript.result.audio.statusSucceeded', {
+      path: snapshot.result?.finalFilePath || ''
+    });
+  }
+
+  if (snapshot.status === 'canceled') {
+    return t('pages.home.podcastScript.result.audio.statusCanceled');
+  }
+
+  return t('pages.home.podcastScript.result.audio.statusFailed', {
+    message: podcastAudioErrorMessageFormat(snapshot.lastError)
+  });
 };
 
 /**
@@ -635,6 +861,7 @@ const handlePodcastBodyItemSegmentTypeUpdate = (index: number, value: THotsearch
 const handlePodcastScriptGenerate = async (edition: TPageHomePodcastEdition, length: TPageHomePodcastLength): Promise<void> => {
   stateGeneratingMode.value = `${edition}:${length}`;
   statePodcastScriptLoading.value = true;
+  resetPodcastAudioState();
 
   try {
     statePodcastScriptDatas.value = await hotsearchScript.build({
@@ -649,6 +876,68 @@ const handlePodcastScriptGenerate = async (edition: TPageHomePodcastEdition, len
     stateGeneratingMode.value = '';
   }
 };
+
+/**
+ * 事件：生成播客音频。
+ * @returns {Promise<void>} 无返回值
+ */
+const handlePodcastAudioGenerate = async (): Promise<void> => {
+  if (!statePodcastScriptDatas.value) {
+    return;
+  }
+
+  statePodcastAudioLoading.value = true;
+  statePodcastAudioError.value = '';
+
+  try {
+    const accepted = await hotsearchScript.generate(statePodcastScriptDatas.value);
+    statePodcastAudioAccepted.value = accepted;
+    statePodcastTaskSnapshot.value = await tauriPodcast.taskGet(accepted.taskId);
+  } catch (error) {
+    statePodcastAudioError.value = podcastAudioErrorMessageFormat(error);
+  } finally {
+    statePodcastAudioLoading.value = false;
+  }
+};
+
+/**
+ * 事件：打开播客输出目录。
+ * @returns {Promise<void>} 无返回值
+ */
+const handlePodcastOutputDirectoryOpen = async (): Promise<void> => {
+  if (!computedPodcastOutputDirectory.value) {
+    return;
+  }
+
+  await tauriWindow.openDirectory(computedPodcastOutputDirectory.value);
+};
+
+/**
+ * 生命周期：组件挂载。
+ */
+onMounted(async () => {
+  if (!import.meta.client || !isTauriRuntime.value) {
+    return;
+  }
+
+  unlistenPodcastTaskEvent = await tauriPodcast.onTaskEvent((event) => {
+    if (event.taskId !== statePodcastAudioAccepted.value?.taskId) {
+      return;
+    }
+
+    statePodcastTaskSnapshot.value = event.snapshot;
+  });
+});
+
+/**
+ * 生命周期：组件卸载。
+ */
+onBeforeUnmount(() => {
+  if (unlistenPodcastTaskEvent) {
+    unlistenPodcastTaskEvent();
+    unlistenPodcastTaskEvent = null;
+  }
+});
 
 /**
  * Store：面包屑。

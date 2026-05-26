@@ -28,7 +28,9 @@ export const settings = {
     actions: {
       showAccessToken: 'Show token',
       hideAccessToken: 'Hide token',
-      resetDefaultResourceId: 'Reset default Resource ID'
+      resetDefaultResourceId: 'Reset default Resource ID',
+      resetDefaultMaleSpeakerCode: 'Reset male voice',
+      resetDefaultFemaleSpeakerCode: 'Reset female voice'
     },
     volcSpeech: {
       title: 'Volc Speech',
@@ -60,7 +62,7 @@ export const settings = {
         descriptionPrefix: 'Maps F and the female half of D to the real Volc ',
         descriptionSuffix: '.',
         linkLabel: 'speaker code',
-        placeholder: 'zh_female_tianmeixiaoyuan_v2_saturn_bigtts'
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
       }
     }
   },

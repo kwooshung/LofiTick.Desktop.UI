@@ -55,7 +55,32 @@ export const home = {
       title: 'Generated Result',
       description: 'The response is already the final speaker + text line array that can be sent directly to the Volc podcast engine.',
       emptyTitle: 'No script generated yet',
-      emptyDescription: 'Adjust the copy first, then click one of the four generate buttons above.'
+      emptyDescription: 'Adjust the copy first, then click one of the four generate buttons above.',
+      audio: {
+        generate: 'Generate Podcast Audio',
+        openDirectory: 'Open Output Folder',
+        defaultHint: 'Generated audio will be archived under the hot-search podcast folder inside the attachments directory.',
+        statusTitle: 'Audio Generation Status',
+        errorTitle: 'Audio Generation Failed',
+        errorFallback: 'Failed to generate podcast audio. Check the attachments directory and Volc speech credentials.',
+        errorVolcRedisNil: 'The Volc podcast service returned redis: nil. This usually means the current AppID, AccessToken, resourceId, or speaker code capability combination does not match, not that local Redis is missing. Raw error: {raw}',
+        statusIdle: 'The script result is ready. You can now generate the real podcast audio.',
+        statusAccepted: 'The task has been accepted. The desktop shell is preparing the Doubao podcast connection.',
+        statusRunning: 'Audio generation is in progress. Current phase: {phase}.',
+        statusSucceeded: 'The audio was generated successfully and saved to: {path}',
+        statusFailed: 'Audio generation failed: {message}',
+        statusCanceled: 'The audio generation task was canceled.',
+        phases: {
+          queued: 'Queued',
+          connecting: 'Connecting',
+          sessionStarting: 'Starting session',
+          generating: 'Generating',
+          finalizing: 'Finalizing',
+          completed: 'Completed',
+          failed: 'Failed',
+          canceled: 'Canceled'
+        }
+      }
     }
   },
   welcomeEmail: {

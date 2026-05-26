@@ -55,7 +55,32 @@ export const home = {
       title: '生成結果',
       description: '回傳結構已經是最終可直接餵給豆包播客引擎的 speaker + text 行陣列。',
       emptyTitle: '還沒有生成腳本',
-      emptyDescription: '先調整文案，再點上面的四個生成按鈕。'
+      emptyDescription: '先調整文案，再點上面的四個生成按鈕。',
+      audio: {
+        generate: '生成播客音訊',
+        openDirectory: '開啟輸出目錄',
+        defaultHint: '生成後的音訊會保存到附件目錄下的熱搜播客歸檔目錄。',
+        statusTitle: '音訊生成狀態',
+        errorTitle: '音訊生成失敗',
+        errorFallback: '生成播客音訊失敗，請檢查附件目錄與豆包語音憑證是否已設定。',
+        errorVolcRedisNil: '火山播客服務回傳了 redis: nil。這通常表示目前 AppID、AccessToken、resourceId 或 speaker code 的能力組合不匹配，並不是本地 Redis 缺失。原始錯誤：{raw}',
+        statusIdle: '腳本結果已經就緒，可以開始生成真實播客音訊。',
+        statusAccepted: '任務已受理，桌面殼正在準備連線豆包播客服務。',
+        statusRunning: '正在生成音訊，目前階段：{phase}。',
+        statusSucceeded: '音訊已生成完成，並保存到：{path}',
+        statusFailed: '音訊生成失敗：{message}',
+        statusCanceled: '音訊生成任務已取消。',
+        phases: {
+          queued: '排隊中',
+          connecting: '正在連線',
+          sessionStarting: '正在啟動會話',
+          generating: '正在生成',
+          finalizing: '正在收尾',
+          completed: '已完成',
+          failed: '失敗',
+          canceled: '已取消'
+        }
+      }
     }
   },
   welcomeEmail: {
