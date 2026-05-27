@@ -45,12 +45,24 @@
             <FormUrlInput :model-value="computedPanelBase" readonly>
               <template #actions>
                 <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" :content="{ side: 'top' }">
-                  <ULink raw :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH)" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))">
+                  <ULink
+                    raw
+                    :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH)"
+                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')"
+                    @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))"
+                  >
                     <UIcon name="i-lucide:calendar-clock" class="size-4 shrink-0" />
                   </ULink>
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" :content="{ side: 'top' }">
-                  <ULink raw :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH)" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))">
+                  <ULink
+                    raw
+                    :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH)"
+                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')"
+                    @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))"
+                  >
                     <UIcon name="i-lucide:library-big" class="size-4 shrink-0" />
                   </ULink>
                 </UTooltip>
