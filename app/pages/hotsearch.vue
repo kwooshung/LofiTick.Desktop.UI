@@ -61,9 +61,10 @@
           </template>
         </UPopover>
 
-        <UButton color="neutral" variant="ghost" icon="i-proicons:settings" class="shrink-0 rounded-lg" :to="localePath('/settings/hotsearch')">
+        <ULink raw :to="localePath('/settings/hotsearch')" class="text-highlighted hover:bg-elevated inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors">
+          <UIcon name="i-proicons:settings" class="size-4 shrink-0" />
           {{ t('pages.settings.title') }}
-        </UButton>
+        </ULink>
       </div>
     </template>
 

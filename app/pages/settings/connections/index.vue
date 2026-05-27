@@ -45,10 +45,14 @@
             <FormUrlInput :model-value="computedPanelBase" readonly>
               <template #actions>
                 <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" :content="{ side: 'top' }">
-                  <UButton color="neutral" variant="link" size="sm" icon="i-lucide:calendar-clock" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" @click.stop="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))" />
+                  <ULink raw :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH)" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))">
+                    <UIcon name="i-lucide:calendar-clock" class="size-4 shrink-0" />
+                  </ULink>
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" :content="{ side: 'top' }">
-                  <UButton color="neutral" variant="link" size="sm" icon="i-lucide:library-big" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" @click.stop="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))" />
+                  <ULink raw :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH)" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))">
+                    <UIcon name="i-lucide:library-big" class="size-4 shrink-0" />
+                  </ULink>
                 </UTooltip>
               </template>
             </FormUrlInput>
@@ -75,7 +79,9 @@
                       <FormUrlInput :model-value="link.href" readonly class="w-full">
                         <template #actions>
                           <UTooltip :text="link.label" :content="{ side: 'top' }">
-                            <UButton color="neutral" variant="link" size="sm" icon="i-lucide:external-link" :aria-label="link.label" @click.stop="handleOpenExternal(link.href)" />
+                            <ULink raw :href="link.href" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="link.label" @click.stop.prevent="handleOpenExternal(link.href)">
+                              <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+                            </ULink>
                           </UTooltip>
                         </template>
                       </FormUrlInput>

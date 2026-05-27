@@ -76,6 +76,10 @@ const Datetime = resolveComponent('Datetime');
  * 组件：按钮。
  */
 const UButton = resolveComponent('UButton');
+/**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
 
 /**
  * 组件：徽章。
@@ -472,17 +476,16 @@ const hotsearchPlatformCellRender = (item: IHotsearchDataRow) =>
     'div',
     { class: 'py-2' },
     h(
-      UButton,
+      ULink,
       {
-        color: 'neutral',
-        variant: 'link',
+        raw: true,
+        to: buildPlatformLocation(item.platformType),
         class:
           computedSelectedPlatformType.value === item.platformType
-            ? 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-primary hover:text-primary hover:underline'
-            : 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-muted hover:text-primary hover:underline',
-        onClick: () => handlePlatformSelect(item.platformType)
+            ? 'p-0 text-primary whitespace-normal break-words no-underline hover:text-primary hover:underline'
+            : 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline'
       },
-      () => h('span', { class: 'inline whitespace-normal break-words' }, `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`)
+      () => `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`
     )
   );
 
@@ -493,16 +496,18 @@ const hotsearchPlatformCellRender = (item: IHotsearchDataRow) =>
  */
 const hotsearchTitleWithSummaryCellRender = (item: IHotsearchDataRow) =>
   h('div', { class: 'min-w-0 flex flex-col gap-1.5' }, [
-    h(
-      UButton,
-      {
-        color: 'neutral',
-        variant: 'link',
-        class: 'inline-flex self-start p-0 h-auto min-h-0 max-w-full justify-start text-left text-default hover:text-primary hover:underline',
-        onClick: () => void handleSourceOpen(item.url)
-      },
-      () => h('span', { class: 'inline max-w-full whitespace-normal break-all' }, item.title)
-    ),
+    h('div', { class: 'min-w-0' }, [
+      h(
+        ULink,
+        {
+          raw: true,
+          href: item.url,
+          class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+          onClick: () => void handleSourceOpen(item.url)
+        },
+        () => h('span', { class: 'whitespace-normal break-all' }, item.title)
+      )
+    ]),
     h('p', { class: 'w-full max-w-full text-sm text-dimmed whitespace-normal break-all' }, item.summary)
   ]);
 
@@ -614,8 +619,22 @@ const handlePlatformSelect = (platformType: string): void => {
 };
 
 /**
- * 函数：切换标签筛选。
- * @param {string} categoryKey 标签 key。
+ * 函数：构建平台筛选跳转位置。
+ * @param {string} platformType 平台类型。
+ * @returns {{ path: string; query: Record<string, unknown> }} 跳转位置。
+ */
+const buildPlatformLocation = (platformType: string) => ({
+  path: route.path,
+  query: {
+    ...route.query,
+    platform: platformType || undefined,
+    page: '1'
+  }
+});
+
+/**
+ * 函数：切换分类筛选。
+ * @param {string} categoryKey 分类键。
  * @returns {void}
  */
 const handleCategorySelect = (categoryKey: string): void => {
@@ -628,6 +647,20 @@ const handleCategorySelect = (categoryKey: string): void => {
     }
   });
 };
+
+/**
+ * 函数：构建分类筛选跳转位置。
+ * @param {string} categoryKey 分类键。
+ * @returns {{ path: string; query: Record<string, unknown> }} 跳转位置。
+ */
+const buildDataLocation = (categoryKey: string) => ({
+  path: route.path,
+  query: {
+    ...route.query,
+    category_key: categoryKey || undefined,
+    page: '1'
+  }
+});
 
 /**
  * 函数：切换排序字段。

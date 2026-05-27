@@ -8,7 +8,10 @@
         </div>
         <div class="flex shrink-0 flex-col items-end gap-2">
           <div class="flex items-center gap-2">
-            <UButton color="primary" variant="outline" icon="i-proicons:settings" :to="localePath('/settings/unattended')">{{ t('pages.sentinel.logs.actions.openSettings') }}</UButton>
+            <ULink raw :to="localePath('/settings/unattended')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
+              <UIcon name="i-proicons:settings" class="size-4 shrink-0" />
+              {{ t('pages.sentinel.logs.actions.openSettings') }}
+            </ULink>
             <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelLogsRefresh">{{ t('pages.sentinel.logs.actions.refresh') }}</UButton>
           </div>
           <div class="text-toned flex items-center gap-1.5 text-xs leading-4 whitespace-nowrap">

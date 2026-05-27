@@ -1,6 +1,6 @@
 <template>
   <UApp :locale="locales[locale]" :toaster="appConfig.toaster">
-    <UTheme :props="{ tooltip: { arrow: true } }">
+    <UTheme :ui="{ tooltip: { arrow: true } }">
       <NuxtRouteAnnouncer />
       <NuxtLoadingIndicator color="var(--ui-primary)" />
       <NuxtLayout>

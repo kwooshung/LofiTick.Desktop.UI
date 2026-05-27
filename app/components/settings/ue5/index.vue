@@ -59,7 +59,9 @@
                 <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
               </UTooltip>
               <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
-                <UButton color="neutral" variant="link" size="sm" icon="i-lucide-external-link" @click.stop="handleLinkOpen(request.url)" />
+                <ULink raw :href="request.url" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" @click.stop.prevent="handleLinkOpen(request.url)">
+                  <UIcon name="i-lucide-external-link" class="size-4 shrink-0" />
+                </ULink>
               </UTooltip>
             </div>
           </template>

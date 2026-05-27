@@ -16,7 +16,9 @@
               </UBreadcrumb>
             </ClientOnly>
           </div>
-          <ButtonWindows class="self-start" />
+          <ClientOnly>
+            <ButtonWindows class="self-start" />
+          </ClientOnly>
         </header>
         <slot />
       </div>

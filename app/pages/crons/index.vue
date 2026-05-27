@@ -55,6 +55,11 @@ const UButton = resolveComponent('UButton');
 const UIcon = resolveComponent('UIcon');
 
 /**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * Hook：Tauri 环境。
  */
 const { isTauriRuntime } = useTauriEnv();
@@ -260,16 +265,13 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
               h('div', { class: 'text-highlighted text-sm font-semibold' }, row.original.title),
               h(UBadge, { color: row.original.statusColor, variant: 'soft' }, () => row.original.statusLabel),
               h(
-                UButton,
+                ULink,
                 {
+                  raw: true,
                   to: localTaskSettingsPathGet(row.original.key),
-                  size: 'xs',
-                  color: 'neutral',
-                  variant: 'ghost',
-                  icon: 'i-lucide:arrow-up-right',
-                  class: 'h-6 px-2 hover:cursor-pointer'
+                  class: 'text-muted hover:bg-elevated hover:text-highlighted inline-flex h-6 items-center gap-1 rounded-md px-2 text-xs font-medium no-underline transition-colors'
                 },
-                () => t('pages.settings.cron.local.actions.openSettings')
+                () => [h(UIcon, { name: 'i-lucide:arrow-up-right', class: 'size-3.5 shrink-0' }), t('pages.settings.cron.local.actions.openSettings')]
               )
             ]),
             h('p', { class: 'text-muted mt-1 text-xs leading-5 wrap-break-word' }, row.original.description)

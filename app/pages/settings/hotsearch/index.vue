@@ -6,9 +6,10 @@
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
-        <UButton color="primary" variant="outline" icon="i-material-symbols:bigtop-updates-rounded" :to="localePath('/hotsearch')">
+        <ULink raw :to="localePath('/hotsearch')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
+          <UIcon name="i-material-symbols:bigtop-updates-rounded" class="size-4 shrink-0" />
           {{ t('pages.settings.hotsearch.header.enter') }}
-        </UButton>
+        </ULink>
       </template>
     </UPageCard>
 
@@ -45,7 +46,10 @@
             :decrement="{ color: 'neutral', variant: 'ghost' }"
             @update:model-value="handleMonthlyBudgetUpdate"
           />
-          <UButton color="primary" variant="outline" icon="i-lucide:external-link" @click="handleUsageOpen">{{ t('pages.settings.hotsearch.actions.usage') }}</UButton>
+          <ULink raw :href="HOTSEARCH_USAGE_URL" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleUsageOpen">
+            <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+            {{ t('pages.settings.hotsearch.actions.usage') }}
+          </ULink>
         </div>
       </UFormField>
     </UPageCard>

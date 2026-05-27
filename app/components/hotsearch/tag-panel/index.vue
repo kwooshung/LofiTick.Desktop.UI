@@ -50,6 +50,11 @@ const Datetime = resolveComponent('Datetime');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：分页。
  */
 const UPagination = resolveComponent('UPagination');
@@ -335,11 +340,10 @@ const columns: TableColumn<IHotsearchTagSummaryRow>[] = [
     header: t('pages.hotsearch.tags.table.tag'),
     cell: ({ row }) =>
       h(
-        UButton,
+        ULink,
         {
-          color: 'neutral',
-          variant: 'link',
-          class: 'p-0 h-auto min-h-0 justify-start text-left hover:underline',
+          raw: true,
+          class: 'p-0 whitespace-normal break-words no-underline hover:underline',
           to: buildDataLocation(row.original.categoryKey)
         },
         () => t(row.original.categoryKey)
