@@ -2,29 +2,21 @@
   <DashboardPage class="min-h-full">
     <div v-if="computedHasRows" ref="refHotsearchDataPanelTop" class="space-y-3">
       <div class="flex flex-wrap gap-2">
-        <ULink raw :to="buildPlatformLocation('')" class="inline-flex no-underline">
-          <UButton as="span" :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm">
-            {{ t('pages.hotsearch.data.allPlatforms') }}
-          </UButton>
-        </ULink>
-        <ULink v-for="item in computedPlatformRows" :key="item.platformType" raw :to="buildPlatformLocation(item.platformType)" class="inline-flex no-underline">
-          <UButton as="span" :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'" size="sm">
-            {{ platformSummaryLabelGet(item) }}
-          </UButton>
-        </ULink>
+        <UButton :to="buildPlatformLocation('')" :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm">
+          {{ t('pages.hotsearch.data.allPlatforms') }}
+        </UButton>
+        <UButton v-for="item in computedPlatformRows" :key="item.platformType" :to="buildPlatformLocation(item.platformType)" :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'" size="sm">
+          {{ platformSummaryLabelGet(item) }}
+        </UButton>
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <ULink raw :to="buildDataLocation('')" class="inline-flex no-underline">
-          <UButton as="span" :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm">
-            {{ t('pages.hotsearch.data.allTags') }}
-          </UButton>
-        </ULink>
-        <ULink v-for="item in computedTagRows" :key="item.categoryKey" raw :to="buildDataLocation(item.categoryKey)" class="inline-flex no-underline">
-          <UButton as="span" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm">
-            {{ tagSummaryLabelGet(item) }}
-          </UButton>
-        </ULink>
+        <UButton :to="buildDataLocation('')" :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm">
+          {{ t('pages.hotsearch.data.allTags') }}
+        </UButton>
+        <UButton v-for="item in computedTagRows" :key="item.categoryKey" :to="buildDataLocation(item.categoryKey)" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm">
+          {{ tagSummaryLabelGet(item) }}
+        </UButton>
       </div>
     </div>
 
