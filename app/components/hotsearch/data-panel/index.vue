@@ -5,7 +5,14 @@
         <UButton :to="buildPlatformLocation('')" :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm">
           {{ t('pages.hotsearch.data.allPlatforms') }}
         </UButton>
-        <UButton v-for="item in computedPlatformRows" :key="item.platformType" :to="buildPlatformLocation(item.platformType)" :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'" size="sm">
+        <UButton
+          v-for="item in computedPlatformRows"
+          :key="item.platformType"
+          :to="buildPlatformLocation(item.platformType)"
+          :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'"
+          :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'"
+          size="sm"
+        >
           {{ platformSummaryLabelGet(item) }}
         </UButton>
       </div>
