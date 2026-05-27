@@ -646,7 +646,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
           query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
-      },
+      }
     ]
   ];
 });
