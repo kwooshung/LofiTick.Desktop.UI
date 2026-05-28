@@ -118,6 +118,16 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：下载热搜播客固定开头音乐并写入固定文件。
+   * @param {'normal' | 'vip'} kind 文件类型
+   * @param {string} url 已签名下载地址
+   * @returns {Promise<string>} 固定文件路径
+   */
+  const hotsearchPodcastHeadMusicDownload = async (kind: 'normal' | 'vip', url: string): Promise<string> => {
+    return invoke<string>('settings_hotsearch_podcast_head_music_download', { kind, url });
+  };
+
+  /**
    * 函数：获取本机网络快照
    * @returns {Promise<{ interfaces: Array<{ name: string; ips: string[] }> }>} 网络信息
    */
@@ -185,6 +195,7 @@ export const useTauriSettings = () => {
     setAttachmentsDir,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
+    hotsearchPodcastHeadMusicDownload,
     machineNetworkGet,
     machineHostnameGet,
     pathsExistGet,

@@ -34,28 +34,14 @@
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
         <div class="flex flex-wrap items-center justify-end gap-2">
-          <UInputNumber
-            :model-value="stateHotsearchConfig.monthlyBudget"
-            orientation="vertical"
-            :min="1"
-            :step="1"
-            color="primary"
-            variant="outline"
-            class="w-36"
-            :increment="{ color: 'neutral', variant: 'ghost' }"
-            :decrement="{ color: 'neutral', variant: 'ghost' }"
-            @update:model-value="handleMonthlyBudgetUpdate"
-          />
-          <ULink raw :href="HOTSEARCH_USAGE_URL" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleUsageOpen">
-            <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
-            {{ t('pages.settings.hotsearch.actions.usage') }}
-          </ULink>
+          <UInputNumber :model-value="stateHotsearchConfig.monthlyBudget" orientation="vertical" :min="1" :step="1" color="primary" variant="outline" class="w-40" @update:model-value="handleMonthlyBudgetUpdate" />
         </div>
       </UFormField>
     </UPageCard>
 
     <SettingsHotsearchHeadMusic
-      :attachments-dir-configured="Boolean(stateHotsearchPodcastHeadMusicPaths)"
+      :disabled="stateSaving"
+      :attachments-dir-configured="Boolean(stateHotsearchPodcastHeadMusicPaths?.attachmentsDir)"
       :generate-enabled="stateHotsearchConfig.podcastGenerateEnabled"
       :generate-loading="stateHotsearchPodcastGenerateLoading"
       :generate-disabled="computedHotsearchPodcastGenerateDisabled"
@@ -328,7 +314,7 @@ import { parseTime } from '@internationalized/date';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
 import type { ISettingsHotsearchLocal, ISettingsHotsearchPodcastGenerateOwner, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
-import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastHeadMusicRemoteDirectoryGet, hotsearchPodcastHeadMusicRemoteLatestPathGet, hotsearchPodcastHeadMusicRemotePathCreate, hotsearchPodcastHeadMusicRemotePathsGet } from '@@/shared/utils';
+import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastHeadMusicRemoteDirectoryGet, hotsearchPodcastHeadMusicRemoteLatestPathGet, hotsearchPodcastHeadMusicRemotePathCreate } from '@@/shared/utils';
 
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
@@ -353,14 +339,14 @@ const { isTauriRuntime } = useTauriEnv();
 const tauriSettings = useTauriSettings();
 
 /**
+ * Hook：Tauri 直连 API 客户端。
+ */
+const tauriApiClient = useTauriApiClient();
+
+/**
  * Hook：Tauri 任务
  */
 const tauriTasks = useTauriTasks();
-
-/**
- * Hook：Tauri 窗口
- */
-const tauriWindow = useTauriWindow();
 
 /**
  * API：热搜配置（GET / PATCH）
@@ -369,27 +355,25 @@ const tauriWindow = useTauriWindow();
 const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
 const { refreshDebounced: refreshHotsearchRemotePatchDebounced } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', {
   method: 'PATCH',
-  immediate: false,
-  rateLimit: {
-    debounce: {
-      wait: 300,
-      leading: false,
-      trailing: true
-    }
-  }
+  immediate: false
 });
 const { datas: stateHotsearchPodcastGenerateOwnerRemote, refresh: refreshHotsearchPodcastGenerateOwnerGet } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', { immediate: false });
 const { refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', {
   method: 'PATCH',
   immediate: false
 });
-const { datas: stateUpyunObjectList, refresh: refreshUpyunObjectListGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/list`, { immediate: false });
-const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`, { immediate: false });
-const { refresh: refreshUpyunObjectDeletePost } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/delete`, {
+const { datas: stateUpyunObjectListLatest, error: stateUpyunObjectListLatestError, refresh: refreshUpyunObjectListLatestGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/list`, { immediate: false });
+const { datas: stateUpyunObjectUrl, error: stateUpyunObjectUrlError, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`, { immediate: false });
+const { datas: stateUpyunObjectDownload, error: stateUpyunObjectDownloadError, refresh: refreshUpyunObjectDownloadGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/download`, { immediate: false });
+const {
+  datas: stateUpyunDirectUploadPolicy,
+  error: stateUpyunDirectUploadPolicyError,
+  refresh: refreshUpyunDirectUploadPolicyPost
+} = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/direct-upload/policy`, {
   method: 'POST',
   immediate: false
 });
-const { datas: stateUpyunDirectUploadPolicy, refresh: refreshUpyunDirectUploadPolicyPost } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/direct-upload/policy`, {
+const { refresh: refreshUpyunObjectDeletePost } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/delete`, {
   method: 'POST',
   immediate: false
 });
@@ -857,15 +841,6 @@ const upyunObjectListPayloadGet = (input: unknown): Record<string, unknown> | nu
 };
 
 /**
- * 函数：提取 UpYun list 游标。
- * @param {unknown} input API datas。
- * @returns {string} 游标。
- */
-const upyunObjectListIterGet = (input: unknown): string => {
-  return String(upyunObjectListPayloadGet(input)?.iter ?? '').trim();
-};
-
-/**
  * 常量：开头音乐内部 UpYun 请求统一静默错误。
  */
 const HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS = {
@@ -873,31 +848,80 @@ const HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS = {
 } as const;
 
 /**
- * 函数：列出某类开头音乐的远端对象路径。
- * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
- * @returns {Promise<string[]>} 路径列表。
+ * 函数：确保内部 useApi 请求成功。
+ * @param {unknown} input useApi error。
+ * @param {string} message 失败时抛出的业务文案。
  */
-const hotsearchPodcastHeadMusicRemotePathsFetch = async (kind: THotsearchPodcastHeadMusicKind): Promise<string[]> => {
-  const remotePaths: string[] = [];
-  let iter = '';
+const ensureInternalUseApiSucceeded = (input: unknown, message: string): void => {
+  if (!input) {
+    return;
+  }
 
-  do {
-    stateUpyunObjectList.value = undefined;
-    await refreshUpyunObjectListGet({
-      query: {
-        path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
-        limit: 100,
-        order: 'desc',
-        ...(iter ? { iter } : {})
-      },
-      ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
-    });
+  throw new Error(message);
+};
 
-    remotePaths.push(...hotsearchPodcastHeadMusicRemotePathsGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value)));
-    iter = upyunObjectListIterGet(stateUpyunObjectList.value);
-  } while (iter);
+/**
+ * 函数：请求 UpYun 对象列表并返回当前快照。
+ * @param {Record<string, unknown>} query 查询参数。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<Record<string, unknown> | undefined>} 当前列表快照。
+ */
+const requestUpyunObjectListLatestSnapshot = async (query: Record<string, unknown>, errorMessage: string): Promise<Record<string, unknown> | undefined> => {
+  await refreshUpyunObjectListLatestGet({
+    query,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
 
-  return [...new Set(remotePaths)].sort((left, right) => right.localeCompare(left));
+  ensureInternalUseApiSucceeded(stateUpyunObjectListLatestError.value, errorMessage);
+  return upyunObjectListPayloadGet(stateUpyunObjectListLatest.value) ?? undefined;
+};
+
+/**
+ * 函数：请求 UpYun 对象访问地址。
+ * @param {Record<string, unknown>} query 查询参数。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<string>} 访问地址。
+ */
+const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
+  await refreshUpyunObjectUrlGet({
+    query,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  ensureInternalUseApiSucceeded(stateUpyunObjectUrlError.value, errorMessage);
+  return String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+};
+
+/**
+ * 函数：请求 UpYun 对象下载内容。
+ * @param {Record<string, unknown>} query 查询参数。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<string>} Base64 内容。
+ */
+const requestUpyunObjectDownloadBase64 = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
+  await refreshUpyunObjectDownloadGet({
+    query,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  ensureInternalUseApiSucceeded(stateUpyunObjectDownloadError.value, errorMessage);
+  return String(toRecord(stateUpyunObjectDownload.value)?.base64 ?? '').trim();
+};
+
+/**
+ * 函数：请求 UpYun 直传策略快照。
+ * @param {Record<string, unknown>} body 请求体。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<Record<string, unknown>>} 直传策略快照。
+ */
+const requestUpyunDirectUploadPolicySnapshot = async (body: Record<string, unknown>, errorMessage: string): Promise<Record<string, unknown>> => {
+  await refreshUpyunDirectUploadPolicyPost({
+    body,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  ensureInternalUseApiSucceeded(stateUpyunDirectUploadPolicyError.value, errorMessage);
+  return toRecord(stateUpyunDirectUploadPolicy.value) ?? {};
 };
 
 /**
@@ -906,17 +930,16 @@ const hotsearchPodcastHeadMusicRemotePathsFetch = async (kind: THotsearchPodcast
  * @returns {Promise<string>} 最新对象路径。
  */
 const hotsearchPodcastHeadMusicRemoteLatestPathFetch = async (kind: THotsearchPodcastHeadMusicKind): Promise<string> => {
-  stateUpyunObjectList.value = undefined;
-  await refreshUpyunObjectListGet({
-    query: {
+  const payload = await requestUpyunObjectListLatestSnapshot(
+    {
       path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
       limit: 1,
       order: 'desc'
     },
-    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
-  });
+    t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing')
+  );
 
-  return hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value));
+  return hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, payload);
 };
 
 /**
@@ -1011,7 +1034,9 @@ const refreshHotsearchPodcastHeadMusicRemoteExists = async (): Promise<void> => 
     vip: await hotsearchPodcastHeadMusicRemoteExistsCheck('vip')
   };
 
-  await Promise.all(HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => refreshHotsearchPodcastHeadMusicPreviewUrl(kind)));
+  for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
+    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
+  }
 };
 
 /**
@@ -1020,7 +1045,15 @@ const refreshHotsearchPodcastHeadMusicRemoteExists = async (): Promise<void> => 
  * @returns {Promise<void>} 无返回值
  */
 const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
-  const remotePath = await hotsearchPodcastHeadMusicRemoteLatestPathFetch(kind);
+  let remotePath = '';
+
+  try {
+    remotePath = await hotsearchPodcastHeadMusicRemoteLatestPathFetch(kind);
+  } catch {
+    stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = false;
+    stateHotsearchPodcastHeadMusicPreviewUrls.value[kind] = '';
+    return;
+  }
 
   if (!remotePath) {
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = false;
@@ -1030,16 +1063,13 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
 
   try {
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
-    stateUpyunObjectUrl.value = undefined;
-    await refreshUpyunObjectUrlGet({
-      query: {
+    stateHotsearchPodcastHeadMusicPreviewUrls.value[kind] = await requestUpyunObjectUrl(
+      {
         path: remotePath,
         ttlSec: 1800
       },
-      ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
-    });
-
-    stateHotsearchPodcastHeadMusicPreviewUrls.value[kind] = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+      t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing')
+    );
   } catch {
     stateHotsearchPodcastHeadMusicPreviewUrls.value[kind] = '';
   }
@@ -1051,6 +1081,24 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
  */
 const refreshHotsearchPodcastGenerateOwner = async (): Promise<void> => {
   try {
+    if (isTauriRuntime.value) {
+      const output = await tauriApiClient.request({
+        method: 'GET',
+        path: '/desktop/settings/hotsearch/podcast_generate_owner'
+      });
+
+      const response = output.json as Record<string, unknown> | null;
+      const status = response?.status as Record<string, unknown> | undefined;
+      const message = String(status?.message ?? '').trim();
+
+      if (output.http >= 400) {
+        throw new Error(message || t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
+      }
+
+      stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(response?.datas);
+      return;
+    }
+
     await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
     stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(stateHotsearchPodcastGenerateOwnerRemote.value);
   } catch {
@@ -1092,27 +1140,50 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
     throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
   }
 
-  stateUpyunObjectUrl.value = undefined;
-  await refreshUpyunObjectUrlGet({
-    query: {
-      path: remotePath,
-      ttlSec: 600
-    },
-    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
-  });
+  if (isTauriRuntime.value) {
+    const base64 = await requestUpyunObjectDownloadBase64(
+      {
+        path: remotePath
+      },
+      t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed')
+    );
 
-  const url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
-  if (!url) {
-    throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
+    if (!base64) {
+      throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+    }
+
+    const binary = atob(base64);
+    const bytes = Array.from(binary, (char) => char.charCodeAt(0));
+    await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
+  } else {
+    const url = await requestUpyunObjectUrl(
+      {
+        path: remotePath,
+        ttlSec: 600
+      },
+      t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing')
+    );
+
+    if (!url) {
+      throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
+    }
+
+    let response: Response;
+
+    try {
+      response = await fetch(url);
+    } catch {
+      throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+    }
+
+    if (!response.ok) {
+      throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+    }
+
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
   }
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
-  }
-
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
   await refreshHotsearchPodcastHeadMusicLocalExists();
   await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
 };
@@ -1128,27 +1199,22 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     return;
   }
 
-  const staleRemotePaths = await hotsearchPodcastHeadMusicRemotePathsFetch(kind);
-  for (const stalePath of staleRemotePaths) {
-    await refreshUpyunObjectDeletePost({
-      body: {
-        path: stalePath
-      },
-      ignoreResponseError: true
-    });
+  let staleRemotePath = '';
+  try {
+    staleRemotePath = await hotsearchPodcastHeadMusicRemoteLatestPathFetch(kind);
+  } catch {
+    staleRemotePath = '';
   }
 
   stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = 0;
-  stateUpyunDirectUploadPolicy.value = undefined;
-  await refreshUpyunDirectUploadPolicyPost({
-    body: {
+  const policy = await requestUpyunDirectUploadPolicySnapshot(
+    {
       save_key: hotsearchPodcastHeadMusicRemotePathCreate(kind),
       expires_in_sec: 1800
     },
-    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
-  });
+    t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')
+  );
 
-  const policy = toRecord(stateUpyunDirectUploadPolicy.value);
   const uploadUrl = String(policy?.upload_url ?? '').trim();
   const uploadPolicy = String(policy?.policy ?? '').trim();
   const authorization = String(policy?.authorization ?? '').trim();
@@ -1197,6 +1263,20 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
+
+  if (staleRemotePath && staleRemotePath !== saveKey) {
+    try {
+      await refreshUpyunObjectDeletePost({
+        body: {
+          path: staleRemotePath
+        },
+        ignoreResponseError: true
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   await refreshHotsearchPodcastHeadMusicLocalExists();
   await refreshHotsearchPodcastHeadMusicRemoteExists();
   await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
@@ -1319,18 +1399,6 @@ const loadHotsearchSettings = async (): Promise<void> => {
 };
 
 /**
- * 函数：打开官网用量页面
- */
-const handleUsageOpen = (): void => {
-  if (isTauriRuntime.value) {
-    void tauriWindow.openExternalUrl(HOTSEARCH_USAGE_URL);
-    return;
-  }
-
-  window.open(HOTSEARCH_USAGE_URL, '_blank', 'noopener,noreferrer');
-};
-
-/**
  * 函数：切换热搜自动抓取开关
  * @param {boolean} value 最新值
  */
@@ -1355,7 +1423,9 @@ const handlePodcastEnabledUpdate = (value: boolean): void => {
  */
 const handleHotsearchAttachmentsDirPick = async (_picked: string): Promise<void> => {
   await refreshHotsearchPodcastHeadMusicLocalExists();
-  await Promise.all(HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => refreshHotsearchPodcastHeadMusicPreviewUrl(kind)));
+  for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
+    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
+  }
 };
 
 /**
@@ -1444,15 +1514,35 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
         }
       }
 
-      await refreshHotsearchPodcastGenerateOwnerPatch({
-        body: {
+      if (isTauriRuntime.value) {
+        const output = await tauriApiClient.request({
+          method: 'PATCH',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner',
           datas: {
             enabled: true,
             machineCode,
             machineName
           }
+        });
+
+        const response = output.json as Record<string, unknown> | null;
+        const status = response?.status as Record<string, unknown> | undefined;
+        const message = String(status?.message ?? '').trim();
+
+        if (output.http >= 400) {
+          throw new Error(message || t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
         }
-      });
+      } else {
+        await refreshHotsearchPodcastGenerateOwnerPatch({
+          body: {
+            datas: {
+              enabled: true,
+              machineCode,
+              machineName
+            }
+          }
+        });
+      }
 
       await refreshHotsearchPodcastGenerateOwner();
       await persistPodcastGenerateEnabledToLocal(true);
@@ -1460,16 +1550,28 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
     }
 
     try {
-      await refreshHotsearchPodcastGenerateOwnerPatch({
-        body: {
+      if (isTauriRuntime.value) {
+        await tauriApiClient.request({
+          method: 'PATCH',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner',
           datas: {
             enabled: false,
             machineCode,
             machineName
           }
-        },
-        ignoreResponseError: true
-      });
+        });
+      } else {
+        await refreshHotsearchPodcastGenerateOwnerPatch({
+          body: {
+            datas: {
+              enabled: false,
+              machineCode,
+              machineName
+            }
+          },
+          ignoreResponseError: true
+        });
+      }
     } catch {
       // ignore
     }

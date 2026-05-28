@@ -196,6 +196,11 @@ export interface ISignState {
  */
 export interface IUseFetchExtraOptions extends Omit<UseFetchOptions<unknown>, 'pick' | 'transform'> {
   /**
+   * 是否忽略统一错误响应提示。
+   */
+  ignoreResponseError?: boolean;
+
+  /**
    * 万能业务参数
    */
   datas?: MaybeRef<Record<string, unknown>>;

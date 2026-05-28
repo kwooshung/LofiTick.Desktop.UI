@@ -775,8 +775,9 @@ const shouldRefreshOnStatus = (status: unknown): boolean => {
   const biz = Number(s.biz ?? -1);
   const aim = Number(s.aim ?? -1);
 
-  // 800 = Security, 6 = SIGN_TS_EXPIRED, 10 = SIGN_MISMATCH
-  if (biz === 800 && (aim === 6 || aim === 10)) {
+  // 800 = Security, 6 = SIGN_TS_EXPIRED
+  // SIGN_MISMATCH 更常见于参数或路径签名口径不一致，盲目重放只会产生重复请求。
+  if (biz === 800 && aim === 6) {
     return true;
   }
   return false;
@@ -1426,8 +1427,9 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     // 提示代理层：当前 refresh cookie name（用于条件2自动注入时落盘）
     const hintedCookieName = String(signState.value.signBlobCookieName ?? DEFAULT_SIGN_BLOB_COOKIE_NAME).trim() || DEFAULT_SIGN_BLOB_COOKIE_NAME;
     headersObj[SIGN_BLOB_COOKIE_NAME_HINT_HEADER] = hintedCookieName;
-    const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, immediate: immediateOption, ...restOptions } = options;
+    const { pick: _omitPick, transform: _omitTransform, rateLimit: _omitRateLimit, immediate: immediateOption, ignoreResponseError: ignoreResponseErrorOption, ...restOptions } = options;
     const shouldRunImmediate = immediateOption === true;
+    const defaultIgnoreResponseError = ignoreResponseErrorOption === true;
 
     /**
      * 变量：最近一次响应的服务端 status。
@@ -1444,6 +1446,29 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
      * 如果首个失败命中签名或 CSRF 自愈条件，则先静默，等待自动补救后的最终结果再决定是否提示。
      */
     let canSilenceRecoverableToast = true;
+
+    /**
+     * 变量：当前请求周期是否忽略统一错误提示。
+     */
+    let activeIgnoreResponseError = defaultIgnoreResponseError;
+
+    /**
+     * 函数：在指定静默策略下执行一次请求周期。
+     * @param {boolean} ignoreResponseError 是否忽略统一错误提示
+     * @param {() => Promise<TValue>} runner 执行函数
+     * @returns {Promise<TValue>} 执行结果
+     * @template TValue 返回值类型
+     */
+    const runWithIgnoreResponseError = async <TValue>(ignoreResponseError: boolean, runner: () => Promise<TValue>): Promise<TValue> => {
+      const previousValue = activeIgnoreResponseError;
+      activeIgnoreResponseError = ignoreResponseError;
+
+      try {
+        return await runner();
+      } finally {
+        activeIgnoreResponseError = previousValue;
+      }
+    };
 
     /**
      * 状态：本次请求签名相关参数（稳定引用，避免 useFetch 捕获旧 options 导致 ts 固化）。
@@ -1521,6 +1546,10 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
         const fallbackHttp = ctx?.response?.status;
 
         lastResponseStatus = raw?.status;
+
+        if (activeIgnoreResponseError) {
+          return;
+        }
 
         if (canSilenceRecoverableToast && shouldSilenceToastForRecoverableError({ status: raw?.status, raw, fallbackHttp })) {
           canSilenceRecoverableToast = false;
@@ -1695,29 +1724,36 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
 
     const retry = async (opts?: IUseFetchExtraOptions) => {
       canSilenceRecoverableToast = true;
+      const ignoreResponseError = opts?.ignoreResponseError ?? defaultIgnoreResponseError;
 
       if (opts) {
         const rest = { ...opts } as Partial<IUseFetchExtraOptions>;
         delete (rest as any).datas;
         delete (rest as any).query;
         delete (rest as any).body;
-        await runWithSignature();
-        try {
-          await base.refresh(rest as any);
-        } catch {
-          // ignore
-        }
-        await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-        await refreshOnceIfSecurityRejected(rest as any);
+        delete (rest as any).ignoreResponseError;
+
+        await runWithIgnoreResponseError(ignoreResponseError, async () => {
+          await runWithSignature();
+          try {
+            await base.refresh(rest as any);
+          } catch {
+            // ignore
+          }
+          await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+          await refreshOnceIfSecurityRejected(rest as any);
+        });
       } else {
-        await runWithSignature();
-        try {
-          await base.refresh();
-        } catch {
-          // ignore
-        }
-        await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-        await refreshOnceIfSecurityRejected();
+        await runWithIgnoreResponseError(ignoreResponseError, async () => {
+          await runWithSignature();
+          try {
+            await base.refresh();
+          } catch {
+            // ignore
+          }
+          await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+          await refreshOnceIfSecurityRejected();
+        });
       }
     };
 
@@ -1726,6 +1762,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
     let queuedDatasSource: Record<string, unknown> | null = null;
     let queuedQuerySource: Record<string, unknown> | null = null;
     let queuedBodySource: Record<string, unknown> | null = null;
+    let queuedIgnoreResponseError = defaultIgnoreResponseError;
 
     const snapshotRecord = (input: unknown): Record<string, unknown> => toSpreadableObject(resolve(input));
 
@@ -1733,6 +1770,7 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       queuedDatasSource = opts.datas !== undefined ? snapshotRecord(opts.datas) : snapshotRecord(datasSource.value);
       queuedQuerySource = opts.query !== undefined ? snapshotRecord(opts.query) : snapshotRecord(querySource.value);
       queuedBodySource = opts.body !== undefined ? snapshotRecord(opts.body) : snapshotRecord(bodySource.value);
+      queuedIgnoreResponseError = opts.ignoreResponseError ?? defaultIgnoreResponseError;
     };
 
     const applyQueuedSources = (): void => {
@@ -1746,26 +1784,28 @@ const request = async <T>(path: string, options: IUseFetchExtraOptions = {}): Pr
       finalOptions.key = `${staticKey}-${Date.now()}`;
       canSilenceRecoverableToast = true;
 
-      if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
-        try {
-          await refreshNuxtCsrfToken((token) => {
-            nuxtCsrfTokenRef.value = token;
-          });
-        } catch {
-          // ignore
+      await runWithIgnoreResponseError(queuedIgnoreResponseError, async () => {
+        if (isWriteMethod && !isSignBootstrapPath(backendPath) && Object.keys(nuxtCsrfHeadersRef.value).length === 0) {
+          try {
+            await refreshNuxtCsrfToken((token) => {
+              nuxtCsrfTokenRef.value = token;
+            });
+          } catch {
+            // ignore
+          }
         }
-      }
 
-      await runWithSignature();
-      try {
-        await base.refresh();
-      } catch (refreshError) {
-        if (import.meta.server && shouldRunImmediate) {
-          throw refreshError;
+        await runWithSignature();
+        try {
+          await base.refresh();
+        } catch (refreshError) {
+          if (import.meta.server && shouldRunImmediate) {
+            throw refreshError;
+          }
         }
-      }
-      await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
-      await refreshOnceIfSecurityRejected();
+        await consumeRefreshCookieIfPresent({ signState, aesSeed, getCookieRef });
+        await refreshOnceIfSecurityRejected();
+      });
     };
 
     const refresh = async (opts: IUseFetchExtraOptions = {}) => {

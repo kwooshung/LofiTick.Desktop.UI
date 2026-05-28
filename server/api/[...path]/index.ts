@@ -279,14 +279,23 @@ export default defineEventHandler(async (event) => {
     validateFakeParams({ ...queryParams, ...bodyParams });
   }
 
-  const upstreamRes = await $fetch.raw(upstreamUrl.toString(), {
-    method,
-    headers: upstreamHeaders,
-    body: rawBody,
-    ignoreResponseError: true,
-    // 这里强制为 text，避免上游返回非 JSON 时解析报错
-    responseType: 'text'
-  });
+  let upstreamRes;
+  try {
+    upstreamRes = await $fetch.raw(upstreamUrl.toString(), {
+      method,
+      headers: upstreamHeaders,
+      body: rawBody,
+      ignoreResponseError: true,
+      // 这里强制为 text，避免上游返回非 JSON 时解析报错
+      responseType: 'text'
+    });
+  } catch (error) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: '后端 API 不可达',
+      cause: error
+    });
+  }
 
   const status = upstreamRes.status;
   const contentType = upstreamRes.headers.get('content-type');
