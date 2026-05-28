@@ -942,6 +942,21 @@ const requestHotsearchPodcastGenerateOwnerDatas = async (errorMessage: string): 
 };
 
 /**
+ * 函数：构建播客生成占用请求体。
+ * @param {boolean} enabled 是否启用。
+ * @param {string} machineCode 机器码。
+ * @param {string} machineName 机器名。
+ * @returns {{ enabled: boolean; machineCode: string; machineName: string }} 请求体。
+ */
+const hotsearchPodcastGenerateOwnerPayloadBuild = (enabled: boolean, machineCode: string, machineName: string): { enabled: boolean; machineCode: string; machineName: string } => {
+  return {
+    enabled,
+    machineCode,
+    machineName
+  };
+};
+
+/**
  * 函数：写入播客生成占用信息。
  * @param {boolean} enabled 是否启用。
  * @param {string} machineCode 机器码。
@@ -951,6 +966,7 @@ const requestHotsearchPodcastGenerateOwnerDatas = async (errorMessage: string): 
  */
 const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machineCode: string, machineName: string, ignoreError = false): Promise<void> => {
   const errorMessage = t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle');
+  const payload = hotsearchPodcastGenerateOwnerPayloadBuild(enabled, machineCode, machineName);
 
   if (isTauriRuntime.value) {
     try {
@@ -958,11 +974,7 @@ const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machine
         {
           method: 'PATCH',
           path: '/desktop/settings/hotsearch/podcast_generate_owner',
-          datas: {
-            enabled,
-            machineCode,
-            machineName
-          }
+          datas: payload
         },
         errorMessage
       );
@@ -975,11 +987,7 @@ const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machine
 
   await refreshHotsearchPodcastGenerateOwnerPatch({
     body: {
-      datas: {
-        enabled,
-        machineCode,
-        machineName
-      }
+      datas: payload
     },
     ignoreResponseError: ignoreError
   });
@@ -1204,11 +1212,7 @@ const refreshHotsearchPodcastHeadMusicRemoteExists = async (): Promise<void> => 
   };
 
   for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
-    try {
-      await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
-    } catch {
-      // ignore
-    }
+    await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
   }
 };
 
@@ -1255,6 +1259,19 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
   } catch {
     hotsearchPodcastHeadMusicPreviewUrlSet(kind, '');
     throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
+  }
+};
+
+/**
+ * 函数：静默刷新固定开头音乐预览地址。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @returns {Promise<void>} 无返回值。
+ */
+const refreshHotsearchPodcastHeadMusicPreviewUrlQuietly = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  try {
+    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
+  } catch {
+    // ignore
   }
 };
 
@@ -1340,11 +1357,7 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
         }
 
         await refreshHotsearchPodcastHeadMusicLocalExists();
-        try {
-          await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
-        } catch {
-          // ignore
-        }
+        await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
         return;
       }
 
@@ -1405,12 +1418,7 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
   }
 
   await refreshHotsearchPodcastHeadMusicLocalExists();
-
-  try {
-    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
-  } catch {
-    // ignore
-  }
+  await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
 };
 
 /**
@@ -1530,12 +1538,7 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
   }
 
   await refreshHotsearchPodcastHeadMusicRemoteExists();
-
-  try {
-    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
-  } catch {
-    // ignore
-  }
+  await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
 };
 
 /**
@@ -1680,11 +1683,7 @@ const handlePodcastEnabledUpdate = (value: boolean): void => {
 const handleHotsearchAttachmentsDirPick = async (_picked: string): Promise<void> => {
   await refreshHotsearchPodcastHeadMusicLocalExists();
   for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
-    try {
-      await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
-    } catch {
-      // ignore
-    }
+    await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
   }
 };
 
