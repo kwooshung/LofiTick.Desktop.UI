@@ -49,6 +49,16 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
 export const HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS: THotsearchPodcastHeadMusicKind[] = ['normal', 'vip'];
 
 /**
+ * 常量：热搜播客开头音乐使用的 UpYun 存储桶。
+ */
+export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'assets';
+
+/**
+ * 常量：热搜播客开头音乐远端目录根路径。
+ */
+const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start';
+
+/**
  * 常量：热搜播客音色固定列表。
  */
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
@@ -191,12 +201,54 @@ export const hotsearchLocalSettingsDefaultCreate = (): ISettingsHotsearchLocal =
 });
 
 /**
- * 函数：构建热搜播客固定开头音乐远端路径。
+ * 函数：构建热搜播客开头音乐远端目录。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @returns {string} UpYun 目录路径。
+ */
+export const hotsearchPodcastHeadMusicRemoteDirectoryGet = (kind: THotsearchPodcastHeadMusicKind): string => `${HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT}/${kind}`;
+
+/**
+ * 函数：构建热搜播客开头音乐新的远端对象路径。
  * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
  * @returns {string} UpYun 对象路径。
  */
-export const hotsearchPodcastHeadMusicRemotePathGet = (kind: THotsearchPodcastHeadMusicKind): string => {
-  return kind === 'vip' ? '/media/podcast/hotsearch/start.vip.mp3' : '/media/podcast/hotsearch/start.mp3';
+export const hotsearchPodcastHeadMusicRemotePathCreate = (kind: THotsearchPodcastHeadMusicKind): string => {
+  const random = Math.random().toString(36).slice(2, 10);
+
+  return `${hotsearchPodcastHeadMusicRemoteDirectoryGet(kind)}/${Date.now()}-${random}.mp3`;
+};
+
+/**
+ * 函数：从 UpYun list 结果中提取热搜播客开头音乐对象路径。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @param {unknown} input UpYun `files + iter` 原始结果。
+ * @returns {string[]} 对象路径列表。
+ */
+export const hotsearchPodcastHeadMusicRemotePathsGet = (kind: THotsearchPodcastHeadMusicKind, input: unknown): string[] => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return [];
+  }
+
+  const files = (input as Record<string, unknown>).files;
+  if (!Array.isArray(files)) {
+    return [];
+  }
+
+  return files
+    .map((item) => (item && typeof item === 'object' && !Array.isArray(item) ? String((item as Record<string, unknown>).name ?? '').trim() : ''))
+    .filter((name) => name.endsWith('.mp3'))
+    .sort((left, right) => right.localeCompare(left))
+    .map((name) => `${hotsearchPodcastHeadMusicRemoteDirectoryGet(kind)}/${name}`);
+};
+
+/**
+ * 函数：从 UpYun list 结果中提取当前最新的热搜播客开头音乐对象路径。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @param {unknown} input UpYun `files + iter` 原始结果。
+ * @returns {string} 最新对象路径；不存在时返回空字符串。
+ */
+export const hotsearchPodcastHeadMusicRemoteLatestPathGet = (kind: THotsearchPodcastHeadMusicKind, input: unknown): string => {
+  return hotsearchPodcastHeadMusicRemotePathsGet(kind, input)[0] ?? '';
 };
 
 /**

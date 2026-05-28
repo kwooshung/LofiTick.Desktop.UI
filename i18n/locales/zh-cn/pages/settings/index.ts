@@ -228,7 +228,7 @@
     },
     sections: {
       headMusic: {
-        title: '固定开头音乐',
+        title: '开头音乐',
         description: '这里统一管理播客生成占用、普通版开头音乐和 VIP 版开头音乐。'
       },
       schedule: {
@@ -259,15 +259,15 @@
       },
       podcastGenerateEnabled: {
         label: '本机生成播客',
-        description: '启用后，只有当前机器负责生成热搜播客；开启前会校验云端固定开头音乐和占用锁。'
+        description: '启用后，只有当前机器负责生成热搜播客；开启前会优先检查本地开头音乐，缺失时再尝试从云端补齐。'
       },
       podcastHeadMusicNormal: {
-        label: '普通版固定开头音乐',
-        description: '固定写入 attachmentsDir/media/podcast/hotsearch/start.mp3，同时同步到又拍云。'
+        label: '开头音乐（普通版）',
+        description: '用于普通播客的开头音乐。'
       },
       podcastHeadMusicVip: {
-        label: 'VIP 版固定开头音乐',
-        description: '固定写入 attachmentsDir/media/podcast/hotsearch/start.vip.mp3，同时同步到又拍云。'
+        label: '开头音乐（VIP 版）',
+        description: '用于 VIP 播客的开头音乐。'
       },
       podcastMaleSpeakerName: {
         label: '男生播报者姓名',
@@ -400,12 +400,10 @@
     },
     actions: {
       selectHeadMusic: '选择音乐',
+      previewHeadMusic: '试听',
       reuploadHeadMusic: '重新上传',
       syncHeadMusic: '从云端同步',
       chooseAttachmentsDir: '选择附件目录'
-    },
-    labels: {
-      headMusicPath: '固定路径'
     },
     status: {
       localReady: '本地已就绪',
@@ -416,19 +414,20 @@
       podcastGenerateOwnedByCurrentMachine: '当前机器已占用',
       podcastGenerateOwnedByOtherMachine: '其他机器已占用',
       podcastGenerateOwnerIdle: '当前无人占用',
-      podcastGenerateOwnerIdleDescription: '只有一台机器可以开启生成播客；开启时会先检查云端固定开头音乐并补齐本地文件。',
+      podcastGenerateOwnerIdleDescription: '只有一台机器可以开启生成播客；开启时会先检查本地开头音乐，缺失时再尝试从云端补齐。',
       podcastGenerateOwnedByCurrentMachineDescription: '当前由本机负责生成播客。机器名：{machineName}；机器码：{machineCode}。',
       podcastGenerateOwnedByOtherMachineDescription: '当前由其他机器负责生成播客。机器名：{machineName}；机器码：{machineCode}。',
-      headMusicWaitingTitle: '固定开头音乐还没准备好',
-      headMusicNeedAttachmentsDir: '先设置附件目录，固定开头音乐才能按约定路径落盘并参与播客生成。',
-      headMusicNeedUpload: '云端还没有这份固定开头音乐。请先上传，之后其他机器才能直接同步使用。',
-      headMusicNeedSync: '云端已经有这份固定开头音乐，但当前机器本地还没落盘。可以直接从云端同步。',
+      headMusicReady: '本地与云端都已经准备好，可以直接试听、同步或重新上传。',
+      headMusicWaitingTitle: '开头音乐还没准备好',
+      headMusicNeedAttachmentsDir: '当前还没有配置附件目录。',
+      headMusicNeedUpload: '云端还没有这份开头音乐，请先选择音乐并上传。',
+      headMusicNeedSync: '当前机器本地还没有这份开头音乐。开启生成播客时会优先尝试从云端补齐。',
       headMusicNeedPreview: '当前音乐已经存在，但暂时还没有可用的预览地址。'
     },
     dialogs: {
       attachmentsDirRequired: {
         title: '需要先设置附件目录',
-        description: '固定开头音乐必须落在附件目录下的固定路径中。请先选择附件目录，然后再继续开启播客生成或上传音乐。'
+        description: '开头音乐必须落在附件目录下的固定路径中。请先选择附件目录，然后再继续开启播客生成或上传音乐。'
       },
       headMusicUpload: {
         title: '上传 {title}',
@@ -441,17 +440,22 @@
         currentPreview: '当前线上预览',
         pendingPreview: '待上传预览',
         uploadProgress: '上传进度'
+      },
+      headMusicPreview: {
+        title: '{title} 试听',
+        description: '这里可以先试听云端可用的开头音乐。'
       }
     },
     messages: {
       podcastGenerateErrorTitle: '播客生成不可用',
-      podcastHeadMusicErrorTitle: '固定开头音乐处理失败',
+      podcastHeadMusicErrorTitle: '开头音乐处理失败',
       machineCodeMissing: '当前机器码缺失，暂时无法申请播客生成占用。',
       podcastGenerateOwnerConflict: '当前已有其他机器开启生成播客：{machineName}（{machineCode}）。',
-      podcastGenerateHeadMusicMissing: '普通版或 VIP 版固定开头音乐还没有上传到云端，暂时无法开启生成播客。',
-      podcastHeadMusicRemoteMissing: '云端还没有这个固定开头音乐文件。',
-      podcastHeadMusicDownloadFailed: '从云端下载固定开头音乐失败。',
-      podcastHeadMusicUploadFailed: '上传固定开头音乐失败。'
+      podcastGenerateHeadMusicMissing: '普通版或 VIP 版开头音乐还没有准备好，暂时无法开启生成播客。',
+      podcastGenerateHeadMusicMissingToast: '{titles} 还没有可用的本地或云端文件，请先选择音乐。',
+      podcastHeadMusicRemoteMissing: '云端还没有这个开头音乐文件。',
+      podcastHeadMusicDownloadFailed: '从云端下载开头音乐失败。',
+      podcastHeadMusicUploadFailed: '上传开头音乐失败。'
     },
     variables: {
       speakerName: '播报者名称',

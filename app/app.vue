@@ -7,18 +7,7 @@
         <NuxtPage />
       </NuxtLayout>
       <SettingsUnattendedScenesSyncDialog />
-      <UModal v-model:open="stateHotsearchAttachmentsDirDialogOpen" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }">
-        <template #footer>
-          <div class="flex flex-wrap justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="stateHotsearchAttachmentsDirDialogOpen = false">
-              {{ t('common.actions.cancel') }}
-            </UButton>
-            <UButton color="primary" @click="handleHotsearchAttachmentsDirPick">
-              {{ t('pages.settings.hotsearch.actions.chooseAttachmentsDir') }}
-            </UButton>
-          </div>
-        </template>
-      </UModal>
+      <SettingsHotsearchAttachmentsDirDialog v-model:open="stateHotsearchAttachmentsDirDialogOpen" @selected="handleHotsearchAttachmentsDirPick" />
     </UTheme>
   </UApp>
 </template>
@@ -26,6 +15,7 @@
 <script setup lang="ts">
 import ConsoleBadge from '@kwooshung/console-badge';
 import { en, ja, zh_cn, zh_tw } from '@nuxt/ui/locale';
+import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastHeadMusicRemoteDirectoryGet, hotsearchPodcastHeadMusicRemoteLatestPathGet } from '@@/shared/utils';
 import colors from 'tailwindcss/colors';
 
 /**
@@ -99,16 +89,7 @@ const { configGet: tauriApiClientConfigGet, configUpdate: tauriApiClientConfigUp
 /**
  * Hook：Tauri 设置
  */
-const {
-  get: settingsGet,
-  update: settingsUpdate,
-  setAttachmentsDir,
-  machineNetworkGet,
-  machineHostnameGet,
-  pathsExistGet,
-  hotsearchPodcastHeadMusicPathsGet,
-  hotsearchPodcastHeadMusicWrite
-} = useTauriSettings();
+const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet, pathsExistGet, hotsearchPodcastHeadMusicPathsGet, hotsearchPodcastHeadMusicWrite } = useTauriSettings();
 
 /**
  * Hook：无人值守场景差异确认弹窗
@@ -150,8 +131,8 @@ const { refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISet
   method: 'PATCH',
   immediate: false
 });
-const { datas: stateUpyunObjectStat, refresh: refreshUpyunObjectStatGet } = await useApi<Record<string, unknown>>('storages/upyun/files/objects/stat', { immediate: false });
-const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>('storages/upyun/files/objects/url', { immediate: false });
+const { datas: stateUpyunObjectList, refresh: refreshUpyunObjectListGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/list`, { immediate: false });
+const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`, { immediate: false });
 
 /**
  * API：服务凭证（GET）
@@ -184,6 +165,15 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
 };
 
 /**
+ * 函数：提取 UpYun list 的原始结果。
+ * @param {unknown} input API datas。
+ * @returns {Record<string, unknown> | null} UpYun 原始结果。
+ */
+const upyunObjectListPayloadGet = (input: unknown): Record<string, unknown> | null => {
+  return toRecord(toRecord(input)?.upyun);
+};
+
+/**
  * 函数：刷新播客生成占用信息。
  * @returns {Promise<ISettingsHotsearchPodcastGenerateOwner | null>} 占用信息
  */
@@ -203,12 +193,16 @@ const startupHotsearchPodcastGenerateOwnerRefresh = async (): Promise<ISettingsH
  */
 const startupHotsearchHeadMusicRemoteExistsCheck = async (kind: THotsearchPodcastHeadMusicKind): Promise<boolean> => {
   try {
-    stateUpyunObjectStat.value = undefined;
-    await refreshUpyunObjectStatGet({
-      query: { path: hotsearchPodcastHeadMusicRemotePathGet(kind) }
+    stateUpyunObjectList.value = undefined;
+    await refreshUpyunObjectListGet({
+      query: {
+        path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
+        limit: 1,
+        order: 'desc'
+      }
     });
 
-    return Boolean(toRecord(stateUpyunObjectStat.value));
+    return Boolean(hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value)));
   } catch {
     return false;
   }
@@ -220,10 +214,24 @@ const startupHotsearchHeadMusicRemoteExistsCheck = async (kind: THotsearchPodcas
  * @returns {Promise<void>} 无返回值
  */
 const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  stateUpyunObjectList.value = undefined;
+  await refreshUpyunObjectListGet({
+    query: {
+      path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
+      limit: 1,
+      order: 'desc'
+    }
+  });
+
+  const remotePath = hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value));
+  if (!remotePath) {
+    throw new Error('hotsearch head music path missing');
+  }
+
   stateUpyunObjectUrl.value = undefined;
   await refreshUpyunObjectUrlGet({
     query: {
-      path: hotsearchPodcastHeadMusicRemotePathGet(kind),
+      path: remotePath,
       ttlSec: 600
     }
   });
@@ -333,24 +341,10 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
 
 /**
  * 函数：处理启动期附件目录选择。
+ * @param {string} _picked 已保存目录
  * @returns {Promise<void>} 无返回值
  */
-const handleHotsearchAttachmentsDirPick = async (): Promise<void> => {
-  let current = '';
-
-  try {
-    current = (await hotsearchPodcastHeadMusicPathsGet()).attachmentsDir;
-  } catch {
-    current = '';
-  }
-
-  const picked = await setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), current);
-  if (!picked) {
-    return;
-  }
-
-  stateHotsearchAttachmentsDirDialogOpen.value = false;
-
+const handleHotsearchAttachmentsDirPick = async (_picked: string): Promise<void> => {
   try {
     await startupHotsearchPodcastGenerateSync();
   } catch (error) {

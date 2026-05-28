@@ -1,219 +1,187 @@
 <template>
-  <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
-    <template #header>
+  <div>
+    <div class="mb-0 flex w-full items-center gap-3 pb-4">
       <div class="flex-1">
-        <h3 class="text-highlighted text-base font-semibold">{{ hotsearchTextGet('pages.settings.hotsearch.sections.headMusic.title', '固定开头音乐') }}</h3>
-        <p class="text-muted mt-1 text-sm leading-6">{{ hotsearchTextGet('pages.settings.hotsearch.sections.headMusic.description', '这里统一管理播客生成占用、普通版开头音乐和 VIP 版开头音乐。') }}</p>
+        <h3 class="text-highlighted text-base font-semibold">{{ computedSectionTitle }}</h3>
+        <p class="text-muted mt-1 text-sm">{{ computedSectionDescription }}</p>
       </div>
-    </template>
-  </UPageCard>
+    </div>
 
-  <UPageCard variant="outline" :ui="{ root: 'mb-6 rounded-lg', container: 'divide-y divide-default' }">
-    <UFormField
-      :label="hotsearchTextGet('pages.settings.hotsearch.fields.podcastGenerateEnabled.label', '本机生成播客')"
-      :description="hotsearchTextGet('pages.settings.hotsearch.fields.podcastGenerateEnabled.description', '启用后，只有当前机器负责生成热搜播客；开启前会校验云端固定开头音乐和占用锁。')"
-      :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-      class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-start"
-    >
-      <div class="flex min-w-0 flex-col items-stretch gap-3 xl:items-end">
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <UBadge v-if="props.generateOwnerExists && props.generateOwnedByCurrentMachine" color="primary" variant="soft">
-            {{ hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnedByCurrentMachine', '当前机器已占用') }}
-          </UBadge>
-          <UBadge v-else-if="props.generateOwnerExists" color="warning" variant="soft">
-            {{ hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnedByOtherMachine', '其他机器已占用') }}
-          </UBadge>
-          <UBadge v-else color="neutral" variant="soft">
-            {{ hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnerIdle', '当前无人占用') }}
-          </UBadge>
+    <UPageCard variant="outline" :ui="{ root: 'mb-6 rounded-lg', container: 'divide-y divide-default' }">
+      <div class="flex items-center justify-between gap-4 not-last:pb-4 max-sm:flex-col max-sm:items-start">
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <div class="flex min-w-0 flex-wrap items-start gap-2">
+            <div class="text-highlighted mb-1 text-base">{{ hotsearchTextGet('pages.settings.hotsearch.fields.podcastGenerateEnabled.label', '本机生成播客') }}</div>
+            <UBadge :color="generateOwnerBadgeGet().color" variant="soft">{{ generateOwnerBadgeGet().label }}</UBadge>
+          </div>
 
-          <USwitch :model-value="props.generateEnabled" :disabled="props.disabled" :loading="props.generateLoading" @update:model-value="handleGenerateEnabledUpdate" />
+          <p class="text-muted text-sm">{{ hotsearchTextGet('pages.settings.hotsearch.fields.podcastGenerateEnabled.description', '开启后，由这台机器生成播客。') }}</p>
+          <p class="text-muted text-sm">{{ props.generateOwnerDescription }}</p>
         </div>
 
-        <p class="text-muted max-w-xl text-right text-xs leading-5">{{ props.generateOwnerDescription }}</p>
+        <USwitch :model-value="props.generateEnabled" :disabled="props.disabled || props.generateDisabled" :loading="props.generateLoading" @update:model-value="handleGenerateEnabledUpdate" />
       </div>
-    </UFormField>
 
-    <div class="space-y-3 not-last:pb-4">
-      <UAlert v-if="props.generateError" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="hotsearchTextGet('pages.settings.hotsearch.messages.podcastGenerateErrorTitle', '播客生成不可用')" :description="props.generateError" />
-      <UAlert v-if="props.headMusicError" color="warning" variant="soft" icon="i-lucide:audio-lines" :title="hotsearchTextGet('pages.settings.hotsearch.messages.podcastHeadMusicErrorTitle', '固定开头音乐处理失败')" :description="props.headMusicError" />
-
-      <section v-for="item in props.items" :key="item.kind" class="space-y-4 rounded-xl border border-default bg-elevated/18 p-4">
-        <div class="grid gap-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:gap-6">
-          <div class="space-y-2">
-            <div>
-              <h4 class="text-highlighted text-sm font-semibold">{{ item.title }}</h4>
-              <p class="text-muted mt-1 text-sm leading-6">{{ item.description }}</p>
-            </div>
+      <div v-for="item in props.items" :key="item.kind" class="flex items-center justify-between gap-4 not-last:pb-4 max-sm:flex-col max-sm:items-start">
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <div class="flex min-w-0 flex-wrap items-start gap-2">
+            <div class="text-highlighted mb-1 text-base">{{ item.title }}</div>
+            <UBadge :color="headMusicStatusBadgeGet(item).color" variant="soft">{{ headMusicStatusBadgeGet(item).label }}</UBadge>
           </div>
 
-          <div class="space-y-3">
-            <div class="flex flex-wrap items-center gap-2 xl:justify-end">
-              <UBadge :color="item.localExists ? 'success' : 'neutral'" variant="soft">
-                {{ item.localExists ? hotsearchTextGet('pages.settings.hotsearch.status.localReady', '本地已就绪') : hotsearchTextGet('pages.settings.hotsearch.status.localMissing', '本地缺失') }}
-              </UBadge>
-              <UBadge :color="item.remoteExists ? 'success' : 'warning'" variant="soft">
-                {{ item.remoteExists ? hotsearchTextGet('pages.settings.hotsearch.status.remoteReady', '云端已就绪') : hotsearchTextGet('pages.settings.hotsearch.status.remoteMissing', '云端缺失') }}
-              </UBadge>
-            </div>
-
-            <div class="rounded-lg border border-default bg-default/70 px-3 py-3">
-              <div class="text-muted text-[11px] font-medium tracking-[0.18em] uppercase">{{ hotsearchTextGet('pages.settings.hotsearch.labels.headMusicPath', '固定路径') }}</div>
-              <div class="text-highlighted mt-2 break-all text-sm leading-6">{{ item.path || hotsearchTextGet('pages.settings.hotsearch.status.attachmentsDirUnset', '当前还没有配置附件目录。') }}</div>
-            </div>
-          </div>
+          <p class="text-muted text-sm">{{ item.description }}</p>
+          <p v-if="headMusicStatusDescriptionGet(item)" class="text-muted text-sm">{{ headMusicStatusDescriptionGet(item) }}</p>
         </div>
 
-        <div v-if="item.remoteExists && item.previewUrl" class="rounded-xl border border-default bg-default/65 p-3">
-          <div class="mb-2 flex items-center justify-between gap-2">
-            <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.currentPreview', '当前线上预览') }}</div>
-            <div class="text-muted text-xs">{{ item.title }}</div>
-          </div>
+        <div class="flex shrink-0 flex-wrap items-center gap-2">
+          <UButton v-if="item.remoteExists && item.previewUrl" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="props.disabled" @click="openPreviewModal(item.kind)">
+            {{ hotsearchTextGet('pages.settings.hotsearch.actions.previewHeadMusic', '试听') }}
+          </UButton>
 
+          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="props.disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
+            {{ item.remoteExists ? hotsearchTextGet('pages.settings.hotsearch.actions.reuploadHeadMusic', '重新上传') : hotsearchTextGet('pages.settings.hotsearch.actions.selectHeadMusic', '选择音乐') }}
+          </UButton>
+        </div>
+      </div>
+    </UPageCard>
+
+    <UModal v-model:open="statePreviewModalOpen" :title="computedPreviewDialogTitle" :description="computedPreviewDialogDescription" :ui="{ content: 'sm:max-w-2xl' }">
+      <template #body>
+        <div v-if="computedPreviewItem?.previewUrl" class="border-default bg-elevated/25 rounded-xl border p-3">
           <MediaPlayerPlyr
             type="audio"
             :sources="[
               {
-                src: item.previewUrl,
+                src: computedPreviewItem.previewUrl,
                 type: 'audio/mpeg'
               }
             ]"
             :options="computedPlayerOptions"
           />
         </div>
-
-        <div v-else class="rounded-xl border border-dashed border-default bg-default/50 px-4 py-3">
-          <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.status.headMusicWaitingTitle', '固定开头音乐还没准备好') }}</div>
-          <p class="text-muted mt-1 text-sm leading-6">{{ headMusicWaitingDescriptionGet(item) }}</p>
+        <div v-else class="border-default bg-default/50 text-muted rounded-xl border border-dashed px-4 py-3 text-sm">
+          {{ hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedPreview', '暂时还不能试听。') }}
         </div>
+      </template>
+    </UModal>
 
-        <div class="flex flex-wrap items-center gap-2 xl:justify-end">
-          <UButton v-if="!props.attachmentsDirConfigured" color="neutral" variant="outline" size="sm" icon="i-lucide:folder-open" :disabled="props.disabled" @click="props.chooseAttachmentsDirRequest()">
-            {{ hotsearchTextGet('pages.settings.hotsearch.actions.chooseAttachmentsDir', '选择附件目录') }}
-          </UButton>
+    <UModal v-model:open="stateUploadModalOpen" :dismissible="!computedActiveUploadBusy" :title="computedUploadDialogTitle" :description="computedUploadDialogDescription" :ui="{ content: 'sm:max-w-3xl', footer: 'justify-end' }">
+      <template #body>
+        <div class="space-y-5">
+          <div class="rounded-xl transition-colors duration-200" :class="computedUploadDropzoneClass" @dragenter.prevent="handleUploadDragEnter" @dragover.prevent="handleUploadDragOver" @dragleave.prevent="handleUploadDragLeave" @drop.prevent="handleUploadDrop">
+            <UFileUpload
+              v-model="stateUploadFile"
+              accept=".mp3,audio/mpeg"
+              :multiple="false"
+              variant="area"
+              layout="list"
+              position="inside"
+              :dropzone="true"
+              :interactive="!computedActiveUploadBusy"
+              :disabled="computedActiveUploadBusy"
+              :label="hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.dropLabel', '把 MP3 文件拖到这里')"
+              :description="hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.dropDescription', '或者点击下面按钮选择文件。建议保持文件简短、响度稳定。')"
+              class="w-full"
+            >
+              <template #actions="{ files, open, removeFile }">
+                <div class="flex flex-wrap items-center gap-2">
+                  <UButton color="primary" variant="soft" size="sm" icon="i-lucide:folder-up" :disabled="computedActiveUploadBusy" @click.stop.prevent="open()">
+                    {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.selectFile', '选择文件') }}
+                  </UButton>
 
-          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="props.disabled || !props.attachmentsDirConfigured" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
-            {{ item.remoteExists ? hotsearchTextGet('pages.settings.hotsearch.actions.reuploadHeadMusic', '重新上传') : hotsearchTextGet('pages.settings.hotsearch.actions.selectHeadMusic', '选择音乐') }}
-          </UButton>
+                  <UButton v-if="files" color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :disabled="computedActiveUploadBusy" @click.stop.prevent="removeFile()">
+                    {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.clearFile', '清空选择') }}
+                  </UButton>
+                </div>
+              </template>
 
-          <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:download" :disabled="props.disabled || !item.remoteExists || !props.attachmentsDirConfigured" :loading="item.syncLoading" @click="props.syncRequest(item.kind)">
-            {{ hotsearchTextGet('pages.settings.hotsearch.actions.syncHeadMusic', '从云端同步') }}
-          </UButton>
-        </div>
-      </section>
-    </div>
-  </UPageCard>
+              <template #file-name="{ file }">
+                <div class="text-highlighted text-sm font-medium">{{ file.name }}</div>
+              </template>
 
-  <UModal v-model:open="stateUploadModalOpen" :dismissible="!computedActiveUploadBusy" :title="computedUploadDialogTitle" :description="computedUploadDialogDescription" :ui="{ content: 'sm:max-w-3xl', footer: 'justify-end' }">
-    <template #body>
-      <div class="space-y-5">
-        <UFileUpload
-          v-model="stateUploadFile"
-          accept=".mp3,audio/mpeg"
-          :multiple="false"
-          variant="area"
-          layout="list"
-          position="inside"
-          :dropzone="true"
-          :interactive="!computedActiveUploadBusy"
-          :disabled="computedActiveUploadBusy"
-          :label="hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.dropLabel', '把 MP3 文件拖到这里')"
-          :description="hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.dropDescription', '或者点击下面按钮选择文件。建议保持文件简短、响度稳定。')"
-          class="w-full"
-        >
-          <template #actions="{ files, open, removeFile }">
-            <div class="flex flex-wrap items-center gap-2">
-              <UButton color="primary" variant="soft" size="sm" icon="i-lucide:folder-up" :disabled="computedActiveUploadBusy" @click="open()">
-                {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.selectFile', '选择文件') }}
-              </UButton>
+              <template #file-size="{ file }">
+                <div class="text-muted text-xs">{{ fileSizeTextGet(file.size) }}</div>
+              </template>
+            </UFileUpload>
 
-              <UButton v-if="files" color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :disabled="computedActiveUploadBusy" @click="removeFile()">
-                {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.clearFile', '清空选择') }}
-              </UButton>
+            <div v-if="stateUploadDragActive" class="text-primary flex items-center gap-2 px-3 pb-3 text-sm font-medium">
+              <UIcon name="i-lucide:arrow-down-to-line" class="size-4 shrink-0" />
+              <span>{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.dropActive', '松手后上传这首 MP3') }}</span>
             </div>
-          </template>
-
-          <template #file-name="{ file }">
-            <div class="text-highlighted text-sm font-medium">{{ file.name }}</div>
-          </template>
-
-          <template #file-size="{ file }">
-            <div class="text-muted text-xs">{{ fileSizeTextGet(file.size) }}</div>
-          </template>
-        </UFileUpload>
-
-        <div v-if="stateUploadPreviewUrl" class="space-y-2">
-          <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.pendingPreview', '待上传预览') }}</div>
-          <div class="rounded-xl border border-default bg-elevated/25 p-3">
-            <MediaPlayerPlyr
-              type="audio"
-              :sources="[
-                {
-                  src: stateUploadPreviewUrl,
-                  type: stateUploadFile?.type || 'audio/mpeg'
-                }
-              ]"
-              :options="computedPlayerOptions"
-            />
-          </div>
-        </div>
-
-        <div v-else-if="computedActiveItem?.previewUrl" class="space-y-2">
-          <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.currentPreview', '当前线上预览') }}</div>
-          <div class="rounded-xl border border-default bg-elevated/25 p-3">
-            <MediaPlayerPlyr
-              type="audio"
-              :sources="[
-                {
-                  src: computedActiveItem.previewUrl,
-                  type: 'audio/mpeg'
-                }
-              ]"
-              :options="computedPlayerOptions"
-            />
-          </div>
-        </div>
-
-        <div v-if="computedActiveUploadBusy" class="space-y-2 rounded-xl border border-default bg-elevated/20 px-4 py-3">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.uploadProgress', '上传进度') }}</span>
-            <span class="text-muted text-xs">{{ computedActiveUploadProgressText }}</span>
           </div>
 
-          <UProgress :model-value="computedActiveUploadProgress" />
-        </div>
-      </div>
-    </template>
+          <div v-if="stateUploadPreviewUrl" class="space-y-2">
+            <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.pendingPreview', '待上传预览') }}</div>
+            <div class="border-default bg-elevated/25 rounded-xl border p-3">
+              <MediaPlayerPlyr
+                type="audio"
+                :sources="[
+                  {
+                    src: stateUploadPreviewUrl,
+                    type: stateUploadFile?.type || 'audio/mpeg'
+                  }
+                ]"
+                :options="computedPlayerOptions"
+              />
+            </div>
+          </div>
 
-    <template #footer>
-      <div class="flex flex-wrap justify-end gap-2">
-        <UButton color="neutral" variant="ghost" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
-          {{ t('common.actions.cancel') }}
-        </UButton>
-        <UButton color="primary" :disabled="!stateUploadFile" :loading="computedActiveUploadBusy" @click="handleUploadSubmit">
-          {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.confirmUpload', '开始上传') }}
-        </UButton>
-      </div>
-    </template>
-  </UModal>
+          <div v-else-if="computedActiveItem?.previewUrl" class="space-y-2">
+            <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.currentPreview', '当前线上预览') }}</div>
+            <div class="border-default bg-elevated/25 rounded-xl border p-3">
+              <MediaPlayerPlyr
+                type="audio"
+                :sources="[
+                  {
+                    src: computedActiveItem.previewUrl,
+                    type: 'audio/mpeg'
+                  }
+                ]"
+                :options="computedPlayerOptions"
+              />
+            </div>
+          </div>
+
+          <div v-if="computedActiveUploadBusy" class="border-default bg-elevated/20 space-y-2 rounded-xl border px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.uploadProgress', '上传进度') }}</span>
+              <span class="text-muted text-xs">{{ computedActiveUploadProgressText }}</span>
+            </div>
+
+            <UProgress :model-value="computedActiveUploadProgress" />
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex flex-wrap justify-end gap-2">
+          <UButton color="neutral" variant="ghost" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
+            {{ t('common.actions.cancel') }}
+          </UButton>
+          <UButton color="primary" :disabled="!stateUploadFile || computedUploadSubmitBusy" :loading="computedUploadSubmitBusy" @click="handleUploadSubmit">
+            {{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.confirmUpload', '开始上传') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
+import type { IMediaPlyrConfig } from '@/components/media/player/plyr/index.types';
 
-import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem, ISettingsHotsearchHeadMusicProps } from './index.types';
+import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem, ISettingsHotsearchHeadMusicProps } from './index.types.ts';
 
 /**
- * 属性：热搜固定开头音乐。
+ * 属性：热搜开头音乐。
  */
 const props = withDefaults(defineProps<ISettingsHotsearchHeadMusicProps>(), {
-  disabled: false,
-  generateError: '',
-  headMusicError: ''
+  disabled: false
 });
 
 /**
- * 事件：热搜固定开头音乐。
+ * 事件：热搜开头音乐。
  */
 const emit = defineEmits<ISettingsHotsearchHeadMusicEmits>();
 
@@ -233,6 +201,16 @@ const stateUploadModalOpen = ref(false);
 const stateUploadKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
 
 /**
+ * 状态：试听弹窗开关。
+ */
+const statePreviewModalOpen = ref(false);
+
+/**
+ * 状态：当前试听的音乐类型。
+ */
+const statePreviewKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
+
+/**
  * 状态：当前待上传文件。
  */
 const stateUploadFile = ref<File | null>(null);
@@ -243,9 +221,24 @@ const stateUploadFile = ref<File | null>(null);
 const stateUploadPreviewUrl = ref('');
 
 /**
+ * 状态：上传区是否处于拖入态。
+ */
+const stateUploadDragActive = ref(false);
+
+/**
+ * 状态：上传区拖入层级计数。
+ */
+const stateUploadDragDepth = ref(0);
+
+/**
+ * 状态：上传提交是否正在执行。
+ */
+const stateUploadSubmitting = ref(false);
+
+/**
  * 常量：播放器配置。
  */
-const computedPlayerOptions = {
+const computedPlayerOptions: IMediaPlyrConfig = {
   settings: [],
   controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
 };
@@ -255,6 +248,24 @@ const computedPlayerOptions = {
  */
 const computedActiveItem = computed<ISettingsHotsearchHeadMusicItem | null>(() => {
   return props.items.find((item) => item.kind === stateUploadKind.value) ?? null;
+});
+
+/**
+ * 计算属性：当前试听条目。
+ */
+const computedPreviewItem = computed<ISettingsHotsearchHeadMusicItem | null>(() => {
+  return props.items.find((item) => item.kind === statePreviewKind.value) ?? null;
+});
+
+/**
+ * 计算属性：上传区拖入态样式。
+ */
+const computedUploadDropzoneClass = computed(() => {
+  if (!stateUploadDragActive.value) {
+    return '';
+  }
+
+  return 'bg-primary/6 ring-primary/35 ring-2 ring-inset';
 });
 
 /**
@@ -270,9 +281,41 @@ const computedUploadDialogTitle = computed(() => {
  * 计算属性：当前上传对话框描述。
  */
 const computedUploadDialogDescription = computed(() => {
-  return hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.description', '支持拖放和点击选择。上传会直接从前端直传到又拍云，并同步写入当前机器的固定路径。', {
+  return hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicUpload.description', '选一首开头音乐上传。', {
     title: computedActiveItem.value?.title || ''
   });
+});
+
+/**
+ * 计算属性：当前试听对话框标题。
+ */
+const computedPreviewDialogTitle = computed(() => {
+  return hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.title', '{title} 试听', {
+    title: computedPreviewItem.value?.title || ''
+  });
+});
+
+/**
+ * 计算属性：当前试听对话框描述。
+ */
+const computedPreviewDialogDescription = computed(() => {
+  return hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.description', '这里可以先试听。', {
+    title: computedPreviewItem.value?.title || ''
+  });
+});
+
+/**
+ * 计算属性：开头音乐区块标题。
+ */
+const computedSectionTitle = computed(() => {
+  return hotsearchTextGet('pages.settings.hotsearch.sections.headMusic.title', '开头音乐');
+});
+
+/**
+ * 计算属性：开头音乐区块描述。
+ */
+const computedSectionDescription = computed(() => {
+  return hotsearchTextGet('pages.settings.hotsearch.sections.headMusic.description', '管理生成播客和两种开头音乐。');
 });
 
 /**
@@ -287,15 +330,18 @@ const hotsearchTextGet = (key: string, fallback: string, values?: Record<string,
     return t(key, values || {});
   }
 
-  return values
-    ? fallback.replace(/\{(\w+)\}/g, (_, token: string) => String(values[token] ?? ''))
-    : fallback;
+  return values ? fallback.replace(/\{(\w+)\}/g, (_, token: string) => String(values[token] ?? '')) : fallback;
 };
 
 /**
  * 计算属性：当前是否正在上传。
  */
 const computedActiveUploadBusy = computed(() => Boolean(computedActiveItem.value?.uploadLoading));
+
+/**
+ * 计算属性：上传提交是否繁忙。
+ */
+const computedUploadSubmitBusy = computed(() => computedActiveUploadBusy.value || stateUploadSubmitting.value);
 
 /**
  * 计算属性：当前上传进度。
@@ -333,24 +379,90 @@ const fileSizeTextGet = (size: number): string => {
 };
 
 /**
- * 函数：获取等待描述。
+ * 函数：获取开头音乐状态描述。
  * @param {ISettingsHotsearchHeadMusicItem} item 条目
  * @returns {string} 描述
  */
-const headMusicWaitingDescriptionGet = (item: ISettingsHotsearchHeadMusicItem): string => {
+const headMusicStatusDescriptionGet = (item: ISettingsHotsearchHeadMusicItem): string => {
   if (!props.attachmentsDirConfigured) {
-    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedAttachmentsDir', '先设置附件目录，固定开头音乐才能按约定路径落盘并参与播客生成。');
+    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedAttachmentsDir', '还没设置附件目录。');
   }
 
-  if (!item.remoteExists) {
-    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedUpload', '云端还没有这份固定开头音乐。请先上传，之后其他机器才能直接同步使用。');
+  if (item.localExists && !item.remoteExists) {
+    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicCloudMissingAfterLocalReady', '这台机器能用，但云端还没有。');
   }
 
   if (!item.localExists) {
-    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedSync', '云端已经有这份固定开头音乐，但当前机器本地还没落盘。可以直接从云端同步。');
+    if (item.remoteExists) {
+      return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedSync', '本地还没有，开启生成时会自动补齐。');
+    }
+
+    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedUpload', '还没有音乐，先选一首上传。');
   }
 
-  return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedPreview', '当前音乐已经存在，但暂时还没有可用的预览地址。');
+  if (!item.previewUrl) {
+    return hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedPreview', '暂时还不能试听。');
+  }
+
+  return hotsearchTextGet('pages.settings.hotsearch.status.headMusicReady', '已经可以直接用了。');
+};
+
+/**
+ * 函数：获取播客生成占用徽标。
+ * @returns {{ color: 'primary' | 'warning' | 'neutral'; label: string }} 徽标配置
+ */
+const generateOwnerBadgeGet = (): { color: 'primary' | 'warning' | 'neutral'; label: string } => {
+  if (props.generateOwnerExists && props.generateOwnedByCurrentMachine) {
+    return {
+      color: 'primary',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnedByCurrentMachine', '当前机器已占用')
+    };
+  }
+
+  if (props.generateOwnerExists) {
+    return {
+      color: 'warning',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnedByOtherMachine', '其他机器已占用')
+    };
+  }
+
+  return {
+    color: 'neutral',
+    label: hotsearchTextGet('pages.settings.hotsearch.status.podcastGenerateOwnerIdle', '当前无人占用')
+  };
+};
+
+/**
+ * 函数：获取列表行状态徽标。
+ * @param {ISettingsHotsearchHeadMusicItem} item 条目
+ * @returns {{ color: 'success' | 'warning' | 'neutral'; label: string }} 徽标配置
+ */
+const headMusicStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
+  if (!props.attachmentsDirConfigured) {
+    return {
+      color: 'neutral',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.attachmentsDirUnsetShort', '未配置目录')
+    };
+  }
+
+  if (item.localExists) {
+    return {
+      color: 'success',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.localReady', '本地已就绪')
+    };
+  }
+
+  if (item.remoteExists) {
+    return {
+      color: 'neutral',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.localMissing', '本地缺失')
+    };
+  }
+
+  return {
+    color: 'warning',
+    label: hotsearchTextGet('pages.settings.hotsearch.status.remoteMissing', '云端缺失')
+  };
 };
 
 /**
@@ -364,12 +476,82 @@ const openUploadModal = (kind: THotsearchPodcastHeadMusicKind): void => {
 };
 
 /**
+ * 函数：打开试听弹窗。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ */
+const openPreviewModal = (kind: THotsearchPodcastHeadMusicKind): void => {
+  statePreviewKind.value = kind;
+  statePreviewModalOpen.value = true;
+};
+
+/**
  * 函数：处理本机播客生成开关。
  * @param {boolean} value 最新值
  */
 const handleGenerateEnabledUpdate = (value: boolean): void => {
-  emit('update:generateEnabled', value);
   emit('update:generate-enabled', value);
+};
+
+/**
+ * 函数：判断拖拽事件里是否包含文件。
+ * @param {DragEvent} event 拖拽事件。
+ * @returns {boolean} 是否包含文件。
+ */
+const uploadDragHasFiles = (event: DragEvent): boolean => {
+  return Array.from(event.dataTransfer?.types ?? []).includes('Files');
+};
+
+/**
+ * 函数：进入上传拖入态。
+ * @param {DragEvent} event 拖拽事件。
+ * @returns {void} 无返回值。
+ */
+const handleUploadDragEnter = (event: DragEvent): void => {
+  if (computedActiveUploadBusy.value || !uploadDragHasFiles(event)) {
+    return;
+  }
+
+  stateUploadDragDepth.value += 1;
+  stateUploadDragActive.value = true;
+};
+
+/**
+ * 函数：维持上传拖入态。
+ * @param {DragEvent} event 拖拽事件。
+ * @returns {void} 无返回值。
+ */
+const handleUploadDragOver = (event: DragEvent): void => {
+  if (computedActiveUploadBusy.value || !uploadDragHasFiles(event)) {
+    return;
+  }
+
+  stateUploadDragActive.value = true;
+};
+
+/**
+ * 函数：离开上传拖入态。
+ * @param {DragEvent} event 拖拽事件。
+ * @returns {void} 无返回值。
+ */
+const handleUploadDragLeave = (event: DragEvent): void => {
+  if (computedActiveUploadBusy.value || !uploadDragHasFiles(event)) {
+    return;
+  }
+
+  stateUploadDragDepth.value = Math.max(0, stateUploadDragDepth.value - 1);
+
+  if (stateUploadDragDepth.value === 0) {
+    stateUploadDragActive.value = false;
+  }
+};
+
+/**
+ * 函数：结束上传拖入态。
+ * @returns {void} 无返回值。
+ */
+const handleUploadDrop = (): void => {
+  stateUploadDragDepth.value = 0;
+  stateUploadDragActive.value = false;
 };
 
 /**
@@ -377,12 +559,18 @@ const handleGenerateEnabledUpdate = (value: boolean): void => {
  * @returns {Promise<void>} 无返回值
  */
 const handleUploadSubmit = async (): Promise<void> => {
-  if (!stateUploadFile.value || !stateUploadKind.value) {
+  if (!stateUploadFile.value || !stateUploadKind.value || computedUploadSubmitBusy.value) {
     return;
   }
 
-  await props.uploadRequest(stateUploadKind.value, stateUploadFile.value);
-  stateUploadModalOpen.value = false;
+  stateUploadSubmitting.value = true;
+
+  try {
+    await props.uploadRequest(stateUploadKind.value, stateUploadFile.value);
+    stateUploadModalOpen.value = false;
+  } finally {
+    stateUploadSubmitting.value = false;
+  }
 };
 
 /**
@@ -409,6 +597,9 @@ watch(stateUploadModalOpen, (open) => {
     return;
   }
 
+  stateUploadDragActive.value = false;
+  stateUploadDragDepth.value = 0;
+  stateUploadSubmitting.value = false;
   stateUploadKind.value = null;
   stateUploadFile.value = null;
 
@@ -416,6 +607,17 @@ watch(stateUploadModalOpen, (open) => {
     URL.revokeObjectURL(stateUploadPreviewUrl.value);
     stateUploadPreviewUrl.value = '';
   }
+});
+
+/**
+ * 侦听：关闭试听弹窗时清理选择状态。
+ */
+watch(statePreviewModalOpen, (open) => {
+  if (open) {
+    return;
+  }
+
+  statePreviewKind.value = null;
 });
 
 /**

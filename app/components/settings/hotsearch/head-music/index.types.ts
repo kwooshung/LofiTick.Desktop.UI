@@ -1,7 +1,7 @@
 import type { THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
 
 /**
- * 接口：热搜固定开头音乐条目。
+ * 接口：热搜开头音乐条目。
  */
 export interface ISettingsHotsearchHeadMusicItem {
   /**
@@ -45,18 +45,13 @@ export interface ISettingsHotsearchHeadMusicItem {
   uploadLoading: boolean;
 
   /**
-   * 当前是否正在同步。
-   */
-  syncLoading: boolean;
-
-  /**
    * 当前上传进度。
    */
   uploadProgress: number;
 }
 
 /**
- * 接口：热搜固定开头音乐组件属性。
+ * 接口：热搜开头音乐组件属性。
  */
 export interface ISettingsHotsearchHeadMusicProps {
   /**
@@ -80,6 +75,11 @@ export interface ISettingsHotsearchHeadMusicProps {
   generateLoading: boolean;
 
   /**
+   * 本机播客生成开关是否禁用。
+   */
+  generateDisabled?: boolean;
+
+  /**
    * 当前是否已有占用机器。
    */
   generateOwnerExists: boolean;
@@ -95,17 +95,7 @@ export interface ISettingsHotsearchHeadMusicProps {
   generateOwnerDescription: string;
 
   /**
-   * 播客生成错误提示。
-   */
-  generateError?: string;
-
-  /**
-   * 开头音乐错误提示。
-   */
-  headMusicError?: string;
-
-  /**
-   * 固定开头音乐条目。
+   * 开头音乐条目。
    */
   items: ISettingsHotsearchHeadMusicItem[];
 
@@ -113,27 +103,12 @@ export interface ISettingsHotsearchHeadMusicProps {
    * 上传请求。
    */
   uploadRequest: (kind: THotsearchPodcastHeadMusicKind, file: File) => Promise<void>;
-
-  /**
-   * 云端同步请求。
-   */
-  syncRequest: (kind: THotsearchPodcastHeadMusicKind) => Promise<void>;
-
-  /**
-   * 选择附件目录请求。
-   */
-  chooseAttachmentsDirRequest: () => Promise<void>;
 }
 
 /**
- * 接口：热搜固定开头音乐组件事件。
+ * 接口：热搜开头音乐组件事件。
  */
 export interface ISettingsHotsearchHeadMusicEmits {
-  /**
-   * 事件：本机播客生成开关更新。
-   */
-  'update:generateEnabled': [value: boolean];
-
   /**
    * 事件：本机播客生成开关更新。
    */

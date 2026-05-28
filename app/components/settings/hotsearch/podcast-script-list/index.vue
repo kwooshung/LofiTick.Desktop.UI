@@ -198,7 +198,6 @@ const props = withDefaults(defineProps<ISettingsHotsearchPodcastScriptListProps>
  * 事件：热搜播客文案设置更新。
  */
 const emit = defineEmits<{
-  'update:templateItems': [value: ISettingsHotsearchPodcastTemplateItem[]];
   'update:template-items': [value: ISettingsHotsearchPodcastTemplateItem[]];
 }>();
 
@@ -574,7 +573,6 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
 const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = templateItemRenderKeys.value): void => {
   stateTemplateItems.value = [...value];
   templateItemRenderKeys.value = [...renderKeys];
-  emit('update:templateItems', value);
   emit('update:template-items', value);
 };
 

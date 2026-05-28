@@ -145,18 +145,86 @@ export const configs = {
       }
     }
   },
-
   security: {
+    enabled: true,
+    strict: false,
+    headers: {
+      crossOriginEmbedderPolicy: 'unsafe-none',
+
+      contentSecurityPolicy: {
+        'base-uri': ["'none'"],
+        'font-src': ["'self'", 'https:', 'data:'],
+        'form-action': ["'self'"],
+        'frame-ancestors': ["'self'"],
+        'img-src': ["'self'", 'data:', 'blob:', 'https://www.bing.com', 'https://mails.lofitick.com', 'https://access.lofitick.com', 'https://files.lofitick.com', 'https://downloads.lofitick.com'],
+        'object-src': ["'none'"],
+        'script-src-attr': ["'none'"],
+        'worker-src': ["'self'", 'blob:'],
+        'style-src': ["'self'", 'https:', "'unsafe-inline'", 'https://mails.lofitick.com', 'https://access.lofitick.com', 'https://files.lofitick.com', 'https://downloads.lofitick.com'],
+        'script-src': ["'self'", 'https:', "'unsafe-inline'", "'strict-dynamic'", "'nonce-{{nonce}}'", 'https://mails.lofitick.com', 'https://access.lofitick.com', 'https://files.lofitick.com', 'https://downloads.lofitick.com'],
+        'upgrade-insecure-requests': false // 是否启用升级不安全请求，避免强制升级 HTTPS 导致某些资源加载失败
+      },
+      originAgentCluster: '?1',
+      // referrerPolicy: 'no-referrer',
+      referrerPolicy: 'strict-origin-when-cross-origin', // 或 'same-origin' 如果只想同域发送
+      strictTransportSecurity: {
+        maxAge: 15552000,
+        includeSubdomains: true
+      },
+      xContentTypeOptions: 'nosniff',
+      xDNSPrefetchControl: 'off',
+      xDownloadOptions: 'noopen',
+      xFrameOptions: 'SAMEORIGIN',
+      xPermittedCrossDomainPolicies: 'none',
+      xXSSProtection: '1',
+      permissionsPolicy: {
+        camera: [],
+        'display-capture': [],
+        fullscreen: [],
+        geolocation: [],
+        microphone: []
+      }
+    },
+    requestSizeLimiter: {
+      maxRequestSizeInBytes: 2000000,
+      maxUploadFileRequestInBytes: 8000000,
+      throwError: true
+    },
+    rateLimiter: {
+      tokensPerInterval: 150,
+      interval: 300000,
+      headers: false,
+      driver: {
+        name: 'lruCache'
+      },
+      throwError: true
+    },
+    xssValidator: {
+      throwError: true
+    },
+    corsHandler: {
+      // origin: serverlUrl,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+      preflight: {
+        statusCode: 204
+      }
+    },
+    allowedMethodsRestricter: {
+      methods: '*',
+      throwError: true
+    },
+    hidePoweredBy: true,
+    basicAuth: false,
     csrf: {
-      // 启用 CSRF 防护（默认对写方法生效）
+      // 启用 CSRF 防护（默认已启用）
       enabled: true,
       // 生产环境默认启用 HTTPS 检测，因此如果不支持 HTTPS，请在此处设置为 false
       https: false,
       // 需要保护的 HTTP 方法
       methodsToProtect: ['POST', 'PUT', 'PATCH', 'DELETE'],
-      // 默认为 false，要在服务器上运行 useCsrfFetch，请将其设置为 true
+      // 默认为false，要在服务器上运行useCsrfFetch，请将其设置为true
       addCsrfTokenToEventCtx: true,
-      cookieKey: 'csrf_id',
+      // 其他可选配置（如 cookie 选项、header 名称等）
       cookie: {
         path: '/',
         httpOnly: true,
@@ -164,7 +232,17 @@ export const configs = {
       },
       // 请求头中携带 CSRF token 的名称
       headerName: 'x-csrf-token'
-    }
+    },
+    nonce: true,
+    removeLoggers: true,
+    ssg: {
+      meta: true,
+      hashScripts: true,
+      hashStyles: false,
+      nitroHeaders: true,
+      exportToPresets: true
+    },
+    sri: true
   },
 
   // 运行时配置：API 地址通过环境变量注入
