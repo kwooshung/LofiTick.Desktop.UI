@@ -35,16 +35,7 @@
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
-          <UButton
-            v-if="item.remoteExists"
-            color="neutral"
-            variant="outline"
-            size="sm"
-            icon="i-lucide:headphones"
-            :disabled="props.disabled"
-            :loading="statePreviewLoadingKind === item.kind"
-            @click="openPreviewModal(item.kind)"
-          >
+          <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="props.disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
             {{ hotsearchTextGet('pages.settings.hotsearch.actions.previewHeadMusic', '试听') }}
           </UButton>
 
@@ -73,7 +64,7 @@
 
           <div v-if="computedPreviewRemoteAddress" class="border-default bg-default/50 space-y-2 rounded-xl border px-4 py-3">
             <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.remoteAddress', '原始远程地址') }}</div>
-            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block break-all text-sm leading-6 no-underline hover:underline">
+            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block text-sm leading-6 break-all no-underline hover:underline">
               {{ computedPreviewRemoteAddress }}
             </ULink>
           </div>
@@ -81,7 +72,7 @@
         <div v-else-if="computedPreviewLoading" class="space-y-3">
           <div class="border-default bg-default/50 rounded-xl border border-dashed px-4 py-6">
             <div class="flex items-center gap-3">
-              <UIcon name="i-lucide:loader-circle" class="text-primary size-5 animate-spin shrink-0" />
+              <UIcon name="i-lucide:loader-circle" class="text-primary size-5 shrink-0 animate-spin" />
               <div class="min-w-0">
                 <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.loadingTitle', '正在获取线上地址') }}</div>
                 <div class="text-muted mt-1 text-sm">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.loadingDescription', '拿到地址后会直接切到播放器。') }}</div>
@@ -96,7 +87,7 @@
 
           <div class="border-default bg-default/50 space-y-2 rounded-xl border px-4 py-3">
             <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.remoteAddress', '原始远程地址') }}</div>
-            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block break-all text-sm leading-6 no-underline hover:underline">
+            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block text-sm leading-6 break-all no-underline hover:underline">
               {{ computedPreviewRemoteAddress }}
             </ULink>
           </div>
