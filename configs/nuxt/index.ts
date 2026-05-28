@@ -258,6 +258,9 @@ export const configs = {
       // 由 .env 注入（prod 默认值），开发时由 .env.development 覆盖
       apiBase: '',
 
+      // assets 桶公开域名，用于前端直接拼接远程资源地址
+      upyunAssetsDomain: '',
+
       // 前端可见：用于解密 sign_refresh blob 的 AES seed（对应后端 SECURITY_SIGN_AES_SEED）
       signAesSeed: ''
     }

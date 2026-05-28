@@ -26,7 +26,8 @@
         <div class="min-w-0 flex-1 space-y-1.5">
           <div class="flex min-w-0 flex-wrap items-start gap-2">
             <div class="text-highlighted mb-1 text-base">{{ item.title }}</div>
-            <UBadge :color="headMusicStatusBadgeGet(item).color" variant="soft">{{ headMusicStatusBadgeGet(item).label }}</UBadge>
+            <UBadge :color="headMusicRemoteStatusBadgeGet(item).color" variant="soft">{{ headMusicRemoteStatusBadgeGet(item).label }}</UBadge>
+            <UBadge :color="headMusicLocalStatusBadgeGet(item).color" variant="soft">{{ headMusicLocalStatusBadgeGet(item).label }}</UBadge>
           </div>
 
           <p class="text-muted text-sm">{{ item.description }}</p>
@@ -34,7 +35,16 @@
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
-          <UButton v-if="item.remoteExists && item.previewUrl" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="props.disabled" @click="openPreviewModal(item.kind)">
+          <UButton
+            v-if="item.remoteExists"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            icon="i-lucide:headphones"
+            :disabled="props.disabled"
+            :loading="statePreviewLoadingKind === item.kind"
+            @click="openPreviewModal(item.kind)"
+          >
             {{ hotsearchTextGet('pages.settings.hotsearch.actions.previewHeadMusic', '试听') }}
           </UButton>
 
@@ -47,17 +57,49 @@
 
     <UModal v-model:open="statePreviewModalOpen" :title="computedPreviewDialogTitle" :description="computedPreviewDialogDescription" :ui="{ content: 'sm:max-w-2xl' }">
       <template #body>
-        <div v-if="computedPreviewItem?.previewUrl" class="border-default bg-elevated/25 rounded-xl border p-3">
-          <MediaPlayerPlyr
-            type="audio"
-            :sources="[
-              {
-                src: computedPreviewItem.previewUrl,
-                type: 'audio/mpeg'
-              }
-            ]"
-            :options="computedPlayerOptions"
-          />
+        <div v-if="computedPreviewPlaybackUrl" class="space-y-3">
+          <div class="border-default bg-elevated/25 rounded-xl border p-3">
+            <MediaPlayerPlyr
+              type="audio"
+              :sources="[
+                {
+                  src: computedPreviewPlaybackUrl,
+                  type: 'audio/mpeg'
+                }
+              ]"
+              :options="computedPlayerOptions"
+            />
+          </div>
+
+          <div v-if="computedPreviewRemoteAddress" class="border-default bg-default/50 space-y-2 rounded-xl border px-4 py-3">
+            <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.remoteAddress', '原始远程地址') }}</div>
+            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block break-all text-sm leading-6 no-underline hover:underline">
+              {{ computedPreviewRemoteAddress }}
+            </ULink>
+          </div>
+        </div>
+        <div v-else-if="computedPreviewLoading" class="space-y-3">
+          <div class="border-default bg-default/50 rounded-xl border border-dashed px-4 py-6">
+            <div class="flex items-center gap-3">
+              <UIcon name="i-lucide:loader-circle" class="text-primary size-5 animate-spin shrink-0" />
+              <div class="min-w-0">
+                <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.loadingTitle', '正在获取线上地址') }}</div>
+                <div class="text-muted mt-1 text-sm">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.loadingDescription', '拿到地址后会直接切到播放器。') }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="computedPreviewRemoteAddress" class="space-y-3">
+          <div class="border-default bg-default/50 text-muted rounded-xl border border-dashed px-4 py-3 text-sm">
+            {{ hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedPreview', '暂时还不能试听。') }}
+          </div>
+
+          <div class="border-default bg-default/50 space-y-2 rounded-xl border px-4 py-3">
+            <div class="text-highlighted text-sm font-medium">{{ hotsearchTextGet('pages.settings.hotsearch.dialogs.headMusicPreview.remoteAddress', '原始远程地址') }}</div>
+            <ULink raw :to="computedPreviewRemoteAddress" target="_blank" external class="text-primary block break-all text-sm leading-6 no-underline hover:underline">
+              {{ computedPreviewRemoteAddress }}
+            </ULink>
+          </div>
         </div>
         <div v-else class="border-default bg-default/50 text-muted rounded-xl border border-dashed px-4 py-3 text-sm">
           {{ hotsearchTextGet('pages.settings.hotsearch.status.headMusicNeedPreview', '暂时还不能试听。') }}
@@ -171,7 +213,7 @@
 import type { THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
 import type { IMediaPlyrConfig } from '@/components/media/player/plyr/index.types';
 
-import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem, ISettingsHotsearchHeadMusicProps } from './index.types.ts';
+import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem, ISettingsHotsearchHeadMusicPreviewResult, ISettingsHotsearchHeadMusicProps } from './index.types.ts';
 
 /**
  * 属性：热搜开头音乐。
@@ -209,6 +251,21 @@ const statePreviewModalOpen = ref(false);
  * 状态：当前试听的音乐类型。
  */
 const statePreviewKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
+
+/**
+ * 状态：当前正在拉取试听地址的音乐类型。
+ */
+const statePreviewLoadingKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
+
+/**
+ * 状态：本次试听拿到的可播放地址。
+ */
+const statePreviewPlaybackUrl = ref('');
+
+/**
+ * 状态：本次试听拿到的原始远端地址。
+ */
+const statePreviewRemoteAddress = ref('');
 
 /**
  * 状态：当前待上传文件。
@@ -255,6 +312,27 @@ const computedActiveItem = computed<ISettingsHotsearchHeadMusicItem | null>(() =
  */
 const computedPreviewItem = computed<ISettingsHotsearchHeadMusicItem | null>(() => {
   return props.items.find((item) => item.kind === statePreviewKind.value) ?? null;
+});
+
+/**
+ * 计算属性：当前试听播放地址。
+ */
+const computedPreviewPlaybackUrl = computed(() => {
+  return String(statePreviewPlaybackUrl.value || computedPreviewItem.value?.previewUrl || computedPreviewItem.value?.remoteSourceUrl || '').trim();
+});
+
+/**
+ * 计算属性：当前试听是否仍在拉取线上地址。
+ */
+const computedPreviewLoading = computed(() => {
+  return statePreviewModalOpen.value && statePreviewLoadingKind.value === statePreviewKind.value;
+});
+
+/**
+ * 计算属性：当前试听原始远端地址。
+ */
+const computedPreviewRemoteAddress = computed(() => {
+  return String(statePreviewRemoteAddress.value || computedPreviewItem.value?.remoteSourceUrl || computedPreviewItem.value?.previewUrl || '').trim();
 });
 
 /**
@@ -437,7 +515,7 @@ const generateOwnerBadgeGet = (): { color: 'primary' | 'warning' | 'neutral'; la
  * @param {ISettingsHotsearchHeadMusicItem} item 条目
  * @returns {{ color: 'success' | 'warning' | 'neutral'; label: string }} 徽标配置
  */
-const headMusicStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
+const headMusicLocalStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
   if (!props.attachmentsDirConfigured) {
     return {
       color: 'neutral',
@@ -452,10 +530,29 @@ const headMusicStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color
     };
   }
 
-  if (item.remoteExists) {
+  return {
+    color: 'warning',
+    label: hotsearchTextGet('pages.settings.hotsearch.status.localMissing', '本地缺失')
+  };
+};
+
+/**
+ * 函数：获取列表行云端状态徽标。
+ * @param {ISettingsHotsearchHeadMusicItem} item 条目
+ * @returns {{ color: 'success' | 'warning' | 'neutral'; label: string }} 徽标配置
+ */
+const headMusicRemoteStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
+  if (!props.attachmentsDirConfigured) {
     return {
       color: 'neutral',
-      label: hotsearchTextGet('pages.settings.hotsearch.status.localMissing', '本地缺失')
+      label: hotsearchTextGet('pages.settings.hotsearch.status.attachmentsDirUnsetShort', '未配置目录')
+    };
+  }
+
+  if (item.remoteExists) {
+    return {
+      color: 'success',
+      label: hotsearchTextGet('pages.settings.hotsearch.status.remoteReady', '云端已就绪')
     };
   }
 
@@ -479,9 +576,28 @@ const openUploadModal = (kind: THotsearchPodcastHeadMusicKind): void => {
  * 函数：打开试听弹窗。
  * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
  */
-const openPreviewModal = (kind: THotsearchPodcastHeadMusicKind): void => {
+const openPreviewModal = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  if (statePreviewLoadingKind.value) {
+    return;
+  }
+
   statePreviewKind.value = kind;
   statePreviewModalOpen.value = true;
+  statePreviewPlaybackUrl.value = '';
+  statePreviewRemoteAddress.value = '';
+
+  try {
+    statePreviewLoadingKind.value = kind;
+    const result = await props.previewRequest(kind);
+    const normalized = (result ?? {}) as Partial<ISettingsHotsearchHeadMusicPreviewResult>;
+
+    statePreviewPlaybackUrl.value = String(normalized.previewUrl || '').trim();
+    statePreviewRemoteAddress.value = String(normalized.remoteAddress || statePreviewPlaybackUrl.value || '').trim();
+  } catch {
+    // ignore
+  } finally {
+    statePreviewLoadingKind.value = null;
+  }
 };
 
 /**
@@ -618,6 +734,8 @@ watch(statePreviewModalOpen, (open) => {
   }
 
   statePreviewKind.value = null;
+  statePreviewPlaybackUrl.value = '';
+  statePreviewRemoteAddress.value = '';
 });
 
 /**

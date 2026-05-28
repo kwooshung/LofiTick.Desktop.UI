@@ -74,6 +74,21 @@ export interface ISettingsHotsearchPlatformItem {
 }
 
 /**
+ * 接口：热搜播客开头音乐远端路径。
+ */
+export interface ISettingsHotsearchPodcastHeadMusicRemotePaths {
+  /**
+   * 普通版远端对象路径。
+   */
+  normal: string;
+
+  /**
+   * VIP 版远端对象路径。
+   */
+  vip: string;
+}
+
+/**
  * 接口：热搜自动化设置。
  */
 export interface ISettingsHotsearch {
@@ -121,6 +136,11 @@ export interface ISettingsHotsearch {
    * 播客模板片段列表。
    */
   podcastTemplateItems: ISettingsHotsearchPodcastTemplateItem[];
+
+  /**
+   * 播客开头音乐远端对象路径。
+   */
+  podcastHeadMusicRemotePaths: ISettingsHotsearchPodcastHeadMusicRemotePaths;
 
   /**
    * 月度预算积分。

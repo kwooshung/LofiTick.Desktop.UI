@@ -40,6 +40,16 @@ export interface ISettingsHotsearchHeadMusicItem {
   previewUrl?: string;
 
   /**
+   * 远端对象路径。
+   */
+  remotePath?: string;
+
+  /**
+   * 原始远端地址。
+   */
+  remoteSourceUrl?: string;
+
+  /**
    * 当前是否正在上传。
    */
   uploadLoading: boolean;
@@ -48,6 +58,21 @@ export interface ISettingsHotsearchHeadMusicItem {
    * 当前上传进度。
    */
   uploadProgress: number;
+}
+
+/**
+ * 接口：热搜开头音乐试听结果。
+ */
+export interface ISettingsHotsearchHeadMusicPreviewResult {
+  /**
+   * 可播放地址。
+   */
+  previewUrl: string;
+
+  /**
+   * 原始远端地址。
+   */
+  remoteAddress: string;
 }
 
 /**
@@ -103,6 +128,11 @@ export interface ISettingsHotsearchHeadMusicProps {
    * 上传请求。
    */
   uploadRequest: (kind: THotsearchPodcastHeadMusicKind, file: File) => Promise<void>;
+
+  /**
+   * 试听请求。
+   */
+  previewRequest: (kind: THotsearchPodcastHeadMusicKind) => Promise<ISettingsHotsearchHeadMusicPreviewResult>;
 }
 
 /**

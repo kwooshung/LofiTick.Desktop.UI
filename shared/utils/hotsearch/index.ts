@@ -1,6 +1,7 @@
 import type {
   ISettingsHotsearch,
   ISettingsHotsearchLocal,
+  ISettingsHotsearchPodcastHeadMusicRemotePaths,
   ISettingsHotsearchPodcastGenerateOwner,
   ISettingsHotsearchPlatformItem,
   ISettingsHotsearchPodcastTemplateItem,
@@ -180,6 +181,10 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   podcastVipMorningProgramName: '洛菲热点早报 尊享版',
   podcastVipEveningProgramName: '洛菲热点晚报 尊享版',
   podcastTemplateItems: [],
+  podcastHeadMusicRemotePaths: {
+    normal: '',
+    vip: ''
+  },
   monthlyBudget: 3500,
   platformIds: hotsearchPlatformsList().map((item) => item.id),
   morningStartAt: '06:00',
@@ -219,39 +224,6 @@ export const hotsearchPodcastHeadMusicRemotePathCreate = (kind: THotsearchPodcas
 };
 
 /**
- * 函数：从 UpYun list 结果中提取热搜播客开头音乐对象路径。
- * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
- * @param {unknown} input UpYun `files + iter` 原始结果。
- * @returns {string[]} 对象路径列表。
- */
-export const hotsearchPodcastHeadMusicRemotePathsGet = (kind: THotsearchPodcastHeadMusicKind, input: unknown): string[] => {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    return [];
-  }
-
-  const files = (input as Record<string, unknown>).files;
-  if (!Array.isArray(files)) {
-    return [];
-  }
-
-  return files
-    .map((item) => (item && typeof item === 'object' && !Array.isArray(item) ? String((item as Record<string, unknown>).name ?? '').trim() : ''))
-    .filter((name) => name.endsWith('.mp3'))
-    .sort((left, right) => right.localeCompare(left))
-    .map((name) => `${hotsearchPodcastHeadMusicRemoteDirectoryGet(kind)}/${name}`);
-};
-
-/**
- * 函数：从 UpYun list 结果中提取当前最新的热搜播客开头音乐对象路径。
- * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
- * @param {unknown} input UpYun `files + iter` 原始结果。
- * @returns {string} 最新对象路径；不存在时返回空字符串。
- */
-export const hotsearchPodcastHeadMusicRemoteLatestPathGet = (kind: THotsearchPodcastHeadMusicKind, input: unknown): string => {
-  return hotsearchPodcastHeadMusicRemotePathsGet(kind, input)[0] ?? '';
-};
-
-/**
  * 函数：提取热搜共享设置。
  * @param {ISettingsHotsearch | ISettingsHotsearchLocal} input 输入值。
  * @returns {ISettingsHotsearch} 共享设置。
@@ -269,6 +241,7 @@ export const hotsearchSharedSettingsExtract = (input: ISettingsHotsearch | ISett
     podcastVipMorningProgramName: normalized.podcastVipMorningProgramName,
     podcastVipEveningProgramName: normalized.podcastVipEveningProgramName,
     podcastTemplateItems: normalized.podcastTemplateItems,
+    podcastHeadMusicRemotePaths: normalized.podcastHeadMusicRemotePaths,
     monthlyBudget: normalized.monthlyBudget,
     platformIds: normalized.platformIds,
     morningStartAt: normalized.morningStartAt,
@@ -398,6 +371,31 @@ const hotsearchPodcastProgramNameNormalize = (input: unknown, fallback: string):
 };
 
 /**
+ * 函数：归一化热搜播客开头音乐远端对象路径。
+ * @param {unknown} input 输入值。
+ * @returns {string} 归一化后的对象路径。
+ */
+const hotsearchPodcastHeadMusicRemotePathNormalize = (input: unknown): string => {
+  return String(input ?? '')
+    .trim()
+    .slice(0, 512);
+};
+
+/**
+ * 函数：归一化热搜播客开头音乐远端对象路径集合。
+ * @param {unknown} input 输入值。
+ * @returns {ISettingsHotsearchPodcastHeadMusicRemotePaths} 归一化后的对象路径集合。
+ */
+const hotsearchPodcastHeadMusicRemotePathsNormalize = (input: unknown): ISettingsHotsearchPodcastHeadMusicRemotePaths => {
+  const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+
+  return {
+    normal: hotsearchPodcastHeadMusicRemotePathNormalize(source.normal),
+    vip: hotsearchPodcastHeadMusicRemotePathNormalize(source.vip)
+  };
+};
+
+/**
  * 函数：归一化热搜播客模板片段。
  * @param {unknown} input 输入值。
  * @returns {ISettingsHotsearchPodcastTemplateItem[]} 归一化后的模板列表。
@@ -500,6 +498,7 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
     podcastVipMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipMorningProgramName, defaults.podcastVipMorningProgramName),
     podcastVipEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipEveningProgramName, defaults.podcastVipEveningProgramName),
     podcastTemplateItems,
+    podcastHeadMusicRemotePaths: hotsearchPodcastHeadMusicRemotePathsNormalize(source.podcastHeadMusicRemotePaths),
     monthlyBudget: hotsearchIntegerNormalize(source.monthlyBudget, defaults.monthlyBudget, 1, 999999),
     platformIds: hotsearchPlatformIdsNormalize(source.platformIds),
     morningStartAt: hotsearchTimeNormalize(source.morningStartAt, defaults.morningStartAt),

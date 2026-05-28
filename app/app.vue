@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import ConsoleBadge from '@kwooshung/console-badge';
 import { en, ja, zh_cn, zh_tw } from '@nuxt/ui/locale';
-import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastHeadMusicRemoteDirectoryGet, hotsearchPodcastHeadMusicRemoteLatestPathGet } from '@@/shared/utils';
+import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET } from '@@/shared/utils';
 import colors from 'tailwindcss/colors';
 
 /**
@@ -131,7 +131,6 @@ const { refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISet
   method: 'PATCH',
   immediate: false
 });
-const { datas: stateUpyunObjectList, refresh: refreshUpyunObjectListGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/list`, { immediate: false });
 const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`, { immediate: false });
 
 /**
@@ -165,12 +164,21 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
 };
 
 /**
- * 函数：提取 UpYun list 的原始结果。
- * @param {unknown} input API datas。
- * @returns {Record<string, unknown> | null} UpYun 原始结果。
+ * 函数：拼接启动期固定开头音乐原始远端地址。
+ * @param {string} path 对象路径
+ * @returns {string} 远端地址；未配置公开域名时返回空字符串
  */
-const upyunObjectListPayloadGet = (input: unknown): Record<string, unknown> | null => {
-  return toRecord(toRecord(input)?.upyun);
+const startupHotsearchHeadMusicRemoteUrlBuild = (path: string): string => {
+  const domain = String(runtimeConfig.public.upyunAssetsDomain || '')
+    .trim()
+    .replace(/\/+$/, '');
+  const normalizedPath = String(path || '').trim();
+
+  if (!domain || !normalizedPath) {
+    return '';
+  }
+
+  return `${domain}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
 };
 
 /**
@@ -187,56 +195,41 @@ const startupHotsearchPodcastGenerateOwnerRefresh = async (): Promise<ISettingsH
 };
 
 /**
- * 函数：检查远端固定开头音乐是否存在。
+ * 函数：读取启动期固定开头音乐远端对象路径。
  * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
- * @returns {Promise<boolean>} 是否存在
+ * @param {ISettingsHotsearchLocal} hotsearch 热搜设置
+ * @returns {string} 已持久化的对象路径
  */
-const startupHotsearchHeadMusicRemoteExistsCheck = async (kind: THotsearchPodcastHeadMusicKind): Promise<boolean> => {
-  try {
-    stateUpyunObjectList.value = undefined;
-    await refreshUpyunObjectListGet({
-      query: {
-        path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
-        limit: 1,
-        order: 'desc'
-      }
-    });
-
-    return Boolean(hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value)));
-  } catch {
-    return false;
-  }
+const startupHotsearchHeadMusicRemotePathGet = (kind: THotsearchPodcastHeadMusicKind, hotsearch: ISettingsHotsearchLocal): string => {
+  return String(hotsearch.podcastHeadMusicRemotePaths?.[kind] ?? '').trim();
 };
 
 /**
  * 函数：从云端同步固定开头音乐到本地。
  * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @param {ISettingsHotsearchLocal} hotsearch 热搜设置
  * @returns {Promise<void>} 无返回值
  */
-const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
-  stateUpyunObjectList.value = undefined;
-  await refreshUpyunObjectListGet({
-    query: {
-      path: hotsearchPodcastHeadMusicRemoteDirectoryGet(kind),
-      limit: 1,
-      order: 'desc'
-    }
-  });
-
-  const remotePath = hotsearchPodcastHeadMusicRemoteLatestPathGet(kind, upyunObjectListPayloadGet(stateUpyunObjectList.value));
+const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHeadMusicKind, hotsearch: ISettingsHotsearchLocal): Promise<void> => {
+  const remotePath = startupHotsearchHeadMusicRemotePathGet(kind, hotsearch);
   if (!remotePath) {
     throw new Error('hotsearch head music path missing');
   }
 
-  stateUpyunObjectUrl.value = undefined;
-  await refreshUpyunObjectUrlGet({
-    query: {
-      path: remotePath,
-      ttlSec: 600
-    }
-  });
+  let url = startupHotsearchHeadMusicRemoteUrlBuild(remotePath);
 
-  const url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+  if (!url) {
+    stateUpyunObjectUrl.value = undefined;
+    await refreshUpyunObjectUrlGet({
+      query: {
+        path: remotePath,
+        ttl_sec: 600
+      }
+    });
+
+    url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+  }
+
   if (!url) {
     throw new Error('hotsearch head music url missing');
   }
@@ -303,7 +296,7 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
     return;
   }
 
-  const remoteExistsList = await Promise.all(HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => startupHotsearchHeadMusicRemoteExistsCheck(kind)));
+  const remoteExistsList = HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => startupHotsearchHeadMusicRemotePathGet(kind, hotsearch) !== '');
   if (remoteExistsList.some((exists) => !exists)) {
     await settingsUpdate({
       hotsearch: {
@@ -321,10 +314,10 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
   }, {});
 
   if (!localExistsMap[headMusicPaths.normalPath]) {
-    await startupHotsearchHeadMusicSyncFromRemote('normal');
+    await startupHotsearchHeadMusicSyncFromRemote('normal', hotsearch);
   }
   if (!localExistsMap[headMusicPaths.vipPath]) {
-    await startupHotsearchHeadMusicSyncFromRemote('vip');
+    await startupHotsearchHeadMusicSyncFromRemote('vip', hotsearch);
   }
 
   await refreshHotsearchPodcastGenerateOwnerPatch({
