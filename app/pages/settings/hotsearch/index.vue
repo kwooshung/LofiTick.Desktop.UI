@@ -363,8 +363,8 @@ const { refreshDebounced: refreshHotsearchRemotePatchDebounced } = await useApi<
   method: 'PATCH',
   immediate: false
 });
-const { datas: stateHotsearchPodcastGenerateOwnerRemote, refresh: refreshHotsearchPodcastGenerateOwnerGet } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', { immediate: false });
-const { refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', {
+const { datas: stateHotsearchPodcastGenerateOwnerRemote, error: stateHotsearchPodcastGenerateOwnerGetError, refresh: refreshHotsearchPodcastGenerateOwnerGet } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', { immediate: false });
+const { error: stateHotsearchPodcastGenerateOwnerPatchError, refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', {
   method: 'PATCH',
   immediate: false
 });
@@ -911,6 +911,85 @@ const requestTauriApiDatas = async (input: IApiClientRequestInput, message: stri
 };
 
 /**
+ * 函数：请求播客生成占用信息。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<unknown>} 响应 datas。
+ */
+const requestHotsearchPodcastGenerateOwnerDatas = async (errorMessage: string): Promise<unknown> => {
+  if (isTauriRuntime.value) {
+    try {
+      return await requestTauriApiDatas(
+        {
+          method: 'GET',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner'
+        },
+        errorMessage
+      );
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
+  const datas = stateHotsearchPodcastGenerateOwnerRemote.value;
+
+  if (datas) {
+    return datas;
+  }
+
+  ensureInternalUseApiSucceeded(stateHotsearchPodcastGenerateOwnerGetError.value, errorMessage);
+  throw new Error(errorMessage);
+};
+
+/**
+ * 函数：写入播客生成占用信息。
+ * @param {boolean} enabled 是否启用。
+ * @param {string} machineCode 机器码。
+ * @param {string} machineName 机器名。
+ * @param {boolean} ignoreError 是否忽略错误。
+ * @returns {Promise<void>} 无返回值。
+ */
+const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machineCode: string, machineName: string, ignoreError = false): Promise<void> => {
+  const errorMessage = t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle');
+
+  if (isTauriRuntime.value) {
+    try {
+      await requestTauriApiDatas(
+        {
+          method: 'PATCH',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner',
+          datas: {
+            enabled,
+            machineCode,
+            machineName
+          }
+        },
+        errorMessage
+      );
+
+      return;
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  await refreshHotsearchPodcastGenerateOwnerPatch({
+    body: {
+      datas: {
+        enabled,
+        machineCode,
+        machineName
+      }
+    },
+    ignoreResponseError: ignoreError
+  });
+
+  if (!ignoreError) {
+    ensureInternalUseApiSucceeded(stateHotsearchPodcastGenerateOwnerPatchError.value, errorMessage);
+  }
+};
+
+/**
  * 函数：请求 UpYun 对象访问地址。
  * @param {Record<string, unknown>} query 查询参数。
  * @param {string} errorMessage 失败提示。
@@ -1185,26 +1264,8 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
  */
 const refreshHotsearchPodcastGenerateOwner = async (): Promise<void> => {
   try {
-    if (isTauriRuntime.value) {
-      const output = await tauriApiClient.request({
-        method: 'GET',
-        path: '/desktop/settings/hotsearch/podcast_generate_owner'
-      });
-
-      const response = output.json as Record<string, unknown> | null;
-      const status = response?.status as Record<string, unknown> | undefined;
-      const message = String(status?.message ?? '').trim();
-
-      if (output.http >= 400) {
-        throw new Error(message || t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
-      }
-
-      stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(response?.datas);
-      return;
-    }
-
-    await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
-    stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(stateHotsearchPodcastGenerateOwnerRemote.value);
+    const datas = await requestHotsearchPodcastGenerateOwnerDatas(t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
+    stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(datas);
   } catch {
     stateHotsearchPodcastGenerateOwner.value = null;
   }
@@ -1726,35 +1787,7 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
         }
       }
 
-      if (isTauriRuntime.value) {
-        const output = await tauriApiClient.request({
-          method: 'PATCH',
-          path: '/desktop/settings/hotsearch/podcast_generate_owner',
-          datas: {
-            enabled: true,
-            machineCode,
-            machineName
-          }
-        });
-
-        const response = output.json as Record<string, unknown> | null;
-        const status = response?.status as Record<string, unknown> | undefined;
-        const message = String(status?.message ?? '').trim();
-
-        if (output.http >= 400) {
-          throw new Error(message || t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
-        }
-      } else {
-        await refreshHotsearchPodcastGenerateOwnerPatch({
-          body: {
-            datas: {
-              enabled: true,
-              machineCode,
-              machineName
-            }
-          }
-        });
-      }
+      await requestHotsearchPodcastGenerateOwnerSet(true, machineCode, machineName);
 
       await refreshHotsearchPodcastGenerateOwner();
       await persistPodcastGenerateEnabledToLocal(true);
@@ -1762,28 +1795,7 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
     }
 
     try {
-      if (isTauriRuntime.value) {
-        await tauriApiClient.request({
-          method: 'PATCH',
-          path: '/desktop/settings/hotsearch/podcast_generate_owner',
-          datas: {
-            enabled: false,
-            machineCode,
-            machineName
-          }
-        });
-      } else {
-        await refreshHotsearchPodcastGenerateOwnerPatch({
-          body: {
-            datas: {
-              enabled: false,
-              machineCode,
-              machineName
-            }
-          },
-          ignoreResponseError: true
-        });
-      }
+      await requestHotsearchPodcastGenerateOwnerSet(false, machineCode, machineName, true);
     } catch {
       // ignore
     }
