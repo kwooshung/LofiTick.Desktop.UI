@@ -9,6 +9,11 @@ export type THotsearchPlatformType = 'baidu' | 'sina' | 'sina-news' | 'weibo' | 
 export type THotsearchPodcastVoiceKey = 'M' | 'F' | 'R';
 
 /**
+ * 类型：热搜播客开头音乐类型。
+ */
+export type THotsearchPodcastHeadMusicKind = 'normal' | 'vip';
+
+/**
  * 类型：热搜播客模板类型。
  */
 export type THotsearchPodcastTemplateType = 'opening' | 'closing';
@@ -161,4 +166,39 @@ export interface ISettingsHotsearch {
    * 重试间隔（单位：秒）。
    */
   retryDelaySeconds: number;
+}
+
+/**
+ * 接口：热搜播客生成占用信息。
+ */
+export interface ISettingsHotsearchPodcastGenerateOwner {
+  /**
+   * 当前占用机器码。
+   */
+  machineCode: string;
+
+  /**
+   * 当前占用机器名称。
+   */
+  machineName: string;
+
+  /**
+   * 首次开启时间。
+   */
+  enabledAt: string;
+
+  /**
+   * 最近心跳或续租时间。
+   */
+  updatedAt: string;
+}
+
+/**
+ * 接口：热搜本地设置。
+ */
+export interface ISettingsHotsearchLocal extends ISettingsHotsearch {
+  /**
+   * 本机是否承担播客生成。
+   */
+  podcastGenerateEnabled: boolean;
 }

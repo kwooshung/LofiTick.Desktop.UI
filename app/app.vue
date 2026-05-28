@@ -7,6 +7,18 @@
         <NuxtPage />
       </NuxtLayout>
       <SettingsUnattendedScenesSyncDialog />
+      <UModal v-model:open="stateHotsearchAttachmentsDirDialogOpen" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }">
+        <template #footer>
+          <div class="flex flex-wrap justify-end gap-2">
+            <UButton color="neutral" variant="ghost" @click="stateHotsearchAttachmentsDirDialogOpen = false">
+              {{ t('common.actions.cancel') }}
+            </UButton>
+            <UButton color="primary" @click="handleHotsearchAttachmentsDirPick">
+              {{ t('pages.settings.hotsearch.actions.chooseAttachmentsDir') }}
+            </UButton>
+          </div>
+        </template>
+      </UModal>
     </UTheme>
   </UApp>
 </template>
@@ -87,7 +99,16 @@ const { configGet: tauriApiClientConfigGet, configUpdate: tauriApiClientConfigUp
 /**
  * Hook：Tauri 设置
  */
-const { get: settingsGet, update: settingsUpdate, machineNetworkGet, machineHostnameGet, pathsExistGet } = useTauriSettings();
+const {
+  get: settingsGet,
+  update: settingsUpdate,
+  setAttachmentsDir,
+  machineNetworkGet,
+  machineHostnameGet,
+  pathsExistGet,
+  hotsearchPodcastHeadMusicPathsGet,
+  hotsearchPodcastHeadMusicWrite
+} = useTauriSettings();
 
 /**
  * Hook：无人值守场景差异确认弹窗
@@ -115,10 +136,22 @@ const stateStartupSharedSettingsSynced = useState<boolean>('startup-shared-setti
 const stateStartupScenesSyncHandled = useState<boolean>('startup-scenes-sync-handled', () => false);
 
 /**
+ * 状态：启动期附件目录提示弹窗。
+ */
+const stateHotsearchAttachmentsDirDialogOpen = useState<boolean>('hotsearch-attachments-dir-dialog-open', () => false);
+
+/**
  * API：热搜配置（GET）
  * 描述：用于启动时将 Redis 公共配置镜像到本地 settings。
  */
 const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
+const { datas: stateHotsearchPodcastGenerateOwnerRemote, refresh: refreshHotsearchPodcastGenerateOwnerGet } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', { immediate: false });
+const { refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', {
+  method: 'PATCH',
+  immediate: false
+});
+const { datas: stateUpyunObjectStat, refresh: refreshUpyunObjectStatGet } = await useApi<Record<string, unknown>>('storages/upyun/files/objects/stat', { immediate: false });
+const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>('storages/upyun/files/objects/url', { immediate: false });
 
 /**
  * API：服务凭证（GET）
@@ -148,6 +181,181 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
     return null;
   }
   return input as Record<string, unknown>;
+};
+
+/**
+ * 函数：刷新播客生成占用信息。
+ * @returns {Promise<ISettingsHotsearchPodcastGenerateOwner | null>} 占用信息
+ */
+const startupHotsearchPodcastGenerateOwnerRefresh = async (): Promise<ISettingsHotsearchPodcastGenerateOwner | null> => {
+  try {
+    await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
+    return hotsearchPodcastGenerateOwnerNormalize(stateHotsearchPodcastGenerateOwnerRemote.value);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * 函数：检查远端固定开头音乐是否存在。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @returns {Promise<boolean>} 是否存在
+ */
+const startupHotsearchHeadMusicRemoteExistsCheck = async (kind: THotsearchPodcastHeadMusicKind): Promise<boolean> => {
+  try {
+    stateUpyunObjectStat.value = undefined;
+    await refreshUpyunObjectStatGet({
+      query: { path: hotsearchPodcastHeadMusicRemotePathGet(kind) }
+    });
+
+    return Boolean(toRecord(stateUpyunObjectStat.value));
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * 函数：从云端同步固定开头音乐到本地。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @returns {Promise<void>} 无返回值
+ */
+const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  stateUpyunObjectUrl.value = undefined;
+  await refreshUpyunObjectUrlGet({
+    query: {
+      path: hotsearchPodcastHeadMusicRemotePathGet(kind),
+      ttlSec: 600
+    }
+  });
+
+  const url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+  if (!url) {
+    throw new Error('hotsearch head music url missing');
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('hotsearch head music download failed');
+  }
+
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  await hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
+};
+
+/**
+ * 函数：同步启动期播客生成状态。
+ * @returns {Promise<void>} 无返回值
+ */
+const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
+  const settings = await settingsGet();
+  const hotsearch = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
+
+  if (!hotsearch.podcastGenerateEnabled) {
+    return;
+  }
+
+  const machine = toRecord((settings as Record<string, unknown>).machine) ?? {};
+  const machineCode = String(machine.code ?? '').trim();
+  let machineName = String(machine.name ?? '').trim();
+
+  if (!machineName) {
+    try {
+      machineName = String(await machineHostnameGet()).trim();
+    } catch {
+      machineName = '';
+    }
+  }
+
+  if (!machineCode) {
+    await settingsUpdate({
+      hotsearch: {
+        ...hotsearch,
+        podcastGenerateEnabled: false
+      }
+    });
+    return;
+  }
+
+  const owner = await startupHotsearchPodcastGenerateOwnerRefresh();
+  if (owner && owner.machineCode !== machineCode) {
+    await settingsUpdate({
+      hotsearch: {
+        ...hotsearch,
+        podcastGenerateEnabled: false
+      }
+    });
+    return;
+  }
+
+  let headMusicPaths: Awaited<ReturnType<typeof hotsearchPodcastHeadMusicPathsGet>> | null = null;
+  try {
+    headMusicPaths = await hotsearchPodcastHeadMusicPathsGet();
+  } catch {
+    stateHotsearchAttachmentsDirDialogOpen.value = true;
+    return;
+  }
+
+  const remoteExistsList = await Promise.all(HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => startupHotsearchHeadMusicRemoteExistsCheck(kind)));
+  if (remoteExistsList.some((exists) => !exists)) {
+    await settingsUpdate({
+      hotsearch: {
+        ...hotsearch,
+        podcastGenerateEnabled: false
+      }
+    });
+    return;
+  }
+
+  const localExistsResults = await pathsExistGet([headMusicPaths.normalPath, headMusicPaths.vipPath]);
+  const localExistsMap = localExistsResults.reduce<Record<string, boolean>>((acc, item) => {
+    acc[String(item.path || '').trim()] = Boolean(item.exists);
+    return acc;
+  }, {});
+
+  if (!localExistsMap[headMusicPaths.normalPath]) {
+    await startupHotsearchHeadMusicSyncFromRemote('normal');
+  }
+  if (!localExistsMap[headMusicPaths.vipPath]) {
+    await startupHotsearchHeadMusicSyncFromRemote('vip');
+  }
+
+  await refreshHotsearchPodcastGenerateOwnerPatch({
+    body: {
+      datas: {
+        enabled: true,
+        machineCode,
+        machineName
+      }
+    },
+    ignoreResponseError: true
+  });
+};
+
+/**
+ * 函数：处理启动期附件目录选择。
+ * @returns {Promise<void>} 无返回值
+ */
+const handleHotsearchAttachmentsDirPick = async (): Promise<void> => {
+  let current = '';
+
+  try {
+    current = (await hotsearchPodcastHeadMusicPathsGet()).attachmentsDir;
+  } catch {
+    current = '';
+  }
+
+  const picked = await setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), current);
+  if (!picked) {
+    return;
+  }
+
+  stateHotsearchAttachmentsDirDialogOpen.value = false;
+
+  try {
+    await startupHotsearchPodcastGenerateSync();
+  } catch (error) {
+    console.warn('[startup-sync] hotsearch attachments dir follow-up failed', error);
+  }
 };
 
 /**
@@ -194,12 +402,24 @@ const sharedSettingsSyncOnStartup = async (): Promise<void> => {
   try {
     await refreshHotsearchRemoteGet({ ignoreResponseError: true });
     if (stateHotsearchRemoteConfig.value) {
+      const settings = await settingsGet();
+      const currentLocalSettings = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
+
       await settingsUpdate({
-        hotsearch: hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value)
+        hotsearch: {
+          ...currentLocalSettings,
+          ...hotsearchSharedSettingsExtract(stateHotsearchRemoteConfig.value)
+        }
       });
     }
   } catch {
     // ignore
+  }
+
+  try {
+    await startupHotsearchPodcastGenerateSync();
+  } catch (error) {
+    console.warn('[startup-sync] hotsearch podcast generate sync failed', error);
   }
 
   try {

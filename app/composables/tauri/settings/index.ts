@@ -36,6 +36,31 @@ interface ITauriManagedSceneExeResult {
   execPath: string;
 }
 
+/**
+ * 接口：热搜播客固定开头音乐路径。
+ */
+interface ITauriHotsearchPodcastHeadMusicPaths {
+  /**
+   * 附件根目录。
+   */
+  attachmentsDir: string;
+
+  /**
+   * 固定目录路径。
+   */
+  directoryPath: string;
+
+  /**
+   * 普通版固定文件路径。
+   */
+  normalPath: string;
+
+  /**
+   * VIP 版固定文件路径。
+   */
+  vipPath: string;
+}
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -72,6 +97,24 @@ export const useTauriSettings = () => {
    */
   const setAttachmentsDir = async (title: string, current: string): Promise<string | null> => {
     return invoke<string | null>('settings_set_attachments_dir', { title, current });
+  };
+
+  /**
+   * 函数：获取热搜播客固定开头音乐路径。
+   * @returns {Promise<ITauriHotsearchPodcastHeadMusicPaths>} 固定路径信息
+   */
+  const hotsearchPodcastHeadMusicPathsGet = async (): Promise<ITauriHotsearchPodcastHeadMusicPaths> => {
+    return invoke<ITauriHotsearchPodcastHeadMusicPaths>('settings_hotsearch_podcast_head_music_paths_get');
+  };
+
+  /**
+   * 函数：写入热搜播客固定开头音乐文件。
+   * @param {'normal' | 'vip'} kind 文件类型
+   * @param {number[]} bytes MP3 字节数组
+   * @returns {Promise<string>} 固定文件路径
+   */
+  const hotsearchPodcastHeadMusicWrite = async (kind: 'normal' | 'vip', bytes: number[]): Promise<string> => {
+    return invoke<string>('settings_hotsearch_podcast_head_music_write', { kind, bytes });
   };
 
   /**
@@ -136,5 +179,18 @@ export const useTauriSettings = () => {
     return invoke<IPageSettingsUnattendedUe5BridgeDetail>('ue5_bridge_access_detail_get');
   };
 
-  return { get, update, setAttachmentsDir, machineNetworkGet, machineHostnameGet, pathsExistGet, sceneManagedExeMaterialize, sceneManagedExeRemove, ue5BridgeAccessUrlGet, ue5BridgeAccessDetailGet };
+  return {
+    get,
+    update,
+    setAttachmentsDir,
+    hotsearchPodcastHeadMusicPathsGet,
+    hotsearchPodcastHeadMusicWrite,
+    machineNetworkGet,
+    machineHostnameGet,
+    pathsExistGet,
+    sceneManagedExeMaterialize,
+    sceneManagedExeRemove,
+    ue5BridgeAccessUrlGet,
+    ue5BridgeAccessDetailGet
+  };
 };

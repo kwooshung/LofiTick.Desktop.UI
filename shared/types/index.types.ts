@@ -82,9 +82,12 @@ export type {
 export type { IPageSettingsConnectionsSettings, IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
 export type {
   ISettingsHotsearch,
+  ISettingsHotsearchLocal,
+  ISettingsHotsearchPodcastGenerateOwner,
   ISettingsHotsearchPlatformItem,
   ISettingsHotsearchPodcastTemplateItem,
   THotsearchPlatformType,
+  THotsearchPodcastHeadMusicKind,
   THotsearchPodcastSegmentType,
   THotsearchPodcastTemplateSegmentType,
   THotsearchPodcastTemplateType,

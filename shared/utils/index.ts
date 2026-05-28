@@ -3,8 +3,13 @@ export { DateTime, EDateTimeKind } from './datetime';
 export { COOKIE_KEY_PAGESIZES, getPageSizeByCookieParsed } from './getPageSizeByCookieParsed';
 export {
   HOTSEARCH_USAGE_URL,
+  HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS,
   hotsearchEstimatedDayPointsGet,
   hotsearchEstimatedMonthPointsGet,
+  hotsearchLocalSettingsDefaultCreate,
+  hotsearchLocalSettingsNormalize,
+  hotsearchPodcastGenerateOwnerNormalize,
+  hotsearchPodcastHeadMusicRemotePathGet,
   hotsearchPlatformsList,
   hotsearchPodcastAdPlaceholderIs,
   hotsearchPodcastSegmentOptionsGet,
@@ -12,6 +17,7 @@ export {
   hotsearchPodcastTemplateOptionsGet,
   hotsearchPodcastVariableOptionsGet,
   hotsearchPodcastVoiceOptionsGet,
+  hotsearchSharedSettingsExtract,
   hotsearchSettingsDefaultCreate,
   hotsearchSettingsNormalize,
   hotsearchSuggestedPodcastTimeGet,

@@ -227,6 +227,10 @@ export const settings = {
       enter: 'トレンドへ'
     },
     sections: {
+      headMusic: {
+        title: '固定冒頭音楽',
+        description: 'Podcast 生成の占有状態、通常版の導入音源、VIP 版の導入音源をここでまとめて管理します。'
+      },
       schedule: {
         title: '取得スケジュール',
         description: 'Podcast 時刻の基準、プラットフォーム間隔、ランダム幅、再試行方針をここで設定します。'
@@ -252,6 +256,18 @@ export const settings = {
       podcastEnabled: {
         label: 'Podcast 自動生成',
         description: '有効にすると、Podcast 時刻はトレンド取得ウィンドウから自動推定されます。'
+      },
+      podcastGenerateEnabled: {
+        label: 'この端末で Podcast を生成',
+        description: '有効にすると、この端末だけがトレンド Podcast を生成できます。オンにする前に、固定の冒頭音楽と占有ロックを確認します。'
+      },
+      podcastHeadMusicNormal: {
+        label: '通常版の固定冒頭音楽',
+        description: 'attachmentsDir/media/podcast/hotsearch/start.mp3 に固定保存し、又拍雲にも同期します。'
+      },
+      podcastHeadMusicVip: {
+        label: 'VIP 版の固定冒頭音楽',
+        description: 'attachmentsDir/media/podcast/hotsearch/start.vip.mp3 に固定保存し、又拍雲にも同期します。'
       },
       podcastMaleSpeakerName: {
         label: '男性読み手の名前',
@@ -381,6 +397,61 @@ export const settings = {
         adContent: '広告内容',
         adPlaceholder: '広告プレースホルダー'
       }
+    },
+    actions: {
+      selectHeadMusic: '音楽を選択',
+      reuploadHeadMusic: '再アップロード',
+      syncHeadMusic: 'クラウドから同期',
+      chooseAttachmentsDir: '添付ディレクトリを選択'
+    },
+    labels: {
+      headMusicPath: '固定パス'
+    },
+    status: {
+      localReady: 'ローカル準備完了',
+      localMissing: 'ローカル不足',
+      remoteReady: 'クラウド準備完了',
+      remoteMissing: 'クラウド不足',
+      attachmentsDirUnset: '添付ディレクトリがまだ設定されていません。',
+      podcastGenerateOwnedByCurrentMachine: 'この端末が占有中',
+      podcastGenerateOwnedByOtherMachine: '他の端末が占有中',
+      podcastGenerateOwnerIdle: '現在は未占有',
+      podcastGenerateOwnerIdleDescription: '同時に有効化できるのは 1 台だけです。オンにすると、まずクラウド上の固定冒頭音楽を確認し、不足しているローカルファイルを補います。',
+      podcastGenerateOwnedByCurrentMachineDescription: '現在はこの端末が Podcast 生成を担当しています。端末名: {machineName}、端末コード: {machineCode}。',
+      podcastGenerateOwnedByOtherMachineDescription: '現在は別の端末が Podcast 生成を担当しています。端末名: {machineName}、端末コード: {machineCode}。',
+      headMusicWaitingTitle: '固定冒頭音楽はまだ準備できていません',
+      headMusicNeedAttachmentsDir: '先に添付ディレクトリを選択してください。固定冒頭音楽をこの端末の所定パスへ保存するために必要です。',
+      headMusicNeedUpload: 'この固定冒頭音楽はまだクラウドに存在しません。まずアップロードすると、他の端末も直接同期できます。',
+      headMusicNeedSync: 'この固定冒頭音楽はクラウドにはありますが、この端末にはまだ保存されていません。今すぐ同期できます。',
+      headMusicNeedPreview: 'ファイルは存在しますが、まだ再生可能なプレビュー URL を取得できていません。'
+    },
+    dialogs: {
+      attachmentsDirRequired: {
+        title: '先に添付ディレクトリを設定してください',
+        description: '固定の冒頭音楽は添付ディレクトリ配下の固定パスに保存する必要があります。先に添付ディレクトリを選択してから、Podcast 生成を有効化するか音楽をアップロードしてください。'
+      },
+      headMusicUpload: {
+        title: '{title} をアップロード',
+        description: 'ドラッグ＆ドロップにもクリック選択にも対応しています。アップロードはフロントエンドから又拍雲へ直接送信し、同時にこの端末の固定パスにも書き込みます。',
+        dropLabel: 'ここに MP3 ファイルをドロップ',
+        dropDescription: 'または下のボタンから選択してください。短くて音量が安定したイントロ音源がおすすめです。',
+        selectFile: 'ファイルを選択',
+        clearFile: '選択をクリア',
+        confirmUpload: 'アップロード開始',
+        currentPreview: '現在のオンラインプレビュー',
+        pendingPreview: 'アップロード予定のプレビュー',
+        uploadProgress: 'アップロード進捗'
+      }
+    },
+    messages: {
+      podcastGenerateErrorTitle: 'Podcast 生成を有効にできません',
+      podcastHeadMusicErrorTitle: '固定冒頭音楽の処理に失敗しました',
+      machineCodeMissing: '現在の端末コードが見つからないため、生成占有ロックを取得できません。',
+      podcastGenerateOwnerConflict: '別の端末ですでに Podcast 生成が有効です: {machineName}（{machineCode}）。',
+      podcastGenerateHeadMusicMissing: '通常版または VIP 版の固定冒頭音楽がまだクラウドにアップロードされていないため、Podcast 生成を有効にできません。',
+      podcastHeadMusicRemoteMissing: 'この固定冒頭音楽ファイルはまだクラウドに存在しません。',
+      podcastHeadMusicDownloadFailed: 'クラウドから固定冒頭音楽をダウンロードできませんでした。',
+      podcastHeadMusicUploadFailed: '固定冒頭音楽のアップロードに失敗しました。'
     },
     variables: {
       speakerName: '読み手の名前',

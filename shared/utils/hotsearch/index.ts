@@ -1,8 +1,11 @@
 import type {
   ISettingsHotsearch,
+  ISettingsHotsearchLocal,
+  ISettingsHotsearchPodcastGenerateOwner,
   ISettingsHotsearchPlatformItem,
   ISettingsHotsearchPodcastTemplateItem,
   THotsearchPlatformType,
+  THotsearchPodcastHeadMusicKind,
   THotsearchPodcastSegmentType,
   THotsearchPodcastTemplateSegmentType,
   THotsearchPodcastTemplateType,
@@ -39,6 +42,11 @@ const HOTSEARCH_PLATFORM_BASE_LIST: Array<{ id: number; type: THotsearchPlatform
   { id: 18, type: 'v2ex' },
   { id: 20, type: 'history' }
 ];
+
+/**
+ * 常量：热搜播客固定开头音乐类型。
+ */
+export const HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS: THotsearchPodcastHeadMusicKind[] = ['normal', 'vip'];
 
 /**
  * 常量：热搜播客音色固定列表。
@@ -172,6 +180,54 @@ export const hotsearchSettingsDefaultCreate = (): ISettingsHotsearch => ({
   retryMaxAttempts: 1,
   retryDelaySeconds: 600
 });
+
+/**
+ * 函数：创建默认热搜本地设置。
+ * @returns {ISettingsHotsearchLocal} 默认本地设置。
+ */
+export const hotsearchLocalSettingsDefaultCreate = (): ISettingsHotsearchLocal => ({
+  ...hotsearchSettingsDefaultCreate(),
+  podcastGenerateEnabled: false
+});
+
+/**
+ * 函数：构建热搜播客固定开头音乐远端路径。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @returns {string} UpYun 对象路径。
+ */
+export const hotsearchPodcastHeadMusicRemotePathGet = (kind: THotsearchPodcastHeadMusicKind): string => {
+  return kind === 'vip' ? '/media/podcast/hotsearch/start.vip.mp3' : '/media/podcast/hotsearch/start.mp3';
+};
+
+/**
+ * 函数：提取热搜共享设置。
+ * @param {ISettingsHotsearch | ISettingsHotsearchLocal} input 输入值。
+ * @returns {ISettingsHotsearch} 共享设置。
+ */
+export const hotsearchSharedSettingsExtract = (input: ISettingsHotsearch | ISettingsHotsearchLocal): ISettingsHotsearch => {
+  const normalized = hotsearchSettingsNormalize(input);
+
+  return {
+    enabled: normalized.enabled,
+    podcastEnabled: normalized.podcastEnabled,
+    podcastMaleSpeakerName: normalized.podcastMaleSpeakerName,
+    podcastFemaleSpeakerName: normalized.podcastFemaleSpeakerName,
+    podcastMorningProgramName: normalized.podcastMorningProgramName,
+    podcastEveningProgramName: normalized.podcastEveningProgramName,
+    podcastVipMorningProgramName: normalized.podcastVipMorningProgramName,
+    podcastVipEveningProgramName: normalized.podcastVipEveningProgramName,
+    podcastTemplateItems: normalized.podcastTemplateItems,
+    monthlyBudget: normalized.monthlyBudget,
+    platformIds: normalized.platformIds,
+    morningStartAt: normalized.morningStartAt,
+    eveningStartAt: normalized.eveningStartAt,
+    platformIntervalSeconds: normalized.platformIntervalSeconds,
+    scheduleJitterSeconds: normalized.scheduleJitterSeconds,
+    podcastBufferSeconds: normalized.podcastBufferSeconds,
+    retryMaxAttempts: normalized.retryMaxAttempts,
+    retryDelaySeconds: normalized.retryDelaySeconds
+  };
+};
 
 /**
  * 函数：归一化热搜播客音色。
@@ -401,6 +457,51 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
     podcastBufferSeconds: hotsearchIntegerNormalize(source.podcastBufferSeconds, legacyPodcastBufferMinutes * 60, 0, 14400),
     retryMaxAttempts: hotsearchIntegerNormalize(source.retryMaxAttempts, defaults.retryMaxAttempts, 0, 10),
     retryDelaySeconds: hotsearchIntegerNormalize(source.retryDelaySeconds, legacyRetryDelayMinutes * 60, 1, 14400)
+  };
+};
+
+/**
+ * 函数：归一化热搜本地设置。
+ * @param {unknown} input 输入值。
+ * @returns {ISettingsHotsearchLocal} 归一化后的本地设置。
+ */
+export const hotsearchLocalSettingsNormalize = (input: unknown): ISettingsHotsearchLocal => {
+  const defaults = hotsearchLocalSettingsDefaultCreate();
+  const shared = hotsearchSettingsNormalize(input);
+  const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+
+  return {
+    ...shared,
+    podcastGenerateEnabled: Boolean(source.podcastGenerateEnabled ?? defaults.podcastGenerateEnabled)
+  };
+};
+
+/**
+ * 函数：归一化热搜播客生成占用信息。
+ * @param {unknown} input 输入值。
+ * @returns {ISettingsHotsearchPodcastGenerateOwner | null} 归一化后的占用信息。
+ */
+export const hotsearchPodcastGenerateOwnerNormalize = (input: unknown): ISettingsHotsearchPodcastGenerateOwner | null => {
+  const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : null;
+
+  if (!source) {
+    return null;
+  }
+
+  const machineCode = String(source.machineCode ?? '').trim();
+  const machineName = String(source.machineName ?? '').trim();
+  const enabledAt = String(source.enabledAt ?? '').trim();
+  const updatedAt = String(source.updatedAt ?? '').trim();
+
+  if (machineCode === '' || machineName === '') {
+    return null;
+  }
+
+  return {
+    machineCode,
+    machineName,
+    enabledAt,
+    updatedAt
   };
 };
 

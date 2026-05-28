@@ -227,6 +227,10 @@ export const settings = {
       enter: '前往熱搜'
     },
     sections: {
+      headMusic: {
+        title: '固定開頭音樂',
+        description: '這裡統一管理 Podcast 生成占用、普通版開頭音樂與 VIP 版開頭音樂。'
+      },
       schedule: {
         title: '抓取計畫',
         description: '這裡設定 Podcast 時間基準、平台抓取間隔、隨機偏移與失敗補抓策略。'
@@ -252,6 +256,18 @@ export const settings = {
       podcastEnabled: {
         label: '自動生成 Podcast',
         description: '啟用後，Podcast 時間會預設跟隨熱搜視窗推導。'
+      },
+      podcastGenerateEnabled: {
+        label: '本機生成 Podcast',
+        description: '啟用後，只有目前這台機器負責生成熱搜 Podcast；開啟前會先檢查雲端固定開頭音樂與占用鎖。'
+      },
+      podcastHeadMusicNormal: {
+        label: '普通版固定開頭音樂',
+        description: '固定寫入 attachmentsDir/media/podcast/hotsearch/start.mp3，並同步到又拍雲。'
+      },
+      podcastHeadMusicVip: {
+        label: 'VIP 版固定開頭音樂',
+        description: '固定寫入 attachmentsDir/media/podcast/hotsearch/start.vip.mp3，並同步到又拍雲。'
       },
       podcastMaleSpeakerName: {
         label: '男生播報者姓名',
@@ -381,6 +397,61 @@ export const settings = {
         adContent: '廣告內容',
         adPlaceholder: '廣告佔位'
       }
+    },
+    actions: {
+      selectHeadMusic: '選擇音樂',
+      reuploadHeadMusic: '重新上傳',
+      syncHeadMusic: '從雲端同步',
+      chooseAttachmentsDir: '選擇附件目錄'
+    },
+    labels: {
+      headMusicPath: '固定路徑'
+    },
+    status: {
+      localReady: '本地已就緒',
+      localMissing: '本地缺失',
+      remoteReady: '雲端已就緒',
+      remoteMissing: '雲端缺失',
+      attachmentsDirUnset: '目前尚未設定附件目錄。',
+      podcastGenerateOwnedByCurrentMachine: '目前機器已占用',
+      podcastGenerateOwnedByOtherMachine: '其他機器已占用',
+      podcastGenerateOwnerIdle: '目前無人占用',
+      podcastGenerateOwnerIdleDescription: '同一時間只允許一台機器開啟生成 Podcast；開啟時會先檢查雲端固定開頭音樂並補齊本地檔案。',
+      podcastGenerateOwnedByCurrentMachineDescription: '目前由本機負責生成 Podcast。機器名稱：{machineName}；機器碼：{machineCode}。',
+      podcastGenerateOwnedByOtherMachineDescription: '目前由其他機器負責生成 Podcast。機器名稱：{machineName}；機器碼：{machineCode}。',
+      headMusicWaitingTitle: '固定開頭音樂尚未準備完成',
+      headMusicNeedAttachmentsDir: '請先選擇附件目錄，固定開頭音樂才能寫入目前機器的指定路徑。',
+      headMusicNeedUpload: '這份固定開頭音樂在雲端尚不存在。請先上傳，之後其他機器才能直接同步。',
+      headMusicNeedSync: '這份固定開頭音樂已存在於雲端，但目前機器本地尚未落盤，現在可以直接同步。',
+      headMusicNeedPreview: '檔案已存在，但暫時還沒有可播放的預覽網址。'
+    },
+    dialogs: {
+      attachmentsDirRequired: {
+        title: '需要先設定附件目錄',
+        description: '固定開頭音樂必須存放在附件目錄下的固定路徑。請先選擇附件目錄，再繼續開啟 Podcast 生成或上傳音樂。'
+      },
+      headMusicUpload: {
+        title: '上傳 {title}',
+        description: '支援拖放與點擊選擇。上傳會直接由前端直傳到又拍雲，並同步寫入目前機器的固定路徑。',
+        dropLabel: '把 MP3 檔案拖到這裡',
+        dropDescription: '或使用下方按鈕選擇檔案。建議使用較短且音量穩定的開頭音樂。',
+        selectFile: '選擇檔案',
+        clearFile: '清空選擇',
+        confirmUpload: '開始上傳',
+        currentPreview: '目前線上預覽',
+        pendingPreview: '待上傳預覽',
+        uploadProgress: '上傳進度'
+      }
+    },
+    messages: {
+      podcastGenerateErrorTitle: 'Podcast 生成暫時不可用',
+      podcastHeadMusicErrorTitle: '固定開頭音樂處理失敗',
+      machineCodeMissing: '目前缺少機器碼，暫時無法申請 Podcast 生成占用。',
+      podcastGenerateOwnerConflict: '目前已有其他機器開啟生成 Podcast：{machineName}（{machineCode}）。',
+      podcastGenerateHeadMusicMissing: '普通版或 VIP 版固定開頭音樂尚未上傳到雲端，暫時無法開啟生成 Podcast。',
+      podcastHeadMusicRemoteMissing: '雲端尚未存在這個固定開頭音樂檔案。',
+      podcastHeadMusicDownloadFailed: '從雲端下載固定開頭音樂失敗。',
+      podcastHeadMusicUploadFailed: '上傳固定開頭音樂失敗。'
     },
     variables: {
       speakerName: '播報者名稱',
