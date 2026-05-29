@@ -775,9 +775,10 @@ const shouldRefreshOnStatus = (status: unknown): boolean => {
   const biz = Number(s.biz ?? -1);
   const aim = Number(s.aim ?? -1);
 
-  // 800 = Security, 6 = SIGN_TS_EXPIRED
-  // SIGN_MISMATCH 更常见于参数或路径签名口径不一致，盲目重放只会产生重复请求。
-  if (biz === 800 && aim === 6) {
+  // 800 = Security, 6 = SIGN_TS_EXPIRED, 10 = SIGN_MISMATCH
+  // 热搜试听在页面刷新后的短暂窗口内，偶发会命中旧 payload 导致的 SIGN_MISMATCH；
+  // 这类失败与 TS 过期一样，refresh 一次签名后可自愈。
+  if (biz === 800 && (aim === 6 || aim === 10)) {
     return true;
   }
   return false;
