@@ -133,6 +133,11 @@ export interface ISettingsHotsearch {
   podcastVipEveningProgramName: string;
 
   /**
+   * 播客 AI 规则 Markdown。
+   */
+  podcastAiRulesMarkdown: string;
+
+  /**
    * 播客模板片段列表。
    */
   podcastTemplateItems: ISettingsHotsearchPodcastTemplateItem[];

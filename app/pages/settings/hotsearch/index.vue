@@ -74,6 +74,27 @@
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.podcastRules.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.podcastRules.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
+      <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
+        <UEditor
+          v-model="statePodcastAiRulesMarkdownDraft"
+          content-type="markdown"
+          :placeholder="{ placeholder: t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder'), mode: 'firstLine' }"
+          class="mt-4 min-h-72 w-full"
+          :ui="{ base: 'min-h-72 p-4 sm:p-5 [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:text-base [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:font-normal [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:leading-6' }"
+        />
+      </UFormField>
+    </UPageCard>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
           <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.schedule.title') }}</h3>
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.schedule.description') }}</p>
         </div>
@@ -397,6 +418,11 @@ const localePath = useLocalePath();
  * 状态：热搜设置
  */
 const stateHotsearchConfig = ref<ISettingsHotsearchLocal>(hotsearchLocalSettingsDefaultCreate());
+
+/**
+ * 状态：播客 AI 规则草稿。
+ */
+const statePodcastAiRulesMarkdownDraft = ref('');
 
 /**
  * 状态：播客生成占用机器。
@@ -1618,6 +1644,29 @@ const requestPersistHotsearchSettings = (): void => {
 };
 
 /**
+ * 函数：提交播客 AI 规则到热搜设置。
+ * @returns {void} 无返回值。
+ */
+const commitPodcastAiRulesMarkdown = (): void => {
+  if (stateHotsearchConfig.value.podcastAiRulesMarkdown === statePodcastAiRulesMarkdownDraft.value) {
+    return;
+  }
+
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastAiRulesMarkdown: statePodcastAiRulesMarkdownDraft.value
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：防抖提交播客 AI 规则。
+ */
+const commitPodcastAiRulesMarkdownDebounced = useDebounceFn(() => {
+  commitPodcastAiRulesMarkdown();
+}, 400);
+
+/**
  * 函数：从 Tauri 设置读取热搜配置
  * @returns {Promise<void>} 无返回值
  */
@@ -2044,5 +2093,23 @@ const handleResetScheduleDefaults = (): void => {
  */
 onMounted(async () => {
   await loadHotsearchSettings();
+});
+
+watch(
+  () => stateHotsearchConfig.value.podcastAiRulesMarkdown,
+  (value) => {
+    if (value === statePodcastAiRulesMarkdownDraft.value) {
+      return;
+    }
+
+    statePodcastAiRulesMarkdownDraft.value = value;
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(statePodcastAiRulesMarkdownDraft, () => {
+  commitPodcastAiRulesMarkdownDebounced();
 });
 </script>

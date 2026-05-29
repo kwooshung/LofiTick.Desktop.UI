@@ -239,6 +239,10 @@ export const settings = {
         title: 'Podcast 文案',
         description: '読み手名、番組名、そして Podcast の導入・締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
       },
+      podcastRules: {
+        title: 'Podcast ルール',
+        description: 'AI 専用の Podcast ルールを Markdown で管理します。語調、構成、禁止事項をここで定義できます。'
+      },
       platforms: {
         title: 'プラットフォーム',
         description: '本当に必要なプラットフォームだけを選びます。予算は選択数から概算します。'
@@ -302,6 +306,11 @@ export const settings = {
         label: 'VIP 尊享版夜版の番組名',
         description: 'VIP 尊享版夜版 Podcast に使う番組名です。',
         placeholder: '例：洛菲ホット晚報 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI Podcast ルール',
+        description: 'ここに書いた内容は、AI が Podcast を生成するときの指示としてだけ使われます。最終原稿としてそのまま読み上げるものではありません。',
+        placeholder: '例：\n# 役割\n- 自然で落ち着いた話し言葉を使う\n\n# 制約\n- 存在しない事実を作らない\n- 煽り表現を使わない\n- 締めは短くまとめる'
       },
       podcastVariables: {
         label: '変数を挿入',

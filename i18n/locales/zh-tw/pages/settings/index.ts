@@ -239,6 +239,10 @@ export const settings = {
         title: 'Podcast 文案',
         description: '這裡配置播報者姓名、節目名稱，以及播客開頭和結尾模板；正文由程式自動生成。'
       },
+      podcastRules: {
+        title: 'Podcast 規則',
+        description: '這裡單獨維護給 AI 使用的 Podcast 規則，支援 Markdown，方便你約束語氣、結構與禁用項。'
+      },
       platforms: {
         title: '平台選擇',
         description: '只選你真正需要的平台，預算會依已選平台數量即時計算。'
@@ -302,6 +306,11 @@ export const settings = {
         label: 'VIP 尊享版晚間節目名稱',
         description: '用於 VIP 尊享版晚間 Podcast 的節目名稱。',
         placeholder: '例如：洛菲熱點晚報 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI Podcast 規則',
+        description: '這塊內容只作為 AI 生成 Podcast 時的規則提示，不會直接作為最終播報文本。',
+        placeholder: '例如：\n# 角色\n- 使用自然、克制、口語化的中文\n\n# 約束\n- 不要編造不存在的資訊\n- 不要使用標題黨語氣\n- 結尾保留簡短收束'
       },
       podcastVariables: {
         label: '變數插入',

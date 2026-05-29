@@ -239,6 +239,10 @@
         title: '播客文案',
         description: '这里配置播报者姓名、节目名称，以及播客开头和结尾模板；正文由程序自动生成。'
       },
+      podcastRules: {
+        title: '播客规则',
+        description: '这里单独维护给 AI 使用的播客规则，支持 Markdown，方便你约束语气、结构和禁用项。'
+      },
       platforms: {
         title: '平台选择',
         description: '只抓取你真正需要的平台，预算会按已选平台数量实时估算。'
@@ -302,6 +306,11 @@
         label: 'VIP 专项版晚间节目名称',
         description: '用于 VIP 专项版晚间播客的节目名称。',
         placeholder: '例如：洛菲热点晚报 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI 播客规则',
+        description: '这块内容只作为 AI 生成播客时的规则提示，不直接作为最终播报文本。',
+        placeholder: '例如：\n# 角色\n- 用自然、克制、口语化的中文\n\n# 约束\n- 不要编造不存在的信息\n- 不要输出标题党语气\n- 结尾保留简短收束'
       },
       podcastVariables: {
         label: '变量插入',
