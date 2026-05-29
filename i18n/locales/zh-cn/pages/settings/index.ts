@@ -407,6 +407,27 @@
         adPlaceholder: '广告占位'
       }
     },
+    editor: {
+      groups: {
+        text: '文本',
+        lists: '列表',
+        insert: '插入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '标题 1',
+        heading2: '标题 2',
+        heading3: '标题 3',
+        bold: '加粗',
+        italic: '斜体',
+        underline: '下划线',
+        bulletList: '无序列表',
+        orderedList: '有序列表',
+        blockquote: '引用',
+        codeBlock: '代码块',
+        divider: '分隔线'
+      }
+    },
     actions: {
       selectHeadMusic: '选择音乐',
       previewHeadMusic: '试听',

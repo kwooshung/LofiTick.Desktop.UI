@@ -407,6 +407,27 @@ export const settings = {
         adPlaceholder: '廣告佔位'
       }
     },
+    editor: {
+      groups: {
+        text: '文字',
+        lists: '清單',
+        insert: '插入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '標題 1',
+        heading2: '標題 2',
+        heading3: '標題 3',
+        bold: '粗體',
+        italic: '斜體',
+        underline: '底線',
+        bulletList: '無序清單',
+        orderedList: '有序清單',
+        blockquote: '引用',
+        codeBlock: '程式碼區塊',
+        divider: '分隔線'
+      }
+    },
     actions: {
       selectHeadMusic: '選擇音樂',
       previewHeadMusic: '試聽',

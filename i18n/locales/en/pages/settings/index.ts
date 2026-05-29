@@ -407,6 +407,27 @@ export const settings = {
         adPlaceholder: 'Ad placeholder'
       }
     },
+    editor: {
+      groups: {
+        text: 'Text',
+        lists: 'Lists',
+        insert: 'Insert'
+      },
+      items: {
+        paragraph: 'Paragraph',
+        heading1: 'Heading 1',
+        heading2: 'Heading 2',
+        heading3: 'Heading 3',
+        bold: 'Bold',
+        italic: 'Italic',
+        underline: 'Underline',
+        bulletList: 'Bullet list',
+        orderedList: 'Ordered list',
+        blockquote: 'Blockquote',
+        codeBlock: 'Code block',
+        divider: 'Divider'
+      }
+    },
     actions: {
       selectHeadMusic: 'Select music',
       previewHeadMusic: 'Preview',

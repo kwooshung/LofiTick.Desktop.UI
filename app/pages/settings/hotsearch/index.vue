@@ -82,13 +82,11 @@
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
-        <UEditor
-          v-model="statePodcastAiRulesMarkdownDraft"
-          content-type="markdown"
-          :placeholder="{ placeholder: t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder'), mode: 'firstLine' }"
-          class="mt-4 min-h-72 w-full"
-          :ui="{ base: 'min-h-72 p-4 sm:p-5 [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:text-base [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:font-normal [&_:is(h1,h2,h3,h4,h5,h6).is-editor-empty:first-child]:before:leading-6' }"
-        />
+        <UEditor v-slot="{ editor }" v-model="statePodcastAiRulesMarkdownDraft" content-type="markdown" :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')" class="mt-4 min-h-72 w-full">
+          <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="border-default overflow-x-auto border-b px-3 py-2" />
+          <UEditorDragHandle :editor="editor" />
+          <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
+        </UEditor>
       </UFormField>
     </UPageCard>
 
@@ -333,6 +331,7 @@
 
 <script setup lang="ts">
 import { parseTime } from '@internationalized/date';
+import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
 import type { ISettingsHotsearchLocal, ISettingsHotsearchPodcastGenerateOwner, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
@@ -349,6 +348,11 @@ const { t } = useI18n();
  * Hook：运行时配置。
  */
 const runtimeConfig = useRuntimeConfig();
+
+/**
+ * 函数：将编辑器浮层挂到 body。
+ */
+const appendPodcastAiRulesMenuToBody = import.meta.client ? () => document.body : undefined;
 
 /**
  * Hook：提示消息。
@@ -542,6 +546,154 @@ storeBreadcrumb.states = [
     to: localePath('/settings/hotsearch')
   }
 ];
+
+/**
+ * 计算属性：播客 AI 规则工具栏项。
+ */
+const computedPodcastAiRulesToolbarItems = computed((): EditorToolbarItem[][] => [
+  [
+    {
+      icon: 'i-lucide-heading',
+      content: {
+        align: 'start'
+      },
+      items: [
+        {
+          kind: 'heading',
+          level: 1,
+          icon: 'i-lucide-heading-1',
+          label: t('pages.settings.hotsearch.editor.items.heading1')
+        },
+        {
+          kind: 'heading',
+          level: 2,
+          icon: 'i-lucide-heading-2',
+          label: t('pages.settings.hotsearch.editor.items.heading2')
+        },
+        {
+          kind: 'heading',
+          level: 3,
+          icon: 'i-lucide-heading-3',
+          label: t('pages.settings.hotsearch.editor.items.heading3')
+        }
+      ]
+    }
+  ],
+  [
+    {
+      kind: 'mark',
+      mark: 'bold',
+      icon: 'i-lucide-bold',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.bold') }
+    },
+    {
+      kind: 'mark',
+      mark: 'italic',
+      icon: 'i-lucide-italic',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.italic') }
+    },
+    {
+      kind: 'mark',
+      mark: 'underline',
+      icon: 'i-lucide-underline',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.underline') }
+    }
+  ],
+  [
+    {
+      kind: 'bulletList',
+      icon: 'i-lucide-list',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.bulletList') }
+    },
+    {
+      kind: 'orderedList',
+      icon: 'i-lucide-list-ordered',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.orderedList') }
+    },
+    {
+      kind: 'blockquote',
+      icon: 'i-lucide-text-quote',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.blockquote') }
+    },
+    {
+      kind: 'codeBlock',
+      icon: 'i-lucide-square-code',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.codeBlock') }
+    }
+  ]
+]);
+
+/**
+ * 计算属性：播客 AI 规则斜杠菜单项。
+ */
+const computedPodcastAiRulesSuggestionItems = computed((): EditorSuggestionMenuItem[][] => [
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.text')
+    },
+    {
+      kind: 'paragraph',
+      label: t('pages.settings.hotsearch.editor.items.paragraph'),
+      icon: 'i-lucide-type'
+    },
+    {
+      kind: 'heading',
+      level: 1,
+      label: t('pages.settings.hotsearch.editor.items.heading1'),
+      icon: 'i-lucide-heading-1'
+    },
+    {
+      kind: 'heading',
+      level: 2,
+      label: t('pages.settings.hotsearch.editor.items.heading2'),
+      icon: 'i-lucide-heading-2'
+    },
+    {
+      kind: 'heading',
+      level: 3,
+      label: t('pages.settings.hotsearch.editor.items.heading3'),
+      icon: 'i-lucide-heading-3'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.lists')
+    },
+    {
+      kind: 'bulletList',
+      label: t('pages.settings.hotsearch.editor.items.bulletList'),
+      icon: 'i-lucide-list'
+    },
+    {
+      kind: 'orderedList',
+      label: t('pages.settings.hotsearch.editor.items.orderedList'),
+      icon: 'i-lucide-list-ordered'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.insert')
+    },
+    {
+      kind: 'blockquote',
+      label: t('pages.settings.hotsearch.editor.items.blockquote'),
+      icon: 'i-lucide-text-quote'
+    },
+    {
+      kind: 'codeBlock',
+      label: t('pages.settings.hotsearch.editor.items.codeBlock'),
+      icon: 'i-lucide-square-code'
+    },
+    {
+      kind: 'horizontalRule',
+      label: t('pages.settings.hotsearch.editor.items.divider'),
+      icon: 'i-lucide-separator-horizontal'
+    }
+  ]
+]);
 
 /**
  * 计算属性：平台列表

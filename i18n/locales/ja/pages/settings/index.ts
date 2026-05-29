@@ -407,6 +407,27 @@ export const settings = {
         adPlaceholder: '広告プレースホルダー'
       }
     },
+    editor: {
+      groups: {
+        text: 'テキスト',
+        lists: 'リスト',
+        insert: '挿入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '見出し 1',
+        heading2: '見出し 2',
+        heading3: '見出し 3',
+        bold: '太字',
+        italic: '斜体',
+        underline: '下線',
+        bulletList: '箇条書き',
+        orderedList: '番号付きリスト',
+        blockquote: '引用',
+        codeBlock: 'コードブロック',
+        divider: '区切り線'
+      }
+    },
     actions: {
       selectHeadMusic: '音楽を選択',
       previewHeadMusic: '試聴',
