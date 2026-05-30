@@ -82,7 +82,16 @@
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
-        <UEditor v-slot="{ editor }" v-model="statePodcastAiRulesMarkdownDraft" content-type="markdown" :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')" class="mt-4 min-h-72 w-full">
+        <UEditor
+          v-slot="{ editor }"
+          v-model="statePodcastAiRulesMarkdownDraft"
+          content-type="markdown"
+          :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
+          :enable-input-rules="true"
+          :enable-paste-rules="true"
+          class="mt-4 min-h-72 w-full"
+          :ui="{ base: 'px-4 pt-5 pb-4 sm:px-5 sm:pt-6 sm:pb-5' }"
+        >
           <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="border-default overflow-x-auto border-b px-3 py-2" />
           <UEditorDragHandle :editor="editor" />
           <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
