@@ -80,30 +80,28 @@
       </template>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
-        <div class="mt-4 overflow-hidden rounded-lg">
-          <UEditor
-            v-slot="{ editor }"
-            v-model="statePodcastAiRulesMarkdownDraft"
-            content-type="markdown"
-            :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
-            :enable-input-rules="true"
-            :enable-paste-rules="true"
-            class="min-h-72 w-full border-0"
-            :ui="{ root: 'border-0 rounded-none', base: 'px-4 pt-5 pb-4 sm:px-5 sm:pt-6 sm:pb-5' }"
-          >
-            <div class="border-default border-y">
-              <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="overflow-x-auto px-4 py-2 sm:px-5" />
-            </div>
-            <UEditorDragHandle :editor="editor" />
-            <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
-          </UEditor>
-
-          <div class="bg-muted/35 border-default/80 border-t px-4 py-4 sm:px-5" aria-readonly="true">
-            <p class="text-muted text-xs leading-5">{{ t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.systemLineLabel') }}</p>
-            <p class="text-toned mt-1 text-sm leading-6 whitespace-pre-wrap">{{ computedPodcastAiRulesSystemLine }}</p>
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'px-0!' }">
+      <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'px-8 text-base text-highlighted mb-1', description: 'px-8 text-muted' }">
+        <UEditor
+          v-slot="{ editor }"
+          v-model="statePodcastAiRulesMarkdownDraft"
+          content-type="markdown"
+          :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
+          :enable-input-rules="true"
+          :enable-paste-rules="true"
+          class="min-h-72 w-full"
+          :ui="{ root: 'border-0 rounded-none', base: 'pt-5 pb-3 sm:pt-6 sm:pb-4' }"
+        >
+          <div class="border-default mt-6 border-y">
+            <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="overflow-x px-6 py-2" />
           </div>
+          <UEditorDragHandle :editor="editor" />
+          <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
+        </UEditor>
+
+        <div class="bg-muted/35 border-default/80 border-t px-6 pt-6" aria-readonly="true">
+          <p class="text-muted text-xs leading-5">{{ t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.systemLineLabel') }}</p>
+          <p class="text-toned mt-1 text-sm leading-6 whitespace-pre-wrap">{{ computedPodcastAiRulesSystemLine }}</p>
         </div>
       </UFormField>
     </UPageCard>
