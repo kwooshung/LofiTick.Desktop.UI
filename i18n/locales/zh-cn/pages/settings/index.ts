@@ -310,6 +310,7 @@
       podcastAiRulesMarkdown: {
         label: 'AI 播客规则',
         description: '这块内容只作为 AI 生成播客时的规则提示，不直接作为最终播报文本。',
+        systemLineLabel: '系统会自动在最终内容末尾追加这一行，且不允许改写：',
         placeholder: '例如：\n# 角色\n- 用自然、克制、口语化的中文\n\n# 约束\n- 不要编造不存在的信息\n- 不要输出标题党语气\n- 结尾保留简短收束'
       },
       podcastVariables: {

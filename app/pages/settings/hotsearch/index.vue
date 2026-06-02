@@ -82,20 +82,27 @@
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
-        <UEditor
-          v-slot="{ editor }"
-          v-model="statePodcastAiRulesMarkdownDraft"
-          content-type="markdown"
-          :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
-          :enable-input-rules="true"
-          :enable-paste-rules="true"
-          class="mt-4 min-h-72 w-full"
-          :ui="{ base: 'px-4 pt-5 pb-4 sm:px-5 sm:pt-6 sm:pb-5' }"
-        >
-          <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="border-default overflow-x-auto border-b px-3 py-2" />
-          <UEditorDragHandle :editor="editor" />
-          <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
-        </UEditor>
+        <div class="border-default mt-4 overflow-hidden rounded-lg border">
+          <UEditor
+            v-slot="{ editor }"
+            v-model="statePodcastAiRulesMarkdownDraft"
+            content-type="markdown"
+            :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
+            :enable-input-rules="true"
+            :enable-paste-rules="true"
+            class="min-h-72 w-full border-0"
+            :ui="{ root: 'border-0 rounded-none', base: 'px-4 pt-5 pb-4 sm:px-5 sm:pt-6 sm:pb-5' }"
+          >
+            <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="border-default overflow-x-auto border-b px-3 py-2" />
+            <UEditorDragHandle :editor="editor" />
+            <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
+          </UEditor>
+
+          <div class="bg-muted/35 border-default/80 border-t px-4 py-4 sm:px-5" aria-readonly="true">
+            <p class="text-muted text-xs leading-5">{{ t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.systemLineLabel') }}</p>
+            <p class="text-toned mt-1 text-sm leading-6 whitespace-pre-wrap">{{ computedPodcastAiRulesSystemLine }}</p>
+          </div>
+        </div>
       </UFormField>
     </UPageCard>
 
@@ -344,7 +351,7 @@ import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
 import type { ISettingsHotsearchLocal, ISettingsHotsearchPodcastGenerateOwner, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
-import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastHeadMusicRemotePathCreate } from '@@/shared/utils';
+import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastAiRulesMarkdownCompose, hotsearchPodcastAiRulesMarkdownEditableExtract, hotsearchPodcastAiRulesSystemLineBuild, hotsearchPodcastHeadMusicRemotePathCreate } from '@@/shared/utils';
 
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
@@ -436,6 +443,13 @@ const stateHotsearchConfig = ref<ISettingsHotsearchLocal>(hotsearchLocalSettings
  * 状态：播客 AI 规则草稿。
  */
 const statePodcastAiRulesMarkdownDraft = ref('');
+
+/**
+ * 计算属性：AI 规则固定尾注。
+ */
+const computedPodcastAiRulesSystemLine = computed((): string => {
+  return hotsearchPodcastAiRulesSystemLineBuild(stateHotsearchConfig.value.podcastMaleSpeakerName, stateHotsearchConfig.value.podcastFemaleSpeakerName);
+});
 
 /**
  * 状态：播客生成占用机器。
@@ -1809,13 +1823,15 @@ const requestPersistHotsearchSettings = (): void => {
  * @returns {void} 无返回值。
  */
 const commitPodcastAiRulesMarkdown = (): void => {
-  if (stateHotsearchConfig.value.podcastAiRulesMarkdown === statePodcastAiRulesMarkdownDraft.value) {
+  const nextMarkdown = hotsearchPodcastAiRulesMarkdownCompose(statePodcastAiRulesMarkdownDraft.value, stateHotsearchConfig.value.podcastMaleSpeakerName, stateHotsearchConfig.value.podcastFemaleSpeakerName);
+
+  if (stateHotsearchConfig.value.podcastAiRulesMarkdown === nextMarkdown) {
     return;
   }
 
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastAiRulesMarkdown: statePodcastAiRulesMarkdownDraft.value
+    podcastAiRulesMarkdown: nextMarkdown
   });
   requestPersistHotsearchSettings();
 };
@@ -2030,7 +2046,8 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
 const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastMaleSpeakerName: value
+    podcastMaleSpeakerName: value,
+    podcastAiRulesMarkdown: hotsearchPodcastAiRulesMarkdownCompose(stateHotsearchConfig.value.podcastAiRulesMarkdown, value, stateHotsearchConfig.value.podcastFemaleSpeakerName)
   });
   requestPersistHotsearchSettings();
 };
@@ -2042,7 +2059,8 @@ const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
 const handlePodcastFemaleSpeakerNameUpdate = (value: string): void => {
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastFemaleSpeakerName: value
+    podcastFemaleSpeakerName: value,
+    podcastAiRulesMarkdown: hotsearchPodcastAiRulesMarkdownCompose(stateHotsearchConfig.value.podcastAiRulesMarkdown, stateHotsearchConfig.value.podcastMaleSpeakerName, value)
   });
   requestPersistHotsearchSettings();
 };
@@ -2259,11 +2277,13 @@ onMounted(async () => {
 watch(
   () => stateHotsearchConfig.value.podcastAiRulesMarkdown,
   (value) => {
-    if (value === statePodcastAiRulesMarkdownDraft.value) {
+    const editableValue = hotsearchPodcastAiRulesMarkdownEditableExtract(value);
+
+    if (editableValue === statePodcastAiRulesMarkdownDraft.value) {
       return;
     }
 
-    statePodcastAiRulesMarkdownDraft.value = value;
+    statePodcastAiRulesMarkdownDraft.value = editableValue;
   },
   {
     immediate: true

@@ -310,6 +310,7 @@ export const settings = {
       podcastAiRulesMarkdown: {
         label: 'AI Podcast 規則',
         description: '這塊內容只作為 AI 生成 Podcast 時的規則提示，不會直接作為最終播報文本。',
+        systemLineLabel: '系統會自動在最終內容末尾追加這一行，且不允許改寫：',
         placeholder: '例如：\n# 角色\n- 使用自然、克制、口語化的中文\n\n# 約束\n- 不要編造不存在的資訊\n- 不要使用標題黨語氣\n- 結尾保留簡短收束'
       },
       podcastVariables: {

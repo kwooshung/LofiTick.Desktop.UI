@@ -310,6 +310,7 @@ export const settings = {
       podcastAiRulesMarkdown: {
         label: 'AI Podcast ルール',
         description: 'ここに書いた内容は、AI が Podcast を生成するときの指示としてだけ使われます。最終原稿としてそのまま読み上げるものではありません。',
+        systemLineLabel: '最終内容の末尾には次の 1 行が自動追加され、編集はできません。',
         placeholder: '例：\n# 役割\n- 自然で落ち着いた話し言葉を使う\n\n# 制約\n- 存在しない事実を作らない\n- 煽り表現を使わない\n- 締めは短くまとめる'
       },
       podcastVariables: {

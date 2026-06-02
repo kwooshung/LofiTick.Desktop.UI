@@ -310,6 +310,7 @@ export const settings = {
       podcastAiRulesMarkdown: {
         label: 'AI podcast rules',
         description: 'This content is used only as guidance for AI podcast generation. It is not inserted directly as the final spoken script.',
+        systemLineLabel: 'The system always appends this line to the final content and does not allow editing it:',
         placeholder: 'For example:\n# Role\n- Use a natural, restrained, conversational tone\n\n# Constraints\n- Do not invent facts\n- Avoid clickbait phrasing\n- Keep the closing short'
       },
       podcastVariables: {

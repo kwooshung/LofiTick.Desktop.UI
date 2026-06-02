@@ -65,6 +65,7 @@ const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
 const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adContent', 'adPlaceholder'];
+const HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX = '开头和结尾不需要你来模拟和输出，因为我有现成';
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
   'otherSpeakerName',
@@ -166,6 +167,73 @@ export const hotsearchPodcastTemplateItemDefaultCreate = (templateType: THotsear
  * @returns {boolean} 是否为广告占位模板。
  */
 export const hotsearchPodcastAdPlaceholderIs = (item: Pick<ISettingsHotsearchPodcastTemplateItem, 'segmentType'>): boolean => item.segmentType === 'adPlaceholder';
+
+/**
+ * 函数：构建热搜 AI 规则固定尾注。
+ * @param {unknown} maleSpeakerName 男生播报者姓名。
+ * @param {unknown} femaleSpeakerName 女生播报者姓名。
+ * @returns {string} 固定尾注。
+ */
+export const hotsearchPodcastAiRulesSystemLineBuild = (maleSpeakerName: unknown, femaleSpeakerName: unknown): string => {
+  const defaults = hotsearchSettingsDefaultCreate();
+  const maleName = hotsearchPodcastSpeakerNameNormalize(maleSpeakerName, defaults.podcastMaleSpeakerName);
+  const femaleName = hotsearchPodcastSpeakerNameNormalize(femaleSpeakerName, defaults.podcastFemaleSpeakerName);
+
+  return `开头和结尾不需要你来模拟和输出，因为我有现成儿的。男生叫${maleName}，女生叫${femaleName}。`;
+};
+
+/**
+ * 函数：提取热搜 AI 规则可编辑正文。
+ * @param {unknown} input 输入值。
+ * @returns {string} 去除固定尾注后的正文。
+ */
+export const hotsearchPodcastAiRulesMarkdownEditableExtract = (input: unknown): string => {
+  const normalized = hotsearchPodcastTextNormalize(input, '', 20000);
+
+  if (!normalized) {
+    return '';
+  }
+
+  const lines = normalized.split('\n');
+
+  while (lines.length > 0 && !lines.at(-1)?.trim()) {
+    lines.pop();
+  }
+
+  while (lines.length > 0) {
+    const lastLine = lines.at(-1)?.trim() || '';
+
+    if (!lastLine.startsWith(HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX)) {
+      break;
+    }
+
+    lines.pop();
+
+    while (lines.length > 0 && !lines.at(-1)?.trim()) {
+      lines.pop();
+    }
+  }
+
+  return lines.join('\n').trim();
+};
+
+/**
+ * 函数：组合热搜 AI 规则完整内容。
+ * @param {unknown} input 输入正文或已有完整值。
+ * @param {unknown} maleSpeakerName 男生播报者姓名。
+ * @param {unknown} femaleSpeakerName 女生播报者姓名。
+ * @returns {string} 最终完整 Markdown。
+ */
+export const hotsearchPodcastAiRulesMarkdownCompose = (input: unknown, maleSpeakerName: unknown, femaleSpeakerName: unknown): string => {
+  const editable = hotsearchPodcastAiRulesMarkdownEditableExtract(input);
+  const systemLine = hotsearchPodcastAiRulesSystemLineBuild(maleSpeakerName, femaleSpeakerName);
+
+  if (!editable) {
+    return systemLine;
+  }
+
+  return `${editable}\n\n${systemLine}`;
+};
 
 /**
  * 函数：创建默认热搜设置。
@@ -489,17 +557,19 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
   const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
   const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
   const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems);
+  const podcastMaleSpeakerName = hotsearchPodcastSpeakerNameNormalize(source.podcastMaleSpeakerName, defaults.podcastMaleSpeakerName);
+  const podcastFemaleSpeakerName = hotsearchPodcastSpeakerNameNormalize(source.podcastFemaleSpeakerName, defaults.podcastFemaleSpeakerName);
 
   return {
     enabled: Boolean(source.enabled),
     podcastEnabled: Boolean(source.podcastEnabled),
-    podcastMaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastMaleSpeakerName, defaults.podcastMaleSpeakerName),
-    podcastFemaleSpeakerName: hotsearchPodcastSpeakerNameNormalize(source.podcastFemaleSpeakerName, defaults.podcastFemaleSpeakerName),
+    podcastMaleSpeakerName,
+    podcastFemaleSpeakerName,
     podcastMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastMorningProgramName, defaults.podcastMorningProgramName),
     podcastEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastEveningProgramName, defaults.podcastEveningProgramName),
     podcastVipMorningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipMorningProgramName, defaults.podcastVipMorningProgramName),
     podcastVipEveningProgramName: hotsearchPodcastProgramNameNormalize(source.podcastVipEveningProgramName, defaults.podcastVipEveningProgramName),
-    podcastAiRulesMarkdown: hotsearchPodcastTextNormalize(source.podcastAiRulesMarkdown, defaults.podcastAiRulesMarkdown, 20000),
+    podcastAiRulesMarkdown: hotsearchPodcastAiRulesMarkdownCompose(source.podcastAiRulesMarkdown, podcastMaleSpeakerName, podcastFemaleSpeakerName),
     podcastTemplateItems,
     podcastHeadMusicRemotePaths: hotsearchPodcastHeadMusicRemotePathsNormalize(source.podcastHeadMusicRemotePaths),
     monthlyBudget: hotsearchIntegerNormalize(source.monthlyBudget, defaults.monthlyBudget, 1, 999999),
