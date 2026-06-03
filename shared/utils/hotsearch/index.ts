@@ -12,6 +12,7 @@ import type {
   THotsearchPodcastTemplateType,
   THotsearchPodcastVoiceKey
 } from '@@/shared/types/pages/settings/hotsearch/index.types';
+import { generateIdBase36 } from '../generateId';
 
 /**
  * 常量：热搜官网用量地址。
@@ -287,9 +288,7 @@ export const hotsearchPodcastHeadMusicRemoteDirectoryGet = (kind: THotsearchPodc
  * @returns {string} UpYun 对象路径。
  */
 export const hotsearchPodcastHeadMusicRemotePathCreate = (kind: THotsearchPodcastHeadMusicKind): string => {
-  const random = Math.random().toString(36).slice(2, 10);
-
-  return `${hotsearchPodcastHeadMusicRemoteDirectoryGet(kind)}/${Date.now()}-${random}.mp3`;
+  return `${hotsearchPodcastHeadMusicRemoteDirectoryGet(kind)}/${generateIdBase36(24)}.mp3`;
 };
 
 /**

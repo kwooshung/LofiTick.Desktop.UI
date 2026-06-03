@@ -1,5 +1,6 @@
 export { convertIdsToArray } from './convertIdsToArray';
 export { DateTime, EDateTimeKind } from './datetime';
+export { generateIdBase36 } from './generateId';
 export { COOKIE_KEY_PAGESIZES, getPageSizeByCookieParsed } from './getPageSizeByCookieParsed';
 export {
   HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS,
