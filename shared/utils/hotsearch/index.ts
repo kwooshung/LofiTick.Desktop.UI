@@ -52,7 +52,7 @@ export const HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS: THotsearchPodcastHeadMusicKind[
 /**
  * 常量：热搜播客开头音乐使用的 UpYun 存储桶。
  */
-export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'assets';
+export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'files';
 
 /**
  * 常量：热搜播客开头音乐远端目录根路径。

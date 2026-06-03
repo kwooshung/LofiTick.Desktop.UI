@@ -169,7 +169,7 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
  * @returns {string} 远端地址；未配置公开域名时返回空字符串
  */
 const startupHotsearchHeadMusicRemoteUrlBuild = (path: string): string => {
-  const domain = String(runtimeConfig.public.upyunAssetsDomain || '')
+  const domain = String(runtimeConfig.public.upyunFilesDomain || '')
     .trim()
     .replace(/\/+$/, '');
   const normalizedPath = String(path || '').trim();

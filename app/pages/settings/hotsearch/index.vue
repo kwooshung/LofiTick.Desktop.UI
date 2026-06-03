@@ -797,7 +797,7 @@ const computedHotsearchPodcastHeadMusicItems = computed(() => {
       localExists: stateHotsearchPodcastHeadMusicLocalExists.value[kind],
       remoteExists: stateHotsearchPodcastHeadMusicRemoteExists.value[kind],
       remotePath,
-      remoteSourceUrl: hotsearchPodcastHeadMusicAssetsUrlBuild(remotePath),
+      remoteSourceUrl: hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath),
       previewUrl: stateHotsearchPodcastHeadMusicPreviewUrls.value[kind],
       uploadLoading: stateHotsearchPodcastHeadMusicUploadingKind.value === kind,
       uploadProgress: stateHotsearchPodcastHeadMusicUploadProgress.value[kind]
@@ -1061,12 +1061,12 @@ const HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS = {
 } as const;
 
 /**
- * 函数：拼接 assets 桶公开对象地址。
+ * 函数：拼接 files 桶公开对象地址。
  * @param {string} path 对象路径。
  * @returns {string} 公开地址；未配置域名时返回空字符串。
  */
-const hotsearchPodcastHeadMusicAssetsUrlBuild = (path: string): string => {
-  const domain = String(runtimeConfig.public.upyunAssetsDomain ?? '')
+const hotsearchPodcastHeadMusicRemoteUrlBuild = (path: string): string => {
+  const domain = String(runtimeConfig.public.upyunFilesDomain ?? '')
     .trim()
     .replace(/\/+$/, '');
   const normalizedPath = String(path ?? '').trim();
@@ -1433,7 +1433,7 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
 
   try {
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
-    const publicUrl = hotsearchPodcastHeadMusicAssetsUrlBuild(remotePath);
+    const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath);
 
     if (publicUrl) {
       hotsearchPodcastHeadMusicPreviewUrlSet(kind, publicUrl);
@@ -1528,7 +1528,7 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
   try {
     if (isTauriRuntime.value) {
       const url =
-        hotsearchPodcastHeadMusicAssetsUrlBuild(remotePath) ||
+        hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
         (await requestUpyunObjectUrl(
           {
             path: remotePath,
@@ -1578,7 +1578,7 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
       await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
     } else {
       const url =
-        hotsearchPodcastHeadMusicAssetsUrlBuild(remotePath) ||
+        hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
         (await requestUpyunObjectUrl(
           {
             path: remotePath,
@@ -1714,7 +1714,7 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
 
     try {
-      const publicUrl = hotsearchPodcastHeadMusicAssetsUrlBuild(saveKey);
+      const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(saveKey);
 
       if (publicUrl) {
         hotsearchPodcastHeadMusicPreviewUrlSet(kind, publicUrl);

@@ -261,6 +261,9 @@ export const configs = {
       // assets 桶公开域名，用于前端直接拼接远程资源地址
       upyunAssetsDomain: '',
 
+      // files 桶公开域名，用于热搜播客开头音乐等文件资源直链
+      upyunFilesDomain: '',
+
       // 前端可见：用于解密 sign_refresh blob 的 AES seed（对应后端 SECURITY_SIGN_AES_SEED）
       signAesSeed: ''
     }
