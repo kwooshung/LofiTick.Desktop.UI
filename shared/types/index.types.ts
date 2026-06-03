@@ -1,5 +1,6 @@
 export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.types';
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
+export type { IHotsearchAdMaterialPage, IHotsearchAdMaterialSaveResult, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorForm, IPageAdHotsearchProps, IPageTableColumnHotsearchAdMaterial } from '@@/shared/types/pages/ad/hotsearch/index.types';
 export type {
   IPageHomePodcastScriptBodyItem,
   IPageHomePodcastScriptGenerateRequest,
@@ -83,8 +84,8 @@ export type { IPageSettingsConnectionsSettings, IPageSettingsOnepanelSettings } 
 export type {
   ISettingsHotsearch,
   ISettingsHotsearchLocal,
-  ISettingsHotsearchPodcastGenerateOwner,
   ISettingsHotsearchPlatformItem,
+  ISettingsHotsearchPodcastGenerateOwner,
   ISettingsHotsearchPodcastTemplateItem,
   THotsearchPlatformType,
   THotsearchPodcastHeadMusicKind,

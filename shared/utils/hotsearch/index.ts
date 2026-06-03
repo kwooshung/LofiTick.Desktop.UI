@@ -12,6 +12,7 @@ import type {
   THotsearchPodcastTemplateType,
   THotsearchPodcastVoiceKey
 } from '@@/shared/types/pages/settings/hotsearch/index.types';
+
 import { generateIdBase36 } from '../generateId';
 
 /**
@@ -66,6 +67,10 @@ const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
 const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adContent', 'adPlaceholder'];
+const HOTSEARCH_AD_EDITION_SCOPE_OPTIONS = [
+  { label: '仅早报', value: 'morning' },
+  { label: '仅晚报', value: 'evening' }
+] as const;
 const HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX = '开头和结尾不需要你来模拟和输出，因为我有现成';
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
@@ -118,6 +123,12 @@ export const hotsearchPodcastTemplateOptionsGet = (): Array<{ value: THotsearchP
     value,
     key: `pages.settings.hotsearch.options.podcastTemplate.${value}`
   }));
+
+/**
+ * 函数：列出热搜广告栏目范围选项。
+ * @returns {{ label: string; value: 'morning' | 'evening' | 'both' }[]} 栏目范围选项。
+ */
+export const hotsearchAdEditionScopeOptionsGet = (): Array<{ label: string; value: 'morning' | 'evening' }> => HOTSEARCH_AD_EDITION_SCOPE_OPTIONS.map((item) => ({ ...item }));
 
 /**
  * 函数：列出热搜播客文案类型选项。

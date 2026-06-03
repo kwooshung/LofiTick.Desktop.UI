@@ -6,6 +6,7 @@ export {
   HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS,
   HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET,
   HOTSEARCH_USAGE_URL,
+  hotsearchAdEditionScopeOptionsGet,
   hotsearchEstimatedDayPointsGet,
   hotsearchEstimatedMonthPointsGet,
   hotsearchLocalSettingsDefaultCreate,

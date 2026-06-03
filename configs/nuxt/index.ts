@@ -91,6 +91,10 @@ export const configs = {
     fonts: false
   },
 
+  nuxtCharts: {
+    autoImports: false
+  },
+
   ogImage: {
     enabled: false
   },
