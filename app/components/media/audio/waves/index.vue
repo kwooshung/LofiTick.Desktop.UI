@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IMediaAudioWavesEmits, IMediaAudioWavesProps } from './index.types';
+import type { IMediaAudioWavesEmits, IMediaAudioWavesProps } from '@/components/media/audio/waves/index.types';
 
 /**
  * Props：组件属性

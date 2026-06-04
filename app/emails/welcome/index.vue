@@ -45,9 +45,9 @@
 </template>
 
 <script setup lang="ts">
-import type { IEmailWelcomeProps } from '../index.types';
+import type { IEmailWelcomeProps } from '@/emails/index.types';
 
-import EmailLayout from '../layout/index.vue';
+import EmailLayout from '@/emails/layout/index.vue';
 
 /**
  * 属性：欢迎邮件属性

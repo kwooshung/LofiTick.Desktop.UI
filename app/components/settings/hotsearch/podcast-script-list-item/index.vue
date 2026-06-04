@@ -48,10 +48,9 @@
 </template>
 
 <script setup lang="ts">
+import type { ISettingsHotsearchPodcastScriptListItemProps } from '@/components/settings/hotsearch/podcast-script-list-item/index.types';
 import type { THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 import { hotsearchPodcastAdPlaceholderIs } from '@@/shared/utils/hotsearch';
-
-import type { ISettingsHotsearchPodcastScriptListItemProps } from './index.types';
 
 /**
  * 属性：播客脚本列表行。

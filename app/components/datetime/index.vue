@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IDatetimeProps } from './index.types';
+import type { IDatetimeProps } from '@/components/datetime/index.types';
 
 /**
  * 属性

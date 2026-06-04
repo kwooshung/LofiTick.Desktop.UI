@@ -1,8 +1,7 @@
 import type { FetchError } from 'ofetch';
 
-import type { UseFetchOptions } from '#app';
-
 import type { IStoresToastApi } from '@@/app/stores/toast-api/index.types';
+import type { UseFetchOptions } from '#app';
 
 /**
  * 接口：服务端状态结构（ApiStatus）。

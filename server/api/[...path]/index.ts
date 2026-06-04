@@ -1,7 +1,8 @@
 import { createError, defineEventHandler, getCookie, getHeaders, getRequestHeader, getRequestURL, readRawBody, setCookie, setResponseHeaders, setResponseStatus } from 'h3';
 import { useRuntimeConfig } from 'nitropack/runtime';
 import { $fetch } from 'ofetch';
-import { DEFAULT_SIGN_BLOB_COOKIE_NAME, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_PATH, pickSignRefreshBlob, resolveSignBlobCookieName, stripSignRefreshAttach } from '@@/shared/utils';
+
+import { pickSignRefreshBlob, resolveSignBlobCookieName, SIGN_INIT_PATH, SIGN_REFRESH_PATH, stripSignRefreshAttach } from '@@/shared/utils';
 
 /**
  * 常量：假参数 nonce 的期望长度。

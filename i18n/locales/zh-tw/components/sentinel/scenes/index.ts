@@ -1,4 +1,4 @@
-import { card } from './card';
+import { card } from '@@/i18n/locales/zh-tw/components/sentinel/scenes/card';
 
 export const scenes = {
   labels: {

@@ -1,14 +1,14 @@
-import { askCloseMode } from './ask-close-mode';
-import { crawler } from './crawler';
-import { folder } from './folder';
-import { hotsearch } from './hot-searchs';
-import { pagination } from './pagination';
-import { plyr } from './plyr';
-import { poetrys } from './poetrys';
-import { quotes } from './quotes';
-import { selects } from './selects';
-import { sentinel } from './sentinel';
-import { socials } from './socials';
+import { askCloseMode } from '@@/i18n/locales/zh-tw/components/ask-close-mode';
+import { crawler } from '@@/i18n/locales/zh-tw/components/crawler';
+import { folder } from '@@/i18n/locales/zh-tw/components/folder';
+import { hotsearch } from '@@/i18n/locales/zh-tw/components/hot-searchs';
+import { pagination } from '@@/i18n/locales/zh-tw/components/pagination';
+import { plyr } from '@@/i18n/locales/zh-tw/components/plyr';
+import { poetrys } from '@@/i18n/locales/zh-tw/components/poetrys';
+import { quotes } from '@@/i18n/locales/zh-tw/components/quotes';
+import { selects } from '@@/i18n/locales/zh-tw/components/selects';
+import { sentinel } from '@@/i18n/locales/zh-tw/components/sentinel';
+import { socials } from '@@/i18n/locales/zh-tw/components/socials';
 
 export const components = {
   askCloseMode,

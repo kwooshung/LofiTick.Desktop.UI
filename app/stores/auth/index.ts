@@ -1,7 +1,5 @@
 import { merge } from 'es-toolkit';
 
-import type { IStoresAuth, IStoresAuthUpdate } from './index.types';
-
 /**
  * Store：认证（最小实现，仅用于 UI 状态）
  */

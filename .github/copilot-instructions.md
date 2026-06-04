@@ -11,6 +11,7 @@
 - [2. 执行流程（改动前门禁）](#2-执行流程改动前门禁)
 - [2.1 规则同步（强制）](#21-规则同步强制)
 - [3. 工程与依赖约束](#3-工程与依赖约束)
+- [3.2.1 导入路径（强制）](#321-导入路径强制)
 - [4. API 请求规范](#4-api-请求规范)
 - [5. TypeScript 与注释规范](#5-typescript-与注释规范)
 - [6. Pages 特例（零容忍）](#6-pages-特例零容忍)
@@ -93,6 +94,8 @@
 - Nuxt 5 配置了自动导入部分模块（例如 `composables/`、`stores/`）。
 - 如果你发现变量/函数未显式导入：先确认是否 Nuxt 自动导入导致的；不要擅自补 import。
 - 在 `app/` 的 Nuxt 编译上下文中，Vue 组合式 API（例如 `ref`/`computed`/`watch`/生命周期函数等）默认已通过 auto-import 全局可用；不要再显式 `import ... from "vue"`。
+- 强制：在 `app/**` 的 Nuxt 运行时上下文中，只要某个值/类型已经出现在 `.nuxt/imports.d.ts`，就禁止再显式从 `vue`、`#imports`、`@/composables/**`、`@/stores/**` 导入同一符号；应直接使用自动导入。
+- 强制：`app/composables/**`、`app/stores/**`、以及其导出的类型/接口/类型别名，只要已进入 `.nuxt/imports.d.ts`，在 `app/**` 内就应优先直接使用；禁止为了“看起来更明确”再补一层显式 import。
 - 该规则以 `.nuxt/imports.d.ts` 的生成清单为准；不确定时优先查该文件再决定是否补 import。
 - `app/pages/**` 与 `app/components/**` 中，凡是可由 Nuxt 自动注册的本地 `.vue` 组件，禁止显式 `import xxx from './xxx.vue'` 或 `../index.vue` 这类写法；优先直接在模板中使用组件名。
 - 页面层级职责强制：父级路由文件（例如 `app/pages/foo.vue` 或 `app/pages/foo/index.vue`）不能承载某个子路由页面的完整业务实现；子路由页面必须在各自目录中独立实现，禁止通过子页反向导入父页页面来复用整页逻辑。
@@ -100,6 +103,13 @@
 - 共享值/工具的全局导入入口固定为 `shared/utils/index.ts`：凡是需要被页面、组件、composable 高频复用的常量、枚举值、纯工具函数，必须先确认是否已经从该总出口导出；不要因为“当前文件报未定义”就直接在局部补 `import`。
 - 如果怀疑是“没有全局导入”而不是“类型/变量不存在”，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。
 - Vue SFC 宏例外（强制）：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 这类编译期宏所使用的类型参数，必须优先使用当前文件可静态解析的显式 `import type`；不要依赖 Nuxt 的全局自动导入类型去喂给这些宏，否则可能出现 `Unresolvable type reference` 编译错误。
+
+### 3.2.1 导入路径（强制）
+
+- 强制：在本项目运行时代码目录 `app/**`、`shared/**`、`server/**`、`i18n/**` 中，只要导入目标属于当前项目内部模块，就禁止继续使用相对路径 `./`、`../`；必须改为别名路径。
+- 强制：`app/**` 下的内部模块统一使用 `@/` 别名；跨到项目根其他目录（例如 `shared/**`、`server/**`、`i18n/**`、`app/**`）统一使用 `@@/` 别名。
+- 强制：不要在同一文件里混用“相对路径 + 别名路径”去引用当前项目内部模块；一旦属于当前项目内部导入，统一按 `@/` 或 `@@/` 收口。
+- 例外：`configs/**`、`scripts/**`、根级配置文件以及其他 Node/工具链上下文，不能机械套用 `@/`、`@@/`；必须先确认该执行环境支持对应别名，再决定是否改写。
 
 ### 3.3 实现优先级（强制）
 

@@ -160,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ISentinelConfig, ISentinelConfigAnalysis, ISentinelConfigEmits, ISentinelConfigExpose, ISentinelConfigOverrides } from './index.types';
+import type { ISentinelConfig, ISentinelConfigAnalysis, ISentinelConfigEmits, ISentinelConfigExpose, ISentinelConfigOverrides } from '@/components/sentinel/config/index.types';
 
 /**
  * 事件

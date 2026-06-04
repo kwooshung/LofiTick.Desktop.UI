@@ -1,6 +1,3 @@
-import type { TUseSettingsThemeModeResult } from '@/composables/hooks/useSettingsThemeMode/index.types';
-import type { IThemeSwitchAnimationOptions } from '@/composables/hooks/useThemeSwitchAnimation/index.types';
-
 /**
  * Hook：统一的主题模式设置
  * - 负责处理：是否需要切换动画、matchMedia 判定、写入 preference

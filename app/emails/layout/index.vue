@@ -40,9 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 
-import type { IEmailLayoutProps } from '../index.types';
+import type { IEmailLayoutProps } from '@/emails/index.types';
 
 /**
  * 属性：布局属性

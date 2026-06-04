@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ISpinProps, TSpinSizePreset } from './index.types';
+import type { ISpinProps, TSpinSizePreset } from '@/components/spin/index.types';
 
 /**
  * 组件：属性

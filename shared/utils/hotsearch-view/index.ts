@@ -1,8 +1,7 @@
 import { getLocalTimeZone } from '@internationalized/date';
 
 import type { IHotsearchArchiveDateSummary, IHotsearchDataRow, IHotsearchMediaPlatformOption, IHotsearchPodcastMediaAsset, IHotsearchPodcastSentence, IHotsearchPodcastViewModel, THotsearchMediaPlatformKey, THotsearchPlatformType, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
-
-import { hotsearchPlatformsList } from '../hotsearch';
+import { hotsearchPlatformsList } from '@@/shared/utils/hotsearch';
 
 const HOTSEARCH_SAMPLE_TOPICS = [
   'AI 终端新品发布会热度持续走高',

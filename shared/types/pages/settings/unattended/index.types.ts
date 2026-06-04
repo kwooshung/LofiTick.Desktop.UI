@@ -10,6 +10,6 @@
  * 现有调用方继续从当前文件导入，无需修改路径。
  */
 
-export * from './page/index.types';
-export * from './events/index.types';
 export * from './display/index.types';
+export * from './events/index.types';
+export * from './page/index.types';

@@ -1,7 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import { apiToastTryEmit } from '../../hooks/useApi';
-
 /**
  * Hook：Tauri 直连 API 客户端
  * 描述：封装 Desktop 壳侧 `api_client_request`，并复用 `useApi` 的 toast 口径（含 `toast.enable=false` 静默）。

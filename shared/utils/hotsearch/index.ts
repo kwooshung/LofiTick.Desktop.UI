@@ -12,8 +12,7 @@ import type {
   THotsearchPodcastTemplateType,
   THotsearchPodcastVoiceKey
 } from '@@/shared/types/pages/settings/hotsearch/index.types';
-
-import { generateIdBase36 } from '../generateId';
+import { generateIdBase36 } from '@@/shared/utils/generateId';
 
 /**
  * 常量：热搜官网用量地址。

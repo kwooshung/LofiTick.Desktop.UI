@@ -61,9 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui';
 import { getLocalTimeZone, today } from '@internationalized/date';
-import { h } from 'vue';
+import type { TableColumn } from '@nuxt/ui';
 
 import type { IHotsearchDataPage, IHotsearchDataRow, IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow, IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
 

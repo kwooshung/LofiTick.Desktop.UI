@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IDashboardPageProps } from './index.types';
+import type { IDashboardPageProps } from '@/components/dashboard/page/index.types';
 
 /**
  * 属性

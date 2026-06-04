@@ -1,4 +1,4 @@
-import type { ISqlOptionsPagination, ISqlResultPagination } from './index.types';
+import type { ISqlOptionsPagination, ISqlResultPagination } from '@@/shared/utils/pagination/index.types';
 
 /**
  * 函数：计算分页参数

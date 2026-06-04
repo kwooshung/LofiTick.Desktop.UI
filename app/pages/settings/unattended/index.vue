@@ -185,7 +185,6 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 
 import type { ISentinelConfigAnalysis, ISentinelConfigExpose } from '@/components/sentinel/config/index.types';
 import type { ISentinelScenesConfigExpose, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
-import type { ISentinelStatusPayload } from '@/composables/tauri/sentinel/index';
 
 /**
  * Hook：i18n

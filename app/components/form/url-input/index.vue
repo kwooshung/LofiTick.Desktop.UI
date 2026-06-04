@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSplitResult } from './index.types';
+import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSplitResult } from '@/components/form/url-input/index.types';
 
 /**
  * 属性：URL 输入组件。
