@@ -134,9 +134,9 @@
                           variant="area"
                           layout="list"
                           position="inside"
-                          :dropzone="!stateSaving"
-                          :interactive="!stateSaving && !isTauriRuntime"
-                          :disabled="stateSaving"
+                          :dropzone="!stateSaving && !stateEditorAssetSelecting"
+                          :interactive="!stateSaving && !stateEditorAssetSelecting && !isTauriRuntime"
+                          :disabled="stateSaving || stateEditorAssetSelecting"
                           :reset="true"
                           :label="computedAssetUploadLabel"
                           :description="computedAssetUploadDescription"
@@ -144,12 +144,23 @@
                         >
                           <template #actions="{ open }">
                             <div class="flex justify-center">
-                              <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+                              <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
                             </div>
                           </template>
                         </UFileUpload>
 
-                        <UFileUpload v-else v-slot="{ open }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="false" :interactive="!stateSaving" :disabled="stateSaving" :reset="true" class="h-full w-full">
+                        <UFileUpload
+                          v-else
+                          v-slot="{ open }"
+                          v-model="stateEditorAssetFile"
+                          :accept="computedAssetAccept"
+                          :multiple="false"
+                          :dropzone="false"
+                          :interactive="!stateSaving && !stateEditorAssetSelecting"
+                          :disabled="stateSaving || stateEditorAssetSelecting"
+                          :reset="true"
+                          class="h-full w-full"
+                        >
                           <div
                             ref="previewStageElement"
                             class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border bg-black"
@@ -182,18 +193,22 @@
 
                             <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-end gap-2">
                               <div class="flex items-center gap-1">
-                                <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
-                                <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop.prevent="handlePreviewAssetClear">删除素材</UButton>
+                                <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">
+                                  重新上传
+                                </UButton>
+                                <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewAssetClear">
+                                  删除素材
+                                </UButton>
                               </div>
                             </div>
                           </div>
                         </UFileUpload>
                       </div>
 
-                      <div v-if="stateEditorAssetLoading" class="absolute inset-0 z-10 flex items-center justify-center rounded-(--ui-radius) bg-black/48 backdrop-blur-sm">
+                      <div v-if="stateEditorAssetSelecting || stateEditorAssetLoading" class="absolute inset-0 z-10 flex items-center justify-center rounded-(--ui-radius) bg-black/48 backdrop-blur-sm">
                         <div class="flex items-center gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88">
                           <UIcon name="i-lucide:loader-circle" class="size-4 animate-spin" />
-                          <span>正在加载素材...</span>
+                          <span>{{ stateEditorAssetSelecting ? '正在读取所选素材...' : '正在加载素材...' }}</span>
                         </div>
                       </div>
                     </div>
@@ -424,6 +439,11 @@ const stateEditorAssetFile = ref<File | null>(null);
  * 状态：编辑器素材加载中。
  */
 const stateEditorAssetLoading = ref(false);
+
+/**
+ * 状态：编辑器素材选择中。
+ */
+const stateEditorAssetSelecting = ref(false);
 
 /**
  * 函数：创建默认广告内容片段。
@@ -1490,7 +1510,7 @@ const previewScaleClamp = (value: number): number => Math.min(1, Math.max(0.15, 
  * @param {() => void} open 文件上传打开函数。
  */
 const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
-  if (stateSaving.value) {
+  if (stateSaving.value || stateEditorAssetSelecting.value) {
     return;
   }
 
@@ -1500,20 +1520,26 @@ const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
     return;
   }
 
-  const result = await openFileContent(assetOpenFilePayloadBuild(materialType));
-  if (!result) {
-    return;
-  }
+  stateEditorAssetSelecting.value = true;
 
-  const nextFile = tauriOpenFileResultToFile(result, materialType);
-  if (!materialTypeMatchesFile(materialType, nextFile)) {
-    stateEditorAssetFile.value = null;
-    editorAssetClear();
-    assetTypeMismatchToastShow(materialType);
-    return;
-  }
+  try {
+    const result = await openFileContent(assetOpenFilePayloadBuild(materialType));
+    if (!result) {
+      return;
+    }
 
-  stateEditorAssetFile.value = nextFile;
+    const nextFile = tauriOpenFileResultToFile(result, materialType);
+    if (!materialTypeMatchesFile(materialType, nextFile)) {
+      stateEditorAssetFile.value = null;
+      editorAssetClear();
+      assetTypeMismatchToastShow(materialType);
+      return;
+    }
+
+    stateEditorAssetFile.value = nextFile;
+  } finally {
+    stateEditorAssetSelecting.value = false;
+  }
 };
 
 /**
