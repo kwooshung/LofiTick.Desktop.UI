@@ -124,7 +124,7 @@
                   </div>
 
                   <div class="space-y-3">
-                    <div ref="previewCanvasContainerElement" class="w-full">
+                    <div ref="previewCanvasContainerElement" class="relative w-full">
                       <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
                         <UFileUpload
                           v-if="!stateEditor.asset"
@@ -189,6 +189,13 @@
                           </div>
                         </UFileUpload>
                       </div>
+
+                      <div v-if="stateEditorAssetLoading" class="absolute inset-0 z-10 flex items-center justify-center rounded-(--ui-radius) bg-black/48 backdrop-blur-sm">
+                        <div class="flex items-center gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88">
+                          <UIcon name="i-lucide:loader-circle" class="size-4 animate-spin" />
+                          <span>正在加载素材...</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -223,9 +230,11 @@
                   drag-class="podcast-template-item-drag"
                   ghost-class="podcast-template-item-ghost"
                   handle=".podcast-template-handle"
+                  @start="handleEditorAdvertisementDragStart"
+                  @end="handleEditorAdvertisementDragEnd"
                 >
-                  <TransitionGroup tag="div" class="podcast-ad-editor-list space-y-3" type="transition" name="podcast-template-sort">
-                    <div v-for="(item, index) in stateEditorAdvertisementItems" :key="`${stateEditor.placementType}-${index}`" class="podcast-template-item flex items-center gap-2">
+                  <TransitionGroup tag="div" class="podcast-ad-editor-list space-y-3" type="transition" :name="!stateEditorAdvertisementDragging ? 'podcast-template-sort' : undefined">
+                    <div v-for="(item, index) in stateEditorAdvertisementItems" :key="item.renderKey" class="podcast-template-item flex items-center gap-2">
                       <SettingsHotsearchPodcastScriptListItem
                         :item="item"
                         :disabled="stateSaving"
@@ -328,7 +337,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
+import { generateIdBase36, hotsearchAdEditionScopeOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
@@ -412,12 +421,18 @@ const stateDetailOpen = ref(false);
 const stateEditorAssetFile = ref<File | null>(null);
 
 /**
+ * 状态：编辑器素材加载中。
+ */
+const stateEditorAssetLoading = ref(false);
+
+/**
  * 函数：创建默认广告内容片段。
  * @param {'M' | 'F' | 'R'} voiceKey 播报角色。
  * @param {string} content 文本内容。
  * @returns {{ voiceKey: 'M' | 'F' | 'R'; content: string; segmentType: 'adContent' }} 默认片段。
  */
 const createEditorAdvertisementItem = (voiceKey: 'M' | 'F' | 'R' = 'M', content = '') => ({
+  renderKey: generateIdBase36(10),
   voiceKey,
   content,
   segmentType: 'adContent' as const
@@ -427,6 +442,11 @@ const createEditorAdvertisementItem = (voiceKey: 'M' | 'F' | 'R' = 'M', content 
  * 状态：广告内容片段列表。
  */
 const stateEditorAdvertisementItems = ref([createEditorAdvertisementItem()]);
+
+/**
+ * 状态：广告内容拖拽中。
+ */
+const stateEditorAdvertisementDragging = ref(false);
 
 /**
  * 状态：预览画布容器元素。
@@ -1216,6 +1236,7 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
 const editorAssetClear = (): void => {
   const previewUrl = String(stateEditor.value.asset?.previewUrl ?? '').trim();
 
+  stateEditorAssetLoading.value = false;
   handlePreviewTransformReset();
 
   if (previewUrl) {
@@ -1928,6 +1949,20 @@ const handleEditorAdvertisementItemAppend = (): void => {
 };
 
 /**
+ * 事件：开始拖拽广告内容。
+ */
+const handleEditorAdvertisementDragStart = (): void => {
+  stateEditorAdvertisementDragging.value = true;
+};
+
+/**
+ * 事件：结束拖拽广告内容。
+ */
+const handleEditorAdvertisementDragEnd = (): void => {
+  stateEditorAdvertisementDragging.value = false;
+};
+
+/**
  * 事件：更新广告内容播报角色。
  * @param {number} index 当前索引。
  * @param {string | number} value 最新值。
@@ -2265,6 +2300,7 @@ watch(
     assetSelectionToken += 1;
     const currentToken = assetSelectionToken;
 
+    stateEditorAssetLoading.value = false;
     editorAssetClear();
 
     if (!file || stateEditor.value.materialType === 'none') {
@@ -2277,25 +2313,32 @@ watch(
       return;
     }
 
+    stateEditorAssetLoading.value = true;
     const previewUrl = URL.createObjectURL(file);
     const materialType = stateEditor.value.materialType;
-    const metadata = await mediaMetadataRead(materialType, previewUrl);
+    try {
+      const metadata = await mediaMetadataRead(materialType, previewUrl);
 
-    if (currentToken !== assetSelectionToken) {
-      URL.revokeObjectURL(previewUrl);
-      return;
+      if (currentToken !== assetSelectionToken) {
+        URL.revokeObjectURL(previewUrl);
+        return;
+      }
+
+      stateEditor.value.asset = {
+        originalName: file.name,
+        mimeType: file.type || (materialType === 'image' ? 'image/*' : 'video/*'),
+        fileExt: fileExtGet(file),
+        fileSizeBytes: file.size,
+        width: metadata.width,
+        height: metadata.height,
+        durationMs: metadata.durationMs,
+        previewUrl
+      };
+    } finally {
+      if (currentToken === assetSelectionToken) {
+        stateEditorAssetLoading.value = false;
+      }
     }
-
-    stateEditor.value.asset = {
-      originalName: file.name,
-      mimeType: file.type || (materialType === 'image' ? 'image/*' : 'video/*'),
-      fileExt: fileExtGet(file),
-      fileSizeBytes: file.size,
-      width: metadata.width,
-      height: metadata.height,
-      durationMs: metadata.durationMs,
-      previewUrl
-    };
   }
 );
 
