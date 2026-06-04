@@ -147,7 +147,11 @@
                               </div>
 
                               <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
-                                <div class="rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">拖拽调整位置，滚轮或按钮缩放</div>
+                                <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
+                                  <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
+                                  <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
+                                  <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
+                                </div>
 
                                 <div class="flex items-center gap-1">
                                   <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
@@ -156,15 +160,10 @@
                                 </div>
                               </div>
 
-                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-between gap-2">
-                                <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
-                                  <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
-                                  <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
-                                  <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
-                                </div>
-
+                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-end gap-2">
                                 <div class="flex items-center gap-1">
                                   <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
+                                  <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop.prevent="handlePreviewAssetClear">删除素材</UButton>
                                 </div>
                               </div>
                             </template>
@@ -1205,6 +1204,18 @@ const handlePreviewUploadOpen = (open: () => void): void => {
   }
 
   open();
+};
+
+/**
+ * 事件：清空当前素材并回到上传空态。
+ */
+const handlePreviewAssetClear = (): void => {
+  if (stateSaving.value) {
+    return;
+  }
+
+  stateEditorAssetFile.value = null;
+  editorAssetClear();
 };
 
 /**
