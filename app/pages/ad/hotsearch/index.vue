@@ -129,13 +129,13 @@
                         <UFileUpload
                           v-if="!stateEditor.asset"
                           v-model="stateEditorAssetFile"
-                          :accept="computedAssetAccept"
+                          :accept="computedAssetDropAccept"
                           :multiple="false"
                           variant="area"
                           layout="list"
                           position="inside"
                           :dropzone="!stateSaving"
-                          :interactive="!stateSaving"
+                          :interactive="!stateSaving && !isTauriRuntime"
                           :disabled="stateSaving"
                           :reset="true"
                           :label="computedAssetUploadLabel"
@@ -1510,6 +1510,13 @@ const computedAssetAccept = computed(() => {
   }
 
   return undefined;
+});
+
+/**
+ * 计算属性：空态拖放接收类型。
+ */
+const computedAssetDropAccept = computed(() => {
+  return isTauriRuntime.value ? '*' : computedAssetAccept.value;
 });
 
 /**
