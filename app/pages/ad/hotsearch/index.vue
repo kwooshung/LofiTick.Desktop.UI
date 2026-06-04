@@ -30,7 +30,7 @@
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="stateEditor.id > 0 ? '编辑广告' : '添加广告'" :ui="{ content: 'w-[80vw] max-w-[1920px]', footer: 'justify-end' }">
       <template #body>
         <UForm id="hotsearchAdEditorForm" :schema="schema" :state="stateEditor" class="space-y-5">
-          <div class="grid gap-4 lg:grid-rows-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div class="space-y-4">
             <div class="grid gap-4" :class="computedShowPreview && computedIsPortraitPreview ? 'lg:grid-cols-5' : 'lg:grid-cols-1'">
               <div class="border-default bg-elevated/20 min-h-64 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-3' : ''">
                 <div class="space-y-4">
@@ -195,7 +195,54 @@
               </div>
             </div>
 
-            <div class="border-default bg-elevated/20 min-h-48 rounded-(--ui-radius) border"></div>
+            <div class="border-default bg-elevated/20 min-h-24 rounded-(--ui-radius) border p-4">
+              <section class="space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="text-highlighted text-sm font-medium">{{ computedEditorAdvertisementTitle }}</div>
+                    <div class="text-muted text-xs">{{ computedEditorAdvertisementDescription }}</div>
+                  </div>
+
+                  <UButton type="button" color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="stateSaving" @click="handleEditorAdvertisementItemAppend">添加片段</UButton>
+                </div>
+
+                <UEmpty v-if="stateEditorAdvertisementItems.length === 0" icon="i-lucide:audio-lines" :title="computedEditorAdvertisementEmptyTitle" :description="computedEditorAdvertisementEmptyDescription" />
+
+                <VueDraggable
+                  v-else
+                  v-model="stateEditorAdvertisementItems"
+                  tag="div"
+                  class="podcast-template-draggable"
+                  target=".podcast-ad-editor-list"
+                  :animation="240"
+                  easing="cubic-bezier(0.22, 1, 0.36, 1)"
+                  :disabled="stateSaving"
+                  direction="vertical"
+                  draggable=".podcast-template-item"
+                  chosen-class="podcast-template-item-chosen"
+                  drag-class="podcast-template-item-drag"
+                  ghost-class="podcast-template-item-ghost"
+                  handle=".podcast-template-handle"
+                >
+                  <TransitionGroup tag="div" class="podcast-ad-editor-list space-y-3" type="transition" name="podcast-template-sort">
+                    <div v-for="(item, index) in stateEditorAdvertisementItems" :key="`${stateEditor.placementType}-${index}`" class="podcast-template-item flex items-center gap-2">
+                      <SettingsHotsearchPodcastScriptListItem
+                        :item="item"
+                        :disabled="stateSaving"
+                        editor-mode="advertisement"
+                        :voice-options="computedEditorAdvertisementVoiceOptions"
+                        :segment-options="[]"
+                        :placeholder="computedEditorAdvertisementPlaceholder"
+                        :ad-content-placeholder="computedEditorAdvertisementPlaceholder"
+                        @update:voice-key="(value) => handleEditorAdvertisementVoiceUpdate(index, value)"
+                        @update:content="(value) => handleEditorAdvertisementContentUpdate(index, value)"
+                        @remove="handleEditorAdvertisementItemRemove(index)"
+                      />
+                    </div>
+                  </TransitionGroup>
+                </VueDraggable>
+              </section>
+            </div>
           </div>
         </UForm>
       </template>
@@ -277,10 +324,11 @@ import type { DateValue } from '@internationalized/date';
 import { CalendarDate, parseTime } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
+import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { hotsearchAdEditionScopeOptionsGet } from '@@/shared/utils';
+import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
@@ -362,6 +410,23 @@ const stateDetailOpen = ref(false);
  * 状态：编辑器素材文件。
  */
 const stateEditorAssetFile = ref<File | null>(null);
+
+/**
+ * 函数：创建默认广告内容片段。
+ * @param {'M' | 'F' | 'R'} voiceKey 播报角色。
+ * @param {string} content 文本内容。
+ * @returns {{ voiceKey: 'M' | 'F' | 'R'; content: string; segmentType: 'adContent' }} 默认片段。
+ */
+const createEditorAdvertisementItem = (voiceKey: 'M' | 'F' | 'R' = 'M', content = '') => ({
+  voiceKey,
+  content,
+  segmentType: 'adContent' as const
+});
+
+/**
+ * 状态：广告内容片段列表。
+ */
+const stateEditorAdvertisementItems = ref([createEditorAdvertisementItem()]);
 
 /**
  * 状态：预览画布容器元素。
@@ -1166,6 +1231,7 @@ const editorAssetClear = (): void => {
 const editorReset = (): void => {
   editorAssetClear();
   stateEditorAssetFile.value = null;
+  stateEditorAdvertisementItems.value = [createEditorAdvertisementItem()];
   stateEditor.value = editorDefaultStateCreate();
 };
 
@@ -1198,6 +1264,57 @@ const computedShowPreview = computed(() => stateEditor.value.adType !== 'oral');
  * 计算属性：是否为竖屏预览布局。
  */
 const computedIsPortraitPreview = computed(() => stateEditor.value.adType !== 'oral' && stateEditor.value.frameType === 'portrait');
+
+/**
+ * 计算属性：广告内容标题。
+ */
+const computedEditorAdvertisementTitle = computed(() => {
+  return '广告内容';
+});
+
+/**
+ * 计算属性：广告内容说明。
+ */
+const computedEditorAdvertisementDescription = computed(() => {
+  return '这部分用于编辑广告内容，支持逐句编辑和拖拽排序。';
+});
+
+/**
+ * 计算属性：广告内容为空标题。
+ */
+const computedEditorAdvertisementEmptyTitle = computed(() => {
+  return '还没有广告内容';
+});
+
+/**
+ * 计算属性：广告内容为空说明。
+ */
+const computedEditorAdvertisementEmptyDescription = computed(() => {
+  return '先添加一段广告文案，再按播报顺序拖拽调整。';
+});
+
+/**
+ * 计算属性：广告内容输入占位。
+ */
+const computedEditorAdvertisementPlaceholder = computed(() => {
+  return '输入广告播报内容';
+});
+
+/**
+ * 计算属性：广告内容播报角色选项。
+ */
+const computedEditorAdvertisementVoiceOptions = computed(() => {
+  const labels: Record<'M' | 'F' | 'R', string> = {
+    M: '男声',
+    F: '女声',
+    R: '随机'
+  };
+
+  return hotsearchPodcastVoiceOptionsGet().map((item) => ({
+    value: item.value,
+    label: labels[item.value]
+  }));
+});
 
 /**
  * 计算属性：预览画布尺寸类名。
@@ -1801,6 +1918,51 @@ const handleStartTimeUpdate = (value: TAdInputTimeValue): void => {
  */
 const handleEndTimeUpdate = (value: TAdInputTimeValue): void => {
   stateEditor.value.endAt = localDateTimeMerge(datePartGet(stateEditor.value.endAt), textFromTimeValue(value, '23:59'));
+};
+
+/**
+ * 事件：添加广告内容片段。
+ */
+const handleEditorAdvertisementItemAppend = (): void => {
+  stateEditorAdvertisementItems.value.push(createEditorAdvertisementItem());
+};
+
+/**
+ * 事件：更新广告内容播报角色。
+ * @param {number} index 当前索引。
+ * @param {string | number} value 最新值。
+ */
+const handleEditorAdvertisementVoiceUpdate = (index: number, value: string | number): void => {
+  const item = stateEditorAdvertisementItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.voiceKey = String(value || 'M') as 'M' | 'F' | 'R';
+};
+
+/**
+ * 事件：更新广告内容文本。
+ * @param {number} index 当前索引。
+ * @param {string | number} value 最新值。
+ */
+const handleEditorAdvertisementContentUpdate = (index: number, value: string | number): void => {
+  const item = stateEditorAdvertisementItems.value[index];
+
+  if (!item) {
+    return;
+  }
+
+  item.content = String(value ?? '');
+};
+
+/**
+ * 事件：删除广告内容片段。
+ * @param {number} index 当前索引。
+ */
+const handleEditorAdvertisementItemRemove = (index: number): void => {
+  stateEditorAdvertisementItems.value.splice(index, 1);
 };
 
 /**
