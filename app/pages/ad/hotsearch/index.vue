@@ -123,7 +123,7 @@
                     </div>
                   </div>
 
-                  <UFileUpload v-slot="{ open, removeFile }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="!stateSaving" :interactive="false" :disabled="stateSaving" :reset="true" class="w-full">
+                  <UFileUpload v-slot="{ open }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="!stateSaving" :interactive="false" :disabled="stateSaving" :reset="true" class="w-full">
                     <div class="space-y-3">
                       <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
                         <div
@@ -145,17 +145,17 @@
                               </div>
                             </div>
 
-                            <div class="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
+                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
                               <div class="rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">拖拽调整位置，滚轮或按钮缩放</div>
 
                               <div class="flex items-center gap-1">
-                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewZoomOut" />
-                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewTransformReset" />
-                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewZoomIn" />
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewTransformReset" />
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomIn" />
                               </div>
                             </div>
 
-                            <div class="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
+                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-between gap-2">
                               <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
                                 <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
                                 <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
@@ -163,8 +163,7 @@
                               </div>
 
                               <div class="flex items-center gap-1">
-                                <UButton color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="open()">重新上传</UButton>
-                                <UButton color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop="removeFile()">删除素材</UButton>
+                                <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
                               </div>
                             </div>
                           </template>
@@ -177,7 +176,7 @@
                               <div class="text-highlighted text-sm font-medium">{{ computedAssetUploadLabel }}</div>
                               <div class="text-muted mt-1 text-xs">{{ computedAssetUploadDescription }}</div>
                               <div class="mt-3 flex justify-center">
-                                <UButton color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop="open()">选择素材</UButton>
+                                <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
                               </div>
                             </div>
                           </div>
@@ -1039,7 +1038,7 @@ const computedIsPortraitPreview = computed(() => stateEditor.value.adType !== 'o
 /**
  * 计算属性：预览画布尺寸类名。
  */
-const computedPreviewCanvasClass = computed(() => (computedIsPortraitPreview.value ? 'aspect-[9/16] w-full' : 'aspect-video w-full'));
+const computedPreviewCanvasClass = computed(() => 'w-full');
 
 /**
  * 计算属性：预览画布自适应尺寸样式。
@@ -1048,14 +1047,14 @@ const computedPreviewCanvasClass = computed(() => (computedIsPortraitPreview.val
 const computedPreviewCanvasStyle = computed(() => {
   if (computedIsPortraitPreview.value) {
     return {
-      width: 'min(100%, calc((100dvh - 24rem) * 9 / 16))',
-      maxHeight: 'calc(100dvh - 24rem)'
+      aspectRatio: '9 / 16',
+      width: 'min(100%, calc((100dvh - 24rem) * 9 / 16))'
     };
   }
 
   return {
-    width: 'min(100%, calc((100dvh - 24rem) * 16 / 9))',
-    maxHeight: 'calc(100dvh - 24rem)'
+    aspectRatio: '16 / 9',
+    width: 'min(100%, calc((100dvh - 24rem) * 16 / 9))'
   };
 });
 
@@ -1158,7 +1157,19 @@ const computedPreviewMediaTransformStyle = computed(() => ({
  * @param {number} value 缩放值。
  * @returns {number} 合法缩放值。
  */
-const previewScaleClamp = (value: number): number => Math.min(3, Math.max(0.5, Number.isFinite(value) ? value : 1));
+const previewScaleClamp = (value: number): number => Math.min(1, Math.max(0.15, Number.isFinite(value) ? value : 1));
+
+/**
+ * 事件：打开上传选择。
+ * @param {() => void} open 文件上传打开函数。
+ */
+const handlePreviewUploadOpen = (open: () => void): void => {
+  if (stateSaving.value) {
+    return;
+  }
+
+  open();
+};
 
 /**
  * 事件：重置预览位移与缩放。
@@ -1215,6 +1226,12 @@ const handlePreviewWheel = (event: WheelEvent): void => {
  */
 const handlePreviewPointerDown = (event: PointerEvent): void => {
   if (!stateEditor.value.asset) {
+    return;
+  }
+
+  const eventTarget = event.target;
+
+  if (eventTarget instanceof HTMLElement && eventTarget.closest('[data-preview-control="true"]')) {
     return;
   }
 
