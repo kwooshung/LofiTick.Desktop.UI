@@ -23,8 +23,51 @@
       }
     }
   },
+  services: {
+    title: '服务凭证',
+    actions: {
+      showAccessToken: '显示令牌',
+      hideAccessToken: '隐藏令牌',
+      resetDefaultResourceId: '恢复默认 Resource ID',
+      resetDefaultMaleSpeakerCode: '恢复默认男声',
+      resetDefaultFemaleSpeakerCode: '恢复默认女声'
+    },
+    volcSpeech: {
+      title: '豆包语音',
+      description: '用于火山播客 WebSocket 接口的桌面端默认凭证。这里保存后，播客命令会自动补齐缺省的 App ID、Access Token 和 Resource ID。',
+      appId: {
+        label: 'App ID',
+        description: '填写豆包语音服务的应用 ID。',
+        placeholder: '例如：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: '填写豆包语音服务的 Access Token。',
+        placeholder: '请输入豆包语音 Access Token'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '默认值适用于当前播客接口；只有服务侧要求切换资源时才需要修改。',
+        placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男声音色代码',
+        descriptionPrefix: '用于把 M 和 D 中的男声映射成豆包真实 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女声音色代码',
+        descriptionPrefix: '用于把 F 和 D 中的女声映射成豆包真实 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
+      }
+    }
+  },
   general: {
-    title: '常规设置',
+    title: '常规',
     description: '应用程序基础行为、语言等通用偏好配置',
     closeBehavior: {
       label: '关闭行为',
@@ -72,7 +115,7 @@
     }
   },
   ui: {
-    title: '界面设置',
+    title: '界面',
     description: '主题、深浅色模式、布局与界面元素显示相关的选项',
     colorMode: {
       label: '颜色模式',
@@ -129,7 +172,7 @@
     }
   },
   playback: {
-    title: '播放设置',
+    title: '播放',
     description: '音频播放参数等',
     fade: {
       label: '淡入淡出',
@@ -154,7 +197,7 @@
     }
   },
   power: {
-    title: '电源设置',
+    title: '电源',
     description: '调整应用的电源管理选项，以节省电量',
     startup: {
       enabled: {
@@ -178,12 +221,16 @@
     }
   },
   hotsearch: {
-    title: '热搜设置',
+    title: '热搜',
     description: '配置本机热搜抓取频次、平台选择、预算与播客生成时间。',
     header: {
       enter: '前往热搜'
     },
     sections: {
+      headMusic: {
+        title: '开头音乐',
+        description: '这里统一管理播客生成占用、普通版开头音乐和 VIP 版开头音乐。'
+      },
       schedule: {
         title: '抓取计划',
         description: '这里配置播客时间基准、平台抓取间隔、随机偏移与失败补抓策略。'
@@ -191,6 +238,10 @@
       podcast: {
         title: '播客文案',
         description: '这里配置播报者姓名、节目名称，以及播客开头和结尾模板；正文由程序自动生成。'
+      },
+      podcastRules: {
+        title: '播客规则',
+        description: '这里单独维护给 AI 使用的播客规则，支持 Markdown，方便你约束语气、结构和禁用项。'
       },
       platforms: {
         title: '平台选择',
@@ -210,15 +261,27 @@
         label: '自动生成播客',
         description: '启用后，播客时间将默认跟随热搜窗口的推导结果。'
       },
+      podcastGenerateEnabled: {
+        label: '本机生成播客',
+        description: '启用后，只有当前机器负责生成热搜播客；开启前会优先检查本地开头音乐，缺失时再尝试从云端补齐。'
+      },
+      podcastHeadMusicNormal: {
+        label: '开头音乐（普通版）',
+        description: '用于普通播客的开头音乐。'
+      },
+      podcastHeadMusicVip: {
+        label: '开头音乐（VIP 版）',
+        description: '用于 VIP 播客的开头音乐。'
+      },
       podcastMaleSpeakerName: {
         label: '男生播报者姓名',
-        description: '用于变量替换中的男生姓名，默认是小洛。',
-        placeholder: '例如：小洛'
+        description: '用于变量替换中的男生姓名，默认是男声主播。',
+        placeholder: '例如：男声主播'
       },
       podcastFemaleSpeakerName: {
         label: '女生播报者姓名',
-        description: '用于变量替换中的女生姓名，默认是菲菲。',
-        placeholder: '例如：菲菲'
+        description: '用于变量替换中的女生姓名，默认是女声主播。',
+        placeholder: '例如：女声主播'
       },
       podcastProgramNames: {
         label: '节目名称',
@@ -243,6 +306,12 @@
         label: 'VIP 专项版晚间节目名称',
         description: '用于 VIP 专项版晚间播客的节目名称。',
         placeholder: '例如：洛菲热点晚报 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI 播客规则',
+        description: '这块内容只作为 AI 生成播客时的规则提示，不直接作为最终播报文本。',
+        systemLineLabel: '系统会自动在最终内容末尾追加这一行，且不允许改写：',
+        placeholder: '例如：\n# 角色\n- 用自然、克制、口语化的中文\n\n# 约束\n- 不要编造不存在的信息\n- 不要输出标题党语气\n- 结尾保留简短收束'
       },
       podcastVariables: {
         label: '变量插入',
@@ -323,10 +392,9 @@
     },
     options: {
       podcastVoice: {
-        random: '随机',
-        xiaoluo: '小洛',
-        feifei: '菲菲',
-        duet: '合'
+        M: '男声',
+        F: '女声',
+        R: '随机'
       },
       podcastTemplate: {
         opening: '开头模板',
@@ -336,15 +404,97 @@
         normal: '通用内容',
         morningOnly: '仅早间',
         eveningOnly: '仅晚间',
-        adOpening: '广告开头',
         adContent: '广告内容',
-        adClosing: '广告结尾'
+        adPlaceholder: '广告占位'
       }
+    },
+    editor: {
+      groups: {
+        text: '文本',
+        lists: '列表',
+        insert: '插入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '标题 1',
+        heading2: '标题 2',
+        heading3: '标题 3',
+        bold: '加粗',
+        italic: '斜体',
+        underline: '下划线',
+        bulletList: '无序列表',
+        orderedList: '有序列表',
+        blockquote: '引用',
+        codeBlock: '代码块',
+        divider: '分隔线'
+      }
+    },
+    actions: {
+      selectHeadMusic: '选择音乐',
+      previewHeadMusic: '试听',
+      reuploadHeadMusic: '重新上传',
+      syncHeadMusic: '从云端同步',
+      chooseAttachmentsDir: '选择附件目录'
+    },
+    status: {
+      localReady: '本地已就绪',
+      localMissing: '本地缺失',
+      remoteReady: '云端已就绪',
+      remoteMissing: '云端缺失',
+      attachmentsDirUnset: '当前还没有配置附件目录。',
+      podcastGenerateOwnedByCurrentMachine: '当前机器已占用',
+      podcastGenerateOwnedByOtherMachine: '其他机器已占用',
+      podcastGenerateOwnerIdle: '当前无人占用',
+      podcastGenerateOwnerIdleDescription: '只有一台机器可以开启生成播客；开启时会先检查本地开头音乐，缺失时再尝试从云端补齐。',
+      podcastGenerateOwnedByCurrentMachineDescription: '当前由本机负责生成播客。机器名：{machineName}；机器码：{machineCode}。',
+      podcastGenerateOwnedByOtherMachineDescription: '当前由其他机器负责生成播客。机器名：{machineName}；机器码：{machineCode}。',
+      headMusicReady: '本地与云端都已经准备好，可以直接试听、同步或重新上传。',
+      headMusicWaitingTitle: '开头音乐还没准备好',
+      headMusicNeedAttachmentsDir: '当前还没有配置附件目录。',
+      headMusicNeedUpload: '云端还没有这份开头音乐，请先选择音乐并上传。',
+      headMusicNeedSync: '当前机器本地还没有这份开头音乐。开启生成播客时会优先尝试从云端补齐。',
+      headMusicNeedPreview: '当前音乐已经存在，但暂时还没有可用的预览地址。'
+    },
+    dialogs: {
+      attachmentsDirRequired: {
+        title: '需要先设置附件目录',
+        description: '开头音乐必须落在附件目录下的固定路径中。请先选择附件目录，然后再继续开启播客生成或上传音乐。'
+      },
+      headMusicUpload: {
+        title: '上传 {title}',
+        description: '支持拖放和点击选择。上传会直接从前端直传到又拍云，并同步写入当前机器的固定路径。',
+        dropLabel: '把 MP3 文件拖到这里',
+        dropDescription: '或者点击下面按钮选择文件。建议保持文件简短、响度稳定。',
+        selectFile: '选择文件',
+        clearFile: '清空选择',
+        confirmUpload: '开始上传',
+        currentPreview: '当前线上预览',
+        pendingPreview: '待上传预览',
+        uploadProgress: '上传进度'
+      },
+      headMusicPreview: {
+        title: '{title} 试听',
+        description: '这里可以先试听云端可用的开头音乐。'
+      }
+    },
+    messages: {
+      podcastGenerateErrorTitle: '播客生成不可用',
+      podcastHeadMusicErrorTitle: '开头音乐处理失败',
+      machineCodeMissing: '当前机器码缺失，暂时无法申请播客生成占用。',
+      podcastGenerateOwnerConflict: '当前已有其他机器开启生成播客：{machineName}（{machineCode}）。',
+      podcastGenerateHeadMusicMissing: '普通版或 VIP 版开头音乐还没有准备好，暂时无法开启生成播客。',
+      podcastGenerateHeadMusicMissingToast: '{titles} 还没有可用的本地或云端文件，请先选择音乐。',
+      podcastHeadMusicRemoteMissing: '云端还没有这个开头音乐文件。',
+      podcastHeadMusicDownloadFailed: '从云端下载开头音乐失败。',
+      podcastHeadMusicUploadFailed: '上传开头音乐失败。'
     },
     variables: {
       speakerName: '播报者名称',
+      otherSpeakerName: '搭档名称',
       maleSpeakerName: '男生姓名',
       femaleSpeakerName: '女生姓名',
+      maleOtherSpeakerName: '男声搭档名称',
+      femaleOtherSpeakerName: '女声搭档名称',
       programName: '当前节目名称',
       morningProgramName: '早间节目名称',
       eveningProgramName: '晚间节目名称',
@@ -361,8 +511,11 @@
     },
     variableDescriptions: {
       speakerName: '根据当前音色自动取播报者姓名。',
+      otherSpeakerName: '根据当前音色自动取当前播报者对应的搭档姓名。',
       maleSpeakerName: '始终使用男生播报者姓名。',
       femaleSpeakerName: '始终使用女生播报者姓名。',
+      maleOtherSpeakerName: '固定取女声播报者姓名，可作为男声当前搭档名称。',
+      femaleOtherSpeakerName: '固定取男声播报者姓名，可作为女声当前搭档名称。',
       programName: '根据当前节目场景自动取节目名称。',
       morningProgramName: '普通早间播客的节目名称。',
       eveningProgramName: '普通晚间播客的节目名称。',

@@ -1,5 +1,4 @@
 import type { SelectMenuItem } from '@nuxt/ui';
-import { type Ref, ref, watch } from 'vue';
 
 /**
  * Hook：为多选的 USelectMenu 提供"最多选择 N 个"的限制逻辑。

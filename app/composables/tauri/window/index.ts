@@ -132,6 +132,15 @@ export const useTauriWindow = () => {
     return invoke<string | null>('window_open_file', { payload });
   };
 
+  /**
+   * 函数：打开文件选择对话框并读取文件内容
+   * @param {IOpenFilePayload} payload 对话框参数
+   * @returns {Promise<IOpenFileContentResult | null>} 选择结果
+   */
+  const openFileContent = async (payload: IOpenFilePayload): Promise<IOpenFileContentResult | null> => {
+    return invoke<IOpenFileContentResult | null>('window_open_file_content', { payload });
+  };
+
   return {
     snapshotGet,
     minimize,
@@ -146,6 +155,7 @@ export const useTauriWindow = () => {
     openAppDirectory,
     openUserDataDirectory,
     openExternalUrl,
-    openFile
+    openFile,
+    openFileContent
   };
 };

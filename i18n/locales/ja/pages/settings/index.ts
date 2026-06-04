@@ -23,8 +23,51 @@ export const settings = {
       }
     }
   },
+  services: {
+    title: 'サービス認証情報',
+    actions: {
+      showAccessToken: 'トークンを表示',
+      hideAccessToken: 'トークンを隠す',
+      resetDefaultResourceId: '既定の Resource ID に戻す',
+      resetDefaultMaleSpeakerCode: '既定の男性音声に戻す',
+      resetDefaultFemaleSpeakerCode: '既定の女性音声に戻す'
+    },
+    volcSpeech: {
+      title: 'Volc Speech',
+      description: 'Volc Podcast WebSocket エンドポイント用のデスクトップ既定認証情報です。ここに保存すると、Podcast コマンドは不足している App ID、Access Token、Resource ID を自動補完します。',
+      appId: {
+        label: 'App ID',
+        description: 'Volc Speech サービスの App ID を入力します。',
+        placeholder: '例：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: 'Volc Speech サービスの Access Token を入力します。',
+        placeholder: 'Volc Speech の Access Token を入力'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '既定値は現在の Podcast エンドポイント向けです。サービス側から別のリソース指定を求められた場合のみ変更してください。',
+        placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男性音声コード',
+        descriptionPrefix: 'M と D に含まれる男性音声を、Doubao の実際の ',
+        descriptionSuffix: ' にマッピングします。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女性音声コード',
+        descriptionPrefix: 'F と D に含まれる女性音声を、Doubao の実際の ',
+        descriptionSuffix: ' にマッピングします。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
+      }
+    }
+  },
   general: {
-    title: '一般設定',
+    title: '一般',
     description: 'アプリの基本的な動作や言語など、共通の設定を行います。',
     closeBehavior: {
       label: 'ウィンドウを閉じるとき',
@@ -129,7 +172,7 @@ export const settings = {
     }
   },
   playback: {
-    title: '再生設定',
+    title: '再生',
     description: 'オーディオ再生に関する各種パラメータです。',
     fade: {
       label: 'フェードイン／アウト',
@@ -154,7 +197,7 @@ export const settings = {
     }
   },
   power: {
-    title: '電源設定',
+    title: '電源',
     description: '省電力のため、アプリの電源管理オプションを調整します。',
     startup: {
       enabled: {
@@ -178,19 +221,27 @@ export const settings = {
     }
   },
   hotsearch: {
-    title: 'トレンド設定',
+    title: 'トレンド',
     description: 'この端末で使う取得頻度、対象プラットフォーム、予算、Podcast 生成時刻を設定します。',
     header: {
       enter: 'トレンドへ'
     },
     sections: {
+      headMusic: {
+        title: '冒頭音楽',
+        description: 'Podcast 生成の占有状態、通常版の導入音源、VIP 版の導入音源をここでまとめて管理します。'
+      },
       schedule: {
         title: '取得スケジュール',
         description: 'Podcast 時刻の基準、プラットフォーム間隔、ランダム幅、再試行方針をここで設定します。'
       },
       podcast: {
         title: 'Podcast 文案',
-        description: '番組名、読み手の名前、そして分かれた導入テンプレートと締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
+        description: '読み手名、番組名、そして Podcast の導入・締めテンプレートをここで設定します。本文はプログラムが自動生成します。'
+      },
+      podcastRules: {
+        title: 'Podcast ルール',
+        description: 'AI 専用の Podcast ルールを Markdown で管理します。語調、構成、禁止事項をここで定義できます。'
       },
       platforms: {
         title: 'プラットフォーム',
@@ -210,15 +261,27 @@ export const settings = {
         label: 'Podcast 自動生成',
         description: '有効にすると、Podcast 時刻はトレンド取得ウィンドウから自動推定されます。'
       },
+      podcastGenerateEnabled: {
+        label: 'この端末で Podcast を生成',
+        description: '有効にすると、この端末だけがトレンド Podcast を生成できます。オンにする前に、まずローカルの冒頭音楽を確認し、必要なときだけクラウドから補完します。'
+      },
+      podcastHeadMusicNormal: {
+        label: '冒頭音楽（通常版）',
+        description: '通常版 Podcast 用の冒頭音楽です。'
+      },
+      podcastHeadMusicVip: {
+        label: '冒頭音楽（VIP 版）',
+        description: 'VIP 版 Podcast 用の冒頭音楽です。'
+      },
       podcastMaleSpeakerName: {
         label: '男性読み手の名前',
-        description: '変数置換で使う男性読み手の名前です。初期値は小洛です。',
-        placeholder: '例：小洛'
+        description: '変数置換で使う男性読み手の名前です。初期値は男性ナレーターです。',
+        placeholder: '例：男性ナレーター'
       },
       podcastFemaleSpeakerName: {
         label: '女性読み手の名前',
-        description: '変数置換で使う女性読み手の名前です。初期値は菲菲です。',
-        placeholder: '例：菲菲'
+        description: '変数置換で使う女性読み手の名前です。初期値は女性ナレーターです。',
+        placeholder: '例：女性ナレーター'
       },
       podcastProgramNames: {
         label: '番組名',
@@ -243,6 +306,12 @@ export const settings = {
         label: 'VIP 尊享版夜版の番組名',
         description: 'VIP 尊享版夜版 Podcast に使う番組名です。',
         placeholder: '例：洛菲ホット晚報 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI Podcast ルール',
+        description: 'ここに書いた内容は、AI が Podcast を生成するときの指示としてだけ使われます。最終原稿としてそのまま読み上げるものではありません。',
+        systemLineLabel: '最終内容の末尾には次の 1 行が自動追加され、編集はできません。',
+        placeholder: '例：\n# 役割\n- 自然で落ち着いた話し言葉を使う\n\n# 制約\n- 存在しない事実を作らない\n- 煽り表現を使わない\n- 締めは短くまとめる'
       },
       podcastVariables: {
         label: '変数を挿入',
@@ -323,10 +392,9 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: 'ランダム',
-        xiaoluo: 'XiaoLuo',
-        feifei: 'Feifei',
-        duet: '合'
+        M: '男性',
+        F: '女性',
+        R: 'ランダム'
       },
       podcastTemplate: {
         opening: '導入テンプレート',
@@ -336,15 +404,97 @@ export const settings = {
         normal: '共通内容',
         morningOnly: '朝のみ',
         eveningOnly: '夜のみ',
-        adOpening: '広告導入',
         adContent: '広告内容',
-        adClosing: '広告締め'
+        adPlaceholder: '広告プレースホルダー'
       }
+    },
+    editor: {
+      groups: {
+        text: 'テキスト',
+        lists: 'リスト',
+        insert: '挿入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '見出し 1',
+        heading2: '見出し 2',
+        heading3: '見出し 3',
+        bold: '太字',
+        italic: '斜体',
+        underline: '下線',
+        bulletList: '箇条書き',
+        orderedList: '番号付きリスト',
+        blockquote: '引用',
+        codeBlock: 'コードブロック',
+        divider: '区切り線'
+      }
+    },
+    actions: {
+      selectHeadMusic: '音楽を選択',
+      previewHeadMusic: '試聴',
+      reuploadHeadMusic: '再アップロード',
+      syncHeadMusic: 'クラウドから同期',
+      chooseAttachmentsDir: '添付ディレクトリを選択'
+    },
+    status: {
+      localReady: 'ローカル準備完了',
+      localMissing: 'ローカル不足',
+      remoteReady: 'クラウド準備完了',
+      remoteMissing: 'クラウド不足',
+      attachmentsDirUnset: '添付ディレクトリがまだ設定されていません。',
+      podcastGenerateOwnedByCurrentMachine: 'この端末が占有中',
+      podcastGenerateOwnedByOtherMachine: '他の端末が占有中',
+      podcastGenerateOwnerIdle: '現在は未占有',
+      podcastGenerateOwnerIdleDescription: '同時に有効化できるのは 1 台だけです。オンにすると、まずローカルの冒頭音楽を確認し、必要なときだけクラウドから補います。',
+      podcastGenerateOwnedByCurrentMachineDescription: '現在はこの端末が Podcast 生成を担当しています。端末名: {machineName}、端末コード: {machineCode}。',
+      podcastGenerateOwnedByOtherMachineDescription: '現在は別の端末が Podcast 生成を担当しています。端末名: {machineName}、端末コード: {machineCode}。',
+      headMusicReady: 'ローカルとクラウドの両方が準備できています。今すぐ試聴、同期、再アップロードが可能です。',
+      headMusicWaitingTitle: '冒頭音楽はまだ準備できていません',
+      headMusicNeedAttachmentsDir: '添付ディレクトリがまだ設定されていません。',
+      headMusicNeedUpload: 'この冒頭音楽はまだクラウドに存在しません。先に音楽を選んでアップロードしてください。',
+      headMusicNeedSync: 'この端末にはまだ冒頭音楽がありません。Podcast 生成を有効にすると、必要に応じてクラウドから補完します。',
+      headMusicNeedPreview: 'ファイルは存在しますが、まだ再生可能なプレビュー URL を取得できていません。'
+    },
+    dialogs: {
+      attachmentsDirRequired: {
+        title: '先に添付ディレクトリを設定してください',
+        description: '冒頭音楽は添付ディレクトリ配下の固定パスに保存する必要があります。先に添付ディレクトリを選択してから、Podcast 生成を有効化するか音楽をアップロードしてください。'
+      },
+      headMusicUpload: {
+        title: '{title} をアップロード',
+        description: 'ドラッグ＆ドロップにもクリック選択にも対応しています。アップロードはフロントエンドから又拍雲へ直接送信し、同時にこの端末の固定パスにも書き込みます。',
+        dropLabel: 'ここに MP3 ファイルをドロップ',
+        dropDescription: 'または下のボタンから選択してください。短くて音量が安定したイントロ音源がおすすめです。',
+        selectFile: 'ファイルを選択',
+        clearFile: '選択をクリア',
+        confirmUpload: 'アップロード開始',
+        currentPreview: '現在のオンラインプレビュー',
+        pendingPreview: 'アップロード予定のプレビュー',
+        uploadProgress: 'アップロード進捗'
+      },
+      headMusicPreview: {
+        title: '{title} を試聴',
+        description: 'クラウド上の冒頭音楽をここで先に試聴できます。'
+      }
+    },
+    messages: {
+      podcastGenerateErrorTitle: 'Podcast 生成を有効にできません',
+      podcastHeadMusicErrorTitle: '冒頭音楽の処理に失敗しました',
+      machineCodeMissing: '現在の端末コードが見つからないため、生成占有ロックを取得できません。',
+      podcastGenerateOwnerConflict: '別の端末ですでに Podcast 生成が有効です: {machineName}（{machineCode}）。',
+      podcastGenerateHeadMusicMissing: '通常版または VIP 版の冒頭音楽がまだ準備できていないため、Podcast 生成を有効にできません。',
+      podcastGenerateHeadMusicMissingToast: '{titles} はローカルにもクラウドにもありません。先に音楽を選択してください。',
+      podcastHeadMusicRemoteMissing: 'この冒頭音楽ファイルはまだクラウドに存在しません。',
+      podcastHeadMusicDownloadFailed: 'クラウドから冒頭音楽をダウンロードできませんでした。',
+      podcastHeadMusicUploadFailed: '冒頭音楽のアップロードに失敗しました。'
     },
     variables: {
       speakerName: '読み手の名前',
+      otherSpeakerName: '相方の名前',
       maleSpeakerName: '男性名',
       femaleSpeakerName: '女性名',
+      maleOtherSpeakerName: '男性側の相方名',
+      femaleOtherSpeakerName: '女性側の相方名',
       programName: '現在の番組名',
       morningProgramName: '朝版の番組名',
       eveningProgramName: '夜版の番組名',
@@ -361,8 +511,11 @@ export const settings = {
     },
     variableDescriptions: {
       speakerName: '現在の音声に対応する読み手名を使います。',
+      otherSpeakerName: '現在の話者に対応する相方の名前を使います。',
       maleSpeakerName: '男性読み手の名前を固定で使います。',
       femaleSpeakerName: '女性読み手の名前を固定で使います。',
+      maleOtherSpeakerName: '男性話者の相方として女性読み手名を固定で使います。',
+      femaleOtherSpeakerName: '女性話者の相方として男性読み手名を固定で使います。',
       programName: '現在の版に対応する番組名を使います。',
       morningProgramName: '通常の朝版 Podcast の番組名です。',
       eveningProgramName: '通常の夜版 Podcast の番組名です。',

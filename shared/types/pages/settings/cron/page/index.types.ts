@@ -1,4 +1,19 @@
 /**
+ * 接口：服务连接设置。
+ */
+export interface IPageSettingsConnectionsSettings {
+  /**
+   * Rust API 根地址。
+   */
+  apiBase: string;
+
+  /**
+   * 1Panel 面板根域名。
+   */
+  panelBase: string;
+}
+
+/**
  * 接口：1Panel 设置。
  */
 export interface IPageSettingsOnepanelSettings {

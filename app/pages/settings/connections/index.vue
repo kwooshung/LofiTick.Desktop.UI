@@ -1,6 +1,13 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.connections.title')" :description="t('pages.settings.connections.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.connections.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.connections.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
 
     <div class="space-y-6">
       <UPageCard variant="outline" :ui="{ root: 'rounded-lg', container: 'divide-y divide-default' }">
@@ -35,16 +42,32 @@
           class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
         >
           <div class="flex w-full max-w-6xl min-w-0 flex-col gap-2 justify-self-end">
-            <FormUrlInput :model-value="computedPanelBase" readonly />
-
-            <div class="flex flex-wrap justify-end gap-2">
-              <UButton color="primary" size="sm" icon="i-lucide:arrow-up-right" @click="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))">
-                {{ t('pages.settings.connections.onepanelLinks.actions.openCronjobs') }}
-              </UButton>
-              <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:library" @click="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))">
-                {{ t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary') }}
-              </UButton>
-            </div>
+            <FormUrlInput :model-value="computedPanelBase" readonly>
+              <template #actions>
+                <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" :content="{ side: 'top' }">
+                  <ULink
+                    raw
+                    :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH)"
+                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')"
+                    @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))"
+                  >
+                    <UIcon name="i-lucide:calendar-clock" class="size-4 shrink-0" />
+                  </ULink>
+                </UTooltip>
+                <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')" :content="{ side: 'top' }">
+                  <ULink
+                    raw
+                    :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH)"
+                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')"
+                    @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))"
+                  >
+                    <UIcon name="i-lucide:library-big" class="size-4 shrink-0" />
+                  </ULink>
+                </UTooltip>
+              </template>
+            </FormUrlInput>
           </div>
         </UFormField>
 
@@ -64,9 +87,16 @@
 
                 <div class="space-y-3">
                   <UFormField v-for="link in group.links" :key="link.href" :label="link.label" :description="link.path" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted text-xs' }" class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
-                    <div class="flex w-full max-w-6xl min-w-0 items-center gap-2 justify-self-end">
-                      <FormUrlInput :model-value="link.href" readonly class="flex-1" />
-                      <UButton color="neutral" variant="outline" size="sm" icon="i-lucide:arrow-up-right" @click="handleOpenExternal(link.href)" />
+                    <div class="w-full max-w-6xl min-w-0 justify-self-end">
+                      <FormUrlInput :model-value="link.href" readonly class="w-full">
+                        <template #actions>
+                          <UTooltip :text="link.label" :content="{ side: 'top' }">
+                            <ULink raw :href="link.href" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="link.label" @click.stop.prevent="handleOpenExternal(link.href)">
+                              <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+                            </ULink>
+                          </UTooltip>
+                        </template>
+                      </FormUrlInput>
                     </div>
                   </UFormField>
                 </div>
@@ -101,10 +131,20 @@ const tauriWindow = useTauriWindow();
 const tauriApiClient = useTauriApiClient();
 
 /**
- * API：1Panel 设置。
+ * API：服务连接设置。
  */
-const { datas: stateOnepanelSettingsRemote, refresh: refreshOnepanelSettingsGet } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { immediate: false });
-const { refresh: refreshOnepanelSettingsPatch } = await useApi<IPageSettingsOnepanelSettings>('desktop/settings/one_panel', { method: 'PATCH', immediate: false });
+const { datas: stateConnectionsSettingsRemote, refresh: refreshConnectionsSettingsGet } = await useApi<IPageSettingsConnectionsSettings>('desktop/settings/connections', { immediate: false });
+const { refreshDebounced: refreshConnectionsSettingsPatchDebounced } = await useApi<IPageSettingsConnectionsSettings>('desktop/settings/connections', {
+  method: 'PATCH',
+  immediate: false,
+  rateLimit: {
+    debounce: {
+      wait: 300,
+      leading: false,
+      trailing: true
+    }
+  }
+});
 
 /**
  * Hook：i18n。
@@ -160,16 +200,6 @@ const stateApiBaseValue = ref('');
 const stateOnepanelPanelBaseValue = ref(ONEPANEL_PANEL_BASE_DEFAULT);
 
 /**
- * 状态：API Base 保存中。
- */
-const stateApiBaseSaving = ref(false);
-
-/**
- * 状态：1Panel 设置保存中。
- */
-const stateOnepanelSettingsSaving = ref(false);
-
-/**
  * 状态：设置项是否已完成首轮加载。
  */
 const stateSettingsHydrated = ref(false);
@@ -215,83 +245,66 @@ const handleOpenExternal = async (href: string): Promise<void> => {
 };
 
 /**
- * 事件：保存 API 域名设置。
+ * 函数：防抖同步 Tauri 本地 API 配置镜像。
  */
-const handleSaveApiBase = async (): Promise<void> => {
-  if (!isTauriRuntime.value || stateApiBaseSaving.value) {
+const persistApiBaseLocalDebounced = useDebounceFn(async () => {
+  if (!isTauriRuntime.value) {
     return;
   }
 
-  stateApiBaseSaving.value = true;
-  try {
-    const config = await tauriApiClient.configUpdate({ apiBase: String(stateApiBaseValue.value || '').trim() });
-    stateApiBaseValue.value = String(config.apiBase || '').trim();
-  } finally {
-    stateApiBaseSaving.value = false;
-  }
+  const config = await tauriApiClient.configUpdate({
+    apiBase: String(stateApiBaseValue.value || '').trim()
+  });
+  stateApiBaseValue.value = String(config.apiBase || '').trim();
+}, 300);
+
+/**
+ * 函数：构建当前服务连接远端配置。
+ */
+const currentConnectionsSettingsGet = (): IPageSettingsConnectionsSettings => ({
+  apiBase: String(stateApiBaseValue.value || '').trim(),
+  panelBase: computedPanelBase.value
+});
+
+/**
+ * 函数：防抖同步服务连接到 Redis。
+ */
+const persistConnectionsRemoteDebounced = (): void => {
+  refreshConnectionsSettingsPatchDebounced({
+    body: {
+      datas: currentConnectionsSettingsGet()
+    }
+  });
 };
 
 /**
  * 函数：回填 1Panel 设置。
  */
 const applyOnepanelSettings = (): void => {
-  stateOnepanelPanelBaseValue.value = onepanelPanelBaseNormalize(String(stateOnepanelSettingsRemote.value?.panelBase || '').trim() || ONEPANEL_PANEL_BASE_DEFAULT);
+  stateOnepanelPanelBaseValue.value = onepanelPanelBaseNormalize(String(stateConnectionsSettingsRemote.value?.panelBase || '').trim() || ONEPANEL_PANEL_BASE_DEFAULT);
 };
-
-/**
- * 事件：保存 1Panel 设置。
- */
-const handleSaveOnepanelSettings = async (): Promise<void> => {
-  if (stateOnepanelSettingsSaving.value) {
-    return;
-  }
-
-  stateOnepanelSettingsSaving.value = true;
-  try {
-    await refreshOnepanelSettingsPatch({
-      body: {
-        datas: {
-          ...(stateOnepanelSettingsRemote.value || {}),
-          panelBase: computedPanelBase.value
-        }
-      }
-    });
-
-    await refreshOnepanelSettingsGet();
-    applyOnepanelSettings();
-  } finally {
-    stateOnepanelSettingsSaving.value = false;
-  }
-};
-
-/**
- * 函数：自动保存 API Base（防抖）。
- */
-const persistApiBaseDebounced = useDebounceFn(() => {
-  void handleSaveApiBase();
-}, 300);
-
-/**
- * 函数：自动保存 1Panel 设置（防抖）。
- */
-const persistOnepanelSettingsDebounced = useDebounceFn(() => {
-  void handleSaveOnepanelSettings();
-}, 300);
 
 /**
  * 函数：加载并填充设置。
  */
 const loadSettings = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
-    return;
+  if (isTauriRuntime.value) {
+    const apiClientConfig = await tauriApiClient.configGet();
+
+    stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim() || DEFAULT_API_BASE;
   }
-
-  const apiClientConfig = await tauriApiClient.configGet();
-
-  stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim() || DEFAULT_API_BASE;
   stateOnepanelPanelBaseValue.value = ONEPANEL_PANEL_BASE_DEFAULT;
 
-  await refreshOnepanelSettingsGet();
+  await refreshConnectionsSettingsGet();
+
+  if (stateConnectionsSettingsRemote.value?.apiBase) {
+    stateApiBaseValue.value = String(stateConnectionsSettingsRemote.value.apiBase || '').trim() || DEFAULT_API_BASE;
+
+    if (isTauriRuntime.value) {
+      await tauriApiClient.configUpdate({ apiBase: stateApiBaseValue.value });
+    }
+  }
+
   applyOnepanelSettings();
   stateSettingsHydrated.value = true;
 };
@@ -304,7 +317,8 @@ watch(stateApiBaseValue, () => {
     return;
   }
 
-  persistApiBaseDebounced();
+  persistApiBaseLocalDebounced();
+  persistConnectionsRemoteDebounced();
 });
 
 /**
@@ -315,7 +329,7 @@ watch(stateOnepanelPanelBaseValue, () => {
     return;
   }
 
-  persistOnepanelSettingsDebounced();
+  persistConnectionsRemoteDebounced();
 });
 
 /**

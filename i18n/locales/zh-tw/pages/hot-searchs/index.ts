@@ -20,6 +20,12 @@ export const hotsearch = {
     },
     music: {
       title: '背景音樂'
+    },
+    cover: {
+      title: '封面圖'
+    },
+    advertisement: {
+      title: '廣告'
     }
   },
   actions: {
@@ -140,6 +146,15 @@ export const hotsearch = {
       eveningLong: {
         title: '晚報長篇',
         description: '適合音訊或長影片平台的晚間長版。'
+      },
+      cover: {
+        title: '封面圖',
+        description: '查看與預留熱搜播客封面圖設定入口。',
+        placeholder: '封面圖頁面先作占位，後續再接入實際封面圖生成與管理。'
+      },
+      advertisement: {
+        title: '廣告',
+        description: '跳轉到廣告頁面，後續再接入廣告位設定。'
       }
     }
   },

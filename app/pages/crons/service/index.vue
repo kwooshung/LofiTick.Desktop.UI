@@ -13,12 +13,14 @@
 
         <UFormField label="真实计划任务" description="去 1Panel 里管理真实的服务器计划任务。" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
           <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
-            <UButton color="primary" icon="i-lucide:arrow-up-right" @click="handleOpenExternal(computedCronjobsUrl)">
+            <ULink raw :href="computedCronjobsUrl" class="bg-primary text-inverted hover:bg-primary/90 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleOpenExternal(computedCronjobsUrl)">
+              <UIcon name="i-lucide:arrow-up-right" class="size-4 shrink-0" />
               {{ t('pages.settings.cron.serverShortcut.actions.openCronjobs') }}
-            </UButton>
-            <UButton color="neutral" variant="outline" icon="i-lucide:library" @click="handleOpenExternal(computedLibraryUrl)">
+            </ULink>
+            <ULink raw :href="computedLibraryUrl" class="border-default text-highlighted hover:bg-elevated inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleOpenExternal(computedLibraryUrl)">
+              <UIcon name="i-lucide:library" class="size-4 shrink-0" />
               {{ t('pages.settings.cron.serverShortcut.actions.openScriptLibrary') }}
-            </UButton>
+            </ULink>
           </div>
         </UFormField>
 
@@ -27,9 +29,10 @@
             <div class="text-highlighted w-full text-sm leading-6 break-all xl:max-w-4xl xl:text-right">{{ computedPanelBase }}</div>
 
             <div class="flex flex-wrap items-center justify-end gap-2">
-              <UButton color="neutral" variant="soft" icon="i-lucide:settings-2" :to="localePath('/settings/connections')">
+              <ULink raw :to="localePath('/settings/connections')" class="bg-elevated text-highlighted hover:bg-elevated/80 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors">
+                <UIcon name="i-lucide:settings-2" class="size-4 shrink-0" />
                 {{ t('pages.settings.cron.serverShortcut.actions.openConnections') }}
-              </UButton>
+              </ULink>
             </div>
           </div>
         </UFormField>
@@ -41,12 +44,13 @@
             <div class="text-muted text-[11px] tracking-[0.18em] uppercase">常用入口</div>
 
             <div class="space-y-2">
-              <button
+              <ULink
                 v-for="link in computedQuickLinks"
                 :key="`${link.label}-summary`"
-                type="button"
+                raw
+                :href="link.href"
                 class="border-default hover:border-primary/45 hover:bg-elevated/35 group flex w-full min-w-0 cursor-pointer items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
-                @click="handleOpenExternal(link.href)"
+                @click.prevent="handleOpenExternal(link.href)"
               >
                 <div class="min-w-0">
                   <div class="text-highlighted text-sm font-medium">{{ link.label }}</div>
@@ -54,7 +58,7 @@
                 </div>
 
                 <UIcon name="i-lucide:arrow-up-right" class="text-muted group-hover:text-highlighted size-4 shrink-0 transition-colors" />
-              </button>
+              </ULink>
             </div>
           </div>
         </aside>
@@ -87,16 +91,17 @@
                       <div class="text-muted text-[11px] font-medium tracking-[0.18em] uppercase">{{ group.title }}</div>
 
                       <div class="flex flex-wrap gap-2">
-                        <button
+                        <ULink
                           v-for="link in group.links"
                           :key="link.href"
-                          type="button"
+                          raw
+                          :href="link.href"
                           class="border-default/70 hover:border-primary/45 hover:bg-elevated/35 group inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors"
-                          @click="handleOpenExternal(link.href)"
+                          @click.prevent="handleOpenExternal(link.href)"
                         >
                           <span class="text-highlighted truncate text-sm font-medium">{{ link.label }}</span>
                           <UIcon name="i-lucide:arrow-up-right" class="text-muted group-hover:text-highlighted size-3.5 shrink-0 transition-colors" />
-                        </button>
+                        </ULink>
                       </div>
                     </div>
                   </div>

@@ -20,6 +20,12 @@ export const hotsearch = {
     },
     music: {
       title: 'BGM'
+    },
+    cover: {
+      title: 'カバー画像'
+    },
+    advertisement: {
+      title: '広告'
     }
   },
   actions: {
@@ -140,6 +146,15 @@ export const hotsearch = {
       eveningLong: {
         title: '夕報ロング',
         description: '音声・長尺動画向けの夜のロング版です。'
+      },
+      cover: {
+        title: 'カバー画像',
+        description: '急上昇 Podcast のカバー画像用の予約ページです。',
+        placeholder: 'カバー画像ページは現在プレースホルダーで、後続で実際の生成と管理を接続します。'
+      },
+      advertisement: {
+        title: '広告',
+        description: '今後の広告枠設定用ページへ移動します。'
       }
     }
   },

@@ -1,6 +1,7 @@
-import type { IHotsearchArchiveDateSummary, IHotsearchDataRow, IHotsearchMediaPlatformOption, IHotsearchPodcastMediaAsset, IHotsearchPodcastSentence, IHotsearchPodcastViewModel, THotsearchMediaPlatformKey, THotsearchPlatformType, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
+import { getLocalTimeZone } from '@internationalized/date';
 
-import { hotsearchPlatformsList } from '../hotsearch';
+import type { IHotsearchArchiveDateSummary, IHotsearchDataRow, IHotsearchMediaPlatformOption, IHotsearchPodcastMediaAsset, IHotsearchPodcastSentence, IHotsearchPodcastViewModel, THotsearchMediaPlatformKey, THotsearchPlatformType, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
+import { hotsearchPlatformsList } from '@@/shared/utils/hotsearch';
 
 const HOTSEARCH_SAMPLE_TOPICS = [
   'AI 终端新品发布会热度持续走高',
@@ -100,6 +101,15 @@ export const hotsearchQueryStringGet = (value: string | null | Array<string | nu
 
   return String(value ?? '').trim();
 };
+
+/**
+ * 函数：获取热搜查询应附带的本地时区。
+ *
+ * # Returns
+ *
+ * 返回当前设备的 IANA 时区名称。
+ */
+export const hotsearchLocalTimezoneGet = (): string => getLocalTimeZone();
 
 /**
  * 函数：获取热搜日期归档摘要列表。
@@ -263,7 +273,7 @@ export const hotsearchPodcastViewGet = (date: string, variant: THotsearchPodcast
     ...item,
     disabled: !supportedPlatforms.includes(item.key)
   }));
-  const speakers = variant.startsWith('morning') ? ['小洛', '菲菲'] : ['菲菲', '小洛'];
+  const speakers = variant.startsWith('morning') ? ['男声主播', '女声主播'] : ['女声主播', '男声主播'];
   const prefix = variant.startsWith('morning') ? '早报' : '晚报';
   const lengthLabel = variant.endsWith('short') ? '短篇' : '长篇';
   const sentences: IHotsearchPodcastSentence[] = Array.from({ length: variant.endsWith('short') ? 5 : 8 }, (_, index) => {
@@ -271,7 +281,7 @@ export const hotsearchPodcastViewGet = (date: string, variant: THotsearchPodcast
 
     return {
       id: `${variant}-${index + 1}`,
-      speakerName: speakers[index % speakers.length] ?? '小洛',
+      speakerName: speakers[index % speakers.length] ?? '男声主播',
       text: `${prefix}${lengthLabel}第 ${index + 1} 句脚本，当前平台为 ${selectedPlatformKey === 'general' ? '通用版本' : selectedPlatformKey}，这里会替换成真实播报文案与广告片段。`,
       durationLabel: `${sample.durationSeconds}s`,
       audioUrl: sample.src,

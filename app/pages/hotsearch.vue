@@ -6,22 +6,6 @@
 
     <template #toolbar-right>
       <div class="flex items-center gap-2">
-        <template v-if="computedRouteIsDataSection">
-          <SelectsPagesizes cache-key="hotsearch" />
-
-          <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="hidden md:flex md:w-72 xl:w-80" @keyup.enter="handleKeywordApply">
-            <template #leading>
-              <UIcon name="i-lucide:search" class="text-dimmed size-4" />
-            </template>
-
-            <template #trailing>
-              <div class="flex items-center">
-                <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
-              </div>
-            </template>
-          </UInput>
-        </template>
-
         <UPopover v-model:open="stateDatePickerOpen" :content="{ align: 'end', side: 'bottom', sideOffset: 10 }">
           <UButton color="neutral" variant="ghost" icon="i-lucide-calendar-days" class="shrink-0">
             {{ computedDatePickerButtonLabel }}
@@ -77,18 +61,35 @@
           </template>
         </UPopover>
 
-        <UButton color="neutral" variant="ghost" icon="i-proicons:settings" class="shrink-0 rounded-lg" :to="localePath('/settings/hotsearch')">
+        <ULink raw :to="localePath('/settings/hotsearch')" class="text-highlighted hover:bg-elevated inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors">
+          <UIcon name="i-proicons:settings" class="size-4 shrink-0" />
           {{ t('pages.settings.title') }}
-        </UButton>
+        </ULink>
       </div>
     </template>
 
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
         <template v-if="computedRouteIsDataSection">
-          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center gap-1.5 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
+          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-3 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
             <div class="relative z-10 min-w-0 flex-1">
               <UNavigationMenu :items="computedDataVariantLinks" highlight class="-translate-x-2.5" />
+            </div>
+
+            <div class="relative z-10 hidden shrink-0 items-center gap-2 md:flex">
+              <SelectsPagesizes cache-key="hotsearch" />
+
+              <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-72 xl:w-80" @keyup.enter="handleKeywordApply">
+                <template #leading>
+                  <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+                </template>
+
+                <template #trailing>
+                  <div class="flex items-center">
+                    <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+                  </div>
+                </template>
+              </UInput>
             </div>
           </div>
         </template>
@@ -100,7 +101,7 @@
                 <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
               </div>
 
-              <div class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <div v-if="computedRouteIsPodcastVariantPage" class="relative z-10 flex shrink-0 flex-wrap items-center justify-end gap-2">
                 <UButton color="neutral" variant="soft" icon="i-lucide:clapperboard" :disabled="!computedPodcastHeaderVideoAsset" @click="handlePodcastVideoModalOpen">
                   {{ t('pages.hotsearch.podcast.openVideoModal') }}
                 </UButton>
@@ -110,7 +111,7 @@
               </div>
             </div>
 
-            <div class="relative z-10 flex w-full flex-wrap items-center gap-2">
+            <div v-if="computedRouteIsPodcastVariantPage" class="relative z-10 flex w-full flex-wrap items-center gap-2">
               <UButton
                 v-for="item in computedPodcastHeaderView.availablePlatforms"
                 :key="item.key"
@@ -195,12 +196,17 @@ const route = useRoute();
 /**
  * 状态：是否已存在显式日期选择。
  */
-const stateHasExplicitDateSelection = ref(hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined) !== '');
+const stateHasExplicitDateSelection = ref(false);
 
 /**
  * 常量：日历时区。
  */
 const calendarTimeZone = getLocalTimeZone();
+
+/**
+ * 常量：热搜查询时区。
+ */
+const hotsearchQueryTimezone = hotsearchLocalTimezoneGet();
 
 /**
  * 状态：日期选择器是否打开。
@@ -264,6 +270,9 @@ const stateToolbarKeyword = ref('');
  * 它只用于热搜页面日历的只读日期摘要，不是管理侧的日期重算接口。
  */
 const { datas: stateHotsearchDateSummaries, refresh: refreshHotsearchDateSummariesGet } = await useApi<IHotsearchArchiveDateSummary[]>('hotsearch/dates', {
+  datas: {
+    timezone: hotsearchQueryTimezone
+  },
   immediate: true,
   server: false
 });
@@ -333,15 +342,22 @@ const computedTodayDate = computed(() => {
 const computedSelectedDate = computed(() => {
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
-  if (queryDate === computedTodayDate.value) {
-    return queryDate;
+  if (queryDate === '') {
+    return computedTodayDate.value;
   }
 
-  if (queryDate !== '' && computedDateSummaryMap.value.has(queryDate)) {
+  if (calendarDateFromIsoGet(queryDate)) {
     return queryDate;
   }
 
   return computedTodayDate.value;
+});
+
+/**
+ * 计算属性：当前路由应保留的日期参数。
+ */
+const computedSelectedDateQuery = computed(() => {
+  return stateHasExplicitDateSelection.value ? computedSelectedDate.value : undefined;
 });
 
 /**
@@ -445,11 +461,6 @@ const computedCalendarModelValue = computed<CalendarDate>({
 });
 
 /**
- * 计算属性：当前是否为数据页。
- */
-const computedRouteIsData = computed(() => route.path === localePath('/hotsearch'));
-
-/**
  * 计算属性：当前是否位于数据分区。
  */
 const computedRouteIsDataSection = computed(() => {
@@ -471,6 +482,11 @@ const computedRouteIsPodcast = computed(() => route.path.startsWith(localePath('
 const computedRouteIsMusic = computed(() => route.path === localePath('/hotsearch/music'));
 
 /**
+ * 计算属性：当前是否为封面图页。
+ */
+const computedRouteIsCover = computed(() => route.path === localePath('/hotsearch/cover'));
+
+/**
  * 计算属性：主分区链接。
  */
 const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
@@ -481,7 +497,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsDataSection.value,
       to: {
         path: localePath('/hotsearch'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
       },
       exact: true
     },
@@ -491,7 +507,7 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsPodcast.value,
       to: {
         path: localePath('/hotsearch/podcast/morning-short'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
       }
     },
     {
@@ -500,7 +516,25 @@ const computedSectionLinks = computed<NavigationMenuItem[][]>(() => [
       active: computedRouteIsMusic.value,
       to: {
         path: localePath('/hotsearch/music'),
-        query: { date: computedSelectedDate.value }
+        query: { date: computedSelectedDateQuery.value }
+      }
+    },
+    {
+      label: t('pages.hotsearch.sections.cover.title'),
+      icon: 'i-lucide:image',
+      active: computedRouteIsCover.value,
+      to: {
+        path: localePath('/hotsearch/cover'),
+        query: { date: computedSelectedDateQuery.value }
+      }
+    },
+    {
+      label: t('pages.hotsearch.sections.advertisement.title'),
+      icon: 'i-lucide-megaphone',
+      active: false,
+      to: {
+        path: localePath('/ad/hotsearch'),
+        query: { date: computedSelectedDateQuery.value }
       }
     }
   ]
@@ -515,7 +549,7 @@ const computedDataVariantLinks = computed<NavigationMenuItem[][]>(() => {
   }
 
   const sharedQuery = {
-    date: computedSelectedDate.value,
+    date: computedSelectedDateQuery.value,
     keyword: hotsearchQueryStringGet(route.query.keyword as string | null | Array<string | null> | undefined) || undefined,
     platform: hotsearchQueryStringGet(route.query.platform as string | null | Array<string | null> | undefined) || undefined,
     category_key: hotsearchQueryStringGet(route.query.category_key as string | null | Array<string | null> | undefined) || undefined,
@@ -580,7 +614,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-short'),
         to: {
           path: localePath('/hotsearch/podcast/morning-short'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -590,7 +624,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/morning-long'),
         to: {
           path: localePath('/hotsearch/podcast/morning-long'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -600,7 +634,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-short'),
         to: {
           path: localePath('/hotsearch/podcast/evening-short'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       },
@@ -610,7 +644,7 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
         active: route.path === localePath('/hotsearch/podcast/evening-long'),
         to: {
           path: localePath('/hotsearch/podcast/evening-long'),
-          query: { date: computedSelectedDate.value, mediaPlatform }
+          query: { date: computedSelectedDateQuery.value, mediaPlatform }
         },
         exact: true
       }
@@ -637,6 +671,11 @@ const computedPodcastVariant = computed<THotsearchPodcastVariantKey | null>(() =
 
   return null;
 });
+
+/**
+ * 计算属性：当前是否为四个真实播客变体页。
+ */
+const computedRouteIsPodcastVariantPage = computed(() => computedPodcastVariant.value !== null);
 
 /**
  * 计算属性：页头播客视图模型。
@@ -983,6 +1022,16 @@ const handleDatePreviewReset = (): void => {
 };
 
 watch(
+  () => route.query.date,
+  (value) => {
+    stateHasExplicitDateSelection.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined) !== '';
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(
   () => route.query.keyword,
   (value) => {
     stateToolbarKeyword.value = hotsearchQueryStringGet(value as string | null | Array<string | null> | undefined);
@@ -1000,7 +1049,12 @@ watch(stateDatePickerOpen, (open) => {
   }
 
   stateCalendarPlaceholder.value = stateHasExplicitDateSelection.value ? computedSelectedMonthValue.value : computedCalendarDefaultMonthValue.value;
-  void refreshHotsearchDateSummariesGet({ replace: true });
+  void refreshHotsearchDateSummariesGet({
+    datas: {
+      timezone: hotsearchQueryTimezone
+    },
+    replace: true
+  });
 });
 
 watch(
@@ -1033,36 +1087,6 @@ watch(
     }
 
     stateCalendarPlaceholder.value = value;
-  },
-  {
-    immediate: true
-  }
-);
-
-watch(
-  () => ({
-    routeDate: hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined),
-    selectedDate: computedSelectedDate.value,
-    hasSelectedDateSummary: computedDateSummaryMap.value.has(computedSelectedDate.value)
-  }),
-  ({ routeDate, selectedDate, hasSelectedDateSummary }) => {
-    const nextRouteDate = selectedDate !== '' && (hasSelectedDateSummary || selectedDate === computedTodayDate.value) ? selectedDate : undefined;
-    const normalizedNextRouteDate = nextRouteDate ?? '';
-
-    if (routeDate === normalizedNextRouteDate) {
-      return;
-    }
-
-    navigateTo(
-      {
-        path: route.path,
-        query: {
-          ...route.query,
-          date: nextRouteDate
-        }
-      },
-      { replace: true }
-    );
   },
   {
     immediate: true
@@ -1128,7 +1152,7 @@ const handleFilterReset = (): void => {
   navigateTo({
     path: route.path,
     query: {
-      date: computedSelectedDate.value
+      date: computedSelectedDateQuery.value
     }
   });
 };

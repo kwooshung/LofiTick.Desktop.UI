@@ -15,8 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import type { IMediaAudioWavesSeekPayload } from '../../audio/waves/index.types';
-import type { IMediaPlyrConfig, IMediaPlyrConfigInjected, IMediaPlyrInstanceConfigMinimum, IMediaPlyrPlayerSource, IMediaPlyrPlayerTrack, IMediaPlyrProps, IMediaPlyrSource, TMediaPlyrConfigControls, TMediaPlyrI18nDict, TMediaPlyrSourceProvider, TPlyrCtor } from './index.types';
+import type { IMediaAudioWavesSeekPayload } from '@/components/media/audio/waves/index.types';
+import type {
+  IMediaPlyrConfig,
+  IMediaPlyrConfigInjected,
+  IMediaPlyrInstanceConfigMinimum,
+  IMediaPlyrPlayerSource,
+  IMediaPlyrPlayerTrack,
+  IMediaPlyrProps,
+  IMediaPlyrSource,
+  TMediaPlyrConfigControls,
+  TMediaPlyrI18nDict,
+  TMediaPlyrSourceProvider,
+  TPlyrCtor
+} from '@/components/media/player/plyr/index.types';
 
 /**
  * Props：组件属性

@@ -1,6 +1,13 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.power.title')" :description="t('pages.settings.power.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.power.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.power.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-10', container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.power.startup.enabled.label')" :description="t('pages.settings.power.startup.enabled.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">

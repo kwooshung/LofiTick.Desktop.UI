@@ -1,21 +1,22 @@
 <template>
   <div class="relative">
+    <slot v-if="props.overlay || !stateInternalSpinning" />
+
     <Transition enter-active-class="transition-opacity duration-300" leave-active-class="transition-opacity duration-300" enter-from-class="opacity-0" leave-to-class="opacity-0">
       <div v-if="stateInternalSpinning" class="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm" :class="props.maskClass">
-        <div :class="['flex flex-col items-center justify-center', computedContainerClasses]">
+        <div :class="computedContentClass">
           <UIcon :name="props.icon" :size="computedSpinnerSize" :class="['animate-spin', props.iconClass]" />
-          <span v-if="tip" class="text-sm text-gray-600 dark:text-gray-400">
+          <span v-if="tip" :class="props.tipClass">
             {{ tip }}
           </span>
         </div>
       </div>
-      <slot v-else />
     </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ISpinProps, TSpinSizePreset } from './index.types';
+import type { ISpinProps, TSpinSizePreset } from '@/components/spin/index.types';
 
 /**
  * 组件：属性
@@ -23,10 +24,13 @@ import type { ISpinProps, TSpinSizePreset } from './index.types';
 const props = withDefaults(defineProps<ISpinProps>(), {
   loading: false,
   icon: 'i-gg:spinner',
+  overlay: false,
   tip: '',
   size: 'default',
   delay: 300,
   iconClass: 'text-primary',
+  contentClass: '',
+  tipClass: 'text-sm text-gray-600 dark:text-gray-400',
   maskClass: 'bg-white/80 dark:bg-gray-900/80'
 });
 
@@ -63,6 +67,13 @@ const computedContainerClasses = computed(() => {
     large: 'gap-4'
   };
   return gaps[props.size as TSpinSizePreset] ?? gaps.default;
+});
+
+/**
+ * 计算属性：内容容器类名。
+ */
+const computedContentClass = computed(() => {
+  return ['flex flex-col items-center justify-center', computedContainerClasses.value, props.contentClass].filter(Boolean).join(' ');
 });
 
 /**

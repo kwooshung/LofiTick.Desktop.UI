@@ -1,5 +1,3 @@
-import type { IStoresToastApi } from './index.types';
-
 /**
  * Store：Toast Api 信息
  */

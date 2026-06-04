@@ -1,3 +1,3 @@
-import { ja } from './locales/ja';
+import { ja } from '@@/i18n/locales/ja';
 
 export default defineI18nLocale(() => ja);

@@ -101,47 +101,20 @@
           >
             <TransitionGroup tag="div" class="podcast-template-list space-y-3" type="transition" :name="!stateTemplateDragging ? 'podcast-template-sort' : undefined">
               <div v-for="item in openingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
-                <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
-                  <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-12 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
-                    <UIcon name="i-lucide:grip-vertical" class="size-4" />
-                  </div>
-                  <USelect
-                    v-if="item.segmentType !== 'adContent'"
-                    :model-value="item.voiceKey"
-                    :items="computedVoiceOptions"
-                    value-attribute="value"
-                    option-attribute="label"
-                    variant="none"
-                    class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
-                    :disabled="props.disabled"
-                    @update:model-value="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <UInput
-                    :model-value="item.content"
-                    variant="none"
-                    class="bg-default min-w-0 flex-1"
-                    :disabled="props.disabled || item.segmentType === 'adContent'"
-                    :placeholder="item.segmentType === 'adContent' ? t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholderAdContent') : t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
-                    @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @select="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @update:model-value="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <USelect
-                    :model-value="item.segmentType"
-                    :items="computedSegmentOptions"
-                    value-attribute="value"
-                    option-attribute="label"
-                    variant="none"
-                    class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
-                    :disabled="props.disabled"
-                    @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
-                    <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(templateItemStateIndexGet(item))" />
-                  </div>
-                </div>
+                <SettingsHotsearchPodcastScriptListItem
+                  :item="item"
+                  :disabled="props.disabled"
+                  editor-mode="template"
+                  :voice-options="computedVoiceOptions"
+                  :segment-options="computedTemplateSegmentOptions"
+                  :placeholder="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholder')"
+                  :ad-content-placeholder="t('pages.settings.hotsearch.fields.podcastOpeningTemplates.placeholderAdContent')"
+                  @update:voice-key="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
+                  @update:content="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
+                  @update:segment-type="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
+                  @focus-content="(event) => handleTemplateItemContentFocus(templateItemStateIndexGet(item), event)"
+                  @remove="handleTemplateItemRemove(templateItemStateIndexGet(item))"
+                />
               </div>
             </TransitionGroup>
           </VueDraggable>
@@ -183,47 +156,20 @@
           >
             <TransitionGroup tag="div" class="podcast-template-list space-y-3" type="transition" :name="!stateTemplateDragging ? 'podcast-template-sort' : undefined">
               <div v-for="item in closingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
-                <div class="border-accented bg-elevated/30 focus-within:border-primary flex min-w-0 flex-1 items-stretch overflow-hidden rounded-md border transition-colors duration-300">
-                  <div class="podcast-template-handle bg-elevated/30 text-dimmed border-default flex w-12 shrink-0 cursor-grab items-center justify-center border-r transition-colors duration-200 active:cursor-grabbing">
-                    <UIcon name="i-lucide:grip-vertical" class="size-4" />
-                  </div>
-                  <USelect
-                    v-if="item.segmentType !== 'adContent'"
-                    :model-value="item.voiceKey"
-                    :items="computedVoiceOptions"
-                    value-attribute="value"
-                    option-attribute="label"
-                    variant="none"
-                    class="border-default w-30 shrink-0 rounded-none border-r bg-transparent"
-                    :disabled="props.disabled"
-                    @update:model-value="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <UInput
-                    :model-value="item.content"
-                    variant="none"
-                    class="bg-default min-w-0 flex-1"
-                    :disabled="props.disabled || item.segmentType === 'adContent'"
-                    :placeholder="item.segmentType === 'adContent' ? t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholderAdContent') : t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
-                    @click="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @focus="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @keyup="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @select="handleTemplateItemContentFocus(templateItemStateIndexGet(item), $event)"
-                    @update:model-value="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <USelect
-                    :model-value="item.segmentType"
-                    :items="computedSegmentOptions"
-                    value-attribute="value"
-                    option-attribute="label"
-                    variant="none"
-                    class="border-default w-32 shrink-0 rounded-none border-l bg-transparent"
-                    :disabled="props.disabled"
-                    @update:model-value="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
-                  />
-                  <div class="border-default flex w-10 shrink-0 items-center justify-center border-l">
-                    <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="props.disabled" @click="handleTemplateItemRemove(templateItemStateIndexGet(item))" />
-                  </div>
-                </div>
+                <SettingsHotsearchPodcastScriptListItem
+                  :item="item"
+                  :disabled="props.disabled"
+                  editor-mode="template"
+                  :voice-options="computedVoiceOptions"
+                  :segment-options="computedTemplateSegmentOptions"
+                  :placeholder="t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholder')"
+                  :ad-content-placeholder="t('pages.settings.hotsearch.fields.podcastClosingTemplates.placeholderAdContent')"
+                  @update:voice-key="(value) => handleTemplateItemVoiceUpdate(templateItemStateIndexGet(item), value)"
+                  @update:content="(value) => handleTemplateItemContentUpdate(templateItemStateIndexGet(item), value)"
+                  @update:segment-type="(value) => handleTemplateItemSegmentTypeUpdate(templateItemStateIndexGet(item), value)"
+                  @focus-content="(event) => handleTemplateItemContentFocus(templateItemStateIndexGet(item), event)"
+                  @remove="handleTemplateItemRemove(templateItemStateIndexGet(item))"
+                />
               </div>
             </TransitionGroup>
           </VueDraggable>
@@ -236,14 +182,13 @@
 <script setup lang="ts">
 import { VueDraggable } from 'vue-draggable-plus';
 
-import type { ISettingsHotsearchPodcastSegmentType, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
-
-import type { ISettingsHotsearchPodcastScriptSettingsProps } from './index.types';
+import type { ISettingsHotsearchPodcastScriptListProps } from '@/components/settings/hotsearch/podcast-script-list/index.types';
+import type { ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 
 /**
- * 属性：热搜播客文案设置。
+ * 属性：热搜播客文案列表。
  */
-const props = withDefaults(defineProps<ISettingsHotsearchPodcastScriptSettingsProps>(), {
+const props = withDefaults(defineProps<ISettingsHotsearchPodcastScriptListProps>(), {
   disabled: false,
   templateItems: () => []
 });
@@ -252,19 +197,18 @@ const props = withDefaults(defineProps<ISettingsHotsearchPodcastScriptSettingsPr
  * 事件：热搜播客文案设置更新。
  */
 const emit = defineEmits<{
-  'update:templateItems': [value: ISettingsHotsearchPodcastTemplateItem[]];
   'update:template-items': [value: ISettingsHotsearchPodcastTemplateItem[]];
 }>();
 
 /**
  * 数据：男生播报者名称。
  */
-const maleSpeakerName = defineModel<string>('maleSpeakerName', { default: '小洛' });
+const maleSpeakerName = defineModel<string>('maleSpeakerName', { default: '男声主播' });
 
 /**
  * 数据：女生播报者名称。
  */
-const femaleSpeakerName = defineModel<string>('femaleSpeakerName', { default: '菲菲' });
+const femaleSpeakerName = defineModel<string>('femaleSpeakerName', { default: '女声主播' });
 
 /**
  * 数据：早间节目名称。
@@ -366,18 +310,18 @@ watch(
 /**
  * 计算属性：播客音色选项。
  */
-const computedVoiceOptions = computed(() =>
-  hotsearchPodcastVoiceOptionsGet().map((item) => ({
+const computedVoiceOptions = computed(() => {
+  return hotsearchPodcastVoiceOptionsGet().map((item) => ({
     value: item.value,
     label: t(item.key)
-  }))
-);
+  }));
+});
 
 /**
- * 计算属性：文案类型选项。
+ * 计算属性：模板文案类型选项。
  */
-const computedSegmentOptions = computed<Array<{ value: ISettingsHotsearchPodcastSegmentType; label: string }>>(() =>
-  hotsearchPodcastSegmentOptionsGet().map((item) => ({
+const computedTemplateSegmentOptions = computed<Array<{ value: THotsearchPodcastSegmentType; label: string }>>(() =>
+  hotsearchPodcastSegmentOptionsGet('template').map((item) => ({
     value: item.value,
     label: t(item.key)
   }))
@@ -530,6 +474,21 @@ const lunarDateTimeTextGet = (value: Date): string => {
 };
 
 /**
+ * 函数：将节目名称格式化为带中文书名号的文本。
+ * @param {string} value 原始节目名称。
+ * @returns {string} 带中文书名号的节目名称。
+ */
+const programNameRender = (value: string): string => {
+  const normalized = String(value || '')
+    .trim()
+    .replace(/^《/, '')
+    .replace(/》$/, '')
+    .trim();
+
+  return `《${normalized}》`;
+};
+
+/**
  * 函数：按当前设置生成变量示例值。
  * @param {string} token 变量 token。
  * @returns {string} 示例值。
@@ -553,20 +512,26 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
   const weekday = new Intl.DateTimeFormat('zh-CN', {
     weekday: 'long'
   }).format(now);
-  const maleSpeaker = maleSpeakerName.value || '小洛';
-  const femaleSpeaker = femaleSpeakerName.value || '菲菲';
-  const morningProgram = morningProgramName.value || '洛菲热点早报';
-  const eveningProgram = eveningProgramName.value || '洛菲热点晚报';
-  const vipMorningProgram = vipMorningProgramName.value || '洛菲热点早报 尊享版';
-  const vipEveningProgram = vipEveningProgramName.value || '洛菲热点晚报 尊享版';
+  const maleSpeaker = maleSpeakerName.value || '男声主播';
+  const femaleSpeaker = femaleSpeakerName.value || '女声主播';
+  const morningProgram = programNameRender(morningProgramName.value || '洛菲热点早报');
+  const eveningProgram = programNameRender(eveningProgramName.value || '洛菲热点晚报');
+  const vipMorningProgram = programNameRender(vipMorningProgramName.value || '洛菲热点早报 尊享版');
+  const vipEveningProgram = programNameRender(vipEveningProgramName.value || '洛菲热点晚报 尊享版');
 
   switch (token) {
     case '[speakerName]':
       return `${maleSpeaker} 或 ${femaleSpeaker}`;
+    case '[otherSpeakerName]':
+      return `${femaleSpeaker} 或 ${maleSpeaker}`;
     case '[maleSpeakerName]':
       return maleSpeaker;
     case '[femaleSpeakerName]':
       return femaleSpeaker;
+    case '[maleOtherSpeakerName]':
+      return femaleSpeaker;
+    case '[femaleOtherSpeakerName]':
+      return maleSpeaker;
     case '[programName]':
       return `${morningProgram} 或 ${eveningProgram} 或 ${vipMorningProgram} 或 ${vipEveningProgram}`;
     case '[morningProgramName]':
@@ -607,7 +572,6 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
 const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = templateItemRenderKeys.value): void => {
   stateTemplateItems.value = [...value];
   templateItemRenderKeys.value = [...renderKeys];
-  emit('update:templateItems', value);
   emit('update:template-items', value);
 };
 
@@ -702,15 +666,24 @@ const handleTemplateItemContentUpdate = (index: number, value: string | number):
  * @returns {void} 无返回值。
  */
 const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | number): void => {
-  const nextSegmentType = String(value || 'normal') as ISettingsHotsearchPodcastSegmentType;
+  const nextSegmentType = String(value || 'normal') as THotsearchPodcastSegmentType;
   const nextItems = [...stateTemplateItems.value];
+  const currentItem = nextItems[index];
+
+  if (!currentItem) {
+    return;
+  }
+
+  const isAdPlaceholder = nextSegmentType === 'adPlaceholder';
+
   nextItems[index] = {
-    ...nextItems[index],
-    voiceKey: nextSegmentType === 'adContent' ? 'random' : nextItems[index].voiceKey,
+    ...currentItem,
+    voiceKey: isAdPlaceholder ? 'D' : nextItems[index].voiceKey,
+    content: isAdPlaceholder ? '' : nextItems[index].content,
     segmentType: nextSegmentType
   };
 
-  if (nextSegmentType === 'adContent' && activeTemplateItemIndex.value === index) {
+  if (isAdPlaceholder && activeTemplateItemIndex.value === index) {
     activeTemplateItemIndex.value = null;
     activeTemplateItemSelectionStart.value = null;
     activeTemplateItemSelectionEnd.value = null;
@@ -795,7 +768,7 @@ const handleVariableInsert = async (token: string): Promise<void> => {
     const index = activeTemplateItemIndex.value;
     const currentItem = stateTemplateItems.value[index];
 
-    if (currentItem.segmentType === 'adContent') {
+    if (currentItem.segmentType === 'adPlaceholder') {
       return;
     }
 

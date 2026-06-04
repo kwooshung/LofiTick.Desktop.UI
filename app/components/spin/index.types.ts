@@ -18,6 +18,12 @@ export interface ISpinProps {
   icon?: string;
 
   /**
+   * 属性：是否使用覆盖层模式
+   * 描述：开启后保留插槽内容，仅在上方叠加加载遮罩。
+   */
+  overlay?: boolean;
+
+  /**
    * 属性：文案提示
    */
   tip?: string;
@@ -38,6 +44,17 @@ export interface ISpinProps {
    * 属性：指示器颜色
    */
   iconClass?: string;
+
+  /**
+   * 属性：内容容器类名
+   * 描述：用于控制加载图标与文案容器的布局和外观。
+   */
+  contentClass?: string;
+
+  /**
+   * 属性：文案类名
+   */
+  tipClass?: string;
 
   /**
    * 属性：遮罩背景色

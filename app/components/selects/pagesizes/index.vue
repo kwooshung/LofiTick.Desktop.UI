@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ISelectPagesizesProps } from './index.types';
+import type { ISelectPagesizesProps } from '@/components/selects/pagesizes/index.types';
 
 /**
  * Hook：国际化

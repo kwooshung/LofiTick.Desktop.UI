@@ -1,27 +1,27 @@
 <template>
   <DashboardPage class="min-h-full">
-    <div ref="refHotsearchDataPanelTop" class="space-y-3">
+    <div v-if="computedHasRows" ref="refHotsearchDataPanelTop" class="space-y-3">
       <div class="flex flex-wrap gap-2">
-        <UButton :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm" @click="handlePlatformSelect('')">
+        <UButton :to="buildPlatformLocation('')" :color="computedSelectedPlatformType === '' ? 'primary' : 'neutral'" :variant="computedSelectedPlatformType === '' ? 'solid' : 'soft'" size="sm">
           {{ t('pages.hotsearch.data.allPlatforms') }}
         </UButton>
         <UButton
           v-for="item in computedPlatformRows"
           :key="item.platformType"
+          :to="buildPlatformLocation(item.platformType)"
           :color="computedSelectedPlatformType === item.platformType ? 'primary' : 'neutral'"
           :variant="computedSelectedPlatformType === item.platformType ? 'solid' : 'soft'"
           size="sm"
-          @click="handlePlatformSelect(item.platformType)"
         >
           {{ platformSummaryLabelGet(item) }}
         </UButton>
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <UButton :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect('')">
+        <UButton :to="buildDataLocation('')" :color="computedSelectedCategoryKey === '' ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === '' ? 'solid' : 'soft'" size="sm">
           {{ t('pages.hotsearch.data.allTags') }}
         </UButton>
-        <UButton v-for="item in computedTagRows" :key="item.categoryKey" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm" @click="handleCategorySelect(item.categoryKey)">
+        <UButton v-for="item in computedTagRows" :key="item.categoryKey" :to="buildDataLocation(item.categoryKey)" :color="computedSelectedCategoryKey === item.categoryKey ? 'primary' : 'neutral'" :variant="computedSelectedCategoryKey === item.categoryKey ? 'solid' : 'soft'" size="sm">
           {{ tagSummaryLabelGet(item) }}
         </UButton>
       </div>
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+    <div v-if="computedHasPagination" class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('components.pagination.total', { total: Number(stateHotsearchRowsRemote?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(stateHotsearchRowsRemote?.total ?? 0)" />
@@ -61,8 +61,8 @@
 </template>
 
 <script setup lang="ts">
+import { getLocalTimeZone, today } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
-import { h } from 'vue';
 
 import type { IHotsearchDataPage, IHotsearchDataRow, IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow, IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
 
@@ -75,6 +75,10 @@ const Datetime = resolveComponent('Datetime');
  * 组件：按钮。
  */
 const UButton = resolveComponent('UButton');
+/**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
 
 /**
  * 组件：徽章。
@@ -123,13 +127,23 @@ const { openExternalUrl } = useTauriWindow();
  * 函数：获取当前默认日期。
  * @returns {string} YYYY-MM-DD。
  */
-const currentDateGet = (): string => new Date().toISOString().slice(0, 10);
+const currentDateGet = (): string => {
+  const value = today(getLocalTimeZone());
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+};
 
 /**
  * 函数：获取当前生效日期。
  * @returns {string} YYYY-MM-DD。
  */
 const selectedDateGet = (): string => hotsearchQueryStringGet(route.query.date) || currentDateGet();
+
+/**
+ * 函数：获取当前查询时区。
+ * @returns {string} IANA 时区名称。
+ */
+const currentTimezoneGet = (): string => hotsearchLocalTimezoneGet();
 
 /**
  * 函数：获取当前生效分页大小。
@@ -152,6 +166,7 @@ const currentPageSizeGet = (): string => {
 const buildRowsQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   query.date = selectedDateGet();
+  query.timezone = currentTimezoneGet();
 
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
@@ -195,6 +210,7 @@ const buildRowsQueryFromRoute = (): Record<string, string> => {
 const buildPlatformsQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   query.date = selectedDateGet();
+  query.timezone = currentTimezoneGet();
 
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
@@ -219,6 +235,7 @@ const buildPlatformsQueryFromRoute = (): Record<string, string> => {
 const buildTagsQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   query.date = selectedDateGet();
+  query.timezone = currentTimezoneGet();
 
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
@@ -311,6 +328,11 @@ const computedSortDirection = computed(() => {
 const computedRows = computed(() => stateHotsearchRowsRemote.value?.rows ?? []);
 
 /**
+ * 计算属性：当前是否存在热搜数据。
+ */
+const computedHasRows = computed(() => computedRows.value.length > 0);
+
+/**
  * 计算属性：平台统计行。
  */
 const computedPlatformRows = computed(() => stateHotsearchPlatformsRemote.value?.rows ?? []);
@@ -334,6 +356,11 @@ const computedTagCountMap = computed(() => new Map(computedTagRows.value.map((it
  * 计算属性：加载状态。
  */
 const computedLoading = computed(() => stateHotsearchRowsLoading.value || stateHotsearchPlatformsLoading.value || stateHotsearchTagsLoading.value);
+
+/**
+ * 计算属性：当前是否需要显示分页栏。
+ */
+const computedHasPagination = computed(() => Number(stateHotsearchRowsRemote.value?.total ?? 0) > 0);
 
 /**
  * 计算属性：当前页。
@@ -427,14 +454,23 @@ const hotsearchTagCellRender = (item: IHotsearchDataRow) =>
     'div',
     { class: 'py-2' },
     h(
-      UBadge,
+      ULink,
       {
-        color: computedSelectedCategoryKey.value === item.categoryKey ? 'primary' : 'neutral',
-        variant: computedSelectedCategoryKey.value === item.categoryKey ? 'solid' : 'soft',
-        class: 'rounded-md cursor-pointer',
-        onClick: () => handleCategorySelect(item.categoryKey)
+        raw: true,
+        to: buildDataLocation(item.categoryKey),
+        class: 'inline-flex no-underline'
       },
-      () => `${t(item.categoryKey)} (${computedTagCountMap.value.get(item.categoryKey) ?? 0})`
+      () =>
+        h(
+          UBadge,
+          {
+            as: 'span',
+            color: computedSelectedCategoryKey.value === item.categoryKey ? 'primary' : 'neutral',
+            variant: computedSelectedCategoryKey.value === item.categoryKey ? 'solid' : 'soft',
+            class: 'rounded-md'
+          },
+          () => `${t(item.categoryKey)} (${computedTagCountMap.value.get(item.categoryKey) ?? 0})`
+        )
     )
   );
 
@@ -448,17 +484,13 @@ const hotsearchPlatformCellRender = (item: IHotsearchDataRow) =>
     'div',
     { class: 'py-2' },
     h(
-      UButton,
+      ULink,
       {
-        color: 'neutral',
-        variant: 'link',
-        class:
-          computedSelectedPlatformType.value === item.platformType
-            ? 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-primary hover:text-primary hover:underline'
-            : 'inline-flex p-0 h-auto min-h-0 max-w-full justify-start text-left text-muted hover:text-primary hover:underline',
-        onClick: () => handlePlatformSelect(item.platformType)
+        raw: true,
+        to: buildPlatformLocation(item.platformType),
+        class: computedSelectedPlatformType.value === item.platformType ? 'p-0 text-primary whitespace-normal break-words no-underline hover:text-primary hover:underline' : 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline'
       },
-      () => h('span', { class: 'inline whitespace-normal break-words' }, `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`)
+      () => `${t(`components.hotsearch.platform.${item.platformType}`)} (${computedPlatformCountMap.value.get(item.platformType) ?? 0})`
     )
   );
 
@@ -469,16 +501,18 @@ const hotsearchPlatformCellRender = (item: IHotsearchDataRow) =>
  */
 const hotsearchTitleWithSummaryCellRender = (item: IHotsearchDataRow) =>
   h('div', { class: 'min-w-0 flex flex-col gap-1.5' }, [
-    h(
-      UButton,
-      {
-        color: 'neutral',
-        variant: 'link',
-        class: 'inline-flex self-start p-0 h-auto min-h-0 max-w-full justify-start text-left text-default hover:text-primary hover:underline',
-        onClick: () => void handleSourceOpen(item.url)
-      },
-      () => h('span', { class: 'inline max-w-full whitespace-normal break-all' }, item.title)
-    ),
+    h('div', { class: 'min-w-0' }, [
+      h(
+        ULink,
+        {
+          raw: true,
+          href: item.url,
+          class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+          onClick: () => void handleSourceOpen(item.url)
+        },
+        () => h('span', { class: 'whitespace-normal break-all' }, item.title)
+      )
+    ]),
     h('p', { class: 'w-full max-w-full text-sm text-dimmed whitespace-normal break-all' }, item.summary)
   ]);
 
@@ -574,36 +608,32 @@ const hotsearchXlCellRender = (item: IHotsearchDataRow) => h('div', { class: 'mi
 const hotsearch2xlCellRender = (item: IHotsearchDataRow) => h('div', { class: 'min-w-0 py-2' }, [hotsearchTitleWithSummaryCellRender(item)]);
 
 /**
- * 函数：切换平台筛选。
+ * 函数：构建平台筛选跳转位置。
  * @param {string} platformType 平台类型。
- * @returns {void}
+ * @returns {{ path: string; query: Record<string, unknown> }} 跳转位置。
  */
-const handlePlatformSelect = (platformType: string): void => {
-  navigateTo({
-    path: route.path,
-    query: {
-      ...route.query,
-      platform: platformType || undefined,
-      page: '1'
-    }
-  });
-};
+const buildPlatformLocation = (platformType: string) => ({
+  path: route.path,
+  query: {
+    ...route.query,
+    platform: platformType || undefined,
+    page: '1'
+  }
+});
 
 /**
- * 函数：切换标签筛选。
- * @param {string} categoryKey 标签 key。
- * @returns {void}
+ * 函数：构建分类筛选跳转位置。
+ * @param {string} categoryKey 分类键。
+ * @returns {{ path: string; query: Record<string, unknown> }} 跳转位置。
  */
-const handleCategorySelect = (categoryKey: string): void => {
-  navigateTo({
-    path: route.path,
-    query: {
-      ...route.query,
-      category_key: categoryKey || undefined,
-      page: '1'
-    }
-  });
-};
+const buildDataLocation = (categoryKey: string) => ({
+  path: route.path,
+  query: {
+    ...route.query,
+    category_key: categoryKey || undefined,
+    page: '1'
+  }
+});
 
 /**
  * 函数：切换排序字段。

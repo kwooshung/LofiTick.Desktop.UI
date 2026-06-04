@@ -583,7 +583,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       const titleLine = `${poetryKindLabelGet(infos.kind)}${title}`;
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: titleLine, class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('div', { class: 'min-w-0' }, [
+          h(
+            ULink,
+            {
+              raw: true,
+              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              onClick: () => handleViewDetail(row.original)
+            },
+            () => h('span', { class: 'whitespace-normal break-words' }, titleLine)
+          )
+        ]),
         ...(dynastyName === '' && authorName === ''
           ? []
           : [
@@ -635,7 +645,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       const { infos } = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
-        h(UButton, { color: 'neutral', variant: 'link', label: poetryTitleDisplayGet(infos, true), class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) }),
+        h('div', { class: 'min-w-0' }, [
+          h(
+            ULink,
+            {
+              raw: true,
+              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              onClick: () => handleViewDetail(row.original)
+            },
+            () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(infos, true))
+          )
+        ]),
         h('p', { class: 'text-xs text-muted' }, poetryKindLabelGet(infos.kind))
       ]);
     }
@@ -651,7 +671,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.title'),
     cell: ({ row }) => {
-      return h(UButton, { color: 'neutral', variant: 'link', label: poetryTitleDisplayGet(row.original.infos, true), class: 'p-0 self-start w-auto max-w-full text-default hover:text-primary hover:underline', onClick: () => handleViewDetail(row.original) });
+      return h('div', { class: 'min-w-0' }, [
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+            onClick: () => handleViewDetail(row.original)
+          },
+          () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(row.original.infos, true))
+        )
+      ]);
     }
   },
   // 4级宽度：超宽屏（≥ 5xl），标题独立列不再重复词牌/曲牌
@@ -665,13 +695,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     },
     header: t('pages.poetrys.result.table.title'),
     cell: ({ row }) =>
-      h(UButton, {
-        color: 'neutral',
-        variant: 'link',
-        label: poetryTitleDisplayGet(row.original.infos, false),
-        class: 'p-0 text-default hover:text-primary hover:underline',
-        onClick: () => handleViewDetail(row.original)
-      })
+      h('div', { class: 'min-w-0' }, [
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+            onClick: () => handleViewDetail(row.original)
+          },
+          () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(row.original.infos, false))
+        )
+      ])
   },
   // 类型：从 xl 起逐步拆出，2xl 以上始终保持独立列
   {
@@ -727,9 +761,9 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
 
       return h('div', { class: 'text-sm text-muted mt-1' }, [
-        ...(dynastyName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', dynasty.id) }, () => `${dynastyName}（${dynasty.count}）`)]),
+        ...(dynastyName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', dynasty.id) }, () => `${dynastyName}（${dynasty.count}）`)]),
         ...(dynastyName !== '' && authorName !== '' ? [' · '] : []),
-        ...(authorName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', author.id) }, () => `${authorName}（${author.count}）`)])
+        ...(authorName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', author.id) }, () => `${authorName}（${author.count}）`)])
       ]);
     }
   },

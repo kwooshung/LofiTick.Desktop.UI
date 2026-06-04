@@ -1,5 +1,95 @@
 export const home = {
   title: 'Home',
+  podcastScript: {
+    title: 'Podcast Script Sandbox',
+    description: 'This page no longer generates voice samples. It is now a temporary sandbox for assembling hot-search podcast copy into a Doubao-ready script.',
+    editorDescription: 'The initial values are loaded from Settings > Hot Search. Changes here affect only the current test session and are not auto-saved.',
+    templateCount: 'Template segment count: {count}',
+    body: {
+      label: 'Podcast Body',
+      description: 'Add body segments one by one. This area is always the body editor, so you only need to fill the copy, speaker role, and segment type.',
+      placeholder: 'Enter the body copy for this segment',
+      add: 'Add Body Segment',
+      emptyTitle: 'No body segments yet',
+      emptyDescription: 'Add a body segment first, then choose its speaker role and segment type.'
+    },
+    adOpening: {
+      label: 'Opening Ad Copy',
+      description: 'This affects only the current homepage test. If the opening template contains an ad placeholder, this copy will override it first.',
+      placeholder: 'Enter the opening ad copy for this test',
+      add: 'Add Opening Ad Segment',
+      emptyTitle: 'No opening ad segments yet',
+      emptyDescription: 'Add an opening ad segment first, then arrange different speakers and copy in order.'
+    },
+    adClosing: {
+      label: 'Closing Ad Copy',
+      description: 'This affects only the current homepage test. If the closing template contains an ad placeholder, this copy will override it first.',
+      placeholder: 'Enter the closing ad copy for this test',
+      add: 'Add Closing Ad Segment',
+      emptyTitle: 'No closing ad segments yet',
+      emptyDescription: 'Add a closing ad segment first, then arrange different speakers and copy in order.'
+    },
+    names: {
+      maleLabel: 'Male speaker name',
+      femaleLabel: 'Female speaker name',
+      morningLabel: 'Morning program name',
+      eveningLabel: 'Evening program name',
+      vipMorningLabel: 'Long morning program name',
+      vipEveningLabel: 'Long evening program name'
+    },
+    actions: {
+      title: 'Generate Modes',
+      morningShort: 'Generate Morning Brief (Short)',
+      morningLong: 'Generate Morning Brief (Long)',
+      eveningShort: 'Generate Evening Brief (Short)',
+      eveningLong: 'Generate Evening Brief (Long)',
+      tip: 'This homepage is only a script sandbox, not the final homepage design.'
+    },
+    scope: {
+      label: 'Generation Scope',
+      commonDescription: 'This generates the common version. It never includes ads and only builds the shared body with shared opening and ending.',
+      bilibiliDescription: 'This generates the bilibili version. If ad copy is provided, the platform opening and ending will be generated and merged with the common body.'
+    },
+    badges: {
+      morning: 'Morning',
+      evening: 'Evening',
+      short: 'Short',
+      long: 'Long',
+      common: 'Common',
+      bilibili: 'Bilibili'
+    },
+    result: {
+      title: 'Generated Result',
+      description: 'The response is already the final speaker + text line array that can be sent directly to the Volc podcast engine.',
+      emptyTitle: 'No script generated yet',
+      emptyDescription: 'Adjust the copy first, then click one of the four generate buttons above.',
+      audio: {
+        generate: 'Generate Podcast Audio',
+        openDirectory: 'Open Output Folder',
+        defaultHint: 'Generated audio will be archived under the hot-search podcast folder inside the attachments directory.',
+        statusTitle: 'Audio Generation Status',
+        errorTitle: 'Audio Generation Failed',
+        errorFallback: 'Failed to generate podcast audio. Check the attachments directory and Volc speech credentials.',
+        errorVolcRedisNil: 'The Volc podcast service returned redis: nil. This usually means the current AppID, AccessToken, resourceId, or speaker code capability combination does not match, not that local Redis is missing. Raw error: {raw}',
+        statusIdle: 'The script result is ready. You can now generate the real podcast audio.',
+        statusAccepted: 'The task has been accepted. The desktop shell is preparing the Doubao podcast connection.',
+        statusRunning: 'Audio generation is in progress. Current phase: {phase}.',
+        statusSucceeded: 'The audio was generated successfully and saved to: {path}',
+        statusFailed: 'Audio generation failed: {message}',
+        statusCanceled: 'The audio generation task was canceled.',
+        phases: {
+          queued: 'Queued',
+          connecting: 'Connecting',
+          sessionStarting: 'Starting session',
+          generating: 'Generating',
+          finalizing: 'Finalizing',
+          completed: 'Completed',
+          failed: 'Failed',
+          canceled: 'Canceled'
+        }
+      }
+    }
+  },
   welcomeEmail: {
     description: 'Click the button to generate the welcome email and send it to the current recipient mailbox.',
     target: 'Default recipient: {email}',

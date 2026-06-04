@@ -23,8 +23,51 @@ export const settings = {
       }
     }
   },
+  services: {
+    title: '服務憑證',
+    actions: {
+      showAccessToken: '顯示權杖',
+      hideAccessToken: '隱藏權杖',
+      resetDefaultResourceId: '恢復預設 Resource ID',
+      resetDefaultMaleSpeakerCode: '恢復預設男聲',
+      resetDefaultFemaleSpeakerCode: '恢復預設女聲'
+    },
+    volcSpeech: {
+      title: '豆包語音',
+      description: '用於火山 Podcast WebSocket 介面的桌面端預設憑證。儲存在這裡之後，Podcast 指令會自動補齊缺省的 App ID、Access Token 與 Resource ID。',
+      appId: {
+        label: 'App ID',
+        description: '填寫豆包語音服務的應用 ID。',
+        placeholder: '例如：1234567890'
+      },
+      accessToken: {
+        label: 'Access Token',
+        description: '填寫豆包語音服務的 Access Token。',
+        placeholder: '請輸入豆包語音 Access Token'
+      },
+      resourceId: {
+        label: 'Resource ID',
+        description: '預設值適用於目前的 Podcast 介面；只有在服務端要求切換資源時才需要修改。',
+        placeholder: 'volc.service_type.10050'
+      },
+      maleSpeakerCode: {
+        label: '男聲音色代碼',
+        descriptionPrefix: '用於把 M 和 D 中的男聲映射成豆包真實 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_male_dayixiansheng_v2_saturn_bigtts'
+      },
+      femaleSpeakerCode: {
+        label: '女聲音色代碼',
+        descriptionPrefix: '用於把 F 和 D 中的女聲映射成豆包真實 ',
+        descriptionSuffix: '。',
+        linkLabel: 'speaker code',
+        placeholder: 'zh_female_mizaitongxue_v2_saturn_bigtts'
+      }
+    }
+  },
   general: {
-    title: '一般設定',
+    title: '一般',
     description: '調整應用程式的基本行為、介面語言與常用偏好。',
     closeBehavior: {
       label: '關閉行為',
@@ -72,7 +115,7 @@ export const settings = {
     }
   },
   ui: {
-    title: '介面外觀',
+    title: '介面',
     description: '主題、亮暗模式、版面配置與介面元素的相關設定。',
     colorMode: {
       label: '顏色模式',
@@ -129,7 +172,7 @@ export const settings = {
     }
   },
   playback: {
-    title: '播放設定',
+    title: '播放',
     description: '與音訊播放相關的各項參數。',
     fade: {
       label: '淡入淡出',
@@ -154,7 +197,7 @@ export const settings = {
     }
   },
   power: {
-    title: '電源設定',
+    title: '電源',
     description: '調整應用程式的電源管理選項，以節省電力。',
     startup: {
       enabled: {
@@ -178,19 +221,27 @@ export const settings = {
     }
   },
   hotsearch: {
-    title: '熱搜設定',
+    title: '熱搜',
     description: '設定本機熱搜抓取頻率、平台選擇、預算與 Podcast 生成時間。',
     header: {
       enter: '前往熱搜'
     },
     sections: {
+      headMusic: {
+        title: '開頭音樂',
+        description: '這裡統一管理 Podcast 生成占用、普通版開頭音樂與 VIP 版開頭音樂。'
+      },
       schedule: {
         title: '抓取計畫',
         description: '這裡設定 Podcast 時間基準、平台抓取間隔、隨機偏移與失敗補抓策略。'
       },
       podcast: {
         title: 'Podcast 文案',
-        description: '這裡配置節目名稱、播報者姓名，以及分開維護的開頭模板和結尾模板；正文由程式自動生成。'
+        description: '這裡配置播報者姓名、節目名稱，以及播客開頭和結尾模板；正文由程式自動生成。'
+      },
+      podcastRules: {
+        title: 'Podcast 規則',
+        description: '這裡單獨維護給 AI 使用的 Podcast 規則，支援 Markdown，方便你約束語氣、結構與禁用項。'
       },
       platforms: {
         title: '平台選擇',
@@ -210,15 +261,27 @@ export const settings = {
         label: '自動生成 Podcast',
         description: '啟用後，Podcast 時間會預設跟隨熱搜視窗推導。'
       },
+      podcastGenerateEnabled: {
+        label: '本機生成 Podcast',
+        description: '啟用後，只有目前這台機器負責生成熱搜 Podcast；開啟前會先檢查本地開頭音樂，缺失時再從雲端補齊。'
+      },
+      podcastHeadMusicNormal: {
+        label: '開頭音樂（普通版）',
+        description: '用於普通 Podcast 的開頭音樂。'
+      },
+      podcastHeadMusicVip: {
+        label: '開頭音樂（VIP 版）',
+        description: '用於 VIP Podcast 的開頭音樂。'
+      },
       podcastMaleSpeakerName: {
         label: '男生播報者姓名',
-        description: '用於變數替換中的男生姓名，預設是小洛。',
-        placeholder: '例如：小洛'
+        description: '用於變數替換中的男生姓名，預設是男聲主播。',
+        placeholder: '例如：男聲主播'
       },
       podcastFemaleSpeakerName: {
         label: '女生播報者姓名',
-        description: '用於變數替換中的女生姓名，預設是菲菲。',
-        placeholder: '例如：菲菲'
+        description: '用於變數替換中的女生姓名，預設是女聲主播。',
+        placeholder: '例如：女聲主播'
       },
       podcastProgramNames: {
         label: '節目名稱',
@@ -243,6 +306,12 @@ export const settings = {
         label: 'VIP 尊享版晚間節目名稱',
         description: '用於 VIP 尊享版晚間 Podcast 的節目名稱。',
         placeholder: '例如：洛菲熱點晚報 尊享版'
+      },
+      podcastAiRulesMarkdown: {
+        label: 'AI Podcast 規則',
+        description: '這塊內容只作為 AI 生成 Podcast 時的規則提示，不會直接作為最終播報文本。',
+        systemLineLabel: '系統會自動在最終內容末尾追加這一行，且不允許改寫：',
+        placeholder: '例如：\n# 角色\n- 使用自然、克制、口語化的中文\n\n# 約束\n- 不要編造不存在的資訊\n- 不要使用標題黨語氣\n- 結尾保留簡短收束'
       },
       podcastVariables: {
         label: '變數插入',
@@ -323,10 +392,9 @@ export const settings = {
     },
     options: {
       podcastVoice: {
-        random: '隨機',
-        xiaoluo: '小洛',
-        feifei: '菲菲',
-        duet: '合'
+        M: '男聲',
+        F: '女聲',
+        R: '隨機'
       },
       podcastTemplate: {
         opening: '開頭模板',
@@ -336,15 +404,97 @@ export const settings = {
         normal: '通用內容',
         morningOnly: '僅早間',
         eveningOnly: '僅晚間',
-        adOpening: '廣告開頭',
         adContent: '廣告內容',
-        adClosing: '廣告結尾'
+        adPlaceholder: '廣告佔位'
       }
+    },
+    editor: {
+      groups: {
+        text: '文字',
+        lists: '清單',
+        insert: '插入'
+      },
+      items: {
+        paragraph: '段落',
+        heading1: '標題 1',
+        heading2: '標題 2',
+        heading3: '標題 3',
+        bold: '粗體',
+        italic: '斜體',
+        underline: '底線',
+        bulletList: '無序清單',
+        orderedList: '有序清單',
+        blockquote: '引用',
+        codeBlock: '程式碼區塊',
+        divider: '分隔線'
+      }
+    },
+    actions: {
+      selectHeadMusic: '選擇音樂',
+      previewHeadMusic: '試聽',
+      reuploadHeadMusic: '重新上傳',
+      syncHeadMusic: '從雲端同步',
+      chooseAttachmentsDir: '選擇附件目錄'
+    },
+    status: {
+      localReady: '本地已就緒',
+      localMissing: '本地缺失',
+      remoteReady: '雲端已就緒',
+      remoteMissing: '雲端缺失',
+      attachmentsDirUnset: '目前尚未設定附件目錄。',
+      podcastGenerateOwnedByCurrentMachine: '目前機器已占用',
+      podcastGenerateOwnedByOtherMachine: '其他機器已占用',
+      podcastGenerateOwnerIdle: '目前無人占用',
+      podcastGenerateOwnerIdleDescription: '同一時間只允許一台機器開啟生成 Podcast；開啟時會先檢查本地開頭音樂，缺失時再從雲端補齊。',
+      podcastGenerateOwnedByCurrentMachineDescription: '目前由本機負責生成 Podcast。機器名稱：{machineName}；機器碼：{machineCode}。',
+      podcastGenerateOwnedByOtherMachineDescription: '目前由其他機器負責生成 Podcast。機器名稱：{machineName}；機器碼：{machineCode}。',
+      headMusicReady: '本地與雲端都已準備完成，現在可以直接試聽、同步或重新上傳。',
+      headMusicWaitingTitle: '開頭音樂尚未準備完成',
+      headMusicNeedAttachmentsDir: '目前尚未設定附件目錄。',
+      headMusicNeedUpload: '這份開頭音樂在雲端尚不存在。請先選擇音樂並上傳。',
+      headMusicNeedSync: '目前機器本地尚未存在這份開頭音樂。開啟生成 Podcast 時會優先嘗試從雲端補齊。',
+      headMusicNeedPreview: '檔案已存在，但暫時還沒有可播放的預覽網址。'
+    },
+    dialogs: {
+      attachmentsDirRequired: {
+        title: '需要先設定附件目錄',
+        description: '開頭音樂必須存放在附件目錄下的固定路徑。請先選擇附件目錄，再繼續開啟 Podcast 生成或上傳音樂。'
+      },
+      headMusicUpload: {
+        title: '上傳 {title}',
+        description: '支援拖放與點擊選擇。上傳會直接由前端直傳到又拍雲，並同步寫入目前機器的固定路徑。',
+        dropLabel: '把 MP3 檔案拖到這裡',
+        dropDescription: '或使用下方按鈕選擇檔案。建議使用較短且音量穩定的開頭音樂。',
+        selectFile: '選擇檔案',
+        clearFile: '清空選擇',
+        confirmUpload: '開始上傳',
+        currentPreview: '目前線上預覽',
+        pendingPreview: '待上傳預覽',
+        uploadProgress: '上傳進度'
+      },
+      headMusicPreview: {
+        title: '{title} 試聽',
+        description: '這裡可以先試聽雲端可用的開頭音樂。'
+      }
+    },
+    messages: {
+      podcastGenerateErrorTitle: 'Podcast 生成暫時不可用',
+      podcastHeadMusicErrorTitle: '開頭音樂處理失敗',
+      machineCodeMissing: '目前缺少機器碼，暫時無法申請 Podcast 生成占用。',
+      podcastGenerateOwnerConflict: '目前已有其他機器開啟生成 Podcast：{machineName}（{machineCode}）。',
+      podcastGenerateHeadMusicMissing: '普通版或 VIP 版開頭音樂尚未準備好，暫時無法開啟生成 Podcast。',
+      podcastGenerateHeadMusicMissingToast: '{titles} 在本地與雲端都還不存在，請先選擇音樂。',
+      podcastHeadMusicRemoteMissing: '雲端尚未存在這個開頭音樂檔案。',
+      podcastHeadMusicDownloadFailed: '從雲端下載開頭音樂失敗。',
+      podcastHeadMusicUploadFailed: '上傳開頭音樂失敗。'
     },
     variables: {
       speakerName: '播報者名稱',
+      otherSpeakerName: '搭檔名稱',
       maleSpeakerName: '男生姓名',
       femaleSpeakerName: '女生姓名',
+      maleOtherSpeakerName: '男聲搭檔名稱',
+      femaleOtherSpeakerName: '女聲搭檔名稱',
       programName: '目前節目名稱',
       morningProgramName: '早間節目名稱',
       eveningProgramName: '晚間節目名稱',
@@ -361,8 +511,11 @@ export const settings = {
     },
     variableDescriptions: {
       speakerName: '依目前音色自動帶入播報者姓名。',
+      otherSpeakerName: '依目前音色自動帶入目前播報者對應的搭檔姓名。',
       maleSpeakerName: '固定使用男生播報者姓名。',
       femaleSpeakerName: '固定使用女生播報者姓名。',
+      maleOtherSpeakerName: '固定取女聲播報者姓名，可作為男聲目前的搭檔名稱。',
+      femaleOtherSpeakerName: '固定取男聲播報者姓名，可作為女聲目前的搭檔名稱。',
       programName: '依目前節目場景自動帶入節目名稱。',
       morningProgramName: '普通早間 Podcast 的節目名稱。',
       eveningProgramName: '普通晚間 Podcast 的節目名稱。',

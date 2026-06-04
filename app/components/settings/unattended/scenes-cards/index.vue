@@ -15,12 +15,12 @@
 
         <template #machine-remark-actions>
           <template v-if="remarkEditingGet(machine.machineCode)">
-            <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
+            <UTooltip :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
               <UButton color="neutral" variant="link" size="sm" icon="i-lucide-save" :aria-label="t('components.sentinel.scenes.card.tooltips.saveRemark')" @click.stop="handleRemarkSave(machine)" />
             </UTooltip>
           </template>
           <template v-else>
-            <UTooltip arrow :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
+            <UTooltip :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
               <UButton color="neutral" variant="link" size="sm" icon="i-material-symbols:edit-outline" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
             </UTooltip>
           </template>

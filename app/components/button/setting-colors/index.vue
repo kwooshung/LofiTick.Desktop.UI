@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IButtonSettingColorsProps } from './index.types';
+import type { IButtonSettingColorsProps } from '@/components/button/setting-colors/index.types';
 
 /**
  * 属性

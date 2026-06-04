@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IComponentPropsQqGroupsSizeSelectItem } from './index.types';
+import type { IComponentPropsQqGroupsSizeSelectItem } from '@/components/search/qq-groups/index.types';
 
 /**
  * Hook：国际化

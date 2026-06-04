@@ -1,8 +1,8 @@
-import { actions } from './actions';
-import { content } from './content';
-import { dialogs } from './dialogs';
-import { labels } from './labels';
-import { site } from './site';
+import { actions } from '@@/i18n/locales/zh-tw/common/actions';
+import { content } from '@@/i18n/locales/zh-tw/common/content';
+import { dialogs } from '@@/i18n/locales/zh-tw/common/dialogs';
+import { labels } from '@@/i18n/locales/zh-tw/common/labels';
+import { site } from '@@/i18n/locales/zh-tw/common/site';
 
 export const common = {
   actions,

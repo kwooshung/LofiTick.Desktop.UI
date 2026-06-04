@@ -49,7 +49,7 @@
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
-import type { ISentinelScenesConfigEmits, ISentinelScenesConfigExpose, ISentinelScenesConfigFormState, ISentinelScenesConfigProps, ISentinelScenesConfigValidateErrors, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from './index.types';
+import type { ISentinelScenesConfigEmits, ISentinelScenesConfigExpose, ISentinelScenesConfigFormState, ISentinelScenesConfigProps, ISentinelScenesConfigValidateErrors, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
 
 /**
  * Hook：i18n

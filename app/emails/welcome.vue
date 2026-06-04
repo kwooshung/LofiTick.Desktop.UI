@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IEmailWelcomeProps } from './index.types';
+import type { IEmailWelcomeProps } from '@/emails/index.types';
 
 /**
  * 属性：欢迎邮件属性

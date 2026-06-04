@@ -51,7 +51,7 @@
 import type { ContextMenuItem } from '@nuxt/ui';
 import { useThrottleFn } from '@vueuse/core';
 
-import type { IFolderEmits, IFolderProps } from './index.types';
+import type { IFolderEmits, IFolderProps } from '@/components/folder/index.types';
 
 /**
  * 属性

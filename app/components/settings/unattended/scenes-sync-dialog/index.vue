@@ -101,8 +101,6 @@
 </template>
 
 <script setup lang="ts">
-import type { TUnattendedScenesSyncStatus } from '@/composables/unattended/scenes-sync';
-
 /**
  * Hook：i18n
  */

@@ -412,18 +412,20 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       const bookTitlePrefix = t('common.content.bookTitle.prefix');
       const bookTitleSuffix = t('common.content.bookTitle.suffix');
       const nodes = [
-        h(
-          ULink,
-          {
-            raw: true,
-            href: buildQuoteDetailUrl(row.original.uuid),
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            class: 'p-0 self-start w-auto max-w-full no-underline text-default text-left hover:text-primary hover:underline',
-            onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
-          },
-          () => sentence
-        )
+        h('div', { class: 'min-w-0' }, [
+          h(
+            ULink,
+            {
+              raw: true,
+              href: buildQuoteDetailUrl(row.original.uuid),
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
+            },
+            () => h('span', { class: 'whitespace-normal break-words' }, sentence)
+          )
+        ])
       ];
 
       if (translate) {
@@ -482,18 +484,20 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     cell: ({ row }) => {
       const { sentence, translate } = row.original.infos;
       const nodes = [
-        h(
-          ULink,
-          {
-            raw: true,
-            href: buildQuoteDetailUrl(row.original.uuid),
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            class: 'p-0 self-start w-auto max-w-full no-underline text-default break-words text-left hover:text-primary hover:underline',
-            onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
-          },
-          () => sentence
-        )
+        h('div', { class: 'min-w-0' }, [
+          h(
+            ULink,
+            {
+              raw: true,
+              href: buildQuoteDetailUrl(row.original.uuid),
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
+            },
+            () => h('span', { class: 'whitespace-normal break-words' }, sentence)
+          )
+        ])
       ];
 
       if (translate) {
@@ -525,7 +529,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('type_ids', typeId)
           },
           () => typeLabel
@@ -535,7 +539,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
           },
           () => `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`
@@ -545,7 +549,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
           },
           () => authorName
@@ -570,7 +574,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
         ULink,
         {
           raw: true,
-          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
           to: buildSingleFilterLocation('type_ids', typeId)
         },
         () => typeLabel
@@ -594,7 +598,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
         ULink,
         {
           raw: true,
-          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
           to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
         },
         () => sourceName
@@ -618,7 +622,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
         ULink,
         {
           raw: true,
-          class: 'p-0 self-start w-auto max-w-full no-underline text-muted hover:text-primary hover:underline',
+          class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
           to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
         },
         () => authorName

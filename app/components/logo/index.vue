@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ILogoProps } from './index.types';
+import type { ILogoProps } from '@/components/logo/index.types';
 
 /**
  * 变量：Logo 组件 Props

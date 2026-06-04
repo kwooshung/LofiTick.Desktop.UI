@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IFolderIconProps } from './index.types';
+import type { IFolderIconProps } from '@/components/folder/icon/index.types';
 
 /**
  * 属性

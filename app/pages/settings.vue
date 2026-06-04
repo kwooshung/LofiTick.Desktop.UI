@@ -52,6 +52,11 @@ const links = [
       to: localePath('/settings/hotsearch')
     },
     {
+      label: t('pages.settings.services.title'),
+      icon: 'i-lucide:key-round',
+      to: localePath('/settings/services')
+    },
+    {
       label: t('pages.settings.connections.title'),
       icon: 'i-lucide:cable',
       to: localePath('/settings/connections')

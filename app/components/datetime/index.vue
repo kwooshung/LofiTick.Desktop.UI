@@ -1,5 +1,5 @@
 <template>
-  <UTooltip v-if="computedShowRelative" arrow :content="{ side: 'top' }">
+  <UTooltip v-if="computedShowRelative" :content="{ side: 'top' }">
     <NuxtTime v-bind="$props" :locale="computedLocale" :relative="true" />
 
     <template #content> {{ tooltipPrefix }}<NuxtTime v-bind="$props" :locale="computedLocale" :relative="false" year="numeric" month="long" day="numeric" hour="2-digit" minute="2-digit" second="2-digit" /> </template>
@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IDatetimeProps } from './index.types';
+import type { IDatetimeProps } from '@/components/datetime/index.types';
 
 /**
  * 属性

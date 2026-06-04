@@ -6,9 +6,10 @@
           <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.hotsearch.title') }}</h2>
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
-        <UButton color="primary" variant="outline" icon="i-material-symbols:bigtop-updates-rounded" :to="localePath('/hotsearch')">
+        <ULink raw :to="localePath('/hotsearch')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
+          <UIcon name="i-material-symbols:bigtop-updates-rounded" class="size-4 shrink-0" />
           {{ t('pages.settings.hotsearch.header.enter') }}
-        </UButton>
+        </ULink>
       </template>
     </UPageCard>
 
@@ -33,24 +34,27 @@
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
         <div class="flex flex-wrap items-center justify-end gap-2">
-          <UInputNumber
-            :model-value="stateHotsearchConfig.monthlyBudget"
-            orientation="vertical"
-            :min="1"
-            :step="1"
-            color="primary"
-            variant="outline"
-            class="w-36"
-            :increment="{ color: 'neutral', variant: 'ghost' }"
-            :decrement="{ color: 'neutral', variant: 'ghost' }"
-            @update:model-value="handleMonthlyBudgetUpdate"
-          />
-          <UButton color="primary" variant="outline" icon="i-lucide:external-link" @click="handleUsageOpen">{{ t('pages.settings.hotsearch.actions.usage') }}</UButton>
+          <UInputNumber :model-value="stateHotsearchConfig.monthlyBudget" orientation="vertical" :min="1" :step="1" color="primary" variant="outline" class="w-40" @update:model-value="handleMonthlyBudgetUpdate" />
         </div>
       </UFormField>
     </UPageCard>
 
-    <SettingsHotsearchPodcastScriptSettings
+    <SettingsHotsearchHeadMusic
+      :disabled="stateSaving"
+      :attachments-dir-configured="Boolean(stateHotsearchPodcastHeadMusicPaths?.attachmentsDir)"
+      :generate-enabled="stateHotsearchConfig.podcastGenerateEnabled"
+      :generate-loading="stateHotsearchPodcastGenerateLoading"
+      :generate-disabled="computedHotsearchPodcastGenerateDisabled"
+      :generate-owner-exists="Boolean(stateHotsearchPodcastGenerateOwner)"
+      :generate-owned-by-current-machine="computedHotsearchPodcastGenerateOwnerIsCurrentMachine"
+      :generate-owner-description="computedHotsearchPodcastGenerateOwnerDescription"
+      :items="computedHotsearchPodcastHeadMusicItems"
+      :preview-request="refreshHotsearchPodcastHeadMusicPreviewUrl"
+      :upload-request="handlePodcastHeadMusicUploadSubmit"
+      @update:generate-enabled="handlePodcastGenerateEnabledUpdate"
+    />
+
+    <SettingsHotsearchPodcastScriptList
       :male-speaker-name="stateHotsearchConfig.podcastMaleSpeakerName"
       :female-speaker-name="stateHotsearchConfig.podcastFemaleSpeakerName"
       :morning-program-name="stateHotsearchConfig.podcastMorningProgramName"
@@ -66,6 +70,41 @@
       @update:vip-evening-program-name="handlePodcastVipEveningProgramNameUpdate"
       @update:template-items="handlePodcastTemplateItemsUpdate"
     />
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.hotsearch.sections.podcastRules.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.podcastRules.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'px-0!' }">
+      <UFormField :label="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.label')" :description="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.description')" :ui="{ label: 'px-8 text-base text-highlighted mb-1', description: 'px-8 text-muted' }">
+        <UEditor
+          v-slot="{ editor }"
+          v-model="statePodcastAiRulesMarkdownDraft"
+          content-type="markdown"
+          :placeholder="t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.placeholder')"
+          :enable-input-rules="true"
+          :enable-paste-rules="true"
+          class="min-h-72 w-full"
+          :ui="{ root: 'border-0 rounded-none', base: 'pt-5 pb-3 sm:pt-6 sm:pb-4' }"
+        >
+          <div class="border-default mt-6 border-y">
+            <UEditorToolbar :editor="editor" :items="computedPodcastAiRulesToolbarItems" class="overflow-x px-6 py-2" />
+          </div>
+          <UEditorDragHandle :editor="editor" />
+          <UEditorSuggestionMenu :editor="editor" :items="computedPodcastAiRulesSuggestionItems" :append-to="appendPodcastAiRulesMenuToBody" />
+        </UEditor>
+
+        <div class="bg-muted/35 border-default/80 border-t px-6 pt-6" aria-readonly="true">
+          <p class="text-muted text-xs leading-5">{{ t('pages.settings.hotsearch.fields.podcastAiRulesMarkdown.systemLineLabel') }}</p>
+          <p class="text-toned mt-1 text-sm leading-6 whitespace-pre-wrap">{{ computedPodcastAiRulesSystemLine }}</p>
+        </div>
+      </UFormField>
+    </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
@@ -301,14 +340,18 @@
         </div>
       </UPageCard>
     </div>
+
+    <SettingsHotsearchAttachmentsDirDialog v-model:open="stateHotsearchAttachmentsDirDialogOpen" :current-path="stateHotsearchPodcastHeadMusicPaths?.attachmentsDir || ''" @selected="handleHotsearchAttachmentsDirPick" />
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
 import { parseTime } from '@internationalized/date';
+import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
-import type { ISettingsHotsearchPodcastTemplateItem } from '@@/shared/types/index.types';
+import type { ISettingsHotsearchLocal, ISettingsHotsearchPodcastGenerateOwner, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
+import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastAiRulesMarkdownCompose, hotsearchPodcastAiRulesMarkdownEditableExtract, hotsearchPodcastAiRulesSystemLineBuild, hotsearchPodcastHeadMusicRemotePathCreate } from '@@/shared/utils';
 
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
@@ -316,6 +359,21 @@ type THotsearchInputTimeValue = InputTimeProps['modelValue'];
  * Hook：i18n
  */
 const { t } = useI18n();
+
+/**
+ * Hook：运行时配置。
+ */
+const runtimeConfig = useRuntimeConfig();
+
+/**
+ * 函数：将编辑器浮层挂到 body。
+ */
+const appendPodcastAiRulesMenuToBody = import.meta.client ? () => document.body : undefined;
+
+/**
+ * Hook：提示消息。
+ */
+const toast = useToast();
 
 /**
  * Hook：Tauri 环境
@@ -328,21 +386,43 @@ const { isTauriRuntime } = useTauriEnv();
 const tauriSettings = useTauriSettings();
 
 /**
+ * Hook：Tauri 直连 API 客户端。
+ */
+const tauriApiClient = useTauriApiClient();
+
+/**
  * Hook：Tauri 任务
  */
 const tauriTasks = useTauriTasks();
-
-/**
- * Hook：Tauri 窗口
- */
-const tauriWindow = useTauriWindow();
 
 /**
  * API：热搜配置（GET / PATCH）
  * 描述：用于与服务端 Redis 同步热搜设置。
  */
 const { datas: stateHotsearchRemoteConfig, refresh: refreshHotsearchRemoteGet } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { immediate: false });
-const { refresh: refreshHotsearchRemotePatch } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', { method: 'PATCH', immediate: false });
+const { refreshDebounced: refreshHotsearchRemotePatchDebounced } = await useApi<ISettingsHotsearch>('desktop/settings/hotsearch', {
+  method: 'PATCH',
+  immediate: false
+});
+const { datas: stateHotsearchPodcastGenerateOwnerRemote, error: stateHotsearchPodcastGenerateOwnerGetError, refresh: refreshHotsearchPodcastGenerateOwnerGet } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', { immediate: false });
+const { error: stateHotsearchPodcastGenerateOwnerPatchError, refresh: refreshHotsearchPodcastGenerateOwnerPatch } = await useApi<ISettingsHotsearchPodcastGenerateOwner>('desktop/settings/hotsearch/podcast_generate_owner', {
+  method: 'PATCH',
+  immediate: false
+});
+const { datas: stateUpyunObjectUrl, error: stateUpyunObjectUrlError, refresh: refreshUpyunObjectUrlGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`, { immediate: false });
+const { datas: stateUpyunObjectDownload, error: stateUpyunObjectDownloadError, refresh: refreshUpyunObjectDownloadGet } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/download`, { immediate: false });
+const {
+  datas: stateUpyunDirectUploadPolicy,
+  error: stateUpyunDirectUploadPolicyError,
+  refresh: refreshUpyunDirectUploadPolicyPost
+} = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/direct-upload/policy`, {
+  method: 'POST',
+  immediate: false
+});
+const { refresh: refreshUpyunObjectDeletePost } = await useApi<Record<string, unknown>>(`storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/delete`, {
+  method: 'POST',
+  immediate: false
+});
 
 /**
  * Store：面包屑
@@ -357,7 +437,100 @@ const localePath = useLocalePath();
 /**
  * 状态：热搜设置
  */
-const stateHotsearchConfig = ref<ISettingsHotsearch>(hotsearchSettingsDefaultCreate());
+const stateHotsearchConfig = ref<ISettingsHotsearchLocal>(hotsearchLocalSettingsDefaultCreate());
+
+/**
+ * 状态：播客 AI 规则草稿。
+ */
+const statePodcastAiRulesMarkdownDraft = ref('');
+
+/**
+ * 计算属性：AI 规则固定尾注。
+ */
+const computedPodcastAiRulesSystemLine = computed((): string => {
+  return hotsearchPodcastAiRulesSystemLineBuild(stateHotsearchConfig.value.podcastMaleSpeakerName, stateHotsearchConfig.value.podcastFemaleSpeakerName);
+});
+
+/**
+ * 状态：播客生成占用机器。
+ */
+const stateHotsearchPodcastGenerateOwner = ref<ISettingsHotsearchPodcastGenerateOwner | null>(null);
+
+/**
+ * 状态：固定开头音乐本地路径。
+ */
+const stateHotsearchPodcastHeadMusicPaths = ref<Awaited<ReturnType<typeof tauriSettings.hotsearchPodcastHeadMusicPathsGet>> | null>(null);
+
+/**
+ * 状态：固定开头音乐本地存在情况。
+ */
+const stateHotsearchPodcastHeadMusicLocalExists = ref({ normal: false, vip: false });
+
+/**
+ * 状态：固定开头音乐远端存在情况。
+ */
+const stateHotsearchPodcastHeadMusicRemoteExists = ref({ normal: false, vip: false });
+
+/**
+ * 状态：播客生成开关处理中。
+ */
+const stateHotsearchPodcastGenerateLoading = ref(false);
+
+/**
+ * 状态：上传中的固定开头音乐类型。
+ */
+const stateHotsearchPodcastHeadMusicUploadingKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
+
+/**
+ * 状态：固定开头音乐上传进度。
+ */
+const stateHotsearchPodcastHeadMusicUploadProgress = ref<Record<THotsearchPodcastHeadMusicKind, number>>({
+  normal: 0,
+  vip: 0
+});
+
+/**
+ * 状态：固定开头音乐预览地址。
+ */
+const stateHotsearchPodcastHeadMusicPreviewUrls = ref<Record<THotsearchPodcastHeadMusicKind, string>>({
+  normal: '',
+  vip: ''
+});
+
+/**
+ * 状态：播客生成错误提示。
+ */
+const stateHotsearchPodcastGenerateError = ref('');
+
+/**
+ * 函数：设置固定开头音乐试听地址。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @param {string} url 试听地址
+ * @returns {void} 无返回值
+ */
+const hotsearchPodcastHeadMusicPreviewUrlSet = (kind: THotsearchPodcastHeadMusicKind, url: string): void => {
+  stateHotsearchPodcastHeadMusicPreviewUrls.value[kind] = url;
+};
+
+/**
+ * 状态：固定开头音乐错误提示。
+ */
+const stateHotsearchPodcastHeadMusicError = ref('');
+
+/**
+ * 状态：附件目录弹窗开关。
+ */
+const stateHotsearchAttachmentsDirDialogOpen = ref(false);
+
+/**
+ * 状态：当前机器码。
+ */
+const stateHotsearchMachineCode = ref('');
+
+/**
+ * 状态：当前机器名称。
+ */
+const stateHotsearchMachineName = ref('');
 
 /**
  * 状态：壳侧热搜计划快照
@@ -373,11 +546,6 @@ const stateSaving = ref(false);
  * 状态：页面数据已完成初始化
  */
 const stateHydrated = ref(false);
-
-/**
- * 状态：保存请求排队中
- */
-const statePersistQueued = ref(false);
 
 /**
  * 设置面包屑导航状态
@@ -401,6 +569,154 @@ storeBreadcrumb.states = [
     to: localePath('/settings/hotsearch')
   }
 ];
+
+/**
+ * 计算属性：播客 AI 规则工具栏项。
+ */
+const computedPodcastAiRulesToolbarItems = computed((): EditorToolbarItem[][] => [
+  [
+    {
+      icon: 'i-lucide-heading',
+      content: {
+        align: 'start'
+      },
+      items: [
+        {
+          kind: 'heading',
+          level: 1,
+          icon: 'i-lucide-heading-1',
+          label: t('pages.settings.hotsearch.editor.items.heading1')
+        },
+        {
+          kind: 'heading',
+          level: 2,
+          icon: 'i-lucide-heading-2',
+          label: t('pages.settings.hotsearch.editor.items.heading2')
+        },
+        {
+          kind: 'heading',
+          level: 3,
+          icon: 'i-lucide-heading-3',
+          label: t('pages.settings.hotsearch.editor.items.heading3')
+        }
+      ]
+    }
+  ],
+  [
+    {
+      kind: 'mark',
+      mark: 'bold',
+      icon: 'i-lucide-bold',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.bold') }
+    },
+    {
+      kind: 'mark',
+      mark: 'italic',
+      icon: 'i-lucide-italic',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.italic') }
+    },
+    {
+      kind: 'mark',
+      mark: 'underline',
+      icon: 'i-lucide-underline',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.underline') }
+    }
+  ],
+  [
+    {
+      kind: 'bulletList',
+      icon: 'i-lucide-list',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.bulletList') }
+    },
+    {
+      kind: 'orderedList',
+      icon: 'i-lucide-list-ordered',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.orderedList') }
+    },
+    {
+      kind: 'blockquote',
+      icon: 'i-lucide-text-quote',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.blockquote') }
+    },
+    {
+      kind: 'codeBlock',
+      icon: 'i-lucide-square-code',
+      tooltip: { text: t('pages.settings.hotsearch.editor.items.codeBlock') }
+    }
+  ]
+]);
+
+/**
+ * 计算属性：播客 AI 规则斜杠菜单项。
+ */
+const computedPodcastAiRulesSuggestionItems = computed((): EditorSuggestionMenuItem[][] => [
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.text')
+    },
+    {
+      kind: 'paragraph',
+      label: t('pages.settings.hotsearch.editor.items.paragraph'),
+      icon: 'i-lucide-type'
+    },
+    {
+      kind: 'heading',
+      level: 1,
+      label: t('pages.settings.hotsearch.editor.items.heading1'),
+      icon: 'i-lucide-heading-1'
+    },
+    {
+      kind: 'heading',
+      level: 2,
+      label: t('pages.settings.hotsearch.editor.items.heading2'),
+      icon: 'i-lucide-heading-2'
+    },
+    {
+      kind: 'heading',
+      level: 3,
+      label: t('pages.settings.hotsearch.editor.items.heading3'),
+      icon: 'i-lucide-heading-3'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.lists')
+    },
+    {
+      kind: 'bulletList',
+      label: t('pages.settings.hotsearch.editor.items.bulletList'),
+      icon: 'i-lucide-list'
+    },
+    {
+      kind: 'orderedList',
+      label: t('pages.settings.hotsearch.editor.items.orderedList'),
+      icon: 'i-lucide-list-ordered'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: t('pages.settings.hotsearch.editor.groups.insert')
+    },
+    {
+      kind: 'blockquote',
+      label: t('pages.settings.hotsearch.editor.items.blockquote'),
+      icon: 'i-lucide-text-quote'
+    },
+    {
+      kind: 'codeBlock',
+      label: t('pages.settings.hotsearch.editor.items.codeBlock'),
+      icon: 'i-lucide-square-code'
+    },
+    {
+      kind: 'horizontalRule',
+      label: t('pages.settings.hotsearch.editor.items.divider'),
+      icon: 'i-lucide-separator-horizontal'
+    }
+  ]
+]);
 
 /**
  * 计算属性：平台列表
@@ -430,6 +746,64 @@ const computedSelectedPlatformCount = computed(() => stateHotsearchConfig.value.
  * 计算属性：平台是否已全部启用
  */
 const computedAllPlatformsSelected = computed(() => computedPlatforms.value.length > 0 && computedSelectedPlatformCount.value === computedPlatforms.value.length);
+
+/**
+ * 计算属性：播客生成占用是否为本机。
+ */
+const computedHotsearchPodcastGenerateOwnerIsCurrentMachine = computed(() => {
+  return Boolean(stateHotsearchPodcastGenerateOwner.value?.machineCode) && stateHotsearchPodcastGenerateOwner.value?.machineCode === stateHotsearchMachineCode.value;
+});
+
+/**
+ * 计算属性：播客生成占用说明。
+ */
+const computedHotsearchPodcastGenerateOwnerDescription = computed(() => {
+  if (!stateHotsearchPodcastGenerateOwner.value) {
+    return t('pages.settings.hotsearch.status.podcastGenerateOwnerIdleDescription');
+  }
+
+  if (computedHotsearchPodcastGenerateOwnerIsCurrentMachine.value) {
+    return t('pages.settings.hotsearch.status.podcastGenerateOwnedByCurrentMachineDescription', {
+      machineName: stateHotsearchPodcastGenerateOwner.value.machineName || stateHotsearchMachineName.value,
+      machineCode: stateHotsearchPodcastGenerateOwner.value.machineCode
+    });
+  }
+
+  return t('pages.settings.hotsearch.status.podcastGenerateOwnedByOtherMachineDescription', {
+    machineName: stateHotsearchPodcastGenerateOwner.value.machineName,
+    machineCode: stateHotsearchPodcastGenerateOwner.value.machineCode
+  });
+});
+
+/**
+ * 计算属性：播客生成开关是否禁用。
+ */
+const computedHotsearchPodcastGenerateDisabled = computed(() => {
+  return Boolean(stateHotsearchPodcastGenerateOwner.value) && !computedHotsearchPodcastGenerateOwnerIsCurrentMachine.value;
+});
+
+/**
+ * 计算属性：固定开头音乐条目。
+ */
+const computedHotsearchPodcastHeadMusicItems = computed(() => {
+  return HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => {
+    const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
+
+    return {
+      kind,
+      title: kind === 'normal' ? t('pages.settings.hotsearch.fields.podcastHeadMusicNormal.label') : t('pages.settings.hotsearch.fields.podcastHeadMusicVip.label'),
+      description: kind === 'normal' ? t('pages.settings.hotsearch.fields.podcastHeadMusicNormal.description') : t('pages.settings.hotsearch.fields.podcastHeadMusicVip.description'),
+      path: kind === 'normal' ? stateHotsearchPodcastHeadMusicPaths.value?.normalPath || '' : stateHotsearchPodcastHeadMusicPaths.value?.vipPath || '',
+      localExists: stateHotsearchPodcastHeadMusicLocalExists.value[kind],
+      remoteExists: stateHotsearchPodcastHeadMusicRemoteExists.value[kind],
+      remotePath,
+      remoteSourceUrl: hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath),
+      previewUrl: stateHotsearchPodcastHeadMusicPreviewUrls.value[kind],
+      uploadLoading: stateHotsearchPodcastHeadMusicUploadingKind.value === kind,
+      uploadProgress: stateHotsearchPodcastHeadMusicUploadProgress.value[kind]
+    };
+  });
+});
 
 /**
  * 计算属性：本地热搜计划窗口
@@ -667,6 +1041,708 @@ const hotsearchTextFromTimeValue = (value: THotsearchInputTimeValue, fallback: s
 };
 
 /**
+ * 函数：将未知值转为普通对象。
+ * @param {unknown} input 输入值
+ * @returns {Record<string, unknown> | null} 普通对象
+ */
+const toRecord = (input: unknown): Record<string, unknown> | null => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return null;
+  }
+
+  return input as Record<string, unknown>;
+};
+
+/**
+ * 常量：开头音乐内部 UpYun 请求统一静默错误。
+ */
+const HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS = {
+  ignoreResponseError: true
+} as const;
+
+/**
+ * 函数：拼接 files 桶公开对象地址。
+ * @param {string} path 对象路径。
+ * @returns {string} 公开地址；未配置域名时返回空字符串。
+ */
+const hotsearchPodcastHeadMusicRemoteUrlBuild = (path: string): string => {
+  const domain = String(runtimeConfig.public.upyunFilesDomain ?? '')
+    .trim()
+    .replace(/\/+$/, '');
+  const normalizedPath = String(path ?? '').trim();
+
+  if (!domain || !normalizedPath) {
+    return '';
+  }
+
+  const uriPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+  return `${domain}${uriPath}`;
+};
+
+/**
+ * 函数：确保内部 useApi 请求成功。
+ * @param {unknown} input useApi error。
+ * @param {string} message 失败时抛出的业务文案。
+ */
+const ensureInternalUseApiSucceeded = (input: unknown, message: string): void => {
+  if (!input) {
+    return;
+  }
+
+  throw new Error(message);
+};
+
+/**
+ * 函数：请求 Tauri 直连 API 并返回 datas。
+ * @param {IApiClientRequestInput} input 请求输入。
+ * @param {string} message 失败提示。
+ * @returns {Promise<unknown>} 响应 datas。
+ */
+const requestTauriApiDatas = async (input: IApiClientRequestInput, message: string): Promise<unknown> => {
+  const output = await tauriApiClient.request(input);
+  const response = toRecord(output.json);
+  const status = toRecord(response?.status);
+  const errorMessage = String(status?.message ?? '').trim();
+
+  if (output.http >= 400) {
+    throw new Error(errorMessage || message);
+  }
+
+  return response?.datas;
+};
+
+/**
+ * 函数：请求播客生成占用信息。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<unknown>} 响应 datas。
+ */
+const requestHotsearchPodcastGenerateOwnerDatas = async (errorMessage: string): Promise<unknown> => {
+  if (isTauriRuntime.value) {
+    try {
+      return await requestTauriApiDatas(
+        {
+          method: 'GET',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner'
+        },
+        errorMessage
+      );
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
+  const datas = stateHotsearchPodcastGenerateOwnerRemote.value;
+
+  if (datas) {
+    return datas;
+  }
+
+  ensureInternalUseApiSucceeded(stateHotsearchPodcastGenerateOwnerGetError.value, errorMessage);
+  throw new Error(errorMessage);
+};
+
+/**
+ * 函数：构建播客生成占用请求体。
+ * @param {boolean} enabled 是否启用。
+ * @param {string} machineCode 机器码。
+ * @param {string} machineName 机器名。
+ * @returns {{ enabled: boolean; machineCode: string; machineName: string }} 请求体。
+ */
+const hotsearchPodcastGenerateOwnerPayloadBuild = (enabled: boolean, machineCode: string, machineName: string): { enabled: boolean; machineCode: string; machineName: string } => {
+  return {
+    enabled,
+    machineCode,
+    machineName
+  };
+};
+
+/**
+ * 函数：写入播客生成占用信息。
+ * @param {boolean} enabled 是否启用。
+ * @param {string} machineCode 机器码。
+ * @param {string} machineName 机器名。
+ * @param {boolean} ignoreError 是否忽略错误。
+ * @returns {Promise<void>} 无返回值。
+ */
+const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machineCode: string, machineName: string, ignoreError = false): Promise<void> => {
+  const errorMessage = t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle');
+  const payload = hotsearchPodcastGenerateOwnerPayloadBuild(enabled, machineCode, machineName);
+
+  if (isTauriRuntime.value) {
+    try {
+      await requestTauriApiDatas(
+        {
+          method: 'PATCH',
+          path: '/desktop/settings/hotsearch/podcast_generate_owner',
+          datas: payload
+        },
+        errorMessage
+      );
+
+      return;
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  await refreshHotsearchPodcastGenerateOwnerPatch({
+    body: {
+      datas: payload
+    },
+    ignoreResponseError: ignoreError
+  });
+
+  if (!ignoreError) {
+    ensureInternalUseApiSucceeded(stateHotsearchPodcastGenerateOwnerPatchError.value, errorMessage);
+  }
+};
+
+/**
+ * 函数：请求 UpYun 对象访问地址。
+ * @param {Record<string, unknown>} query 查询参数。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<string>} 访问地址。
+ */
+const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
+  if (isTauriRuntime.value) {
+    try {
+      const datas = await requestTauriApiDatas(
+        {
+          method: 'GET',
+          path: `/storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/url`,
+          query
+        },
+        errorMessage
+      );
+
+      const url = String(toRecord(datas)?.url ?? '').trim();
+
+      if (url) {
+        return url;
+      }
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  stateUpyunObjectUrl.value = undefined;
+  await refreshUpyunObjectUrlGet({
+    query,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  const url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
+
+  if (url) {
+    return url;
+  }
+
+  ensureInternalUseApiSucceeded(stateUpyunObjectUrlError.value, errorMessage);
+  throw new Error(errorMessage);
+};
+
+/**
+ * 函数：请求 UpYun 对象下载内容。
+ * @param {Record<string, unknown>} query 查询参数。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<string>} Base64 内容。
+ */
+const requestUpyunObjectDownloadBase64 = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
+  if (isTauriRuntime.value) {
+    try {
+      const datas = await requestTauriApiDatas(
+        {
+          method: 'GET',
+          path: `/storages/upyun/${HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET}/objects/download`,
+          query
+        },
+        errorMessage
+      );
+
+      const base64 = String(toRecord(datas)?.base64 ?? '').trim();
+
+      if (base64) {
+        return base64;
+      }
+    } catch {
+      // fall through to useApi proxy
+    }
+  }
+
+  stateUpyunObjectDownload.value = undefined;
+  await refreshUpyunObjectDownloadGet({
+    query,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  const base64 = String(toRecord(stateUpyunObjectDownload.value)?.base64 ?? '').trim();
+
+  if (base64) {
+    return base64;
+  }
+
+  ensureInternalUseApiSucceeded(stateUpyunObjectDownloadError.value, errorMessage);
+  throw new Error(errorMessage);
+};
+
+/**
+ * 函数：请求 UpYun 直传策略快照。
+ * @param {Record<string, unknown>} body 请求体。
+ * @param {string} errorMessage 失败提示。
+ * @returns {Promise<Record<string, unknown>>} 直传策略快照。
+ */
+const requestUpyunDirectUploadPolicySnapshot = async (body: Record<string, unknown>, errorMessage: string): Promise<Record<string, unknown>> => {
+  await refreshUpyunDirectUploadPolicyPost({
+    body,
+    ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
+  });
+
+  ensureInternalUseApiSucceeded(stateUpyunDirectUploadPolicyError.value, errorMessage);
+  return toRecord(stateUpyunDirectUploadPolicy.value) ?? {};
+};
+
+/**
+ * 函数：确保当前机器信息可用。
+ * @returns {Promise<{ machineCode: string; machineName: string }>} 机器信息
+ */
+const hotsearchMachineEnsure = async (): Promise<{ machineCode: string; machineName: string }> => {
+  if (!isTauriRuntime.value) {
+    return { machineCode: '', machineName: '' };
+  }
+
+  const settings = await tauriSettings.get();
+  const machine = toRecord((settings as Record<string, unknown>).machine) ?? {};
+  const machineCode = String(machine.code ?? '').trim();
+  let machineName = String(machine.name ?? '').trim();
+
+  if (!machineName) {
+    machineName = String(await tauriSettings.machineHostnameGet()).trim();
+  }
+
+  stateHotsearchMachineCode.value = machineCode;
+  stateHotsearchMachineName.value = machineName;
+
+  return { machineCode, machineName };
+};
+
+/**
+ * 函数：确保附件目录已经配置。
+ * @returns {Promise<boolean>} 是否已配置
+ */
+const hotsearchAttachmentsDirEnsure = async (): Promise<boolean> => {
+  if (!isTauriRuntime.value) {
+    return false;
+  }
+
+  try {
+    stateHotsearchPodcastHeadMusicPaths.value = await tauriSettings.hotsearchPodcastHeadMusicPathsGet();
+    return true;
+  } catch {
+    stateHotsearchPodcastHeadMusicPaths.value = null;
+    stateHotsearchAttachmentsDirDialogOpen.value = true;
+    return false;
+  }
+};
+
+/**
+ * 函数：读取指定类型的云端固定开头音乐对象路径。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @returns {string} 已持久化的对象路径。
+ */
+const hotsearchPodcastHeadMusicRemotePathGet = (kind: THotsearchPodcastHeadMusicKind): string => {
+  return String(stateHotsearchConfig.value.podcastHeadMusicRemotePaths?.[kind] ?? '').trim();
+};
+
+/**
+ * 函数：更新指定类型的云端固定开头音乐对象路径。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @param {string} path 最新对象路径。
+ * @returns {void} 无返回值。
+ */
+const hotsearchPodcastHeadMusicRemotePathSet = (kind: THotsearchPodcastHeadMusicKind, path: string): void => {
+  stateHotsearchConfig.value.podcastHeadMusicRemotePaths = {
+    ...stateHotsearchConfig.value.podcastHeadMusicRemotePaths,
+    [kind]: String(path).trim()
+  };
+};
+
+/**
+ * 函数：刷新本地固定开头音乐状态。
+ * @returns {Promise<void>} 无返回值
+ */
+const refreshHotsearchPodcastHeadMusicLocalExists = async (): Promise<void> => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  try {
+    const paths = await tauriSettings.hotsearchPodcastHeadMusicPathsGet();
+    stateHotsearchPodcastHeadMusicPaths.value = paths;
+
+    const existsResult = await tauriSettings.pathsExistGet([paths.normalPath, paths.vipPath]);
+    const existsMap = new Map(existsResult.map((item) => [item.path, item.exists]));
+
+    stateHotsearchPodcastHeadMusicLocalExists.value = {
+      normal: existsMap.get(paths.normalPath) === true,
+      vip: existsMap.get(paths.vipPath) === true
+    };
+  } catch {
+    stateHotsearchPodcastHeadMusicPaths.value = null;
+    stateHotsearchPodcastHeadMusicLocalExists.value = { normal: false, vip: false };
+  }
+};
+
+/**
+ * 函数：检查远端固定开头音乐是否存在。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @returns {Promise<boolean>} 是否存在
+ */
+const hotsearchPodcastHeadMusicRemoteExistsCheck = (kind: THotsearchPodcastHeadMusicKind): boolean => {
+  return hotsearchPodcastHeadMusicRemotePathGet(kind) !== '';
+};
+
+/**
+ * 函数：刷新远端固定开头音乐状态。
+ * @returns {Promise<void>} 无返回值
+ */
+const refreshHotsearchPodcastHeadMusicRemoteExists = async (): Promise<void> => {
+  stateHotsearchPodcastHeadMusicRemoteExists.value = {
+    normal: hotsearchPodcastHeadMusicRemoteExistsCheck('normal'),
+    vip: hotsearchPodcastHeadMusicRemoteExistsCheck('vip')
+  };
+
+  for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
+    await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
+  }
+};
+
+/**
+ * 函数：刷新固定开头音乐预览地址。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @returns {Promise<void>} 无返回值
+ */
+const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcastHeadMusicKind): Promise<{ previewUrl: string; remoteAddress: string }> => {
+  const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
+
+  if (!remotePath) {
+    stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = false;
+    hotsearchPodcastHeadMusicPreviewUrlSet(kind, '');
+    throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
+  }
+
+  try {
+    stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
+    const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath);
+
+    if (publicUrl) {
+      hotsearchPodcastHeadMusicPreviewUrlSet(kind, publicUrl);
+      return {
+        previewUrl: publicUrl,
+        remoteAddress: publicUrl
+      };
+    }
+
+    const previewUrl = await requestUpyunObjectUrl(
+      {
+        path: remotePath,
+        ttl_sec: 1800
+      },
+      t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing')
+    );
+
+    hotsearchPodcastHeadMusicPreviewUrlSet(kind, previewUrl);
+
+    return {
+      previewUrl,
+      remoteAddress: previewUrl
+    };
+  } catch {
+    hotsearchPodcastHeadMusicPreviewUrlSet(kind, '');
+    throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing'));
+  }
+};
+
+/**
+ * 函数：静默刷新固定开头音乐预览地址。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型。
+ * @returns {Promise<void>} 无返回值。
+ */
+const refreshHotsearchPodcastHeadMusicPreviewUrlQuietly = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  try {
+    await refreshHotsearchPodcastHeadMusicPreviewUrl(kind);
+  } catch {
+    // ignore
+  }
+};
+
+/**
+ * 函数：刷新播客生成占用状态。
+ * @returns {Promise<void>} 无返回值
+ */
+const refreshHotsearchPodcastGenerateOwner = async (): Promise<void> => {
+  try {
+    const datas = await requestHotsearchPodcastGenerateOwnerDatas(t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
+    stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(datas);
+  } catch {
+    stateHotsearchPodcastGenerateOwner.value = null;
+  }
+};
+
+/**
+ * 函数：仅将播客生成开关持久化到本地 settings。
+ * @param {boolean} value 最新值
+ * @returns {Promise<void>} 无返回值
+ */
+const persistPodcastGenerateEnabledToLocal = async (value: boolean): Promise<void> => {
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastGenerateEnabled: value
+  });
+
+  stateSaving.value = true;
+  try {
+    await persistHotsearchSettingsToLocal(stateHotsearchConfig.value);
+  } finally {
+    stateSaving.value = false;
+  }
+};
+
+/**
+ * 函数：从云端同步固定开头音乐到本地。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @returns {Promise<void>} 无返回值
+ */
+const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHeadMusicKind): Promise<void> => {
+  if (!(await hotsearchAttachmentsDirEnsure())) {
+    return;
+  }
+
+  const remoteMissingMessage = t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing');
+  const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
+
+  if (!remotePath) {
+    throw new Error(remoteMissingMessage);
+  }
+
+  try {
+    if (isTauriRuntime.value) {
+      const url =
+        hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
+        (await requestUpyunObjectUrl(
+          {
+            path: remotePath,
+            ttl_sec: 600
+          },
+          remoteMissingMessage
+        ));
+
+      if (url) {
+        try {
+          await tauriSettings.hotsearchPodcastHeadMusicDownload(kind, url);
+        } catch {
+          const base64 = await requestUpyunObjectDownloadBase64(
+            {
+              path: remotePath
+            },
+            t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed')
+          );
+
+          if (!base64) {
+            throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+          }
+
+          const binary = atob(base64);
+          const bytes = Array.from(binary, (char) => char.charCodeAt(0));
+          await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
+        }
+
+        await refreshHotsearchPodcastHeadMusicLocalExists();
+        await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
+        return;
+      }
+
+      const base64 = await requestUpyunObjectDownloadBase64(
+        {
+          path: remotePath
+        },
+        t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed')
+      );
+
+      if (!base64) {
+        throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+      }
+
+      const binary = atob(base64);
+      const bytes = Array.from(binary, (char) => char.charCodeAt(0));
+      await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
+    } else {
+      const url =
+        hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
+        (await requestUpyunObjectUrl(
+          {
+            path: remotePath,
+            ttl_sec: 600
+          },
+          remoteMissingMessage
+        ));
+
+      if (!url) {
+        throw new Error(remoteMissingMessage);
+      }
+
+      let response: Response;
+
+      try {
+        response = await fetch(url);
+      } catch {
+        throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+      }
+
+      if (!response.ok) {
+        throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
+      }
+
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? '');
+
+    if (message === remoteMissingMessage) {
+      hotsearchPodcastHeadMusicRemotePathSet(kind, '');
+      requestPersistHotsearchSettings();
+      await refreshHotsearchPodcastHeadMusicRemoteExists();
+    }
+
+    throw error;
+  }
+
+  await refreshHotsearchPodcastHeadMusicLocalExists();
+  await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
+};
+
+/**
+ * 函数：上传固定开头音乐到云端并写入本地。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @param {File} file 选择的文件
+ * @returns {Promise<void>} 无返回值
+ */
+const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicKind, file: File): Promise<void> => {
+  if (!(await hotsearchAttachmentsDirEnsure())) {
+    return;
+  }
+
+  const staleRemotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
+
+  if (staleRemotePath) {
+    try {
+      await refreshUpyunObjectDeletePost({
+        body: {
+          path: staleRemotePath
+        },
+        ignoreResponseError: true
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = 0;
+  const policy = await requestUpyunDirectUploadPolicySnapshot(
+    {
+      save_key: hotsearchPodcastHeadMusicRemotePathCreate(kind),
+      expires_in_sec: 1800
+    },
+    t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')
+  );
+
+  const uploadUrl = String(policy?.upload_url ?? '').trim();
+  const uploadPolicy = String(policy?.policy ?? '').trim();
+  const authorization = String(policy?.authorization ?? '').trim();
+  const saveKey = String(policy?.save_key ?? '').trim();
+
+  if (!uploadUrl || !uploadPolicy || !authorization) {
+    throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed'));
+  }
+
+  const formData = new FormData();
+  formData.set('policy', uploadPolicy);
+  formData.set('authorization', authorization);
+  if (saveKey) {
+    formData.set('save-key', saveKey);
+  }
+  formData.set('file', file);
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('POST', uploadUrl, true);
+    xhr.upload.addEventListener('progress', (event) => {
+      if (!event.lengthComputable) {
+        return;
+      }
+
+      stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100)));
+    });
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = 100;
+        resolve();
+        return;
+      }
+
+      reject(new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')));
+    });
+    xhr.addEventListener('error', () => {
+      reject(new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')));
+    });
+    xhr.addEventListener('abort', () => {
+      reject(new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')));
+    });
+    xhr.send(formData);
+  });
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
+
+  await refreshHotsearchPodcastHeadMusicLocalExists();
+
+  if (saveKey) {
+    hotsearchPodcastHeadMusicRemotePathSet(kind, saveKey);
+    requestPersistHotsearchSettings();
+    stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
+
+    try {
+      const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(saveKey);
+
+      if (publicUrl) {
+        hotsearchPodcastHeadMusicPreviewUrlSet(kind, publicUrl);
+        return;
+      }
+
+      hotsearchPodcastHeadMusicPreviewUrlSet(
+        kind,
+        await requestUpyunObjectUrl(
+          {
+            path: saveKey,
+            ttl_sec: 1800
+          },
+          t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing')
+        )
+      );
+    } catch {
+      hotsearchPodcastHeadMusicPreviewUrlSet(kind, '');
+    }
+
+    return;
+  }
+
+  await refreshHotsearchPodcastHeadMusicRemoteExists();
+  await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
+};
+
+/**
  * 函数：将壳侧计划标记为待刷新
  */
 const markRuntimeScheduleDirty = (): void => {
@@ -688,11 +1764,11 @@ const loadRuntimeSchedule = async (): Promise<void> => {
 
 /**
  * 函数：将热搜设置回写到本地 Tauri settings 镜像
- * @param {ISettingsHotsearch} config 热搜设置
+ * @param {ISettingsHotsearchLocal} config 热搜设置
  * @returns {Promise<void>} 无返回值
  */
-const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearch): Promise<void> => {
-  const normalized = hotsearchSettingsNormalize(config);
+const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearchLocal): Promise<void> => {
+  const normalized = hotsearchLocalSettingsNormalize(config);
 
   if (!isTauriRuntime.value) {
     stateHotsearchConfig.value = normalized;
@@ -703,49 +1779,32 @@ const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearch): Prom
   const result = await tauriSettings.update({
     hotsearch: normalized
   });
-  stateHotsearchConfig.value = hotsearchSettingsNormalize((result as Record<string, unknown>).hotsearch);
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize((result as Record<string, unknown>).hotsearch);
   await loadRuntimeSchedule();
 };
 
 /**
- * 函数：持久化热搜设置
- * @returns {Promise<void>} 无返回值
+ * 函数：防抖写回热搜设置到本地镜像。
  */
-const persistHotsearchSettings = async (): Promise<void> => {
-  if (!stateHydrated.value) {
-    return;
-  }
-
-  if (stateSaving.value) {
-    statePersistQueued.value = true;
-    return;
-  }
-
+const persistHotsearchSettingsLocalDebounced = useDebounceFn(async () => {
   stateSaving.value = true;
   try {
-    const nextConfig = hotsearchSettingsNormalize(stateHotsearchConfig.value);
-    await refreshHotsearchRemotePatch({
-      body: {
-        datas: nextConfig
-      }
-    });
-    await persistHotsearchSettingsToLocal(nextConfig);
+    await persistHotsearchSettingsToLocal(hotsearchLocalSettingsNormalize(stateHotsearchConfig.value));
   } finally {
     stateSaving.value = false;
   }
-
-  if (statePersistQueued.value) {
-    statePersistQueued.value = false;
-    persistHotsearchSettingsDebounced();
-  }
-};
+}, 300);
 
 /**
- * 函数：延迟写回热搜设置
+ * 函数：防抖写回热搜设置到 Redis。
  */
-const persistHotsearchSettingsDebounced = useDebounceFn(() => {
-  void persistHotsearchSettings();
-}, 300);
+const persistHotsearchSettingsRemoteDebounced = (): void => {
+  refreshHotsearchRemotePatchDebounced({
+    body: {
+      datas: hotsearchSharedSettingsExtract(stateHotsearchConfig.value)
+    }
+  });
+};
 
 /**
  * 函数：请求写回热搜设置
@@ -755,19 +1814,45 @@ const requestPersistHotsearchSettings = (): void => {
   if (!stateHydrated.value) {
     return;
   }
-  persistHotsearchSettingsDebounced();
+  persistHotsearchSettingsLocalDebounced();
+  persistHotsearchSettingsRemoteDebounced();
 };
+
+/**
+ * 函数：提交播客 AI 规则到热搜设置。
+ * @returns {void} 无返回值。
+ */
+const commitPodcastAiRulesMarkdown = (): void => {
+  const nextMarkdown = hotsearchPodcastAiRulesMarkdownCompose(statePodcastAiRulesMarkdownDraft.value, stateHotsearchConfig.value.podcastMaleSpeakerName, stateHotsearchConfig.value.podcastFemaleSpeakerName);
+
+  if (stateHotsearchConfig.value.podcastAiRulesMarkdown === nextMarkdown) {
+    return;
+  }
+
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
+    ...stateHotsearchConfig.value,
+    podcastAiRulesMarkdown: nextMarkdown
+  });
+  requestPersistHotsearchSettings();
+};
+
+/**
+ * 函数：防抖提交播客 AI 规则。
+ */
+const commitPodcastAiRulesMarkdownDebounced = useDebounceFn(() => {
+  commitPodcastAiRulesMarkdown();
+}, 400);
 
 /**
  * 函数：从 Tauri 设置读取热搜配置
  * @returns {Promise<void>} 无返回值
  */
 const loadHotsearchSettings = async (): Promise<void> => {
-  let nextConfig = hotsearchSettingsDefaultCreate();
+  let nextConfig = hotsearchLocalSettingsDefaultCreate();
 
   if (isTauriRuntime.value) {
     const settings = await tauriSettings.get();
-    nextConfig = hotsearchSettingsNormalize((settings as Record<string, unknown>).hotsearch);
+    nextConfig = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
   }
 
   stateHotsearchConfig.value = nextConfig;
@@ -776,8 +1861,13 @@ const loadHotsearchSettings = async (): Promise<void> => {
     await refreshHotsearchRemoteGet();
     if (stateHotsearchRemoteConfig.value) {
       const remoteConfig = hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value);
-      stateHotsearchConfig.value = remoteConfig;
-      await persistHotsearchSettingsToLocal(remoteConfig);
+      const mergedLocalConfig = hotsearchLocalSettingsNormalize({
+        ...stateHotsearchConfig.value,
+        ...remoteConfig
+      });
+
+      stateHotsearchConfig.value = mergedLocalConfig;
+      await persistHotsearchSettingsToLocal(mergedLocalConfig);
     } else {
       await loadRuntimeSchedule();
     }
@@ -785,19 +1875,12 @@ const loadHotsearchSettings = async (): Promise<void> => {
     await loadRuntimeSchedule();
   }
 
+  await hotsearchMachineEnsure();
+  await refreshHotsearchPodcastGenerateOwner();
+  await refreshHotsearchPodcastHeadMusicLocalExists();
+  await refreshHotsearchPodcastHeadMusicRemoteExists();
+
   stateHydrated.value = true;
-};
-
-/**
- * 函数：打开官网用量页面
- */
-const handleUsageOpen = (): void => {
-  if (isTauriRuntime.value) {
-    void tauriWindow.openExternalUrl(HOTSEARCH_USAGE_URL);
-    return;
-  }
-
-  window.open(HOTSEARCH_USAGE_URL, '_blank', 'noopener,noreferrer');
 };
 
 /**
@@ -819,13 +1902,152 @@ const handlePodcastEnabledUpdate = (value: boolean): void => {
 };
 
 /**
+ * 函数：选择附件目录。
+ * @param {string} _picked 已保存目录
+ * @returns {Promise<void>} 无返回值
+ */
+const handleHotsearchAttachmentsDirPick = async (_picked: string): Promise<void> => {
+  await refreshHotsearchPodcastHeadMusicLocalExists();
+  for (const kind of HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS) {
+    await refreshHotsearchPodcastHeadMusicPreviewUrlQuietly(kind);
+  }
+};
+
+/**
+ * 函数：提交固定开头音乐上传。
+ * @param {THotsearchPodcastHeadMusicKind} kind 音乐类型
+ * @param {File} file 上传文件
+ * @returns {Promise<void>} 无返回值
+ */
+const handlePodcastHeadMusicUploadSubmit = async (kind: THotsearchPodcastHeadMusicKind, file: File): Promise<void> => {
+  stateHotsearchPodcastHeadMusicUploadingKind.value = kind;
+  stateHotsearchPodcastHeadMusicError.value = '';
+
+  try {
+    await uploadHotsearchPodcastHeadMusic(kind, file);
+  } catch (error) {
+    stateHotsearchPodcastHeadMusicError.value = error instanceof Error ? error.message : String(error ?? '');
+    toast.add({
+      title: t('pages.settings.hotsearch.messages.podcastHeadMusicErrorTitle'),
+      description: stateHotsearchPodcastHeadMusicError.value,
+      color: 'warning'
+    });
+    throw error;
+  } finally {
+    stateHotsearchPodcastHeadMusicUploadingKind.value = null;
+    stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = 0;
+  }
+};
+
+/**
+ * 函数：切换本机播客生成开关。
+ * @param {boolean} value 最新值
+ * @returns {Promise<void>} 无返回值
+ */
+const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void> => {
+  stateHotsearchPodcastGenerateLoading.value = true;
+  stateHotsearchPodcastGenerateError.value = '';
+
+  try {
+    const { machineCode, machineName } = await hotsearchMachineEnsure();
+
+    if (!machineCode) {
+      throw new Error(t('pages.settings.hotsearch.messages.machineCodeMissing'));
+    }
+
+    if (value) {
+      if (!(await hotsearchAttachmentsDirEnsure())) {
+        return;
+      }
+
+      await refreshHotsearchPodcastHeadMusicLocalExists();
+      await refreshHotsearchPodcastGenerateOwner();
+
+      if (stateHotsearchPodcastGenerateOwner.value && stateHotsearchPodcastGenerateOwner.value.machineCode !== machineCode) {
+        stateHotsearchPodcastGenerateError.value = t('pages.settings.hotsearch.messages.podcastGenerateOwnerConflict', {
+          machineName: stateHotsearchPodcastGenerateOwner.value.machineName,
+          machineCode: stateHotsearchPodcastGenerateOwner.value.machineCode
+        });
+        toast.add({
+          title: t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'),
+          description: stateHotsearchPodcastGenerateError.value,
+          color: 'warning'
+        });
+        return;
+      }
+
+      const missingLocalKinds = HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.filter((kind) => !stateHotsearchPodcastHeadMusicLocalExists.value[kind]);
+
+      if (missingLocalKinds.length > 0) {
+        const missingRemoteKinds: THotsearchPodcastHeadMusicKind[] = [];
+        const remoteMissingMessage = t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing');
+
+        for (const kind of missingLocalKinds) {
+          try {
+            await syncHotsearchPodcastHeadMusicFromRemote(kind);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error ?? '');
+
+            if (message === remoteMissingMessage) {
+              missingRemoteKinds.push(kind);
+              continue;
+            }
+
+            throw error;
+          }
+        }
+
+        if (missingRemoteKinds.length > 0) {
+          await refreshHotsearchPodcastHeadMusicRemoteExists();
+
+          const missingTitles = missingRemoteKinds.map((kind) => computedHotsearchPodcastHeadMusicItems.value.find((item) => item.kind === kind)?.title || kind).join('、');
+
+          stateHotsearchPodcastGenerateError.value = t('pages.settings.hotsearch.messages.podcastGenerateHeadMusicMissing');
+          toast.add({
+            title: t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'),
+            description: t('pages.settings.hotsearch.messages.podcastGenerateHeadMusicMissingToast', { titles: missingTitles }),
+            color: 'warning'
+          });
+          return;
+        }
+      }
+
+      await requestHotsearchPodcastGenerateOwnerSet(true, machineCode, machineName);
+
+      await refreshHotsearchPodcastGenerateOwner();
+      await persistPodcastGenerateEnabledToLocal(true);
+      return;
+    }
+
+    try {
+      await requestHotsearchPodcastGenerateOwnerSet(false, machineCode, machineName, true);
+    } catch {
+      // ignore
+    }
+
+    await refreshHotsearchPodcastGenerateOwner();
+    await persistPodcastGenerateEnabledToLocal(false);
+  } catch (error) {
+    stateHotsearchPodcastGenerateError.value = error instanceof Error ? error.message : String(error ?? '');
+    toast.add({
+      title: t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'),
+      description: stateHotsearchPodcastGenerateError.value,
+      color: 'warning'
+    });
+  } finally {
+    stateHotsearchPodcastGenerateLoading.value = false;
+  }
+};
+
+/**
  * 函数：更新男生播报者名称
  * @param {string} value 最新值
  */
 const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastMaleSpeakerName: value
+    podcastMaleSpeakerName: value,
+    podcastAiRulesMarkdown: hotsearchPodcastAiRulesMarkdownCompose(stateHotsearchConfig.value.podcastAiRulesMarkdown, value, stateHotsearchConfig.value.podcastFemaleSpeakerName)
   });
   requestPersistHotsearchSettings();
 };
@@ -835,9 +2057,10 @@ const handlePodcastMaleSpeakerNameUpdate = (value: string): void => {
  * @param {string} value 最新值
  */
 const handlePodcastFemaleSpeakerNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
-    podcastFemaleSpeakerName: value
+    podcastFemaleSpeakerName: value,
+    podcastAiRulesMarkdown: hotsearchPodcastAiRulesMarkdownCompose(stateHotsearchConfig.value.podcastAiRulesMarkdown, stateHotsearchConfig.value.podcastMaleSpeakerName, value)
   });
   requestPersistHotsearchSettings();
 };
@@ -847,7 +2070,7 @@ const handlePodcastFemaleSpeakerNameUpdate = (value: string): void => {
  * @param {string} value 最新值
  */
 const handlePodcastMorningProgramNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastMorningProgramName: value
   });
@@ -859,7 +2082,7 @@ const handlePodcastMorningProgramNameUpdate = (value: string): void => {
  * @param {string} value 最新值
  */
 const handlePodcastEveningProgramNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastEveningProgramName: value
   });
@@ -871,7 +2094,7 @@ const handlePodcastEveningProgramNameUpdate = (value: string): void => {
  * @param {string} value 最新值
  */
 const handlePodcastVipMorningProgramNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastVipMorningProgramName: value
   });
@@ -883,7 +2106,7 @@ const handlePodcastVipMorningProgramNameUpdate = (value: string): void => {
  * @param {string} value 最新值
  */
 const handlePodcastVipEveningProgramNameUpdate = (value: string): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastVipEveningProgramName: value
   });
@@ -895,7 +2118,7 @@ const handlePodcastVipEveningProgramNameUpdate = (value: string): void => {
  * @param {ISettingsHotsearchPodcastTemplateItem[]} value 最新值
  */
 const handlePodcastTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[]): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastTemplateItems: value
   });
@@ -907,7 +2130,7 @@ const handlePodcastTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTempla
  * @param {number | undefined} value 最新值
  */
 const handleMonthlyBudgetUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     monthlyBudget: value
   });
@@ -919,7 +2142,7 @@ const handleMonthlyBudgetUpdate = (value: number | undefined): void => {
  * @param {string} value 最新值
  */
 const handleMorningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     morningStartAt: hotsearchTextFromTimeValue(value, '06:00')
   });
@@ -931,7 +2154,7 @@ const handleMorningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
  * @param {string} value 最新值
  */
 const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     eveningStartAt: hotsearchTextFromTimeValue(value, '18:00')
   });
@@ -943,7 +2166,7 @@ const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
  * @param {number | undefined} value 最新值
  */
 const handlePlatformIntervalSecondsUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     platformIntervalSeconds: value
   });
@@ -955,7 +2178,7 @@ const handlePlatformIntervalSecondsUpdate = (value: number | undefined): void =>
  * @param {number | undefined} value 最新值
  */
 const handleScheduleJitterSecondsUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     scheduleJitterSeconds: value
   });
@@ -967,7 +2190,7 @@ const handleScheduleJitterSecondsUpdate = (value: number | undefined): void => {
  * @param {number | undefined} value 最新值
  */
 const handlePodcastBufferSecondsUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     podcastBufferSeconds: value
   });
@@ -979,7 +2202,7 @@ const handlePodcastBufferSecondsUpdate = (value: number | undefined): void => {
  * @param {number | undefined} value 最新值
  */
 const handleRetryMaxAttemptsUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     retryMaxAttempts: value
   });
@@ -991,7 +2214,7 @@ const handleRetryMaxAttemptsUpdate = (value: number | undefined): void => {
  * @param {number | undefined} value 最新值
  */
 const handleRetryDelaySecondsUpdate = (value: number | undefined): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     retryDelaySeconds: value
   });
@@ -1006,7 +2229,7 @@ const handleRetryDelaySecondsUpdate = (value: number | undefined): void => {
 const handlePlatformEnabledUpdate = (platformId: number, enabled: boolean): void => {
   const nextIds = enabled ? [...new Set([...stateHotsearchConfig.value.platformIds, platformId])] : stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId);
 
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     platformIds: nextIds
   });
@@ -1018,7 +2241,7 @@ const handlePlatformEnabledUpdate = (platformId: number, enabled: boolean): void
  * @param {boolean} enabled 是否全部启用
  */
 const handlePlatformsToggleAll = (enabled: boolean): void => {
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     platformIds: enabled ? computedPlatforms.value.map((platform) => platform.id) : []
   });
@@ -1029,9 +2252,9 @@ const handlePlatformsToggleAll = (enabled: boolean): void => {
  * 函数：恢复抓取计划默认设置
  */
 const handleResetScheduleDefaults = (): void => {
-  const defaults = hotsearchSettingsDefaultCreate();
+  const defaults = hotsearchLocalSettingsDefaultCreate();
 
-  stateHotsearchConfig.value = hotsearchSettingsNormalize({
+  stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     morningStartAt: defaults.morningStartAt,
     eveningStartAt: defaults.eveningStartAt,
@@ -1049,5 +2272,25 @@ const handleResetScheduleDefaults = (): void => {
  */
 onMounted(async () => {
   await loadHotsearchSettings();
+});
+
+watch(
+  () => stateHotsearchConfig.value.podcastAiRulesMarkdown,
+  (value) => {
+    const editableValue = hotsearchPodcastAiRulesMarkdownEditableExtract(value);
+
+    if (editableValue === statePodcastAiRulesMarkdownDraft.value) {
+      return;
+    }
+
+    statePodcastAiRulesMarkdownDraft.value = editableValue;
+  },
+  {
+    immediate: true
+  }
+);
+
+watch(statePodcastAiRulesMarkdownDraft, () => {
+  commitPodcastAiRulesMarkdownDebounced();
 });
 </script>

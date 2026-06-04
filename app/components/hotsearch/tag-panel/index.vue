@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+    <div v-if="computedHasPagination" class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('components.pagination.total', { total: Number(datas?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(datas?.total ?? 0)" />
@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
+import { getLocalTimeZone, today } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
-import { h } from 'vue';
 
 import type { IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
 
@@ -47,6 +47,11 @@ const Datetime = resolveComponent('Datetime');
  * 组件：按钮。
  */
 const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
 
 /**
  * 组件：分页。
@@ -85,13 +90,23 @@ const refHotsearchTagPanelTop = useTemplateRef('refHotsearchTagPanelTop');
  * 函数：获取当前默认日期。
  * @returns {string} YYYY-MM-DD。
  */
-const currentDateGet = (): string => new Date().toISOString().slice(0, 10);
+const currentDateGet = (): string => {
+  const value = today(getLocalTimeZone());
+
+  return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+};
 
 /**
  * 函数：获取当前生效日期。
  * @returns {string} YYYY-MM-DD。
  */
 const selectedDateGet = (): string => hotsearchQueryStringGet(route.query.date) || currentDateGet();
+
+/**
+ * 函数：获取当前查询时区。
+ * @returns {string} IANA 时区名称。
+ */
+const currentTimezoneGet = (): string => hotsearchLocalTimezoneGet();
 
 /**
  * 函数：获取当前生效分页大小。
@@ -114,6 +129,7 @@ const currentPageSizeGet = (): string => {
 const buildApiQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   query.date = selectedDateGet();
+  query.timezone = currentTimezoneGet();
 
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
@@ -192,6 +208,11 @@ const hotsearchDatetimeValueGet = (value: string): string => {
  * 计算属性：标签行。
  */
 const computedRows = computed(() => datas.value?.rows ?? []);
+
+/**
+ * 计算属性：当前是否需要显示分页栏。
+ */
+const computedHasPagination = computed(() => Number(datas.value?.total ?? 0) > 0);
 
 /**
  * 计算属性：当前排序字段。
@@ -318,11 +339,10 @@ const columns: TableColumn<IHotsearchTagSummaryRow>[] = [
     header: t('pages.hotsearch.tags.table.tag'),
     cell: ({ row }) =>
       h(
-        UButton,
+        ULink,
         {
-          color: 'neutral',
-          variant: 'link',
-          class: 'p-0 h-auto min-h-0 justify-start text-left hover:underline',
+          raw: true,
+          class: 'p-0 whitespace-normal break-words no-underline hover:underline',
           to: buildDataLocation(row.original.categoryKey)
         },
         () => t(row.original.categoryKey)

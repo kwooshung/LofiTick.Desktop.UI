@@ -1,4 +1,9 @@
 /**
+ * 类型：主题模式。
+ */
+export type TSettingsThemeMode = 'system' | 'light' | 'dark';
+
+/**
  * 接口：useSettingsThemeMode 返回结果
  */
 export interface IUseSettingsThemeModeResult {

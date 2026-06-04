@@ -1,8 +1,7 @@
 import type { FetchError } from 'ofetch';
 
-import type { UseFetchOptions } from '#app';
-
 import type { IStoresToastApi } from '@@/app/stores/toast-api/index.types';
+import type { UseFetchOptions } from '#app';
 
 /**
  * 接口：服务端状态结构（ApiStatus）。
@@ -195,6 +194,11 @@ export interface ISignState {
  * 类型：UseFetchExtraOptions
  */
 export interface IUseFetchExtraOptions extends Omit<UseFetchOptions<unknown>, 'pick' | 'transform'> {
+  /**
+   * 是否忽略统一错误响应提示。
+   */
+  ignoreResponseError?: boolean;
+
   /**
    * 万能业务参数
    */

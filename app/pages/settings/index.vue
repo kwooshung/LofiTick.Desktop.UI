@@ -1,6 +1,13 @@
 <template>
   <DashboardPage>
-    <UPageCard :title="t('pages.settings.general.title')" :description="t('pages.settings.general.description')" variant="naked" />
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.general.title') }}</h2>
+          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.general.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
 
     <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.general.closeBehavior.label')" :description="t('pages.settings.general.closeBehavior.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
@@ -38,10 +45,12 @@
       <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.storage.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
           <div class="space-y-1">
-            {{ t('pages.settings.general.storage.description') }}
+            <div>{{ t('pages.settings.general.storage.description') }}</div>
             <span v-if="stateStoragePath">
-              <UTooltip arrow :text="stateStoragePath" :content="{ side: 'top' }" :disabled="stateStoragePath === computedTruncatedStorage">
-                <UButton color="neutral" variant="link" class="px-0 align-middle" @click="handleOpenStorage">{{ computedTruncatedStorage }}</UButton>
+              <UTooltip :text="stateStoragePath" :content="{ side: 'top' }" :disabled="stateStoragePath === computedTruncatedStorage">
+                <ULink raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenStorage">
+                  {{ computedTruncatedStorage }}
+                </ULink>
               </UTooltip>
             </span>
             <span v-else class="text-error">{{ t('pages.settings.general.storage.unset') }}</span>

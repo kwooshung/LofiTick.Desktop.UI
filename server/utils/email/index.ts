@@ -1,9 +1,8 @@
+import type { IEmailWelcomeQqGroup, IEmailWelcomeSocials } from '@@/app/emails/index.types';
 import { emails as enEmails } from '@@/i18n/locales/en/emails';
 import { emails as jaEmails } from '@@/i18n/locales/ja/emails';
 import { emails as zhCnEmails } from '@@/i18n/locales/zh-cn/emails';
 import { emails as zhTwEmails } from '@@/i18n/locales/zh-tw/emails';
-
-import type { IEmailWelcomeSocials, IEmailWelcomeQqGroup } from '@@/app/emails/index.types';
 
 /**
  * 常量：英文站点名
