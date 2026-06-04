@@ -123,68 +123,74 @@
                     </div>
                   </div>
 
-                  <UFileUpload v-slot="{ open }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="!stateSaving" :interactive="false" :disabled="stateSaving" :reset="true" class="w-full">
-                    <div class="space-y-3">
-                      <div ref="previewCanvasContainerElement" class="w-full">
-                        <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
+                  <div class="space-y-3">
+                    <div ref="previewCanvasContainerElement" class="w-full">
+                      <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
+                        <UFileUpload
+                          v-if="!stateEditor.asset"
+                          v-model="stateEditorAssetFile"
+                          :accept="computedAssetAccept"
+                          :multiple="false"
+                          variant="area"
+                          layout="list"
+                          position="inside"
+                          :dropzone="!stateSaving"
+                          :interactive="!stateSaving"
+                          :disabled="stateSaving"
+                          :reset="true"
+                          :label="computedAssetUploadLabel"
+                          :description="computedAssetUploadDescription"
+                          class="h-full w-full"
+                        >
+                          <template #actions="{ open }">
+                            <div class="flex justify-center">
+                              <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+                            </div>
+                          </template>
+                        </UFileUpload>
+
+                        <UFileUpload v-else v-slot="{ open }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="false" :interactive="!stateSaving" :disabled="stateSaving" :reset="true" class="h-full w-full">
                           <div
                             ref="previewStageElement"
-                            class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border"
-                            :class="stateEditor.asset ? 'bg-black' : 'bg-default cursor-pointer'"
-                            @click="!stateEditor.asset && !stateSaving ? open() : undefined"
+                            class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border bg-black"
                             @pointerdown="handlePreviewPointerDown"
                             @pointermove="handlePreviewPointerMove"
                             @pointerup="handlePreviewPointerUp"
                             @pointercancel="handlePreviewPointerUp"
                             @wheel.prevent="handlePreviewWheel"
                           >
-                            <template v-if="stateEditor.asset">
-                              <div class="absolute inset-0 overflow-hidden bg-black">
-                                <div class="absolute inset-0 flex items-center justify-center" :style="computedPreviewMediaTransformStyle">
-                                  <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
-                                  <video v-else class="h-full w-full object-contain select-none" :src="stateEditor.asset.previewUrl" autoplay loop muted playsinline preload="metadata"></video>
-                                </div>
+                            <div class="absolute inset-0 overflow-hidden bg-black">
+                              <div class="absolute inset-0 flex items-center justify-center" :style="computedPreviewMediaTransformStyle">
+                                <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
+                                <video v-else class="h-full w-full object-contain select-none" :src="stateEditor.asset.previewUrl" autoplay loop muted playsinline preload="metadata"></video>
+                              </div>
+                            </div>
+
+                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
+                              <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
+                                <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
+                                <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
+                                <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
                               </div>
 
-                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
-                                <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
-                                  <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
-                                  <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
-                                  <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
-                                </div>
-
-                                <div class="flex items-center gap-1">
-                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
-                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewTransformReset" />
-                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomIn" />
-                                </div>
+                              <div class="flex items-center gap-1">
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewTransformReset" />
+                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomIn" />
                               </div>
+                            </div>
 
-                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-end gap-2">
-                                <div class="flex items-center gap-1">
-                                  <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
-                                  <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop.prevent="handlePreviewAssetClear">删除素材</UButton>
-                                </div>
-                              </div>
-                            </template>
-
-                            <div v-else class="flex h-full w-full items-center justify-center p-4">
-                              <div class="w-full max-w-sm text-center">
-                                <div class="bg-elevated mx-auto mb-3 flex size-12 items-center justify-center rounded-full">
-                                  <UIcon name="i-lucide:image-up" class="text-primary size-5" />
-                                </div>
-                                <div class="text-highlighted text-sm font-medium">{{ computedAssetUploadLabel }}</div>
-                                <div class="text-muted mt-1 text-xs">{{ computedAssetUploadDescription }}</div>
-                                <div class="mt-3 flex justify-center">
-                                  <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
-                                </div>
+                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-end gap-2">
+                              <div class="flex items-center gap-1">
+                                <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
+                                <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop.prevent="handlePreviewAssetClear">删除素材</UButton>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </UFileUpload>
                       </div>
                     </div>
-                  </UFileUpload>
+                  </div>
                 </div>
               </div>
             </div>
@@ -838,6 +844,33 @@ const fileExtGet = (file: File): string => {
 };
 
 /**
+ * 常量：图片素材扩展名白名单。
+ */
+const IMAGE_FILE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'avif', 'svg']);
+
+/**
+ * 常量：视频素材扩展名白名单。
+ */
+const VIDEO_FILE_EXTENSIONS = new Set(['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi', 'mpeg', 'mpg']);
+
+/**
+ * 函数：判断文件是否符合当前素材类型。
+ * @param {'image' | 'video'} materialType 素材类型。
+ * @param {File} file 文件。
+ * @returns {boolean} 是否符合素材类型。
+ */
+const materialTypeMatchesFile = (materialType: 'image' | 'video', file: File): boolean => {
+  const mimeType = String(file.type || '').toLowerCase();
+  const extension = fileExtGet(file);
+
+  if (materialType === 'image') {
+    return mimeType.startsWith('image/') || IMAGE_FILE_EXTENSIONS.has(extension);
+  }
+
+  return mimeType.startsWith('video/') || VIDEO_FILE_EXTENSIONS.has(extension);
+};
+
+/**
  * 函数：格式化文件大小。
  * @param {number} size 文件大小。
  * @returns {string} 文本。
@@ -1330,11 +1363,11 @@ const handlePreviewPointerUp = (event: PointerEvent): void => {
  */
 const computedAssetAccept = computed(() => {
   if (stateEditor.value.materialType === 'image') {
-    return 'image/*';
+    return 'image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.svg';
   }
 
   if (stateEditor.value.materialType === 'video') {
-    return 'video/*';
+    return 'video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi,.mpeg,.mpg';
   }
 
   return undefined;
@@ -1896,12 +1929,12 @@ watch(
       return;
     }
 
-    if (value === 'image' && stateEditorAssetFile.value && !stateEditorAssetFile.value.type.startsWith('image/')) {
+    if (value === 'image' && stateEditorAssetFile.value && !materialTypeMatchesFile('image', stateEditorAssetFile.value)) {
       stateEditorAssetFile.value = null;
       editorAssetClear();
     }
 
-    if (value === 'video' && stateEditorAssetFile.value && !stateEditorAssetFile.value.type.startsWith('video/')) {
+    if (value === 'video' && stateEditorAssetFile.value && !materialTypeMatchesFile('video', stateEditorAssetFile.value)) {
       stateEditorAssetFile.value = null;
       editorAssetClear();
     }
