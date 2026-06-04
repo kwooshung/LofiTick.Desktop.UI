@@ -125,58 +125,60 @@
 
                   <UFileUpload v-slot="{ open }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="!stateSaving" :interactive="false" :disabled="stateSaving" :reset="true" class="w-full">
                     <div class="space-y-3">
-                      <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
-                        <div
-                          ref="previewStageElement"
-                          class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border"
-                          :class="stateEditor.asset ? 'bg-black' : 'bg-default cursor-pointer'"
-                          @click="!stateEditor.asset && !stateSaving ? open() : undefined"
-                          @pointerdown="handlePreviewPointerDown"
-                          @pointermove="handlePreviewPointerMove"
-                          @pointerup="handlePreviewPointerUp"
-                          @pointercancel="handlePreviewPointerUp"
-                          @wheel.prevent="handlePreviewWheel"
-                        >
-                          <template v-if="stateEditor.asset">
-                            <div class="absolute inset-0 overflow-hidden bg-black">
-                              <div class="absolute inset-0 flex items-center justify-center" :style="computedPreviewMediaTransformStyle">
-                                <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
-                                <video v-else class="h-full w-full object-contain select-none" :src="stateEditor.asset.previewUrl" autoplay loop muted playsinline preload="metadata"></video>
-                              </div>
-                            </div>
-
-                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
-                              <div class="rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">拖拽调整位置，滚轮或按钮缩放</div>
-
-                              <div class="flex items-center gap-1">
-                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
-                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewTransformReset" />
-                                <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomIn" />
-                              </div>
-                            </div>
-
-                            <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-between gap-2">
-                              <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
-                                <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
-                                <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
-                                <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
+                      <div ref="previewCanvasContainerElement" class="w-full">
+                        <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
+                          <div
+                            ref="previewStageElement"
+                            class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border"
+                            :class="stateEditor.asset ? 'bg-black' : 'bg-default cursor-pointer'"
+                            @click="!stateEditor.asset && !stateSaving ? open() : undefined"
+                            @pointerdown="handlePreviewPointerDown"
+                            @pointermove="handlePreviewPointerMove"
+                            @pointerup="handlePreviewPointerUp"
+                            @pointercancel="handlePreviewPointerUp"
+                            @wheel.prevent="handlePreviewWheel"
+                          >
+                            <template v-if="stateEditor.asset">
+                              <div class="absolute inset-0 overflow-hidden bg-black">
+                                <div class="absolute inset-0 flex items-center justify-center" :style="computedPreviewMediaTransformStyle">
+                                  <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
+                                  <video v-else class="h-full w-full object-contain select-none" :src="stateEditor.asset.previewUrl" autoplay loop muted playsinline preload="metadata"></video>
+                                </div>
                               </div>
 
-                              <div class="flex items-center gap-1">
-                                <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
-                              </div>
-                            </div>
-                          </template>
+                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 top-3 z-10 flex items-center justify-between gap-2">
+                                <div class="rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">拖拽调整位置，滚轮或按钮缩放</div>
 
-                          <div v-else class="flex h-full w-full items-center justify-center p-4">
-                            <div class="w-full max-w-sm text-center">
-                              <div class="bg-elevated mx-auto mb-3 flex size-12 items-center justify-center rounded-full">
-                                <UIcon name="i-lucide:image-up" class="text-primary size-5" />
+                                <div class="flex items-center gap-1">
+                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomOut" />
+                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewTransformReset" />
+                                  <UButton type="button" color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewZoomIn" />
+                                </div>
                               </div>
-                              <div class="text-highlighted text-sm font-medium">{{ computedAssetUploadLabel }}</div>
-                              <div class="text-muted mt-1 text-xs">{{ computedAssetUploadDescription }}</div>
-                              <div class="mt-3 flex justify-center">
-                                <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+
+                              <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-between gap-2">
+                                <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
+                                  <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
+                                  <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
+                                  <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
+                                </div>
+
+                                <div class="flex items-center gap-1">
+                                  <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">重新上传</UButton>
+                                </div>
+                              </div>
+                            </template>
+
+                            <div v-else class="flex h-full w-full items-center justify-center p-4">
+                              <div class="w-full max-w-sm text-center">
+                                <div class="bg-elevated mx-auto mb-3 flex size-12 items-center justify-center rounded-full">
+                                  <UIcon name="i-lucide:image-up" class="text-primary size-5" />
+                                </div>
+                                <div class="text-highlighted text-sm font-medium">{{ computedAssetUploadLabel }}</div>
+                                <div class="text-muted mt-1 text-xs">{{ computedAssetUploadDescription }}</div>
+                                <div class="mt-3 flex justify-center">
+                                  <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -347,9 +349,19 @@ const stateDetailOpen = ref(false);
 const stateEditorAssetFile = ref<File | null>(null);
 
 /**
+ * 状态：预览画布容器元素。
+ */
+const previewCanvasContainerElement = ref<HTMLDivElement | null>(null);
+
+/**
  * 状态：预览舞台元素。
  */
 const previewStageElement = ref<HTMLDivElement | null>(null);
+
+/**
+ * 状态：预览画布可用宽度。
+ */
+const statePreviewCanvasAvailableWidth = ref(0);
 
 /**
  * 状态：预览舞台尺寸。
@@ -1042,19 +1054,29 @@ const computedPreviewCanvasClass = computed(() => 'w-full');
 
 /**
  * 计算属性：预览画布自适应尺寸样式。
- * @returns {{ width: string; maxHeight: string }} 样式对象。
+ * @returns {{ width: string; height: string } | { width: string; aspectRatio: string }} 样式对象。
  */
 const computedPreviewCanvasStyle = computed(() => {
+  const frameRatio = computedIsPortraitPreview.value ? 9 / 16 : 16 / 9;
+  const availableWidth = statePreviewCanvasAvailableWidth.value;
+
+  if (availableWidth > 0) {
+    return {
+      width: `${availableWidth}px`,
+      height: `${availableWidth / frameRatio}px`
+    };
+  }
+
   if (computedIsPortraitPreview.value) {
     return {
       aspectRatio: '9 / 16',
-      width: 'min(100%, calc((100dvh - 24rem) * 9 / 16))'
+      width: '100%'
     };
   }
 
   return {
     aspectRatio: '16 / 9',
-    width: 'min(100%, calc((100dvh - 24rem) * 16 / 9))'
+    width: '100%'
   };
 });
 
@@ -1097,6 +1119,20 @@ const computedPreviewBaseMediaSize = computed(() => {
     height: stageHeight
   };
 });
+
+/**
+ * 函数：同步预览画布可用宽度。
+ */
+const previewCanvasAvailableWidthSync = (): void => {
+  const element = previewCanvasContainerElement.value;
+
+  if (!element) {
+    statePreviewCanvasAvailableWidth.value = 0;
+    return;
+  }
+
+  statePreviewCanvasAvailableWidth.value = element.clientWidth;
+};
 
 /**
  * 函数：同步预览舞台尺寸。
@@ -1308,9 +1344,10 @@ const computedAssetUploadDescription = computed(() => {
 });
 
 watch(
-  () => [previewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
+  () => [previewCanvasContainerElement.value, previewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
   () => {
     nextTick(() => {
+      previewCanvasAvailableWidthSync();
       previewStageSizeSync();
 
       const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
@@ -1322,20 +1359,22 @@ watch(
 );
 
 watch(
-  () => previewStageElement.value,
-  (element) => {
+  () => [previewCanvasContainerElement.value, previewStageElement.value] as const,
+  ([canvasElement, stageElement]) => {
     previewStageObserver?.disconnect();
 
-    if (!element) {
+    previewCanvasAvailableWidthSync();
+
+    if (!stageElement) {
       statePreviewStageSize.width = 0;
       statePreviewStageSize.height = 0;
-      return;
     }
 
     previewStageSizeSync();
 
     if (!previewStageObserver) {
       previewStageObserver = new ResizeObserver(() => {
+        previewCanvasAvailableWidthSync();
         previewStageSizeSync();
 
         const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
@@ -1345,7 +1384,13 @@ watch(
       });
     }
 
-    previewStageObserver.observe(element);
+    if (canvasElement) {
+      previewStageObserver.observe(canvasElement);
+    }
+
+    if (stageElement) {
+      previewStageObserver.observe(stageElement);
+    }
   }
 );
 
@@ -1903,9 +1948,11 @@ onBeforeUnmount(() => {
 });
 
 onMounted(() => {
+  previewCanvasAvailableWidthSync();
   previewStageSizeSync();
 
   previewStageObserver = new ResizeObserver(() => {
+    previewCanvasAvailableWidthSync();
     previewStageSizeSync();
 
     const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
@@ -1913,6 +1960,10 @@ onMounted(() => {
     statePreviewOffset.x = clampedOffset.x;
     statePreviewOffset.y = clampedOffset.y;
   });
+
+  if (previewCanvasContainerElement.value) {
+    previewStageObserver.observe(previewCanvasContainerElement.value);
+  }
 
   if (previewStageElement.value) {
     previewStageObserver.observe(previewStageElement.value);
