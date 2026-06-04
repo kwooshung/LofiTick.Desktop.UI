@@ -129,7 +129,7 @@ export type {
   TUnattendedStartBehavior
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
-export type { IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type { IOpenFileContentResult, IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
 export type {
   ITauriPodcastGenerateAccepted,
   ITauriPodcastNlpText,

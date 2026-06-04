@@ -32,3 +32,18 @@ export interface IOpenFilePayload {
    */
   filters?: IOpenFileFilter[];
 }
+
+/**
+ * 接口：原生文件选择结果
+ */
+export interface IOpenFileContentResult {
+  /**
+   * 文件名
+   */
+  fileName: string;
+
+  /**
+   * 文件内容 Base64
+   */
+  base64: string;
+}

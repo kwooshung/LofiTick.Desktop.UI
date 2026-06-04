@@ -324,6 +324,16 @@ const UPagination = resolveComponent('UPagination');
  */
 const toast = useToast();
 
+/**
+ * Hook：Tauri 运行时。
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口能力。
+ */
+const { openFileContent } = useTauriWindow();
+
 const props = withDefaults(defineProps<IPageAdHotsearchProps>(), {
   createNonce: 0
 });
@@ -854,6 +864,16 @@ const IMAGE_FILE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp
 const VIDEO_FILE_EXTENSIONS = new Set(['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi', 'mpeg', 'mpg']);
 
 /**
+ * 常量：图片素材文件过滤器扩展名。
+ */
+const IMAGE_FILE_FILTER_EXTENSIONS = Array.from(IMAGE_FILE_EXTENSIONS);
+
+/**
+ * 常量：视频素材文件过滤器扩展名。
+ */
+const VIDEO_FILE_FILTER_EXTENSIONS = Array.from(VIDEO_FILE_EXTENSIONS);
+
+/**
  * 函数：判断文件是否符合当前素材类型。
  * @param {'image' | 'video'} materialType 素材类型。
  * @param {File} file 文件。
@@ -868,6 +888,106 @@ const materialTypeMatchesFile = (materialType: 'image' | 'video', file: File): b
   }
 
   return mimeType.startsWith('video/') || VIDEO_FILE_EXTENSIONS.has(extension);
+};
+
+/**
+ * 函数：根据文件名推断素材 MIME。
+ * @param {string} fileName 文件名。
+ * @param {'image' | 'video'} materialType 素材类型。
+ * @returns {string} MIME。
+ */
+const fileMimeTypeGuess = (fileName: string, materialType: 'image' | 'video'): string => {
+  const extension = String(fileName.split('.').pop() || '')
+    .trim()
+    .toLowerCase();
+
+  if (materialType === 'image') {
+    if (extension === 'jpg' || extension === 'jpeg') {
+      return 'image/jpeg';
+    }
+
+    if (extension === 'svg') {
+      return 'image/svg+xml';
+    }
+
+    return extension === '' ? 'image/*' : `image/${extension}`;
+  }
+
+  if (extension === 'mov') {
+    return 'video/quicktime';
+  }
+
+  if (extension === 'm4v') {
+    return 'video/x-m4v';
+  }
+
+  if (extension === 'mpg') {
+    return 'video/mpeg';
+  }
+
+  return extension === '' ? 'video/*' : `video/${extension}`;
+};
+
+/**
+ * 函数：将 Base64 文本转为字节数组。
+ * @param {string} base64 Base64 文本。
+ * @returns {Uint8Array} 字节数组。
+ */
+const base64BytesDecode = (base64: string): Uint8Array => {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes;
+};
+
+/**
+ * 函数：构建素材选择对话框参数。
+ * @param {'image' | 'video'} materialType 素材类型。
+ * @returns {IOpenFilePayload} 对话框参数。
+ */
+const assetOpenFilePayloadBuild = (materialType: 'image' | 'video'): IOpenFilePayload => {
+  return {
+    title: materialType === 'image' ? '选择图片素材' : '选择视频素材',
+    filters: [
+      {
+        name: materialType === 'image' ? '图片文件' : '视频文件',
+        extensions: materialType === 'image' ? IMAGE_FILE_FILTER_EXTENSIONS : VIDEO_FILE_FILTER_EXTENSIONS
+      }
+    ]
+  };
+};
+
+/**
+ * 函数：提示素材类型不匹配。
+ * @param {'image' | 'video'} materialType 素材类型。
+ */
+const assetTypeMismatchToastShow = (materialType: 'image' | 'video'): void => {
+  toast.add({
+    description: materialType === 'image' ? '当前仅支持图片素材' : '当前仅支持视频素材',
+    color: 'error',
+    icon: 'i-lucide:triangle-alert',
+    duration: 2500,
+    type: 'foreground',
+    close: false
+  });
+};
+
+/**
+ * 函数：将原生文件选择结果转为浏览器 File。
+ * @param {IOpenFileContentResult} result 原生选择结果。
+ * @param {'image' | 'video'} materialType 素材类型。
+ * @returns {File} 文件对象。
+ */
+const tauriOpenFileResultToFile = (result: IOpenFileContentResult, materialType: 'image' | 'video'): File => {
+  const bytes = base64BytesDecode(result.base64);
+
+  return new File([bytes], result.fileName, {
+    type: fileMimeTypeGuess(result.fileName, materialType)
+  });
 };
 
 /**
@@ -1231,12 +1351,31 @@ const previewScaleClamp = (value: number): number => Math.min(1, Math.max(0.15, 
  * 事件：打开上传选择。
  * @param {() => void} open 文件上传打开函数。
  */
-const handlePreviewUploadOpen = (open: () => void): void => {
+const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
   if (stateSaving.value) {
     return;
   }
 
-  open();
+  const materialType = stateEditor.value.materialType;
+  if (!isTauriRuntime.value || (materialType !== 'image' && materialType !== 'video')) {
+    open();
+    return;
+  }
+
+  const result = await openFileContent(assetOpenFilePayloadBuild(materialType));
+  if (!result) {
+    return;
+  }
+
+  const nextFile = tauriOpenFileResultToFile(result, materialType);
+  if (!materialTypeMatchesFile(materialType, nextFile)) {
+    stateEditorAssetFile.value = null;
+    editorAssetClear();
+    assetTypeMismatchToastShow(materialType);
+    return;
+  }
+
+  stateEditorAssetFile.value = nextFile;
 };
 
 /**
@@ -1960,6 +2099,12 @@ watch(
     editorAssetClear();
 
     if (!file || stateEditor.value.materialType === 'none') {
+      return;
+    }
+
+    if (!materialTypeMatchesFile(stateEditor.value.materialType, file)) {
+      stateEditorAssetFile.value = null;
+      assetTypeMismatchToastShow(stateEditor.value.materialType);
       return;
     }
 
