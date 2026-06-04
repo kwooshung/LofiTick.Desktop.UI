@@ -27,151 +27,177 @@
       </div>
     </div>
 
-    <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="stateEditor.id > 0 ? '编辑广告' : '添加广告'" :ui="{ content: 'max-w-4xl', footer: 'justify-end' }">
+    <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="stateEditor.id > 0 ? '编辑广告' : '添加广告'" :ui="{ content: 'w-[80vw] max-w-[1920px]', footer: 'justify-end' }">
       <template #body>
-        <UForm id="hotsearchAdEditorForm" :schema="schema" :state="stateEditor" class="space-y-5" @submit="onSubmit">
-          <div class="grid gap-4 md:grid-cols-2">
-            <UFormField required name="title" label="广告标题" class="md:col-span-2">
-              <UInput v-model="stateEditor.title" placeholder="例如：早餐咖啡联名口播" class="w-full" />
-            </UFormField>
+        <UForm id="hotsearchAdEditorForm" :schema="schema" :state="stateEditor" class="space-y-5">
+          <div class="grid gap-4 lg:grid-rows-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div class="grid gap-4" :class="computedShowPreview && computedIsPortraitPreview ? 'lg:grid-cols-5' : 'lg:grid-cols-1'">
+              <div class="border-default bg-elevated/20 min-h-64 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-3' : ''">
+                <div class="space-y-4">
+                  <UFormField required name="title" label="广告标题">
+                    <UInput v-model="stateEditor.title" placeholder="例如：早餐咖啡联名口播" class="w-full" />
+                  </UFormField>
 
-            <UFormField required name="adType" label="广告类型">
-              <USelect v-model="stateEditor.adType" :items="adTypeOptions" value-attribute="value" option-attribute="label" class="w-full" />
-            </UFormField>
+                  <UFormField required name="editionScopes" label="适用栏目">
+                    <UCheckboxGroup v-model="stateEditor.editionScopes" :items="editorEditionScopeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactCheckboxCardGroupUi(2)" class="w-full" />
+                  </UFormField>
 
-            <UFormField required name="editionScopes" label="适用栏目">
-              <div class="grid gap-2 sm:grid-cols-2">
-                <label v-for="item in editorEditionScopeOptions" :key="item.value" class="border-default hover:bg-elevated/40 flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors">
-                  <UCheckbox :model-value="stateEditor.editionScopes.includes(item.value)" @update:model-value="(value) => handleEditionScopeToggle(item.value, Boolean(value))" />
-                  <span class="text-sm">{{ item.label }}</span>
-                </label>
-              </div>
-            </UFormField>
+                  <UFormField required name="placementType" label="广告位置">
+                    <URadioGroup v-model="stateEditor.placementType" :items="placementTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
+                  </UFormField>
 
-            <UFormField required name="materialType" label="素材类型">
-              <USelect v-model="stateEditor.materialType" :items="materialTypeOptions" value-attribute="value" option-attribute="label" class="w-full" :disabled="stateEditor.adType === 'oral'" />
-            </UFormField>
+                  <UFormField required name="adType" label="广告类型">
+                    <URadioGroup v-model="stateEditor.adType" :items="adTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(3)" class="w-full" />
+                  </UFormField>
 
-            <UFormField required name="frameType" label="画幅类型">
-              <USelect v-model="stateEditor.frameType" :items="frameTypeOptions" value-attribute="value" option-attribute="label" class="w-full" :disabled="stateEditor.materialType === 'none'" />
-            </UFormField>
+                  <template v-if="stateEditor.adType !== 'oral'">
+                    <UFormField required name="materialType" label="素材类型">
+                      <URadioGroup v-model="stateEditor.materialType" :items="materialTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
+                    </UFormField>
 
-            <UFormField required name="price" label="价格">
-              <UInputNumber v-model="stateEditor.price" :min="0" :step="0.01" :format-options="{ minimumFractionDigits: 2, maximumFractionDigits: 2 }" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
-            </UFormField>
-
-            <UFormField required name="priority" label="优先级">
-              <UInputNumber v-model="stateEditor.priority" :step="1" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
-            </UFormField>
-
-            <UFormField required name="startAt" label="生效日期">
-              <div class="border-default bg-elevated/20 space-y-3 rounded-(--ui-radius) border p-3">
-                <UPopover>
-                  <UButton color="neutral" variant="outline" class="w-full justify-between">
-                    <span>{{ calendarButtonLabelGet(stateEditor.startAt) }}</span>
-                    <UIcon name="i-lucide:calendar-days" class="text-dimmed size-4 shrink-0" />
-                  </UButton>
-
-                  <template #content>
-                    <div class="p-2">
-                      <UCalendar :model-value="computedStartDateValue" @update:model-value="handleStartDateUpdate" />
-                    </div>
+                    <UFormField required name="frameType" label="画幅类型">
+                      <URadioGroup v-model="stateEditor.frameType" :items="frameTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
+                    </UFormField>
                   </template>
-                </UPopover>
 
-                <UInputTime :model-value="computedStartTimeValue" granularity="minute" :hour-cycle="24" class="w-full" @update:model-value="handleStartTimeUpdate">
-                  <template #trailing>
-                    <UIcon name="i-lucide:clock-3" class="text-dimmed size-4" />
-                  </template>
-                </UInputTime>
-              </div>
-            </UFormField>
+                  <UFormField required name="price" label="价格">
+                    <UInputNumber v-model="stateEditor.price" :min="0" :step="0.01" :format-options="{ minimumFractionDigits: 2, maximumFractionDigits: 2 }" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+                  </UFormField>
 
-            <UFormField required name="endAt" label="失效日期">
-              <div class="border-default bg-elevated/20 space-y-3 rounded-(--ui-radius) border p-3">
-                <UPopover>
-                  <UButton color="neutral" variant="outline" class="w-full justify-between">
-                    <span>{{ calendarButtonLabelGet(stateEditor.endAt) }}</span>
-                    <UIcon name="i-lucide:calendar-days" class="text-dimmed size-4 shrink-0" />
-                  </UButton>
+                  <UFormField required name="priority" label="优先级">
+                    <UInputNumber v-model="stateEditor.priority" :step="1" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+                  </UFormField>
 
-                  <template #content>
-                    <div class="p-2">
-                      <UCalendar :model-value="computedEndDateValue" @update:model-value="handleEndDateUpdate" />
-                    </div>
-                  </template>
-                </UPopover>
+                  <UFormField required name="startAt" label="生效日期">
+                    <UFieldGroup class="w-full">
+                      <UPopover>
+                        <UInput :model-value="calendarButtonLabelGet(stateEditor.startAt)" readonly class="w-full" :ui="{ base: 'text-left' }" icon="i-lucide:calendar-days" />
 
-                <UInputTime :model-value="computedEndTimeValue" granularity="minute" :hour-cycle="24" class="w-full" @update:model-value="handleEndTimeUpdate">
-                  <template #trailing>
-                    <UIcon name="i-lucide:clock-9" class="text-dimmed size-4" />
-                  </template>
-                </UInputTime>
-              </div>
-            </UFormField>
-          </div>
+                        <template #content>
+                          <div class="p-2">
+                            <UCalendar :model-value="computedStartDateValue" @update:model-value="handleStartDateUpdate" />
+                          </div>
+                        </template>
+                      </UPopover>
 
-          <UFormField v-if="stateEditor.materialType !== 'none'" required name="asset" label="主素材">
-            <div class="border-default bg-elevated/15 space-y-4 rounded-2xl border p-4">
-              <UFileUpload
-                v-model="stateEditorAssetFile"
-                :accept="computedAssetAccept"
-                :multiple="false"
-                variant="area"
-                layout="list"
-                position="inside"
-                :dropzone="true"
-                :interactive="!stateSaving"
-                :disabled="stateSaving"
-                :label="computedAssetUploadLabel"
-                :description="computedAssetUploadDescription"
-                class="w-full"
-              >
-                <template #actions="{ files, open, removeFile }">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <UButton color="primary" variant="soft" size="sm" icon="i-lucide:folder-up" :disabled="stateSaving" @click.stop.prevent="open()">选择素材</UButton>
+                      <UInputTime :model-value="computedStartTimeValue" granularity="minute" :hour-cycle="24" class="w-44 shrink-0" @update:model-value="handleStartTimeUpdate">
+                        <template #trailing>
+                          <UIcon name="i-lucide:clock-3" class="text-dimmed size-4" />
+                        </template>
+                      </UInputTime>
+                    </UFieldGroup>
+                  </UFormField>
 
-                    <UButton v-if="files" color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :disabled="stateSaving" @click.stop.prevent="removeFile()">清空选择</UButton>
-                  </div>
-                </template>
+                  <UFormField required name="endAt" label="失效日期">
+                    <UFieldGroup class="w-full">
+                      <UPopover>
+                        <UInput :model-value="calendarButtonLabelGet(stateEditor.endAt)" readonly class="w-full" :ui="{ base: 'text-left' }" icon="i-lucide:calendar-days" />
 
-                <template #file-name="{ file }">
-                  <div class="text-highlighted text-sm font-medium">{{ file.name }}</div>
-                </template>
+                        <template #content>
+                          <div class="p-2">
+                            <UCalendar :model-value="computedEndDateValue" @update:model-value="handleEndDateUpdate" />
+                          </div>
+                        </template>
+                      </UPopover>
 
-                <template #file-size="{ file }">
-                  <div class="text-muted text-xs">{{ fileSizeTextGet(file.size) }}</div>
-                </template>
-              </UFileUpload>
+                      <UInputTime :model-value="computedEndTimeValue" granularity="minute" :hour-cycle="24" class="w-44 shrink-0" @update:model-value="handleEndTimeUpdate">
+                        <template #trailing>
+                          <UIcon name="i-lucide:clock-9" class="text-dimmed size-4" />
+                        </template>
+                      </UInputTime>
+                    </UFieldGroup>
+                  </UFormField>
 
-              <div v-if="stateEditor.asset" class="space-y-3">
-                <div class="text-muted flex flex-wrap items-center gap-2 text-xs">
-                  <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
-                  <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
-                  <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
+                  <UFormField name="notes" label="备注">
+                    <UTextarea v-model="stateEditor.notes" :rows="4" autoresize class="w-full" placeholder="记录合作说明、播客插入提示或排期备注。" />
+                  </UFormField>
                 </div>
+              </div>
 
-                <div class="border-default bg-default/80 overflow-hidden rounded-xl border p-2">
-                  <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="max-h-72 w-full rounded-lg object-contain" />
-                  <video v-else class="max-h-72 w-full rounded-lg" controls playsinline preload="metadata" :src="stateEditor.asset.previewUrl"></video>
+              <div v-if="computedShowPreview" class="border-default bg-elevated/15 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-2' : ''">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <div class="text-highlighted text-sm font-medium">主素材预览</div>
+                      <div class="text-muted text-xs">{{ computedIsPortraitPreview ? '竖屏 9:16 预览区域' : '横屏 16:9 预览区域' }}</div>
+                    </div>
+                  </div>
+
+                  <UFileUpload v-slot="{ open, removeFile }" v-model="stateEditorAssetFile" :accept="computedAssetAccept" :multiple="false" :dropzone="!stateSaving" :interactive="false" :disabled="stateSaving" :reset="true" class="w-full">
+                    <div class="space-y-3">
+                      <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
+                        <div
+                          ref="previewStageElement"
+                          class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border"
+                          :class="stateEditor.asset ? 'bg-black' : 'bg-default cursor-pointer'"
+                          @click="!stateEditor.asset && !stateSaving ? open() : undefined"
+                          @pointerdown="handlePreviewPointerDown"
+                          @pointermove="handlePreviewPointerMove"
+                          @pointerup="handlePreviewPointerUp"
+                          @pointercancel="handlePreviewPointerUp"
+                          @wheel.prevent="handlePreviewWheel"
+                        >
+                          <template v-if="stateEditor.asset">
+                            <div class="absolute inset-0 overflow-hidden bg-black">
+                              <div class="absolute inset-0 flex items-center justify-center" :style="computedPreviewMediaTransformStyle">
+                                <img v-if="stateEditor.materialType === 'image'" :src="stateEditor.asset.previewUrl" :alt="stateEditor.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
+                                <video v-else class="h-full w-full object-contain select-none" :src="stateEditor.asset.previewUrl" autoplay loop muted playsinline preload="metadata"></video>
+                              </div>
+                            </div>
+
+                            <div class="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
+                              <div class="rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">拖拽调整位置，滚轮或按钮缩放</div>
+
+                              <div class="flex items-center gap-1">
+                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-out" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewZoomOut" />
+                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:rotate-ccw" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewTransformReset" />
+                                <UButton color="neutral" variant="solid" size="xs" icon="i-lucide:zoom-in" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="handlePreviewZoomIn" />
+                              </div>
+                            </div>
+
+                            <div class="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
+                              <div class="flex flex-wrap items-center gap-2 rounded-md border border-white/12 bg-black/72 px-2 py-1 text-[11px] text-white/82 backdrop-blur">
+                                <span>{{ fileSizeTextGet(stateEditor.asset.fileSizeBytes) }}</span>
+                                <span v-if="stateEditor.asset.width > 0 && stateEditor.asset.height > 0">{{ `${stateEditor.asset.width} × ${stateEditor.asset.height}` }}</span>
+                                <span v-if="stateEditor.asset.durationMs > 0">{{ durationTextGet(stateEditor.asset.durationMs) }}</span>
+                              </div>
+
+                              <div class="flex items-center gap-1">
+                                <UButton color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving" @click.stop="open()">重新上传</UButton>
+                                <UButton color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving" @click.stop="removeFile()">删除素材</UButton>
+                              </div>
+                            </div>
+                          </template>
+
+                          <div v-else class="flex h-full w-full items-center justify-center p-4">
+                            <div class="w-full max-w-sm text-center">
+                              <div class="bg-elevated mx-auto mb-3 flex size-12 items-center justify-center rounded-full">
+                                <UIcon name="i-lucide:image-up" class="text-primary size-5" />
+                              </div>
+                              <div class="text-highlighted text-sm font-medium">{{ computedAssetUploadLabel }}</div>
+                              <div class="text-muted mt-1 text-xs">{{ computedAssetUploadDescription }}</div>
+                              <div class="mt-3 flex justify-center">
+                                <UButton color="primary" variant="soft" size="sm" :disabled="stateSaving" @click.stop="open()">选择素材</UButton>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </UFileUpload>
                 </div>
               </div>
             </div>
-          </UFormField>
 
-          <UFormField name="notes" label="备注">
-            <UTextarea v-model="stateEditor.notes" :rows="4" autoresize class="w-full" placeholder="记录合作说明、播客插入提示或排期备注。" />
-          </UFormField>
-
-          <UFormField name="isEnabled" label="启用状态">
-            <USwitch v-model="stateEditor.isEnabled" />
-          </UFormField>
+            <div class="border-default bg-elevated/20 min-h-48 rounded-(--ui-radius) border"></div>
+          </div>
         </UForm>
       </template>
 
       <template #footer="{ close }">
         <UButton type="button" color="neutral" variant="outline" @click="close">取消</UButton>
-        <UButton type="submit" form="hotsearchAdEditorForm" icon="i-lucide-save" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving">保存</UButton>
+        <UButton type="button" color="neutral" variant="soft" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">保存不启用</UButton>
+        <UButton type="button" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(true)">保存并启用</UButton>
       </template>
     </UModal>
 
@@ -192,6 +218,7 @@
           <div class="flex flex-wrap gap-2">
             <UBadge :color="stateDetailRow.isEnabled ? 'primary' : 'neutral'" variant="soft">{{ stateDetailRow.isEnabled ? '启用中' : '已停用' }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ adTypeLabelGet(stateDetailRow.adType) }}</UBadge>
+            <UBadge color="neutral" variant="soft">{{ placementTypeLabelGet(stateDetailRow.placementType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ frameTypeLabelGet(stateDetailRow.frameType) }}</UBadge>
           </div>
@@ -242,13 +269,26 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date';
 import { CalendarDate, parseTime } from '@internationalized/date';
-import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
+import type { TableColumn } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 import { z } from 'zod';
 
+import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
 import { hotsearchAdEditionScopeOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
+/**
+ * 函数：判断是否为单个日期值。
+ * @param {unknown} value 日历更新值。
+ * @returns {value is DateValue} 是否为单个日期值。
+ */
+const isSingleCalendarDateValue = (value: unknown): value is DateValue => {
+  if (!value || Array.isArray(value) || typeof value !== 'object') {
+    return false;
+  }
+
+  return 'year' in value && 'month' in value && 'day' in value;
+};
 
 /**
  * 组件：日期时间。
@@ -267,11 +307,6 @@ const UButton = resolveComponent('UButton');
 
 /**
  * 组件：开关。
- */
-const USwitch = resolveComponent('USwitch');
-
-/**
- * 组件：分页。
  */
 const UPagination = resolveComponent('UPagination');
 
@@ -313,6 +348,36 @@ const stateDetailOpen = ref(false);
 const stateEditorAssetFile = ref<File | null>(null);
 
 /**
+ * 状态：预览舞台元素。
+ */
+const previewStageElement = ref<HTMLDivElement | null>(null);
+
+/**
+ * 状态：预览舞台尺寸。
+ */
+const statePreviewStageSize = reactive({ width: 0, height: 0 });
+
+/**
+ * 状态：预览缩放比例。
+ */
+const statePreviewScale = ref(1);
+
+/**
+ * 状态：预览位移。
+ */
+const statePreviewOffset = reactive({ x: 0, y: 0 });
+
+/**
+ * 状态：预览拖拽中。
+ */
+const statePreviewDragging = reactive({ active: false, pointerId: -1, startX: 0, startY: 0, originX: 0, originY: 0 });
+
+/**
+ * 变量：预览舞台尺寸观察器。
+ */
+let previewStageObserver: ResizeObserver | null = null;
+
+/**
  * 状态：详情行。
  */
 const stateDetailRow = ref<IHotsearchAdMaterialSummaryRow>({
@@ -322,6 +387,7 @@ const stateDetailRow = ref<IHotsearchAdMaterialSummaryRow>({
   materialType: 'none',
   frameType: 'none',
   editionScope: 'both',
+  placementType: 'opening',
   price: 0,
   priority: 0,
   isEnabled: false,
@@ -359,11 +425,12 @@ const editorDefaultStateCreate = (): IPageAdHotsearchEditorForm => {
     materialType: 'none',
     frameType: 'none',
     editionScopes: ['morning', 'evening'],
+    placementType: 'opening',
     price: 0,
     priority: 0,
     asset: null,
     notes: '',
-    isEnabled: true,
+    isEnabled: false,
     startAt: localDateTimeValueCreate(todayStart),
     endAt: localDateTimeValueCreate(todayEnd)
   };
@@ -380,14 +447,49 @@ const stateEditor = ref<IPageAdHotsearchEditorForm>(editorDefaultStateCreate());
 const adTypeOptions = [
   { label: '口播', value: 'oral' },
   { label: '画中画', value: 'picture_in_picture' },
-  { label: '混剪', value: 'montage' }
+  { label: '拼接', value: 'montage' }
 ];
+
+/**
+ * 常量：广告位置选项。
+ */
+const placementTypeOptions = [
+  { label: '开头广告', value: 'opening' },
+  { label: '结尾广告', value: 'closing' }
+];
+
+/**
+ * 函数：构建紧凑单选卡片组样式。
+ * @param {number} columns 列数。
+ * @returns {{ fieldset: string; item: string; container: string; wrapper: string; label: string; base: string }} 组件样式。
+ */
+const compactRadioCardGroupUi = (columns: number): { fieldset: string; item: string; container: string; wrapper: string; label: string; base: string } => ({
+  fieldset: `grid w-full gap-2 ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`,
+  item: 'border-default bg-default min-h-10 rounded-(--ui-radius) px-3 py-2 has-data-[state=checked]:border-default',
+  container: 'flex h-full items-center',
+  wrapper: 'flex min-h-full items-center',
+  label: 'leading-none',
+  base: 'self-center'
+});
+
+/**
+ * 函数：构建紧凑复选卡片组样式。
+ * @param {number} columns 列数。
+ * @returns {{ fieldset: string; item: string; container: string; wrapper: string; label: string; base: string }} 组件样式。
+ */
+const compactCheckboxCardGroupUi = (columns: number): { fieldset: string; item: string; container: string; wrapper: string; label: string; base: string } => ({
+  fieldset: `grid w-full gap-2 ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`,
+  item: 'border-default bg-default min-h-10 rounded-(--ui-radius) px-3 py-2 has-data-[state=checked]:border-default',
+  container: 'flex h-full items-center',
+  wrapper: 'flex min-h-full items-center',
+  label: 'leading-none',
+  base: 'self-center'
+});
 
 /**
  * 常量：素材类型选项。
  */
 const materialTypeOptions = [
-  { label: '无素材', value: 'none' },
   { label: '图片', value: 'image' },
   { label: '视频', value: 'video' }
 ];
@@ -396,7 +498,6 @@ const materialTypeOptions = [
  * 常量：画幅类型选项。
  */
 const frameTypeOptions = [
-  { label: '不区分', value: 'none' },
   { label: '横版', value: 'landscape' },
   { label: '竖版', value: 'portrait' }
 ];
@@ -416,6 +517,7 @@ const schema = z
     materialType: z.enum(['none', 'image', 'video']),
     frameType: z.enum(['none', 'landscape', 'portrait']),
     editionScopes: z.array(z.enum(['morning', 'evening'])).min(1, '请至少选择一个适用栏目'),
+    placementType: z.enum(['opening', 'closing']),
     price: z.number().min(0, '价格必须大于等于 0'),
     priority: z.number().int('优先级必须是整数'),
     asset: z
@@ -431,7 +533,6 @@ const schema = z
       })
       .nullable(),
     notes: z.string().max(500, '备注不能超过 500 个字符'),
-    isEnabled: z.boolean(),
     startAt: z
       .string()
       .trim()
@@ -605,7 +706,7 @@ const textFromTimeValue = (value: TAdInputTimeValue, fallback: string): string =
 const datePartGet = (value: string): string => {
   const matched = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}$/.exec(String(value || '').trim());
 
-  return matched ? matched[1] : '';
+  return matched?.[1] ?? '';
 };
 
 /**
@@ -617,7 +718,7 @@ const datePartGet = (value: string): string => {
 const timePartGet = (value: string, fallback: string): string => {
   const matched = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})$/.exec(String(value || '').trim());
 
-  return matched ? matched[1] : fallback;
+  return matched?.[1] ?? fallback;
 };
 
 /**
@@ -723,7 +824,7 @@ const mediaMetadataRead = async (materialType: 'image' | 'video', previewUrl: st
 const fileExtGet = (file: File): string => {
   const matched = /\.([^.]+)$/.exec(file.name.trim());
 
-  return matched ? matched[1].toLowerCase() : '';
+  return matched?.[1]?.toLowerCase() ?? '';
 };
 
 /**
@@ -887,6 +988,8 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
 const editorAssetClear = (): void => {
   const previewUrl = String(stateEditor.value.asset?.previewUrl ?? '').trim();
 
+  handlePreviewTransformReset();
+
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
   }
@@ -924,6 +1027,241 @@ const computedStartTimeValue = computed(() => timeValueFromText(timePartGet(stat
 const computedEndTimeValue = computed(() => timeValueFromText(timePartGet(stateEditor.value.endAt, '23:59'), '23:59'));
 
 /**
+ * 计算属性：是否显示主素材预览区域。
+ */
+const computedShowPreview = computed(() => stateEditor.value.adType !== 'oral');
+
+/**
+ * 计算属性：是否为竖屏预览布局。
+ */
+const computedIsPortraitPreview = computed(() => stateEditor.value.adType !== 'oral' && stateEditor.value.frameType === 'portrait');
+
+/**
+ * 计算属性：预览画布尺寸类名。
+ */
+const computedPreviewCanvasClass = computed(() => (computedIsPortraitPreview.value ? 'aspect-[9/16] w-full' : 'aspect-video w-full'));
+
+/**
+ * 计算属性：预览画布自适应尺寸样式。
+ * @returns {{ width: string; maxHeight: string }} 样式对象。
+ */
+const computedPreviewCanvasStyle = computed(() => {
+  if (computedIsPortraitPreview.value) {
+    return {
+      width: 'min(100%, calc((100dvh - 24rem) * 9 / 16))',
+      maxHeight: 'calc(100dvh - 24rem)'
+    };
+  }
+
+  return {
+    width: 'min(100%, calc((100dvh - 24rem) * 16 / 9))',
+    maxHeight: 'calc(100dvh - 24rem)'
+  };
+});
+
+/**
+ * 计算属性：素材原始宽高比。
+ */
+const computedPreviewAssetAspectRatio = computed(() => {
+  const asset = stateEditor.value.asset;
+
+  if (asset && asset.width > 0 && asset.height > 0) {
+    return asset.width / asset.height;
+  }
+
+  return computedIsPortraitPreview.value ? 9 / 16 : 16 / 9;
+});
+
+/**
+ * 计算属性：素材在舞台内 contain 后的基础尺寸。
+ */
+const computedPreviewBaseMediaSize = computed(() => {
+  const stageWidth = statePreviewStageSize.width;
+  const stageHeight = statePreviewStageSize.height;
+
+  if (stageWidth <= 0 || stageHeight <= 0) {
+    return { width: 0, height: 0 };
+  }
+
+  const stageAspectRatio = stageWidth / stageHeight;
+  const assetAspectRatio = computedPreviewAssetAspectRatio.value;
+
+  if (assetAspectRatio >= stageAspectRatio) {
+    return {
+      width: stageWidth,
+      height: stageWidth / assetAspectRatio
+    };
+  }
+
+  return {
+    width: stageHeight * assetAspectRatio,
+    height: stageHeight
+  };
+});
+
+/**
+ * 函数：同步预览舞台尺寸。
+ */
+const previewStageSizeSync = (): void => {
+  const element = previewStageElement.value;
+
+  if (!element) {
+    statePreviewStageSize.width = 0;
+    statePreviewStageSize.height = 0;
+    return;
+  }
+
+  statePreviewStageSize.width = element.clientWidth;
+  statePreviewStageSize.height = element.clientHeight;
+};
+
+/**
+ * 函数：限制预览偏移，确保素材边缘始终位于黑色舞台内。
+ * @param {number} x 横向偏移。
+ * @param {number} y 纵向偏移。
+ * @param {number} scale 缩放值。
+ * @returns {{ x: number; y: number }} 合法偏移。
+ */
+const previewOffsetClamp = (x: number, y: number, scale = statePreviewScale.value): { x: number; y: number } => {
+  const stageWidth = statePreviewStageSize.width;
+  const stageHeight = statePreviewStageSize.height;
+  const baseWidth = computedPreviewBaseMediaSize.value.width;
+  const baseHeight = computedPreviewBaseMediaSize.value.height;
+
+  if (stageWidth <= 0 || stageHeight <= 0 || baseWidth <= 0 || baseHeight <= 0) {
+    return { x: 0, y: 0 };
+  }
+
+  const scaledWidth = baseWidth * scale;
+  const scaledHeight = baseHeight * scale;
+  const maxOffsetX = scaledWidth <= stageWidth ? (stageWidth - scaledWidth) / 2 : 0;
+  const maxOffsetY = scaledHeight <= stageHeight ? (stageHeight - scaledHeight) / 2 : 0;
+
+  return {
+    x: Math.min(maxOffsetX, Math.max(-maxOffsetX, x)),
+    y: Math.min(maxOffsetY, Math.max(-maxOffsetY, y))
+  };
+};
+
+/**
+ * 计算属性：预览媒体位移缩放样式。
+ * @returns {{ transform: string; transformOrigin: string; cursor: string }} 样式对象。
+ */
+const computedPreviewMediaTransformStyle = computed(() => ({
+  transform: `translate3d(${statePreviewOffset.x}px, ${statePreviewOffset.y}px, 0) scale(${statePreviewScale.value})`,
+  transformOrigin: 'center center',
+  cursor: statePreviewDragging.active ? 'grabbing' : 'grab'
+}));
+
+/**
+ * 函数：限制预览缩放比例。
+ * @param {number} value 缩放值。
+ * @returns {number} 合法缩放值。
+ */
+const previewScaleClamp = (value: number): number => Math.min(3, Math.max(0.5, Number.isFinite(value) ? value : 1));
+
+/**
+ * 事件：重置预览位移与缩放。
+ */
+const handlePreviewTransformReset = (): void => {
+  statePreviewScale.value = 1;
+  statePreviewOffset.x = 0;
+  statePreviewOffset.y = 0;
+  statePreviewDragging.active = false;
+  statePreviewDragging.pointerId = -1;
+};
+
+/**
+ * 事件：预览放大。
+ */
+const handlePreviewZoomIn = (): void => {
+  statePreviewScale.value = previewScaleClamp(statePreviewScale.value + 0.1);
+  const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+  statePreviewOffset.x = clampedOffset.x;
+  statePreviewOffset.y = clampedOffset.y;
+};
+
+/**
+ * 事件：预览缩小。
+ */
+const handlePreviewZoomOut = (): void => {
+  statePreviewScale.value = previewScaleClamp(statePreviewScale.value - 0.1);
+  const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+  statePreviewOffset.x = clampedOffset.x;
+  statePreviewOffset.y = clampedOffset.y;
+};
+
+/**
+ * 事件：滚轮缩放预览。
+ * @param {WheelEvent} event 滚轮事件。
+ */
+const handlePreviewWheel = (event: WheelEvent): void => {
+  if (!stateEditor.value.asset) {
+    return;
+  }
+
+  statePreviewScale.value = previewScaleClamp(statePreviewScale.value + (event.deltaY < 0 ? 0.1 : -0.1));
+  const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+  statePreviewOffset.x = clampedOffset.x;
+  statePreviewOffset.y = clampedOffset.y;
+};
+
+/**
+ * 事件：开始拖拽预览。
+ * @param {PointerEvent} event 指针事件。
+ */
+const handlePreviewPointerDown = (event: PointerEvent): void => {
+  if (!stateEditor.value.asset) {
+    return;
+  }
+
+  const target = event.currentTarget as HTMLElement | null;
+
+  statePreviewDragging.active = true;
+  statePreviewDragging.pointerId = event.pointerId;
+  statePreviewDragging.startX = event.clientX;
+  statePreviewDragging.startY = event.clientY;
+  statePreviewDragging.originX = statePreviewOffset.x;
+  statePreviewDragging.originY = statePreviewOffset.y;
+
+  target?.setPointerCapture(event.pointerId);
+};
+
+/**
+ * 事件：拖拽移动预览。
+ * @param {PointerEvent} event 指针事件。
+ */
+const handlePreviewPointerMove = (event: PointerEvent): void => {
+  if (!statePreviewDragging.active || statePreviewDragging.pointerId !== event.pointerId) {
+    return;
+  }
+
+  const clampedOffset = previewOffsetClamp(statePreviewDragging.originX + (event.clientX - statePreviewDragging.startX), statePreviewDragging.originY + (event.clientY - statePreviewDragging.startY));
+
+  statePreviewOffset.x = clampedOffset.x;
+  statePreviewOffset.y = clampedOffset.y;
+};
+
+/**
+ * 事件：结束拖拽预览。
+ * @param {PointerEvent} event 指针事件。
+ */
+const handlePreviewPointerUp = (event: PointerEvent): void => {
+  if (statePreviewDragging.pointerId !== event.pointerId) {
+    return;
+  }
+
+  const target = event.currentTarget as HTMLElement | null;
+
+  statePreviewDragging.active = false;
+  statePreviewDragging.pointerId = -1;
+  target?.releasePointerCapture(event.pointerId);
+};
+
+/**
  * 计算属性：素材接收类型。
  */
 const computedAssetAccept = computed(() => {
@@ -952,6 +1290,58 @@ const computedAssetUploadDescription = computed(() => {
   return stateEditor.value.materialType === 'image' ? '支持常见图片格式，建议提前准备清晰主视觉。' : '支持常见视频格式，建议先裁切到最终投放片段。';
 });
 
+watch(
+  () => [previewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
+  () => {
+    nextTick(() => {
+      previewStageSizeSync();
+
+      const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+      statePreviewOffset.x = clampedOffset.x;
+      statePreviewOffset.y = clampedOffset.y;
+    });
+  }
+);
+
+watch(
+  () => previewStageElement.value,
+  (element) => {
+    previewStageObserver?.disconnect();
+
+    if (!element) {
+      statePreviewStageSize.width = 0;
+      statePreviewStageSize.height = 0;
+      return;
+    }
+
+    previewStageSizeSync();
+
+    if (!previewStageObserver) {
+      previewStageObserver = new ResizeObserver(() => {
+        previewStageSizeSync();
+
+        const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+        statePreviewOffset.x = clampedOffset.x;
+        statePreviewOffset.y = clampedOffset.y;
+      });
+    }
+
+    previewStageObserver.observe(element);
+  }
+);
+
+watch(
+  () => statePreviewScale.value,
+  () => {
+    const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+    statePreviewOffset.x = clampedOffset.x;
+    statePreviewOffset.y = clampedOffset.y;
+  }
+);
+
 /**
  * 函数：获取广告类型文案。
  * @param {IHotsearchAdMaterialSummaryRow['adType']} value 广告类型。
@@ -967,7 +1357,24 @@ const adTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['adType']): string
   }
 
   if (value === 'montage') {
-    return '混剪';
+    return '拼接';
+  }
+
+  return value;
+};
+
+/**
+ * 函数：获取广告位置文案。
+ * @param {IHotsearchAdMaterialSummaryRow['placementType']} value 广告位置。
+ * @returns {string} 文案。
+ */
+const placementTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['placementType']): string => {
+  if (value === 'opening') {
+    return '开头广告';
+  }
+
+  if (value === 'closing') {
+    return '结尾广告';
   }
 
   return value;
@@ -1058,6 +1465,7 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     materialType: String(item.materialType ?? ''),
     frameType: String(item.frameType ?? ''),
     editionScope: String(item.editionScope ?? ''),
+    placementType: String(item.placementType ?? ''),
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
     isEnabled: Boolean(item.isEnabled),
@@ -1105,10 +1513,10 @@ const computedItemsPerPage = computed<number>(() => {
 
 /**
  * 事件：开始日期变更。
- * @param {DateValue | undefined} value 日期值。
+ * @param {unknown} value 日期值。
  */
-const handleStartDateUpdate = (value: DateValue | undefined): void => {
-  if (!value) {
+const handleStartDateUpdate = (value: unknown): void => {
+  if (!isSingleCalendarDateValue(value)) {
     return;
   }
 
@@ -1117,10 +1525,10 @@ const handleStartDateUpdate = (value: DateValue | undefined): void => {
 
 /**
  * 事件：结束日期变更。
- * @param {DateValue | undefined} value 日期值。
+ * @param {unknown} value 日期值。
  */
-const handleEndDateUpdate = (value: DateValue | undefined): void => {
-  if (!value) {
+const handleEndDateUpdate = (value: unknown): void => {
+  if (!isSingleCalendarDateValue(value)) {
     return;
   }
 
@@ -1160,6 +1568,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     materialType: String(source.materialType ?? ''),
     frameType: String(source.frameType ?? ''),
     editionScope: String(source.editionScope ?? ''),
+    placementType: String(source.placementType ?? 'opening'),
     price: Number(source.price ?? 0),
     priority: Number(source.priority ?? 0),
     isEnabled: Boolean(source.isEnabled),
@@ -1178,17 +1587,6 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
 const handleCreate = () => {
   editorReset();
   stateEditorOpen.value = true;
-};
-
-/**
- * 事件：切换适用栏目。
- * @param {'morning' | 'evening'} value 栏目值。
- * @param {boolean} enabled 是否选中。
- */
-const handleEditionScopeToggle = (value: 'morning' | 'evening', enabled: boolean): void => {
-  const nextValues = enabled ? [...stateEditor.value.editionScopes, value] : stateEditor.value.editionScopes.filter((item) => item !== value);
-
-  stateEditor.value.editionScopes = Array.from(new Set(nextValues));
 };
 
 /**
@@ -1214,9 +1612,10 @@ const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning'
  * 函数：构建保存请求。
  * @param {IPageAdHotsearchEditorForm} source 表单状态。
  * @param {IHotsearchAdMaterialAsset | null} asset 已上传素材。
+ * @param {boolean} isEnabled 是否启用。
  * @returns {Record<string, unknown>} 保存请求。
  */
-const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchAdMaterialAsset | null): Record<string, unknown> => {
+const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchAdMaterialAsset | null, isEnabled: boolean): Record<string, unknown> => {
   const adType = source.adType;
   const materialType = adType === 'oral' ? 'none' : source.materialType;
   const frameType = materialType === 'none' ? 'none' : source.frameType;
@@ -1227,11 +1626,12 @@ const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchA
     materialType,
     frameType,
     editionScope: editionScopePayloadGet(source.editionScopes),
+    placementType: source.placementType,
     price: source.price,
     priority: source.priority,
     asset: materialType === 'none' ? undefined : asset,
     notes: source.notes.trim() === '' ? undefined : source.notes.trim(),
-    isEnabled: source.isEnabled,
+    isEnabled,
     startAt: new Date(source.startAt).toISOString(),
     endAt: new Date(source.endAt).toISOString()
   };
@@ -1239,10 +1639,10 @@ const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchA
 
 /**
  * 事件：提交新增表单。
- * @param {FormSubmitEvent<z.output<typeof schema>>} event 表单提交事件。
+ * @param {boolean} isEnabled 是否启用。
  */
-const onSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>): Promise<void> => {
-  if (!schema.safeParse(event.data).success || stateSaving.value) {
+const onSubmit = async (isEnabled: boolean): Promise<void> => {
+  if (!schema.safeParse({ ...stateEditor.value }).success || stateSaving.value) {
     return;
   }
 
@@ -1260,7 +1660,7 @@ const onSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>): Promis
     }
 
     await refreshCreate({
-      datas: savePayloadBuild(stateEditor.value, uploadedAsset),
+      datas: savePayloadBuild(stateEditor.value, uploadedAsset, isEnabled),
       replace: true
     });
 
@@ -1307,6 +1707,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
         h('div', { class: 'flex flex-wrap gap-1.5' }, [
           h(UBadge, { color: item.isEnabled ? 'primary' : 'neutral', variant: 'soft' }, () => (item.isEnabled ? '启用中' : '已停用')),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => adTypeLabelGet(item.adType)),
+          h(UBadge, { color: 'neutral', variant: 'soft' }, () => placementTypeLabelGet(item.placementType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => materialTypeLabelGet(item.materialType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => frameTypeLabelGet(item.frameType))
         ])
@@ -1325,7 +1726,12 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     cell: ({ row }) => {
       const item = row.original;
 
-      return h('div', { class: 'space-y-1.5 text-sm' }, [h('div', { class: 'text-highlighted' }, editionScopeLabelGet(item.editionScope)), h('div', { class: 'text-muted text-xs' }, `优先级 ${item.priority}`), h('div', { class: 'text-muted text-xs' }, item.priceText)]);
+      return h('div', { class: 'space-y-1.5 text-sm' }, [
+        h('div', { class: 'text-highlighted' }, editionScopeLabelGet(item.editionScope)),
+        h('div', { class: 'text-muted text-xs' }, placementTypeLabelGet(item.placementType)),
+        h('div', { class: 'text-muted text-xs' }, `优先级 ${item.priority}`),
+        h('div', { class: 'text-muted text-xs' }, item.priceText)
+      ]);
     },
     meta: {
       class: {
@@ -1393,6 +1799,15 @@ watch(
     if (value === 'oral') {
       stateEditor.value.materialType = 'none';
       stateEditor.value.frameType = 'none';
+      return;
+    }
+
+    if (stateEditor.value.materialType === 'none') {
+      stateEditor.value.materialType = 'image';
+    }
+
+    if (stateEditor.value.frameType === 'none') {
+      stateEditor.value.frameType = 'landscape';
     }
   }
 );
@@ -1465,6 +1880,25 @@ watch(
 );
 
 onBeforeUnmount(() => {
+  previewStageObserver?.disconnect();
+  previewStageObserver = null;
   editorAssetClear();
+});
+
+onMounted(() => {
+  previewStageSizeSync();
+
+  previewStageObserver = new ResizeObserver(() => {
+    previewStageSizeSync();
+
+    const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
+
+    statePreviewOffset.x = clampedOffset.x;
+    statePreviewOffset.y = clampedOffset.y;
+  });
+
+  if (previewStageElement.value) {
+    previewStageObserver.observe(previewStageElement.value);
+  }
 });
 </script>

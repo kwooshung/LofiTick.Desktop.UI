@@ -39,7 +39,7 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
    * - blurAmount：模糊圆动画时的模糊量，默认 1
    * - styleId：动态注入样式的 style 元素 ID，默认 theme-switch-style
    */
-  const { duration: propsDuration = 750, easing = 'ease-in-out', pseudoElement = '::view-transition-new(root)', globalClassName = 'dark', animationType = EThemeAnimationType.BLUR_CIRCLE, blurAmount = 1, styleId = 'theme-switch-style' } = options;
+  const { duration: propsDuration = 3000, easing = 'ease-in-out', pseudoElement = '::view-transition-new(root)', globalClassName = 'dark', animationType = EThemeAnimationType.BLUR_CIRCLE, blurAmount = 1, styleId = 'theme-switch-style' } = options;
 
   /**
    * Hook：主题模式
@@ -188,19 +188,19 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
     const scaleFactor = hr ? 2.5 : 4;
     const optimalMaskSize = hr ? Math.min(viewportSize * scaleFactor, 5000) : viewportSize * scaleFactor;
 
+    let blurAnimationDuration = duration;
+
     if (animationType === EThemeAnimationType.BLUR_CIRCLE) {
       const styleElement = document.createElement('style');
       styleElement.id = styleId;
 
       const blurFactor = hr ? 1.5 : 1.2;
       const finalMaskSize = Math.max(optimalMaskSize, maxRadius * 2.5);
-
-      // 为了避免结束时闪一下：动画时间略长于 duration，且 fill-mode: both
-      const maskAnimDuration = duration + 80;
+      blurAnimationDuration = hr ? Math.max(duration + 120, 700) : duration;
 
       styleElement.textContent = `
         ::view-transition-group(root) {
-          animation-duration: ${duration}ms;
+          animation-duration: ${blurAnimationDuration}ms;
           animation-timing-function: ${
             hr ? 'cubic-bezier(0.2, 0, 0.2, 1)' : 'linear(' + '0 0%, 0.2342 12.49%, 0.4374 24.99%,' + '0.6093 37.49%, 0.6835 43.74%,' + '0.7499 49.99%, 0.8086 56.25%,' + '0.8593 62.5%, 0.9023 68.75%, 0.9375 75%,' + '0.9648 81.25%, 0.9844 87.5%,' + '0.9961 93.75%, 1 100%' + ')'
           };
@@ -210,14 +210,14 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
         ::view-transition-new(root) {
           mask: ${createBlurCircleMask(blurAmount * blurFactor)} 0 0 / 100% 100% no-repeat;
           mask-position: ${x}px ${y}px;
-          animation: maskScale ${maskAnimDuration}ms ${easing} both;
+          animation: maskScale ${blurAnimationDuration}ms ${easing} both;
           transform-origin: ${x}px ${y}px;
           will-change: mask-size, mask-position;
         }
 
         ::view-transition-old(root),
         .${globalClassName}::view-transition-old(root) {
-          animation: maskScale ${maskAnimDuration}ms ${easing} both;
+          animation: maskScale ${blurAnimationDuration}ms ${easing} both;
           transform-origin: ${x}px ${y}px;
           z-index: -1;
           will-change: mask-size, mask-position;
@@ -278,12 +278,18 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
 
     // === BLUR_CIRCLE 样式清理（比动画稍晚一点） ===
     if (animationType === EThemeAnimationType.BLUR_CIRCLE) {
-      setTimeout(() => {
-        const styleElement = document.getElementById(styleId);
-        if (styleElement) {
-          styleElement.remove();
-        }
-      }, duration + 120);
+      void vt.finished.finally(() => {
+        window.setTimeout(
+          () => {
+            const styleElement = document.getElementById(styleId);
+
+            if (styleElement) {
+              styleElement.remove();
+            }
+          },
+          Math.max(blurAnimationDuration - duration, 16)
+        );
+      });
     }
   };
 

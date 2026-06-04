@@ -52,6 +52,9 @@ export interface IHotsearchAdMaterialSummaryRow {
   /** 栏目范围 */
   editionScope: string;
 
+  /** 广告位置 */
+  placementType: string;
+
   /** 价格 */
   price: number;
 
@@ -135,6 +138,9 @@ export interface IPageAdHotsearchEditorForm {
   /** 栏目范围 */
   editionScopes: Array<'morning' | 'evening'>;
 
+  /** 广告位置 */
+  placementType: 'opening' | 'closing';
+
   /** 价格 */
   price: number;
 
@@ -207,6 +213,9 @@ export interface IPageTableColumnHotsearchAdMaterial {
 
   /** 栏目范围 */
   editionScope: string;
+
+  /** 广告位置 */
+  placementType: string;
 
   /** 价格文本 */
   priceText: string;
