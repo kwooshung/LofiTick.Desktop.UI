@@ -142,28 +142,29 @@
                     >
                       <div ref="previewCanvasContainerElement" class="w-full">
                         <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
-                          <UFileUpload
-                            v-if="!stateEditor.asset"
-                            v-model="stateEditorAssetFile"
-                            :accept="computedAssetDropAccept"
-                            :multiple="false"
-                            variant="area"
-                            layout="list"
-                            position="inside"
-                            :dropzone="!stateSaving && !stateEditorAssetSelecting"
-                            :interactive="!stateSaving && !stateEditorAssetSelecting && !isTauriRuntime"
-                            :disabled="stateSaving || stateEditorAssetSelecting"
-                            :reset="true"
-                            :label="computedAssetUploadLabel"
-                            :description="computedAssetUploadDescription"
-                            class="h-full w-full"
-                          >
-                            <template #actions="{ open }">
-                              <div class="flex justify-center">
-                                <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
-                              </div>
-                            </template>
-                          </UFileUpload>
+                          <div v-if="!stateEditor.asset" class="h-full w-full" :class="isTauriRuntime ? 'cursor-pointer' : ''" @click="handlePreviewUploadAreaClick">
+                            <UFileUpload
+                              v-model="stateEditorAssetFile"
+                              :accept="computedAssetDropAccept"
+                              :multiple="false"
+                              variant="area"
+                              layout="list"
+                              position="inside"
+                              :dropzone="!stateSaving && !stateEditorAssetSelecting"
+                              :interactive="!stateSaving && !stateEditorAssetSelecting && !isTauriRuntime"
+                              :disabled="stateSaving || stateEditorAssetSelecting"
+                              :reset="true"
+                              :label="computedAssetUploadLabel"
+                              :description="computedAssetUploadDescription"
+                              class="h-full w-full"
+                            >
+                              <template #actions="{ open }">
+                                <div class="flex justify-center">
+                                  <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+                                </div>
+                              </template>
+                            </UFileUpload>
+                          </div>
 
                           <UFileUpload
                             v-else
@@ -1969,6 +1970,19 @@ const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
   } finally {
     stateEditorAssetSelecting.value = false;
   }
+};
+
+/**
+ * 事件：点击空素材上传区域。
+ *
+ * Tauri 环境下复用选择素材按钮的原生文件读取入口。
+ */
+const handlePreviewUploadAreaClick = (): void => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  void handlePreviewUploadOpen(() => undefined);
 };
 
 /**
