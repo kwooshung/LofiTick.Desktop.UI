@@ -1,5 +1,12 @@
 export const ads = {
   title: '广告',
+  filters: {
+    allEditions: '全部栏目',
+    allPlatforms: '全部平台',
+    allStatuses: '全部状态',
+    enabled: '启用',
+    disabled: '停用'
+  },
   hotsearch: {
     form: {
       title: '广告标题',

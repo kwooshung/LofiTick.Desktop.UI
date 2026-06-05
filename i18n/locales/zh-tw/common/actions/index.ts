@@ -1,4 +1,5 @@
 export const actions = {
+  all: '全部',
   cancel: '取消',
   save: '儲存',
   add: '新增',

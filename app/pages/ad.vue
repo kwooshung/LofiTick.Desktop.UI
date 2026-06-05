@@ -78,18 +78,18 @@ const stateEnabled = ref(typeof route.query.enabled === 'string' ? route.query.e
 /**
  * 常量：栏目范围选项。
  */
-const editionScopeOptions = [{ label: '全部栏目', value: EDITION_SCOPE_ALL_VALUE }, ...hotsearchAdEditionScopeOptionsGet()];
+const editionScopeOptions = computed(() => [{ label: t('pages.ads.filters.allEditions'), value: EDITION_SCOPE_ALL_VALUE }, ...hotsearchAdEditionScopeOptionsGet()]);
 
-const platformOptions = computed(() => [{ label: t('common.actions.all') || '全部平台', value: null }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
+const platformOptions = computed(() => [{ label: t('pages.ads.filters.allPlatforms'), value: null }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
 
 /**
  * 常量：启用状态选项。
  */
-const enabledOptions = [
-  { label: '全部状态', value: ENABLED_ALL_VALUE },
-  { label: '启用', value: 'true' },
-  { label: '停用', value: 'false' }
-];
+const enabledOptions = computed(() => [
+  { label: t('pages.ads.filters.allStatuses'), value: ENABLED_ALL_VALUE },
+  { label: t('pages.ads.filters.enabled'), value: 'true' },
+  { label: t('pages.ads.filters.disabled'), value: 'false' }
+]);
 
 /**
  * 状态：创建 nonce。
@@ -189,6 +189,7 @@ const handleFiltersApply = () => {
 const handleFiltersReset = () => {
   stateKeyword.value = '';
   stateEditionScope.value = EDITION_SCOPE_ALL_VALUE;
+  statePlatform.value = null;
   stateEnabled.value = ENABLED_ALL_VALUE;
 
   const pageSize = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
@@ -219,7 +220,7 @@ watch(
     stateKeyword.value = typeof route.query.keyword === 'string' ? route.query.keyword : '';
     stateEditionScope.value = typeof route.query.editionScope === 'string' ? route.query.editionScope : EDITION_SCOPE_ALL_VALUE;
     stateEnabled.value = typeof route.query.enabled === 'string' ? route.query.enabled : ENABLED_ALL_VALUE;
-    statePlatform.value = typeof route.query.platform === 'string' ? route.query.platform : '';
+    statePlatform.value = typeof route.query.platform === 'string' ? route.query.platform : null;
   }
 );
 </script>

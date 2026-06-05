@@ -2340,6 +2340,58 @@ const platformLabelGet = (frameType: IHotsearchAdMaterialSummaryRow['frameType']
 };
 
 /**
+ * 函数：渲染广告信息摘要标签。
+ *
+ * 通过统一的轻量标签样式，压缩表格内的信息密度并提升扫读效率。
+ *
+ * # Arguments
+ *
+ * * `label` - 标签标题。
+ * * `value` - 标签内容。
+ * * `tone` - 标签视觉层级。
+ *
+ * # Returns
+ *
+ * 返回单个摘要标签节点。
+ */
+const adInfoChipRender = (label: string, value: string, tone: 'primary' | 'neutral' = 'neutral') =>
+  h(
+    'span',
+    {
+      class:
+        tone === 'primary' ? 'inline-flex items-center rounded-md border border-primary/18 bg-primary/8 px-2 py-1 text-[11px] leading-none font-medium text-primary' : 'inline-flex items-center rounded-md border border-default bg-elevated/70 px-2 py-1 text-[11px] leading-none font-medium text-toned'
+    },
+    [h('span', { class: tone === 'primary' ? 'text-primary/70' : 'text-muted' }, `${label}：`), h('span', { class: 'ml-1' }, value)]
+  );
+
+/**
+ * 函数：渲染广告信息摘要区。
+ *
+ * 将标题、投放摘要和素材摘要收敛为两排可换行的 chips，减少长句拼接造成的阅读压力。
+ *
+ * # Arguments
+ *
+ * * `item` - 当前表格行数据。
+ * * `showAssetMeta` - 是否显示素材相关摘要标签。
+ *
+ * # Returns
+ *
+ * 返回广告信息单元格节点。
+ */
+const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, showAssetMeta = true) => {
+  const title = item.title || '未命名广告';
+  const primaryChips = [adInfoChipRender('栏目', editionScopeLabelGet(item.editionScope), 'primary'), adInfoChipRender('平台', platformLabelGet(item.frameType), 'primary'), adInfoChipRender('优先级', String(item.priority), 'primary')];
+
+  const assetChips = [adInfoChipRender('素材', materialTypeLabelGet(item.materialType)), adInfoChipRender('类型', presentationTypeLabelGet(item.presentationType)), adInfoChipRender('画幅', frameTypeLabelGet(item.frameType)), adInfoChipRender('位置', placementTypeLabelGet(item.placementType))];
+
+  return h('div', { class: 'space-y-2 py-1' }, [
+    h('div', { class: 'text-sm leading-6 font-semibold text-highlighted whitespace-normal break-words' }, title),
+    h('div', { class: 'flex flex-wrap gap-1.5' }, primaryChips),
+    ...(showAssetMeta ? [h('div', { class: 'flex flex-wrap gap-1.5' }, assetChips)] : [])
+  ]);
+};
+
+/**
  * 函数：渲染栏目复选框（只读）。
  * @param {IPageTableColumnHotsearchAdMaterial} item 表格行。
  * @returns {VNode} 栏目节点。
@@ -2355,50 +2407,19 @@ const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdM
 };
 /**
  * 计算属性：表格数据。
- */
-const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => {
-  if (!datas.value?.rows || datas.value.rows.length === 0) {
-    return [];
-  }
-
-  const rows = datas.value.rows.map((item) => ({
-    id: Number(item.id ?? 0),
-    title: String(item.title ?? ''),
-    presentationType: String(item.presentationType ?? ''),
-    materialType: String(item.materialType ?? ''),
-    frameType: String(item.frameType ?? ''),
-    editionScope: String(item.editionScope ?? ''),
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
     platformIds: Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [],
     platformKeyFirst: (() => {
       const pids = Array.isArray(item.platformIds) ? item.platformIds : [];
-      if (!pids || pids.length === 0) {
-        return '';
-      }
-      const opt = adDeliveryPlatformOptions.find((o) => o.id === Number(pids[0]));
-      return opt ? opt.key : '';
-    })(),
-    placementType: String(item.placementType ?? ''),
-    priceText: priceTextGet(Number(item.price ?? 0)),
-    priority: Number(item.priority ?? 0),
-    isEnabled: Boolean(item.isEnabled),
-    startAt: hotsearchDatetimeValueGet(item.startAt),
-    endAt: hotsearchDatetimeValueGet(item.endAt),
-    updatedAt: hotsearchDatetimeValueGet(item.updatedAt),
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
     createdAt: hotsearchDatetimeValueGet(item.createdAt)
   }));
 
   const by = hotsearchOrderByCurrentGet();
   const dir = hotsearchOrderDirCurrentGet();
-  const factor = dir === 'asc' ? 1 : -1;
-
-  rows.sort((left, right) => {
-    if (by === 'id') {
-      return (left.id - right.id) * factor;
-    }
-
-    if (by === 'created') {
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original, false)
       return (Date.parse(left.createdAt) - Date.parse(right.createdAt)) * factor;
     }
 
@@ -2937,50 +2958,19 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'adInfoSm',
     header: '广告信息',
     meta: { class: { th: 'lg:hidden text-sm', td: 'lg:hidden align-middle' } },
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-2 py-0.5' }, [
-        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
-        h('div', { class: 'text-xs text-muted leading-5 whitespace-normal break-words' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`),
-        h(
-          'div',
-          { class: 'text-xs text-muted leading-5 whitespace-normal break-words' },
-          `素材类型：${materialTypeLabelGet(item.materialType)} · 广告类型：${presentationTypeLabelGet(item.presentationType)} · 画幅：${frameTypeLabelGet(item.frameType)} · 位置：${placementTypeLabelGet(item.placementType)}`
-        )
-      ]);
-    }
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
   },
   {
     id: 'adInfoMd',
     header: '广告信息',
     meta: { class: { th: 'hidden lg:table-cell xl:hidden min-w-58 text-sm', td: 'hidden lg:table-cell xl:hidden min-w-58 align-middle' } },
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-2 py-0.5' }, [
-        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
-        h('div', { class: 'text-xs text-muted leading-5 whitespace-normal break-words' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`),
-        h(
-          'div',
-          { class: 'text-xs text-muted leading-5 whitespace-normal break-words' },
-          `素材类型：${materialTypeLabelGet(item.materialType)} · 广告类型：${presentationTypeLabelGet(item.presentationType)} · 画幅：${frameTypeLabelGet(item.frameType)} · 位置：${placementTypeLabelGet(item.placementType)}`
-        )
-      ]);
-    }
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
   },
   {
     id: 'adInfoLg',
     header: '广告信息',
     meta: { class: { th: 'hidden xl:table-cell 2xl:hidden min-w-58 text-sm', td: 'hidden xl:table-cell 2xl:hidden min-w-58 align-middle' } },
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-2 py-0.5' }, [
-        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
-        h('div', { class: 'text-xs text-muted leading-5' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`)
-      ]);
-    }
+    cell: ({ row }) => hotsearchAdInfoCellRender(row.original, false)
   },
   {
     id: 'titleXl',

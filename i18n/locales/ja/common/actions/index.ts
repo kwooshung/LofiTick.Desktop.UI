@@ -1,4 +1,5 @@
 export const actions = {
+  all: 'すべて',
   cancel: 'キャンセル',
   save: '保存',
   add: '追加',

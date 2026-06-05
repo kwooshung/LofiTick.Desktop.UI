@@ -1,4 +1,5 @@
 export const actions = {
+  all: 'All',
   cancel: 'Cancel',
   save: 'Save',
   add: 'Add',
