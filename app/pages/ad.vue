@@ -14,7 +14,7 @@
 
         <USelect v-model="stateEnabled" :items="enabledOptions" value-attribute="value" option-attribute="label" class="w-28" @update:model-value="handleFiltersApply" />
 
-        <UInput v-model="stateKeyword" placeholder="搜索广告标题" :ui="{ trailing: 'pe-1' }" class="w-48 xl:w-56" @keyup.enter="handleFiltersApply">
+        <UInput v-model="stateKeyword" :placeholder="t('pages.ads.filters.keywordPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-48 xl:w-56" @keyup.enter="handleFiltersApply">
           <template #leading>
             <UIcon name="i-lucide:search" class="text-dimmed size-4" />
           </template>
@@ -24,7 +24,7 @@
           </template>
         </UInput>
 
-        <UButton icon="i-lucide-plus" color="primary" @click="handleToolbarCreate">添加广告</UButton>
+        <UButton icon="i-lucide-plus" color="primary" @click="handleToolbarCreate">{{ t('pages.ads.actions.create') }}</UButton>
       </template>
     </template>
 

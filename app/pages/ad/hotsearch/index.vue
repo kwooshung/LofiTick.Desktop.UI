@@ -21,7 +21,7 @@
     </div>
 
     <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
-      <div class="muted text-sm">{{ `共 ${Number(datas?.total ?? 0)} 条` }}</div>
+      <div class="muted text-sm">{{ t('pages.ads.hotsearch.table.total', { total: Number(datas?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="Number(datas?.total ?? 0)" />
       </div>
@@ -60,7 +60,7 @@
                     </UFormField>
                   </template>
 
-                  <UFormField required name="platformIds" :label="t('pages.ads.hotsearch.form.platform')">
+                  <UFormField required name="platformIds" :label="t('pages.ads.hotsearch.form.platformIds')">
                     <USelect v-model="stateEditor.platformIds" multiple :items="editorPlatformOptions" value-key="value" label-key="label" :placeholder="t('pages.ads.hotsearch.form.platformPlaceholder')" size="sm" color="primary" variant="outline" :ui="{ content: 'min-w-fit' }" class="w-full" />
                   </UFormField>
 
@@ -90,7 +90,7 @@
                       </UInputTime>
                     </UFieldGroup>
                   </UFormField>
-                  <UFormField required name="endAt" label="失效日期">
+                  <UFormField required name="endAt" :label="t('pages.ads.hotsearch.form.endAt')">
                     <UFieldGroup class="w-full">
                       <UPopover>
                         <UInput :model-value="calendarButtonLabelGet(stateEditor.endAt)" readonly class="w-full" :ui="{ base: 'text-left' }" icon="i-lucide:calendar-days" />
@@ -110,8 +110,8 @@
                     </UFieldGroup>
                   </UFormField>
 
-                  <UFormField name="notes" label="备注">
-                    <UTextarea v-model="stateEditor.notes" :rows="4" autoresize class="w-full" placeholder="记录合作说明、播客插入提示或排期备注。" />
+                  <UFormField name="notes" :label="t('pages.ads.hotsearch.form.notes')">
+                    <UTextarea v-model="stateEditor.notes" :rows="4" autoresize class="w-full" :placeholder="t('pages.ads.hotsearch.form.notesPlaceholder')" />
                   </UFormField>
                 </div>
               </div>
@@ -120,15 +120,15 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between gap-3">
                     <div>
-                      <div class="text-highlighted text-sm font-medium">主素材预览</div>
-                      <div class="text-muted text-xs">{{ computedIsPortraitPreview ? '竖屏 9:16 预览区域' : '横屏 16:9 预览区域' }}</div>
+                      <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.preview.mainAsset') }}</div>
+                      <div class="text-muted text-xs">{{ computedIsPortraitPreview ? t('pages.ads.hotsearch.preview.portraitHint') : t('pages.ads.hotsearch.preview.landscapeHint') }}</div>
                     </div>
                   </div>
 
                   <div class="space-y-3">
                     <Spin
                       :loading="stateEditorAssetSelecting || stateEditorAssetLoading"
-                      :tip="stateEditorAssetSelecting ? '正在读取所选素材...' : '正在加载素材...'"
+                      :tip="stateEditorAssetSelecting ? t('pages.ads.hotsearch.preview.selecting') : t('pages.ads.hotsearch.preview.loading')"
                       icon="i-lucide:loader-circle"
                       icon-class="size-4 shrink-0 text-white/88"
                       content-class="flex-row gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88"
@@ -158,7 +158,7 @@
                             >
                               <template #actions="{ open }">
                                 <div class="flex justify-center">
-                                  <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">选择素材</UButton>
+                                  <UButton type="button" color="primary" variant="soft" size="sm" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">{{ t('pages.ads.hotsearch.actions.chooseAsset') }}</UButton>
                                 </div>
                               </template>
                             </UFileUpload>
@@ -209,15 +209,15 @@
                               <div data-preview-control="true" class="pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex items-center justify-end gap-2">
                                 <div class="flex items-center gap-1">
                                   <UButton type="button" color="neutral" variant="solid" size="xs" class="bg-black/72 text-white ring-1 ring-white/12 backdrop-blur hover:bg-black/82" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewUploadOpen(open)">
-                                    重新上传
+                                    {{ t('pages.ads.hotsearch.actions.reupload') }}
                                   </UButton>
                                   <UButton type="button" color="error" variant="solid" size="xs" class="bg-red-950/82 text-white ring-1 ring-red-300/18 backdrop-blur hover:bg-red-900/90" :disabled="stateSaving || stateEditorAssetSelecting" @click.stop.prevent="handlePreviewAssetClear">
-                                    删除素材
+                                    {{ t('pages.ads.hotsearch.actions.deleteAsset') }}
                                   </UButton>
                                 </div>
                               </div>
 
-                              <div v-if="stateEditor.asset.path" class="pointer-events-none absolute inset-x-3 bottom-14 z-10 text-[11px] break-all text-white/72">素材路径：{{ assetPathLabelGet(stateEditor.asset.path) }}</div>
+                              <div v-if="stateEditor.asset.path" class="pointer-events-none absolute inset-x-3 bottom-14 z-10 text-[11px] break-all text-white/72">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateEditor.asset.path) }) }}</div>
                             </div>
                           </UFileUpload>
                         </div>
@@ -236,7 +236,7 @@
                     <div class="text-muted text-xs">{{ computedEditorAdvertisementDescription }}</div>
                   </div>
 
-                  <UButton type="button" color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="stateSaving" @click="handleEditorAdvertisementItemAppend">添加片段</UButton>
+                  <UButton type="button" color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="stateSaving" @click="handleEditorAdvertisementItemAppend">{{ t('pages.ads.hotsearch.actions.addSegment') }}</UButton>
                 </div>
 
                 <UEmpty v-if="stateEditorAdvertisementItems.length === 0" icon="i-lucide:audio-lines" :title="computedEditorAdvertisementEmptyTitle" :description="computedEditorAdvertisementEmptyDescription" />
@@ -283,7 +283,7 @@
       </template>
 
       <template #footer="{ close }">
-        <UButton type="button" color="neutral" variant="outline" @click="close">取消</UButton>
+        <UButton type="button" color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
         <UButton type="button" color="neutral" variant="soft" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">{{ computedEditorSecondaryActionLabel }}</UButton>
         <UButton type="button" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(true)">{{ computedEditorPrimaryActionLabel }}</UButton>
       </template>
@@ -292,8 +292,8 @@
     <USlideover
       v-model:open="stateDetailOpen"
       side="right"
-      :title="stateDetailRow.title || '未命名广告'"
-      description="热搜播客广告物料"
+      :title="stateDetailRow.title || t('pages.ads.hotsearch.table.untitled')"
+      :description="t('pages.ads.hotsearch.detail.description')"
       :ui="{
         content: 'w-auto max-w-140',
         body: 'scrollbar space-y-5',
@@ -304,7 +304,7 @@
       <template #body>
         <div class="space-y-4">
           <div class="flex flex-wrap gap-2">
-            <UBadge :color="stateDetailRow.isEnabled ? 'primary' : 'neutral'" variant="soft">{{ stateDetailRow.isEnabled ? '启用中' : '已停用' }}</UBadge>
+            <UBadge :color="stateDetailRow.isEnabled ? 'primary' : 'neutral'" variant="soft">{{ stateDetailRow.isEnabled ? t('pages.ads.hotsearch.status.enabled') : t('pages.ads.hotsearch.status.disabled') }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ placementTypeLabelGet(stateDetailRow.placementType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</UBadge>
@@ -312,11 +312,11 @@
           </div>
 
           <div v-if="stateDetailRow.asset" class="space-y-3">
-            <div class="text-highlighted text-sm font-medium">主素材</div>
+            <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.mainAsset') }}</div>
 
             <Spin
               :loading="stateDetailAssetPreviewLoading"
-              tip="正在加载素材..."
+              :tip="t('pages.ads.hotsearch.preview.loading')"
               icon="i-lucide:loader-circle"
               icon-class="size-4 shrink-0 text-white/88"
               content-class="flex-row gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88"
@@ -329,7 +329,7 @@
               <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="stateDetailRow.frameType === 'portrait' ? 'mx-auto aspect-9/16 max-w-64' : 'aspect-video w-full'">
                 <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
                 <video v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" class="h-full w-full object-contain select-none" :src="stateDetailAssetPreviewUrl" controls playsinline preload="metadata"></video>
-                <div v-else class="text-muted flex h-full items-center justify-center text-sm">暂无可预览素材</div>
+                <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>
               </div>
             </Spin>
 
@@ -339,43 +339,43 @@
               <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
             </div>
 
-            <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">素材路径：{{ assetPathLabelGet(stateDetailRow.asset.path) }}</div>
+            <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateDetailRow.asset.path) }) }}</div>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
-              <div class="text-muted text-xs">适用栏目</div>
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.editionScope') }}</div>
               <div class="text-highlighted mt-1 text-sm font-semibold">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
-              <div class="text-muted text-xs">素材类型</div>
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.materialType') }}</div>
               <div class="text-highlighted mt-1 text-sm font-semibold">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
-              <div class="text-muted text-xs">价格</div>
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.price') }}</div>
               <div class="text-highlighted mt-1 text-sm font-semibold">{{ priceTextGet(stateDetailRow.price) }}</div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
-              <div class="text-muted text-xs">优先级</div>
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.priority') }}</div>
               <div class="text-highlighted mt-1 text-sm font-semibold">{{ stateDetailRow.priority }}</div>
             </div>
           </div>
 
           <div class="space-y-3 text-sm">
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">生效时间</span>
+              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.startAt') }}</span>
               <Datetime :datetime="stateDetailRow.startAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">失效时间</span>
+              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.endAt') }}</span>
               <Datetime :datetime="stateDetailRow.endAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">更新时间</span>
+              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.updatedAt') }}</span>
               <Datetime :datetime="stateDetailRow.updatedAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">创建时间</span>
+              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.createdAt') }}</span>
               <Datetime :datetime="stateDetailRow.createdAt" mode="datetime" />
             </div>
           </div>
@@ -726,20 +726,18 @@ const stateEditor = ref<IPageAdHotsearchEditorForm>(editorDefaultStateCreate());
 /**
  * 常量：广告类型选项。
  */
-const presentationTypeBaseOptions = [
-  { label: '口播', value: 'voice' },
-  { label: '画中画', value: 'pip' },
-  { label: '拼接', value: 'montage' }
-];
-
-const presentationTypeOptions = computed(() => presentationTypeBaseOptions);
+const presentationTypeOptions = computed(() => [
+  { label: t('pages.ads.hotsearch.labels.presentation.voice'), value: 'voice' },
+  { label: t('pages.ads.hotsearch.labels.presentation.pip'), value: 'pip' },
+  { label: t('pages.ads.hotsearch.labels.presentation.montage'), value: 'montage' }
+]);
 
 /**
  * 常量：广告位置选项。
  */
 const placementTypeOptions = [
-  { label: '开头广告', value: 'opening' },
-  { label: '结尾广告', value: 'closing' }
+  { label: t('pages.ads.hotsearch.labels.placement.openingAd'), value: 'opening' },
+  { label: t('pages.ads.hotsearch.labels.placement.closingAd'), value: 'closing' }
 ];
 
 /**
@@ -774,16 +772,16 @@ const compactCheckboxCardGroupUi = (columns: number): { fieldset: string; item: 
  * 常量：素材类型选项。
  */
 const materialTypeOptions = [
-  { label: '图片', value: 'image' },
-  { label: '视频', value: 'video' }
+  { label: t('pages.ads.hotsearch.labels.material.image'), value: 'image' },
+  { label: t('pages.ads.hotsearch.labels.material.video'), value: 'video' }
 ];
 
 /**
  * 常量：画幅类型选项。
  */
 const frameTypeOptions = [
-  { label: '横版', value: 'landscape' },
-  { label: '竖版', value: 'portrait' }
+  { label: t('pages.ads.hotsearch.labels.frame.landscapeShort'), value: 'landscape' },
+  { label: t('pages.ads.hotsearch.labels.frame.portraitShort'), value: 'portrait' }
 ];
 
 /**
@@ -815,80 +813,89 @@ const adDeliveryPlatformKindMap = computed(() => {
 });
 
 /**
+ * 函数：获取投放平台选项列表。
+ * @param {number[]} platformIds 平台 ID 列表。
+ * @returns {typeof adDeliveryPlatformOptions} 平台选项列表。
+ */
+const platformOptionsByIdsGet = (platformIds: number[]) => {
+  return adDeliveryPlatformOptions.filter((item) => platformIds.includes(item.id));
+};
+
+/**
  * 常量：表单校验。
  */
 const schema = z
   .object({
-    title: z.string().trim().min(1, '请填写广告标题').max(120, '广告标题不能超过 120 个字符'),
+    title: z.string().trim().min(1, t('pages.ads.hotsearch.validation.titleRequired')).max(120, t('pages.ads.hotsearch.validation.titleTooLong')),
     presentationType: z.enum(['voice', 'pip', 'montage']),
     materialType: z.enum(['none', 'image', 'video']),
     frameType: z.enum(['none', 'landscape', 'portrait']),
-    editionScopes: z.array(z.enum(['morning', 'evening'])).min(1, '请至少选择一个适用栏目'),
+    editionScopes: z.array(z.enum(['morning', 'evening'])).min(1, t('pages.ads.hotsearch.validation.editionScopesRequired')),
     placementType: z.enum(['opening', 'closing']),
-    platformIds: z.array(z.number().int().positive()).min(1, '请至少选择一个投放平台'),
-    price: z.number().min(0, '价格必须大于等于 0'),
-    priority: z.number().int('优先级必须是整数'),
+    platformIds: z.array(z.number().int().positive()).min(1, t('pages.ads.hotsearch.validation.platformIdsRequired')),
+    price: z.number().min(0, t('pages.ads.hotsearch.validation.priceMin')),
+    priority: z.number().int(t('pages.ads.hotsearch.validation.priorityInteger')),
     asset: z
       .object({
-        originalName: z.string().trim().min(1, '请选择素材文件'),
-        mimeType: z.string().trim().min(1, '素材类型不正确'),
-        fileExt: z.string().trim().min(1, '素材扩展名不能为空'),
-        fileSizeBytes: z.number().positive('素材大小必须大于 0'),
+        originalName: z.string().trim().min(1, t('pages.ads.hotsearch.validation.assetOriginalNameRequired')),
+        mimeType: z.string().trim().min(1, t('pages.ads.hotsearch.validation.assetMimeInvalid')),
+        fileExt: z.string().trim().min(1, t('pages.ads.hotsearch.validation.assetFileExtRequired')),
+        fileSizeBytes: z.number().positive(t('pages.ads.hotsearch.validation.assetFileSizePositive')),
         width: z.number().min(0),
         height: z.number().min(0),
         durationMs: z.number().min(0),
         previewUrl: z.string().trim().min(1)
       })
       .nullable(),
-    notes: z.string().max(500, '备注不能超过 500 个字符'),
+    notes: z.string().max(500, t('pages.ads.hotsearch.validation.notesTooLong')),
     startAt: z
       .string()
       .trim()
-      .min(1, '请选择生效时间')
-      .refine((value) => !Number.isNaN(new Date(value).getTime()), '生效时间格式不正确'),
+      .min(1, t('pages.ads.hotsearch.validation.startAtRequired'))
+      .refine((value) => !Number.isNaN(new Date(value).getTime()), t('pages.ads.hotsearch.validation.startAtInvalid')),
     endAt: z
       .string()
       .trim()
-      .min(1, '请选择失效时间')
-      .refine((value) => !Number.isNaN(new Date(value).getTime()), '失效时间格式不正确')
+      .min(1, t('pages.ads.hotsearch.validation.endAtRequired'))
+      .refine((value) => !Number.isNaN(new Date(value).getTime()), t('pages.ads.hotsearch.validation.endAtInvalid'))
   })
   .superRefine((value, ctx) => {
     if (value.presentationType === 'voice' && value.materialType !== 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '口播呈现方式的素材类型必须是无素材' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: t('pages.ads.hotsearch.validation.voiceMaterialMustBeNone') });
     }
 
     if (value.presentationType !== 'voice' && value.materialType === 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '非口播呈现方式必须选择图片或视频素材' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: t('pages.ads.hotsearch.validation.nonVoiceMaterialRequired') });
     }
 
     if (value.materialType === 'none' && value.frameType !== 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frameType'], message: '无素材广告的画幅类型必须是不区分' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frameType'], message: t('pages.ads.hotsearch.validation.noneMaterialFrameMustBeNone') });
     }
 
     if (value.materialType !== 'none' && value.frameType === 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frameType'], message: '图片或视频素材必须指定画幅类型' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frameType'], message: t('pages.ads.hotsearch.validation.materialFrameRequired') });
     }
 
     if (value.materialType !== 'none' && !value.asset) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: '请选择对应的图片或视频素材' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: t('pages.ads.hotsearch.validation.assetRequired') });
     }
 
     if (value.materialType === 'image' && value.asset?.mimeType && !value.asset.mimeType.startsWith('image/')) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: '图片广告必须上传图片素材' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: t('pages.ads.hotsearch.validation.imageAssetRequired') });
     }
 
     if (value.materialType === 'video' && value.asset?.mimeType && !value.asset.mimeType.startsWith('video/')) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: '视频广告必须上传视频素材' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['asset'], message: t('pages.ads.hotsearch.validation.videoAssetRequired') });
     }
 
     if (new Date(value.startAt).getTime() > new Date(value.endAt).getTime()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endAt'], message: '失效时间必须大于等于生效时间' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endAt'], message: t('pages.ads.hotsearch.validation.endAtAfterStartAt') });
     }
 
     const requiredPlatformKind = editorRequiredPlatformKindResolve(value.presentationType, value.frameType);
 
     if (requiredPlatformKind && value.platformIds.some((id) => adDeliveryPlatformKindMap.value.get(id) !== requiredPlatformKind)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['platformIds'], message: '投放平台必须匹配当前口播或画幅类型' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['platformIds'], message: t('pages.ads.hotsearch.validation.platformKindMismatch') });
     }
   });
 
@@ -900,17 +907,17 @@ const computedCanSubmit = computed(() => schema.safeParse({ ...stateEditor.value
 /**
  * 计算属性：编辑器弹窗标题。
  */
-const computedEditorModalTitle = computed(() => (stateEditor.value.id > 0 ? '修改广告' : '添加广告'));
+const computedEditorModalTitle = computed(() => (stateEditor.value.id > 0 ? t('pages.ads.hotsearch.editor.editTitle') : t('pages.ads.hotsearch.editor.createTitle')));
 
 /**
  * 计算属性：编辑器次按钮文案。
  */
-const computedEditorSecondaryActionLabel = computed(() => (stateEditor.value.id > 0 ? '修改但不启用' : '保存不启用'));
+const computedEditorSecondaryActionLabel = computed(() => (stateEditor.value.id > 0 ? t('pages.ads.hotsearch.editor.editDisabled') : t('pages.ads.hotsearch.editor.createDisabled')));
 
 /**
  * 计算属性：编辑器主按钮文案。
  */
-const computedEditorPrimaryActionLabel = computed(() => (stateEditor.value.id > 0 ? '修改并启用' : '保存并启用'));
+const computedEditorPrimaryActionLabel = computed(() => (stateEditor.value.id > 0 ? t('pages.ads.hotsearch.editor.editEnabled') : t('pages.ads.hotsearch.editor.createEnabled')));
 
 /**
  * 状态：分页大小 cookie。
@@ -1162,7 +1169,7 @@ const calendarIsoDateGet = (value: DateValue): string => {
 const calendarButtonLabelGet = (value: string): string => {
   const dateText = datePartGet(value);
 
-  return dateText === '' ? '请选择日期' : dateText.replaceAll('-', '/');
+  return dateText === '' ? t('pages.ads.hotsearch.picker.selectDate') : dateText.replaceAll('-', '/');
 };
 
 /**
@@ -1348,10 +1355,10 @@ const base64BytesDecode = (base64: string): Uint8Array => {
  */
 const assetOpenFilePayloadBuild = (materialType: 'image' | 'video'): IOpenFilePayload => {
   return {
-    title: materialType === 'image' ? '选择图片素材' : '选择视频素材',
+    title: materialType === 'image' ? t('pages.ads.hotsearch.picker.selectImageTitle') : t('pages.ads.hotsearch.picker.selectVideoTitle'),
     filters: [
       {
-        name: materialType === 'image' ? '图片文件' : '视频文件',
+        name: materialType === 'image' ? t('pages.ads.hotsearch.picker.imageFile') : t('pages.ads.hotsearch.picker.videoFile'),
         extensions: materialType === 'image' ? IMAGE_FILE_FILTER_EXTENSIONS : VIDEO_FILE_FILTER_EXTENSIONS
       }
     ]
@@ -1364,7 +1371,7 @@ const assetOpenFilePayloadBuild = (materialType: 'image' | 'video'): IOpenFilePa
  */
 const assetTypeMismatchToastShow = (materialType: 'image' | 'video'): void => {
   toast.add({
-    description: materialType === 'image' ? '当前仅支持图片素材' : '当前仅支持视频素材',
+    description: materialType === 'image' ? t('pages.ads.hotsearch.toast.imageOnly') : t('pages.ads.hotsearch.toast.videoOnly'),
     color: 'error',
     icon: 'i-lucide:triangle-alert',
     duration: 2500,
@@ -1486,11 +1493,11 @@ const editorAssetPathCreate = (file: File): string => {
  * @returns {Promise<IHotsearchAdMaterialAsset>} 已上传素材。
  */
 const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAsset): Promise<IHotsearchAdMaterialAsset> => {
-  const errorMessage = '素材上传失败';
+  const errorMessage = t('pages.ads.hotsearch.toast.assetUploadFailed');
   const draftPath = editorAssetPathCreate(file);
 
   if (!isTauriRuntime.value) {
-    throw new Error('当前环境不支持写入附件目录');
+    throw new Error(t('pages.ads.hotsearch.toast.tauriWriteUnsupported'));
   }
 
   const policy = await requestUpyunDirectUploadPolicySnapshot(
@@ -1654,7 +1661,7 @@ const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'wi
  * @returns {Promise<IPageAdHotsearchEditorAsset>} 编辑器素材。
  */
 const editorAssetStateBuild = async (asset: IHotsearchAdMaterialAsset): Promise<IPageAdHotsearchEditorAsset> => {
-  const previewUrl = await assetPreviewUrlResolve(asset, '获取广告素材签名地址失败');
+  const previewUrl = await assetPreviewUrlResolve(asset, t('pages.ads.hotsearch.toast.assetSignUrlFailed'));
 
   return {
     path: asset.path,
@@ -1752,46 +1759,36 @@ const computedIsPortraitPreview = computed(() => stateEditor.value.presentationT
 /**
  * 计算属性：广告内容标题。
  */
-const computedEditorAdvertisementTitle = computed(() => {
-  return '广告内容';
-});
+const computedEditorAdvertisementTitle = computed(() => t('pages.ads.hotsearch.editor.adTitle'));
 
 /**
  * 计算属性：广告内容说明。
  */
-const computedEditorAdvertisementDescription = computed(() => {
-  return '这部分用于编辑广告内容，支持逐句编辑和拖拽排序。';
-});
+const computedEditorAdvertisementDescription = computed(() => t('pages.ads.hotsearch.editor.adDescription'));
 
 /**
  * 计算属性：广告内容为空标题。
  */
-const computedEditorAdvertisementEmptyTitle = computed(() => {
-  return '还没有广告内容';
-});
+const computedEditorAdvertisementEmptyTitle = computed(() => t('pages.ads.hotsearch.editor.emptyTitle'));
 
 /**
  * 计算属性：广告内容为空说明。
  */
-const computedEditorAdvertisementEmptyDescription = computed(() => {
-  return '先添加一段广告文案，再按播报顺序拖拽调整。';
-});
+const computedEditorAdvertisementEmptyDescription = computed(() => t('pages.ads.hotsearch.editor.emptyDescription'));
 
 /**
  * 计算属性：广告内容输入占位。
  */
-const computedEditorAdvertisementPlaceholder = computed(() => {
-  return '输入广告播报内容';
-});
+const computedEditorAdvertisementPlaceholder = computed(() => t('pages.ads.hotsearch.editor.contentPlaceholder'));
 
 /**
  * 计算属性：广告内容播报角色选项。
  */
 const computedEditorAdvertisementVoiceOptions = computed(() => {
   const labels: Record<'M' | 'F' | 'R', string> = {
-    M: '男声',
-    F: '女声',
-    R: '随机'
+    M: t('pages.ads.hotsearch.labels.voice.male'),
+    F: t('pages.ads.hotsearch.labels.voice.female'),
+    R: t('pages.ads.hotsearch.labels.voice.random')
   };
 
   return hotsearchPodcastVoiceOptionsGet().map((item) => ({
@@ -2142,16 +2139,12 @@ const computedAssetDropAccept = computed(() => {
 /**
  * 计算属性：素材上传标题。
  */
-const computedAssetUploadLabel = computed(() => {
-  return stateEditor.value.materialType === 'image' ? '把图片拖到这里' : '把视频拖到这里';
-});
+const computedAssetUploadLabel = computed(() => (stateEditor.value.materialType === 'image' ? t('pages.ads.hotsearch.preview.imageDropLabel') : t('pages.ads.hotsearch.preview.videoDropLabel')));
 
 /**
  * 计算属性：素材上传说明。
  */
-const computedAssetUploadDescription = computed(() => {
-  return stateEditor.value.materialType === 'image' ? '支持常见图片格式，建议提前准备清晰主视觉。' : '支持常见视频格式，建议先裁切到最终投放片段。';
-});
+const computedAssetUploadDescription = computed(() => (stateEditor.value.materialType === 'image' ? t('pages.ads.hotsearch.preview.imageDropDescription') : t('pages.ads.hotsearch.preview.videoDropDescription')));
 
 watch(
   () => [previewCanvasContainerElement.value, previewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
@@ -2221,15 +2214,15 @@ watch(
  */
 const presentationTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['presentationType']): string => {
   if (value === 'voice') {
-    return '口播';
+    return t('pages.ads.hotsearch.labels.presentation.voice');
   }
 
   if (value === 'pip') {
-    return '画中画';
+    return t('pages.ads.hotsearch.labels.presentation.pip');
   }
 
   if (value === 'montage') {
-    return '拼接';
+    return t('pages.ads.hotsearch.labels.presentation.montage');
   }
 
   return value;
@@ -2242,11 +2235,11 @@ const presentationTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['present
  */
 const placementTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['placementType']): string => {
   if (value === 'opening') {
-    return '开头';
+    return t('pages.ads.hotsearch.labels.placement.opening');
   }
 
   if (value === 'closing') {
-    return '结尾';
+    return t('pages.ads.hotsearch.labels.placement.closing');
   }
 
   return value;
@@ -2259,15 +2252,15 @@ const placementTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['placementT
  */
 const materialTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['materialType']): string => {
   if (value === 'none') {
-    return '无';
+    return t('pages.ads.hotsearch.labels.material.none');
   }
 
   if (value === 'image') {
-    return '图片';
+    return t('pages.ads.hotsearch.labels.material.image');
   }
 
   if (value === 'video') {
-    return '视频';
+    return t('pages.ads.hotsearch.labels.material.video');
   }
 
   return value;
@@ -2280,15 +2273,15 @@ const materialTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['materialTyp
  */
 const frameTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['frameType']): string => {
   if (value === 'none') {
-    return '无';
+    return t('pages.ads.hotsearch.labels.frame.none');
   }
 
   if (value === 'landscape') {
-    return '横屏';
+    return t('pages.ads.hotsearch.labels.frame.landscape');
   }
 
   if (value === 'portrait') {
-    return '竖屏';
+    return t('pages.ads.hotsearch.labels.frame.portrait');
   }
 
   return value;
@@ -2301,43 +2294,26 @@ const frameTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['frameType']): 
  */
 const editionScopeLabelGet = (value: IHotsearchAdMaterialSummaryRow['editionScope']): string => {
   if (value === 'morning') {
-    return '早报';
+    return t('pages.ads.hotsearch.labels.edition.morning');
   }
 
   if (value === 'evening') {
-    return '晚报';
+    return t('pages.ads.hotsearch.labels.edition.evening');
   }
 
   if (value === 'both') {
-    return '早报、晚报';
+    return t('pages.ads.hotsearch.labels.edition.both');
   }
 
   return value;
 };
 
 /**
- * 函数：获取价格文案。
+ * 函数：获取价格金额文案。
  * @param {number} value 价格。
  * @returns {string} 文案。
  */
-const priceTextGet = (value: number): string => `¥${Number(value ?? 0).toFixed(2)}`;
-
-/**
- * 函数：根据画幅映射平台文案。
- * @param {IHotsearchAdMaterialSummaryRow['frameType']} frameType 画幅类型。
- * @returns {string} 平台文案。
- */
-const platformLabelGet = (frameType: IHotsearchAdMaterialSummaryRow['frameType']): string => {
-  if (frameType === 'landscape') {
-    return 'B站/头条/西瓜视频/微博/皮皮虾/皮皮搞笑/YouTube';
-  }
-
-  if (frameType === 'portrait') {
-    return '抖音/小红书/快手';
-  }
-
-  return '音频平台';
-};
+const priceTextGet = (value: number): string => Number(value ?? 0).toFixed(2);
 
 /**
  * 函数：渲染广告信息摘要标签。
@@ -2379,16 +2355,27 @@ const adInfoChipRender = (label: string, value: string, tone: 'primary' | 'neutr
  * 返回广告信息单元格节点。
  */
 const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, showAssetMeta = true) => {
-  const title = item.title || '未命名广告';
-  const primaryChips = [adInfoChipRender('栏目', editionScopeLabelGet(item.editionScope), 'primary'), adInfoChipRender('平台', platformLabelGet(item.frameType), 'primary'), adInfoChipRender('优先级', String(item.priority), 'primary')];
+  const title = item.title || t('pages.ads.hotsearch.table.untitled');
+  const primaryChips = [
+    adInfoChipRender(t('pages.ads.hotsearch.table.editionScope'), editionScopeLabelGet(item.editionScope), 'primary'),
+    adInfoChipRender(
+      t('pages.ads.hotsearch.table.platform'),
+      platformOptionsByIdsGet(item.platformIds)
+        .map((option) => t(option.labelKey))
+        .join(' / '),
+      'primary'
+    ),
+    adInfoChipRender(t('pages.ads.hotsearch.table.priority'), String(item.priority), 'primary')
+  ];
 
-  const assetChips = [adInfoChipRender('素材', materialTypeLabelGet(item.materialType)), adInfoChipRender('类型', presentationTypeLabelGet(item.presentationType)), adInfoChipRender('画幅', frameTypeLabelGet(item.frameType)), adInfoChipRender('位置', placementTypeLabelGet(item.placementType))];
+  const assetChips = [
+    adInfoChipRender(t('pages.ads.hotsearch.table.materialType'), materialTypeLabelGet(item.materialType)),
+    adInfoChipRender(t('pages.ads.hotsearch.table.type'), presentationTypeLabelGet(item.presentationType)),
+    adInfoChipRender(t('pages.ads.hotsearch.table.frameType'), frameTypeLabelGet(item.frameType)),
+    adInfoChipRender(t('pages.ads.hotsearch.table.placementType'), placementTypeLabelGet(item.placementType))
+  ];
 
-  return h('div', { class: 'space-y-2 py-1' }, [
-    h('div', { class: 'text-sm leading-6 font-semibold text-highlighted whitespace-normal break-words' }, title),
-    h('div', { class: 'flex flex-wrap gap-1.5' }, primaryChips),
-    ...(showAssetMeta ? [h('div', { class: 'flex flex-wrap gap-1.5' }, assetChips)] : [])
-  ]);
+  return h('div', { class: 'space-y-2 py-1' }, [h('div', { class: 'text-sm leading-6 text-highlighted whitespace-normal break-words' }, title), h('div', { class: 'flex flex-wrap gap-1.5' }, primaryChips), ...(showAssetMeta ? [h('div', { class: 'flex flex-wrap gap-1.5' }, assetChips)] : [])]);
 };
 
 /**
@@ -2401,25 +2388,91 @@ const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdM
   const eveningChecked = item.editionScope === 'evening' || item.editionScope === 'both';
 
   return h('div', { class: 'flex flex-col gap-1 text-xs' }, [
-    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: morningChecked, disabled: true }), h('span', { class: 'text-muted' }, '早报')]),
-    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: eveningChecked, disabled: true }), h('span', { class: 'text-muted' }, '晚报')])
+    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: morningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.morning'))]),
+    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: eveningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.evening'))])
   ]);
+};
+
+/**
+ * 函数：渲染投放平台链接。
+ * @param {IPageTableColumnHotsearchAdMaterial} item 表格行。
+ * @returns {VNode} 平台链接节点。
+ */
+const platformLinksRender = (item: IPageTableColumnHotsearchAdMaterial) => {
+  const currentPlatform = typeof route.query.platform === 'string' ? route.query.platform : '';
+  const links = platformOptionsByIdsGet(item.platformIds).map((option) => {
+    const to = buildPlatformLocation(option.key);
+    const isActive = option.key === currentPlatform;
+
+    return h(
+      'a',
+      {
+        class: isActive ? 'text-primary hover:underline text-sm whitespace-nowrap' : 'text-muted hover:text-primary hover:underline text-sm whitespace-nowrap',
+        onClick: (e: Event) => {
+          e.preventDefault();
+          navigateTo(to);
+        },
+        href: to.path + (to.query && Object.keys(to.query).length ? '?' + new URLSearchParams(to.query as Record<string, string>).toString() : '')
+      },
+      t(option.labelKey)
+    );
+  });
+
+  return h('div', { class: 'flex flex-wrap justify-end gap-x-2 gap-y-1 text-right' }, links);
+};
+
+/**
+ * 函数：渲染价格。
+ * @param {string} amount 价格金额。
+ * @returns {VNode} 价格节点。
+ */
+const priceCellRender = (amount: string) => {
+  return h('span', { class: 'inline-flex items-baseline justify-end gap-1 text-sm font-medium text-amber-500' }, [h('span', { class: 'text-xs text-amber-400' }, '￥'), h('span', amount)]);
 };
 /**
  * 计算属性：表格数据。
-    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
+ */
+const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => {
+  if (!datas.value?.rows || datas.value.rows.length === 0) {
+    return [];
+  }
+
+  const rows = datas.value.rows.map((item) => ({
+    id: Number(item.id ?? 0),
+    title: String(item.title ?? ''),
+    presentationType: String(item.presentationType ?? ''),
+    materialType: String(item.materialType ?? ''),
+    frameType: String(item.frameType ?? ''),
+    editionScope: String(item.editionScope ?? ''),
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
     platformIds: Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [],
     platformKeyFirst: (() => {
-      const pids = Array.isArray(item.platformIds) ? item.platformIds : [];
-    cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
+      const platformIds = Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [];
+      const first = adDeliveryPlatformOptions.find((option) => platformIds.includes(option.id));
+
+      return String(first?.key ?? '');
+    })(),
+    placementType: String(item.placementType ?? ''),
+    priceText: priceTextGet(Number(item.price ?? 0)),
+    priority: Number(item.priority ?? 0),
+    isEnabled: Boolean(item.isEnabled),
+    startAt: hotsearchDatetimeValueGet(item.startAt),
+    endAt: hotsearchDatetimeValueGet(item.endAt),
+    updatedAt: hotsearchDatetimeValueGet(item.updatedAt),
     createdAt: hotsearchDatetimeValueGet(item.createdAt)
   }));
 
   const by = hotsearchOrderByCurrentGet();
   const dir = hotsearchOrderDirCurrentGet();
-    cell: ({ row }) => hotsearchAdInfoCellRender(row.original, false)
+  const factor = dir === 'asc' ? 1 : -1;
+
+  rows.sort((left, right) => {
+    if (by === 'id') {
+      return (left.id - right.id) * factor;
+    }
+
+    if (by === 'created') {
       return (Date.parse(left.createdAt) - Date.parse(right.createdAt)) * factor;
     }
 
@@ -2444,10 +2497,10 @@ const hotsearchAdMaterialDetailGet = async (id: number): Promise<IHotsearchAdMat
   });
 
   await refreshDetail({ replace: true });
-  ensureInternalUseApiSucceeded(detailError.value, '读取广告详情失败');
+  ensureInternalUseApiSucceeded(detailError.value, t('pages.ads.hotsearch.toast.detailLoadFailed'));
 
   if (!detailDatas.value) {
-    throw new Error('读取广告详情失败');
+    throw new Error(t('pages.ads.hotsearch.toast.detailLoadFailed'));
   }
 
   return detailDatas.value;
@@ -2466,7 +2519,7 @@ const hotsearchAdMaterialUpdate = async (id: number, payload: Record<string, unk
   });
 
   await refreshUpdate({ datas: payload, replace: true });
-  ensureInternalUseApiSucceeded(updateError.value, '广告修改失败');
+  ensureInternalUseApiSucceeded(updateError.value, t('pages.ads.hotsearch.toast.updateFailed'));
 };
 
 /**
@@ -2481,7 +2534,7 @@ const hotsearchAdMaterialDelete = async (id: number): Promise<void> => {
   });
 
   await refreshDelete({ replace: true });
-  ensureInternalUseApiSucceeded(deleteError.value, '广告删除失败');
+  ensureInternalUseApiSucceeded(deleteError.value, t('pages.ads.hotsearch.toast.deleteFailed'));
 };
 
 /**
@@ -2702,7 +2755,7 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
     }
   } catch (error) {
     toast.add({
-      description: error instanceof Error ? error.message : '读取广告详情失败',
+      description: error instanceof Error ? error.message : t('pages.ads.hotsearch.toast.detailLoadFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 2500,
@@ -2731,7 +2784,7 @@ const handleDelete = async (row: IPageTableColumnHotsearchAdMaterial): Promise<v
     await hotsearchAdMaterialDelete(row.id);
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
     toast.add({
-      description: '广告已删除',
+      description: t('pages.ads.hotsearch.toast.deleteSuccess'),
       color: 'success',
       icon: 'i-lucide:check-circle-2',
       duration: 2200,
@@ -2740,7 +2793,7 @@ const handleDelete = async (row: IPageTableColumnHotsearchAdMaterial): Promise<v
     });
   } catch (error) {
     toast.add({
-      description: error instanceof Error ? error.message : '广告删除失败',
+      description: error instanceof Error ? error.message : t('pages.ads.hotsearch.toast.deleteFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 2500,
@@ -2759,14 +2812,14 @@ const handleDelete = async (row: IPageTableColumnHotsearchAdMaterial): Promise<v
  */
 const _materialPreviewMetaGet = (row: IPageTableColumnHotsearchAdMaterial): { icon: string; text: string } => {
   if (row.materialType === 'image') {
-    return { icon: 'i-lucide:image', text: '图片素材' };
+    return { icon: 'i-lucide:image', text: t('pages.ads.hotsearch.materialPreview.image') };
   }
 
   if (row.materialType === 'video') {
-    return { icon: 'i-lucide:clapperboard', text: '视频素材' };
+    return { icon: 'i-lucide:clapperboard', text: t('pages.ads.hotsearch.materialPreview.video') };
   }
 
-  return { icon: 'i-lucide:audio-lines', text: '口播素材' };
+  return { icon: 'i-lucide:audio-lines', text: t('pages.ads.hotsearch.materialPreview.voice') };
 };
 
 /**
@@ -2897,12 +2950,12 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
     const lines = advertisementLinesPayloadBuild();
 
     if (lines.length === 0) {
-      throw new Error('请至少填写一句广告文案');
+      throw new Error(t('pages.ads.hotsearch.validation.adLineRequired'));
     }
 
     if (stateEditor.value.materialType !== 'none') {
       if (!stateEditor.value.asset) {
-        throw new Error('请选择要上传的素材文件');
+        throw new Error(t('pages.ads.hotsearch.validation.uploadAssetRequired'));
       }
 
       if (stateEditorAssetFile.value) {
@@ -2911,7 +2964,7 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
         uploadedAsset = editorAssetPayloadBuild(stateEditor.value.asset);
 
         if (uploadedAsset.path.trim() === '') {
-          throw new Error('请选择要上传的素材文件');
+          throw new Error(t('pages.ads.hotsearch.validation.uploadAssetRequired'));
         }
       }
     }
@@ -2932,7 +2985,7 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
   } catch (error) {
     toast.add({
-      description: error instanceof Error ? error.message : '广告保存失败',
+      description: error instanceof Error ? error.message : t('pages.ads.hotsearch.toast.saveFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 2500,
@@ -2950,205 +3003,188 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
 const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     accessorKey: 'id',
-    header: '编号',
+    header: t('pages.ads.hotsearch.table.id'),
     cell: ({ row }) => row.original.id.toString().padStart(5, '0'),
     meta: { class: { th: 'w-16 text-sm', td: 'w-16 text-sm align-middle' } }
   },
   {
     id: 'adInfoSm',
-    header: '广告信息',
+    header: t('pages.ads.hotsearch.table.summary'),
     meta: { class: { th: 'lg:hidden text-sm', td: 'lg:hidden align-middle' } },
     cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
   },
   {
     id: 'adInfoMd',
-    header: '广告信息',
+    header: t('pages.ads.hotsearch.table.summary'),
     meta: { class: { th: 'hidden lg:table-cell xl:hidden min-w-58 text-sm', td: 'hidden lg:table-cell xl:hidden min-w-58 align-middle' } },
     cell: ({ row }) => hotsearchAdInfoCellRender(row.original)
   },
   {
     id: 'adInfoLg',
-    header: '广告信息',
+    header: t('pages.ads.hotsearch.table.summary'),
     meta: { class: { th: 'hidden xl:table-cell 2xl:hidden min-w-58 text-sm', td: 'hidden xl:table-cell 2xl:hidden min-w-58 align-middle' } },
     cell: ({ row }) => hotsearchAdInfoCellRender(row.original, false)
   },
   {
     id: 'titleXl',
     accessorKey: 'title',
-    header: '标题',
+    header: t('pages.ads.hotsearch.table.title'),
     meta: { class: { th: 'hidden 2xl:table-cell min-w-44 text-sm', td: 'hidden 2xl:table-cell min-w-44 align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, row.original.title || '未命名广告')
+    cell: ({ row }) => h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, row.original.title || t('pages.ads.hotsearch.table.untitled'))
   },
   {
     id: 'editionXl',
     accessorKey: 'editionScope',
-    header: '栏目',
+    header: t('pages.ads.hotsearch.table.editionScope'),
     meta: { class: { th: 'hidden 3xl:table-cell w-18 text-sm', td: 'hidden 3xl:table-cell w-18 align-middle' } },
     cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
   },
   {
     id: 'editionMorning',
-    header: '早报',
+    header: t('pages.ads.hotsearch.table.morning'),
     accessorKey: 'editionMorning',
     meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionMorning), disabled: true })])
   },
   {
     id: 'editionEvening',
-    header: '晚报',
+    header: t('pages.ads.hotsearch.table.evening'),
     accessorKey: 'editionEvening',
     meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionEvening), disabled: true })])
   },
   {
     id: 'platformXl',
-    header: '平台',
+    header: t('pages.ads.hotsearch.table.platform'),
     meta: { class: { th: 'hidden 2xl:table-cell w-32 text-sm', td: 'hidden 2xl:table-cell w-32 align-middle' } },
-    cell: ({ row }) => {
-      const platformKey = String(row.original.platformKeyFirst ?? '');
-      const label = platformLabelGet(row.original.frameType);
-      const to = buildPlatformLocation(platformKey);
-
-      return h(
-        'a',
-        {
-          class: platformKey === (typeof route.query.platform === 'string' ? route.query.platform : '') ? 'text-primary hover:underline text-sm' : 'text-muted hover:text-primary hover:underline text-sm',
-          onClick: (e: Event) => {
-            e.preventDefault();
-            navigateTo(to);
-          },
-          href: to.path + (to.query && Object.keys(to.query).length ? '?' + new URLSearchParams(to.query as Record<string, string>).toString() : '')
-        },
-        label
-      );
-    }
+    cell: ({ row }) => platformLinksRender(row.original)
   },
   {
     id: 'priorityXl',
     accessorKey: 'priority',
-    header: '优先级',
+    header: t('pages.ads.hotsearch.table.priority'),
     meta: { class: { th: 'hidden 2xl:table-cell w-14 text-sm', td: 'hidden 2xl:table-cell w-14 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, String(row.original.priority))
   },
   {
     id: 'placementCompact',
-    header: '投放',
+    header: t('pages.ads.hotsearch.table.delivery'),
     meta: { class: { th: 'hidden xl:table-cell 3xl:hidden w-26 text-sm', td: 'hidden xl:table-cell 3xl:hidden w-26 align-middle' } },
     cell: ({ row }) => {
       const item = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
-        h('span', { class: 'text-muted' }, `素材类型：${materialTypeLabelGet(item.materialType)}`),
-        h('span', { class: 'text-muted' }, `广告类型：${presentationTypeLabelGet(item.presentationType)}`),
-        h('span', { class: 'text-muted' }, `画幅：${frameTypeLabelGet(item.frameType)}`),
-        h('span', { class: 'text-muted' }, `位置：${placementTypeLabelGet(item.placementType)}`)
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.materialType')}：${materialTypeLabelGet(item.materialType)}`),
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.type')}：${presentationTypeLabelGet(item.presentationType)}`),
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.frameType')}：${frameTypeLabelGet(item.frameType)}`),
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.placementType')}：${placementTypeLabelGet(item.placementType)}`)
       ]);
     }
   },
   {
     id: 'typesCombined2xl',
-    header: '类型',
+    header: t('pages.ads.hotsearch.table.type'),
     meta: { class: { th: 'hidden 3xl:table-cell 5xl:hidden w-22 text-sm', td: 'hidden 3xl:table-cell 5xl:hidden w-22 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm whitespace-normal break-words' }, `${materialTypeLabelGet(row.original.materialType)}、${presentationTypeLabelGet(row.original.presentationType)}`)
   },
   {
     id: 'material4xl',
     accessorKey: 'materialType',
-    header: '素材',
+    header: t('pages.ads.hotsearch.table.materialType'),
     meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, materialTypeLabelGet(row.original.materialType))
   },
   {
     id: 'type4xl',
     accessorKey: 'presentationType',
-    header: '类型',
+    header: t('pages.ads.hotsearch.table.type'),
     meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, presentationTypeLabelGet(row.original.presentationType))
   },
   {
     accessorKey: 'frameType',
-    header: '画幅',
+    header: t('pages.ads.hotsearch.table.frameType'),
     meta: { class: { th: 'hidden 3xl:table-cell w-16 text-sm', td: 'hidden 3xl:table-cell w-16 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, frameTypeLabelGet(row.original.frameType))
   },
   {
     id: 'placement2xl',
     accessorKey: 'placementType',
-    header: '位置',
+    header: t('pages.ads.hotsearch.table.placementType'),
     meta: { class: { th: 'hidden 3xl:table-cell w-16 text-sm', td: 'hidden 3xl:table-cell w-16 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, placementTypeLabelGet(row.original.placementType))
   },
   {
     accessorKey: 'priceText',
-    header: '价格',
+    header: t('pages.ads.hotsearch.table.price'),
     meta: { class: { th: 'w-22 text-left text-sm', td: 'w-22 text-right align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm text-highlighted' }, row.original.priceText)
+    cell: ({ row }) => priceCellRender(row.original.priceText)
   },
   {
     id: 'timeCompact',
-    header: '时间',
+    header: t('pages.ads.hotsearch.table.time'),
     meta: { class: { th: 'xl:hidden w-44 text-sm', td: 'xl:hidden w-44 align-middle' } },
     cell: ({ row }) => {
       const item = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
-        h('div', { class: 'text-muted' }, [h('span', '生效：'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
-        h('div', { class: 'text-muted' }, [h('span', '失效：'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
-        h('div', { class: 'text-muted' }, [h('span', '更新：'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
-        h('div', { class: 'text-muted' }, [h('span', '创建：'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
+        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.startAt')}：`), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.endAt')}：`), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.updatedAt')}：`), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.createdAt')}：`), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
       ]);
     }
   },
   {
     id: 'timeRange',
-    header: '生效/失效',
+    header: t('pages.ads.hotsearch.table.effectiveRange'),
     meta: { class: { th: 'hidden xl:table-cell 4xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 4xl:hidden w-30 text-right align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.startAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })])
   },
   {
     id: 'timePair',
-    header: '更新/创建',
+    header: t('pages.ads.hotsearch.table.auditTime'),
     meta: { class: { th: 'hidden xl:table-cell 5xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 5xl:hidden w-30 text-right align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })])
   },
   {
     accessorKey: 'startAt',
-    header: '生效时间',
+    header: t('pages.ads.hotsearch.table.startAt'),
     meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.startAt, mode: 'datetime' })
   },
   {
     accessorKey: 'endAt',
-    header: '失效时间',
+    header: t('pages.ads.hotsearch.table.endAt'),
     meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })
   },
   {
     accessorKey: 'updatedAt',
-    header: '更新时间',
+    header: t('pages.ads.hotsearch.table.updatedAt'),
     meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' })
   },
   {
     accessorKey: 'createdAt',
-    header: '创建时间',
+    header: t('pages.ads.hotsearch.table.createdAt'),
     meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })
   },
   {
     accessorKey: 'isEnabled',
-    header: '启用',
+    header: t('pages.ads.hotsearch.table.enabled'),
     meta: { class: { th: 'w-16 text-center text-sm', td: 'w-16 text-center align-middle' } },
     cell: ({ row }) => h(USwitch, { modelValue: row.original.isEnabled, 'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value) })
   },
   {
     id: 'actions',
-    header: () => h('div', { class: 'w-full text-right' }, '操作'),
+    header: () => h('div', { class: 'w-full text-right' }, t('pages.ads.hotsearch.table.actions')),
     meta: { class: { th: 'w-34 text-right text-sm', td: 'w-34 text-right align-middle' } },
     cell: ({ row }) =>
       h('div', { class: 'flex items-center justify-end gap-2 text-sm' }, [
-        h(UButton, { color: 'neutral', variant: 'ghost', label: '查看', onClick: () => handleViewDetail(row.original) }),
-        h(UButton, { color: 'neutral', variant: 'ghost', label: '编辑', onClick: () => void handleEdit(row.original) }),
+        h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.ads.hotsearch.actions.view'), onClick: () => handleViewDetail(row.original) }),
+        h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.actions.edit'), onClick: () => void handleEdit(row.original) }),
         h(
           UPopover,
           {
@@ -3167,20 +3203,20 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
               h(UButton, {
                 color: 'error',
                 variant: 'ghost',
-                label: '删除',
+                label: t('common.actions.delete'),
                 onClick: () => {
                   stateDeletePopoverOpenId.value = row.original.id;
                 }
               }),
             content: () =>
               h('div', { class: 'space-y-3' }, [
-                h('div', { class: 'text-sm leading-6 text-pretty text-default' }, '确认删除这条广告？此操作无法撤销。'),
+                h('div', { class: 'text-sm leading-6 text-pretty text-default' }, t('pages.ads.hotsearch.actions.deleteConfirm')),
                 h('div', { class: 'flex items-center justify-end gap-2' }, [
                   h(UButton, {
                     color: 'neutral',
                     variant: 'soft',
                     size: 'xs',
-                    label: '取消',
+                    label: t('common.actions.cancel'),
                     onClick: () => {
                       stateDeletePopoverOpenId.value = null;
                     }
@@ -3189,7 +3225,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
                     color: 'error',
                     variant: 'solid',
                     size: 'xs',
-                    label: '确认删除',
+                    label: t('pages.ads.hotsearch.actions.confirmDelete'),
                     loading: stateSaving.value,
                     onClick: () => {
                       stateDeletePopoverOpenId.value = null;
@@ -3235,7 +3271,7 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
   stateDetailAssetPreviewLoading.value = true;
 
   try {
-    const previewUrl = await assetPreviewUrlResolve(asset, '获取广告素材签名地址失败');
+    const previewUrl = await assetPreviewUrlResolve(asset, t('pages.ads.hotsearch.toast.assetSignUrlFailed'));
 
     if (currentToken !== detailAssetPreviewToken) {
       return;
@@ -3248,7 +3284,7 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
     }
 
     toast.add({
-      description: error instanceof Error ? error.message : '加载广告素材预览失败',
+      description: error instanceof Error ? error.message : t('pages.ads.hotsearch.toast.previewLoadFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 2500,
