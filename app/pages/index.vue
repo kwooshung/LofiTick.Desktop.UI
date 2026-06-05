@@ -265,8 +265,8 @@ import type {
   TPageHomePodcastLength,
   THotsearchPodcastSegmentType,
   THotsearchPodcastVoiceKey
-} from '@@/shared/types/index.types';
-import { hotsearchPodcastSegmentOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils/hotsearch';
+} from '#imports';
+
 import { VueDraggable } from 'vue-draggable-plus';
 
 /**

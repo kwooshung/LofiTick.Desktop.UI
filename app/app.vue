@@ -17,8 +17,6 @@ import ConsoleBadge from '@kwooshung/console-badge';
 import { en, ja, zh_cn, zh_tw } from '@nuxt/ui/locale';
 import colors from 'tailwindcss/colors';
 
-import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET } from '@@/shared/utils';
-
 /**
  * 常量：支持的语言
  */

@@ -172,8 +172,6 @@ import type { DateValue } from '@internationalized/date';
 import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-import type { THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
-
 type TMediaPlyrExposed = {
   play: () => Promise<void>;
 };

@@ -60,8 +60,6 @@
 import { getLocalTimeZone, today } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IHotsearchDataPage, IHotsearchDataRow, IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow, IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
-
 /**
  * 组件：时间。
  */

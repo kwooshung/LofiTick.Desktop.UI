@@ -32,7 +32,7 @@
         <UForm id="hotsearchAdEditorForm" :schema="schema" :state="stateEditor" class="space-y-5">
           <div class="space-y-4">
             <div class="grid gap-4" :class="computedShowPreview && computedIsPortraitPreview ? 'lg:grid-cols-5' : 'lg:grid-cols-1'">
-              <div class="border-default bg-elevated/20 min-h-64 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-3' : ''">
+              <div class="border-default bg-elevated/20 min-h-64 rounded-sm border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-3' : ''">
                 <div class="space-y-4">
                   <UFormField required name="title" :label="t('pages.ads.hotsearch.form.title')">
                     <UInput v-model="stateEditor.title" :placeholder="t('pages.ads.hotsearch.form.titlePlaceholder')" class="w-full" />
@@ -116,7 +116,7 @@
                 </div>
               </div>
 
-              <div v-if="computedShowPreview" class="border-default bg-elevated/15 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-2' : ''">
+              <div v-if="computedShowPreview" class="border-default bg-elevated/15 rounded-sm border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-2' : ''">
                 <div class="space-y-4">
                   <div class="flex items-center justify-between gap-3">
                     <div>
@@ -132,7 +132,7 @@
                       icon="i-lucide:loader-circle"
                       icon-class="size-4 shrink-0 text-white/88"
                       content-class="flex-row gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88"
-                      mask-class="rounded-(--ui-radius) bg-black/48"
+                      mask-class="rounded-sm bg-black/48"
                       tip-class="text-sm text-white/88"
                       :size="16"
                       :delay="0"
@@ -178,7 +178,7 @@
                           >
                             <div
                               ref="previewStageElement"
-                              class="border-default relative h-full w-full overflow-hidden rounded-(--ui-radius) border bg-black"
+                              class="border-default relative h-full w-full overflow-hidden rounded-sm border bg-black"
                               @pointerdown="handlePreviewPointerDown"
                               @pointermove="handlePreviewPointerMove"
                               @pointerup="handlePreviewPointerUp"
@@ -226,7 +226,7 @@
               </div>
             </div>
 
-            <div class="border-default bg-elevated/20 min-h-24 rounded-(--ui-radius) border p-4">
+            <div class="border-default bg-elevated/20 min-h-24 rounded-sm border p-4">
               <section class="space-y-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
@@ -316,21 +316,21 @@
               icon="i-lucide:loader-circle"
               icon-class="size-4 shrink-0 text-white/88"
               content-class="flex-row gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88"
-              mask-class="rounded-(--ui-radius) bg-black/48"
+              mask-class="rounded-sm bg-black/48"
               tip-class="text-sm text-white/88"
               :size="16"
               :delay="0"
               overlay
             >
-              <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
+              <div class="border-default overflow-hidden rounded-sm border bg-black" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
                 <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset?.originalName ?? ''" class="h-full w-full object-contain select-none" draggable="false" />
-                <video v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" class="h-full w-full object-contain select-none" :src="stateDetailAssetPreviewUrl" controls playsinline preload="metadata"></video>
+                <MediaPlayerPlyr v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" type="video" :sources="computedDetailVideoSources" class="h-full w-full" />
                 <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>
               </div>
             </Spin>
 
             <template v-if="stateDetailRow.asset">
-              <div class="bg-elevated/35 border-default space-y-3 rounded-(--ui-radius) border px-3 py-3">
+              <div class="bg-elevated/35 border-default space-y-3 rounded-sm border px-3 py-3">
                 <div class="flex flex-wrap gap-2 text-xs">
                   <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
                   <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
@@ -342,23 +342,26 @@
             </template>
           </div>
 
-          <div class="bg-elevated/35 border-default space-y-4 rounded-(--ui-radius) border px-4 py-4">
-            <div class="space-y-1">
-              <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.copyTitle') }}</div>
-              <div class="text-muted text-xs leading-5">{{ t('pages.ads.hotsearch.detail.copyDescription') }}</div>
+          <div class="bg-elevated/35 border-default space-y-3 rounded-sm border px-4 py-3.5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 space-y-1">
+                <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.copyTitle') }}</div>
+                <div class="text-muted text-xs leading-5">{{ t('pages.ads.hotsearch.detail.copyDescription') }}</div>
+              </div>
+              <UBadge v-if="stateDetailLines.length > 0" color="neutral" variant="soft">{{ t('pages.ads.hotsearch.detail.copyCount', { count: stateDetailLines.length }) }}</UBadge>
             </div>
 
             <template v-if="stateDetailLines.length > 0">
               <div class="space-y-2.5">
-                <div v-for="(item, index) in stateDetailLines" :key="`${item.lineNo}-${index}`" class="bg-default/70 border-default flex gap-3 rounded-(--ui-radius) border px-3 py-3">
-                  <div class="text-muted flex w-8 shrink-0 items-center justify-center text-xs font-medium">
-                    {{ String(index + 1).padStart(2, '0') }}
+                <div v-for="(item, index) in stateDetailLines" :key="`${item.lineNo}-${index}`" class="grid grid-cols-[3rem_minmax(0,1fr)] gap-3">
+                  <div :class="detailCopyIndexClassGet(item.voiceKey)" class="flex size-12 shrink-0 items-center justify-center rounded-full border shadow-xs">
+                    <span class="text-lg leading-none font-semibold tabular-nums">{{ String(index + 1).padStart(2, '0') }}</span>
                   </div>
-                  <div class="min-w-0 flex-1 space-y-2">
+                  <div :class="detailCopyBubbleClassGet(item.voiceKey)" class="min-w-0 space-y-2 rounded-lg border px-3.5 py-3">
                     <div class="flex flex-wrap items-center gap-2">
-                      <UBadge color="neutral" variant="soft">{{ detailVoiceLabelGet(item.voiceKey) }}</UBadge>
+                      <UBadge :class="detailCopyVoiceBadgeClassGet(item.voiceKey)" color="neutral" variant="soft">{{ detailVoiceLabelGet(item.voiceKey) }}</UBadge>
                     </div>
-                    <div class="text-highlighted text-sm leading-6 wrap-break-word whitespace-pre-wrap">{{ item.content || t('pages.ads.hotsearch.detail.emptyLine') }}</div>
+                    <div class="text-highlighted text-sm leading-5 wrap-break-word whitespace-pre-wrap">{{ item.content || t('pages.ads.hotsearch.detail.emptyLine') }}</div>
                   </div>
                 </div>
               </div>
@@ -366,37 +369,37 @@
 
             <UEmpty v-else icon="i-lucide:file-text" :title="t('pages.ads.hotsearch.detail.copyEmptyTitle')" :description="t('pages.ads.hotsearch.detail.copyEmptyDescription')" />
 
-            <div v-if="stateDetailNotes !== ''" class="bg-default/70 border-default space-y-2 rounded-(--ui-radius) border px-3 py-3">
-              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.notes') }}</div>
-              <div class="text-toned text-sm leading-6 wrap-break-word whitespace-pre-wrap">{{ stateDetailNotes }}</div>
+            <div v-if="stateDetailNotes !== ''" class="border-default bg-default/45 space-y-1.5 rounded-sm border border-dashed px-3 py-2.5">
+              <div class="text-muted text-[11px]">{{ t('pages.ads.hotsearch.detail.notes') }}</div>
+              <div class="text-toned text-sm leading-5 wrap-break-word whitespace-pre-wrap">{{ stateDetailNotes }}</div>
             </div>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.platform') }}</div>
               <div class="mt-1 text-sm text-cyan-600">{{ platformLabelsGet(stateDetailRow.platformIds ?? [], stateDetailRow.frameType).join(' / ') }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.presentation') }}</div>
               <div class="mt-1 text-sm text-violet-600">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.editionScope') }}</div>
               <div class="text-primary mt-1 text-sm">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.materialType') }}</div>
               <div class="mt-1 text-sm text-sky-600">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.price') }}</div>
               <div class="mt-1 inline-flex items-baseline gap-1 text-sm font-medium text-amber-500">
                 <span class="text-xs text-amber-400">￥</span>
                 <span>{{ priceTextGet(stateDetailRow.price) }}</span>
               </div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-sm border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.priority') }}</div>
               <div class="mt-1 text-sm text-emerald-600">{{ stateDetailRow.priority }}</div>
             </div>
@@ -434,10 +437,6 @@ import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
-import type { THotsearchAdDeliveryPlatformKind } from '@@/shared/types/index.types';
-import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialDetail, IHotsearchAdMaterialLine, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { hotsearchAdDeliveryPlatformOptionsGet, hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
-
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
  * 函数：判断是否为单个日期值。
@@ -466,6 +465,11 @@ const UBadge = resolveComponent('UBadge');
  * 组件：按钮。
  */
 const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：媒体播放器。
+ */
+const MediaPlayerPlyr = resolveComponent('MediaPlayerPlyr');
 
 /**
  * 组件：浮层提示。
@@ -565,6 +569,22 @@ const stateDetailLines = ref<IHotsearchAdMaterialLine[]>([]);
  * 状态：详情备注。
  */
 const stateDetailNotes = ref('');
+
+/**
+ * 计算属性：详情视频源。
+ */
+const computedDetailVideoSources = computed(() => {
+  if (stateDetailAssetPreviewUrl.value === '') {
+    return [];
+  }
+
+  return [
+    {
+      src: stateDetailAssetPreviewUrl.value,
+      type: stateDetailRow.value.asset?.mimeType || 'video/mp4'
+    }
+  ];
+});
 
 /**
  * 状态：编辑器素材文件。
@@ -803,7 +823,7 @@ const placementTypeOptions = [
  */
 const compactRadioCardGroupUi = (columns: number): { fieldset: string; item: string; container: string; wrapper: string; label: string; base: string } => ({
   fieldset: `grid w-full gap-2 ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`,
-  item: 'border-default bg-default min-h-10 rounded-(--ui-radius) px-3 py-2 has-data-[state=checked]:border-default',
+  item: 'border-default bg-default min-h-10 rounded-sm px-3 py-2 has-data-[state=checked]:border-default',
   container: 'flex h-full items-center',
   wrapper: 'flex min-h-full items-center',
   label: 'leading-none',
@@ -817,7 +837,7 @@ const compactRadioCardGroupUi = (columns: number): { fieldset: string; item: str
  */
 const compactCheckboxCardGroupUi = (columns: number): { fieldset: string; item: string; container: string; wrapper: string; label: string; base: string } => ({
   fieldset: `grid w-full gap-2 ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`,
-  item: 'border-default bg-default min-h-10 rounded-(--ui-radius) px-3 py-2 has-data-[state=checked]:border-default',
+  item: 'border-default bg-default min-h-10 rounded-sm px-3 py-2 has-data-[state=checked]:border-default',
   container: 'flex h-full items-center',
   wrapper: 'flex min-h-full items-center',
   label: 'leading-none',
@@ -2013,6 +2033,81 @@ const detailVoiceLabelGet = (voiceKey: string): string => {
   }
 
   return t('pages.ads.hotsearch.labels.voice.male');
+};
+
+/**
+ * 函数：获取查看详情文案编号色调类名。
+ *
+ * 文案编号需要形成轻量但明显的图形锚点，并与不同播报角色保持一致的浅色区分。
+ *
+ * # Arguments
+ *
+ * * `voiceKey` - 播报角色标记。
+ *
+ * # Returns
+ *
+ * 返回编号圆点的样式类名。
+ */
+const detailCopyIndexClassGet = (voiceKey: string): string => {
+  if (voiceKey === 'F') {
+    return 'border-pink-400/22 bg-pink-400/10 text-pink-500';
+  }
+
+  if (voiceKey === 'R') {
+    return 'border-amber-400/22 bg-amber-400/10 text-amber-500';
+  }
+
+  return 'border-primary/18 bg-primary/10 text-primary/85';
+};
+
+/**
+ * 函数：获取查看详情文案气泡样式类名。
+ *
+ * 详情文案使用浅色消息气泡承载文本，减少阅读高度，同时让男女声具备直观区分。
+ *
+ * # Arguments
+ *
+ * * `voiceKey` - 播报角色标记。
+ *
+ * # Returns
+ *
+ * 返回文案气泡的样式类名。
+ */
+const detailCopyBubbleClassGet = (voiceKey: string): string => {
+  if (voiceKey === 'F') {
+    return 'border-pink-400/18 bg-pink-400/6';
+  }
+
+  if (voiceKey === 'R') {
+    return 'border-amber-400/18 bg-amber-400/6';
+  }
+
+  return 'border-primary/16 bg-primary/6';
+};
+
+/**
+ * 函数：获取查看详情播报角色标签样式类名。
+ *
+ * 角色标签与消息气泡使用同一色系，避免只靠文字区分播报角色。
+ *
+ * # Arguments
+ *
+ * * `voiceKey` - 播报角色标记。
+ *
+ * # Returns
+ *
+ * 返回角色标签的样式类名。
+ */
+const detailCopyVoiceBadgeClassGet = (voiceKey: string): string => {
+  if (voiceKey === 'F') {
+    return 'border-pink-400/16 bg-pink-400/10 text-pink-500';
+  }
+
+  if (voiceKey === 'R') {
+    return 'border-amber-400/16 bg-amber-400/10 text-amber-500';
+  }
+
+  return 'border-primary/14 bg-primary/10 text-primary/80';
 };
 
 /**

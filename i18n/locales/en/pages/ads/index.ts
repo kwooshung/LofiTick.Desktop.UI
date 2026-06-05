@@ -106,6 +106,8 @@ export const ads = {
       assetName: 'Asset File',
       copyTitle: 'Ad Copy',
       copyDescription: 'Review the actual narration and notes to confirm how this ad will be read in the podcast.',
+      copyCount: '{count} lines',
+      copyIndexLabel: 'TXT',
       copyEmptyTitle: 'No ad copy yet',
       copyEmptyDescription: 'This ad does not have any readable script content yet.',
       emptyLine: 'No script content',

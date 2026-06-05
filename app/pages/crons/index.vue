@@ -32,8 +32,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
 
-import type { IPageSettingsLocalCronRow } from '@@/shared/types/pages/settings/cron/page/index.types';
-
 /**
  * 组件：日期时间。
  */

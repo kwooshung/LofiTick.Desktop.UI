@@ -203,7 +203,6 @@
 <script setup lang="ts">
 import type { IMediaPlyrConfig } from '@/components/media/player/plyr/index.types';
 import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem, ISettingsHotsearchHeadMusicPreviewResult, ISettingsHotsearchHeadMusicProps } from '@/components/settings/hotsearch/head-music/index.types.ts';
-import type { THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
 
 /**
  * 属性：热搜开头音乐。

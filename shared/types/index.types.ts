@@ -2,6 +2,8 @@ export type { TDeepPartial } from '@@/shared/types/common/deep-partial/index.typ
 export type { TVueClass } from '@@/shared/types/common/vue-class/index.types';
 export type {
   IHotsearchAdMaterialAsset,
+  IHotsearchAdMaterialDetail,
+  IHotsearchAdMaterialLine,
   IHotsearchAdMaterialPage,
   IHotsearchAdMaterialSaveResult,
   IHotsearchAdMaterialSummaryRow,
@@ -92,6 +94,7 @@ export type {
   TQueryResultQuotesSearchUuidResponse
 } from '@@/shared/types/pages/quotes/index.types';
 export type { IPageSettingsConnectionsSettings, IPageSettingsOnepanelSettings } from '@@/shared/types/pages/settings/cron/index.types';
+export type { IPageSettingsLocalCronRow } from '@@/shared/types/pages/settings/cron/page/index.types';
 export type {
   ISettingsHotsearch,
   ISettingsHotsearchLocal,

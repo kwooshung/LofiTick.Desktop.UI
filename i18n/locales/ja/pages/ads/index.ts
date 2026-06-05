@@ -106,6 +106,8 @@ export const ads = {
       assetName: '素材ファイル',
       copyTitle: '広告原稿',
       copyDescription: '実際の読み上げ内容とメモを確認し、この広告がポッドキャスト内でどう読まれるかを把握します。',
+      copyCount: '{count} 行',
+      copyIndexLabel: 'TXT',
       copyEmptyTitle: '広告原稿はまだありません',
       copyEmptyDescription: 'この広告には表示できる読み上げ原稿がまだありません。',
       emptyLine: '原稿内容はありません',

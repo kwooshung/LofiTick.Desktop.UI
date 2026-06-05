@@ -106,6 +106,8 @@ export const ads = {
       assetName: '素材檔案',
       copyTitle: '廣告文案',
       copyDescription: '查看實際播報內容與備註，確認這則廣告在播客中會如何被讀出。',
+      copyCount: '共 {count} 句',
+      copyIndexLabel: '稿',
       copyEmptyTitle: '尚無廣告文案',
       copyEmptyDescription: '這則廣告暫時沒有可展示的播報內容。',
       emptyLine: '暫無文案內容',

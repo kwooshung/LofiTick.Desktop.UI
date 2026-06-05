@@ -63,8 +63,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-import { hotsearchAdEditionScopeOptionsGet, hotsearchAdDeliveryPlatformOptionsGet } from '@@/shared/utils';
-
 const EDITION_SCOPE_ALL_VALUE = 'all';
 const ENABLED_ALL_VALUE = 'all';
 

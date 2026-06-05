@@ -350,9 +350,6 @@ import { parseTime } from '@internationalized/date';
 import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
-import type { ISettingsHotsearchLocal, ISettingsHotsearchPodcastGenerateOwner, ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
-import { HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET, hotsearchPodcastAiRulesMarkdownCompose, hotsearchPodcastAiRulesMarkdownEditableExtract, hotsearchPodcastAiRulesSystemLineBuild, hotsearchPodcastHeadMusicRemotePathCreate } from '@@/shared/utils';
-
 type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
 /**
