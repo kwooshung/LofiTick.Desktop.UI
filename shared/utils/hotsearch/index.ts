@@ -137,6 +137,32 @@ export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: D
 };
 
 /**
+ * 函数：将热搜时间字符串归一为 Datetime 可消费值。
+ * @param {unknown} value 原始时间值。
+ * @returns {string} 归一化后的时间字符串；空值返回空字符串。
+ */
+export const hotsearchDatetimeValueGet = (value: unknown): string => {
+  const text = String(value ?? '').trim();
+
+  if (text === '') {
+    return '';
+  }
+
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(text)) {
+    return text.replace(' ', 'T');
+  }
+
+  return text;
+};
+
+/**
+ * 函数：获取热搜统计展示编号。
+ * @param {number} id 原始编号。
+ * @returns {string} 补零后的展示编号。
+ */
+export const hotsearchSummaryDisplayIdGet = (id: number): string => String(Math.abs(Number(id))).padStart(4, '0');
+
+/**
  * 常量：热搜播客音色固定列表。
  */
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];

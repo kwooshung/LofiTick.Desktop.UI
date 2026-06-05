@@ -175,32 +175,6 @@ watch(
 );
 
 /**
- * 函数：获取热搜统计展示编号。
- * @param {number} id 原始编号。
- * @returns {string} 补零后的展示编号。
- */
-const hotsearchSummaryDisplayIdGet = (id: number): string => String(Math.abs(Number(id))).padStart(4, '0');
-
-/**
- * 函数：将时间字符串归一为 Datetime 可消费值。
- * @param {string} value 原始时间字符串。
- * @returns {string} ISO 风格时间字符串。
- */
-const hotsearchDatetimeValueGet = (value: string): string => {
-  const text = String(value ?? '').trim();
-
-  if (text === '') {
-    return new Date(0).toISOString();
-  }
-
-  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(text)) {
-    return text.replace(' ', 'T');
-  }
-
-  return text;
-};
-
-/**
  * 计算属性：标签行。
  */
 const computedRows = computed(() => datas.value?.rows ?? []);

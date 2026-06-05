@@ -357,19 +357,19 @@
           <div class="space-y-3 text-sm">
             <div class="flex items-start justify-between gap-3">
               <span class="text-muted shrink-0">生效时间</span>
-              <Datetime :value="stateDetailRow.startAt" mode="datetime" />
+              <Datetime :datetime="stateDetailRow.startAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
               <span class="text-muted shrink-0">失效时间</span>
-              <Datetime :value="stateDetailRow.endAt" mode="datetime" />
+              <Datetime :datetime="stateDetailRow.endAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
               <span class="text-muted shrink-0">更新时间</span>
-              <Datetime :value="stateDetailRow.updatedAt" mode="datetime" />
+              <Datetime :datetime="stateDetailRow.updatedAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
               <span class="text-muted shrink-0">创建时间</span>
-              <Datetime :value="stateDetailRow.createdAt" mode="datetime" />
+              <Datetime :datetime="stateDetailRow.createdAt" mode="datetime" />
             </div>
           </div>
         </div>
@@ -1954,9 +1954,10 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
     isEnabled: Boolean(item.isEnabled),
-    startAt: String(item.startAt ?? ''),
-    endAt: String(item.endAt ?? ''),
-    updatedAt: String(item.updatedAt ?? '')
+    startAt: hotsearchDatetimeValueGet(item.startAt),
+    endAt: hotsearchDatetimeValueGet(item.endAt),
+    updatedAt: hotsearchDatetimeValueGet(item.updatedAt),
+    createdAt: hotsearchDatetimeValueGet(item.createdAt)
   }));
 });
 
@@ -2116,10 +2117,10 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     price: Number(source.price ?? 0),
     priority: Number(source.priority ?? 0),
     isEnabled: Boolean(source.isEnabled),
-    startAt: String(source.startAt ?? ''),
-    endAt: String(source.endAt ?? ''),
-    updatedAt: String(source.updatedAt ?? ''),
-    createdAt: String(source.createdAt ?? ''),
+    startAt: hotsearchDatetimeValueGet(source.startAt),
+    endAt: hotsearchDatetimeValueGet(source.endAt),
+    updatedAt: hotsearchDatetimeValueGet(source.updatedAt),
+    createdAt: hotsearchDatetimeValueGet(source.createdAt),
     asset: source.asset ?? null
   };
   stateDetailOpen.value = true;
@@ -2277,8 +2278,8 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     cell: ({ row }) => h('span', { class: 'text-muted text-sm' }, `#${row.original.id}`),
     meta: {
       class: {
-        th: 'w-20',
-        td: 'w-20'
+        th: 'hidden xl:table-cell w-20',
+        td: 'hidden xl:table-cell w-20 align-baseline'
       }
     }
   },
@@ -2289,20 +2290,25 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       const item = row.original;
 
       return h('div', { class: 'space-y-2 py-0.5' }, [
-        h('div', { class: 'text-highlighted text-sm font-medium leading-6' }, item.title || '未命名广告'),
+        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1' }, [h('span', { class: 'text-muted text-xs xl:hidden' }, `#${item.id}`), h('div', { class: 'text-highlighted text-sm font-medium leading-6' }, item.title || '未命名广告')]),
         h('div', { class: 'flex flex-wrap gap-1.5' }, [
           h(UBadge, { color: item.isEnabled ? 'primary' : 'neutral', variant: 'soft' }, () => (item.isEnabled ? '启用中' : '已停用')),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => presentationTypeLabelGet(item.presentationType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => placementTypeLabelGet(item.placementType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => materialTypeLabelGet(item.materialType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => frameTypeLabelGet(item.frameType))
+        ]),
+        h('div', { class: 'grid gap-1 text-xs text-muted xl:hidden' }, [
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', item.priceText), h('span', `优先级 ${item.priority}`)]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '生效'), h(Datetime, { datetime: item.startAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '失效'), h(Datetime, { datetime: item.endAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })])
         ])
       ]);
     },
     meta: {
       class: {
-        th: 'min-w-72',
-        td: 'min-w-72'
+        th: 'min-w-88',
+        td: 'min-w-88 align-baseline'
       }
     }
   },
@@ -2321,8 +2327,26 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     },
     meta: {
       class: {
-        th: 'w-44',
-        td: 'w-44'
+        th: 'hidden xl:table-cell w-44',
+        td: 'hidden xl:table-cell w-44 align-baseline'
+      }
+    }
+  },
+  {
+    id: 'schedule',
+    header: '投放周期',
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return h('div', { class: 'space-y-1.5 text-xs' }, [
+        h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, '生效：'), h(Datetime, { datetime: item.startAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })]),
+        h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, '失效：'), h(Datetime, { datetime: item.endAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })])
+      ]);
+    },
+    meta: {
+      class: {
+        th: 'hidden xl:table-cell w-44',
+        td: 'hidden xl:table-cell w-44 align-baseline'
       }
     }
   },
@@ -2333,15 +2357,56 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       const item = row.original;
 
       return h('div', { class: 'space-y-2 text-xs' }, [
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '生效'), h(Datetime, { value: item.startAt, mode: 'datetime' })]),
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '失效'), h(Datetime, { value: item.endAt, mode: 'datetime' })]),
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '更新'), h(Datetime, { value: item.updatedAt, mode: 'datetime' })])
+        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '生效'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
+        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '失效'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
+        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '更新'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
+        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '创建'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
       ]);
     },
     meta: {
       class: {
-        th: 'w-56',
-        td: 'w-56'
+        th: 'w-56 xl:hidden',
+        td: 'w-56 xl:hidden align-baseline'
+      }
+    }
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: '更新时间',
+    cell: ({ row }) =>
+      h(Datetime, {
+        class: 'w-auto max-w-full text-sm',
+        datetime: row.original.updatedAt,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+    meta: {
+      class: {
+        th: 'hidden xl:table-cell w-32 text-right',
+        td: 'hidden xl:table-cell w-32 text-right align-baseline'
+      }
+    }
+  },
+  {
+    accessorKey: 'createdAt',
+    header: '创建时间',
+    cell: ({ row }) =>
+      h(Datetime, {
+        class: 'w-auto max-w-full text-sm',
+        datetime: row.original.createdAt,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+    meta: {
+      class: {
+        th: 'hidden 3xl:table-cell w-32 text-right',
+        td: 'hidden 3xl:table-cell w-32 text-right align-baseline'
       }
     }
   },

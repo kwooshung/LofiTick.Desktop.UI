@@ -1,11 +1,16 @@
 <template>
-  <UTooltip v-if="computedShowRelative" :content="{ side: 'top' }">
-    <NuxtTime v-bind="$props" :locale="computedLocale" :relative="true" />
+  <UTooltip v-if="computedDatetime && computedShowRelative" :content="{ side: 'top' }">
+    <NuxtTime v-bind="computedNuxtTimeProps" :locale="computedLocale" :relative="true" />
 
-    <template #content> {{ tooltipPrefix }}<NuxtTime v-bind="$props" :locale="computedLocale" :relative="false" year="numeric" month="long" day="numeric" hour="2-digit" minute="2-digit" second="2-digit" /> </template>
+    <template #content>
+      {{ props.tooltipPrefix ?? '' }}
+      <NuxtTime v-bind="computedNuxtTimeProps" :locale="computedLocale" :relative="false" year="numeric" month="long" day="numeric" hour="2-digit" minute="2-digit" second="2-digit" />
+    </template>
   </UTooltip>
 
-  <NuxtTime v-else v-bind="$props" :relative="false" :locale="computedLocale" />
+  <NuxtTime v-else-if="computedDatetime" v-bind="computedNuxtTimeProps" :relative="false" :locale="computedLocale" />
+
+  <span v-else class="text-dimmed">--</span>
 </template>
 
 <script setup lang="ts">
@@ -29,21 +34,54 @@ const { locale: currentLocale, locales } = useI18n();
 const computedLocale = computed(() => props.locale ?? String(locales.value.find((l) => l.code === currentLocale.value)?.language ?? undefined));
 
 /**
+ * 计算属性：组件实际消费的时间入参。
+ */
+const computedDatetimeInput = computed(() => props.datetime ?? props.value ?? '');
+
+/**
+ * 计算属性：传递给 NuxtTime 的属性。
+ */
+const computedNuxtTimeProps = computed(() => {
+  const { datetime: _datetime, value: _value, ...rest } = props;
+
+  return {
+    ...rest,
+    datetime: computedDatetimeInput.value
+  };
+});
+
+/**
  * 计算属性：DateTime 实例
  */
 const computedDatetime = computed(() => {
+  const input = computedDatetimeInput.value;
+
   // 判断传入的时间类型：时间对象
-  if (props.datetime instanceof Date) {
-    return DateTime.fromJSDate(props.datetime);
+  if (input instanceof Date) {
+    return DateTime.fromJSDate(input);
   }
 
   // 时间戳（数字类型）
-  if (typeof props.datetime === 'number') {
-    return DateTime.fromUnixMilliseconds(props.datetime);
+  if (typeof input === 'number') {
+    if (!Number.isFinite(input)) {
+      return null;
+    }
+
+    return DateTime.fromUnixMilliseconds(input);
   }
 
   // 字符串类型
-  return DateTime.parse(props.datetime);
+  const text = String(input ?? '').trim();
+
+  if (text === '') {
+    return null;
+  }
+
+  try {
+    return DateTime.parse(text);
+  } catch {
+    return null;
+  }
 });
 
 /**
@@ -52,6 +90,10 @@ const computedDatetime = computed(() => {
 const computedShowRelative = computed(() => {
   // 如果属性中明确禁止相对时间，直接返回 false
   if (props.relative === false) {
+    return false;
+  }
+
+  if (!computedDatetime.value) {
     return false;
   }
 

@@ -7,6 +7,7 @@ export {
   HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET,
   HOTSEARCH_USAGE_URL,
   hotsearchAdEditionScopeOptionsGet,
+  hotsearchDatetimeValueGet,
   hotsearchEstimatedDayPointsGet,
   hotsearchEstimatedMonthPointsGet,
   hotsearchLocalSettingsDefaultCreate,
@@ -31,6 +32,7 @@ export {
   hotsearchSettingsNormalize,
   hotsearchSharedSettingsExtract,
   hotsearchSuggestedPodcastTimeGet,
+  hotsearchSummaryDisplayIdGet,
   hotsearchTimeAddMinutes,
   hotsearchWindowDurationMinutesGet
 } from './hotsearch';
