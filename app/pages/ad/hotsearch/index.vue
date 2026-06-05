@@ -342,6 +342,36 @@
             </template>
           </div>
 
+          <div class="bg-elevated/35 border-default space-y-4 rounded-(--ui-radius) border px-4 py-4">
+            <div class="space-y-1">
+              <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.copyTitle') }}</div>
+              <div class="text-muted text-xs leading-5">{{ t('pages.ads.hotsearch.detail.copyDescription') }}</div>
+            </div>
+
+            <template v-if="stateDetailLines.length > 0">
+              <div class="space-y-2.5">
+                <div v-for="(item, index) in stateDetailLines" :key="`${item.lineNo}-${index}`" class="bg-default/70 border-default flex gap-3 rounded-(--ui-radius) border px-3 py-3">
+                  <div class="text-muted flex w-8 shrink-0 items-center justify-center text-xs font-medium">
+                    {{ String(index + 1).padStart(2, '0') }}
+                  </div>
+                  <div class="min-w-0 flex-1 space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <UBadge color="neutral" variant="soft">{{ detailVoiceLabelGet(item.voiceKey) }}</UBadge>
+                    </div>
+                    <div class="text-highlighted text-sm leading-6 wrap-break-word whitespace-pre-wrap">{{ item.content || t('pages.ads.hotsearch.detail.emptyLine') }}</div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <UEmpty v-else icon="i-lucide:file-text" :title="t('pages.ads.hotsearch.detail.copyEmptyTitle')" :description="t('pages.ads.hotsearch.detail.copyEmptyDescription')" />
+
+            <div v-if="stateDetailNotes !== ''" class="bg-default/70 border-default space-y-2 rounded-(--ui-radius) border px-3 py-3">
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.notes') }}</div>
+              <div class="text-toned text-sm leading-6 wrap-break-word whitespace-pre-wrap">{{ stateDetailNotes }}</div>
+            </div>
+          </div>
+
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.platform') }}</div>
@@ -405,7 +435,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { THotsearchAdDeliveryPlatformKind } from '@@/shared/types/index.types';
-import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialDetail, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
+import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialDetail, IHotsearchAdMaterialLine, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
 import { hotsearchAdDeliveryPlatformOptionsGet, hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
@@ -525,6 +555,16 @@ const stateDetailAssetPreviewUrl = ref('');
  * 状态：详情素材预览加载中。
  */
 const stateDetailAssetPreviewLoading = ref(false);
+
+/**
+ * 状态：详情广告文案行。
+ */
+const stateDetailLines = ref<IHotsearchAdMaterialLine[]>([]);
+
+/**
+ * 状态：详情备注。
+ */
+const stateDetailNotes = ref('');
 
 /**
  * 状态：编辑器素材文件。
@@ -1951,6 +1991,31 @@ const computedEditorAdvertisementVoiceOptions = computed(() => {
 });
 
 /**
+ * 函数：获取查看详情中的播报角色文案。
+ *
+ * 详情侧滑只读展示广告文案时，需要把后端返回的角色值映射为稳定的界面文案。
+ *
+ * # Arguments
+ *
+ * * `voiceKey` - 后端返回的播报角色标记。
+ *
+ * # Returns
+ *
+ * 返回播报角色对应的界面文案。
+ */
+const detailVoiceLabelGet = (voiceKey: string): string => {
+  if (voiceKey === 'F') {
+    return t('pages.ads.hotsearch.labels.voice.female');
+  }
+
+  if (voiceKey === 'R') {
+    return t('pages.ads.hotsearch.labels.voice.random');
+  }
+
+  return t('pages.ads.hotsearch.labels.voice.male');
+};
+
+/**
  * 计算属性：预览画布尺寸类名。
  */
 const computedPreviewCanvasClass = computed(() => 'w-full');
@@ -2835,6 +2900,9 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     return;
   }
 
+  stateDetailLines.value = [];
+  stateDetailNotes.value = '';
+
   stateDetailRow.value = {
     id: Number(source.id ?? 0),
     title: String(source.title ?? ''),
@@ -2880,6 +2948,8 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
         createdAt: hotsearchDatetimeValueGet(detail.createdAt),
         asset: detail.asset ?? null
       };
+      stateDetailLines.value = [...detail.lines].sort((left, right) => Number(left.lineNo ?? 0) - Number(right.lineNo ?? 0));
+      stateDetailNotes.value = String(detail.notes ?? '').trim();
 
       await detailAssetPreviewLoad(detail.asset ?? null);
     } catch (error) {
@@ -3559,6 +3629,8 @@ watch(
   (open) => {
     if (!open) {
       detailAssetPreviewClear();
+      stateDetailLines.value = [];
+      stateDetailNotes.value = '';
     }
   }
 );
