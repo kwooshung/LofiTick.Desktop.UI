@@ -61,6 +61,68 @@ export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'files';
 const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start';
 
 /**
+ * 函数：格式化日期目录片段。
+ * @param {Date} date 日期。
+ * @returns {{ year: string; month: string; day: string }} 年月日目录片段。
+ */
+const hotsearchDateDirectoryPartsGet = (date: Date): { year: string; month: string; day: string } => ({
+  year: String(date.getFullYear()).padStart(4, '0'),
+  month: String(date.getMonth() + 1).padStart(2, '0'),
+  day: String(date.getDate()).padStart(2, '0')
+});
+
+/**
+ * 函数：构建热搜广告素材远端目录。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} UpYun 远端目录。
+ */
+export const hotsearchPodcastAdAssetRemoteDirectoryGet = (date: Date = new Date()): string => {
+  const { year, month, day } = hotsearchDateDirectoryPartsGet(date);
+
+  return `/ad/podcast/${year}/${month}/${day}`;
+};
+
+/**
+ * 函数：构建热搜广告素材本地相对目录。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} 本地相对目录。
+ */
+export const hotsearchPodcastAdAssetRelativeDirectoryGet = (date: Date = new Date()): string => {
+  return hotsearchPodcastAdAssetRemoteDirectoryGet(date).slice(1);
+};
+
+/**
+ * 函数：创建热搜广告素材远端对象键。
+ * @param {string} fileExt 文件扩展名。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} 远端对象键。
+ */
+export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: Date = new Date()): string => {
+  const normalizedFileExt = String(fileExt || '')
+    .trim()
+    .replace(/^\./, '')
+    .toLowerCase();
+  const fileName = normalizedFileExt === '' ? generateIdBase36(24) : `${generateIdBase36(24)}.${normalizedFileExt}`;
+
+  return `${hotsearchPodcastAdAssetRemoteDirectoryGet(date)}/${fileName}`;
+};
+
+/**
+ * 函数：创建热搜广告素材本地/远端对象键。
+ * @param {string} fileExt 文件扩展名。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {{ localFileKey: string; remoteFileKey: string }} 本地相对键与远端对象键。
+ */
+export const hotsearchPodcastAdAssetStorageKeysCreate = (fileExt: string, date: Date = new Date()): { localFileKey: string; remoteFileKey: string } => {
+  const remoteFileKey = hotsearchPodcastAdAssetRemotePathCreate(fileExt, date);
+
+  return {
+    localFileKey: remoteFileKey.slice(1),
+    remoteFileKey
+  };
+};
+
+/**
  * 常量：热搜播客音色固定列表。
  */
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];

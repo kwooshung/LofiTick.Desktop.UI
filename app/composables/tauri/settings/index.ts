@@ -61,6 +61,20 @@ interface ITauriHotsearchPodcastHeadMusicPaths {
   vipPath: string;
 }
 
+/**
+ * 接口：热搜广告素材本地路径结果。
+ */
+interface ITauriHotsearchAdAssetPathResult {
+  /** 附件根目录。 */
+  attachmentsDir: string;
+
+  /** 相对文件键。 */
+  relativePath: string;
+
+  /** 绝对文件路径。 */
+  filePath: string;
+}
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -125,6 +139,35 @@ export const useTauriSettings = () => {
    */
   const hotsearchPodcastHeadMusicDownload = async (kind: 'normal' | 'vip', url: string): Promise<string> => {
     return invoke<string>('settings_hotsearch_podcast_head_music_download', { kind, url });
+  };
+
+  /**
+   * 函数：写入热搜广告素材到附件目录。
+   * @param {string} relativePath 相对文件键。
+   * @param {number[]} bytes 文件字节。
+   * @returns {Promise<ITauriHotsearchAdAssetPathResult>} 本地路径结果。
+   */
+  const hotsearchAdAssetWrite = async (relativePath: string, bytes: number[]): Promise<ITauriHotsearchAdAssetPathResult> => {
+    return invoke<ITauriHotsearchAdAssetPathResult>('settings_hotsearch_ad_asset_write', { relativePath, bytes });
+  };
+
+  /**
+   * 函数：在本地缺失时下载热搜广告素材。
+   * @param {string} relativePath 相对文件键。
+   * @param {string} url 已签名下载地址。
+   * @returns {Promise<ITauriHotsearchAdAssetPathResult>} 本地路径结果。
+   */
+  const hotsearchAdAssetEnsureDownloaded = async (relativePath: string, url: string): Promise<ITauriHotsearchAdAssetPathResult> => {
+    return invoke<ITauriHotsearchAdAssetPathResult>('settings_hotsearch_ad_asset_ensure_downloaded', { relativePath, url });
+  };
+
+  /**
+   * 函数：删除热搜广告素材本地缓存，并回收空目录。
+   * @param {string} relativePath 相对文件键。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const hotsearchAdAssetDelete = async (relativePath: string): Promise<void> => {
+    await invoke('settings_hotsearch_ad_asset_delete', { relativePath });
   };
 
   /**
@@ -196,6 +239,9 @@ export const useTauriSettings = () => {
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,
+    hotsearchAdAssetWrite,
+    hotsearchAdAssetEnsureDownloaded,
+    hotsearchAdAssetDelete,
     machineNetworkGet,
     machineHostnameGet,
     pathsExistGet,

@@ -8,6 +8,9 @@ export interface IHotsearchAdMaterialAsset {
   /** 文件键 */
   fileKey: string;
 
+  /** 本地相对文件键 */
+  localFileKey?: string;
+
   /** 原始文件名 */
   originalName: string;
 

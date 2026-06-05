@@ -306,6 +306,35 @@
             <UBadge color="neutral" variant="soft">{{ frameTypeLabelGet(stateDetailRow.frameType) }}</UBadge>
           </div>
 
+          <div v-if="stateDetailRow.asset" class="space-y-3">
+            <div class="text-highlighted text-sm font-medium">主素材</div>
+
+            <Spin
+              :loading="stateDetailAssetPreviewLoading"
+              tip="正在加载素材..."
+              icon="i-lucide:loader-circle"
+              icon-class="size-4 shrink-0 text-white/88"
+              content-class="flex-row gap-2 rounded-md border border-white/12 bg-black/72 px-3 py-2 text-sm text-white/88"
+              mask-class="rounded-(--ui-radius) bg-black/48"
+              tip-class="text-sm text-white/88"
+              :size="16"
+              :delay="0"
+              overlay
+            >
+              <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="stateDetailRow.frameType === 'portrait' ? 'mx-auto aspect-9/16 max-w-64' : 'aspect-video w-full'">
+                <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
+                <video v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" class="h-full w-full object-contain select-none" :src="stateDetailAssetPreviewUrl" controls playsinline preload="metadata"></video>
+                <div v-else class="text-muted flex h-full items-center justify-center text-sm">暂无可预览素材</div>
+              </div>
+            </Spin>
+
+            <div class="flex flex-wrap gap-2 text-xs">
+              <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
+              <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
+              <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
+            </div>
+          </div>
+
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
               <div class="text-muted text-xs">适用栏目</div>
@@ -354,11 +383,12 @@ import type { DateValue } from '@internationalized/date';
 import { CalendarDate, parseTime } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { generateIdBase36, hotsearchAdEditionScopeOptionsGet, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
+import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetStorageKeysCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
@@ -408,6 +438,11 @@ const toast = useToast();
 const { isTauriRuntime } = useTauriEnv();
 
 /**
+ * Hook：Tauri 设置能力。
+ */
+const { hotsearchAdAssetWrite, hotsearchAdAssetEnsureDownloaded } = useTauriSettings();
+
+/**
  * Hook：Tauri 窗口能力。
  */
 const { openFileContent } = useTauriWindow();
@@ -435,6 +470,16 @@ const stateSaving = ref(false);
  * 状态：详情面板是否打开。
  */
 const stateDetailOpen = ref(false);
+
+/**
+ * 状态：详情素材预览地址。
+ */
+const stateDetailAssetPreviewUrl = ref('');
+
+/**
+ * 状态：详情素材预览加载中。
+ */
+const stateDetailAssetPreviewLoading = ref(false);
 
 /**
  * 状态：编辑器素材文件。
@@ -735,8 +780,15 @@ const {
   datas: stateUpyunDirectUploadPolicy,
   error: stateUpyunDirectUploadPolicyError,
   refresh: refreshUpyunDirectUploadPolicyPost
-} = await useApi<Record<string, unknown>>('storages/upyun/assets/direct-upload/policy', {
+} = await useApi<Record<string, unknown>>('storages/upyun/files/direct-upload/policy', {
   method: 'POST',
+  immediate: false
+});
+
+/**
+ * API：又拍云对象签名地址。
+ */
+const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await useApi<{ url: string }>('storages/upyun/files/objects/url', {
   immediate: false
 });
 
@@ -1188,11 +1240,8 @@ const requestUpyunDirectUploadPolicySnapshot = async (body: Record<string, unkno
  * @param {File} file 文件。
  * @returns {string} 保存路径。
  */
-const editorAssetSaveKeyCreate = (file: File): string => {
-  const extension = fileExtGet(file);
-  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-
-  return extension === '' ? `/hotsearch/ads/materials/${suffix}` : `/hotsearch/ads/materials/${suffix}.${extension}`;
+const editorAssetSaveKeyCreate = (file: File): { localFileKey: string; remoteFileKey: string } => {
+  return hotsearchPodcastAdAssetStorageKeysCreate(fileExtGet(file));
 };
 
 /**
@@ -1203,10 +1252,18 @@ const editorAssetSaveKeyCreate = (file: File): string => {
  */
 const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAsset): Promise<IHotsearchAdMaterialAsset> => {
   const errorMessage = '素材上传失败';
-  const saveKey = editorAssetSaveKeyCreate(file);
+  const saveKeys = editorAssetSaveKeyCreate(file);
+
+  if (!isTauriRuntime.value) {
+    throw new Error('当前环境不支持写入附件目录');
+  }
+
+  const localBytes = Array.from(new Uint8Array(await file.arrayBuffer()));
+  await hotsearchAdAssetWrite(saveKeys.localFileKey, localBytes);
+
   const policy = await requestUpyunDirectUploadPolicySnapshot(
     {
-      save_key: saveKey,
+      save_key: saveKeys.remoteFileKey,
       expires_in_sec: 1800
     },
     errorMessage
@@ -1214,7 +1271,7 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
   const uploadUrl = String(policy.upload_url ?? '').trim();
   const uploadPolicy = String(policy.policy ?? '').trim();
   const authorization = String(policy.authorization ?? '').trim();
-  const resolvedSaveKey = String(policy.save_key ?? saveKey).trim();
+  const resolvedSaveKey = String(policy.save_key ?? saveKeys.remoteFileKey).trim();
 
   if (!uploadUrl || !uploadPolicy || !authorization || !resolvedSaveKey) {
     throw new Error(errorMessage);
@@ -1244,8 +1301,9 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
   });
 
   return {
-    storageBucket: 'assets',
+    storageBucket: 'files',
     fileKey: resolvedSaveKey,
+    localFileKey: saveKeys.localFileKey,
     originalName: asset.originalName,
     mimeType: asset.mimeType,
     fileExt: asset.fileExt,
@@ -2060,6 +2118,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     asset: source.asset ?? null
   };
   stateDetailOpen.value = true;
+  void detailAssetPreviewLoad(source.asset ?? null);
 };
 
 /**
@@ -2254,6 +2313,83 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
 ];
 
 let assetSelectionToken = 0;
+let detailAssetPreviewToken = 0;
+
+/**
+ * 函数：清空详情素材预览状态。
+ */
+const detailAssetPreviewClear = (): void => {
+  detailAssetPreviewToken += 1;
+  stateDetailAssetPreviewLoading.value = false;
+  stateDetailAssetPreviewUrl.value = '';
+};
+
+/**
+ * 函数：加载详情素材预览。
+ * @param {IHotsearchAdMaterialAsset | null | undefined} asset 主素材。
+ * @returns {Promise<void>} 无返回值。
+ */
+const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | undefined): Promise<void> => {
+  detailAssetPreviewToken += 1;
+  const currentToken = detailAssetPreviewToken;
+
+  stateDetailAssetPreviewLoading.value = false;
+  stateDetailAssetPreviewUrl.value = '';
+
+  const fileKey = String(asset?.fileKey ?? '').trim();
+  if (!asset || fileKey === '') {
+    return;
+  }
+
+  stateDetailAssetPreviewLoading.value = true;
+
+  try {
+    await refreshUpyunObjectUrlGet({
+      datas: {
+        path: fileKey,
+        ttl_sec: 600
+      },
+      replace: true
+    });
+
+    const signedUrl = String(stateUpyunObjectUrl.value?.url ?? '').trim();
+    if (signedUrl === '') {
+      throw new Error('获取广告素材签名地址失败');
+    }
+
+    let previewUrl = signedUrl;
+    const localFileKey = String(asset.localFileKey ?? '').trim();
+
+    if (isTauriRuntime.value && localFileKey !== '') {
+      const result = await hotsearchAdAssetEnsureDownloaded(localFileKey, signedUrl);
+
+      previewUrl = convertFileSrc(result.filePath);
+    }
+
+    if (currentToken !== detailAssetPreviewToken) {
+      return;
+    }
+
+    stateDetailAssetPreviewUrl.value = previewUrl;
+  } catch (error) {
+    if (currentToken !== detailAssetPreviewToken) {
+      return;
+    }
+
+    toast.add({
+      description: error instanceof Error ? error.message : '加载广告素材预览失败',
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 2500,
+      type: 'foreground',
+      close: false
+    });
+  } finally {
+    if (currentToken === detailAssetPreviewToken) {
+      stateDetailAssetPreviewLoading.value = false;
+    }
+  }
+};
 
 /**
  * 监听：路由变化时刷新列表。
@@ -2270,6 +2406,15 @@ watch(
   (value, oldValue) => {
     if (typeof value === 'number' && typeof oldValue === 'number' && value !== oldValue) {
       handleCreate();
+    }
+  }
+);
+
+watch(
+  () => stateDetailOpen.value,
+  (open) => {
+    if (!open) {
+      detailAssetPreviewClear();
     }
   }
 );
