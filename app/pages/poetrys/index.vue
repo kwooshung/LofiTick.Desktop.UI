@@ -924,11 +924,12 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     id: 'actions',
     meta: {
       class: {
+        th: 'w-20 text-center',
         td: 'w-20'
       }
     },
     enableHiding: false,
-    header: t('pages.poetrys.result.table.actions'),
+    header: () => h('div', { class: 'w-full text-center' }, t('pages.poetrys.result.table.actions')),
     cell: ({ row }) =>
       h(UButton, {
         color: 'neutral',

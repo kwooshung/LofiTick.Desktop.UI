@@ -980,12 +980,12 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
     id: 'actions',
     meta: {
       class: {
-        th: 'w-20',
+        th: 'w-20 text-center',
         td: 'w-20'
       }
     },
     enableHiding: false,
-    header: t('pages.socials.qq.groups.result.table.actions'),
+    header: () => h('div', { class: 'w-full text-center' }, t('pages.socials.qq.groups.result.table.actions')),
     cell: ({ row }) =>
       h(
         UButton,

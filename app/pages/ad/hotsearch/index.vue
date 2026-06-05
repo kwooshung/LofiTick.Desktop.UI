@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="stateEditor.id > 0 ? '编辑广告' : '添加广告'" :ui="{ content: 'w-[80vw] max-w-[1920px]', footer: 'justify-end' }">
+    <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorModalTitle" :ui="{ content: 'w-[80vw] max-w-[1920px]', footer: 'justify-end' }">
       <template #body>
         <UForm id="hotsearchAdEditorForm" :schema="schema" :state="stateEditor" class="space-y-5">
           <div class="space-y-4">
@@ -279,8 +279,8 @@
 
       <template #footer="{ close }">
         <UButton type="button" color="neutral" variant="outline" @click="close">取消</UButton>
-        <UButton type="button" color="neutral" variant="soft" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">保存不启用</UButton>
-        <UButton type="button" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(true)">保存并启用</UButton>
+        <UButton type="button" color="neutral" variant="soft" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">{{ computedEditorSecondaryActionLabel }}</UButton>
+        <UButton type="button" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(true)">{{ computedEditorPrimaryActionLabel }}</UButton>
       </template>
     </UModal>
 
@@ -387,7 +387,7 @@ import { convertFileSrc } from '@tauri-apps/api/core';
 import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
-import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
+import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialDetail, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
 import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
@@ -420,7 +420,17 @@ const UBadge = resolveComponent('UBadge');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：链接。
+ */
+const ULink = resolveComponent('ULink');
+
+/**
  * 组件：开关。
+ */
+const USwitch = resolveComponent('USwitch');
+
+/**
+ * 组件：分页。
  */
 const UPagination = resolveComponent('UPagination');
 
@@ -766,6 +776,21 @@ const schema = z
 const computedCanSubmit = computed(() => schema.safeParse({ ...stateEditor.value }).success);
 
 /**
+ * 计算属性：编辑器弹窗标题。
+ */
+const computedEditorModalTitle = computed(() => (stateEditor.value.id > 0 ? '修改广告' : '添加广告'));
+
+/**
+ * 计算属性：编辑器次按钮文案。
+ */
+const computedEditorSecondaryActionLabel = computed(() => (stateEditor.value.id > 0 ? '修改但不启用' : '保存不启用'));
+
+/**
+ * 计算属性：编辑器主按钮文案。
+ */
+const computedEditorPrimaryActionLabel = computed(() => (stateEditor.value.id > 0 ? '修改并启用' : '保存并启用'));
+
+/**
  * 状态：分页大小 cookie。
  */
 const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
@@ -815,6 +840,8 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
   const keyword = typeof route.query.keyword === 'string' ? route.query.keyword.trim() : '';
   const editionScope = typeof route.query.editionScope === 'string' ? route.query.editionScope.trim() : '';
   const enabled = typeof route.query.enabled === 'string' ? route.query.enabled.trim() : '';
+  const orderBy = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
+  const orderDir = typeof route.query.order_dir === 'string' ? route.query.order_dir.trim() : typeof route.query.orderDir === 'string' ? route.query.orderDir.trim() : '';
   const page = typeof route.query.page === 'string' ? route.query.page.trim() : '';
   const pageSize = currentPageSizeGet();
 
@@ -830,6 +857,14 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
     query.enabled = enabled;
   }
 
+  if (orderBy !== '') {
+    query.orderBy = orderBy;
+  }
+
+  if (orderDir !== '') {
+    query.orderDir = orderDir;
+  }
+
   if (page !== '') {
     query.page = page;
   }
@@ -839,6 +874,47 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
   }
 
   return query;
+};
+
+/**
+ * 函数：获取当前排序字段。
+ * @returns {'id' | 'updated' | 'created'} 排序字段。
+ */
+const hotsearchOrderByCurrentGet = (): 'id' | 'updated' | 'created' => {
+  const by = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
+
+  if (by === 'id' || by === 'created') {
+    return by;
+  }
+
+  return 'updated';
+};
+
+/**
+ * 函数：获取当前排序方向。
+ * @returns {'asc' | 'desc'} 排序方向。
+ */
+const hotsearchOrderDirCurrentGet = (): 'asc' | 'desc' => {
+  const dir = typeof route.query.order_dir === 'string' ? route.query.order_dir.trim().toLowerCase() : typeof route.query.orderDir === 'string' ? route.query.orderDir.trim().toLowerCase() : '';
+
+  return dir === 'asc' ? 'asc' : 'desc';
+};
+
+/**
+ * 事件：切换排序。
+ * @param {'id' | 'updated' | 'created'} field 排序字段。
+ */
+const toggleSort = (field: 'id' | 'updated' | 'created') => {
+  const currentBy = hotsearchOrderByCurrentGet();
+  const currentDir = hotsearchOrderDirCurrentGet();
+  const nextDir = currentBy === field && currentDir === 'asc' ? 'desc' : 'asc';
+  const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+
+  q.order_by = field;
+  q.order_dir = nextDir;
+  q.page = '1';
+
+  navigateTo({ path: route.path, query: q });
 };
 
 /**
@@ -1003,6 +1079,28 @@ const mediaMetadataRead = async (materialType: 'image' | 'video', previewUrl: st
     };
     video.src = previewUrl;
   });
+};
+
+/**
+ * 函数：将服务端时间转换为编辑器本地时间。
+ * @param {unknown} value 服务端时间。
+ * @param {string} fallback 回退值。
+ * @returns {string} 编辑器本地时间。
+ */
+const localDateTimeInputValueGet = (value: unknown, fallback: string): string => {
+  const normalized = hotsearchDatetimeValueGet(value);
+
+  if (normalized === '') {
+    return fallback;
+  }
+
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) {
+    return fallback;
+  }
+
+  return localDateTimeValueCreate(date);
 };
 
 /**
@@ -1320,6 +1418,115 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
 };
 
 /**
+ * 函数：将编辑器素材转换为保存素材。
+ * @param {IPageAdHotsearchEditorAsset} asset 编辑器素材。
+ * @returns {IHotsearchAdMaterialAsset} 可保存素材。
+ */
+const editorAssetPayloadBuild = (asset: IPageAdHotsearchEditorAsset): IHotsearchAdMaterialAsset => {
+  return {
+    path: String(asset.path ?? '').trim(),
+    originalName: asset.originalName,
+    mimeType: asset.mimeType,
+    fileExt: asset.fileExt,
+    fileSizeBytes: asset.fileSizeBytes,
+    width: asset.width,
+    height: asset.height,
+    durationMs: asset.durationMs,
+    clipStartMs: asset.clipStartMs,
+    clipEndMs: asset.clipEndMs,
+    posXRatio: asset.posXRatio,
+    posYRatio: asset.posYRatio,
+    widthRatio: asset.widthRatio,
+    heightRatio: asset.heightRatio,
+    zIndex: asset.zIndex
+  };
+};
+
+/**
+ * 函数：解析素材预览地址。
+ * @param {IHotsearchAdMaterialAsset | null | undefined} asset 主素材。
+ * @param {string} errorMessage 失败文案。
+ * @returns {Promise<string>} 预览地址。
+ */
+const assetPreviewUrlResolve = async (asset: IHotsearchAdMaterialAsset | null | undefined, errorMessage: string): Promise<string> => {
+  const path = String(asset?.path ?? '').trim();
+
+  if (!asset || path === '') {
+    return '';
+  }
+
+  await refreshUpyunObjectUrlGet({
+    datas: {
+      path,
+      ttl_sec: 600
+    },
+    replace: true
+  });
+
+  const signedUrl = String(stateUpyunObjectUrl.value?.url ?? '').trim();
+  if (signedUrl === '') {
+    throw new Error(errorMessage);
+  }
+
+  let previewUrl = signedUrl;
+  const localCachePath = path.replace(/^\//, '');
+
+  if (isTauriRuntime.value && localCachePath !== '') {
+    const result = await hotsearchAdAssetEnsureDownloaded(localCachePath, signedUrl);
+
+    previewUrl = convertFileSrc(result.filePath);
+  }
+
+  return previewUrl;
+};
+
+/**
+ * 函数：恢复编辑器预览布局。
+ * @param {Pick<IPageAdHotsearchEditorAsset, 'widthRatio' | 'posXRatio' | 'posYRatio'>} asset 主素材。
+ */
+const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'widthRatio' | 'posXRatio' | 'posYRatio'>): void => {
+  statePreviewScale.value = previewScaleClamp(asset.widthRatio);
+
+  nextTick(() => {
+    previewCanvasAvailableWidthSync();
+    previewStageSizeSync();
+
+    const clampedOffset = previewOffsetClamp(statePreviewStageSize.width > 0 ? statePreviewStageSize.width * asset.posXRatio : 0, statePreviewStageSize.height > 0 ? statePreviewStageSize.height * asset.posYRatio : 0, statePreviewScale.value);
+
+    statePreviewOffset.x = clampedOffset.x;
+    statePreviewOffset.y = clampedOffset.y;
+  });
+};
+
+/**
+ * 函数：构建编辑器素材状态。
+ * @param {IHotsearchAdMaterialAsset} asset 主素材。
+ * @returns {Promise<IPageAdHotsearchEditorAsset>} 编辑器素材。
+ */
+const editorAssetStateBuild = async (asset: IHotsearchAdMaterialAsset): Promise<IPageAdHotsearchEditorAsset> => {
+  const previewUrl = await assetPreviewUrlResolve(asset, '获取广告素材签名地址失败');
+
+  return {
+    path: asset.path,
+    originalName: asset.originalName,
+    mimeType: asset.mimeType,
+    fileExt: asset.fileExt,
+    fileSizeBytes: asset.fileSizeBytes,
+    width: asset.width,
+    height: asset.height,
+    durationMs: asset.durationMs,
+    clipStartMs: asset.clipStartMs,
+    clipEndMs: asset.clipEndMs,
+    posXRatio: asset.posXRatio,
+    posYRatio: asset.posYRatio,
+    widthRatio: asset.widthRatio,
+    heightRatio: asset.heightRatio,
+    zIndex: asset.zIndex,
+    previewUrl
+  };
+};
+
+/**
  * 函数：清空编辑器素材。
  */
 const editorAssetClear = (): void => {
@@ -1343,6 +1550,23 @@ const editorReset = (): void => {
   stateEditorAssetFile.value = null;
   stateEditorAdvertisementItems.value = [createEditorAdvertisementItem()];
   stateEditor.value = editorDefaultStateCreate();
+};
+
+/**
+ * 函数：将详情栏目范围映射为编辑器字段。
+ * @param {string} value 栏目范围。
+ * @returns {Array<'morning' | 'evening'>} 编辑器栏目范围。
+ */
+const editorEditionScopesBuild = (value: string): Array<'morning' | 'evening'> => {
+  if (value === 'morning') {
+    return ['morning'];
+  }
+
+  if (value === 'evening') {
+    return ['evening'];
+  }
+
+  return ['morning', 'evening'];
 };
 
 /**
@@ -1943,7 +2167,7 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     return [];
   }
 
-  return datas.value.rows.map((item) => ({
+  const rows = datas.value.rows.map((item) => ({
     id: Number(item.id ?? 0),
     title: String(item.title ?? ''),
     presentationType: String(item.presentationType ?? ''),
@@ -1959,7 +2183,65 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     updatedAt: hotsearchDatetimeValueGet(item.updatedAt),
     createdAt: hotsearchDatetimeValueGet(item.createdAt)
   }));
+
+  const by = hotsearchOrderByCurrentGet();
+  const dir = hotsearchOrderDirCurrentGet();
+  const factor = dir === 'asc' ? 1 : -1;
+
+  rows.sort((left, right) => {
+    if (by === 'id') {
+      return (left.id - right.id) * factor;
+    }
+
+    if (by === 'created') {
+      return (Date.parse(left.createdAt) - Date.parse(right.createdAt)) * factor;
+    }
+
+    return (Date.parse(left.updatedAt) - Date.parse(right.updatedAt)) * factor;
+  });
+
+  return rows;
 });
+
+/**
+ * 函数：读取热搜广告详情。
+ * @param {number} id 广告 ID。
+ * @returns {Promise<IHotsearchAdMaterialDetail>} 广告详情。
+ */
+const hotsearchAdMaterialDetailGet = async (id: number): Promise<IHotsearchAdMaterialDetail> => {
+  const {
+    datas: detailDatas,
+    error: detailError,
+    refresh: refreshDetail
+  } = await useApi<IHotsearchAdMaterialDetail>(`hotsearch/ads/materials/${id}`, {
+    immediate: false
+  });
+
+  await refreshDetail({ replace: true });
+  ensureInternalUseApiSucceeded(detailError.value, '读取广告详情失败');
+
+  if (!detailDatas.value) {
+    throw new Error('读取广告详情失败');
+  }
+
+  return detailDatas.value;
+};
+
+/**
+ * 函数：更新热搜广告。
+ * @param {number} id 广告 ID。
+ * @param {Record<string, unknown>} payload 保存请求。
+ * @returns {Promise<void>} 无返回值。
+ */
+const hotsearchAdMaterialUpdate = async (id: number, payload: Record<string, unknown>): Promise<void> => {
+  const { error: updateError, refresh: refreshUpdate } = await useApi<IHotsearchAdMaterialSaveResult>(`hotsearch/ads/materials/${id}`, {
+    method: 'PATCH',
+    immediate: false
+  });
+
+  await refreshUpdate({ datas: payload, replace: true });
+  ensureInternalUseApiSucceeded(updateError.value, '广告修改失败');
+};
 
 /**
  * 计算属性：当前页。
@@ -2128,11 +2410,91 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
 };
 
 /**
+ * 事件：编辑广告。
+ * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
+ */
+const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<void> => {
+  if (stateSaving.value) {
+    return;
+  }
+
+  stateSaving.value = true;
+
+  try {
+    const detail = await hotsearchAdMaterialDetailGet(row.id);
+    const defaultState = editorDefaultStateCreate();
+
+    editorReset();
+    stateEditor.value = {
+      id: Number(detail.id ?? 0),
+      title: String(detail.title ?? ''),
+      presentationType: String(detail.presentationType ?? 'voice') as IPageAdHotsearchEditorForm['presentationType'],
+      materialType: String(detail.materialType ?? 'none') as IPageAdHotsearchEditorForm['materialType'],
+      frameType: String(detail.frameType ?? 'none') as IPageAdHotsearchEditorForm['frameType'],
+      editionScopes: editorEditionScopesBuild(String(detail.editionScope ?? 'both')),
+      placementType: String(detail.placementType ?? 'opening') as IPageAdHotsearchEditorForm['placementType'],
+      price: Number(detail.price ?? 0),
+      priority: Number(detail.priority ?? 0),
+      asset: null,
+      notes: String(detail.notes ?? ''),
+      isEnabled: Boolean(detail.isEnabled),
+      startAt: localDateTimeInputValueGet(detail.startAt, defaultState.startAt),
+      endAt: localDateTimeInputValueGet(detail.endAt, defaultState.endAt)
+    };
+    stateEditorAdvertisementItems.value =
+      detail.lines.length > 0 ? [...detail.lines].sort((left, right) => Number(left.lineNo ?? 0) - Number(right.lineNo ?? 0)).map((item) => createEditorAdvertisementItem(String(item.voiceKey ?? 'M') as 'M' | 'F' | 'R', String(item.content ?? ''))) : [createEditorAdvertisementItem()];
+    stateEditorOpen.value = true;
+
+    if (detail.asset) {
+      stateEditorAssetLoading.value = true;
+
+      try {
+        const editorAsset = await editorAssetStateBuild(detail.asset);
+
+        stateEditor.value.asset = editorAsset;
+        editorPreviewLayoutRestore(editorAsset);
+      } finally {
+        stateEditorAssetLoading.value = false;
+      }
+    }
+  } catch (error) {
+    toast.add({
+      description: error instanceof Error ? error.message : '读取广告详情失败',
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 2500,
+      type: 'foreground',
+      close: false
+    });
+  } finally {
+    stateSaving.value = false;
+  }
+};
+
+/**
  * 事件：打开新增模态框。
  */
 const handleCreate = () => {
   editorReset();
   stateEditorOpen.value = true;
+};
+
+/**
+ * 事件：切换启用状态。
+ * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
+ * @param {boolean} value 目标状态。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleToggleEnabled = async (row: IPageTableColumnHotsearchAdMaterial, value: boolean): Promise<void> => {
+  const previous = row.isEnabled;
+  row.isEnabled = value;
+
+  try {
+    await hotsearchAdMaterialUpdate(row.id, { isEnabled: value });
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  } catch {
+    row.isEnabled = previous;
+  }
 };
 
 /**
@@ -2220,7 +2582,7 @@ const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchA
 };
 
 /**
- * 事件：提交新增表单。
+ * 事件：提交编辑器表单。
  * @param {boolean} isEnabled 是否启用。
  */
 const onSubmit = async (isEnabled: boolean): Promise<void> => {
@@ -2239,17 +2601,31 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
     }
 
     if (stateEditor.value.materialType !== 'none') {
-      if (!stateEditorAssetFile.value || !stateEditor.value.asset) {
+      if (!stateEditor.value.asset) {
         throw new Error('请选择要上传的素材文件');
       }
 
-      uploadedAsset = await uploadEditorAssetFile(stateEditorAssetFile.value, stateEditor.value.asset);
+      if (stateEditorAssetFile.value) {
+        uploadedAsset = await uploadEditorAssetFile(stateEditorAssetFile.value, stateEditor.value.asset);
+      } else {
+        uploadedAsset = editorAssetPayloadBuild(stateEditor.value.asset);
+
+        if (uploadedAsset.path.trim() === '') {
+          throw new Error('请选择要上传的素材文件');
+        }
+      }
     }
 
-    await refreshCreate({
-      datas: savePayloadBuild(stateEditor.value, uploadedAsset, isEnabled),
-      replace: true
-    });
+    const payload = savePayloadBuild(stateEditor.value, uploadedAsset, isEnabled);
+
+    if (stateEditor.value.id > 0) {
+      await hotsearchAdMaterialUpdate(stateEditor.value.id, payload);
+    } else {
+      await refreshCreate({
+        datas: payload,
+        replace: true
+      });
+    }
 
     stateEditorOpen.value = false;
     editorReset();
@@ -2274,105 +2650,148 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
 const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     accessorKey: 'id',
-    header: '编号',
-    cell: ({ row }) => h('span', { class: 'text-muted text-sm' }, `#${row.original.id}`),
+    header: () => {
+      const by = hotsearchOrderByCurrentGet();
+      const dir = hotsearchOrderDirCurrentGet();
+      const isSorted = by === 'id' ? dir : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: '编号', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
+    },
+    cell: ({ row }) => row.original.id.toString().padStart(5, '0'),
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-20',
-        td: 'hidden xl:table-cell w-20 align-baseline'
+        th: 'w-18 text-sm whitespace-nowrap',
+        td: 'w-18 text-sm align-middle'
       }
     }
   },
   {
-    id: 'summary',
+    id: 'adMobile',
     header: '广告信息',
+    meta: {
+      class: {
+        th: 'md:hidden text-sm',
+        td: 'md:hidden align-middle'
+      }
+    },
     cell: ({ row }) => {
       const item = row.original;
 
-      return h('div', { class: 'space-y-2 py-0.5' }, [
-        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1' }, [h('span', { class: 'text-muted text-xs xl:hidden' }, `#${item.id}`), h('div', { class: 'text-highlighted text-sm font-medium leading-6' }, item.title || '未命名广告')]),
-        h('div', { class: 'flex flex-wrap gap-1.5' }, [
-          h(UBadge, { color: item.isEnabled ? 'primary' : 'neutral', variant: 'soft' }, () => (item.isEnabled ? '启用中' : '已停用')),
-          h(UBadge, { color: 'neutral', variant: 'soft' }, () => presentationTypeLabelGet(item.presentationType)),
-          h(UBadge, { color: 'neutral', variant: 'soft' }, () => placementTypeLabelGet(item.placementType)),
-          h(UBadge, { color: 'neutral', variant: 'soft' }, () => materialTypeLabelGet(item.materialType)),
-          h(UBadge, { color: 'neutral', variant: 'soft' }, () => frameTypeLabelGet(item.frameType))
+      return h('div', { class: 'space-y-1 py-0.5' }, [
+        h('div', { class: 'min-w-0' }, [
+          h(
+            ULink,
+            {
+              raw: true,
+              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              onClick: () => handleViewDetail(item)
+            },
+            () => h('span', { class: 'whitespace-normal break-words text-sm leading-6 font-medium text-highlighted' }, item.title || '未命名广告')
+          )
         ]),
-        h('div', { class: 'grid gap-1 text-xs text-muted xl:hidden' }, [
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', item.priceText), h('span', `优先级 ${item.priority}`)]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '生效'), h(Datetime, { datetime: item.startAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '失效'), h(Datetime, { datetime: item.endAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })])
+        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', '·'), h('span', `优先级 ${item.priority}`)]),
+        h('div', { class: 'grid gap-1 text-xs text-muted' }, [
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '价格'), h('span', item.priceText)]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '启用'), h('span', item.isEnabled ? '开启' : '关闭')]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '更新时间'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '创建时间'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '生效时间'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
+          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '失效时间'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })])
         ])
       ]);
-    },
+    }
+  },
+  {
+    id: 'titleDesktop',
+    accessorKey: 'title',
+    header: '广告信息',
     meta: {
       class: {
-        th: 'min-w-88',
-        td: 'min-w-88 align-baseline'
+        th: 'hidden md:table-cell min-w-64 text-sm',
+        td: 'hidden md:table-cell min-w-64 align-middle'
+      }
+    },
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return h('div', { class: 'space-y-1 py-0.5' }, [
+        h(
+          ULink,
+          {
+            raw: true,
+            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+            onClick: () => handleViewDetail(item)
+          },
+          () => h('span', { class: 'whitespace-normal break-words text-sm leading-6 font-medium text-highlighted' }, item.title || '未命名广告')
+        ),
+        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', '·'), h('span', `优先级 ${item.priority}`)])
+      ]);
+    }
+  },
+  {
+    accessorKey: 'priceText',
+    header: '价格',
+    cell: ({ row }) => h('span', { class: 'text-sm text-highlighted' }, row.original.priceText),
+    meta: {
+      class: {
+        th: 'hidden md:table-cell w-22 text-left text-sm',
+        td: 'hidden md:table-cell w-22 text-right align-middle'
       }
     }
   },
   {
-    id: 'delivery',
-    header: '投放配置',
+    id: 'presentation',
+    header: '投放',
     cell: ({ row }) => {
       const item = row.original;
 
       return h('div', { class: 'space-y-1.5 text-sm' }, [
-        h('div', { class: 'text-highlighted' }, editionScopeLabelGet(item.editionScope)),
+        h('div', { class: 'text-highlighted' }, presentationTypeLabelGet(item.presentationType)),
         h('div', { class: 'text-muted text-xs' }, placementTypeLabelGet(item.placementType)),
-        h('div', { class: 'text-muted text-xs' }, `优先级 ${item.priority}`),
-        h('div', { class: 'text-muted text-xs' }, item.priceText)
+        h('div', { class: 'text-muted text-xs' }, materialTypeLabelGet(item.materialType)),
+        h('div', { class: 'text-muted text-xs' }, frameTypeLabelGet(item.frameType))
       ]);
     },
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-44',
-        td: 'hidden xl:table-cell w-44 align-baseline'
+        th: 'hidden xl:table-cell w-24 text-sm',
+        td: 'hidden xl:table-cell w-24 align-middle'
       }
     }
   },
   {
-    id: 'schedule',
-    header: '投放周期',
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-1.5 text-xs' }, [
-        h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, '生效：'), h(Datetime, { datetime: item.startAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })]),
-        h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, '失效：'), h(Datetime, { datetime: item.endAt, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })])
-      ]);
-    },
+    accessorKey: 'startAt',
+    header: '生效时间',
+    cell: ({ row }) => h(Datetime, { class: 'self-end w-auto max-w-full text-sm', datetime: row.original.startAt, mode: 'datetime' }),
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-44',
-        td: 'hidden xl:table-cell w-44 align-baseline'
+        th: 'hidden lg:table-cell w-24 text-right text-sm',
+        td: 'hidden lg:table-cell w-24 text-right align-middle'
       }
     }
   },
   {
-    id: 'time',
-    header: '时间',
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-2 text-xs' }, [
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '生效'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '失效'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '更新'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
-        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-muted' }, '创建'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
-      ]);
-    },
+    accessorKey: 'endAt',
+    header: '失效时间',
+    cell: ({ row }) => h(Datetime, { class: 'self-end w-auto max-w-full text-sm', datetime: row.original.endAt, mode: 'datetime' }),
     meta: {
       class: {
-        th: 'w-56 xl:hidden',
-        td: 'w-56 xl:hidden align-baseline'
+        th: 'hidden lg:table-cell w-24 text-right text-sm',
+        td: 'hidden lg:table-cell w-24 text-right align-middle'
       }
     }
   },
   {
     accessorKey: 'updatedAt',
-    header: '更新时间',
+    header: () => {
+      const by = hotsearchOrderByCurrentGet();
+      const dir = hotsearchOrderDirCurrentGet();
+      const isSorted = by === 'updated' ? dir : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: '更新时间', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
+    },
     cell: ({ row }) =>
       h(Datetime, {
         class: 'w-auto max-w-full text-sm',
@@ -2385,14 +2804,21 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       }),
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-32 text-right',
-        td: 'hidden xl:table-cell w-32 text-right align-baseline'
+        th: 'hidden xl:table-cell w-24 text-right text-sm',
+        td: 'hidden xl:table-cell w-24 text-right align-middle'
       }
     }
   },
   {
     accessorKey: 'createdAt',
-    header: '创建时间',
+    header: () => {
+      const by = hotsearchOrderByCurrentGet();
+      const dir = hotsearchOrderDirCurrentGet();
+      const isSorted = by === 'created' ? dir : false;
+      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
+
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: '创建时间', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
+    },
     cell: ({ row }) =>
       h(Datetime, {
         class: 'w-auto max-w-full text-sm',
@@ -2405,19 +2831,48 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       }),
     meta: {
       class: {
-        th: 'hidden 3xl:table-cell w-32 text-right',
-        td: 'hidden 3xl:table-cell w-32 text-right align-baseline'
+        th: 'hidden 2xl:table-cell w-24 text-right text-sm',
+        td: 'hidden 2xl:table-cell w-24 text-right align-middle'
+      }
+    }
+  },
+  {
+    accessorKey: 'isEnabled',
+    header: '启用',
+    cell: ({ row }) =>
+      h(USwitch, {
+        modelValue: row.original.isEnabled,
+        'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value)
+      }),
+    meta: {
+      class: {
+        th: 'hidden md:table-cell w-18 text-center text-sm',
+        td: 'hidden md:table-cell w-18 text-center align-middle'
       }
     }
   },
   {
     id: 'actions',
-    header: '操作',
-    cell: ({ row }) => h(UButton, { color: 'neutral', variant: 'ghost', size: 'sm', onClick: () => handleViewDetail(row.original) }, () => '查看'),
+    header: () => h('div', { class: 'w-full text-right' }, '操作'),
+    cell: ({ row }) =>
+      h('div', { class: 'flex items-center justify-end gap-3 text-sm' }, [
+        h(UButton, {
+          color: 'neutral',
+          variant: 'ghost',
+          label: '修改',
+          onClick: () => void handleEdit(row.original)
+        }),
+        h(UButton, {
+          color: 'neutral',
+          variant: 'ghost',
+          label: '查看',
+          onClick: () => handleViewDetail(row.original)
+        })
+      ]),
     meta: {
       class: {
-        th: 'w-24 text-right',
-        td: 'w-24 text-right'
+        th: 'w-22 text-right text-sm',
+        td: 'w-22 text-right align-middle'
       }
     }
   }
@@ -2447,35 +2902,14 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
   stateDetailAssetPreviewLoading.value = false;
   stateDetailAssetPreviewUrl.value = '';
 
-  const path = String(asset?.path ?? '').trim();
-  if (!asset || path === '') {
+  if (!asset || String(asset.path ?? '').trim() === '') {
     return;
   }
 
   stateDetailAssetPreviewLoading.value = true;
 
   try {
-    await refreshUpyunObjectUrlGet({
-      datas: {
-        path,
-        ttl_sec: 600
-      },
-      replace: true
-    });
-
-    const signedUrl = String(stateUpyunObjectUrl.value?.url ?? '').trim();
-    if (signedUrl === '') {
-      throw new Error('获取广告素材签名地址失败');
-    }
-
-    let previewUrl = signedUrl;
-    const localCachePath = path.replace(/^\//, '');
-
-    if (isTauriRuntime.value && localCachePath !== '') {
-      const result = await hotsearchAdAssetEnsureDownloaded(localCachePath, signedUrl);
-
-      previewUrl = convertFileSrc(result.filePath);
-    }
+    const previewUrl = await assetPreviewUrlResolve(asset, '获取广告素材签名地址失败');
 
     if (currentToken !== detailAssetPreviewToken) {
       return;

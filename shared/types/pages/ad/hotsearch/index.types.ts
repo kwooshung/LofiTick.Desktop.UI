@@ -127,6 +127,34 @@ export interface IHotsearchAdMaterialSaveResult {
 }
 
 /**
+ * 接口：热搜广告文案行。
+ */
+export interface IHotsearchAdMaterialLine {
+  /** 行序号 */
+  lineNo: number;
+
+  /** 播报角色 */
+  voiceKey: string;
+
+  /** 文案内容 */
+  content: string;
+}
+
+/**
+ * 接口：热搜广告物料详情。
+ */
+export interface IHotsearchAdMaterialDetail extends IHotsearchAdMaterialSummaryRow {
+  /** 广告文案行 */
+  lines: IHotsearchAdMaterialLine[];
+
+  /** 备注 */
+  notes: string;
+
+  /** 软删除时间 */
+  deletedAt?: string | null;
+}
+
+/**
  * 接口：热搜广告页属性。
  */
 export interface IPageAdHotsearchProps {
@@ -185,6 +213,9 @@ export interface IPageAdHotsearchEditorForm {
  * 接口：热搜广告编辑器主素材。
  */
 export interface IPageAdHotsearchEditorAsset {
+  /** 远端素材路径 */
+  path?: string;
+
   /** 原始文件名 */
   originalName: string;
 
