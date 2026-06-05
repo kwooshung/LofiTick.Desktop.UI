@@ -12,7 +12,7 @@
             base: 'table-fixed border-separate border-spacing-0',
             thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
             tbody: '[&>tr]:last:[&>td]:border-b-0',
-            th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+            th: 'py-2 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
             td: 'border-b border-default align-top',
             separator: 'h-0'
           }"
@@ -59,6 +59,10 @@
                       <URadioGroup v-model="stateEditor.frameType" :items="frameTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                     </UFormField>
                   </template>
+
+                  <UFormField required name="platformIds" label="投放平台">
+                    <USelect v-model="stateEditor.platformIds" multiple :items="editorPlatformOptions" value-key="value" label-key="label" placeholder="请选择投放平台" size="sm" color="primary" variant="outline" :ui="{ content: 'min-w-fit' }" class="w-full" />
+                  </UFormField>
 
                   <UFormField required name="price" label="价格">
                     <UInputNumber v-model="stateEditor.price" :min="0" :step="0.01" :format-options="{ minimumFractionDigits: 2, maximumFractionDigits: 2 }" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
@@ -213,6 +217,8 @@
                                   </UButton>
                                 </div>
                               </div>
+
+                              <div v-if="stateEditor.asset.path" class="pointer-events-none absolute inset-x-3 bottom-14 z-10 text-[11px] break-all text-white/72">素材路径：{{ assetPathLabelGet(stateEditor.asset.path) }}</div>
                             </div>
                           </UFileUpload>
                         </div>
@@ -333,6 +339,8 @@
               <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
               <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
             </div>
+
+            <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">素材路径：{{ assetPathLabelGet(stateDetailRow.asset.path) }}</div>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
@@ -388,7 +396,8 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialDetail, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
+import type { THotsearchAdDeliveryPlatformKind } from '@@/shared/types/index.types';
+import { hotsearchAdDeliveryPlatformOptionsGet, hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
@@ -420,9 +429,14 @@ const UBadge = resolveComponent('UBadge');
 const UButton = resolveComponent('UButton');
 
 /**
- * 组件：链接。
+ * 组件：浮层提示。
  */
-const ULink = resolveComponent('ULink');
+const UPopover = resolveComponent('UPopover');
+
+/**
+ * 组件：复选框。
+ */
+const UCheckbox = resolveComponent('UCheckbox');
 
 /**
  * 组件：开关。
@@ -437,6 +451,8 @@ const UPagination = resolveComponent('UPagination');
 /**
  * Hook：国际化。
  */
+const { t } = useI18n();
+
 /**
  * Hook：提示消息。
  */
@@ -470,6 +486,11 @@ const route = useRoute();
  * 状态：编辑器开关。
  */
 const stateEditorOpen = ref(false);
+
+/**
+ * 状态：删除确认浮层的目标行 ID。
+ */
+const stateDeletePopoverOpenId = ref<number | null>(null);
 
 /**
  * 状态：保存中。
@@ -602,6 +623,75 @@ const localDateTimeValueCreate = (value: Date): string => {
 };
 
 /**
+ * 函数：生成默认适用平台列表。
+ * @returns {number[]} 默认平台 ID 列表。
+ */
+const editorPlatformIdsDefaultCreate = (): number[] => [];
+
+/**
+ * 函数：规范化编辑器平台列表。
+ * @param {unknown} value 平台列表。
+ * @returns {number[]} 规范化后的平台 ID 列表。
+ */
+const editorPlatformIdsNormalize = (value: unknown): number[] => {
+  const platformIds = new Set(adDeliveryPlatformOptions.map((item) => item.id));
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const normalized = Array.from(new Set(value.map((item) => Number(item)).filter((item) => Number.isInteger(item) && platformIds.has(item))));
+
+  return normalized;
+};
+
+/**
+ * 函数：根据呈现方式与画幅解析投放平台类型。
+ * @param {IPageAdHotsearchEditorForm['presentationType']} presentationType 呈现方式。
+ * @param {IPageAdHotsearchEditorForm['frameType']} frameType 画幅类型。
+ * @returns {THotsearchAdDeliveryPlatformKind | null} 投放平台类型。
+ */
+const editorRequiredPlatformKindResolve = (presentationType: IPageAdHotsearchEditorForm['presentationType'], frameType: IPageAdHotsearchEditorForm['frameType']): THotsearchAdDeliveryPlatformKind | null => {
+  if (presentationType === 'voice') {
+    return 'audio';
+  }
+
+  if (frameType === 'landscape' || frameType === 'portrait') {
+    return frameType;
+  }
+
+  return null;
+};
+
+/**
+ * 函数：按投放平台类型规范化平台列表。
+ * @param {unknown} value 平台列表。
+ * @param {THotsearchAdDeliveryPlatformKind | null} requiredKind 目标平台类型。
+ * @returns {number[]} 规范化后的平台 ID 列表。
+ */
+const editorPlatformIdsByKindNormalize = (value: unknown, requiredKind: THotsearchAdDeliveryPlatformKind | null): number[] => {
+  const normalized = editorPlatformIdsNormalize(value);
+
+  if (!requiredKind) {
+    return normalized;
+  }
+
+  return normalized.filter((id) => adDeliveryPlatformKindMap.value.get(id) === requiredKind);
+};
+
+/**
+ * 函数：同步当前表单允许的投放平台。
+ */
+const editorPlatformIdsAllowedSync = (): void => {
+  const requiredKind = editorRequiredPlatformKindResolve(stateEditor.value.presentationType, stateEditor.value.frameType);
+  const normalized = editorPlatformIdsByKindNormalize(stateEditor.value.platformIds, requiredKind);
+
+  if (normalized.length !== stateEditor.value.platformIds.length || normalized.some((id, index) => id !== stateEditor.value.platformIds[index])) {
+    stateEditor.value.platformIds = normalized;
+  }
+};
+
+/**
  * 函数：生成默认编辑器状态。
  * @returns {IPageAdHotsearchEditorForm} 默认状态。
  */
@@ -618,6 +708,7 @@ const editorDefaultStateCreate = (): IPageAdHotsearchEditorForm => {
     frameType: 'none',
     editionScopes: ['morning', 'evening'],
     placementType: 'opening',
+    platformIds: editorPlatformIdsDefaultCreate(),
     price: 0,
     priority: 0,
     asset: null,
@@ -636,11 +727,13 @@ const stateEditor = ref<IPageAdHotsearchEditorForm>(editorDefaultStateCreate());
 /**
  * 常量：广告类型选项。
  */
-const presentationTypeOptions = [
+const presentationTypeBaseOptions = [
   { label: '口播', value: 'voice' },
   { label: '画中画', value: 'pip' },
   { label: '拼接', value: 'montage' }
 ];
+
+const presentationTypeOptions = computed(() => presentationTypeBaseOptions);
 
 /**
  * 常量：广告位置选项。
@@ -699,6 +792,29 @@ const frameTypeOptions = [
  */
 const editorEditionScopeOptions = hotsearchAdEditionScopeOptionsGet();
 
+const adDeliveryPlatformOptions = hotsearchAdDeliveryPlatformOptionsGet();
+
+/**
+ * 计算属性：当前表单需要的投放平台类型。
+ */
+const computedEditorRequiredPlatformKind = computed(() => editorRequiredPlatformKindResolve(stateEditor.value.presentationType, stateEditor.value.frameType));
+
+/**
+ * 计算属性：编辑器适用平台选项。
+ */
+const editorPlatformOptions = computed(() => {
+  return adDeliveryPlatformOptions
+    .filter((item) => !computedEditorRequiredPlatformKind.value || item.deliveryKind === computedEditorRequiredPlatformKind.value)
+    .map((item) => ({
+      label: t(item.labelKey),
+      value: item.id
+    }));
+});
+
+const adDeliveryPlatformKindMap = computed(() => {
+  return new Map(adDeliveryPlatformOptions.map((item) => [item.id, item.deliveryKind]));
+});
+
 /**
  * 常量：表单校验。
  */
@@ -710,6 +826,7 @@ const schema = z
     frameType: z.enum(['none', 'landscape', 'portrait']),
     editionScopes: z.array(z.enum(['morning', 'evening'])).min(1, '请至少选择一个适用栏目'),
     placementType: z.enum(['opening', 'closing']),
+    platformIds: z.array(z.number().int().positive()).min(1, '请至少选择一个投放平台'),
     price: z.number().min(0, '价格必须大于等于 0'),
     priority: z.number().int('优先级必须是整数'),
     asset: z
@@ -767,6 +884,12 @@ const schema = z
 
     if (new Date(value.startAt).getTime() > new Date(value.endAt).getTime()) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endAt'], message: '失效时间必须大于等于生效时间' });
+    }
+
+    const requiredPlatformKind = editorRequiredPlatformKindResolve(value.presentationType, value.frameType);
+
+    if (requiredPlatformKind && value.platformIds.some((id) => adDeliveryPlatformKindMap.value.get(id) !== requiredPlatformKind)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['platformIds'], message: '投放平台必须匹配当前口播或画幅类型' });
     }
   });
 
@@ -1481,6 +1604,19 @@ const assetPreviewUrlResolve = async (asset: IHotsearchAdMaterialAsset | null | 
 };
 
 /**
+ * 函数：规范化素材路径展示文本。
+ * @param {string} path 素材路径。
+ * @returns {string} 展示文本。
+ */
+const assetPathLabelGet = (path: string): string => {
+  return (
+    String(path ?? '')
+      .trim()
+      .replace(/^\/?assets\//, '') || '-'
+  );
+};
+
+/**
  * 函数：恢复编辑器预览布局。
  * @param {Pick<IPageAdHotsearchEditorAsset, 'widthRatio' | 'posXRatio' | 'posYRatio'>} asset 主素材。
  */
@@ -2079,11 +2215,11 @@ const presentationTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['present
  */
 const placementTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['placementType']): string => {
   if (value === 'opening') {
-    return '开头广告';
+    return '开头';
   }
 
   if (value === 'closing') {
-    return '结尾广告';
+    return '结尾';
   }
 
   return value;
@@ -2096,7 +2232,7 @@ const placementTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['placementT
  */
 const materialTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['materialType']): string => {
   if (value === 'none') {
-    return '无素材';
+    return '无';
   }
 
   if (value === 'image') {
@@ -2117,15 +2253,15 @@ const materialTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['materialTyp
  */
 const frameTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['frameType']): string => {
   if (value === 'none') {
-    return '不区分';
+    return '无';
   }
 
   if (value === 'landscape') {
-    return '横版';
+    return '横屏';
   }
 
   if (value === 'portrait') {
-    return '竖版';
+    return '竖屏';
   }
 
   return value;
@@ -2138,15 +2274,15 @@ const frameTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['frameType']): 
  */
 const editionScopeLabelGet = (value: IHotsearchAdMaterialSummaryRow['editionScope']): string => {
   if (value === 'morning') {
-    return '仅早报';
+    return '早报';
   }
 
   if (value === 'evening') {
-    return '仅晚报';
+    return '晚报';
   }
 
   if (value === 'both') {
-    return '仅早报 + 仅晚报';
+    return '早报、晚报';
   }
 
   return value;
@@ -2159,6 +2295,37 @@ const editionScopeLabelGet = (value: IHotsearchAdMaterialSummaryRow['editionScop
  */
 const priceTextGet = (value: number): string => `¥${Number(value ?? 0).toFixed(2)}`;
 
+/**
+ * 函数：根据画幅映射平台文案。
+ * @param {IHotsearchAdMaterialSummaryRow['frameType']} frameType 画幅类型。
+ * @returns {string} 平台文案。
+ */
+const platformLabelGet = (frameType: IHotsearchAdMaterialSummaryRow['frameType']): string => {
+  if (frameType === 'landscape') {
+    return 'B站/头条/西瓜视频/微博/皮皮虾/皮皮搞笑/YouTube';
+  }
+
+  if (frameType === 'portrait') {
+    return '抖音/小红书/快手';
+  }
+
+  return '音频平台';
+};
+
+/**
+ * 函数：渲染栏目复选框（只读）。
+ * @param {IPageTableColumnHotsearchAdMaterial} item 表格行。
+ * @returns {VNode} 栏目节点。
+ */
+const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdMaterial) => {
+  const morningChecked = item.editionScope === 'morning' || item.editionScope === 'both';
+  const eveningChecked = item.editionScope === 'evening' || item.editionScope === 'both';
+
+  return h('div', { class: 'flex flex-col gap-1 text-xs' }, [
+    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: morningChecked, disabled: true }), h('span', { class: 'text-muted' }, '早报')]),
+    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: eveningChecked, disabled: true }), h('span', { class: 'text-muted' }, '晚报')])
+  ]);
+};
 /**
  * 计算属性：表格数据。
  */
@@ -2241,6 +2408,21 @@ const hotsearchAdMaterialUpdate = async (id: number, payload: Record<string, unk
 
   await refreshUpdate({ datas: payload, replace: true });
   ensureInternalUseApiSucceeded(updateError.value, '广告修改失败');
+};
+
+/**
+ * 函数：删除热搜广告。
+ * @param {number} id 广告 ID。
+ * @returns {Promise<void>} 无返回值。
+ */
+const hotsearchAdMaterialDelete = async (id: number): Promise<void> => {
+  const { error: deleteError, refresh: refreshDelete } = await useApi<Record<string, unknown>>(`hotsearch/ads/materials/${id}`, {
+    method: 'DELETE',
+    immediate: false
+  });
+
+  await refreshDelete({ replace: true });
+  ensureInternalUseApiSucceeded(deleteError.value, '广告删除失败');
 };
 
 /**
@@ -2419,6 +2601,7 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
   }
 
   stateSaving.value = true;
+  stateDeletePopoverOpenId.value = null;
 
   try {
     const detail = await hotsearchAdMaterialDetailGet(row.id);
@@ -2433,6 +2616,7 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
       frameType: String(detail.frameType ?? 'none') as IPageAdHotsearchEditorForm['frameType'],
       editionScopes: editorEditionScopesBuild(String(detail.editionScope ?? 'both')),
       placementType: String(detail.placementType ?? 'opening') as IPageAdHotsearchEditorForm['placementType'],
+      platformIds: editorPlatformIdsNormalize(detail.platformIds),
       price: Number(detail.price ?? 0),
       priority: Number(detail.priority ?? 0),
       asset: null,
@@ -2472,10 +2656,66 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
 };
 
 /**
+ * 事件：删除广告。
+ * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleDelete = async (row: IPageTableColumnHotsearchAdMaterial): Promise<void> => {
+  if (stateSaving.value) {
+    return;
+  }
+
+  stateSaving.value = true;
+  stateDeletePopoverOpenId.value = null;
+
+  try {
+    await hotsearchAdMaterialDelete(row.id);
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+    toast.add({
+      description: '广告已删除',
+      color: 'success',
+      icon: 'i-lucide:check-circle-2',
+      duration: 2200,
+      type: 'foreground',
+      close: false
+    });
+  } catch (error) {
+    toast.add({
+      description: error instanceof Error ? error.message : '广告删除失败',
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 2500,
+      type: 'foreground',
+      close: false
+    });
+  } finally {
+    stateSaving.value = false;
+  }
+};
+
+/**
+ * 函数：获取素材预览图标。
+ * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
+ * @returns {{ icon: string; text: string }} 图标和提示文案。
+ */
+const materialPreviewMetaGet = (row: IPageTableColumnHotsearchAdMaterial): { icon: string; text: string } => {
+  if (row.materialType === 'image') {
+    return { icon: 'i-lucide:image', text: '图片素材' };
+  }
+
+  if (row.materialType === 'video') {
+    return { icon: 'i-lucide:clapperboard', text: '视频素材' };
+  }
+
+  return { icon: 'i-lucide:audio-lines', text: '口播素材' };
+};
+
+/**
  * 事件：打开新增模态框。
  */
 const handleCreate = () => {
   editorReset();
+  stateDeletePopoverOpenId.value = null;
   stateEditorOpen.value = true;
 };
 
@@ -2570,6 +2810,7 @@ const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchA
     frameType,
     editionScope: editionScopePayloadGet(source.editionScopes),
     placementType: source.placementType,
+    platformIds: Array.from(new Set(source.platformIds)),
     price: source.price,
     priority: source.priority,
     lines,
@@ -2650,231 +2891,257 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
 const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     accessorKey: 'id',
-    header: () => {
-      const by = hotsearchOrderByCurrentGet();
-      const dir = hotsearchOrderDirCurrentGet();
-      const isSorted = by === 'id' ? dir : false;
-      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: '编号', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
-    },
+    header: '编号',
     cell: ({ row }) => row.original.id.toString().padStart(5, '0'),
-    meta: {
-      class: {
-        th: 'w-18 text-sm whitespace-nowrap',
-        td: 'w-18 text-sm align-middle'
-      }
-    }
+    meta: { class: { th: 'w-16 text-sm', td: 'w-16 text-sm align-middle' } }
   },
   {
-    id: 'adMobile',
+    id: 'adInfoSm',
     header: '广告信息',
-    meta: {
-      class: {
-        th: 'md:hidden text-sm',
-        td: 'md:hidden align-middle'
-      }
-    },
+    meta: { class: { th: 'lg:hidden text-sm', td: 'lg:hidden align-middle' } },
     cell: ({ row }) => {
       const item = row.original;
 
-      return h('div', { class: 'space-y-1 py-0.5' }, [
-        h('div', { class: 'min-w-0' }, [
-          h(
-            ULink,
-            {
-              raw: true,
-              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
-              onClick: () => handleViewDetail(item)
-            },
-            () => h('span', { class: 'whitespace-normal break-words text-sm leading-6 font-medium text-highlighted' }, item.title || '未命名广告')
-          )
-        ]),
-        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', '·'), h('span', `优先级 ${item.priority}`)]),
-        h('div', { class: 'grid gap-1 text-xs text-muted' }, [
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '价格'), h('span', item.priceText)]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '启用'), h('span', item.isEnabled ? '开启' : '关闭')]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '更新时间'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '创建时间'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '生效时间'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
-          h('div', { class: 'flex flex-wrap items-center gap-x-3 gap-y-1' }, [h('span', '失效时间'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })])
-        ])
-      ]);
-    }
-  },
-  {
-    id: 'titleDesktop',
-    accessorKey: 'title',
-    header: '广告信息',
-    meta: {
-      class: {
-        th: 'hidden md:table-cell min-w-64 text-sm',
-        td: 'hidden md:table-cell min-w-64 align-middle'
-      }
-    },
-    cell: ({ row }) => {
-      const item = row.original;
-
-      return h('div', { class: 'space-y-1 py-0.5' }, [
+      return h('div', { class: 'space-y-2 py-0.5' }, [
+        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
+        h('div', { class: 'text-xs text-muted leading-5 whitespace-normal break-words' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`),
         h(
-          ULink,
-          {
-            raw: true,
-            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
-            onClick: () => handleViewDetail(item)
-          },
-          () => h('span', { class: 'whitespace-normal break-words text-sm leading-6 font-medium text-highlighted' }, item.title || '未命名广告')
-        ),
-        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted' }, [h('span', editionScopeLabelGet(item.editionScope)), h('span', '·'), h('span', `优先级 ${item.priority}`)])
+          'div',
+          { class: 'text-xs text-muted leading-5 whitespace-normal break-words' },
+          `素材类型：${materialTypeLabelGet(item.materialType)} · 广告类型：${presentationTypeLabelGet(item.presentationType)} · 画幅：${frameTypeLabelGet(item.frameType)} · 位置：${placementTypeLabelGet(item.placementType)}`
+        )
       ]);
     }
+  },
+  {
+    id: 'adInfoMd',
+    header: '广告信息',
+    meta: { class: { th: 'hidden lg:table-cell xl:hidden min-w-58 text-sm', td: 'hidden lg:table-cell xl:hidden min-w-58 align-middle' } },
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return h('div', { class: 'space-y-2 py-0.5' }, [
+        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
+        h('div', { class: 'text-xs text-muted leading-5 whitespace-normal break-words' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`),
+        h(
+          'div',
+          { class: 'text-xs text-muted leading-5 whitespace-normal break-words' },
+          `素材类型：${materialTypeLabelGet(item.materialType)} · 广告类型：${presentationTypeLabelGet(item.presentationType)} · 画幅：${frameTypeLabelGet(item.frameType)} · 位置：${placementTypeLabelGet(item.placementType)}`
+        )
+      ]);
+    }
+  },
+  {
+    id: 'adInfoLg',
+    header: '广告信息',
+    meta: { class: { th: 'hidden xl:table-cell 2xl:hidden min-w-58 text-sm', td: 'hidden xl:table-cell 2xl:hidden min-w-58 align-middle' } },
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return h('div', { class: 'space-y-2 py-0.5' }, [
+        h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, item.title || '未命名广告'),
+        h('div', { class: 'text-xs text-muted leading-5' }, `栏目：${editionScopeLabelGet(item.editionScope)} · 平台：${platformLabelGet(item.frameType)} · 优先级：${item.priority}`)
+      ]);
+    }
+  },
+  {
+    id: 'titleXl',
+    accessorKey: 'title',
+    header: '标题',
+    meta: { class: { th: 'hidden 2xl:table-cell min-w-44 text-sm', td: 'hidden 2xl:table-cell min-w-44 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, row.original.title || '未命名广告')
+  },
+  {
+    id: 'editionXl',
+    accessorKey: 'editionScope',
+    header: '栏目',
+    meta: { class: { th: 'hidden 2xl:table-cell w-18 text-sm', td: 'hidden 2xl:table-cell w-18 align-middle' } },
+    cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
+  },
+  {
+    id: 'platformXl',
+    header: '平台',
+    meta: { class: { th: 'hidden 2xl:table-cell w-32 text-sm', td: 'hidden 2xl:table-cell w-32 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm whitespace-normal break-words' }, platformLabelGet(row.original.frameType))
+  },
+  {
+    id: 'priorityXl',
+    accessorKey: 'priority',
+    header: '优先级',
+    meta: { class: { th: 'hidden 2xl:table-cell w-14 text-sm', td: 'hidden 2xl:table-cell w-14 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, String(row.original.priority))
+  },
+  {
+    id: 'placementCompact',
+    header: '投放',
+    meta: { class: { th: 'hidden xl:table-cell 3xl:hidden w-26 text-sm', td: 'hidden xl:table-cell 3xl:hidden w-26 align-middle' } },
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
+        h('span', { class: 'text-muted' }, `素材类型：${materialTypeLabelGet(item.materialType)}`),
+        h('span', { class: 'text-muted' }, `广告类型：${presentationTypeLabelGet(item.presentationType)}`),
+        h('span', { class: 'text-muted' }, `画幅：${frameTypeLabelGet(item.frameType)}`),
+        h('span', { class: 'text-muted' }, `位置：${placementTypeLabelGet(item.placementType)}`)
+      ]);
+    }
+  },
+  {
+    id: 'typesCombined2xl',
+    header: '类型',
+    meta: { class: { th: 'hidden 3xl:table-cell 5xl:hidden w-22 text-sm', td: 'hidden 3xl:table-cell 5xl:hidden w-22 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm whitespace-normal break-words' }, `${materialTypeLabelGet(row.original.materialType)}、${presentationTypeLabelGet(row.original.presentationType)}`)
+  },
+  {
+    id: 'material4xl',
+    accessorKey: 'materialType',
+    header: '素材',
+    meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, materialTypeLabelGet(row.original.materialType))
+  },
+  {
+    id: 'type4xl',
+    accessorKey: 'presentationType',
+    header: '类型',
+    meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, presentationTypeLabelGet(row.original.presentationType))
+  },
+  {
+    accessorKey: 'frameType',
+    header: '画幅',
+    meta: { class: { th: 'hidden 3xl:table-cell w-16 text-sm', td: 'hidden 3xl:table-cell w-16 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, frameTypeLabelGet(row.original.frameType))
+  },
+  {
+    id: 'placement2xl',
+    accessorKey: 'placementType',
+    header: '位置',
+    meta: { class: { th: 'hidden 3xl:table-cell w-16 text-sm', td: 'hidden 3xl:table-cell w-16 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, placementTypeLabelGet(row.original.placementType))
   },
   {
     accessorKey: 'priceText',
     header: '价格',
-    cell: ({ row }) => h('span', { class: 'text-sm text-highlighted' }, row.original.priceText),
-    meta: {
-      class: {
-        th: 'hidden md:table-cell w-22 text-left text-sm',
-        td: 'hidden md:table-cell w-22 text-right align-middle'
-      }
-    }
+    meta: { class: { th: 'w-22 text-left text-sm', td: 'w-22 text-right align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm text-highlighted' }, row.original.priceText)
   },
   {
-    id: 'presentation',
-    header: '投放',
+    id: 'timeCompact',
+    header: '时间',
+    meta: { class: { th: 'xl:hidden w-44 text-sm', td: 'xl:hidden w-44 align-middle' } },
     cell: ({ row }) => {
       const item = row.original;
 
-      return h('div', { class: 'space-y-1.5 text-sm' }, [
-        h('div', { class: 'text-highlighted' }, presentationTypeLabelGet(item.presentationType)),
-        h('div', { class: 'text-muted text-xs' }, placementTypeLabelGet(item.placementType)),
-        h('div', { class: 'text-muted text-xs' }, materialTypeLabelGet(item.materialType)),
-        h('div', { class: 'text-muted text-xs' }, frameTypeLabelGet(item.frameType))
+      return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
+        h('div', { class: 'text-muted' }, [h('span', '生效：'), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', '失效：'), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', '更新：'), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', '创建：'), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
       ]);
-    },
-    meta: {
-      class: {
-        th: 'hidden xl:table-cell w-24 text-sm',
-        td: 'hidden xl:table-cell w-24 align-middle'
-      }
     }
+  },
+  {
+    id: 'timeRange',
+    header: '生效/失效',
+    meta: { class: { th: 'hidden xl:table-cell 4xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 4xl:hidden w-30 text-right align-middle' } },
+    cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.startAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })])
+  },
+  {
+    id: 'timePair',
+    header: '更新/创建',
+    meta: { class: { th: 'hidden xl:table-cell 5xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 5xl:hidden w-30 text-right align-middle' } },
+    cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })])
   },
   {
     accessorKey: 'startAt',
     header: '生效时间',
-    cell: ({ row }) => h(Datetime, { class: 'self-end w-auto max-w-full text-sm', datetime: row.original.startAt, mode: 'datetime' }),
-    meta: {
-      class: {
-        th: 'hidden lg:table-cell w-24 text-right text-sm',
-        td: 'hidden lg:table-cell w-24 text-right align-middle'
-      }
-    }
+    meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
+    cell: ({ row }) => h(Datetime, { datetime: row.original.startAt, mode: 'datetime' })
   },
   {
     accessorKey: 'endAt',
     header: '失效时间',
-    cell: ({ row }) => h(Datetime, { class: 'self-end w-auto max-w-full text-sm', datetime: row.original.endAt, mode: 'datetime' }),
-    meta: {
-      class: {
-        th: 'hidden lg:table-cell w-24 text-right text-sm',
-        td: 'hidden lg:table-cell w-24 text-right align-middle'
-      }
-    }
+    meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
+    cell: ({ row }) => h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })
   },
   {
     accessorKey: 'updatedAt',
-    header: () => {
-      const by = hotsearchOrderByCurrentGet();
-      const dir = hotsearchOrderDirCurrentGet();
-      const isSorted = by === 'updated' ? dir : false;
-      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: '更新时间', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
-    },
-    cell: ({ row }) =>
-      h(Datetime, {
-        class: 'w-auto max-w-full text-sm',
-        datetime: row.original.updatedAt,
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-    meta: {
-      class: {
-        th: 'hidden xl:table-cell w-24 text-right text-sm',
-        td: 'hidden xl:table-cell w-24 text-right align-middle'
-      }
-    }
+    header: '更新时间',
+    meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
+    cell: ({ row }) => h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' })
   },
   {
     accessorKey: 'createdAt',
-    header: () => {
-      const by = hotsearchOrderByCurrentGet();
-      const dir = hotsearchOrderDirCurrentGet();
-      const isSorted = by === 'created' ? dir : false;
-      const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: '创建时间', icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
-    },
-    cell: ({ row }) =>
-      h(Datetime, {
-        class: 'w-auto max-w-full text-sm',
-        datetime: row.original.createdAt,
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-    meta: {
-      class: {
-        th: 'hidden 2xl:table-cell w-24 text-right text-sm',
-        td: 'hidden 2xl:table-cell w-24 text-right align-middle'
-      }
-    }
+    header: '创建时间',
+    meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
+    cell: ({ row }) => h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })
   },
   {
     accessorKey: 'isEnabled',
     header: '启用',
-    cell: ({ row }) =>
-      h(USwitch, {
-        modelValue: row.original.isEnabled,
-        'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value)
-      }),
-    meta: {
-      class: {
-        th: 'hidden md:table-cell w-18 text-center text-sm',
-        td: 'hidden md:table-cell w-18 text-center align-middle'
-      }
-    }
+    meta: { class: { th: 'w-16 text-center text-sm', td: 'w-16 text-center align-middle' } },
+    cell: ({ row }) => h(USwitch, { modelValue: row.original.isEnabled, 'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value) })
   },
   {
     id: 'actions',
     header: () => h('div', { class: 'w-full text-right' }, '操作'),
+    meta: { class: { th: 'w-34 text-right text-sm', td: 'w-34 text-right align-middle' } },
     cell: ({ row }) =>
-      h('div', { class: 'flex items-center justify-end gap-3 text-sm' }, [
-        h(UButton, {
-          color: 'neutral',
-          variant: 'ghost',
-          label: '修改',
-          onClick: () => void handleEdit(row.original)
-        }),
-        h(UButton, {
-          color: 'neutral',
-          variant: 'ghost',
-          label: '查看',
-          onClick: () => handleViewDetail(row.original)
-        })
-      ]),
-    meta: {
-      class: {
-        th: 'w-22 text-right text-sm',
-        td: 'w-22 text-right align-middle'
-      }
-    }
+      h('div', { class: 'flex items-center justify-end gap-2 text-sm' }, [
+        h(UButton, { color: 'neutral', variant: 'ghost', label: '查看', onClick: () => handleViewDetail(row.original) }),
+        h(UButton, { color: 'neutral', variant: 'ghost', label: '编辑', onClick: () => void handleEdit(row.original) }),
+        h(
+          UPopover,
+          {
+            open: stateDeletePopoverOpenId.value === row.original.id,
+            'onUpdate:open': (value: boolean) => {
+              if (!value && stateDeletePopoverOpenId.value === row.original.id) {
+                stateDeletePopoverOpenId.value = null;
+              }
+            },
+            arrow: true,
+            content: { side: 'top', align: 'end', sideOffset: 8 },
+            ui: { content: 'p-3 w-64' }
+          },
+          {
+            default: () =>
+              h(UButton, {
+                color: 'error',
+                variant: 'ghost',
+                label: '删除',
+                onClick: () => {
+                  stateDeletePopoverOpenId.value = row.original.id;
+                }
+              }),
+            content: () =>
+              h('div', { class: 'space-y-3' }, [
+                h('div', { class: 'text-sm leading-6 text-pretty text-default' }, '确认删除这条广告？此操作无法撤销。'),
+                h('div', { class: 'flex items-center justify-end gap-2' }, [
+                  h(UButton, {
+                    color: 'neutral',
+                    variant: 'soft',
+                    size: 'xs',
+                    label: '取消',
+                    onClick: () => {
+                      stateDeletePopoverOpenId.value = null;
+                    }
+                  }),
+                  h(UButton, {
+                    color: 'error',
+                    variant: 'solid',
+                    size: 'xs',
+                    label: '确认删除',
+                    loading: stateSaving.value,
+                    onClick: () => {
+                      stateDeletePopoverOpenId.value = null;
+                      void handleDelete(row.original);
+                    }
+                  })
+                ])
+              ])
+          }
+        )
+      ])
   }
 ];
 
@@ -2965,11 +3232,23 @@ watch(
 );
 
 watch(
+  () => [...stateEditor.value.platformIds],
+  (value) => {
+    const normalized = editorPlatformIdsByKindNormalize(value, computedEditorRequiredPlatformKind.value);
+
+    if (normalized.length !== stateEditor.value.platformIds.length || normalized.some((id, index) => id !== stateEditor.value.platformIds[index])) {
+      stateEditor.value.platformIds = normalized;
+    }
+  }
+);
+
+watch(
   () => stateEditor.value.presentationType,
   (value) => {
     if (value === 'voice') {
       stateEditor.value.materialType = 'none';
       stateEditor.value.frameType = 'none';
+      editorPlatformIdsAllowedSync();
       return;
     }
 
@@ -2980,6 +3259,8 @@ watch(
     if (stateEditor.value.frameType === 'none') {
       stateEditor.value.frameType = 'landscape';
     }
+
+    editorPlatformIdsAllowedSync();
   }
 );
 
@@ -2991,6 +3272,7 @@ watch(
       stateEditor.value.frameType = 'none';
       stateEditorAssetFile.value = null;
       editorAssetClear();
+      editorPlatformIdsAllowedSync();
       return;
     }
 
@@ -3012,7 +3294,11 @@ watch(
     if (value === 'none') {
       stateEditor.value.materialType = 'none';
       stateEditor.value.presentationType = 'voice';
+      editorPlatformIdsAllowedSync();
+      return;
     }
+
+    editorPlatformIdsAllowedSync();
   }
 );
 

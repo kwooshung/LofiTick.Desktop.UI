@@ -1,7 +1,7 @@
 import { getLocalTimeZone } from '@internationalized/date';
 
 import type { IHotsearchArchiveDateSummary, IHotsearchDataRow, IHotsearchMediaPlatformOption, IHotsearchPodcastMediaAsset, IHotsearchPodcastSentence, IHotsearchPodcastViewModel, THotsearchMediaPlatformKey, THotsearchPlatformType, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
-import { hotsearchPlatformsList } from '@@/shared/utils/hotsearch';
+import { hotsearchMediaPlatformOptionsGet as hotsearchMediaPlatformOptionsSharedGet, hotsearchPlatformsList } from '@@/shared/utils/hotsearch';
 
 const HOTSEARCH_SAMPLE_TOPICS = [
   'AI 终端新品发布会热度持续走高',
@@ -41,24 +41,6 @@ const HOTSEARCH_PODCAST_AUDIO_SAMPLES = [
 
 const HOTSEARCH_PODCAST_VIDEO_URL = 'https://cdn.pixabay.com/video/2023/09/20/181376-866506956.mp4';
 const HOTSEARCH_PODCAST_POSTER_URL = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80';
-
-const HOTSEARCH_MEDIA_PLATFORM_OPTIONS: IHotsearchMediaPlatformOption[] = [
-  { key: 'general', labelKey: 'pages.hotsearch.mediaPlatforms.general', category: 'general' },
-  { key: 'bilibili', labelKey: 'pages.hotsearch.mediaPlatforms.bilibili', category: 'video' },
-  { key: 'toutiao', labelKey: 'pages.hotsearch.mediaPlatforms.toutiao', category: 'video' },
-  { key: 'ixigua', labelKey: 'pages.hotsearch.mediaPlatforms.ixigua', category: 'video' },
-  { key: 'douyin', labelKey: 'pages.hotsearch.mediaPlatforms.douyin', category: 'video' },
-  { key: 'xiaohongshu', labelKey: 'pages.hotsearch.mediaPlatforms.xiaohongshu', category: 'community' },
-  { key: 'kuaishou', labelKey: 'pages.hotsearch.mediaPlatforms.kuaishou', category: 'video' },
-  { key: 'weibo', labelKey: 'pages.hotsearch.mediaPlatforms.weibo', category: 'community' },
-  { key: 'shengbo', labelKey: 'pages.hotsearch.mediaPlatforms.shengbo', category: 'audio' },
-  { key: 'youtube', labelKey: 'pages.hotsearch.mediaPlatforms.youtube', category: 'video' },
-  { key: 'ximalaya', labelKey: 'pages.hotsearch.mediaPlatforms.ximalaya', category: 'audio' },
-  { key: 'qingtingfm', labelKey: 'pages.hotsearch.mediaPlatforms.qingtingfm', category: 'audio' },
-  { key: 'wangyi-podcast', labelKey: 'pages.hotsearch.mediaPlatforms.wangyiPodcast', category: 'audio' },
-  { key: 'pipixia', labelKey: 'pages.hotsearch.mediaPlatforms.pipixia', category: 'community' },
-  { key: 'pipigaoxiao', labelKey: 'pages.hotsearch.mediaPlatforms.pipigaoxiao', category: 'community' }
-];
 
 const HOTSEARCH_PODCAST_VARIANT_OPTIONS: Array<{ key: THotsearchPodcastVariantKey; labelKey: string; descriptionKey: string }> = [
   {
@@ -213,7 +195,7 @@ export const hotsearchDataRowsGet = (date: string): IHotsearchDataRow[] => {
  * 返回自媒体平台选项列表。
  */
 export const hotsearchMediaPlatformOptionsGet = (): IHotsearchMediaPlatformOption[] => {
-  return HOTSEARCH_MEDIA_PLATFORM_OPTIONS;
+  return hotsearchMediaPlatformOptionsSharedGet();
 };
 
 /**
@@ -269,7 +251,7 @@ const hotsearchPodcastSupportedPlatformsGet = (variant: THotsearchPodcastVariant
 export const hotsearchPodcastViewGet = (date: string, variant: THotsearchPodcastVariantKey, mediaPlatformKey?: string): IHotsearchPodcastViewModel => {
   const supportedPlatforms = hotsearchPodcastSupportedPlatformsGet(variant);
   const selectedPlatformKey = supportedPlatforms.includes(mediaPlatformKey as THotsearchMediaPlatformKey) ? (mediaPlatformKey as THotsearchMediaPlatformKey) : 'general';
-  const availablePlatforms = HOTSEARCH_MEDIA_PLATFORM_OPTIONS.map((item) => ({
+  const availablePlatforms = hotsearchMediaPlatformOptionsSharedGet().map((item) => ({
     ...item,
     disabled: !supportedPlatforms.includes(item.key)
   }));

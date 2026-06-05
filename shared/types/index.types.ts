@@ -22,6 +22,7 @@ export type {
 } from '@@/shared/types/pages/home/index.types';
 export type {
   IHotsearchArchiveDateSummary,
+  IHotsearchAdDeliveryPlatformOption,
   IHotsearchDataPage,
   IHotsearchDataRow,
   IHotsearchMediaPlatformOption,
@@ -40,6 +41,7 @@ export type {
   IQueryResultHotSearchStoredRow,
   IQueryResultHotSearchUpdateRequest,
   IQueryResultHotSearchUpdateResponse,
+  THotsearchAdDeliveryPlatformKind,
   THotsearchMediaPlatformKey,
   THotsearchPodcastVariantKey,
   THotsearchSectionKey

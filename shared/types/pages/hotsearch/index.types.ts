@@ -140,6 +140,11 @@ export type THotsearchPodcastVariantKey = 'morning-short' | 'morning-long' | 'ev
 export type THotsearchMediaPlatformKey = 'general' | 'bilibili' | 'toutiao' | 'ixigua' | 'douyin' | 'xiaohongshu' | 'kuaishou' | 'weibo' | 'shengbo' | 'youtube' | 'ximalaya' | 'qingtingfm' | 'wangyi-podcast' | 'pipixia' | 'pipigaoxiao';
 
 /**
+ * 类型：广告投放平台主推形态。
+ */
+export type THotsearchAdDeliveryPlatformKind = 'portrait' | 'landscape' | 'audio';
+
+/**
  * 接口：热搜日期归档摘要。
  */
 export interface IHotsearchArchiveDateSummary {
@@ -378,6 +383,29 @@ export interface IHotsearchMediaPlatformOption {
 
   /** 是否禁用 */
   disabled?: boolean;
+}
+
+/**
+ * 接口：广告投放平台选项。
+ */
+export interface IHotsearchAdDeliveryPlatformOption {
+  /** 平台 ID（用于广告物料 platformIds） */
+  id: number;
+
+  /** 平台键 */
+  key: Exclude<THotsearchMediaPlatformKey, 'general'>;
+
+  /** 平台名称 i18n key */
+  labelKey: string;
+
+  /** 平台类别 */
+  category: Exclude<IHotsearchMediaPlatformOption['category'], 'general'>;
+
+  /** 主推形态 */
+  deliveryKind: THotsearchAdDeliveryPlatformKind;
+
+  /** 全局排序序号（越小越靠前） */
+  order: number;
 }
 
 /**

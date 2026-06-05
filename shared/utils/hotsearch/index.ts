@@ -1,4 +1,6 @@
 import type {
+  IHotsearchAdDeliveryPlatformOption,
+  IHotsearchMediaPlatformOption,
   ISettingsHotsearch,
   ISettingsHotsearchLocal,
   ISettingsHotsearchPlatformItem,
@@ -7,11 +9,12 @@ import type {
   ISettingsHotsearchPodcastTemplateItem,
   THotsearchPlatformType,
   THotsearchPodcastHeadMusicKind,
+  THotsearchMediaPlatformKey,
   THotsearchPodcastSegmentType,
   THotsearchPodcastTemplateSegmentType,
   THotsearchPodcastTemplateType,
   THotsearchPodcastVoiceKey
-} from '@@/shared/types/pages/settings/hotsearch/index.types';
+} from '@@/shared/types/index.types';
 import { generateIdBase36 } from '@@/shared/utils/generateId';
 
 /**
@@ -196,6 +199,34 @@ const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
 ] as const;
 
 /**
+ * 常量：热搜播客与广告投放平台固定顺序。
+ */
+const HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED: Array<{
+  key: THotsearchMediaPlatformKey;
+  labelKey: string;
+  category: IHotsearchMediaPlatformOption['category'];
+  adPlatformId?: number;
+  deliveryKind?: IHotsearchAdDeliveryPlatformOption['deliveryKind'];
+  order: number;
+}> = [
+  { key: 'general', labelKey: 'pages.hotsearch.mediaPlatforms.general', category: 'general', order: 0 },
+  { key: 'bilibili', labelKey: 'pages.hotsearch.mediaPlatforms.bilibili', category: 'video', adPlatformId: 101, deliveryKind: 'landscape', order: 10 },
+  { key: 'toutiao', labelKey: 'pages.hotsearch.mediaPlatforms.toutiao', category: 'video', adPlatformId: 102, deliveryKind: 'landscape', order: 20 },
+  { key: 'ixigua', labelKey: 'pages.hotsearch.mediaPlatforms.ixigua', category: 'video', adPlatformId: 103, deliveryKind: 'landscape', order: 30 },
+  { key: 'douyin', labelKey: 'pages.hotsearch.mediaPlatforms.douyin', category: 'video', adPlatformId: 104, deliveryKind: 'portrait', order: 40 },
+  { key: 'xiaohongshu', labelKey: 'pages.hotsearch.mediaPlatforms.xiaohongshu', category: 'community', adPlatformId: 105, deliveryKind: 'portrait', order: 50 },
+  { key: 'kuaishou', labelKey: 'pages.hotsearch.mediaPlatforms.kuaishou', category: 'video', adPlatformId: 106, deliveryKind: 'portrait', order: 60 },
+  { key: 'weibo', labelKey: 'pages.hotsearch.mediaPlatforms.weibo', category: 'community', adPlatformId: 107, deliveryKind: 'landscape', order: 70 },
+  { key: 'shengbo', labelKey: 'pages.hotsearch.mediaPlatforms.shengbo', category: 'audio', adPlatformId: 108, deliveryKind: 'audio', order: 80 },
+  { key: 'youtube', labelKey: 'pages.hotsearch.mediaPlatforms.youtube', category: 'video', adPlatformId: 109, deliveryKind: 'landscape', order: 90 },
+  { key: 'ximalaya', labelKey: 'pages.hotsearch.mediaPlatforms.ximalaya', category: 'audio', adPlatformId: 110, deliveryKind: 'audio', order: 100 },
+  { key: 'qingtingfm', labelKey: 'pages.hotsearch.mediaPlatforms.qingtingfm', category: 'audio', adPlatformId: 111, deliveryKind: 'audio', order: 110 },
+  { key: 'wangyi-podcast', labelKey: 'pages.hotsearch.mediaPlatforms.wangyiPodcast', category: 'audio', adPlatformId: 112, deliveryKind: 'audio', order: 120 },
+  { key: 'pipixia', labelKey: 'pages.hotsearch.mediaPlatforms.pipixia', category: 'community', adPlatformId: 113, deliveryKind: 'landscape', order: 130 },
+  { key: 'pipigaoxiao', labelKey: 'pages.hotsearch.mediaPlatforms.pipigaoxiao', category: 'community', adPlatformId: 114, deliveryKind: 'landscape', order: 140 }
+];
+
+/**
  * 函数：列出热搜平台项。
  * @returns {ISettingsHotsearchPlatformItem[]} 平台项列表。
  */
@@ -204,6 +235,35 @@ export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] =>
     ...item,
     key: `components.hotsearch.platform.${item.type}`
   }));
+
+/**
+ * 函数：列出播客页面平台选项（全局统一顺序）。
+ * @returns {IHotsearchMediaPlatformOption[]} 播客平台选项。
+ */
+export const hotsearchMediaPlatformOptionsGet = (): IHotsearchMediaPlatformOption[] => {
+  return HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED.map((item) => ({
+    key: item.key,
+    labelKey: item.labelKey,
+    category: item.category
+  }));
+};
+
+/**
+ * 函数：列出广告投放平台选项（全局统一顺序）。
+ * @returns {IHotsearchAdDeliveryPlatformOption[]} 广告投放平台选项。
+ */
+export const hotsearchAdDeliveryPlatformOptionsGet = (): IHotsearchAdDeliveryPlatformOption[] => {
+  return HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED.filter((item): item is typeof item & { adPlatformId: number; deliveryKind: IHotsearchAdDeliveryPlatformOption['deliveryKind'] } => {
+    return typeof item.adPlatformId === 'number' && typeof item.deliveryKind === 'string';
+  }).map((item) => ({
+    id: item.adPlatformId,
+    key: item.key as Exclude<THotsearchMediaPlatformKey, 'general'>,
+    labelKey: item.labelKey,
+    category: item.category as Exclude<IHotsearchMediaPlatformOption['category'], 'general'>,
+    deliveryKind: item.deliveryKind,
+    order: item.order
+  }));
+};
 
 /**
  * 函数：列出热搜播客音色选项。

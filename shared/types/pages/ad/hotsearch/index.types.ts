@@ -147,6 +147,9 @@ export interface IHotsearchAdMaterialDetail extends IHotsearchAdMaterialSummaryR
   /** 广告文案行 */
   lines: IHotsearchAdMaterialLine[];
 
+  /** 适用平台 */
+  platformIds: number[];
+
   /** 备注 */
   notes: string;
 
@@ -186,6 +189,9 @@ export interface IPageAdHotsearchEditorForm {
 
   /** 广告位置 */
   placementType: 'opening' | 'closing';
+
+  /** 适用平台 */
+  platformIds: number[];
 
   /** 价格 */
   price: number;
