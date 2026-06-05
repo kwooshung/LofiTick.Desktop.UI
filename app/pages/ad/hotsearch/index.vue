@@ -2355,6 +2355,8 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     materialType: String(item.materialType ?? ''),
     frameType: String(item.frameType ?? ''),
     editionScope: String(item.editionScope ?? ''),
+    editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
+    editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
     placementType: String(item.placementType ?? ''),
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
@@ -2971,6 +2973,20 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     header: '栏目',
     meta: { class: { th: 'hidden 2xl:table-cell w-18 text-sm', td: 'hidden 2xl:table-cell w-18 align-middle' } },
     cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
+  },
+  {
+    id: 'editionMorning',
+    header: '早报',
+    accessorKey: 'editionMorning',
+    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, row.original.editionMorning ? '✓' : '')
+  },
+  {
+    id: 'editionEvening',
+    header: '晚报',
+    accessorKey: 'editionEvening',
+    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
+    cell: ({ row }) => h('span', { class: 'text-sm' }, row.original.editionEvening ? '✓' : '')
   },
   {
     id: 'platformXl',
