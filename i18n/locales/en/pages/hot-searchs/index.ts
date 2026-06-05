@@ -69,6 +69,7 @@ export const hotsearch = {
     table: {
       rank: 'No.',
       title: 'Title / Summary',
+      tag: 'Tag',
       platform: 'Platform',
       popularity: 'Popularity',
       publishedAt: 'Captured at',

@@ -69,6 +69,7 @@ export const hotsearch = {
     table: {
       rank: '編號',
       title: '標題 / 摘要',
+      tag: '標籤',
       platform: '平台',
       popularity: '熱度',
       publishedAt: '入庫時間',

@@ -4,7 +4,6 @@ export const poetrys = {
     loading: 'Loading detail...'
   },
   result: {
-    title: 'All',
     footer: {
       total: 'Total {total} results'
     },

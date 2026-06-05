@@ -1,7 +1,6 @@
 export const quotes = {
   title: 'Quotes',
   result: {
-    title: 'All',
     footer: {
       total: 'Total {total} results'
     },

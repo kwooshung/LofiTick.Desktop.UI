@@ -69,6 +69,7 @@ export const hotsearch = {
     table: {
       rank: '番号',
       title: 'タイトル / 要約',
+      tag: 'タグ',
       platform: 'プラットフォーム',
       popularity: '人気度',
       publishedAt: '保存時刻',

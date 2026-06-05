@@ -1,12 +1,6 @@
 export const hotsearch = {
   title: '热搜',
   description: '按日期归档查看热搜数据、播客脚本与完整媒体文件。',
-  runtimes: {
-    title: '实时'
-  },
-  list: {
-    title: '全部'
-  },
   layout: {
     updatedAt: '更新于',
     dates: {
@@ -75,6 +69,7 @@ export const hotsearch = {
     table: {
       rank: '编号',
       title: '标题 / 摘要',
+      tag: '标签',
       platform: '平台',
       popularity: '热度',
       publishedAt: '入库时间',
