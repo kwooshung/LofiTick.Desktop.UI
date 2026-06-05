@@ -58,7 +58,7 @@ export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'files';
 /**
  * 常量：热搜播客开头音乐远端目录根路径。
  */
-const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start';
+const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/hotsearch/podcast/shared/audio/head-music';
 
 /**
  * 函数：格式化日期目录片段。
@@ -72,23 +72,52 @@ const hotsearchDateDirectoryPartsGet = (date: Date): { year: string; month: stri
 });
 
 /**
+ * 函数：根据扩展名推导热搜素材文件类型目录。
+ * @param {string} fileExt 文件扩展名。
+ * @returns {'image' | 'video' | 'audio' | 'file'} 文件类型目录。
+ */
+const hotsearchFileTypeDirectoryGet = (fileExt: string): 'image' | 'video' | 'audio' | 'file' => {
+  const normalizedFileExt = String(fileExt || '')
+    .trim()
+    .replace(/^\./, '')
+    .toLowerCase();
+
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(normalizedFileExt)) {
+    return 'image';
+  }
+
+  if (['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi'].includes(normalizedFileExt)) {
+    return 'video';
+  }
+
+  if (['mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'].includes(normalizedFileExt)) {
+    return 'audio';
+  }
+
+  return 'file';
+};
+
+/**
  * 函数：构建热搜广告素材远端目录。
+ * @param {string} fileExt 文件扩展名。
  * @param {Date} [date=new Date()] 目标日期。
  * @returns {string} UpYun 远端目录。
  */
-export const hotsearchPodcastAdAssetRemoteDirectoryGet = (date: Date = new Date()): string => {
+export const hotsearchPodcastAdAssetRemoteDirectoryGet = (fileExt: string, date: Date = new Date()): string => {
   const { year, month, day } = hotsearchDateDirectoryPartsGet(date);
+  const fileTypeDirectory = hotsearchFileTypeDirectoryGet(fileExt);
 
-  return `/ad/podcast/${year}/${month}/${day}`;
+  return `/hotsearch/ad/materials/${year}/${month}/${day}/${fileTypeDirectory}`;
 };
 
 /**
  * 函数：构建热搜广告素材本地相对目录。
+ * @param {string} fileExt 文件扩展名。
  * @param {Date} [date=new Date()] 目标日期。
  * @returns {string} 本地相对目录。
  */
-export const hotsearchPodcastAdAssetRelativeDirectoryGet = (date: Date = new Date()): string => {
-  return hotsearchPodcastAdAssetRemoteDirectoryGet(date).slice(1);
+export const hotsearchPodcastAdAssetRelativeDirectoryGet = (fileExt: string, date: Date = new Date()): string => {
+  return hotsearchPodcastAdAssetRemoteDirectoryGet(fileExt, date).slice(1);
 };
 
 /**
@@ -104,7 +133,7 @@ export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: D
     .toLowerCase();
   const fileName = normalizedFileExt === '' ? generateIdBase36(24) : `${generateIdBase36(24)}.${normalizedFileExt}`;
 
-  return `${hotsearchPodcastAdAssetRemoteDirectoryGet(date)}/${fileName}`;
+  return `${hotsearchPodcastAdAssetRemoteDirectoryGet(fileExt, date)}/${fileName}`;
 };
 
 /**
