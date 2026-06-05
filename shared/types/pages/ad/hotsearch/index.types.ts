@@ -302,9 +302,6 @@ export interface IPageTableColumnHotsearchAdMaterial {
   /** 适用平台 */
   platformIds: number[];
 
-  /** 首个适用平台键名 */
-  platformKeyFirst: string;
-
   /** 广告位置 */
   placementType: string;
 

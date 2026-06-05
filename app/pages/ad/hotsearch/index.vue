@@ -345,19 +345,22 @@
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.editionScope') }}</div>
-              <div class="text-highlighted mt-1 text-sm font-semibold">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
+              <div class="text-primary mt-1 text-sm">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.materialType') }}</div>
-              <div class="text-highlighted mt-1 text-sm font-semibold">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</div>
+              <div class="mt-1 text-sm text-sky-600">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.price') }}</div>
-              <div class="text-highlighted mt-1 text-sm font-semibold">{{ priceTextGet(stateDetailRow.price) }}</div>
+              <div class="mt-1 inline-flex items-baseline gap-1 text-sm font-medium text-amber-500">
+                <span class="text-xs text-amber-400">￥</span>
+                <span>{{ priceTextGet(stateDetailRow.price) }}</span>
+              </div>
             </div>
             <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.priority') }}</div>
-              <div class="text-highlighted mt-1 text-sm font-semibold">{{ stateDetailRow.priority }}</div>
+              <div class="mt-1 text-sm text-emerald-600">{{ stateDetailRow.priority }}</div>
             </div>
           </div>
 
@@ -599,6 +602,7 @@ const stateDetailRow = ref<IHotsearchAdMaterialSummaryRow>({
   materialType: 'none',
   frameType: 'none',
   editionScope: 'both',
+  platformIds: [],
   placementType: 'opening',
   price: 0,
   priority: 0,
@@ -819,6 +823,30 @@ const adDeliveryPlatformKindMap = computed(() => {
  */
 const platformOptionsByIdsGet = (platformIds: number[]) => {
   return adDeliveryPlatformOptions.filter((item) => platformIds.includes(item.id));
+};
+
+/**
+ * 函数：获取平台文案列表。
+ * @param {number[]} platformIds 平台 ID 列表。
+ * @param {IHotsearchAdMaterialSummaryRow['frameType']} frameType 画幅类型。
+ * @returns {string[]} 平台文案列表。
+ */
+const platformLabelsGet = (platformIds: number[], frameType: IHotsearchAdMaterialSummaryRow['frameType']): string[] => {
+  const matchedLabels = platformOptionsByIdsGet(platformIds).map((option) => t(option.labelKey));
+
+  if (matchedLabels.length > 0) {
+    return matchedLabels;
+  }
+
+  if (frameType === 'landscape') {
+    return [t('pages.ads.hotsearch.labels.platform.landscape')];
+  }
+
+  if (frameType === 'portrait') {
+    return [t('pages.ads.hotsearch.labels.platform.portrait')];
+  }
+
+  return [t('pages.ads.hotsearch.labels.platform.audio')];
 };
 
 /**
@@ -2358,13 +2386,7 @@ const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, sh
   const title = item.title || t('pages.ads.hotsearch.table.untitled');
   const primaryChips = [
     adInfoChipRender(t('pages.ads.hotsearch.table.editionScope'), editionScopeLabelGet(item.editionScope), 'primary'),
-    adInfoChipRender(
-      t('pages.ads.hotsearch.table.platform'),
-      platformOptionsByIdsGet(item.platformIds)
-        .map((option) => t(option.labelKey))
-        .join(' / '),
-      'primary'
-    ),
+    adInfoChipRender(t('pages.ads.hotsearch.table.platform'), platformLabelsGet(item.platformIds, item.frameType).join(' / '), 'primary'),
     adInfoChipRender(t('pages.ads.hotsearch.table.priority'), String(item.priority), 'primary')
   ];
 
@@ -2400,7 +2422,13 @@ const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdM
  */
 const platformLinksRender = (item: IPageTableColumnHotsearchAdMaterial) => {
   const currentPlatform = typeof route.query.platform === 'string' ? route.query.platform : '';
-  const links = platformOptionsByIdsGet(item.platformIds).map((option) => {
+  const options = platformOptionsByIdsGet(item.platformIds);
+
+  if (options.length === 0) {
+    return h('span', { class: 'text-sm text-muted whitespace-normal break-words' }, platformLabelsGet(item.platformIds, item.frameType).join(' / '));
+  }
+
+  const links = options.map((option) => {
     const to = buildPlatformLocation(option.key);
     const isActive = option.key === currentPlatform;
 
@@ -2447,12 +2475,6 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
     platformIds: Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [],
-    platformKeyFirst: (() => {
-      const platformIds = Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [];
-      const first = adDeliveryPlatformOptions.find((option) => platformIds.includes(option.id));
-
-      return String(first?.key ?? '');
-    })(),
     placementType: String(item.placementType ?? ''),
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
@@ -2689,6 +2711,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     materialType: String(source.materialType ?? ''),
     frameType: String(source.frameType ?? ''),
     editionScope: String(source.editionScope ?? ''),
+    platformIds: Array.isArray(source.platformIds) ? source.platformIds.map((value) => Number(value)) : [],
     placementType: String(source.placementType ?? 'opening'),
     price: Number(source.price ?? 0),
     priority: Number(source.priority ?? 0),
@@ -3036,7 +3059,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'editionXl',
     accessorKey: 'editionScope',
     header: t('pages.ads.hotsearch.table.editionScope'),
-    meta: { class: { th: 'hidden 3xl:table-cell w-18 text-sm', td: 'hidden 3xl:table-cell w-18 align-middle' } },
+    meta: { class: { th: 'hidden 2xl:table-cell 3xl:hidden w-18 text-sm', td: 'hidden 2xl:table-cell 3xl:hidden w-18 align-middle' } },
     cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
   },
   {
@@ -3074,10 +3097,8 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       const item = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
-        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.materialType')}：${materialTypeLabelGet(item.materialType)}`),
-        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.type')}：${presentationTypeLabelGet(item.presentationType)}`),
-        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.frameType')}：${frameTypeLabelGet(item.frameType)}`),
-        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.placementType')}：${placementTypeLabelGet(item.placementType)}`)
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.materialType')}：${materialTypeLabelGet(item.materialType)}  ${t('pages.ads.hotsearch.table.type')}：${presentationTypeLabelGet(item.presentationType)}`),
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.frameType')}：${frameTypeLabelGet(item.frameType)}  ${t('pages.ads.hotsearch.table.placementType')}：${placementTypeLabelGet(item.placementType)}`)
       ]);
     }
   },
@@ -3085,7 +3106,11 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'typesCombined2xl',
     header: t('pages.ads.hotsearch.table.type'),
     meta: { class: { th: 'hidden 3xl:table-cell 5xl:hidden w-22 text-sm', td: 'hidden 3xl:table-cell 5xl:hidden w-22 align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm whitespace-normal break-words' }, `${materialTypeLabelGet(row.original.materialType)}、${presentationTypeLabelGet(row.original.presentationType)}`)
+    cell: ({ row }) =>
+      h('div', { class: 'flex flex-col gap-1 text-xs whitespace-normal break-words' }, [
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.materialType')}：${materialTypeLabelGet(row.original.materialType)}`),
+        h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.type')}：${presentationTypeLabelGet(row.original.presentationType)}`)
+      ])
   },
   {
     id: 'material4xl',
@@ -3142,12 +3167,6 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.startAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })])
   },
   {
-    id: 'timePair',
-    header: t('pages.ads.hotsearch.table.auditTime'),
-    meta: { class: { th: 'hidden xl:table-cell 5xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 5xl:hidden w-30 text-right align-middle' } },
-    cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })])
-  },
-  {
     accessorKey: 'startAt',
     header: t('pages.ads.hotsearch.table.startAt'),
     meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
@@ -3158,6 +3177,12 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     header: t('pages.ads.hotsearch.table.endAt'),
     meta: { class: { th: 'hidden 4xl:table-cell w-24 text-right text-sm', td: 'hidden 4xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.endAt, mode: 'datetime' })
+  },
+  {
+    id: 'timePair',
+    header: t('pages.ads.hotsearch.table.auditTime'),
+    meta: { class: { th: 'hidden xl:table-cell 5xl:hidden w-30 text-right text-sm', td: 'hidden xl:table-cell 5xl:hidden w-30 text-right align-middle' } },
+    cell: ({ row }) => h('div', { class: 'flex flex-col gap-1 text-xs text-muted' }, [h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' }), h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })])
   },
   {
     accessorKey: 'updatedAt',
