@@ -4,6 +4,10 @@ export const ads = {
     allEditions: '全部欄目',
     allPlatforms: '全部平台',
     allStatuses: '全部狀態',
+    searchTitle: '搜尋與篩選',
+    searchDescription: '依標題、欄目、平台與狀態組合篩選廣告列表。',
+    triggerDefault: '搜尋廣告',
+    triggerFiltered: '已篩選 {count} 項',
     keywordPlaceholder: '搜尋廣告標題',
     enabled: '啟用',
     disabled: '停用'

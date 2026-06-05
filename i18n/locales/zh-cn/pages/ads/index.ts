@@ -4,6 +4,10 @@ export const ads = {
     allEditions: '全部栏目',
     allPlatforms: '全部平台',
     allStatuses: '全部状态',
+    searchTitle: '搜索与筛选',
+    searchDescription: '按标题、栏目、平台和状态组合筛选广告列表。',
+    triggerDefault: '搜索广告',
+    triggerFiltered: '已筛选 {count} 项',
     keywordPlaceholder: '搜索广告标题',
     enabled: '启用',
     disabled: '停用'

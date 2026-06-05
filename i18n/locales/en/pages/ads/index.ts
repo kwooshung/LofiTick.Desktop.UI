@@ -4,6 +4,10 @@ export const ads = {
     allEditions: 'All Editions',
     allPlatforms: 'All Platforms',
     allStatuses: 'All Statuses',
+    searchTitle: 'Search & Filters',
+    searchDescription: 'Filter the ad list by title, edition, platform, and status.',
+    triggerDefault: 'Search Ads',
+    triggerFiltered: '{count} Filters Applied',
     keywordPlaceholder: 'Search ad title',
     enabled: 'Enabled',
     disabled: 'Disabled'

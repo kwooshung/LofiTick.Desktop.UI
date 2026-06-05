@@ -4,6 +4,10 @@ export const ads = {
     allEditions: 'すべての欄目',
     allPlatforms: 'すべての配信先',
     allStatuses: 'すべての状態',
+    searchTitle: '検索と絞り込み',
+    searchDescription: 'タイトル、欄目、配信先、状態を組み合わせて広告一覧を絞り込みます。',
+    triggerDefault: '広告を検索',
+    triggerFiltered: '{count} 件の条件で絞り込み中',
     keywordPlaceholder: '広告タイトルを検索',
     enabled: '有効',
     disabled: '無効'

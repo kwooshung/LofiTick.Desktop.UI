@@ -65,7 +65,7 @@
                   </UFormField>
 
                   <UFormField required name="price" :label="t('pages.ads.hotsearch.form.price')">
-                    <UInput v-model="stateEditor.price" type="number" class="w-40" />
+                    <UInput v-model="stateEditor.price" type="number" inputmode="decimal" min="0" step="0.01" class="w-full" />
                   </UFormField>
 
                   <UFormField required name="priority" :label="t('pages.ads.hotsearch.form.priority')">
@@ -216,8 +216,6 @@
                                   </UButton>
                                 </div>
                               </div>
-
-                              <div v-if="stateEditor.asset.path" class="pointer-events-none absolute inset-x-3 bottom-14 z-10 text-[11px] break-all text-white/72">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateEditor.asset.path) }) }}</div>
                             </div>
                           </UFileUpload>
                         </div>
@@ -311,7 +309,7 @@
             <UBadge color="neutral" variant="soft">{{ frameTypeLabelGet(stateDetailRow.frameType) }}</UBadge>
           </div>
 
-          <div v-if="stateDetailRow.asset" class="space-y-3">
+          <div class="space-y-3">
             <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.mainAsset') }}</div>
 
             <Spin
@@ -327,19 +325,23 @@
               overlay
             >
               <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="stateDetailRow.frameType === 'portrait' ? 'mx-auto aspect-9/16 max-w-64' : 'aspect-video w-full'">
-                <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset.originalName" class="h-full w-full object-contain select-none" draggable="false" />
+                <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset?.originalName ?? ''" class="h-full w-full object-contain select-none" draggable="false" />
                 <video v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" class="h-full w-full object-contain select-none" :src="stateDetailAssetPreviewUrl" controls playsinline preload="metadata"></video>
                 <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>
               </div>
             </Spin>
 
-            <div class="flex flex-wrap gap-2 text-xs">
-              <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
-              <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
-              <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
-            </div>
+            <template v-if="stateDetailRow.asset">
+              <div class="text-highlighted text-sm leading-5 break-all">{{ stateDetailRow.asset.originalName }}</div>
 
-            <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateDetailRow.asset.path) }) }}</div>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
+                <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
+                <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
+              </div>
+
+              <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateDetailRow.asset.path) }) }}</div>
+            </template>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">

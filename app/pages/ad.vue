@@ -8,21 +8,45 @@
       <template v-if="computedRouteIsHotsearch">
         <SelectsPagesizes cache-key="ad-hotsearch" />
 
-        <USelect v-model="stateEditionScope" :items="editionScopeOptions" value-attribute="value" option-attribute="label" class="w-32" @update:model-value="handleFiltersApply" />
+        <UPopover v-model:open="stateFiltersOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] overflow-hidden p-0' }">
+          <UButton icon="i-lucide-search" :label="computedFilterTriggerLabel" color="neutral" variant="subtle" class="w-56 xl:w-64" :ui="{ leadingIcon: 'text-muted' }" />
 
-        <USelect v-model="statePlatform" :items="platformOptions" value-attribute="value" option-attribute="label" class="w-36" @update:model-value="handleFiltersApply" />
+          <template #content>
+            <div class="bg-default flex flex-col gap-4 p-4 sm:p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-highlighted text-sm font-semibold">{{ t('pages.ads.filters.searchTitle') }}</div>
+                  <div class="text-muted mt-1 text-xs">{{ t('pages.ads.filters.searchDescription') }}</div>
+                </div>
+              </div>
 
-        <USelect v-model="stateEnabled" :items="enabledOptions" value-attribute="value" option-attribute="label" class="w-28" @update:model-value="handleFiltersApply" />
+              <div class="space-y-3">
+                <UInput v-model="stateKeyword" :placeholder="t('pages.ads.filters.keywordPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-full" @keyup.enter="handleFiltersApply">
+                  <template #leading>
+                    <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+                  </template>
 
-        <UInput v-model="stateKeyword" :placeholder="t('pages.ads.filters.keywordPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-48 xl:w-56" @keyup.enter="handleFiltersApply">
-          <template #leading>
-            <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+                  <template #trailing>
+                    <UButton v-if="stateKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="stateKeyword = ''" />
+                  </template>
+                </UInput>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <USelect v-model="stateEditionScope" :items="editionScopeOptions" value-attribute="value" option-attribute="label" class="w-full" />
+
+                  <USelect v-model="statePlatform" :items="platformOptions" value-attribute="value" option-attribute="label" class="w-full" />
+
+                  <USelect v-model="stateEnabled" :items="enabledOptions" value-attribute="value" option-attribute="label" class="w-full sm:col-span-2" />
+                </div>
+              </div>
+
+              <div class="border-default flex items-center justify-between gap-3 border-t pt-4">
+                <UButton color="neutral" variant="outline" @click="handleFiltersReset">{{ t('common.actions.reset') }}</UButton>
+                <UButton icon="i-lucide-search" color="primary" @click="handleFiltersApply">{{ t('common.actions.search') }}</UButton>
+              </div>
+            </div>
           </template>
-
-          <template #trailing>
-            <UButton v-if="stateKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFiltersReset" />
-          </template>
-        </UInput>
+        </UPopover>
 
         <UButton icon="i-lucide-plus" color="primary" @click="handleToolbarCreate">{{ t('pages.ads.actions.create') }}</UButton>
       </template>
@@ -61,6 +85,11 @@ const localePath = useLocalePath();
 const stateKeyword = ref(typeof route.query.keyword === 'string' ? route.query.keyword : '');
 
 /**
+ * 状态：筛选浮层开关。
+ */
+const stateFiltersOpen = ref(false);
+
+/**
  * 状态：栏目范围。
  */
 const stateEditionScope = ref(typeof route.query.editionScope === 'string' ? route.query.editionScope : EDITION_SCOPE_ALL_VALUE);
@@ -90,6 +119,42 @@ const enabledOptions = computed(() => [
   { label: t('pages.ads.filters.enabled'), value: 'true' },
   { label: t('pages.ads.filters.disabled'), value: 'false' }
 ]);
+
+/**
+ * 计算属性：当前激活的筛选数量。
+ */
+const computedActiveFilterCount = computed(() => {
+  let count = 0;
+
+  if (stateKeyword.value.trim() !== '') {
+    count += 1;
+  }
+
+  if (stateEditionScope.value !== EDITION_SCOPE_ALL_VALUE) {
+    count += 1;
+  }
+
+  if (statePlatform.value && statePlatform.value !== '') {
+    count += 1;
+  }
+
+  if (stateEnabled.value !== ENABLED_ALL_VALUE) {
+    count += 1;
+  }
+
+  return count;
+});
+
+/**
+ * 计算属性：搜索触发器文案。
+ */
+const computedFilterTriggerLabel = computed(() => {
+  if (computedActiveFilterCount.value <= 0) {
+    return t('pages.ads.filters.triggerDefault');
+  }
+
+  return t('pages.ads.filters.triggerFiltered', { count: computedActiveFilterCount.value });
+});
 
 /**
  * 状态：创建 nonce。
@@ -151,6 +216,8 @@ const handleFiltersApply = () => {
     return;
   }
 
+  stateFiltersOpen.value = false;
+
   const nextQuery: Record<string, string> = {};
   const keyword = stateKeyword.value.trim();
   const pageSize = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
@@ -191,6 +258,7 @@ const handleFiltersReset = () => {
   stateEditionScope.value = EDITION_SCOPE_ALL_VALUE;
   statePlatform.value = null;
   stateEnabled.value = ENABLED_ALL_VALUE;
+  stateFiltersOpen.value = false;
 
   const pageSize = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
 
