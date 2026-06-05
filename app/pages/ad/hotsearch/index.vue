@@ -283,8 +283,8 @@
       </template>
 
       <template #footer="{ close }">
-        <UButton type="button" color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
-        <UButton type="button" color="neutral" variant="soft" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">{{ computedEditorSecondaryActionLabel }}</UButton>
+        <UButton type="button" color="neutral" variant="soft" @click="close">{{ t('common.actions.cancel') }}</UButton>
+        <UButton type="button" color="neutral" variant="outline" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(false)">{{ computedEditorSecondaryActionLabel }}</UButton>
         <UButton type="button" color="primary" :disabled="!computedCanSubmit || stateSaving" :loading="stateSaving" @click="onSubmit(true)">{{ computedEditorPrimaryActionLabel }}</UButton>
       </template>
     </UModal>
@@ -343,22 +343,22 @@
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
-            <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.editionScope') }}</div>
               <div class="text-primary mt-1 text-sm">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.materialType') }}</div>
               <div class="mt-1 text-sm text-sky-600">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.price') }}</div>
               <div class="mt-1 inline-flex items-baseline gap-1 text-sm font-medium text-amber-500">
                 <span class="text-xs text-amber-400">￥</span>
                 <span>{{ priceTextGet(stateDetailRow.price) }}</span>
               </div>
             </div>
-            <div class="bg-elevated/40 border-default rounded-xl border px-3 py-3">
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.form.priority') }}</div>
               <div class="mt-1 text-sm text-emerald-600">{{ stateDetailRow.priority }}</div>
             </div>
@@ -393,7 +393,6 @@ import type { DateValue } from '@internationalized/date';
 import { CalendarDate, parseTime } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
-import { convertFileSrc } from '@tauri-apps/api/core';
 import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
@@ -1640,13 +1639,11 @@ const assetPreviewUrlResolve = async (asset: IHotsearchAdMaterialAsset | null | 
     throw new Error(errorMessage);
   }
 
-  let previewUrl = signedUrl;
+  const previewUrl = signedUrl;
   const localCachePath = path.replace(/^\//, '');
 
   if (isTauriRuntime.value && localCachePath !== '') {
-    const result = await hotsearchAdAssetEnsureDownloaded(localCachePath, signedUrl);
-
-    previewUrl = convertFileSrc(result.filePath);
+    await hotsearchAdAssetEnsureDownloaded(localCachePath, signedUrl);
   }
 
   return previewUrl;
@@ -3052,7 +3049,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'titleXl',
     accessorKey: 'title',
     header: t('pages.ads.hotsearch.table.title'),
-    meta: { class: { th: 'hidden 2xl:table-cell min-w-44 text-sm', td: 'hidden 2xl:table-cell min-w-44 align-middle' } },
+    meta: { class: { th: 'hidden 2xl:table-cell min-w-52 4xl:min-w-60 text-sm', td: 'hidden 2xl:table-cell min-w-52 4xl:min-w-60 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm leading-6 font-medium text-highlighted whitespace-normal break-words' }, row.original.title || t('pages.ads.hotsearch.table.untitled'))
   },
   {
@@ -3079,7 +3076,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     id: 'platformXl',
     header: t('pages.ads.hotsearch.table.platform'),
-    meta: { class: { th: 'hidden 2xl:table-cell w-32 text-sm', td: 'hidden 2xl:table-cell w-32 align-middle' } },
+    meta: { class: { th: 'hidden 2xl:table-cell min-w-40 w-40 4xl:min-w-52 4xl:w-52 text-sm', td: 'hidden 2xl:table-cell min-w-40 w-40 4xl:min-w-52 4xl:w-52 align-middle' } },
     cell: ({ row }) => platformLinksRender(row.original)
   },
   {
@@ -3092,7 +3089,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     id: 'placementCompact',
     header: t('pages.ads.hotsearch.table.delivery'),
-    meta: { class: { th: 'hidden xl:table-cell 3xl:hidden w-26 text-sm', td: 'hidden xl:table-cell 3xl:hidden w-26 align-middle' } },
+    meta: { class: { th: 'hidden xl:table-cell 3xl:hidden min-w-30 w-30 text-sm', td: 'hidden xl:table-cell 3xl:hidden min-w-30 w-30 align-middle' } },
     cell: ({ row }) => {
       const item = row.original;
 
@@ -3105,7 +3102,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   {
     id: 'typesCombined2xl',
     header: t('pages.ads.hotsearch.table.type'),
-    meta: { class: { th: 'hidden 3xl:table-cell 5xl:hidden w-22 text-sm', td: 'hidden 3xl:table-cell 5xl:hidden w-22 align-middle' } },
+    meta: { class: { th: 'hidden 3xl:table-cell 5xl:hidden min-w-28 w-28 text-sm', td: 'hidden 3xl:table-cell 5xl:hidden min-w-28 w-28 align-middle' } },
     cell: ({ row }) =>
       h('div', { class: 'flex flex-col gap-1 text-xs whitespace-normal break-words' }, [
         h('span', { class: 'text-muted' }, `${t('pages.ads.hotsearch.table.materialType')}：${materialTypeLabelGet(row.original.materialType)}`),
@@ -3116,14 +3113,14 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'material4xl',
     accessorKey: 'materialType',
     header: t('pages.ads.hotsearch.table.materialType'),
-    meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
+    meta: { class: { th: 'hidden 5xl:table-cell min-w-18 w-18 text-sm', td: 'hidden 5xl:table-cell min-w-18 w-18 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, materialTypeLabelGet(row.original.materialType))
   },
   {
     id: 'type4xl',
     accessorKey: 'presentationType',
     header: t('pages.ads.hotsearch.table.type'),
-    meta: { class: { th: 'hidden 5xl:table-cell w-16 text-sm', td: 'hidden 5xl:table-cell w-16 align-middle' } },
+    meta: { class: { th: 'hidden 5xl:table-cell min-w-18 w-18 text-sm', td: 'hidden 5xl:table-cell min-w-18 w-18 align-middle' } },
     cell: ({ row }) => h('span', { class: 'text-sm' }, presentationTypeLabelGet(row.original.presentationType))
   },
   {
