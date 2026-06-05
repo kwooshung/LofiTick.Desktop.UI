@@ -44,7 +44,7 @@ const stateProtocol = ref<'http' | 'https'>('https');
 /**
  * 状态：当前主体内容。
  */
-const stateValue = ref('');
+const stateValue = ref<string | null>(null);
 
 /**
  * 计算属性：协议选项。
@@ -67,7 +67,7 @@ const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholde
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
   const raw = String(url || '').trim();
   if (!raw) {
-    return { protocol: 'https', value: '' };
+    return { protocol: 'https', value: null };
   }
 
   if (/^http:\/\//i.test(raw)) {
@@ -90,7 +90,7 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @param {string} value 协议后面的主体内容。
  * @returns {string} 完整 URL。
  */
-const joinUrl = (protocol: 'http' | 'https', value: string): string => {
+const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
   const normalizedValue = String(value || '')
     .trim()
     .replace(/^https?:\/\//i, '');
@@ -109,7 +109,7 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
 const syncFromModel = (value: string): void => {
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value;
+  stateValue.value = parsed.value as string | null;
 };
 
 /**
@@ -120,7 +120,7 @@ const syncFromModel = (value: string): void => {
 const handleValueInput = (value: string | number): void => {
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value;
+  stateValue.value = parsed.value as string | null;
 };
 
 watch(

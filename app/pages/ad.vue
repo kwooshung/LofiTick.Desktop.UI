@@ -68,7 +68,7 @@ const stateEditionScope = ref(typeof route.query.editionScope === 'string' ? rou
 /**
  * 状态：平台筛选。
  */
-const statePlatform = ref(typeof route.query.platform === 'string' ? route.query.platform : '');
+const statePlatform = ref(typeof route.query.platform === 'string' ? route.query.platform : null);
 
 /**
  * 状态：启用状态。
@@ -80,7 +80,7 @@ const stateEnabled = ref(typeof route.query.enabled === 'string' ? route.query.e
  */
 const editionScopeOptions = [{ label: '全部栏目', value: EDITION_SCOPE_ALL_VALUE }, ...hotsearchAdEditionScopeOptionsGet()];
 
-const platformOptions = computed(() => [{ label: '全部平台', value: '' }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
+const platformOptions = computed(() => [{ label: t('common.actions.all') || '全部平台', value: null }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
 
 /**
  * 常量：启用状态选项。

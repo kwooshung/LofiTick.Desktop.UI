@@ -34,49 +34,48 @@
             <div class="grid gap-4" :class="computedShowPreview && computedIsPortraitPreview ? 'lg:grid-cols-5' : 'lg:grid-cols-1'">
               <div class="border-default bg-elevated/20 min-h-64 rounded-(--ui-radius) border p-4" :class="computedIsPortraitPreview ? 'lg:col-span-3' : ''">
                 <div class="space-y-4">
-                  <UFormField required name="title" label="广告标题">
-                    <UInput v-model="stateEditor.title" placeholder="例如：早餐咖啡联名口播" class="w-full" />
+                  <UFormField required name="title" :label="t('pages.ads.hotsearch.form.title')">
+                    <UInput v-model="stateEditor.title" :placeholder="t('pages.ads.hotsearch.form.titlePlaceholder')" class="w-full" />
                   </UFormField>
 
-                  <UFormField required name="editionScopes" label="适用栏目">
+                  <UFormField required name="editionScopes" :label="t('pages.ads.hotsearch.form.editionScopes')">
                     <UCheckboxGroup v-model="stateEditor.editionScopes" :items="editorEditionScopeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactCheckboxCardGroupUi(2)" class="w-full" />
                   </UFormField>
 
-                  <UFormField required name="placementType" label="广告位置">
+                  <UFormField required name="placementType" :label="t('pages.ads.hotsearch.form.placementType')">
                     <URadioGroup v-model="stateEditor.placementType" :items="placementTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                   </UFormField>
 
-                  <UFormField required name="presentationType" label="呈现方式">
+                  <UFormField required name="presentationType" :label="t('pages.ads.hotsearch.form.presentationType')">
                     <URadioGroup v-model="stateEditor.presentationType" :items="presentationTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(3)" class="w-full" />
                   </UFormField>
 
                   <template v-if="stateEditor.presentationType !== 'voice'">
-                    <UFormField required name="materialType" label="素材类型">
+                    <UFormField required name="materialType" :label="t('pages.ads.hotsearch.form.materialType')">
                       <URadioGroup v-model="stateEditor.materialType" :items="materialTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                     </UFormField>
 
-                    <UFormField required name="frameType" label="画幅类型">
+                    <UFormField name="frameType" :label="t('pages.ads.hotsearch.form.frameType')">
                       <URadioGroup v-model="stateEditor.frameType" :items="frameTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                     </UFormField>
                   </template>
 
-                  <UFormField required name="platformIds" label="投放平台">
-                    <USelect v-model="stateEditor.platformIds" multiple :items="editorPlatformOptions" value-key="value" label-key="label" placeholder="请选择投放平台" size="sm" color="primary" variant="outline" :ui="{ content: 'min-w-fit' }" class="w-full" />
+                  <UFormField required name="platformIds" :label="t('pages.ads.hotsearch.form.platform')">
+                    <USelect v-model="stateEditor.platformIds" multiple :items="editorPlatformOptions" value-key="value" label-key="label" :placeholder="t('pages.ads.hotsearch.form.platformPlaceholder')" size="sm" color="primary" variant="outline" :ui="{ content: 'min-w-fit' }" class="w-full" />
                   </UFormField>
 
-                  <UFormField required name="price" label="价格">
-                    <UInputNumber v-model="stateEditor.price" :min="0" :step="0.01" :format-options="{ minimumFractionDigits: 2, maximumFractionDigits: 2 }" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+                  <UFormField required name="price" :label="t('pages.ads.hotsearch.form.price')">
+                    <UInput v-model="stateEditor.price" type="number" class="w-40" />
                   </UFormField>
 
-                  <UFormField required name="priority" label="优先级">
+                  <UFormField required name="priority" :label="t('pages.ads.hotsearch.form.priority')">
                     <UInputNumber v-model="stateEditor.priority" :step="1" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
                   </UFormField>
 
-                  <UFormField required name="startAt" label="生效日期">
+                  <UFormField required name="startAt" :label="t('pages.ads.hotsearch.form.startAt')">
                     <UFieldGroup class="w-full">
                       <UPopover>
                         <UInput :model-value="calendarButtonLabelGet(stateEditor.startAt)" readonly class="w-full" :ui="{ base: 'text-left' }" icon="i-lucide:calendar-days" />
-
                         <template #content>
                           <div class="p-2">
                             <UCalendar :model-value="computedStartDateValue" @update:model-value="handleStartDateUpdate" />
@@ -91,7 +90,6 @@
                       </UInputTime>
                     </UFieldGroup>
                   </UFormField>
-
                   <UFormField required name="endAt" label="失效日期">
                     <UFieldGroup class="w-full">
                       <UPopover>
