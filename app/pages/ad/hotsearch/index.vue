@@ -534,7 +534,7 @@ const stateEditorAssetSelecting = ref(false);
  * @param {string} content 文本内容。
  * @returns {object} 默认片段。
  */
-const createEditorAdvertisementItem = (voiceKey: 'M' | ' F ' | 'R' = 'M', content = '') => ({
+const createEditorAdvertisementItem = (voiceKey: 'M' | 'F' | 'R' = 'M', content = '') => ({
   renderKey: generateIdBase36(10),
   voiceKey,
   content,
@@ -1004,7 +1004,7 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
  * 函数：获取当前排序字段。
  * @returns {string} 排序字段。
  */
-const hotsearchOrderByCurrentGet = (): 'id' | 'update d ' | 'created' => {
+const hotsearchOrderByCurrentGet = (): 'id' | 'updated' | 'created' => {
   const by = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
 
   if (by === 'id' || by === 'created') {
@@ -1028,7 +1028,7 @@ const hotsearchOrderDirCurrentGet = (): 'asc' | 'desc' => {
  * 事件：切换排序。
  * @param {string} field 排序字段。
  */
-const toggleSort = (field: 'id' | 'update d ' | 'created') => {
+const _toggleSort = (field: 'id' | 'updated' | 'created') => {
   const currentBy = hotsearchOrderByCurrentGet();
   const currentDir = hotsearchOrderDirCurrentGet();
   const nextDir = currentBy === field && currentDir === 'asc' ? 'desc' : 'asc';
@@ -1040,6 +1040,20 @@ const toggleSort = (field: 'id' | 'update d ' | 'created') => {
 
   navigateTo({ path: route.path, query: q });
 };
+
+/**
+ * 函数：构建平台筛选跳转位置。
+ * @param {string} platformType 平台类型。
+ * @returns {object} 跳转位置。
+ */
+const buildPlatformLocation = (platformType: string): { path: string; query: Record<string, string | string[] | undefined> } => ({
+  path: route.path,
+  query: {
+    ...route.query,
+    platform: platformType || undefined,
+    page: '1'
+  } as Record<string, string | string[] | undefined>
+});
 
 /**
  * API：热搜广告物料列表。
@@ -1369,8 +1383,9 @@ const assetTypeMismatchToastShow = (materialType: 'image' | 'video'): void => {
  */
 const tauriOpenFileResultToFile = (result: IOpenFileContentResult, materialType: 'image' | 'video'): File => {
   const bytes = base64BytesDecode(result.base64);
+  const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 
-  return new File([bytes], result.fileName, {
+  return new File([buffer], result.fileName, {
     type: fileMimeTypeGuess(result.fileName, materialType)
   });
 };
@@ -1621,7 +1636,7 @@ const assetPathLabelGet = (path: string): string => {
  * 函数：恢复编辑器预览布局。
  * @param {object} asset 主素材。
  */
-const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'widthRatio' | 'posXRati o ' | 'posYRatio'>): void => {
+const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'widthRatio' | 'posXRatio' | 'posYRatio'>): void => {
   statePreviewScale.value = previewScaleClamp(asset.widthRatio);
 
   nextTick(() => {
@@ -1775,7 +1790,7 @@ const computedEditorAdvertisementPlaceholder = computed(() => {
  * 计算属性：广告内容播报角色选项。
  */
 const computedEditorAdvertisementVoiceOptions = computed(() => {
-  const labels: Record<'M' | ' F ' | 'R', string> = {
+  const labels: Record<'M' | 'F' | 'R', string> = {
     M: '男声',
     F: '女声',
     R: '随机'
@@ -2357,9 +2372,9 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     editionScope: String(item.editionScope ?? ''),
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
-    platformIds: Array.isArray((item as any).platformIds) ? (item as any).platformIds.map((v: unknown) => Number(v)) : [],
+    platformIds: Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [],
     platformKeyFirst: (() => {
-      const pids = Array.isArray((item as any).platformIds) ? (item as any).platformIds : [];
+      const pids = Array.isArray(item.platformIds) ? item.platformIds : [];
       if (!pids || pids.length === 0) {
         return '';
       }
@@ -2559,7 +2574,7 @@ const handleEditorAdvertisementVoiceUpdate = (index: number, value: string | num
     return;
   }
 
-  item.voiceKey = String(value || 'M') as 'M' | ' F ' | 'R';
+  item.voiceKey = String(value || 'M') as 'M' | 'F' | 'R';
 };
 
 /**
@@ -2651,7 +2666,7 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
       endAt: localDateTimeInputValueGet(detail.endAt, defaultState.endAt)
     };
     stateEditorAdvertisementItems.value =
-      detail.lines.length > 0 ? [...detail.lines].sort((left, right) => Number(left.lineNo ?? 0) - Number(right.lineNo ?? 0)).map((item) => createEditorAdvertisementItem(String(item.voiceKey ?? 'M') as 'M' | ' F ' | 'R', String(item.content ?? ''))) : [createEditorAdvertisementItem()];
+      detail.lines.length > 0 ? [...detail.lines].sort((left, right) => Number(left.lineNo ?? 0) - Number(right.lineNo ?? 0)).map((item) => createEditorAdvertisementItem(String(item.voiceKey ?? 'M') as 'M' | 'F' | 'R', String(item.content ?? ''))) : [createEditorAdvertisementItem()];
     stateEditorOpen.value = true;
 
     if (detail.asset) {
@@ -2723,7 +2738,7 @@ const handleDelete = async (row: IPageTableColumnHotsearchAdMaterial): Promise<v
  * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
  * @returns {{ icon: string; text: string }} 图标和提示文案。
  */
-const materialPreviewMetaGet = (row: IPageTableColumnHotsearchAdMaterial): { icon: string; text: string } => {
+const _materialPreviewMetaGet = (row: IPageTableColumnHotsearchAdMaterial): { icon: string; text: string } => {
   if (row.materialType === 'image') {
     return { icon: 'i-lucide:image', text: '图片素材' };
   }
@@ -2767,7 +2782,7 @@ const handleToggleEnabled = async (row: IPageTableColumnHotsearchAdMaterial, val
  * @param {Array<string>} values 表单栏目范围。
  * @returns {string} 后端栏目范围。
  */
-const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'mornin g ' | 'even i ng' | 'both' => {
+const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning' | 'evening' | 'both' => {
   const uniqueValues = Array.from(new Set(values));
 
   if (uniqueValues.includes('morning') && uniqueValues.includes('evening')) {
@@ -2805,7 +2820,7 @@ const previewLayoutPayloadBuild = (): { clipStartMs: number; clipEndMs: number; 
  * 函数：构建广告文案行请求。
  * @returns {Array<object>} 广告文案行。
  */
-const advertisementLinesPayloadBuild = (): Array<{ voiceKey: 'M' | ' F ' | 'R'; content: string }> => {
+const advertisementLinesPayloadBuild = (): Array<{ voiceKey: 'M' | 'F' | 'R'; content: string }> => {
   return stateEditorAdvertisementItems.value
     .map((item) => ({
       voiceKey: item.voiceKey,

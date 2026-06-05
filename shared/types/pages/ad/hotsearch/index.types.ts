@@ -70,6 +70,9 @@ export interface IHotsearchAdMaterialSummaryRow {
   /** 栏目范围 */
   editionScope: string;
 
+  /** 适用平台 */
+  platformIds?: number[];
+
   /** 广告位置 */
   placementType: string;
 
@@ -289,6 +292,18 @@ export interface IPageTableColumnHotsearchAdMaterial {
 
   /** 栏目范围 */
   editionScope: string;
+
+  /** 早报是否适用 */
+  editionMorning: boolean;
+
+  /** 晚报是否适用 */
+  editionEvening: boolean;
+
+  /** 适用平台 */
+  platformIds: number[];
+
+  /** 首个适用平台键名 */
+  platformKeyFirst: string;
 
   /** 广告位置 */
   placementType: string;
