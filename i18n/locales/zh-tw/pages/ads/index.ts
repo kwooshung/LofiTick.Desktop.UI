@@ -103,7 +103,10 @@ export const ads = {
     detail: {
       description: '熱搜播客廣告素材',
       mainAsset: '主素材',
+      assetName: '素材檔案',
       editionScope: '適用欄目',
+      platform: '投放平台',
+      presentation: '呈現方式',
       materialType: '素材類型',
       startAt: '生效時間',
       endAt: '失效時間',

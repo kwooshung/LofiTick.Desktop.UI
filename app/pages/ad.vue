@@ -8,8 +8,12 @@
       <template v-if="computedRouteIsHotsearch">
         <SelectsPagesizes cache-key="ad-hotsearch" />
 
-        <UPopover v-model:open="stateFiltersOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] overflow-hidden p-0' }">
-          <UButton icon="i-lucide-search" :label="computedFilterTriggerLabel" color="neutral" variant="subtle" class="w-56 xl:w-64" :ui="{ leadingIcon: 'text-muted' }" />
+        <UPopover v-model:open="stateFiltersOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,36rem)] overflow-hidden p-0' }">
+          <UButton icon="i-lucide-search" :label="computedFilterTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }">
+            <template #trailing>
+              <UKbd value="/" class="ms-auto" />
+            </template>
+          </UButton>
 
           <template #content>
             <div class="bg-default flex flex-col gap-4 p-4 sm:p-5">
@@ -20,7 +24,7 @@
                 </div>
               </div>
 
-              <div class="space-y-3">
+              <div class="max-h-[min(72vh,34rem)] space-y-3 overflow-y-auto pr-1">
                 <UInput v-model="stateKeyword" :placeholder="t('pages.ads.filters.keywordPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-full" @keyup.enter="handleFiltersApply">
                   <template #leading>
                     <UIcon name="i-lucide:search" class="text-dimmed size-4" />
@@ -40,7 +44,7 @@
                 </div>
               </div>
 
-              <div class="border-default flex items-center justify-between gap-3 border-t pt-4">
+              <div class="border-default flex items-center justify-end gap-2 border-t pt-4">
                 <UButton color="neutral" variant="outline" @click="handleFiltersReset">{{ t('common.actions.reset') }}</UButton>
                 <UButton icon="i-lucide-search" color="primary" @click="handleFiltersApply">{{ t('common.actions.search') }}</UButton>
               </div>
@@ -167,6 +171,11 @@ const stateCreateNonce = ref(0);
 const computedRouteIsHotsearch = computed(() => route.path === localePath('/ad/hotsearch'));
 
 /**
+ * Store：认证。
+ */
+const storeAuth = useStoreAuth();
+
+/**
  * Store：面包屑。
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -291,4 +300,20 @@ watch(
     statePlatform.value = typeof route.query.platform === 'string' ? route.query.platform : null;
   }
 );
+
+/**
+ * 快捷键。
+ */
+defineShortcuts({
+  '/': () => {
+    if (!storeAuth.states.ui.show && computedRouteIsHotsearch.value) {
+      stateFiltersOpen.value = true;
+    }
+  },
+  enter: () => {
+    if (stateFiltersOpen.value && computedRouteIsHotsearch.value) {
+      handleFiltersApply();
+    }
+  }
+});
 </script>

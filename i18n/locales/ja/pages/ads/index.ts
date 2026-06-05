@@ -103,7 +103,10 @@ export const ads = {
     detail: {
       description: 'ホットサーチポッドキャスト広告素材',
       mainAsset: 'メイン素材',
+      assetName: '素材ファイル',
       editionScope: '適用欄目',
+      platform: '配信先',
+      presentation: '表示方式',
       materialType: '素材タイプ',
       startAt: '開始時刻',
       endAt: '終了時刻',

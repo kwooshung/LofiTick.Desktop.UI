@@ -310,8 +310,6 @@
           </div>
 
           <div class="space-y-3">
-            <div class="text-highlighted text-sm font-medium">{{ t('pages.ads.hotsearch.detail.mainAsset') }}</div>
-
             <Spin
               :loading="stateDetailAssetPreviewLoading"
               :tip="t('pages.ads.hotsearch.preview.loading')"
@@ -324,7 +322,7 @@
               :delay="0"
               overlay
             >
-              <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="stateDetailRow.frameType === 'portrait' ? 'mx-auto aspect-9/16 max-w-64' : 'aspect-video w-full'">
+              <div class="border-default overflow-hidden rounded-(--ui-radius) border bg-black" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
                 <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset?.originalName ?? ''" class="h-full w-full object-contain select-none" draggable="false" />
                 <video v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" class="h-full w-full object-contain select-none" :src="stateDetailAssetPreviewUrl" controls playsinline preload="metadata"></video>
                 <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>
@@ -332,19 +330,27 @@
             </Spin>
 
             <template v-if="stateDetailRow.asset">
-              <div class="text-highlighted text-sm leading-5 break-all">{{ stateDetailRow.asset.originalName }}</div>
+              <div class="bg-elevated/35 border-default space-y-3 rounded-(--ui-radius) border px-3 py-3">
+                <div class="flex flex-wrap gap-2 text-xs">
+                  <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
+                  <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
+                  <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
+                </div>
 
-              <div class="flex flex-wrap gap-2 text-xs">
-                <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
-                <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
-                <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
+                <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateDetailRow.asset.path) }) }}</div>
               </div>
-
-              <div v-if="stateDetailRow.asset.path" class="text-muted text-xs leading-5 break-all">{{ t('pages.ads.hotsearch.preview.pathLabel', { path: assetPathLabelGet(stateDetailRow.asset.path) }) }}</div>
             </template>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.platform') }}</div>
+              <div class="mt-1 text-sm text-cyan-600">{{ platformLabelsGet(stateDetailRow.platformIds ?? [], stateDetailRow.frameType).join(' / ') }}</div>
+            </div>
+            <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
+              <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.presentation') }}</div>
+              <div class="mt-1 text-sm text-violet-600">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }}</div>
+            </div>
             <div class="bg-elevated/40 border-default rounded-(--ui-radius) border px-3 py-3">
               <div class="text-muted text-xs">{{ t('pages.ads.hotsearch.detail.editionScope') }}</div>
               <div class="text-primary mt-1 text-sm">{{ editionScopeLabelGet(stateDetailRow.editionScope) }}</div>
@@ -484,6 +490,11 @@ const props = withDefaults(defineProps<IPageAdHotsearchProps>(), {
  * 路由。
  */
 const route = useRoute();
+
+/**
+ * 状态：列表行详情补全缓存。
+ */
+const stateRowDetailExtras = ref(new Map<number, { platformIds: number[]; asset: IHotsearchAdMaterialAsset | null }>());
 
 /**
  * 状态：编辑器开关。
@@ -827,6 +838,71 @@ const platformOptionsByIdsGet = (platformIds: number[]) => {
 };
 
 /**
+ * 函数：读取当前路由平台筛选键。
+ * @returns {string} 平台筛选键。
+ */
+const currentPlatformFilterGet = (): string => (typeof route.query.platform === 'string' ? route.query.platform.trim() : '');
+
+/**
+ * 函数：从列表行与缓存中解析平台 ID。
+ * @param {number} id 广告 ID。
+ * @param {unknown} input 原始平台列表。
+ * @returns {number[]} 平台 ID 列表。
+ */
+const rowPlatformIdsResolve = (id: number, input: unknown): number[] => {
+  if (Array.isArray(input) && input.length > 0) {
+    return input.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0);
+  }
+
+  return stateRowDetailExtras.value.get(id)?.platformIds ?? [];
+};
+
+/**
+ * 函数：从列表行与缓存中解析主素材。
+ * @param {number} id 广告 ID。
+ * @param {IHotsearchAdMaterialAsset | null | undefined} asset 原始主素材。
+ * @returns {IHotsearchAdMaterialAsset | null} 主素材。
+ */
+const rowAssetResolve = (id: number, asset: IHotsearchAdMaterialAsset | null | undefined): IHotsearchAdMaterialAsset | null => {
+  if (asset) {
+    return asset;
+  }
+
+  return stateRowDetailExtras.value.get(id)?.asset ?? null;
+};
+
+/**
+ * 函数：写入列表行详情补全缓存。
+ * @param {number} id 广告 ID。
+ * @param {number[]} platformIds 平台 ID 列表。
+ * @param {IHotsearchAdMaterialAsset | null | undefined} asset 主素材。
+ */
+const rowDetailExtrasCacheSet = (id: number, platformIds: number[], asset: IHotsearchAdMaterialAsset | null | undefined): void => {
+  const next = new Map(stateRowDetailExtras.value);
+
+  next.set(id, {
+    platformIds,
+    asset: asset ?? null
+  });
+
+  stateRowDetailExtras.value = next;
+};
+
+/**
+ * 函数：判断平台列表是否命中当前筛选。
+ * @param {number[]} platformIds 平台 ID 列表。
+ * @param {string} platformKey 平台筛选键。
+ * @returns {boolean} 是否命中。
+ */
+const platformFilterMatches = (platformIds: number[], platformKey: string): boolean => {
+  if (platformKey === '') {
+    return true;
+  }
+
+  return platformOptionsByIdsGet(platformIds).some((option) => option.key === platformKey);
+};
+
+/**
  * 函数：获取平台文案列表。
  * @param {number[]} platformIds 平台 ID 列表。
  * @param {IHotsearchAdMaterialSummaryRow['frameType']} frameType 画幅类型。
@@ -997,6 +1073,7 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
   const keyword = typeof route.query.keyword === 'string' ? route.query.keyword.trim() : '';
   const editionScope = typeof route.query.editionScope === 'string' ? route.query.editionScope.trim() : '';
+  const platform = typeof route.query.platform === 'string' ? route.query.platform.trim() : '';
   const enabled = typeof route.query.enabled === 'string' ? route.query.enabled.trim() : '';
   const orderBy = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
   const orderDir = typeof route.query.order_dir === 'string' ? route.query.order_dir.trim() : typeof route.query.orderDir === 'string' ? route.query.orderDir.trim() : '';
@@ -1009,6 +1086,10 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
 
   if (editionScope !== '') {
     query.editionScope = editionScope;
+  }
+
+  if (platform !== '') {
+    query.platform = platform;
   }
 
   if (enabled !== '') {
@@ -1784,6 +1865,51 @@ const computedShowPreview = computed(() => stateEditor.value.presentationType !=
 const computedIsPortraitPreview = computed(() => stateEditor.value.presentationType !== 'voice' && stateEditor.value.frameType === 'portrait');
 
 /**
+ * 计算属性：详情素材原始宽高比。
+ */
+const computedDetailPreviewAspectRatio = computed(() => {
+  const asset = stateDetailRow.value.asset;
+
+  if (asset && asset.width > 0 && asset.height > 0) {
+    return asset.width / asset.height;
+  }
+
+  if (stateDetailRow.value.materialType === 'image') {
+    return 4 / 3;
+  }
+
+  return 16 / 9;
+});
+
+/**
+ * 计算属性：详情素材预览容器类名。
+ */
+const computedDetailPreviewFrameClass = computed(() => (computedDetailPreviewAspectRatio.value < 1 ? 'mx-auto w-full max-w-72' : 'w-full'));
+
+/**
+ * 计算属性：详情素材预览容器样式。
+ */
+const computedDetailPreviewFrameStyle = computed(() => {
+  const asset = stateDetailRow.value.asset;
+
+  if (asset && asset.width > 0 && asset.height > 0) {
+    return {
+      aspectRatio: `${asset.width} / ${asset.height}`
+    };
+  }
+
+  if (stateDetailRow.value.materialType === 'image') {
+    return {
+      aspectRatio: '4 / 3'
+    };
+  }
+
+  return {
+    aspectRatio: '16 / 9'
+  };
+});
+
+/**
  * 计算属性：广告内容标题。
  */
 const computedEditorAdvertisementTitle = computed(() => t('pages.ads.hotsearch.editor.adTitle'));
@@ -2408,7 +2534,7 @@ const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdM
   const morningChecked = item.editionScope === 'morning' || item.editionScope === 'both';
   const eveningChecked = item.editionScope === 'evening' || item.editionScope === 'both';
 
-  return h('div', { class: 'flex flex-col gap-1 text-xs' }, [
+  return h('div', { class: 'flex flex-wrap items-center gap-x-4 gap-y-1 text-xs' }, [
     h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: morningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.morning'))]),
     h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: eveningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.evening'))])
   ]);
@@ -2464,6 +2590,8 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     return [];
   }
 
+  const platformFilter = currentPlatformFilterGet();
+
   const rows = datas.value.rows.map((item) => ({
     id: Number(item.id ?? 0),
     title: String(item.title ?? ''),
@@ -2473,7 +2601,7 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     editionScope: String(item.editionScope ?? ''),
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
-    platformIds: Array.isArray(item.platformIds) ? item.platformIds.map((value) => Number(value)) : [],
+    platformIds: rowPlatformIdsResolve(Number(item.id ?? 0), item.platformIds),
     placementType: String(item.placementType ?? ''),
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
@@ -2499,6 +2627,10 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
 
     return (Date.parse(left.updatedAt) - Date.parse(right.updatedAt)) * factor;
   });
+
+  if (platformFilter !== '') {
+    return rows.filter((row) => row.platformIds.length === 0 || platformFilterMatches(row.platformIds, platformFilter));
+  }
 
   return rows;
 });
@@ -2710,7 +2842,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     materialType: String(source.materialType ?? ''),
     frameType: String(source.frameType ?? ''),
     editionScope: String(source.editionScope ?? ''),
-    platformIds: Array.isArray(source.platformIds) ? source.platformIds.map((value) => Number(value)) : [],
+    platformIds: rowPlatformIdsResolve(Number(source.id ?? 0), source.platformIds),
     placementType: String(source.placementType ?? 'opening'),
     price: Number(source.price ?? 0),
     priority: Number(source.priority ?? 0),
@@ -2719,10 +2851,49 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
     endAt: hotsearchDatetimeValueGet(source.endAt),
     updatedAt: hotsearchDatetimeValueGet(source.updatedAt),
     createdAt: hotsearchDatetimeValueGet(source.createdAt),
-    asset: source.asset ?? null
+    asset: rowAssetResolve(Number(source.id ?? 0), source.asset ?? null)
   };
   stateDetailOpen.value = true;
-  void detailAssetPreviewLoad(source.asset ?? null);
+  stateDetailAssetPreviewLoading.value = true;
+
+  void (async () => {
+    try {
+      const detail = await hotsearchAdMaterialDetailGet(row.id);
+      const normalizedPlatformIds = editorPlatformIdsNormalize(detail.platformIds);
+
+      rowDetailExtrasCacheSet(row.id, normalizedPlatformIds, detail.asset ?? null);
+      stateDetailRow.value = {
+        id: Number(detail.id ?? 0),
+        title: String(detail.title ?? ''),
+        presentationType: String(detail.presentationType ?? ''),
+        materialType: String(detail.materialType ?? ''),
+        frameType: String(detail.frameType ?? ''),
+        editionScope: String(detail.editionScope ?? ''),
+        platformIds: normalizedPlatformIds,
+        placementType: String(detail.placementType ?? 'opening'),
+        price: Number(detail.price ?? 0),
+        priority: Number(detail.priority ?? 0),
+        isEnabled: Boolean(detail.isEnabled),
+        startAt: hotsearchDatetimeValueGet(detail.startAt),
+        endAt: hotsearchDatetimeValueGet(detail.endAt),
+        updatedAt: hotsearchDatetimeValueGet(detail.updatedAt),
+        createdAt: hotsearchDatetimeValueGet(detail.createdAt),
+        asset: detail.asset ?? null
+      };
+
+      await detailAssetPreviewLoad(detail.asset ?? null);
+    } catch (error) {
+      stateDetailAssetPreviewLoading.value = false;
+      toast.add({
+        description: error instanceof Error ? error.message : t('pages.ads.hotsearch.toast.detailLoadFailed'),
+        color: 'error',
+        icon: 'i-lucide:triangle-alert',
+        duration: 2500,
+        type: 'foreground',
+        close: false
+      });
+    }
+  })();
 };
 
 /**
@@ -3323,12 +3494,54 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
 };
 
 /**
+ * 函数：按需补全当前页列表的详情信息。
+ * @returns {Promise<void>} 无返回值。
+ */
+const hydrateCurrentPageRowDetailExtras = async (): Promise<void> => {
+  const platformFilter = currentPlatformFilterGet();
+  const rows = datas.value?.rows ?? [];
+
+  if (platformFilter === '' || rows.length === 0) {
+    return;
+  }
+
+  const targets = rows.map((row) => Number(row.id ?? 0)).filter((id) => id > 0 && !stateRowDetailExtras.value.has(id));
+
+  if (targets.length === 0) {
+    return;
+  }
+
+  await Promise.all(
+    targets.map(async (id) => {
+      try {
+        const detail = await hotsearchAdMaterialDetailGet(id);
+
+        rowDetailExtrasCacheSet(id, editorPlatformIdsNormalize(detail.platformIds), detail.asset ?? null);
+      } catch {
+        // 当前页平台筛选缺少后端汇总字段时，静默跳过单行补全失败，避免影响列表主流程。
+      }
+    })
+  );
+};
+
+/**
  * 监听：路由变化时刷新列表。
  */
 watch(
   () => route.query,
   () => {
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+    void hydrateCurrentPageRowDetailExtras();
+  }
+);
+
+/**
+ * 监听：列表数据刷新后按需补全平台筛选所需详情。
+ */
+watch(
+  () => datas.value?.rows,
+  () => {
+    void hydrateCurrentPageRowDetailExtras();
   }
 );
 

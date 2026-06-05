@@ -103,7 +103,10 @@ export const ads = {
     detail: {
       description: 'Hotsearch podcast ad asset',
       mainAsset: 'Main Asset',
+      assetName: 'Asset File',
       editionScope: 'Edition',
+      platform: 'Platform',
+      presentation: 'Presentation',
       materialType: 'Material Type',
       startAt: 'Start Time',
       endAt: 'End Time',
