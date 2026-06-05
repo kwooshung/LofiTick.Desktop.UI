@@ -17,7 +17,6 @@
               separator: 'h-0'
             }"
           />
-          <UEmpty v-if="systemTasks.length === 0" icon="i-lucide:shield-check" :title="t('pages.settings.cron.system.empty.title')" :description="t('pages.settings.cron.system.empty.description')" class="py-8" />
         </div>
       </div>
       <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">

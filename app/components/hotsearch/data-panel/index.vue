@@ -27,11 +27,7 @@
       </div>
     </div>
 
-    <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center py-10">
-      <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" class="py-8" />
-    </div>
-
-    <div v-else class="flex min-h-0 w-full flex-1 gap-1">
+    <div class="flex min-h-0 w-full flex-1 gap-1">
       <div class="flex-1">
         <UTable
           :columns="columns"
@@ -288,11 +284,6 @@ const {
   datas: buildTagsQueryFromRoute(),
   immediate: true
 });
-
-/**
- * 计算属性：当前日期。
- */
-const computedSelectedDate = computed(() => selectedDateGet());
 
 /**
  * 计算属性：当前平台类型。

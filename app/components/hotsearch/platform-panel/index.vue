@@ -1,10 +1,6 @@
 <template>
   <DashboardPage class="min-h-full">
-    <div v-if="computedRows.length === 0" ref="refHotsearchPlatformPanelTop" class="flex min-h-0 flex-1 items-center justify-center py-10">
-      <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" class="py-8" />
-    </div>
-
-    <div v-else ref="refHotsearchPlatformPanelTop" class="flex w-full flex-1 gap-1">
+    <div ref="refHotsearchPlatformPanelTop" class="flex w-full flex-1 gap-1">
       <div class="flex-1">
         <UTable
           :columns="columns"
