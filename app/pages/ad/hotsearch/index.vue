@@ -46,11 +46,11 @@
                     <URadioGroup v-model="stateEditor.placementType" :items="placementTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                   </UFormField>
 
-                  <UFormField required name="adType" label="广告类型">
-                    <URadioGroup v-model="stateEditor.adType" :items="adTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(3)" class="w-full" />
+                  <UFormField required name="presentationType" label="呈现方式">
+                    <URadioGroup v-model="stateEditor.presentationType" :items="presentationTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(3)" class="w-full" />
                   </UFormField>
 
-                  <template v-if="stateEditor.adType !== 'oral'">
+                  <template v-if="stateEditor.presentationType !== 'voice'">
                     <UFormField required name="materialType" label="素材类型">
                       <URadioGroup v-model="stateEditor.materialType" :items="materialTypeOptions" value-key="value" label-key="label" orientation="horizontal" variant="card" color="primary" indicator="end" size="sm" :ui="compactRadioCardGroupUi(2)" class="w-full" />
                     </UFormField>
@@ -300,7 +300,7 @@
         <div class="space-y-4">
           <div class="flex flex-wrap gap-2">
             <UBadge :color="stateDetailRow.isEnabled ? 'primary' : 'neutral'" variant="soft">{{ stateDetailRow.isEnabled ? '启用中' : '已停用' }}</UBadge>
-            <UBadge color="neutral" variant="soft">{{ adTypeLabelGet(stateDetailRow.adType) }}</UBadge>
+            <UBadge color="neutral" variant="soft">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ placementTypeLabelGet(stateDetailRow.placementType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ frameTypeLabelGet(stateDetailRow.frameType) }}</UBadge>
@@ -388,7 +388,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 import type { IHotsearchAdMaterialAsset, IHotsearchAdMaterialSummaryRow, IPageAdHotsearchEditorAsset } from '@@/shared/types/pages/ad/hotsearch/index.types';
-import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetStorageKeysCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
+import { hotsearchAdEditionScopeOptionsGet, hotsearchPodcastAdAssetRemotePathCreate, hotsearchPodcastVoiceOptionsGet } from '@@/shared/utils';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
 /**
@@ -565,7 +565,7 @@ let previewStageObserver: ResizeObserver | null = null;
 const stateDetailRow = ref<IHotsearchAdMaterialSummaryRow>({
   id: 0,
   title: '',
-  adType: 'oral',
+  presentationType: 'voice',
   materialType: 'none',
   frameType: 'none',
   editionScope: 'both',
@@ -603,7 +603,7 @@ const editorDefaultStateCreate = (): IPageAdHotsearchEditorForm => {
   return {
     id: 0,
     title: '',
-    adType: 'oral',
+    presentationType: 'voice',
     materialType: 'none',
     frameType: 'none',
     editionScopes: ['morning', 'evening'],
@@ -626,9 +626,9 @@ const stateEditor = ref<IPageAdHotsearchEditorForm>(editorDefaultStateCreate());
 /**
  * 常量：广告类型选项。
  */
-const adTypeOptions = [
-  { label: '口播', value: 'oral' },
-  { label: '画中画', value: 'picture_in_picture' },
+const presentationTypeOptions = [
+  { label: '口播', value: 'voice' },
+  { label: '画中画', value: 'pip' },
   { label: '拼接', value: 'montage' }
 ];
 
@@ -695,7 +695,7 @@ const editorEditionScopeOptions = hotsearchAdEditionScopeOptionsGet();
 const schema = z
   .object({
     title: z.string().trim().min(1, '请填写广告标题').max(120, '广告标题不能超过 120 个字符'),
-    adType: z.enum(['oral', 'picture_in_picture', 'montage']),
+    presentationType: z.enum(['voice', 'pip', 'montage']),
     materialType: z.enum(['none', 'image', 'video']),
     frameType: z.enum(['none', 'landscape', 'portrait']),
     editionScopes: z.array(z.enum(['morning', 'evening'])).min(1, '请至少选择一个适用栏目'),
@@ -727,12 +727,12 @@ const schema = z
       .refine((value) => !Number.isNaN(new Date(value).getTime()), '失效时间格式不正确')
   })
   .superRefine((value, ctx) => {
-    if (value.adType === 'oral' && value.materialType !== 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '口播广告的素材类型必须是无素材' });
+    if (value.presentationType === 'voice' && value.materialType !== 'none') {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '口播呈现方式的素材类型必须是无素材' });
     }
 
-    if (value.adType !== 'oral' && value.materialType === 'none') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '非口播广告必须选择图片或视频素材' });
+    if (value.presentationType !== 'voice' && value.materialType === 'none') {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['materialType'], message: '非口播呈现方式必须选择图片或视频素材' });
     }
 
     if (value.materialType === 'none' && value.frameType !== 'none') {
@@ -1240,8 +1240,8 @@ const requestUpyunDirectUploadPolicySnapshot = async (body: Record<string, unkno
  * @param {File} file 文件。
  * @returns {string} 保存路径。
  */
-const editorAssetSaveKeyCreate = (file: File): { localFileKey: string; remoteFileKey: string } => {
-  return hotsearchPodcastAdAssetStorageKeysCreate(fileExtGet(file));
+const editorAssetPathCreate = (file: File): string => {
+  return hotsearchPodcastAdAssetRemotePathCreate(fileExtGet(file));
 };
 
 /**
@@ -1252,18 +1252,15 @@ const editorAssetSaveKeyCreate = (file: File): { localFileKey: string; remoteFil
  */
 const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAsset): Promise<IHotsearchAdMaterialAsset> => {
   const errorMessage = '素材上传失败';
-  const saveKeys = editorAssetSaveKeyCreate(file);
+  const draftPath = editorAssetPathCreate(file);
 
   if (!isTauriRuntime.value) {
     throw new Error('当前环境不支持写入附件目录');
   }
 
-  const localBytes = Array.from(new Uint8Array(await file.arrayBuffer()));
-  await hotsearchAdAssetWrite(saveKeys.localFileKey, localBytes);
-
   const policy = await requestUpyunDirectUploadPolicySnapshot(
     {
-      save_key: saveKeys.remoteFileKey,
+      save_key: draftPath,
       expires_in_sec: 1800
     },
     errorMessage
@@ -1271,16 +1268,19 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
   const uploadUrl = String(policy.upload_url ?? '').trim();
   const uploadPolicy = String(policy.policy ?? '').trim();
   const authorization = String(policy.authorization ?? '').trim();
-  const resolvedSaveKey = String(policy.save_key ?? saveKeys.remoteFileKey).trim();
+  const resolvedPath = String(policy.save_key ?? draftPath).trim();
 
-  if (!uploadUrl || !uploadPolicy || !authorization || !resolvedSaveKey) {
+  if (!uploadUrl || !uploadPolicy || !authorization || !resolvedPath) {
     throw new Error(errorMessage);
   }
+
+  const localBytes = Array.from(new Uint8Array(await file.arrayBuffer()));
+  await hotsearchAdAssetWrite(resolvedPath.replace(/^\//, ''), localBytes);
 
   const formData = new FormData();
   formData.set('policy', uploadPolicy);
   formData.set('authorization', authorization);
-  formData.set('save-key', resolvedSaveKey);
+  formData.set('save-key', resolvedPath);
   formData.set('file', file);
 
   await new Promise<void>((resolve, reject) => {
@@ -1301,16 +1301,21 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
   });
 
   return {
-    storageBucket: 'files',
-    fileKey: resolvedSaveKey,
-    localFileKey: saveKeys.localFileKey,
+    path: resolvedPath,
     originalName: asset.originalName,
     mimeType: asset.mimeType,
     fileExt: asset.fileExt,
     fileSizeBytes: asset.fileSizeBytes,
     width: asset.width,
     height: asset.height,
-    durationMs: asset.durationMs
+    durationMs: asset.durationMs,
+    clipStartMs: asset.clipStartMs,
+    clipEndMs: asset.clipEndMs,
+    posXRatio: asset.posXRatio,
+    posYRatio: asset.posYRatio,
+    widthRatio: asset.widthRatio,
+    heightRatio: asset.heightRatio,
+    zIndex: asset.zIndex
   };
 };
 
@@ -1363,12 +1368,12 @@ const computedEndTimeValue = computed(() => timeValueFromText(timePartGet(stateE
 /**
  * 计算属性：是否显示主素材预览区域。
  */
-const computedShowPreview = computed(() => stateEditor.value.adType !== 'oral');
+const computedShowPreview = computed(() => stateEditor.value.presentationType !== 'voice');
 
 /**
  * 计算属性：是否为竖屏预览布局。
  */
-const computedIsPortraitPreview = computed(() => stateEditor.value.adType !== 'oral' && stateEditor.value.frameType === 'portrait');
+const computedIsPortraitPreview = computed(() => stateEditor.value.presentationType !== 'voice' && stateEditor.value.frameType === 'portrait');
 
 /**
  * 计算属性：广告内容标题。
@@ -1823,16 +1828,16 @@ watch(
 );
 
 /**
- * 函数：获取广告类型文案。
- * @param {IHotsearchAdMaterialSummaryRow['adType']} value 广告类型。
+ * 函数：获取呈现方式文案。
+ * @param {IHotsearchAdMaterialSummaryRow['presentationType']} value 呈现方式。
  * @returns {string} 文案。
  */
-const adTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['adType']): string => {
-  if (value === 'oral') {
+const presentationTypeLabelGet = (value: IHotsearchAdMaterialSummaryRow['presentationType']): string => {
+  if (value === 'voice') {
     return '口播';
   }
 
-  if (value === 'picture_in_picture') {
+  if (value === 'pip') {
     return '画中画';
   }
 
@@ -1941,7 +1946,7 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
   return datas.value.rows.map((item) => ({
     id: Number(item.id ?? 0),
     title: String(item.title ?? ''),
-    adType: String(item.adType ?? ''),
+    presentationType: String(item.presentationType ?? ''),
     materialType: String(item.materialType ?? ''),
     frameType: String(item.frameType ?? ''),
     editionScope: String(item.editionScope ?? ''),
@@ -2103,7 +2108,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
   stateDetailRow.value = {
     id: Number(source.id ?? 0),
     title: String(source.title ?? ''),
-    adType: String(source.adType ?? ''),
+    presentationType: String(source.presentationType ?? ''),
     materialType: String(source.materialType ?? ''),
     frameType: String(source.frameType ?? ''),
     editionScope: String(source.editionScope ?? ''),
@@ -2149,6 +2154,39 @@ const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning'
 };
 
 /**
+ * 函数：构建当前预览布局参数。
+ * @returns {{ clipStartMs: number; clipEndMs: number; posXRatio: number; posYRatio: number; widthRatio: number; heightRatio: number; zIndex: number }} 当前预览布局。
+ */
+const previewLayoutPayloadBuild = (): { clipStartMs: number; clipEndMs: number; posXRatio: number; posYRatio: number; widthRatio: number; heightRatio: number; zIndex: number } => {
+  const stageWidth = statePreviewStageSize.width;
+  const stageHeight = statePreviewStageSize.height;
+  const scale = Number(statePreviewScale.value.toFixed(6));
+
+  return {
+    clipStartMs: 0,
+    clipEndMs: 0,
+    posXRatio: stageWidth > 0 ? Number((statePreviewOffset.x / stageWidth).toFixed(6)) : 0,
+    posYRatio: stageHeight > 0 ? Number((statePreviewOffset.y / stageHeight).toFixed(6)) : 0,
+    widthRatio: scale,
+    heightRatio: scale,
+    zIndex: 0
+  };
+};
+
+/**
+ * 函数：构建广告文案行请求。
+ * @returns {Array<{ voiceKey: 'M' | 'F' | 'R'; content: string }>} 广告文案行。
+ */
+const advertisementLinesPayloadBuild = (): Array<{ voiceKey: 'M' | 'F' | 'R'; content: string }> => {
+  return stateEditorAdvertisementItems.value
+    .map((item) => ({
+      voiceKey: item.voiceKey,
+      content: String(item.content ?? '').trim()
+    }))
+    .filter((item) => item.content !== '');
+};
+
+/**
  * 函数：构建保存请求。
  * @param {IPageAdHotsearchEditorForm} source 表单状态。
  * @param {IHotsearchAdMaterialAsset | null} asset 已上传素材。
@@ -2156,20 +2194,23 @@ const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning'
  * @returns {Record<string, unknown>} 保存请求。
  */
 const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchAdMaterialAsset | null, isEnabled: boolean): Record<string, unknown> => {
-  const adType = source.adType;
-  const materialType = adType === 'oral' ? 'none' : source.materialType;
+  const presentationType = source.presentationType;
+  const materialType = presentationType === 'voice' ? 'none' : source.materialType;
   const frameType = materialType === 'none' ? 'none' : source.frameType;
+  const assetPayload = materialType === 'none' || !asset ? undefined : { ...asset, ...previewLayoutPayloadBuild() };
+  const lines = advertisementLinesPayloadBuild();
 
   return {
     title: source.title.trim(),
-    adType,
+    presentationType,
     materialType,
     frameType,
     editionScope: editionScopePayloadGet(source.editionScopes),
     placementType: source.placementType,
     price: source.price,
     priority: source.priority,
-    asset: materialType === 'none' ? undefined : asset,
+    lines,
+    asset: assetPayload,
     notes: source.notes.trim() === '' ? undefined : source.notes.trim(),
     isEnabled,
     startAt: new Date(source.startAt).toISOString(),
@@ -2190,6 +2231,11 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
 
   try {
     let uploadedAsset: IHotsearchAdMaterialAsset | null = null;
+    const lines = advertisementLinesPayloadBuild();
+
+    if (lines.length === 0) {
+      throw new Error('请至少填写一句广告文案');
+    }
 
     if (stateEditor.value.materialType !== 'none') {
       if (!stateEditorAssetFile.value || !stateEditor.value.asset) {
@@ -2246,7 +2292,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
         h('div', { class: 'text-highlighted text-sm font-medium leading-6' }, item.title || '未命名广告'),
         h('div', { class: 'flex flex-wrap gap-1.5' }, [
           h(UBadge, { color: item.isEnabled ? 'primary' : 'neutral', variant: 'soft' }, () => (item.isEnabled ? '启用中' : '已停用')),
-          h(UBadge, { color: 'neutral', variant: 'soft' }, () => adTypeLabelGet(item.adType)),
+          h(UBadge, { color: 'neutral', variant: 'soft' }, () => presentationTypeLabelGet(item.presentationType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => placementTypeLabelGet(item.placementType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => materialTypeLabelGet(item.materialType)),
           h(UBadge, { color: 'neutral', variant: 'soft' }, () => frameTypeLabelGet(item.frameType))
@@ -2336,8 +2382,8 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
   stateDetailAssetPreviewLoading.value = false;
   stateDetailAssetPreviewUrl.value = '';
 
-  const fileKey = String(asset?.fileKey ?? '').trim();
-  if (!asset || fileKey === '') {
+  const path = String(asset?.path ?? '').trim();
+  if (!asset || path === '') {
     return;
   }
 
@@ -2346,7 +2392,7 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
   try {
     await refreshUpyunObjectUrlGet({
       datas: {
-        path: fileKey,
+        path,
         ttl_sec: 600
       },
       replace: true
@@ -2358,10 +2404,10 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
     }
 
     let previewUrl = signedUrl;
-    const localFileKey = String(asset.localFileKey ?? '').trim();
+    const localCachePath = path.replace(/^\//, '');
 
-    if (isTauriRuntime.value && localFileKey !== '') {
-      const result = await hotsearchAdAssetEnsureDownloaded(localFileKey, signedUrl);
+    if (isTauriRuntime.value && localCachePath !== '') {
+      const result = await hotsearchAdAssetEnsureDownloaded(localCachePath, signedUrl);
 
       previewUrl = convertFileSrc(result.filePath);
     }
@@ -2420,9 +2466,9 @@ watch(
 );
 
 watch(
-  () => stateEditor.value.adType,
+  () => stateEditor.value.presentationType,
   (value) => {
-    if (value === 'oral') {
+    if (value === 'voice') {
       stateEditor.value.materialType = 'none';
       stateEditor.value.frameType = 'none';
       return;
@@ -2442,7 +2488,7 @@ watch(
   () => stateEditor.value.materialType,
   (value) => {
     if (value === 'none') {
-      stateEditor.value.adType = 'oral';
+      stateEditor.value.presentationType = 'voice';
       stateEditor.value.frameType = 'none';
       stateEditorAssetFile.value = null;
       editorAssetClear();
@@ -2466,7 +2512,7 @@ watch(
   (value) => {
     if (value === 'none') {
       stateEditor.value.materialType = 'none';
-      stateEditor.value.adType = 'oral';
+      stateEditor.value.presentationType = 'voice';
     }
   }
 );
@@ -2509,6 +2555,13 @@ watch(
         width: metadata.width,
         height: metadata.height,
         durationMs: metadata.durationMs,
+        clipStartMs: 0,
+        clipEndMs: 0,
+        posXRatio: 0,
+        posYRatio: 0,
+        widthRatio: 1,
+        heightRatio: 1,
+        zIndex: 0,
         previewUrl
       };
     } finally {

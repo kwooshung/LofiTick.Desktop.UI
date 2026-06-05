@@ -137,21 +137,6 @@ export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: D
 };
 
 /**
- * 函数：创建热搜广告素材本地/远端对象键。
- * @param {string} fileExt 文件扩展名。
- * @param {Date} [date=new Date()] 目标日期。
- * @returns {{ localFileKey: string; remoteFileKey: string }} 本地相对键与远端对象键。
- */
-export const hotsearchPodcastAdAssetStorageKeysCreate = (fileExt: string, date: Date = new Date()): { localFileKey: string; remoteFileKey: string } => {
-  const remoteFileKey = hotsearchPodcastAdAssetRemotePathCreate(fileExt, date);
-
-  return {
-    localFileKey: remoteFileKey.slice(1),
-    remoteFileKey
-  };
-};
-
-/**
  * 常量：热搜播客音色固定列表。
  */
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
