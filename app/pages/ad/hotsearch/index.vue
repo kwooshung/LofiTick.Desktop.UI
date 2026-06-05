@@ -322,7 +322,7 @@
               :delay="0"
               overlay
             >
-              <div class="border-default overflow-hidden rounded-sm border bg-black" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
+              <div class="border-default bg-elevated/20 overflow-hidden rounded-sm border" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
                 <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset?.originalName ?? ''" class="h-full w-full object-contain select-none" draggable="false" />
                 <MediaPlayerPlyr v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" type="video" :sources="computedDetailVideoSources" class="h-full w-full" />
                 <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>

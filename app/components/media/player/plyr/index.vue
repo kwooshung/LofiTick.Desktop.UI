@@ -1,9 +1,9 @@
 <template>
   <ClientOnly>
     <div :id="stateId" :class="stateRootClass" :style="stateRootStyle">
-      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="props.poster" :autoplay="props.autoplay" class="size-full" controls playsinline />
-      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" :autoplay="props.autoplay" class="size-full" controls />
-      <div v-else ref="refElement" class="size-full" :data-plyr-provider="stateEmbedProvider" :data-plyr-embed-id="stateEmbedId" />
+      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="props.poster" :autoplay="props.autoplay" class="size-full bg-transparent" controls playsinline />
+      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full bg-transparent" :autoplay="props.autoplay" controls />
+      <div v-else ref="refElement" class="size-full bg-transparent" :data-plyr-provider="stateEmbedProvider" :data-plyr-embed-id="stateEmbedId" />
 
       <Teleport v-if="stateWaveformEnabled && stateWaveformTeleportTarget" :to="stateWaveformTeleportTarget">
         <div class="media-plyr__waveform-overlay">
@@ -1610,6 +1610,13 @@ defineExpose({
 
   /* 变量：提示气泡（Tooltip）阴影 */
   --plyr-tooltip-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+
+  & > ::v-deep(div.plyr),
+  & > ::v-deep(video),
+  & > ::v-deep(audio),
+  & > ::v-deep(.plyr__video-wrapper) {
+    background-color: transparent;
+  }
 
   & > ::v-deep(div.plyr) {
     border-radius: var(--plyr-badge-border-radius);
