@@ -19,7 +19,6 @@ export const card = {
     machineCode: 'マシンID',
     machineRemark: 'マシン備考',
     lastSeen: '最終接続',
-    machineIdentity: 'マシンUUID',
     network: 'ネットワーク',
     logs: 'ログ',
     scenes: 'シーン一覧'
