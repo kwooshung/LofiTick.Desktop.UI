@@ -10,9 +10,11 @@
 
         <USelect v-model="stateEditionScope" :items="editionScopeOptions" value-attribute="value" option-attribute="label" class="w-32" @update:model-value="handleFiltersApply" />
 
+        <USelect v-model="statePlatform" :items="platformOptions" value-attribute="value" option-attribute="label" class="w-36" @update:model-value="handleFiltersApply" />
+
         <USelect v-model="stateEnabled" :items="enabledOptions" value-attribute="value" option-attribute="label" class="w-28" @update:model-value="handleFiltersApply" />
 
-        <UInput v-model="stateKeyword" placeholder="搜索广告标题" :ui="{ trailing: 'pe-1' }" class="w-72 xl:w-80" @keyup.enter="handleFiltersApply">
+        <UInput v-model="stateKeyword" placeholder="搜索广告标题" :ui="{ trailing: 'pe-1' }" class="w-48 xl:w-56" @keyup.enter="handleFiltersApply">
           <template #leading>
             <UIcon name="i-lucide:search" class="text-dimmed size-4" />
           </template>
@@ -33,7 +35,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-import { hotsearchAdEditionScopeOptionsGet } from '@@/shared/utils';
+import { hotsearchAdEditionScopeOptionsGet, hotsearchAdDeliveryPlatformOptionsGet } from '@@/shared/utils';
 
 const EDITION_SCOPE_ALL_VALUE = 'all';
 const ENABLED_ALL_VALUE = 'all';
@@ -64,6 +66,11 @@ const stateKeyword = ref(typeof route.query.keyword === 'string' ? route.query.k
 const stateEditionScope = ref(typeof route.query.editionScope === 'string' ? route.query.editionScope : EDITION_SCOPE_ALL_VALUE);
 
 /**
+ * 状态：平台筛选。
+ */
+const statePlatform = ref(typeof route.query.platform === 'string' ? route.query.platform : '');
+
+/**
  * 状态：启用状态。
  */
 const stateEnabled = ref(typeof route.query.enabled === 'string' ? route.query.enabled : ENABLED_ALL_VALUE);
@@ -72,6 +79,8 @@ const stateEnabled = ref(typeof route.query.enabled === 'string' ? route.query.e
  * 常量：栏目范围选项。
  */
 const editionScopeOptions = [{ label: '全部栏目', value: EDITION_SCOPE_ALL_VALUE }, ...hotsearchAdEditionScopeOptionsGet()];
+
+const platformOptions = computed(() => [{ label: '全部平台', value: '' }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
 
 /**
  * 常量：启用状态选项。
@@ -154,6 +163,10 @@ const handleFiltersApply = () => {
     nextQuery.editionScope = stateEditionScope.value;
   }
 
+  if (statePlatform.value && statePlatform.value !== '') {
+    nextQuery.platform = statePlatform.value;
+  }
+
   if (stateEnabled.value !== ENABLED_ALL_VALUE) {
     nextQuery.enabled = stateEnabled.value;
   }
@@ -206,6 +219,7 @@ watch(
     stateKeyword.value = typeof route.query.keyword === 'string' ? route.query.keyword : '';
     stateEditionScope.value = typeof route.query.editionScope === 'string' ? route.query.editionScope : EDITION_SCOPE_ALL_VALUE;
     stateEnabled.value = typeof route.query.enabled === 'string' ? route.query.enabled : ENABLED_ALL_VALUE;
+    statePlatform.value = typeof route.query.platform === 'string' ? route.query.platform : '';
   }
 );
 </script>

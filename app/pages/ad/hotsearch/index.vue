@@ -2357,6 +2357,13 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     editionScope: String(item.editionScope ?? ''),
     editionMorning: String(item.editionScope ?? '') === 'morning' || String(item.editionScope ?? '') === 'both',
     editionEvening: String(item.editionScope ?? '') === 'evening' || String(item.editionScope ?? '') === 'both',
+    platformIds: Array.isArray((item as any).platformIds) ? (item as any).platformIds.map((v: unknown) => Number(v)) : [],
+    platformKeyFirst: (() => {
+      const pids = Array.isArray((item as any).platformIds) ? (item as any).platformIds : [];
+      if (!pids || pids.length === 0) return '';
+      const opt = adDeliveryPlatformOptions.find((o) => o.id === Number(pids[0]));
+      return opt ? opt.key : '';
+    })()
     placementType: String(item.placementType ?? ''),
     priceText: priceTextGet(Number(item.price ?? 0)),
     priority: Number(item.priority ?? 0),
@@ -2971,7 +2978,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'editionXl',
     accessorKey: 'editionScope',
     header: '栏目',
-    meta: { class: { th: 'hidden 2xl:table-cell w-18 text-sm', td: 'hidden 2xl:table-cell w-18 align-middle' } },
+    meta: { class: { th: 'hidden 3xl:table-cell w-18 text-sm', td: 'hidden 3xl:table-cell w-18 align-middle' } },
     cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
   },
   {
@@ -2979,20 +2986,37 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     header: '早报',
     accessorKey: 'editionMorning',
     meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm' }, row.original.editionMorning ? '✓' : '')
+    cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionMorning), disabled: true })])
   },
   {
     id: 'editionEvening',
     header: '晚报',
     accessorKey: 'editionEvening',
     meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm' }, row.original.editionEvening ? '✓' : '')
+    cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionEvening), disabled: true })])
   },
   {
     id: 'platformXl',
     header: '平台',
     meta: { class: { th: 'hidden 2xl:table-cell w-32 text-sm', td: 'hidden 2xl:table-cell w-32 align-middle' } },
-    cell: ({ row }) => h('span', { class: 'text-sm whitespace-normal break-words' }, platformLabelGet(row.original.frameType))
+    cell: ({ row }) => {
+      const platformKey = String(row.original.platformKeyFirst ?? '');
+      const label = platformLabelGet(row.original.frameType);
+      const to = buildPlatformLocation(platformKey);
+
+      return h(
+        'a',
+        {
+          class: platformKey === (typeof route.query.platform === 'string' ? route.query.platform : '') ? 'text-primary hover:underline text-sm' : 'text-muted hover:text-primary hover:underline text-sm',
+          onClick: (e: Event) => {
+            e.preventDefault();
+            navigateTo(to);
+          },
+          href: to.path + (to.query && Object.keys(to.query).length ? '?' + new URLSearchParams(to.query as Record<string, string>).toString() : '')
+        },
+        label
+      );
+    }
   },
   {
     id: 'priorityXl',
