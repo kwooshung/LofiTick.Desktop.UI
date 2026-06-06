@@ -2696,21 +2696,6 @@ const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, sh
 };
 
 /**
- * 函数：渲染栏目复选框（只读）。
- * @param {IPageTableColumnHotsearchAdMaterial} item 表格行。
- * @returns {VNode} 栏目节点。
- */
-const editionScopeReadonlyCheckboxesRender = (item: IPageTableColumnHotsearchAdMaterial) => {
-  const morningChecked = item.editionScope === 'morning' || item.editionScope === 'both';
-  const eveningChecked = item.editionScope === 'evening' || item.editionScope === 'both';
-
-  return h('div', { class: 'flex flex-wrap items-center gap-x-4 gap-y-1 text-xs' }, [
-    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: morningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.morning'))]),
-    h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: eveningChecked, disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.evening'))])
-  ]);
-};
-
-/**
  * 函数：渲染投放平台链接。
  * @param {IPageTableColumnHotsearchAdMaterial} item 表格行。
  * @returns {VNode} 平台链接节点。
