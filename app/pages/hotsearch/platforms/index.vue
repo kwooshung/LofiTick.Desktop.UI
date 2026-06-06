@@ -1,3 +1,3 @@
 <template>
-  <HotsearchPlatformPanel />
+  <SectionsHotsearchPlatforms />
 </template>

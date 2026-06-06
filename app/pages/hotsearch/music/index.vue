@@ -1,3 +1,3 @@
 <template>
-  <HotsearchMusicPanel />
+  <SectionsHotsearchMusic />
 </template>

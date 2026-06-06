@@ -1,1 +1,3 @@
-<template>Pixabay</template>
+<template>
+  <SectionsCrawlersPixabay />
+</template>

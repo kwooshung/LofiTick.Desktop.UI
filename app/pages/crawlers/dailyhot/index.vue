@@ -1,1 +1,3 @@
-<template>DailyHot</template>
+<template>
+  <SectionsCrawlersDailyhot />
+</template>
