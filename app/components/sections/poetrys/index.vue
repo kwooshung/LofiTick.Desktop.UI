@@ -636,8 +636,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleMedium',
     meta: {
       class: {
-        th: 'w-88 hidden xl:table-cell 2xl:hidden',
-        td: 'w-88 hidden xl:table-cell 2xl:hidden'
+        th: 'w-[30rem] hidden xl:table-cell 2xl:hidden',
+        td: 'w-[30rem] hidden xl:table-cell 2xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -665,8 +665,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleFull',
     meta: {
       class: {
-        th: 'w-88 hidden 2xl:table-cell 5xl:hidden',
-        td: 'w-88 hidden 2xl:table-cell 5xl:hidden'
+        th: 'w-[30rem] hidden 2xl:table-cell 5xl:hidden',
+        td: 'w-[30rem] hidden 2xl:table-cell 5xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -689,8 +689,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleUltra',
     meta: {
       class: {
-        th: 'w-80 hidden 5xl:table-cell',
-        td: 'w-80 hidden 5xl:table-cell'
+        th: 'w-[32rem] hidden 5xl:table-cell',
+        td: 'w-[32rem] hidden 5xl:table-cell'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -753,17 +753,23 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     header: t('pages.poetrys.result.table.dynastyAuthor'),
     cell: ({ row }) => {
       const { dynasty, author } = row.original.infos;
+      const source = row.original.infos as typeof row.original.infos & {
+        dynastyCount?: number;
+        authorCount?: number;
+      };
       const dynastyName = poetryLinkedNameGet(dynasty);
       const authorName = poetryLinkedNameGet(author);
+      const dynastyCount = Number.isFinite(Number(dynasty.count)) ? Math.max(0, Math.trunc(Number(dynasty.count))) : Math.max(0, Math.trunc(Number(source.dynastyCount ?? 0)));
+      const authorCount = Number.isFinite(Number(author.count)) ? Math.max(0, Math.trunc(Number(author.count))) : Math.max(0, Math.trunc(Number(source.authorCount ?? 0)));
 
       if (dynastyName === '' && authorName === '') {
         return '';
       }
 
-      return h('div', { class: 'text-sm text-muted mt-1' }, [
-        ...(dynastyName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', dynasty.id) }, () => `${dynastyName}（${dynasty.count}）`)]),
-        ...(dynastyName !== '' && authorName !== '' ? [' · '] : []),
-        ...(authorName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', author.id) }, () => `${authorName}（${author.count}）`)])
+      return h('div', { class: 'mt-1 flex flex-nowrap items-center gap-x-2 text-sm text-muted whitespace-nowrap' }, [
+        ...(dynastyName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-muted no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', dynasty.id) }, () => `${dynastyName}（${dynastyCount}）`)]),
+        ...(dynastyName !== '' && authorName !== '' ? [h('span', { class: 'shrink-0 text-muted/70' }, '·')] : []),
+        ...(authorName === '' ? [] : [h(ULink, { raw: true, class: 'p-0 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-muted no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', author.id) }, () => `${authorName}（${authorCount}）`)])
       ]);
     }
   },
@@ -784,10 +790,16 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
             ULink,
             {
               raw: true,
-              class: 'p-0 no-underline text-muted hover:text-primary hover:underline',
+              class: 'p-0 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-muted no-underline hover:text-primary hover:underline',
               to: buildSingleFilterLocation('dynasty_ids', row.original.infos.dynasty.id)
             },
-            () => `${poetryLinkedNameGet(row.original.infos.dynasty)}（${row.original.infos.dynasty.count}）`
+            () => {
+              const dynasty = row.original.infos.dynasty;
+              const source = row.original.infos as typeof row.original.infos & { dynastyCount?: number };
+              const count = Number.isFinite(Number(dynasty.count)) ? Math.max(0, Math.trunc(Number(dynasty.count))) : Math.max(0, Math.trunc(Number(source.dynastyCount ?? 0)));
+
+              return `${poetryLinkedNameGet(dynasty)}（${count}）`;
+            }
           )
   },
   {
@@ -806,10 +818,16 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
             ULink,
             {
               raw: true,
-              class: 'p-0 no-underline text-muted hover:text-primary hover:underline',
+              class: 'p-0 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-muted no-underline hover:text-primary hover:underline',
               to: buildSingleFilterLocation('author_ids', row.original.infos.author.id)
             },
-            () => `${poetryLinkedNameGet(row.original.infos.author)}（${row.original.infos.author.count}）`
+            () => {
+              const author = row.original.infos.author;
+              const source = row.original.infos as typeof row.original.infos & { authorCount?: number };
+              const count = Number.isFinite(Number(author.count)) ? Math.max(0, Math.trunc(Number(author.count))) : Math.max(0, Math.trunc(Number(source.authorCount ?? 0)));
+
+              return `${poetryLinkedNameGet(author)}（${count}）`;
+            }
           )
   },
   {
