@@ -79,7 +79,7 @@
             <div class="relative z-10 hidden shrink-0 items-center gap-2 md:flex">
               <SelectsPagesizes cache-key="hotsearch" />
 
-              <UInput v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-72 xl:w-80" @keyup.enter="handleKeywordApply">
+              <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.hotsearch.data.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-72 xl:w-80" @keyup.enter="handleKeywordApply">
                 <template #leading>
                   <UIcon name="i-lucide:search" class="text-dimmed size-4" />
                 </template>
@@ -87,6 +87,7 @@
                 <template #trailing>
                   <div class="flex items-center">
                     <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+                    <UKbd v-else value="/" class="ms-1" />
                   </div>
                 </template>
               </UInput>
@@ -260,6 +261,11 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * 状态：工具栏关键词。
  */
 const stateToolbarKeyword = ref('');
+
+/**
+ * 引用：工具栏搜索框。
+ */
+const refToolbarSearchInput = useTemplateRef('refToolbarSearchInput');
 
 /**
  * API：热搜日期摘要。
@@ -1154,4 +1160,18 @@ const handleFilterReset = (): void => {
     }
   });
 };
+
+/**
+ * 快捷键
+ */
+defineShortcuts({
+  /**
+   * 聚焦搜索框
+   */
+  '/': () => {
+    if (computedRouteIsDataSection.value) {
+      refToolbarSearchInput.value?.inputRef?.focus();
+    }
+  }
+});
 </script>
