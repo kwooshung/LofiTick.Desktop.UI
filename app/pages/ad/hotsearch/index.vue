@@ -10,10 +10,10 @@
           sticky
           :ui="{
             base: 'table-fixed border-separate border-spacing-0',
-            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-            tbody: '[&>tr]:last:[&>td]:border-b-0',
-            th: 'py-2 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-            td: 'border-b border-default align-top',
+            thead: '[&>tr]:bg-gradient-to-r [&>tr]:from-elevated/80 [&>tr]:to-elevated/40 [&>tr]:after:content-none',
+            tbody: '[&>tr]:last:[&>td]:border-b-0 [&>tr]:hover:bg-elevated/25 [&>tr]:transition-colors [&>tr]:duration-150',
+            th: 'py-3 px-3 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r font-semibold',
+            td: 'border-b border-default align-top py-4 px-3',
             separator: 'h-0'
           }"
         />
@@ -303,7 +303,7 @@
         <div class="space-y-4">
           <div class="flex flex-wrap gap-2">
             <UBadge :color="stateDetailRow.isEnabled ? 'primary' : 'neutral'" variant="soft">{{ stateDetailRow.isEnabled ? t('pages.ads.hotsearch.status.enabled') : t('pages.ads.hotsearch.status.disabled') }}</UBadge>
-            <UBadge color="neutral" variant="soft">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }}</UBadge>
+            <UBadge color="neutral" variant="soft">{{ presentationTypeLabelGet(stateDetailRow.presentationType) }} </UBadge>
             <UBadge color="neutral" variant="soft">{{ placementTypeLabelGet(stateDetailRow.placementType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ materialTypeLabelGet(stateDetailRow.materialType) }}</UBadge>
             <UBadge color="neutral" variant="soft">{{ frameTypeLabelGet(stateDetailRow.frameType) }}</UBadge>
@@ -332,7 +332,7 @@
             <template v-if="stateDetailRow.asset">
               <div class="bg-elevated/35 border-default space-y-3 rounded-sm border px-3 py-3">
                 <div class="flex flex-wrap gap-2 text-xs">
-                  <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }}</UBadge>
+                  <UBadge color="neutral" variant="soft">{{ fileSizeTextGet(stateDetailRow.asset.fileSizeBytes) }} </UBadge>
                   <UBadge v-if="stateDetailRow.asset.width > 0 && stateDetailRow.asset.height > 0" color="neutral" variant="soft">{{ `${stateDetailRow.asset.width} × ${stateDetailRow.asset.height}` }}</UBadge>
                   <UBadge v-if="stateDetailRow.asset.durationMs > 0" color="neutral" variant="soft">{{ durationTextGet(stateDetailRow.asset.durationMs) }}</UBadge>
                 </div>
@@ -2682,7 +2682,7 @@ const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, sh
     adInfoChipRender(t('pages.ads.hotsearch.table.placementType'), placementTypeLabelGet(item.placementType))
   ];
 
-  return h('div', { class: 'space-y-2 py-1' }, [h('div', { class: 'text-sm leading-6 text-highlighted whitespace-normal break-words' }, title), h('div', { class: 'flex flex-wrap gap-1.5' }, primaryChips), ...(showAssetMeta ? [h('div', { class: 'flex flex-wrap gap-1.5' }, assetChips)] : [])]);
+  return h('div', { class: 'space-y-2 py-1' }, [h('div', { class: 'text-sm leading-6 text-highlighted whitespace-normal break-words' }, title), ...(showAssetMeta ? [h('div', { class: 'flex flex-wrap gap-1.5' }, assetChips)] : []), h('div', { class: 'flex flex-wrap gap-1.5' }, primaryChips)]);
 };
 
 /**
@@ -2740,7 +2740,7 @@ const platformLinksRender = (item: IPageTableColumnHotsearchAdMaterial) => {
  * @returns {VNode} 价格节点。
  */
 const priceCellRender = (amount: string) => {
-  return h('span', { class: 'inline-flex items-baseline justify-end gap-1 text-sm font-medium text-amber-500' }, [h('span', { class: 'text-xs text-amber-400' }, '￥'), h('span', amount)]);
+  return h('span', { class: 'inline-flex items-baseline justify-end gap-1 text-sm text-amber-500 bg-gradient-to-r from-amber-500/10 to-transparent px-3 py-1.5 rounded-full' }, [h('span', { class: 'text-xs text-amber-400' }, '￥'), h('span', amount)]);
 };
 /**
  * 计算属性：表格数据。
