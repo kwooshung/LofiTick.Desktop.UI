@@ -429,7 +429,7 @@ export const settings = {
         divider: 'Divider'
       }
     },
-    actions: {
+    headMusicActions: {
       selectHeadMusic: 'Select music',
       previewHeadMusic: 'Preview',
       reuploadHeadMusic: 'Re-upload',

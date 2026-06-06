@@ -36,11 +36,11 @@
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
           <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="props.disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
-            {{ hotsearchTextGet('pages.settings.hotsearch.actions.previewHeadMusic', '试听') }}
+            {{ hotsearchTextGet('pages.settings.hotsearch.headMusicActions.previewHeadMusic', '试听') }}
           </UButton>
 
           <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="props.disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
-            {{ item.remoteExists ? hotsearchTextGet('pages.settings.hotsearch.actions.reuploadHeadMusic', '重新上传') : hotsearchTextGet('pages.settings.hotsearch.actions.selectHeadMusic', '选择音乐') }}
+            {{ item.remoteExists ? hotsearchTextGet('pages.settings.hotsearch.headMusicActions.reuploadHeadMusic', '重新上传') : hotsearchTextGet('pages.settings.hotsearch.headMusicActions.selectHeadMusic', '选择音乐') }}
           </UButton>
         </div>
       </div>

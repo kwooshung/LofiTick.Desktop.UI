@@ -91,7 +91,7 @@ const computedDialogDescription = computed(() => {
  * 计算属性：选择按钮文案。
  */
 const computedSelectLabel = computed(() => {
-  return te('pages.settings.hotsearch.actions.chooseAttachmentsDir') ? t('pages.settings.hotsearch.actions.chooseAttachmentsDir') : '选择附件目录';
+  return te('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') ? t('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') : '选择附件目录';
 });
 
 /**
