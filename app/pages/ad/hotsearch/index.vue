@@ -568,7 +568,7 @@ const stateDetailPlayerVisible = ref(false);
 /**
  * 引用：详情视频播放器实例。
  */
-const refDetailPlayer = ref<{ play: () => Promise<void> } | null>(null);
+const refDetailPlayer = ref<{ player: { play: () => Promise<void> } | null } | null>(null);
 
 /**
  * 状态：详情广告文案行。
@@ -3065,7 +3065,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
         await nextTick();
         stateDetailPlayerVisible.value = true;
         await nextTick();
-        await refDetailPlayer.value?.play();
+        await refDetailPlayer.value?.player?.play();
       }
     } catch (error) {
       stateDetailAssetPreviewLoading.value = false;
