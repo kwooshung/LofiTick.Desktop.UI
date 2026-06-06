@@ -104,6 +104,8 @@
 - 如果怀疑是“没有全局导入”而不是“类型/变量不存在”，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。
 - Vue SFC 宏例外（强制）：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 这类编译期宏所使用的类型参数，必须优先使用当前文件可静态解析的显式 `import type`；不要依赖 Nuxt 的全局自动导入类型去喂给这些宏，否则可能出现 `Unresolvable type reference` 编译错误。
 
+- Vue 页面与组件中，禁止使用 `te(...)` 先判断翻译键是否存在再决定是否调用 `t(...)`；应直接调用 `t(...)`，缺失的翻译键必须补齐到对应 `i18n` 文件，禁止用运行时探测键存在性来兜底。
+
 ### 3.2.1 导入路径（强制）
 
 - 强制：在本项目运行时代码目录 `app/**`、`shared/**`、`server/**`、`i18n/**` 中，只要导入目标属于当前项目内部模块，就禁止继续使用相对路径 `./`、`../`；必须改为别名路径。
@@ -278,6 +280,10 @@
 
 > 本节规则优先于第 5 节的"通用类型规则"。
 
+- `app/pages/**` 中的页面实现应优先下沉到 `app/components/sections/**`；页面文件只保留路由壳或薄 wrapper，子目录页面必须对应独立的 section 实现，禁止把完整业务逻辑长期留在 page 文件里。
+- `app/components/sections/**` 视为页面业务实现层。新增或修改页面时，必须先检查这里是否已有可复用实现；能复用就直接复用或扩展，不要在 `app/pages/**` 和 `app/components/sections/**` 两处并行维护同一份页面逻辑。
+- 该规则主要适用于 `app/pages/**` 的子目录页面；根目录 `app/pages/*.vue` 作为顶层页壳，除非明确要求，不要随意抽离或改写。
+
 - `app/pages/**` 内：禁止新增任何 `interface` 或 `type` 声明（不论复杂度、使用次数、是否仅用于本页）。
 - 页面需要类型：必须新增到 `shared/types/pages/...`。
 - 并且必须在 `shared/types/index.types.ts` 导出，以便 Nuxt 全局自动导入。
@@ -302,6 +308,7 @@
 - 翻译必须符合母语者习惯用法，禁止生硬直译，需要润色自然流畅。
 - 语言文件目录：`i18n/`，文件命名：`zh.cn.ts` / `zh.tw.ts` / `en.ts` / `ja.ts`。
 - locale 配置在 `configs/nuxt/index.ts` 的 `i18n` 字段，默认语言为 `zh_cn`。
+- 在 Vue 页面和组件中，不要用 `te(...)` 探测某个键是否存在再分支渲染；应直接使用 `t(...)`。如果键缺失，先补齐四语 `i18n` 文案，再使用该键。
 
 ---
 

@@ -1,12 +1,12 @@
 <template>
-  <UModal :open="props.open" :title="computedDialogTitle" :description="computedDialogDescription" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }" @update:open="eventUpdateOpen">
+  <UModal :open="props.open" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }" @update:open="eventUpdateOpen">
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
         <UButton color="neutral" variant="ghost" @click="eventUpdateOpen(false)">
           {{ t('common.actions.cancel') }}
         </UButton>
         <UButton color="primary" :loading="stateSelecting" @click="eventSelectPath">
-          {{ computedSelectLabel }}
+          {{ t('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') }}
         </UButton>
       </div>
     </template>
@@ -51,7 +51,7 @@ interface ISettingsHotsearchAttachmentsDirDialogEmits {
 /**
  * Hook：国际化。
  */
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 /**
  * Hook：Tauri 设置。
@@ -72,27 +72,6 @@ const emit = defineEmits<ISettingsHotsearchAttachmentsDirDialogEmits>();
  * 状态：是否正在选择附件目录。
  */
 const stateSelecting = ref(false);
-
-/**
- * 计算属性：弹窗标题。
- */
-const computedDialogTitle = computed(() => {
-  return te('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title') ? t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title') : '需要先设置附件目录';
-});
-
-/**
- * 计算属性：弹窗说明。
- */
-const computedDialogDescription = computed(() => {
-  return te('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description') ? t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description') : '先选一个附件目录，再继续上传或开启生成播客。';
-});
-
-/**
- * 计算属性：选择按钮文案。
- */
-const computedSelectLabel = computed(() => {
-  return te('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') ? t('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') : '选择附件目录';
-});
 
 /**
  * 函数：更新弹窗开关。
@@ -128,7 +107,7 @@ const eventSelectPath = async (): Promise<void> => {
   stateSelecting.value = true;
 
   try {
-    const picked = await tauriSettings.setAttachmentsDir(computedDialogTitle.value, String(props.currentPath || '').trim());
+    const picked = await tauriSettings.setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), String(props.currentPath || '').trim());
 
     if (!picked) {
       return;
