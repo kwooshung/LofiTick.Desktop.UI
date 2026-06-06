@@ -324,7 +324,7 @@
             >
               <div class="border-default bg-elevated/20 overflow-hidden rounded-sm border" :class="computedDetailPreviewFrameClass" :style="computedDetailPreviewFrameStyle">
                 <img v-if="stateDetailRow.materialType === 'image' && stateDetailAssetPreviewUrl" :src="stateDetailAssetPreviewUrl" :alt="stateDetailRow.asset?.originalName ?? ''" class="h-full w-full object-contain select-none" draggable="false" />
-                <MediaPlayerPlyr v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl" type="video" :sources="computedDetailVideoSources" class="h-full w-full" />
+                <MediaPlayerPlyr v-else-if="stateDetailRow.materialType === 'video' && stateDetailAssetPreviewUrl && stateDetailPlayerVisible" ref="refDetailPlayer" type="video" :sources="computedDetailVideoSources" class="h-full w-full" autoplay />
                 <div v-else class="text-muted flex h-full items-center justify-center text-sm">{{ t('pages.ads.hotsearch.preview.emptyPreview') }}</div>
               </div>
             </Spin>
@@ -559,6 +559,16 @@ const stateDetailAssetPreviewUrl = ref('');
  * 状态：详情素材预览加载中。
  */
 const stateDetailAssetPreviewLoading = ref(false);
+
+/**
+ * 状态：详情视频播放器是否可见。
+ */
+const stateDetailPlayerVisible = ref(false);
+
+/**
+ * 引用：详情视频播放器实例。
+ */
+const refDetailPlayer = ref<{ play: () => Promise<void> } | null>(null);
 
 /**
  * 状态：详情广告文案行。
@@ -2997,6 +3007,8 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
 
   stateDetailLines.value = [];
   stateDetailNotes.value = '';
+  stateDetailPlayerVisible.value = false;
+  refDetailPlayer.value = null;
 
   stateDetailRow.value = {
     id: Number(source.id ?? 0),
@@ -3047,6 +3059,14 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
       stateDetailNotes.value = String(detail.notes ?? '').trim();
 
       await detailAssetPreviewLoad(detail.asset ?? null);
+
+      // 如果是视频，自动播放
+      if (stateDetailRow.value.materialType === 'video' && stateDetailAssetPreviewUrl.value !== '') {
+        await nextTick();
+        stateDetailPlayerVisible.value = true;
+        await nextTick();
+        await refDetailPlayer.value?.play();
+      }
     } catch (error) {
       stateDetailAssetPreviewLoading.value = false;
       toast.add({
@@ -3394,21 +3414,25 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     id: 'editionXl',
     accessorKey: 'editionScope',
     header: t('pages.ads.hotsearch.table.editionScope'),
-    meta: { class: { th: 'hidden 2xl:table-cell 3xl:hidden w-18 text-sm', td: 'hidden 2xl:table-cell 3xl:hidden w-18 align-middle' } },
-    cell: ({ row }) => editionScopeReadonlyCheckboxesRender(row.original)
+    meta: { class: { th: 'hidden 2xl:table-cell 3xl:hidden w-18 text-sm text-left', td: 'hidden 2xl:table-cell 3xl:hidden w-18 align-middle' } },
+    cell: ({ row }) =>
+      h('div', { class: 'flex items-center gap-x-4 text-xs' }, [
+        h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionScope === 'morning' || row.original.editionScope === 'both'), disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.morning'))]),
+        h('div', { class: 'flex items-center gap-1.5' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionScope === 'evening' || row.original.editionScope === 'both'), disabled: true }), h('span', { class: 'text-muted' }, t('pages.ads.hotsearch.table.evening'))])
+      ])
   },
   {
     id: 'editionMorning',
     header: t('pages.ads.hotsearch.table.morning'),
     accessorKey: 'editionMorning',
-    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
+    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm text-center', td: 'hidden 3xl:table-cell w-14 align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionMorning), disabled: true })])
   },
   {
     id: 'editionEvening',
     header: t('pages.ads.hotsearch.table.evening'),
     accessorKey: 'editionEvening',
-    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm', td: 'hidden 3xl:table-cell w-14 align-middle' } },
+    meta: { class: { th: 'hidden 3xl:table-cell w-14 text-sm text-center', td: 'hidden 3xl:table-cell w-14 align-middle' } },
     cell: ({ row }) => h('div', { class: 'flex items-center justify-center' }, [h(UCheckbox, { modelValue: Boolean(row.original.editionEvening), disabled: true })])
   },
   {
@@ -3726,6 +3750,8 @@ watch(
       detailAssetPreviewClear();
       stateDetailLines.value = [];
       stateDetailNotes.value = '';
+      stateDetailPlayerVisible.value = false;
+      refDetailPlayer.value = null;
     }
   }
 );
