@@ -43,11 +43,6 @@ const Datetime = resolveComponent('Datetime');
 const UBadge = resolveComponent('UBadge');
 
 /**
- * 组件：按钮。
- */
-const UButton = resolveComponent('UButton');
-
-/**
  * 组件：图标。
  */
 const UIcon = resolveComponent('UIcon');
