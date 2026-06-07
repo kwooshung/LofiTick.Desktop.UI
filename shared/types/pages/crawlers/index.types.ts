@@ -44,6 +44,23 @@ export interface IQueryResultCrawlerTargetRow {
 }
 
 /**
+ * 接口：爬虫目标站点列表分页响应。
+ */
+export interface IQueryResultCrawlerTargetSummaryPage {
+  /** 行列表 */
+  rows: IQueryResultCrawlerTargetRow[];
+
+  /** 当前页 */
+  page: number;
+
+  /** 每页数量 */
+  pageSize: number;
+
+  /** 总数 */
+  total: number;
+}
+
+/**
  * 接口：爬虫目标站点表单。
  */
 export interface IPageCrawlerTargetForm {

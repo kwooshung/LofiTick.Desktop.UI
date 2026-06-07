@@ -1,11 +1,20 @@
 <template>
-  <div class="flex flex-col">
-    <DashboardPage direction="horizontal" :padded="false" class="p-4 sm:gap-3 sm:p-3">
-      <template v-if="computedCrawlerRows.length > 0">
-        <Folder v-for="item in computedCrawlerRows" :key="item.id" :label="item.name" icon-name="i-lucide:globe" :to="localePath(`/crawlers/${encodeURIComponent(item.domain)}`)" />
-      </template>
-      <div v-else class="flex flex-1 items-center justify-center py-12">
-        <UEmpty icon="i-lucide:globe" :title="t('pages.crawlers.targets.empty.title')" :description="t('pages.crawlers.targets.empty.description')" />
+  <div class="flex min-h-0 flex-1 flex-col">
+    <DashboardPage :padded="false" class="flex-1 p-4 sm:gap-3 sm:p-3">
+      <div class="flex w-full flex-1 flex-col gap-3">
+        <div v-if="computedCrawlerRows.length > 0" class="flex w-full flex-1 flex-wrap content-start justify-start gap-4">
+          <Folder v-for="item in computedCrawlerRows" :key="item.id" :label="item.name" icon-name="i-lucide:globe" :to="localePath(`/crawlers/${encodeURIComponent(item.domain)}`)" />
+        </div>
+        <div v-else class="flex flex-1 items-center justify-center py-12">
+          <UEmpty icon="i-lucide:globe" :title="t('pages.crawlers.targets.empty.title')" :description="t('pages.crawlers.targets.empty.description')" />
+        </div>
+
+        <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+          <div class="muted text-sm">{{ t('components.pagination.total', { total: computedTotal }) }}</div>
+          <div class="flex items-center gap-1.5">
+            <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="computedTotal" />
+          </div>
+        </div>
       </div>
     </DashboardPage>
 
@@ -46,6 +55,7 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 import UrlInput from '@/components/form/url-input/index.vue';
+import type { IQueryResultCrawlerTargetSummaryPage } from '@@/shared/types/index.types';
 
 /**
  * Hook：国际化
@@ -56,6 +66,24 @@ const { t } = useI18n();
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
+
+/**
+ * 路由：当前页面路由。
+ */
+const route = useRoute();
+
+/**
+ * 组件：分页。
+ */
+const UPagination = resolveComponent('UPagination');
+
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
 
 /**
  * Props
@@ -107,17 +135,102 @@ const stateEditor = ref<IPageCrawlerTargetForm>({
 });
 
 /**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const pagesize = String(route.query.pagesize ?? '').trim();
+
+  if (pagesize !== '') {
+    return pagesize;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'crawlers'));
+};
+
+/**
+ * 函数：从路由构建列表查询参数。
+ * @returns {Record<string, string>} 查询参数。
+ */
+const buildCrawlerQueryFromRoute = (): Record<string, string> => {
+  const query: Record<string, string> = {};
+
+  const keyword = String(route.query.keyword ?? props.keyword ?? '').trim();
+  if (keyword !== '') {
+    query.keyword = keyword;
+  }
+
+  const page = String(route.query.page ?? '').trim();
+  if (page !== '') {
+    query.page = page;
+  }
+
+  query.pagesize = currentPageSizeGet();
+
+  return query;
+};
+
+/**
  * API：获取站点列表
  */
-const { datas: stateDatas, refresh: refreshList } = await useApi<{ rows: IQueryResultCrawlerTargetRow[] }>('crawlers/targets', {
+const { datas: stateDatas, refresh: refreshList } = await useApi<IQueryResultCrawlerTargetSummaryPage>('crawlers/targets', {
   immediate: true,
-  query: String(props.keyword ?? '').trim() !== '' ? { keyword: String(props.keyword).trim() } : undefined
+  datas: buildCrawlerQueryFromRoute()
 });
 
 /**
  * 计算属性：爬虫目标站点列表。
  */
 const computedCrawlerRows = computed<IQueryResultCrawlerTargetRow[]>(() => stateDatas.value?.rows ?? []);
+
+/**
+ * 计算属性：列表总数。
+ */
+const computedTotal = computed<number>(() => Number(stateDatas.value?.total ?? 0));
+
+/**
+ * 计算属性：当前页。
+ */
+const computedPage = computed<number>({
+  get: () => {
+    const parsed = parseInt(String(route.query.page ?? ''), 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  },
+  set: (value: number) => {
+    navigateTo({
+      path: route.path,
+      query: {
+        ...route.query,
+        page: String(Math.max(1, value))
+      }
+    });
+  }
+});
+
+/**
+ * 计算属性：每页数量。
+ */
+const computedItemsPerPage = computed<number>(() => {
+  const parsed = parseInt(String(route.query.pagesize ?? ''), 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'crawlers');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
+  }
+
+  const apiSize = Number(stateDatas.value?.pageSize ?? 20);
+  return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
+});
+
+watch(
+  () => route.query,
+  () => {
+    refreshList({ datas: buildCrawlerQueryFromRoute(), replace: true });
+  }
+);
 
 /**
  * API：域名查重（防抖请求）
@@ -280,6 +393,6 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   });
 
   stateEditorOpen.value = false;
-  await refreshList();
+  await refreshList({ datas: buildCrawlerQueryFromRoute(), replace: true });
 };
 </script>
