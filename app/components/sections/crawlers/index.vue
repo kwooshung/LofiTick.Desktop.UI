@@ -110,14 +110,8 @@ const stateEditor = ref<IPageCrawlerTargetForm>({
  * API：获取站点列表
  */
 const { datas: stateDatas, refresh: refreshList } = await useApi<{ rows: IQueryResultCrawlerTargetRow[] }>('crawlers/targets', {
+  immediate: true,
   query: String(props.keyword ?? '').trim() !== '' ? { keyword: String(props.keyword).trim() } : undefined
-});
-
-/**
- * 生命周期：组件挂载后刷新站点列表。
- */
-onMounted(() => {
-  void refreshList();
 });
 
 /**
