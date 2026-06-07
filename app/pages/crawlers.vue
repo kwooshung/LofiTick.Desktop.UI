@@ -44,11 +44,44 @@
     </template>
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
+
+    <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
+      <template #body>
+        <UForm id="crawlerTargetEditorForm" :schema="schema" :state="stateEditor" class="w-full max-w-none space-y-4" @submit="handleEditorSubmit">
+          <UFormField required name="name" :label="t('pages.crawlers.targets.form.name.label')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <UInput v-model="stateEditor.name" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.name.placeholder')" />
+          </UFormField>
+
+          <UFormField required name="domain" :label="t('pages.crawlers.targets.form.domain.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <UrlInput v-model="stateEditor.domain" base-url-only class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.domain.placeholder')" />
+            <template #error="{ error }">
+              <p v-if="error">{{ error }}</p>
+            </template>
+          </UFormField>
+
+          <UFormField name="description" :label="t('pages.crawlers.targets.form.description.label')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <UTextarea v-model="stateEditor.description" class="w-full" :rows="3" autoresize :placeholder="t('pages.crawlers.targets.form.description.placeholder')" />
+          </UFormField>
+
+          <UFormField name="isEnabled" :label="t('pages.crawlers.targets.form.isEnabled.label')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <USwitch v-model="stateEditor.isEnabled" />
+          </UFormField>
+        </UForm>
+      </template>
+
+      <template #footer="{ close }">
+        <UButton type="button" color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
+        <UButton type="submit" form="crawlerTargetEditorForm" icon="i-lucide-save" color="primary" :disabled="!computedCanSubmit">{{ t('common.actions.save') }}</UButton>
+      </template>
+    </UModal>
   </Dashboard>
 </template>
 
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
+import { z } from 'zod';
+
+import UrlInput from '@/components/form/url-input/index.vue';
 
 /**
  * Hook：国际化
@@ -86,6 +119,14 @@ const computedPathExecutions = computed(() => localePath('/crawlers/executions')
 const computedRouteIsDetail = computed<boolean>(() => typeof route.params.domain === 'string' && route.params.domain.trim() !== '');
 
 /**
+ * 计算属性：站点域名
+ */
+const computedDomain = computed<string>(() => {
+  const value = route.params.domain;
+  return typeof value === 'string' ? value : Array.isArray(value) ? value[0] ?? '' : '';
+});
+
+/**
  * 函数：将域名转换为站点显示名
  * @param {string} domain 域名
  * @returns {string} 站点显示名
@@ -115,6 +156,123 @@ const stateCreateNonce = ref(0);
 const stateToolbarKeyword = ref('');
 
 /**
+ * 状态：编辑器开关
+ */
+const stateEditorOpen = ref(false);
+
+/**
+ * 状态：编辑器表单
+ */
+const stateEditor = ref<IPageCrawlerTargetForm>({
+  id: 0,
+  name: '',
+  domain: '',
+  description: '',
+  isEnabled: true
+});
+
+/**
+ * 常量：表单验证规则
+ */
+const schema = z.object({
+  id: z.number().optional(),
+  name: z
+    .string({ message: t('pages.crawlers.targets.form.name.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.name.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.name.verify.length')),
+  domain: z
+    .string({ message: t('pages.crawlers.targets.form.domain.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.domain.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.domain.verify.length'))
+    .regex(/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/, t('pages.crawlers.targets.form.domain.verify.pattern')),
+  description: z.string().optional(),
+  isEnabled: z.boolean().optional()
+});
+
+/**
+ * API：获取站点详情
+ */
+const { datas: stateDetail, refresh: refreshDetail } = await useApi<IQueryResultCrawlerTargetRow>(`crawlers/targets/${computedDomain.value}`, {
+  immediate: computedRouteIsDetail.value
+});
+
+/**
+ * API：域名查重（防抖请求）
+ */
+const {
+  datas: stateUniqueDatas,
+  loading: stateUniqueLoading,
+  refreshDebounced: refreshUniqueDebounced
+} = await useApi<{ domainExists: boolean }>('crawlers/targets/unique', {
+  datas: {},
+  immediate: false
+});
+
+/**
+ * 状态：域名查重结果
+ */
+const stateUniqueDomainExists = ref(false);
+
+/**
+ * 状态：当前正在查重的域名字段
+ */
+const stateUniqueCheckingDomain = ref(false);
+
+/**
+ * 计算属性：当前编辑标题
+ */
+const computedEditorTitle = computed<string>(() => {
+  return stateEditor.value.id > 0 ? t('pages.crawlers.targets.edit') : t('pages.crawlers.targets.add');
+});
+
+/**
+ * 计算属性：域名查重提示
+ */
+const computedUniqueDomainHelp = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const domain = String(stateEditor.value.domain ?? '').trim();
+  if (!domain) {
+    return undefined;
+  }
+
+  const valid = schema.pick({ domain: true }).safeParse({ domain }).success;
+  if (!valid) {
+    return undefined;
+  }
+
+  if (stateUniqueLoading.value && stateUniqueCheckingDomain.value) {
+    return t('pages.crawlers.targets.form.unique.checking');
+  }
+  return undefined;
+});
+
+/**
+ * 计算属性：域名查重错误
+ */
+const computedUniqueDomainError = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const domain = String(stateEditor.value.domain ?? '').trim();
+  if (!domain) {
+    return undefined;
+  }
+
+  return stateUniqueDomainExists.value ? t('pages.crawlers.targets.form.unique.domainExists') : undefined;
+});
+
+/**
+ * 计算属性：表单是否可提交
+ */
+const computedCanSubmit = computed(() => schema.safeParse({ ...stateEditor.value }).success && !stateUniqueDomainExists.value);
+
+/**
  * Store：面包屑
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -123,20 +281,64 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * 计算属性：详情页标题
  */
 const computedRouteDetailTitle = computed<string>(() => {
-  const last = storeBreadcrumb.states.at(-1)?.label;
-  if (typeof last === 'string' && last.trim() !== '') {
-    return last;
+  const detailName = String(stateDetail.value?.name ?? '').trim();
+  if (detailName !== '') {
+    return detailName;
   }
 
-  const domain = typeof route.params.domain === 'string' ? route.params.domain.trim() : '';
+  const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
 });
+
+/**
+ * 监听：站点详情变化时同步面包屑
+ */
+watch(
+  stateDetail,
+  (value) => {
+    if (!computedRouteIsDetail.value) {
+      return;
+    }
+
+    const title = String(value?.name ?? computedDomain.value).trim() || computedDomain.value;
+
+    storeBreadcrumb.states = [
+      {
+        label: t('pages.home.title'),
+        icon: 'i-mdi:view-dashboard-outline',
+        to: localePath('/'),
+        exact: true
+      },
+      {
+        label: t('pages.crawlers.title'),
+        icon: 'i-lucide:bug',
+        to: computedPathTargets.value,
+        exact: true
+      },
+      {
+        label: title,
+        icon: 'i-lucide:globe',
+        to: localePath(`/crawlers/${encodeURIComponent(computedDomain.value)}`),
+        exact: true
+      }
+    ];
+  },
+  { immediate: true }
+);
 
 /**
  * 事件：编辑站点
  */
 const handleEditTarget = () => {
-  // TODO: 打开编辑弹窗
+  stateEditor.value = {
+    id: Number(stateDetail.value?.id ?? 0),
+    name: String(stateDetail.value?.name ?? ''),
+    domain: String(stateDetail.value?.domain ?? computedDomain.value),
+    description: String(stateDetail.value?.description ?? ''),
+    isEnabled: Boolean(stateDetail.value?.isEnabled ?? true)
+  };
+
+  stateEditorOpen.value = true;
 };
 
 /**
@@ -144,6 +346,78 @@ const handleEditTarget = () => {
  */
 const handleAddTask = () => {
   // TODO: 打开添加任务弹窗
+};
+
+/**
+ * 监听：查重接口返回
+ */
+watch(
+  stateUniqueDatas,
+  (val) => {
+    stateUniqueDomainExists.value = Boolean(val?.domainExists);
+  },
+  { immediate: true }
+);
+
+watch(stateUniqueLoading, (isLoading) => {
+  if (!isLoading) {
+    stateUniqueCheckingDomain.value = false;
+  }
+});
+
+/**
+ * 监听：编辑器打开/输入变化时触发查重（防抖）
+ */
+watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.domain], ([isOpen]) => {
+  if (!isOpen) {
+    stateUniqueDomainExists.value = false;
+    stateUniqueCheckingDomain.value = false;
+    return;
+  }
+
+  const id = Number(stateEditor.value.id ?? 0);
+  const domain = String(stateEditor.value.domain ?? '').trim();
+
+  if (!domain) {
+    stateUniqueDomainExists.value = false;
+    stateUniqueCheckingDomain.value = false;
+    return;
+  }
+
+  const shouldCheckDomain = !!domain && schema.pick({ domain: true }).safeParse({ domain }).success;
+
+  if (!shouldCheckDomain) {
+    stateUniqueDomainExists.value = false;
+    stateUniqueCheckingDomain.value = false;
+    return;
+  }
+
+  stateUniqueCheckingDomain.value = true;
+  refreshUniqueDebounced({ datas: { id, domain }, replace: true });
+});
+
+/**
+ * API：保存（新增/编辑）
+ */
+const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
+
+/**
+ * 事件：提交表单
+ */
+const handleEditorSubmit = async (event: FormSubmitEvent<IPageCrawlerTargetForm>) => {
+  await refreshSave({
+    datas: {
+      id: event.data.id,
+      name: event.data.name,
+      domain: event.data.domain,
+      description: event.data.description ?? '',
+      isEnabled: event.data.isEnabled ?? true
+    },
+    replace: true
+  });
+
+  stateEditorOpen.value = false;
+  await refreshDetail({ replace: true });
 };
 
 /**
