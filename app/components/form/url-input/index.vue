@@ -1,15 +1,26 @@
 <template>
-  <div class="border-accented focus-within:border-primary inline-flex w-full items-center overflow-hidden rounded-sm border transition-colors duration-300">
-    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" variant="none" :disabled="props.readonly || props.disabled" :class="[props.protocolSelectClass, 'border-default shrink-0 border-r']" />
+  <UFieldGroup class="w-full">
+    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" variant="outline" :disabled="props.readonly || props.disabled" :class="[props.protocolSelectClass, 'shrink-0']" />
 
-    <div class="min-w-0 flex-1">
-      <UInput :model-value="stateValue" variant="none" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" />
-    </div>
-
-    <div v-if="slots.actions" class="border-default flex shrink-0 items-stretch border-l">
-      <slot name="actions" />
-    </div>
-  </div>
+    <UInput
+      :model-value="stateValue"
+      variant="outline"
+      class="min-w-0 flex-1"
+      :placeholder="computedInputPlaceholder"
+      :readonly="props.readonly"
+      :disabled="props.disabled"
+      :ui="{
+        trailing: 'pe-1.5'
+      }"
+      @update:model-value="handleValueInput"
+    >
+      <template v-if="slots.actions" #trailing>
+        <div class="flex items-center gap-1">
+          <slot name="actions" />
+        </div>
+      </template>
+    </UInput>
+  </UFieldGroup>
 </template>
 
 <script setup lang="ts">
@@ -23,7 +34,8 @@ const props = withDefaults(defineProps<IFormUrlInputProps>(), {
   placeholder: '',
   readonly: false,
   disabled: false,
-  protocolSelectClass: 'w-[118px]'
+  protocolSelectClass: 'w-[118px]',
+  baseUrlOnly: false
 });
 
 /**
@@ -44,7 +56,7 @@ const stateProtocol = ref<'http' | 'https'>('https');
 /**
  * 状态：当前主体内容。
  */
-const stateValue = ref<string | null>(null);
+const stateValue = ref<string>('');
 
 /**
  * 计算属性：协议选项。
@@ -57,7 +69,32 @@ const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
 /**
  * 计算属性：输入框占位文本。
  */
-const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholder || '')).value);
+const computedInputPlaceholder = computed(() => String(props.placeholder || ''));
+
+/**
+ * 函数：提取输入值中的协议。
+ * @param {string} url 原始输入。
+ * @returns {'http' | 'https'} 协议。
+ */
+const extractProtocol = (url: string): 'http' | 'https' => (/^http:\/\//i.test(url.trim()) ? 'http' : 'https');
+
+/**
+ * 函数：去除输入值中的协议前缀。
+ * @param {string} url 原始输入。
+ * @returns {string} 去除协议后的输入。
+ */
+const stripProtocol = (url: string): string =>
+  url
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/^\/\//, '');
+
+/**
+ * 函数：提取输入值中的主机部分。
+ * @param {string} url 原始输入。
+ * @returns {string} 主机部分。
+ */
+const extractHost = (url: string): string => stripProtocol(url).match(/^[^/?#]+/)?.[0] ?? '';
 
 /**
  * 函数：拆分完整 URL。
@@ -67,20 +104,15 @@ const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholde
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
   const raw = String(url || '').trim();
   if (!raw) {
-    return { protocol: 'https', value: null };
+    return { protocol: 'https', value: '' };
   }
 
-  if (/^http:\/\//i.test(raw)) {
-    return { protocol: 'http', value: raw.replace(/^http:\/\//i, '') };
-  }
-
-  if (/^https:\/\//i.test(raw)) {
-    return { protocol: 'https', value: raw.replace(/^https:\/\//i, '') };
-  }
+  const protocol = extractProtocol(raw);
+  const stripped = stripProtocol(raw);
 
   return {
-    protocol: 'https',
-    value: raw.replace(/^https?:\/\//i, '')
+    protocol,
+    value: props.baseUrlOnly ? extractHost(raw) : stripped
   };
 };
 
@@ -91,14 +123,20 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @returns {string} 完整 URL。
  */
 const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
+  const normalizedProtocol = protocol || 'https';
   const normalizedValue = String(value || '')
     .trim()
-    .replace(/^https?:\/\//i, '');
+    .replace(/^https?:\/\//i, '')
+    .replace(/^\/\//, '');
   if (!normalizedValue) {
     return '';
   }
 
-  return `${protocol}://${normalizedValue}`;
+  if (props.baseUrlOnly) {
+    return normalizedValue.match(/^[^/?#]+/)?.[0] ?? '';
+  }
+
+  return `${normalizedProtocol}://${normalizedValue}`;
 };
 
 /**
@@ -109,7 +147,7 @@ const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
 const syncFromModel = (value: string): void => {
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value as string | null;
+  stateValue.value = parsed.value;
 };
 
 /**
@@ -120,7 +158,7 @@ const syncFromModel = (value: string): void => {
 const handleValueInput = (value: string | number): void => {
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value as string | null;
+  stateValue.value = parsed.value;
 };
 
 watch(
@@ -132,7 +170,7 @@ watch(
 );
 
 watch([stateProtocol, stateValue], () => {
-  const nextValue = joinUrl(stateProtocol.value, stateValue.value);
+  const nextValue = joinUrl(stateProtocol.value || 'https', stateValue.value);
   if (nextValue !== String(model.value || '')) {
     model.value = nextValue;
   }

@@ -3,9 +3,42 @@ export const crawlers = {
   searchPlaceholder: '搜索名称或描述',
   targets: {
     title: '站点',
+    add: '新增站点',
+    edit: '编辑站点',
+    addTask: '添加任务',
     empty: {
       title: '暂无目标站点',
       description: '还没有添加任何爬虫目标站点，点击上方按钮添加'
+    },
+    form: {
+      name: {
+        label: '网站名称',
+        placeholder: '请输入网站名称',
+        verify: {
+          required: '网站名称不能为空',
+          length: '网站名称不能超过255个字符'
+        }
+      },
+      domain: {
+        label: '域名',
+        placeholder: '请输入域名，如 weibo.com',
+        verify: {
+          required: '域名不能为空',
+          length: '域名不能超过255个字符',
+          pattern: '域名格式不正确'
+        }
+      },
+      description: {
+        label: '描述',
+        placeholder: '请输入描述'
+      },
+      isEnabled: {
+        label: '是否启用'
+      },
+      unique: {
+        checking: '正在检查唯一性...',
+        domainExists: '该域名已存在'
+      }
     }
   },
   executions: {

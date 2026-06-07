@@ -20,6 +20,8 @@ export interface IFormUrlInputProps {
   disabled?: boolean;
   /** 协议选择器宽度类名。 */
   protocolSelectClass?: string;
+  /** 是否只保留基础 URL。 */
+  baseUrlOnly?: boolean;
 }
 
 /**

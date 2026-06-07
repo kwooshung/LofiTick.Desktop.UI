@@ -3,9 +3,42 @@ export const crawlers = {
   searchPlaceholder: '名前または説明で検索',
   targets: {
     title: 'サイト',
+    add: 'サイトを追加',
+    edit: 'サイトを編集',
+    addTask: 'タスクを追加',
     empty: {
       title: '対象サイトがありません',
       description: 'クローラー対象サイトが追加されていません。上のボタンをクリックして追加してください。'
+    },
+    form: {
+      name: {
+        label: 'サイト名',
+        placeholder: 'サイト名を入力',
+        verify: {
+          required: 'サイト名は必須です',
+          length: 'サイト名は255文字以内で入力してください'
+        }
+      },
+      domain: {
+        label: 'ドメイン',
+        placeholder: 'ドメインを入力（例：weibo.com）',
+        verify: {
+          required: 'ドメインは必須です',
+          length: 'ドメインは255文字以内で入力してください',
+          pattern: 'ドメイン形式が不正です'
+        }
+      },
+      description: {
+        label: '説明',
+        placeholder: '説明を入力'
+      },
+      isEnabled: {
+        label: '有効'
+      },
+      unique: {
+        checking: '一意性を確認中...',
+        domainExists: 'このドメインは既に存在します'
+      }
     }
   },
   executions: {
