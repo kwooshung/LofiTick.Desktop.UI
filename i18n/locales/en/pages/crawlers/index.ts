@@ -1,5 +1,6 @@
 export const crawlers = {
   title: 'Crawlers',
+  searchPlaceholder: 'Search by name or description',
   targets: {
     title: 'Sites',
     empty: {

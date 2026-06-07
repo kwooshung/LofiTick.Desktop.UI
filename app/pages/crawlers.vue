@@ -5,12 +5,31 @@
     </template>
 
     <template #toolbar-right>
-      <UButton icon="i-lucide:plus" color="primary" @click="handleToolbarCreate">
-        {{ t('common.actions.add') }}
-      </UButton>
+      <div class="flex items-center gap-2">
+        <div class="hidden shrink-0 items-center gap-2 md:flex">
+          <SelectsPagesizes cache-key="crawlers" />
+
+          <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-56 xl:w-64" @keyup.enter="handleKeywordApply">
+            <template #leading>
+              <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+            </template>
+
+            <template #trailing>
+              <div class="flex items-center">
+                <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+                <UKbd v-else value="/" class="ms-1" />
+              </div>
+            </template>
+          </UInput>
+        </div>
+
+        <UButton icon="i-lucide:plus" color="primary" @click="handleToolbarCreate">
+          {{ t('common.actions.add') }}
+        </UButton>
+      </div>
     </template>
 
-    <NuxtPage :create-nonce="stateCreateNonce" />
+    <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
   </Dashboard>
 </template>
 
@@ -28,6 +47,11 @@ const { t } = useI18n();
 const localePath = useLocalePath();
 
 /**
+ * 引用：工具栏搜索框
+ */
+const refToolbarSearchInput = useTemplateRef('refToolbarSearchInput');
+
+/**
  * 计算属性：目标站点路由
  */
 const computedPathTargets = computed(() => localePath('/crawlers'));
@@ -41,6 +65,11 @@ const computedPathExecutions = computed(() => localePath('/crawlers/executions')
  * 状态：创建 nonce
  */
 const stateCreateNonce = ref(0);
+
+/**
+ * 状态：工具栏关键词
+ */
+const stateToolbarKeyword = ref('');
 
 /**
  * Store：面包屑
@@ -91,4 +120,30 @@ const links = [
 const handleToolbarCreate = () => {
   stateCreateNonce.value += 1;
 };
+
+/**
+ * 事件：关键词应用
+ */
+const handleKeywordApply = () => {
+  // 触发搜索
+};
+
+/**
+ * 事件：重置筛选
+ */
+const handleFilterReset = () => {
+  stateToolbarKeyword.value = '';
+};
+
+/**
+ * 快捷键
+ */
+defineShortcuts({
+  /**
+   * 聚焦搜索框
+   */
+  '/': () => {
+    refToolbarSearchInput.value?.inputRef?.focus();
+  }
+});
 </script>

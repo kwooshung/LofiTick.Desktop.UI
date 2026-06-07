@@ -1,5 +1,6 @@
 export const crawlers = {
   title: '爬虫',
+  searchPlaceholder: '搜索名称或描述',
   targets: {
     title: '站点',
     empty: {
