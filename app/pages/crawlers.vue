@@ -123,7 +123,7 @@ const computedRouteIsDetail = computed<boolean>(() => typeof route.params.domain
  */
 const computedDomain = computed<string>(() => {
   const value = route.params.domain;
-  return typeof value === 'string' ? value : Array.isArray(value) ? value[0] ?? '' : '';
+  return typeof value === 'string' ? value : Array.isArray(value) ? (value[0] ?? '') : '';
 });
 
 /**
@@ -291,17 +291,10 @@ const computedRouteDetailTitle = computed<string>(() => {
 });
 
 /**
- * 监听：站点详情变化时同步面包屑
+ * 函数：同步面包屑
  */
-watch(
-  stateDetail,
-  (value) => {
-    if (!computedRouteIsDetail.value) {
-      return;
-    }
-
-    const title = String(value?.name ?? computedDomain.value).trim() || computedDomain.value;
-
+const syncBreadcrumb = () => {
+  if (computedRouteIsDetail.value) {
     storeBreadcrumb.states = [
       {
         label: t('pages.home.title'),
@@ -316,15 +309,37 @@ watch(
         exact: true
       },
       {
-        label: title,
+        label: computedRouteDetailTitle.value,
         icon: 'i-lucide:globe',
         to: localePath(`/crawlers/${encodeURIComponent(computedDomain.value)}`),
         exact: true
       }
     ];
-  },
-  { immediate: true }
-);
+    return;
+  }
+
+  storeBreadcrumb.states = [
+    {
+      label: t('pages.home.title'),
+      icon: 'i-mdi:view-dashboard-outline',
+      to: localePath('/'),
+      exact: true
+    },
+    {
+      label: t('pages.crawlers.title'),
+      icon: 'i-lucide:bug',
+      to: computedPathTargets.value,
+      exact: true
+    }
+  ];
+};
+
+/**
+ * 监听：路由与详情标题变化时同步面包屑
+ */
+watch([computedRouteIsDetail, computedRouteDetailTitle], () => {
+  syncBreadcrumb();
+}, { immediate: true });
 
 /**
  * 事件：编辑站点
@@ -419,58 +434,6 @@ const handleEditorSubmit = async (event: FormSubmitEvent<IPageCrawlerTargetForm>
   stateEditorOpen.value = false;
   await refreshDetail({ replace: true });
 };
-
-/**
- * 监听：路由变化时同步面包屑
- */
-watch(
-  () => route.path,
-  () => {
-    if (computedRouteIsDetail.value) {
-      const detailDomain = typeof route.params.domain === 'string' ? route.params.domain.trim() : '';
-      const detailTitle = detailDomain !== '' ? domainDisplayNameGet(detailDomain) : t('pages.crawlers.targets.title');
-
-      storeBreadcrumb.states = [
-        {
-          label: t('pages.home.title'),
-          icon: 'i-mdi:view-dashboard-outline',
-          to: localePath('/'),
-          exact: true
-        },
-        {
-          label: t('pages.crawlers.title'),
-          icon: 'i-lucide:bug',
-          to: computedPathTargets.value,
-          exact: true
-        },
-        {
-          label: detailTitle,
-          icon: 'i-lucide:globe',
-          to: route.path,
-          exact: true
-        }
-      ];
-
-      return;
-    }
-
-    storeBreadcrumb.states = [
-      {
-        label: t('pages.home.title'),
-        icon: 'i-mdi:view-dashboard-outline',
-        to: localePath('/'),
-        exact: true
-      },
-      {
-        label: t('pages.crawlers.title'),
-        icon: 'i-lucide:bug',
-        to: computedPathTargets.value,
-        exact: true
-      }
-    ];
-  },
-  { immediate: true }
-);
 
 /**
  * 变量：Tab 链接
