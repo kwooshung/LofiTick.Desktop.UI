@@ -337,9 +337,13 @@ const syncBreadcrumb = () => {
 /**
  * 监听：路由与详情标题变化时同步面包屑
  */
-watch([computedRouteIsDetail, computedRouteDetailTitle], () => {
-  syncBreadcrumb();
-}, { immediate: true });
+watch(
+  [computedRouteIsDetail, computedRouteDetailTitle],
+  () => {
+    syncBreadcrumb();
+  },
+  { immediate: true }
+);
 
 /**
  * 事件：编辑站点
