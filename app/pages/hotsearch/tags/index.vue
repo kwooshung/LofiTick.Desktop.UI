@@ -1,3 +1,3 @@
 <template>
-  <HotsearchTagPanel />
+  <SectionsHotsearchTags />
 </template>

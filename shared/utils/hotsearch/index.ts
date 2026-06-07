@@ -1,4 +1,6 @@
 import type {
+  IHotsearchAdDeliveryPlatformOption,
+  IHotsearchMediaPlatformOption,
   ISettingsHotsearch,
   ISettingsHotsearchLocal,
   ISettingsHotsearchPlatformItem,
@@ -7,11 +9,12 @@ import type {
   ISettingsHotsearchPodcastTemplateItem,
   THotsearchPlatformType,
   THotsearchPodcastHeadMusicKind,
+  THotsearchMediaPlatformKey,
   THotsearchPodcastSegmentType,
   THotsearchPodcastTemplateSegmentType,
   THotsearchPodcastTemplateType,
   THotsearchPodcastVoiceKey
-} from '@@/shared/types/pages/settings/hotsearch/index.types';
+} from '@@/shared/types/index.types';
 import { generateIdBase36 } from '@@/shared/utils/generateId';
 
 /**
@@ -58,7 +61,109 @@ export const HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET = 'files';
 /**
  * 常量：热搜播客开头音乐远端目录根路径。
  */
-const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/media/podcast/hotsearch/start';
+const HOTSEARCH_PODCAST_HEAD_MUSIC_REMOTE_ROOT = '/hotsearch/podcast/shared/audio/head-music';
+
+/**
+ * 函数：格式化日期目录片段。
+ * @param {Date} date 日期。
+ * @returns {{ year: string; month: string; day: string }} 年月日目录片段。
+ */
+const hotsearchDateDirectoryPartsGet = (date: Date): { year: string; month: string; day: string } => ({
+  year: String(date.getFullYear()).padStart(4, '0'),
+  month: String(date.getMonth() + 1).padStart(2, '0'),
+  day: String(date.getDate()).padStart(2, '0')
+});
+
+/**
+ * 函数：根据扩展名推导热搜素材文件类型目录。
+ * @param {string} fileExt 文件扩展名。
+ * @returns {'image' | 'video' | 'audio' | 'file'} 文件类型目录。
+ */
+const hotsearchFileTypeDirectoryGet = (fileExt: string): 'image' | 'video' | 'audio' | 'file' => {
+  const normalizedFileExt = String(fileExt || '')
+    .trim()
+    .replace(/^\./, '')
+    .toLowerCase();
+
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(normalizedFileExt)) {
+    return 'image';
+  }
+
+  if (['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi'].includes(normalizedFileExt)) {
+    return 'video';
+  }
+
+  if (['mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'].includes(normalizedFileExt)) {
+    return 'audio';
+  }
+
+  return 'file';
+};
+
+/**
+ * 函数：构建热搜广告素材远端目录。
+ * @param {string} fileExt 文件扩展名。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} UpYun 远端目录。
+ */
+export const hotsearchPodcastAdAssetRemoteDirectoryGet = (fileExt: string, date: Date = new Date()): string => {
+  const { year, month, day } = hotsearchDateDirectoryPartsGet(date);
+  const fileTypeDirectory = hotsearchFileTypeDirectoryGet(fileExt);
+
+  return `/hotsearch/ad/materials/${year}/${month}/${day}/${fileTypeDirectory}`;
+};
+
+/**
+ * 函数：构建热搜广告素材本地相对目录。
+ * @param {string} fileExt 文件扩展名。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} 本地相对目录。
+ */
+export const hotsearchPodcastAdAssetRelativeDirectoryGet = (fileExt: string, date: Date = new Date()): string => {
+  return hotsearchPodcastAdAssetRemoteDirectoryGet(fileExt, date).slice(1);
+};
+
+/**
+ * 函数：创建热搜广告素材远端对象键。
+ * @param {string} fileExt 文件扩展名。
+ * @param {Date} [date=new Date()] 目标日期。
+ * @returns {string} 远端对象键。
+ */
+export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: Date = new Date()): string => {
+  const normalizedFileExt = String(fileExt || '')
+    .trim()
+    .replace(/^\./, '')
+    .toLowerCase();
+  const fileName = normalizedFileExt === '' ? generateIdBase36(24) : `${generateIdBase36(24)}.${normalizedFileExt}`;
+
+  return `${hotsearchPodcastAdAssetRemoteDirectoryGet(fileExt, date)}/${fileName}`;
+};
+
+/**
+ * 函数：将热搜时间字符串归一为 Datetime 可消费值。
+ * @param {unknown} value 原始时间值。
+ * @returns {string} 归一化后的时间字符串；空值返回空字符串。
+ */
+export const hotsearchDatetimeValueGet = (value: unknown): string => {
+  const text = String(value ?? '').trim();
+
+  if (text === '') {
+    return '';
+  }
+
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(text)) {
+    return text.replace(' ', 'T');
+  }
+
+  return text;
+};
+
+/**
+ * 函数：获取热搜统计展示编号。
+ * @param {number} id 原始编号。
+ * @returns {string} 补零后的展示编号。
+ */
+export const hotsearchSummaryDisplayIdGet = (id: number): string => String(Math.abs(Number(id))).padStart(4, '0');
 
 /**
  * 常量：热搜播客音色固定列表。
@@ -94,6 +199,34 @@ const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
 ] as const;
 
 /**
+ * 常量：热搜播客与广告投放平台固定顺序。
+ */
+const HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED: Array<{
+  key: THotsearchMediaPlatformKey;
+  labelKey: string;
+  category: IHotsearchMediaPlatformOption['category'];
+  adPlatformId?: number;
+  deliveryKind?: IHotsearchAdDeliveryPlatformOption['deliveryKind'];
+  order: number;
+}> = [
+  { key: 'general', labelKey: 'pages.hotsearch.mediaPlatforms.general', category: 'general', order: 0 },
+  { key: 'bilibili', labelKey: 'pages.hotsearch.mediaPlatforms.bilibili', category: 'video', adPlatformId: 101, deliveryKind: 'landscape', order: 10 },
+  { key: 'toutiao', labelKey: 'pages.hotsearch.mediaPlatforms.toutiao', category: 'video', adPlatformId: 102, deliveryKind: 'landscape', order: 20 },
+  { key: 'ixigua', labelKey: 'pages.hotsearch.mediaPlatforms.ixigua', category: 'video', adPlatformId: 103, deliveryKind: 'landscape', order: 30 },
+  { key: 'douyin', labelKey: 'pages.hotsearch.mediaPlatforms.douyin', category: 'video', adPlatformId: 104, deliveryKind: 'portrait', order: 40 },
+  { key: 'xiaohongshu', labelKey: 'pages.hotsearch.mediaPlatforms.xiaohongshu', category: 'community', adPlatformId: 105, deliveryKind: 'portrait', order: 50 },
+  { key: 'kuaishou', labelKey: 'pages.hotsearch.mediaPlatforms.kuaishou', category: 'video', adPlatformId: 106, deliveryKind: 'portrait', order: 60 },
+  { key: 'weibo', labelKey: 'pages.hotsearch.mediaPlatforms.weibo', category: 'community', adPlatformId: 107, deliveryKind: 'landscape', order: 70 },
+  { key: 'shengbo', labelKey: 'pages.hotsearch.mediaPlatforms.shengbo', category: 'audio', adPlatformId: 108, deliveryKind: 'audio', order: 80 },
+  { key: 'youtube', labelKey: 'pages.hotsearch.mediaPlatforms.youtube', category: 'video', adPlatformId: 109, deliveryKind: 'landscape', order: 90 },
+  { key: 'ximalaya', labelKey: 'pages.hotsearch.mediaPlatforms.ximalaya', category: 'audio', adPlatformId: 110, deliveryKind: 'audio', order: 100 },
+  { key: 'qingtingfm', labelKey: 'pages.hotsearch.mediaPlatforms.qingtingfm', category: 'audio', adPlatformId: 111, deliveryKind: 'audio', order: 110 },
+  { key: 'wangyi-podcast', labelKey: 'pages.hotsearch.mediaPlatforms.wangyiPodcast', category: 'audio', adPlatformId: 112, deliveryKind: 'audio', order: 120 },
+  { key: 'pipixia', labelKey: 'pages.hotsearch.mediaPlatforms.pipixia', category: 'community', adPlatformId: 113, deliveryKind: 'landscape', order: 130 },
+  { key: 'pipigaoxiao', labelKey: 'pages.hotsearch.mediaPlatforms.pipigaoxiao', category: 'community', adPlatformId: 114, deliveryKind: 'landscape', order: 140 }
+];
+
+/**
  * 函数：列出热搜平台项。
  * @returns {ISettingsHotsearchPlatformItem[]} 平台项列表。
  */
@@ -102,6 +235,35 @@ export const hotsearchPlatformsList = (): ISettingsHotsearchPlatformItem[] =>
     ...item,
     key: `components.hotsearch.platform.${item.type}`
   }));
+
+/**
+ * 函数：列出播客页面平台选项（全局统一顺序）。
+ * @returns {IHotsearchMediaPlatformOption[]} 播客平台选项。
+ */
+export const hotsearchMediaPlatformOptionsGet = (): IHotsearchMediaPlatformOption[] => {
+  return HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED.map((item) => ({
+    key: item.key,
+    labelKey: item.labelKey,
+    category: item.category
+  }));
+};
+
+/**
+ * 函数：列出广告投放平台选项（全局统一顺序）。
+ * @returns {IHotsearchAdDeliveryPlatformOption[]} 广告投放平台选项。
+ */
+export const hotsearchAdDeliveryPlatformOptionsGet = (): IHotsearchAdDeliveryPlatformOption[] => {
+  return HOTSEARCH_MEDIA_PLATFORM_OPTIONS_ORDERED.filter((item): item is typeof item & { adPlatformId: number; deliveryKind: IHotsearchAdDeliveryPlatformOption['deliveryKind'] } => {
+    return typeof item.adPlatformId === 'number' && typeof item.deliveryKind === 'string';
+  }).map((item) => ({
+    id: item.adPlatformId,
+    key: item.key as Exclude<THotsearchMediaPlatformKey, 'general'>,
+    labelKey: item.labelKey,
+    category: item.category as Exclude<IHotsearchMediaPlatformOption['category'], 'general'>,
+    deliveryKind: item.deliveryKind,
+    order: item.order
+  }));
+};
 
 /**
  * 函数：列出热搜播客音色选项。

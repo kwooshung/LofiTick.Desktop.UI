@@ -19,7 +19,6 @@ export const card = {
     machineCode: '机器代码',
     machineRemark: '机器备注',
     lastSeen: '最后在线',
-    machineIdentity: '机器标识',
     network: '网卡',
     logs: '日志',
     scenes: '场景列表'

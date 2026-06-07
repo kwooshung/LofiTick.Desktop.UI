@@ -101,8 +101,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IHotsearchPodcastSentence, THotsearchPodcastVariantKey } from '@@/shared/types/index.types';
-
 /**
  * Hook：国际化。
  */

@@ -429,7 +429,7 @@
         divider: '分隔线'
       }
     },
-    actions: {
+    headMusicActions: {
       selectHeadMusic: '选择音乐',
       previewHeadMusic: '试听',
       reuploadHeadMusic: '重新上传',

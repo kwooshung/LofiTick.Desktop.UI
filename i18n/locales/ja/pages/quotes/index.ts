@@ -1,7 +1,6 @@
 export const quotes = {
   title: '名言',
   result: {
-    title: 'すべて',
     footer: {
       total: '全 {total} 件の結果'
     },

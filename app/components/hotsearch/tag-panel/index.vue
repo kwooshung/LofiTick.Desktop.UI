@@ -1,10 +1,6 @@
 <template>
   <DashboardPage class="min-h-full">
-    <div v-if="computedRows.length === 0" ref="refHotsearchTagPanelTop" class="flex min-h-0 flex-1 items-center justify-center py-10">
-      <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" class="py-8" />
-    </div>
-
-    <div v-else ref="refHotsearchTagPanelTop" class="flex w-full flex-1 gap-1">
+    <div ref="refHotsearchTagPanelTop" class="flex w-full flex-1 gap-1">
       <div class="flex-1">
         <UTable
           :columns="columns"
@@ -35,8 +31,6 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
-
-import type { IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
 
 /**
  * 组件：时间。
@@ -177,32 +171,6 @@ watch(
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
   }
 );
-
-/**
- * 函数：获取热搜统计展示编号。
- * @param {number} id 原始编号。
- * @returns {string} 补零后的展示编号。
- */
-const hotsearchSummaryDisplayIdGet = (id: number): string => String(Math.abs(Number(id))).padStart(4, '0');
-
-/**
- * 函数：将时间字符串归一为 Datetime 可消费值。
- * @param {string} value 原始时间字符串。
- * @returns {string} ISO 风格时间字符串。
- */
-const hotsearchDatetimeValueGet = (value: string): string => {
-  const text = String(value ?? '').trim();
-
-  if (text === '') {
-    return new Date(0).toISOString();
-  }
-
-  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(text)) {
-    return text.replace(' ', 'T');
-  }
-
-  return text;
-};
 
 /**
  * 计算属性：标签行。

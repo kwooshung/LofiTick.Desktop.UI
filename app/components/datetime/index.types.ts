@@ -14,7 +14,14 @@ export interface IDatetimeProps {
    * - 必填，支持 string | number | Date
    * - "2026-01-05T12:00:00Z"、1640995200000、new Date()
    */
-  datetime: string | number | Date;
+  datetime?: string | number | Date;
+
+  /**
+   * 属性：兼容旧调用的时间值别名。
+   * - 仅用于兼容历史上误传的 value 字段
+   * - 新代码应统一使用 datetime
+   */
+  value?: string | number | Date;
 
   /**
    * 属性：区域匹配算法

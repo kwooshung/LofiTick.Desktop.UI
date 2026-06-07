@@ -7,11 +7,17 @@ export {
   HOTSEARCH_PODCAST_HEAD_MUSIC_UPYUN_BUCKET,
   HOTSEARCH_USAGE_URL,
   hotsearchAdEditionScopeOptionsGet,
+  hotsearchAdDeliveryPlatformOptionsGet,
+  hotsearchDatetimeValueGet,
   hotsearchEstimatedDayPointsGet,
+  hotsearchMediaPlatformOptionsGet,
   hotsearchEstimatedMonthPointsGet,
   hotsearchLocalSettingsDefaultCreate,
   hotsearchLocalSettingsNormalize,
   hotsearchPlatformsList,
+  hotsearchPodcastAdAssetRelativeDirectoryGet,
+  hotsearchPodcastAdAssetRemoteDirectoryGet,
+  hotsearchPodcastAdAssetRemotePathCreate,
   hotsearchPodcastAdPlaceholderIs,
   hotsearchPodcastAiRulesMarkdownCompose,
   hotsearchPodcastAiRulesMarkdownEditableExtract,
@@ -28,10 +34,11 @@ export {
   hotsearchSettingsNormalize,
   hotsearchSharedSettingsExtract,
   hotsearchSuggestedPodcastTimeGet,
+  hotsearchSummaryDisplayIdGet,
   hotsearchTimeAddMinutes,
   hotsearchWindowDurationMinutesGet
 } from './hotsearch';
-export { hotsearchArchiveDateSummariesGet, hotsearchDataRowsGet, hotsearchDateLabelGet, hotsearchLocalTimezoneGet, hotsearchMediaPlatformOptionsGet, hotsearchPodcastVariantOptionsGet, hotsearchPodcastViewGet, hotsearchQueryStringGet } from './hotsearch-view';
+export { hotsearchArchiveDateSummariesGet, hotsearchDataRowsGet, hotsearchDateLabelGet, hotsearchLocalTimezoneGet, hotsearchPodcastVariantOptionsGet, hotsearchPodcastViewGet, hotsearchQueryStringGet } from './hotsearch-view';
 export { ONEPANEL_CRON_LIBRARY_PATH, ONEPANEL_CRONJOBS_PATH, ONEPANEL_PANEL_BASE_DEFAULT, onepanelLinkBuild, onepanelLinkSections, onepanelPanelBaseNormalize } from './onepanel';
 export { calcPagination } from './pagination';
 export type { ISqlOptionsPagination, ISqlResultPagination } from './pagination/index.types';

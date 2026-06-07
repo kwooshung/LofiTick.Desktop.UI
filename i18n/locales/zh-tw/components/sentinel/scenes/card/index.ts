@@ -19,7 +19,6 @@ export const card = {
     machineCode: '機器碼',
     machineRemark: '機器備註',
     lastSeen: '最後在線',
-    machineIdentity: '機器 UUID',
     network: '網卡',
     logs: '日誌',
     scenes: '場景列表'

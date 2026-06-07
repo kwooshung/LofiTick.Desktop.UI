@@ -4,7 +4,6 @@ export const poetrys = {
     loading: '正在載入詳情...'
   },
   result: {
-    title: '全部',
     footer: {
       total: '共 {total} 筆結果'
     },

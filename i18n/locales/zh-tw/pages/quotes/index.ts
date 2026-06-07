@@ -1,7 +1,6 @@
 export const quotes = {
   title: '名句',
   result: {
-    title: '全部',
     footer: {
       total: '共 {total} 筆結果'
     },

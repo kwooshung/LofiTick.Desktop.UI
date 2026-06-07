@@ -27,24 +27,20 @@
       </div>
     </div>
 
-    <div v-if="computedRows.length === 0" class="flex min-h-0 flex-1 items-center justify-center py-10">
-      <UEmpty icon="i-lucide:inbox" :title="t('pages.hotsearch.data.empty.title')" :description="t('pages.hotsearch.data.empty.description')" class="py-8" />
-    </div>
-
-    <div v-else class="flex min-h-0 w-full flex-1 gap-1">
+    <div class="flex w-full flex-1 gap-1">
       <div class="flex-1">
         <UTable
           :columns="columns"
           :data="computedRows"
           :loading="computedLoading"
+          class="shrink-0"
           sticky
-          class="w-full min-w-0"
           :ui="{
-            base: 'w-full table-fixed border-separate border-spacing-0',
+            base: 'table-fixed border-separate border-spacing-0',
             thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
             tbody: '[&>tr]:last:[&>td]:border-b-0',
             th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-            td: 'border-b border-default align-top',
+            td: 'border-b border-default',
             separator: 'h-0'
           }"
         />
@@ -63,8 +59,6 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from '@internationalized/date';
 import type { TableColumn } from '@nuxt/ui';
-
-import type { IHotsearchDataPage, IHotsearchDataRow, IHotsearchPlatformSummaryPage, IHotsearchPlatformSummaryRow, IHotsearchTagSummaryPage, IHotsearchTagSummaryRow } from '@@/shared/types/index.types';
 
 /**
  * 组件：时间。
@@ -290,11 +284,6 @@ const {
 });
 
 /**
- * 计算属性：当前日期。
- */
-const computedSelectedDate = computed(() => selectedDateGet());
-
-/**
  * 计算属性：当前平台类型。
  */
 const computedSelectedPlatformType = computed(() => hotsearchQueryStringGet(route.query.platform));
@@ -515,25 +504,6 @@ const hotsearchTitleWithSummaryCellRender = (item: IHotsearchDataRow) =>
     ]),
     h('p', { class: 'w-full max-w-full text-sm text-dimmed whitespace-normal break-all' }, item.summary)
   ]);
-
-/**
- * 函数：将时间字符串归一为 Datetime 可消费值。
- * @param {string} value 原始时间字符串。
- * @returns {string} ISO 风格时间字符串。
- */
-const hotsearchDatetimeValueGet = (value: string): string => {
-  const text = String(value ?? '').trim();
-
-  if (text === '') {
-    return new Date(0).toISOString();
-  }
-
-  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(text)) {
-    return text.replace(' ', 'T');
-  }
-
-  return text;
-};
 
 /**
  * 函数：渲染热搜播客化状态。

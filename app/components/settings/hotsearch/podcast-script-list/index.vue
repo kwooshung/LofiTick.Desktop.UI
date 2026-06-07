@@ -183,7 +183,6 @@
 import { VueDraggable } from 'vue-draggable-plus';
 
 import type { ISettingsHotsearchPodcastScriptListProps } from '@/components/settings/hotsearch/podcast-script-list/index.types';
-import type { ISettingsHotsearchPodcastTemplateItem, THotsearchPodcastSegmentType, THotsearchPodcastTemplateType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
 
 /**
  * 属性：热搜播客文案列表。

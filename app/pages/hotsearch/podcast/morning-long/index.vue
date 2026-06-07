@@ -1,3 +1,3 @@
 <template>
-  <HotsearchPodcastPanel />
+  <SectionsHotsearchPodcastMorningLong />
 </template>

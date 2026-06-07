@@ -3,9 +3,6 @@ export const crawlers = {
   spider: {
     title: 'Crawlers',
     websites: {
-      dailyhot: {
-        title: 'Hot search'
-      },
       pixabay: {
         title: 'Pixabay',
         music: 'Music'

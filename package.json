@@ -17,6 +17,7 @@
     "sync:env2compose": "cross-env NODE_ENV=development tsx scripts/sync-env-to-compose.ts",
     "upload:upyun": "cross-env NODE_ENV=development tsx scripts/upload-to-upyun.ts",
     "rename:vue-components": "tsx scripts/rename-vue-components.ts",
+    "audit:i18n": "tsx --tsconfig ./.nuxt/tsconfig.json scripts/i18n-audit/index.ts",
     "minify-next-ui-colors": "tsx scripts/minify-next-ui-colors.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

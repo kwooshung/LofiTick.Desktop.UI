@@ -100,8 +100,6 @@ export const socials = {
   },
   wechat: {
     title: '微信',
-    add: '添加群',
-    edit: '编辑',
     groups: {
       title: '微信群',
       add: '添加群',

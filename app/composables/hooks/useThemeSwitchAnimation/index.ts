@@ -31,7 +31,7 @@ export enum EThemeAnimationType {
 export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = {}): { triggerElRef: Ref<HTMLElement | null>; toggleSwitchTheme: () => Promise<void>; isDarkMode: ComputedRef<boolean> } => {
   /**
    * 常量：选项解构
-   * - duration：动画时长，默认 750ms
+   * - duration：动画时长，默认 1200ms
    * - easing：动画缓动函数，默认 ease-in-out
    * - pseudoElement：伪元素选择器，默认 ::view-transition-new(root)
    * - globalClassName：全局 dark class 名称，默认 dark
@@ -39,7 +39,7 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
    * - blurAmount：模糊圆动画时的模糊量，默认 1
    * - styleId：动态注入样式的 style 元素 ID，默认 theme-switch-style
    */
-  const { duration: propsDuration = 3000, easing = 'ease-in-out', pseudoElement = '::view-transition-new(root)', globalClassName = 'dark', animationType = EThemeAnimationType.BLUR_CIRCLE, blurAmount = 1, styleId = 'theme-switch-style' } = options;
+  const { duration: propsDuration = 1200, easing = 'ease-in-out', pseudoElement = '::view-transition-new(root)', globalClassName = 'dark', animationType = EThemeAnimationType.BLUR_CIRCLE, blurAmount = 1, styleId = 'theme-switch-style' } = options;
 
   /**
    * Hook：主题模式
@@ -195,7 +195,7 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
       styleElement.id = styleId;
 
       const blurFactor = hr ? 1.5 : 1.2;
-      const finalMaskSize = Math.max(optimalMaskSize, maxRadius * 2.5);
+      const finalMaskSize = Math.max(optimalMaskSize, maxRadius * 8);
       blurAnimationDuration = hr ? Math.max(duration + 120, 700) : duration;
 
       styleElement.textContent = `

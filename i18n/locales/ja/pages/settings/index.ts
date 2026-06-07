@@ -429,7 +429,7 @@ export const settings = {
         divider: '区切り線'
       }
     },
-    actions: {
+    headMusicActions: {
       selectHeadMusic: '音楽を選択',
       previewHeadMusic: '試聴',
       reuploadHeadMusic: '再アップロード',

@@ -2,11 +2,8 @@
  * 接口：热搜广告主素材。
  */
 export interface IHotsearchAdMaterialAsset {
-  /** 存储桶 */
-  storageBucket: string;
-
-  /** 文件键 */
-  fileKey: string;
+  /** 素材路径 */
+  path: string;
 
   /** 原始文件名 */
   originalName: string;
@@ -28,6 +25,27 @@ export interface IHotsearchAdMaterialAsset {
 
   /** 时长（毫秒） */
   durationMs: number;
+
+  /** 裁剪开始时间（毫秒） */
+  clipStartMs: number;
+
+  /** 裁剪结束时间（毫秒） */
+  clipEndMs: number;
+
+  /** 横向位移比例 */
+  posXRatio: number;
+
+  /** 纵向位移比例 */
+  posYRatio: number;
+
+  /** 宽度缩放比例 */
+  widthRatio: number;
+
+  /** 高度缩放比例 */
+  heightRatio: number;
+
+  /** 图层顺序 */
+  zIndex: number;
 }
 
 /**
@@ -40,8 +58,8 @@ export interface IHotsearchAdMaterialSummaryRow {
   /** 广告标题 */
   title: string;
 
-  /** 广告类型 */
-  adType: string;
+  /** 呈现方式 */
+  presentationType: string;
 
   /** 素材类型 */
   materialType: string;
@@ -51,6 +69,9 @@ export interface IHotsearchAdMaterialSummaryRow {
 
   /** 栏目范围 */
   editionScope: string;
+
+  /** 适用平台 */
+  platformIds?: number[];
 
   /** 广告位置 */
   placementType: string;
@@ -109,6 +130,37 @@ export interface IHotsearchAdMaterialSaveResult {
 }
 
 /**
+ * 接口：热搜广告文案行。
+ */
+export interface IHotsearchAdMaterialLine {
+  /** 行序号 */
+  lineNo: number;
+
+  /** 播报角色 */
+  voiceKey: string;
+
+  /** 文案内容 */
+  content: string;
+}
+
+/**
+ * 接口：热搜广告物料详情。
+ */
+export interface IHotsearchAdMaterialDetail extends IHotsearchAdMaterialSummaryRow {
+  /** 广告文案行 */
+  lines: IHotsearchAdMaterialLine[];
+
+  /** 适用平台 */
+  platformIds: number[];
+
+  /** 备注 */
+  notes: string;
+
+  /** 软删除时间 */
+  deletedAt?: string | null;
+}
+
+/**
  * 接口：热搜广告页属性。
  */
 export interface IPageAdHotsearchProps {
@@ -126,8 +178,8 @@ export interface IPageAdHotsearchEditorForm {
   /** 标题 */
   title: string;
 
-  /** 广告类型 */
-  adType: 'oral' | 'picture_in_picture' | 'montage';
+  /** 呈现方式 */
+  presentationType: 'voice' | 'pip' | 'montage';
 
   /** 素材类型 */
   materialType: 'none' | 'image' | 'video';
@@ -140,6 +192,9 @@ export interface IPageAdHotsearchEditorForm {
 
   /** 广告位置 */
   placementType: 'opening' | 'closing';
+
+  /** 适用平台 */
+  platformIds: number[];
 
   /** 价格 */
   price: number;
@@ -167,6 +222,9 @@ export interface IPageAdHotsearchEditorForm {
  * 接口：热搜广告编辑器主素材。
  */
 export interface IPageAdHotsearchEditorAsset {
+  /** 远端素材路径 */
+  path?: string;
+
   /** 原始文件名 */
   originalName: string;
 
@@ -188,6 +246,27 @@ export interface IPageAdHotsearchEditorAsset {
   /** 时长（毫秒） */
   durationMs: number;
 
+  /** 裁剪开始时间（毫秒） */
+  clipStartMs: number;
+
+  /** 裁剪结束时间（毫秒） */
+  clipEndMs: number;
+
+  /** 横向位移比例 */
+  posXRatio: number;
+
+  /** 纵向位移比例 */
+  posYRatio: number;
+
+  /** 宽度缩放比例 */
+  widthRatio: number;
+
+  /** 高度缩放比例 */
+  heightRatio: number;
+
+  /** 图层顺序 */
+  zIndex: number;
+
   /** 本地预览地址 */
   previewUrl: string;
 }
@@ -202,8 +281,8 @@ export interface IPageTableColumnHotsearchAdMaterial {
   /** 标题 */
   title: string;
 
-  /** 广告类型 */
-  adType: string;
+  /** 呈现方式 */
+  presentationType: string;
 
   /** 素材类型 */
   materialType: string;
@@ -213,6 +292,15 @@ export interface IPageTableColumnHotsearchAdMaterial {
 
   /** 栏目范围 */
   editionScope: string;
+
+  /** 早报是否适用 */
+  editionMorning: boolean;
+
+  /** 晚报是否适用 */
+  editionEvening: boolean;
+
+  /** 适用平台 */
+  platformIds: number[];
 
   /** 广告位置 */
   placementType: string;
@@ -234,4 +322,7 @@ export interface IPageTableColumnHotsearchAdMaterial {
 
   /** 更新时间 */
   updatedAt: string;
+
+  /** 创建时间 */
+  createdAt: string;
 }

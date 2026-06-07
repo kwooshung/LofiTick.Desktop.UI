@@ -4,7 +4,6 @@ export const poetrys = {
     loading: '詳細を読み込み中...'
   },
   result: {
-    title: 'すべて',
     footer: {
       total: '全 {total} 件の結果'
     },
