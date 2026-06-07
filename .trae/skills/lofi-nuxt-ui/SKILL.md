@@ -5,4 +5,4 @@ description: "LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 
 # LofiTick Nuxt UI 规范
 
-[规范文档](../shared/rules.md)
+[规范文档](../../shared/rules.md)
