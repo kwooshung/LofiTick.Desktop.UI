@@ -1,25 +1,10 @@
 <template>
   <UFieldGroup class="w-full">
-    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" variant="outline" :disabled="props.readonly || props.disabled" :class="[props.protocolSelectClass, 'shrink-0']" />
+    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" :disabled="props.readonly || props.disabled" :class="props.protocolSelectClass" />
 
-    <UInput
-      :model-value="stateValue"
-      variant="outline"
-      class="min-w-0 flex-1"
-      :placeholder="computedInputPlaceholder"
-      :readonly="props.readonly"
-      :disabled="props.disabled"
-      :ui="{
-        trailing: 'pe-1.5'
-      }"
-      @update:model-value="handleValueInput"
-    >
-      <template v-if="slots.actions" #trailing>
-        <div class="flex items-center gap-1">
-          <slot name="actions" />
-        </div>
-      </template>
-    </UInput>
+    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" />
+
+    <slot v-if="slots.actions" name="actions" />
   </UFieldGroup>
 </template>
 
@@ -34,8 +19,7 @@ const props = withDefaults(defineProps<IFormUrlInputProps>(), {
   placeholder: '',
   readonly: false,
   disabled: false,
-  protocolSelectClass: 'w-[118px]',
-  baseUrlOnly: false
+  protocolSelectClass: 'w-[118px]'
 });
 
 /**
@@ -56,7 +40,7 @@ const stateProtocol = ref<'http' | 'https'>('https');
 /**
  * 状态：当前主体内容。
  */
-const stateValue = ref<string>('');
+const stateValue = ref<string | null>(null);
 
 /**
  * 计算属性：协议选项。
@@ -69,32 +53,7 @@ const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
 /**
  * 计算属性：输入框占位文本。
  */
-const computedInputPlaceholder = computed(() => String(props.placeholder || ''));
-
-/**
- * 函数：提取输入值中的协议。
- * @param {string} url 原始输入。
- * @returns {'http' | 'https'} 协议。
- */
-const extractProtocol = (url: string): 'http' | 'https' => (/^http:\/\//i.test(url.trim()) ? 'http' : 'https');
-
-/**
- * 函数：去除输入值中的协议前缀。
- * @param {string} url 原始输入。
- * @returns {string} 去除协议后的输入。
- */
-const stripProtocol = (url: string): string =>
-  url
-    .trim()
-    .replace(/^https?:\/\//i, '')
-    .replace(/^\/\//, '');
-
-/**
- * 函数：提取输入值中的主机部分。
- * @param {string} url 原始输入。
- * @returns {string} 主机部分。
- */
-const extractHost = (url: string): string => stripProtocol(url).match(/^[^/?#]+/)?.[0] ?? '';
+const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholder || '')).value);
 
 /**
  * 函数：拆分完整 URL。
@@ -104,15 +63,20 @@ const extractHost = (url: string): string => stripProtocol(url).match(/^[^/?#]+/
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
   const raw = String(url || '').trim();
   if (!raw) {
-    return { protocol: 'https', value: '' };
+    return { protocol: 'https', value: null };
   }
 
-  const protocol = extractProtocol(raw);
-  const stripped = stripProtocol(raw);
+  if (/^http:\/\//i.test(raw)) {
+    return { protocol: 'http', value: raw.replace(/^http:\/\//i, '') };
+  }
+
+  if (/^https:\/\//i.test(raw)) {
+    return { protocol: 'https', value: raw.replace(/^https:\/\//i, '') };
+  }
 
   return {
-    protocol,
-    value: props.baseUrlOnly ? extractHost(raw) : stripped
+    protocol: 'https',
+    value: raw.replace(/^https?:\/\//i, '')
   };
 };
 
@@ -123,20 +87,14 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @returns {string} 完整 URL。
  */
 const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
-  const normalizedProtocol = protocol || 'https';
   const normalizedValue = String(value || '')
     .trim()
-    .replace(/^https?:\/\//i, '')
-    .replace(/^\/\//, '');
+    .replace(/^https?:\/\//i, '');
   if (!normalizedValue) {
     return '';
   }
 
-  if (props.baseUrlOnly) {
-    return normalizedValue.match(/^[^/?#]+/)?.[0] ?? '';
-  }
-
-  return `${normalizedProtocol}://${normalizedValue}`;
+  return `${protocol}://${normalizedValue}`;
 };
 
 /**
@@ -147,7 +105,7 @@ const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
 const syncFromModel = (value: string): void => {
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value;
+  stateValue.value = parsed.value as string | null;
 };
 
 /**
@@ -158,7 +116,7 @@ const syncFromModel = (value: string): void => {
 const handleValueInput = (value: string | number): void => {
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value;
+  stateValue.value = parsed.value as string | null;
 };
 
 watch(
@@ -170,7 +128,7 @@ watch(
 );
 
 watch([stateProtocol, stateValue], () => {
-  const nextValue = joinUrl(stateProtocol.value || 'https', stateValue.value);
+  const nextValue = joinUrl(stateProtocol.value, stateValue.value);
   if (nextValue !== String(model.value || '')) {
     model.value = nextValue;
   }

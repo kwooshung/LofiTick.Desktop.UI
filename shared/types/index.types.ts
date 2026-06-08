@@ -71,7 +71,7 @@ export type {
   TPoetryKind
 } from '@@/shared/types/pages/poetrys/index.types';
 export type { IPageQqGroupForm, IPageQqGroupsProps, IPageTableColumnQqGroup, IQueryResultQqGroupsSummaryPage, IQueryResultQqGroupsSummaryRow, IQueryResultSocialQqGroupSummaryPage } from '@@/shared/types/pages/qq-groups/index.types';
-export type { IPageCrawlerTargetForm, IPageCrawlersTargetsProps, IQueryResultCrawlerTargetRow, IQueryResultCrawlerTargetSummaryPage } from '@@/shared/types/pages/crawlers/index.types';
+export type { IPageCrawlerTargetForm, IPageCrawlersTargetsProps, IQueryResultCrawlerTargetRow } from '@@/shared/types/pages/crawlers/index.types';
 export type {
   IPageTableColumnQuoteAuthors,
   IPageTableColumnQuotes,

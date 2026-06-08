@@ -28,6 +28,14 @@ export const crawlers = {
           pattern: 'ドメイン形式が不正です'
         }
       },
+      baseUrl: {
+        label: 'ベースURL',
+        placeholder: 'ベースURLを入力（例：https://weibo.com）',
+        verify: {
+          required: 'ベースURLは必須です',
+          pattern: 'URL形式が不正です'
+        }
+      },
       description: {
         label: '説明',
         placeholder: '説明を入力'

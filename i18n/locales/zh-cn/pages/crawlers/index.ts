@@ -28,6 +28,14 @@ export const crawlers = {
           pattern: '域名格式不正确'
         }
       },
+      baseUrl: {
+        label: '基础URL',
+        placeholder: '请输入基础URL，如 https://weibo.com',
+        verify: {
+          required: '基础URL不能为空',
+          pattern: '基础URL格式不正确'
+        }
+      },
       description: {
         label: '描述',
         placeholder: '请输入描述'

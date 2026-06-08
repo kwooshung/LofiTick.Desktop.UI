@@ -28,6 +28,14 @@ export const crawlers = {
           pattern: 'Invalid domain format'
         }
       },
+      baseUrl: {
+        label: 'Base URL',
+        placeholder: 'Enter base URL, e.g. https://weibo.com',
+        verify: {
+          required: 'Base URL is required',
+          pattern: 'Invalid URL format'
+        }
+      },
       description: {
         label: 'Description',
         placeholder: 'Enter description'
