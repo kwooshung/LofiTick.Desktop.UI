@@ -701,8 +701,7 @@ watch(
 );
 
 /**
- * 函数：从 localStorage 加载并应用主题设置
- * TODO: Tauri 桌面端接入 @tauri-apps/api 读取持久化配置
+ * 函数：从 localStorage 加载并应用主题设置。
  */
 const loadSettings = (): void => {
   const mode = localStorage.getItem('app-theme-mode');

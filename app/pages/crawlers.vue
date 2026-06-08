@@ -362,7 +362,7 @@ const handleEditTarget = () => {
  * 事件：添加任务
  */
 const handleAddTask = () => {
-  // TODO: 打开添加任务弹窗
+  void navigateTo(computedPathExecutions.value);
 };
 
 /**

@@ -247,12 +247,12 @@ const statePreviewKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
 const statePreviewLoadingKind = ref<THotsearchPodcastHeadMusicKind | null>(null);
 
 /**
- * 状态：本次试听拿到的可播放地址。
+ * 状态：试听返回的可播放地址。
  */
 const statePreviewPlaybackUrl = ref('');
 
 /**
- * 状态：本次试听拿到的原始远端地址。
+ * 状态：试听返回的原始远端地址。
  */
 const statePreviewRemoteAddress = ref('');
 

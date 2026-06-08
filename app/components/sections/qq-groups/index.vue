@@ -448,7 +448,7 @@ const computedQqGroupDatas = computed<IPageTableColumnQqGroup[]>(() => {
   return datas.value.rows.map((item) => ({
     id: item.id,
     name: item.name,
-    number: item.number,
+    number: String(item.number),
     size: item.size,
     url: item.url,
     full: item.full,
