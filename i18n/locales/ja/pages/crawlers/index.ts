@@ -20,6 +20,12 @@ export const crawlers = {
     add: 'サイトを追加',
     edit: 'サイトを編集',
     addTask: 'タスクを追加',
+    menu: {
+      open: 'サイトを開く',
+      copyDomain: 'ドメインをコピー',
+      copyBaseUrl: 'サイトURLをコピー',
+      openBaseUrl: 'ブラウザで開く'
+    },
     empty: {
       title: '対象サイトがありません',
       description: 'クローラー対象サイトが追加されていません。上のボタンをクリックして追加してください。'

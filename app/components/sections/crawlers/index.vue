@@ -4,7 +4,7 @@
       <div class="flex w-full flex-1 flex-col gap-3">
         <div class="flex flex-wrap items-center gap-3" />
         <div v-if="computedCrawlerRows.length > 0" class="flex w-full flex-1 flex-wrap content-start justify-start gap-4">
-          <Folder v-for="item in computedCrawlerRows" :key="item.id" :label="item.name" icon-name="i-lucide:globe" :to="localePath(`/crawlers/${encodeURIComponent(item.domain)}`)" />
+          <Folder v-for="item in computedCrawlerRows" :key="item.id" :label="item.name" icon-name="i-lucide:globe" :to="localePath(`/crawlers/${encodeURIComponent(item.domain)}`)" :context-menu-props="buildCrawlerTargetContextMenuProps(item)" />
         </div>
         <div v-else class="flex flex-1 items-center justify-center py-12">
           <UEmpty icon="i-lucide:globe" :title="t('pages.crawlers.targets.empty.title')" :description="t('pages.crawlers.targets.empty.description')" />
@@ -27,7 +27,7 @@
           </UFormField>
 
           <UFormField required name="baseUrl" :label="t('pages.crawlers.targets.form.baseUrl.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
-            <FormUrlInput v-model="stateEditor.baseUrl" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
+            <FormUrlInput v-model="stateEditor.baseUrl" base-url-only class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
             <template #error="{ error }">
               <p v-if="error">{{ error }}</p>
             </template>
@@ -64,6 +64,16 @@ const { t } = useI18n();
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
+
+/**
+ * 计算属性：执行记录路由。
+ */
+const computedPathExecutions = computed(() => localePath('/crawlers/executions'));
+
+/**
+ * Hook：爬虫站点动作。
+ */
+const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetActions();
 
 /**
  * 路由：当前页面路由。
@@ -105,6 +115,13 @@ const extractDomainFromUrl = (url: string): string => {
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return matchResult ? matchResult[0] : withoutProtocol;
 };
+
+/**
+ * 函数：归一化用于查重比较的域名。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 归一化域名。
+ */
+const normalizeDomainForUniqueCompare = (value: string): string => extractDomainFromUrl(value).trim().toLowerCase();
 
 /**
  * 常量：表单验证规则
@@ -152,6 +169,16 @@ const stateEditor = ref<IPageCrawlerTargetForm>({
   description: '',
   isEnabled: true
 });
+
+/**
+ * 状态：编辑器打开时的原始域名。
+ */
+const stateEditorOriginalDomain = ref('');
+
+/**
+ * 状态：最近一次触发查重的域名。
+ */
+const stateUniqueCheckingDomainValue = ref('');
 
 /**
  * 函数：获取当前生效分页大小。
@@ -345,6 +372,7 @@ const computedCanSubmit = computed(() => schema.safeParse({ ...stateEditor.value
  * 事件：点击新增
  */
 const handleCreate = () => {
+  stateEditorOriginalDomain.value = '';
   stateEditor.value = {
     id: 0,
     name: '',
@@ -357,12 +385,63 @@ const handleCreate = () => {
 };
 
 /**
+ * 事件：编辑站点。
+ * @param {IQueryResultCrawlerTargetRow} row 站点行。
+ */
+const handleEditTarget = (row: IQueryResultCrawlerTargetRow) => {
+  stateEditorOriginalDomain.value = String(row.domain ?? '').trim();
+  stateEditor.value = {
+    id: Number(row.id ?? 0),
+    name: String(row.name ?? ''),
+    domain: String(row.domain ?? ''),
+    baseUrl: String(row.baseUrl ?? ''),
+    description: String(row.description ?? ''),
+    isEnabled: Boolean(row.isEnabled ?? true)
+  };
+  stateEditorOpen.value = true;
+};
+
+/**
+ * 函数：编辑器域名是否未变化。
+ * @returns {boolean} 未变化时返回 true。
+ */
+const isEditorDomainUnchanged = (): boolean => {
+  const id = Number(stateEditor.value.id ?? 0);
+  const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
+  const originalDomain = normalizeDomainForUniqueCompare(String(stateEditorOriginalDomain.value ?? ''));
+  return id > 0 && domain !== '' && domain === originalDomain;
+};
+
+/**
+ * 函数：构建站点右键菜单属性。
+ * @param {IQueryResultCrawlerTargetRow} row 站点行。
+ * @returns {import('@nuxt/ui').ContextMenuProps} 右键菜单属性。
+ */
+const buildCrawlerTargetContextMenuProps = (row: IQueryResultCrawlerTargetRow) => ({
+  items: buildCrawlerTargetContextMenuItems(row, {
+    onOpen: () => {
+      void navigateTo(localePath(`/crawlers/${encodeURIComponent(row.domain)}`));
+    },
+    onEdit: () => {
+      handleEditTarget(row);
+    },
+    onAddTask: () => {
+      void navigateTo(computedPathExecutions.value);
+    }
+  })
+});
+
+/**
  * 监听：从 baseUrl 自动推导 domain
  */
 watch(
   () => stateEditor.value.baseUrl,
   (val) => {
-    stateEditor.value.domain = extractDomainFromUrl(val ?? '');
+    const domain = extractDomainFromUrl(val ?? '');
+    if (stateEditor.value.baseUrl !== domain) {
+      stateEditor.value.baseUrl = domain;
+    }
+    stateEditor.value.domain = domain;
   },
   { immediate: true }
 );
@@ -373,6 +452,16 @@ watch(
 watch(
   stateUniqueDatas,
   (val) => {
+    if (isEditorDomainUnchanged()) {
+      stateUniqueDomainExists.value = false;
+      return;
+    }
+
+    const domain = String(stateEditor.value.domain ?? '').trim();
+    if (domain === '' || domain !== stateUniqueCheckingDomainValue.value) {
+      return;
+    }
+
     stateUniqueDomainExists.value = Boolean(val?.domainExists);
   },
   { immediate: true }
@@ -391,15 +480,24 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
   if (!isOpen) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
   const id = Number(stateEditor.value.id ?? 0);
-  const domain = String(stateEditor.value.domain ?? '').trim();
+  const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
 
   if (!domain) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
+    return;
+  }
+
+  if (isEditorDomainUnchanged()) {
+    stateUniqueDomainExists.value = false;
+    stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
@@ -408,10 +506,12 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
   if (!shouldCheckDomain) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
   stateUniqueCheckingDomain.value = true;
+  stateUniqueCheckingDomainValue.value = domain;
   refreshUniqueDebounced({ datas: { id, domain }, replace: true });
 });
 
@@ -438,9 +538,10 @@ const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/ta
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   await refreshSave({
     datas: {
+      id: event.data.id,
       name: event.data.name,
-      domain: event.data.domain,
-      baseUrl: event.data.baseUrl,
+      domain: normalizeDomainForUniqueCompare(event.data.domain),
+      baseUrl: extractDomainFromUrl(event.data.baseUrl),
       description: event.data.description ?? '',
       isEnabled: event.data.isEnabled ?? true
     },

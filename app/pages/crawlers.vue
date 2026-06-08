@@ -71,7 +71,11 @@
       </div>
     </template>
 
-    <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
+    <UContextMenu v-if="computedRouteIsDetail && computedDetailContextMenuItems.length > 0" :items="computedDetailContextMenuItems" :ui="{ content: 'w-[min(92vw,20rem)]' }" class="flex min-h-0 flex-1 flex-col">
+      <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
+    </UContextMenu>
+
+    <NuxtPage v-else :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -108,6 +112,20 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 import { z } from 'zod';
+
+/**
+ * 页面：按爬虫路由层级刷新父页实例。
+ */
+definePageMeta({
+  key: (route) => {
+    const domain = route.params.domain;
+    if (typeof domain === 'string' && domain.trim() !== '') {
+      return `crawlers-detail-${domain}`;
+    }
+
+    return 'crawlers-index';
+  }
+});
 
 /**
  * Hook：国际化
@@ -165,6 +183,11 @@ const computedDomain = computed<string>(() => {
 });
 
 /**
+ * Hook：爬虫站点动作。
+ */
+const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetActions();
+
+/**
  * 函数：将域名转换为站点显示名
  * @param {string} domain 域名
  * @returns {string} 站点显示名
@@ -210,9 +233,20 @@ const stateEditor = ref<IPageCrawlerTargetForm>({
   id: 0,
   name: '',
   domain: '',
+  baseUrl: '',
   description: '',
   isEnabled: true
 });
+
+/**
+ * 状态：编辑器打开时的原始域名。
+ */
+const stateEditorOriginalDomain = ref('');
+
+/**
+ * 状态：最近一次触发查重的域名。
+ */
+const stateUniqueCheckingDomainValue = ref('');
 
 /**
  * 常量：表单验证规则
@@ -334,6 +368,25 @@ const computedRouteDetailTitle = computed<string>(() => {
 });
 
 /**
+ * 计算属性：详情页右键菜单项。
+ */
+const computedDetailContextMenuItems = computed(() => {
+  if (!computedRouteIsDetail.value || !stateDetail.value) {
+    return [];
+  }
+
+  return buildCrawlerTargetContextMenuItems(stateDetail.value, {
+    showOpen: false,
+    onEdit: () => {
+      handleEditTarget();
+    },
+    onAddTask: () => {
+      handleAddTask();
+    }
+  });
+});
+
+/**
  * 函数：同步面包屑
  */
 const syncBreadcrumb = () => {
@@ -392,15 +445,48 @@ watch(
  * 事件：编辑站点
  */
 const handleEditTarget = () => {
+  if (!stateDetail.value) {
+    return;
+  }
+
+  stateEditorOriginalDomain.value = String(stateDetail.value.domain ?? '').trim();
   stateEditor.value = {
     id: Number(stateDetail.value?.id ?? 0),
     name: String(stateDetail.value?.name ?? ''),
     domain: String(stateDetail.value?.domain ?? computedDomain.value),
+    baseUrl: String(stateDetail.value?.baseUrl ?? ''),
     description: String(stateDetail.value?.description ?? ''),
     isEnabled: Boolean(stateDetail.value?.isEnabled ?? true)
   };
 
   stateEditorOpen.value = true;
+};
+
+/**
+ * 函数：归一化用于查重比较的域名。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 归一化域名。
+ */
+const normalizeDomainForUniqueCompare = (value: string): string => {
+  const raw = String(value ?? '').trim();
+  if (raw === '') {
+    return '';
+  }
+
+  const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  const matchResult = withoutProtocol.match(/^[^/?#]+/);
+  return (matchResult ? matchResult[0] : withoutProtocol).trim().toLowerCase();
+};
+
+/**
+ * 函数：编辑器域名是否未变化。
+ * @returns {boolean} 未变化时返回 true。
+ */
+const isEditorDomainUnchanged = (): boolean => {
+  const id = Number(stateEditor.value.id ?? 0);
+  const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
+  const originalDomain = normalizeDomainForUniqueCompare(String(stateEditorOriginalDomain.value ?? ''));
+  return id > 0 && domain !== '' && domain === originalDomain;
 };
 
 /**
@@ -416,6 +502,16 @@ const handleAddTask = () => {
 watch(
   stateUniqueDatas,
   (val) => {
+    if (isEditorDomainUnchanged()) {
+      stateUniqueDomainExists.value = false;
+      return;
+    }
+
+    const domain = String(stateEditor.value.domain ?? '').trim();
+    if (domain === '' || domain !== stateUniqueCheckingDomainValue.value) {
+      return;
+    }
+
     stateUniqueDomainExists.value = Boolean(val?.domainExists);
   },
   { immediate: true }
@@ -434,6 +530,7 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
   if (!isOpen) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
@@ -443,6 +540,14 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
   if (!domain) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
+    return;
+  }
+
+  if (isEditorDomainUnchanged()) {
+    stateUniqueDomainExists.value = false;
+    stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
@@ -451,10 +556,12 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
   if (!shouldCheckDomain) {
     stateUniqueDomainExists.value = false;
     stateUniqueCheckingDomain.value = false;
+    stateUniqueCheckingDomainValue.value = '';
     return;
   }
 
   stateUniqueCheckingDomain.value = true;
+  stateUniqueCheckingDomainValue.value = domain;
   refreshUniqueDebounced({ datas: { id, domain }, replace: true });
 });
 

@@ -20,6 +20,12 @@ export const crawlers = {
     add: '新增站點',
     edit: '編輯站點',
     addTask: '添加任務',
+    menu: {
+      open: '開啟站點',
+      copyDomain: '複製網域',
+      copyBaseUrl: '複製站點位址',
+      openBaseUrl: '在瀏覽器中開啟'
+    },
     empty: {
       title: '暫無目標網站',
       description: '還沒有添加任何爬蟲目標網站，點擊上方按鈕添加'

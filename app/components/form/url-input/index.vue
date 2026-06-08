@@ -101,7 +101,8 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
   }
 
   if (props.baseUrlOnly) {
-    return normalizedValue;
+    const matchResult = normalizedValue.match(/^[^/?#]+/);
+    return matchResult ? matchResult[0] : normalizedValue;
   }
 
   return `${protocol}://${normalizedValue}`;

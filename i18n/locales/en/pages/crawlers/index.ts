@@ -20,6 +20,12 @@ export const crawlers = {
     add: 'Add Site',
     edit: 'Edit Site',
     addTask: 'Add Task',
+    menu: {
+      open: 'Open Site',
+      copyDomain: 'Copy Domain',
+      copyBaseUrl: 'Copy Site URL',
+      openBaseUrl: 'Open in Browser'
+    },
     empty: {
       title: 'No Target Sites',
       description: 'No crawler target sites have been added. Click the button above to add one.'
