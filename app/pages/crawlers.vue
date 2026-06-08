@@ -13,18 +13,51 @@
         <div class="hidden shrink-0 items-center gap-2 md:flex">
           <SelectsPagesizes cache-key="crawlers" />
 
-          <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-56 xl:w-64" @keyup.enter="handleKeywordApply">
-            <template #leading>
-              <UIcon name="i-lucide:search" class="text-dimmed size-4" />
-            </template>
+          <UPopover v-model:open="stateSearchPopoverOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] p-0 overflow-hidden' }">
+            <UInput :model-value="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-56 cursor-pointer xl:w-64" readonly @click="stateSearchPopoverOpen = true">
+              <template #leading>
+                <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+              </template>
 
-            <template #trailing>
-              <div class="flex items-center">
-                <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
-                <UKbd v-else value="/" class="ms-1" />
+              <template #trailing>
+                <div class="flex items-center">
+                  <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click.stop="handleFilterReset" />
+                  <UKbd v-else value="/" class="ms-1" />
+                </div>
+              </template>
+            </UInput>
+
+            <template #content>
+              <div class="space-y-4 p-4 sm:p-5">
+                <div>
+                  <div class="text-highlighted text-sm font-semibold">{{ t('pages.crawlers.searchPlaceholder') }}</div>
+                  <div class="text-muted mt-1 text-xs">{{ t('pages.crawlers.targets.title') }}</div>
+                </div>
+
+                <div class="space-y-3">
+                  <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-full" @keyup.enter="handleKeywordApply">
+                    <template #leading>
+                      <UIcon name="i-lucide:search" class="text-dimmed size-4" />
+                    </template>
+
+                    <template #trailing>
+                      <div class="flex items-center">
+                        <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click="handleFilterReset" />
+                        <UKbd v-else value="/" class="ms-1" />
+                      </div>
+                    </template>
+                  </UInput>
+
+                  <SelectsEnabled />
+                </div>
+
+                <div class="border-default flex items-center justify-end gap-2 border-t pt-4">
+                  <UButton color="neutral" variant="outline" @click="handleFilterReset">{{ t('common.actions.reset') }}</UButton>
+                  <UButton icon="i-lucide-search" color="primary" @click="handleKeywordApply">{{ t('common.actions.search') }}</UButton>
+                </div>
               </div>
             </template>
-          </UInput>
+          </UPopover>
         </div>
 
         <UButton icon="i-lucide:plus" color="primary" @click="handleToolbarCreate">
@@ -99,7 +132,7 @@ const route = useRoute();
 /**
  * 引用：工具栏搜索框
  */
-const refToolbarSearchInput = useTemplateRef('refToolbarSearchInput');
+const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 /**
  * 计算属性：目标站点路由
@@ -152,6 +185,11 @@ const stateCreateNonce = ref(0);
  * 状态：工具栏关键词
  */
 const stateToolbarKeyword = ref('');
+
+/**
+ * 状态：搜索面板是否打开。
+ */
+const stateSearchPopoverOpen = ref(false);
 
 /**
  * 状态：编辑器开关
@@ -468,7 +506,19 @@ const handleToolbarCreate = () => {
  * 事件：关键词应用
  */
 const handleKeywordApply = () => {
-  // 触发搜索
+  const keyword = stateToolbarKeyword.value.trim();
+  const query = { ...route.query };
+
+  query.page = '1';
+
+  if (keyword !== '') {
+    query.keyword = keyword;
+  } else {
+    delete query.keyword;
+  }
+
+  navigateTo({ path: route.path, query }, { replace: true });
+  stateSearchPopoverOpen.value = false;
 };
 
 /**
@@ -476,7 +526,44 @@ const handleKeywordApply = () => {
  */
 const handleFilterReset = () => {
   stateToolbarKeyword.value = '';
+  const query = { ...route.query };
+
+  delete query.keyword;
+  delete query.enabled;
+  query.page = '1';
+
+  navigateTo(
+    {
+      path: route.path,
+      query
+    },
+    { replace: true }
+  );
+  stateSearchPopoverOpen.value = false;
 };
+
+/**
+ * 监听：路由关键词变化时同步到工具栏输入。
+ */
+watch(
+  () => route.query.keyword,
+  (value) => {
+    stateToolbarKeyword.value = String(value ?? '').trim();
+  },
+  { immediate: true }
+);
+
+/**
+ * 监听：搜索面板打开后自动聚焦关键词输入。
+ */
+watch(stateSearchPopoverOpen, async (isOpen) => {
+  if (!isOpen) {
+    return;
+  }
+
+  await nextTick();
+  refToolbarSearchInput.value?.inputRef?.focus();
+});
 
 /**
  * 快捷键
@@ -486,7 +573,7 @@ defineShortcuts({
    * 聚焦搜索框
    */
   '/': () => {
-    refToolbarSearchInput.value?.inputRef?.focus();
+    stateSearchPopoverOpen.value = true;
   }
 });
 </script>

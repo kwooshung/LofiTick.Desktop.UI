@@ -2,9 +2,7 @@
   <div class="flex min-h-0 flex-1 flex-col">
     <DashboardPage :padded="false" class="flex-1 p-4 sm:gap-3 sm:p-3">
       <div class="flex w-full flex-1 flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
-          <USelect v-model="stateEnabled" value-key="id" :items="computedEnabledItems" :placeholder="t('components.selects.enabled.placeholder')" class="w-56" />
-        </div>
+        <div class="flex flex-wrap items-center gap-3" />
         <div v-if="computedCrawlerRows.length > 0" class="flex w-full flex-1 flex-wrap content-start justify-start gap-4">
           <Folder v-for="item in computedCrawlerRows" :key="item.id" :label="item.name" icon-name="i-lucide:globe" :to="localePath(`/crawlers/${encodeURIComponent(item.domain)}`)" />
         </div>
@@ -54,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent, SelectItem } from '@nuxt/ui';
+import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
@@ -76,20 +74,6 @@ const route = useRoute();
  * 组件：分页。
  */
 const UPagination = resolveComponent('UPagination');
-
-/**
- * 计算属性：启用状态筛选项。
- */
-const computedEnabledItems = computed<SelectItem[]>(() => [
-  { id: 'all', label: t('components.selects.enabled.items.all') },
-  { id: 'enabled', label: t('components.selects.enabled.items.enabled') },
-  { id: 'disabled', label: t('components.selects.enabled.items.disabled') }
-]);
-
-/**
- * 状态：启用状态筛选。
- */
-const stateEnabled = ref<'all' | 'enabled' | 'disabled'>('all');
 
 /**
  * 状态：分页大小 cookie。
@@ -288,38 +272,6 @@ watch(
   () => {
     refreshList({ datas: buildCrawlerQueryFromRoute(), replace: true });
   }
-);
-
-/**
- * 监听：启用状态筛选变化并回写路由。
- */
-watch(stateEnabled, (value) => {
-  const nextEnabled = value === 'all' ? undefined : value === 'enabled' ? '1' : '0';
-  const currentEnabled = String(route.query.enabled ?? '').trim();
-
-  if ((nextEnabled ?? '') === currentEnabled) {
-    return;
-  }
-
-  navigateTo({
-    path: route.path,
-    query: {
-      ...route.query,
-      page: '1',
-      ...(nextEnabled ? { enabled: nextEnabled } : {})
-    }
-  });
-});
-
-/**
- * 监听：路由启用状态变化时同步筛选控件。
- */
-watch(
-  () => route.query.enabled,
-  () => {
-    stateEnabled.value = readEnabledStateFromRoute();
-  },
-  { immediate: true }
 );
 
 /**

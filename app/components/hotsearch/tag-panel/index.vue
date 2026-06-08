@@ -78,7 +78,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜标签面板顶部锚点。
  */
-const refHotsearchTagPanelTop = useTemplateRef('refHotsearchTagPanelTop');
+const refHotsearchTagPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * 函数：获取当前默认日期。

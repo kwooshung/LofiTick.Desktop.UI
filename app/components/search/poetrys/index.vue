@@ -227,12 +227,12 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = useTemplateRef('refAuthorMenu');
+const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，朝代
  */
-const refDynastyMenu = useTemplateRef('refDynastyMenu');
+const refDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关

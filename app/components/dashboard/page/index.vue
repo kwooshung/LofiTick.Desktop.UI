@@ -23,7 +23,7 @@ const route = useRoute();
 /**
  * 引用：仪表板面板组件
  */
-const refDashboardPanelScroll = useTemplateRef('refDashboardPanelScroll');
+const refDashboardPanelScroll = ref<HTMLElement | null>(null);
 
 /**
  * 监听：路由查询参数变化，滚动到顶部

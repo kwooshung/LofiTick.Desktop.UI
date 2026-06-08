@@ -132,17 +132,17 @@ let blurCloseTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 /**
  * 引用：根元素与重命名输入框元素引用
  */
-const refRootEl = useTemplateRef('refRootEl');
+const refRootEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：重命名输入框外层元素引用
  */
-const refRelabelWrapEl = useTemplateRef('refRelabelWrapEl');
+const refRelabelWrapEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：名称元素引用
  */
-const refLabelEl = useTemplateRef('refLabelEl');
+const refLabelEl = ref<HTMLElement | null>(null);
 
 /**
  * 状态：内部选中状态（受控/非受控）

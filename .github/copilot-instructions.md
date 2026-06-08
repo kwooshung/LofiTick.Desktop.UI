@@ -107,6 +107,8 @@
 - 如果怀疑是"没有全局导入"而不是"类型/变量不存在"，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。
 - Vue SFC 宏例外（强制）：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 这类编译期宏所使用的类型参数，必须优先使用当前文件可静态解析的显式 `import type`；不要依赖 Nuxt 的全局自动导入类型去喂给这些宏，否则可能出现 `Unresolvable type reference` 编译错误。
 
+- 模板引用选择（强制）：在 `<script setup>` 中获取 DOM 或组件引用时，优先使用 `ref` 同名变量自动绑定（Vue 编译器自动识别顶层同名 `ref` 与模板 `ref` 属性）；只有当场景需要动态 ref 名（`:ref="dynamicName"`）或非顶层作用域绑定时，才使用 `useTemplateRef()`。不要在常规场景下为了"显得高级"而刻意使用 `useTemplateRef`。
+
 - Vue 页面与组件中，禁止使用 `te(...)` 先判断翻译键是否存在再决定是否调用 `t(...)`；应直接调用 `t(...)`，缺失的翻译键必须补齐到对应 `i18n` 文件，禁止用运行时探测键存在性来兜底。
 
 ### 3.2.1 导入路径（强制）

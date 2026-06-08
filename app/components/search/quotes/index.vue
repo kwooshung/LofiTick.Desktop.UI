@@ -3,6 +3,7 @@
     <DefineQuotesSearchPanelBody>
       <div class="grid gap-3 sm:grid-cols-2">
         <USelectMenu
+          ref="refUuidMenu"
           v-model="stateSelectedUuid"
           v-model:search-term="stateKeywordUuid"
           icon="i-material-symbols:flag-outline-rounded"
@@ -236,12 +237,17 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = useTemplateRef('refAuthorMenu');
+const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+
+/**
+ * 引用：选择菜单，UUID
+ */
+const refUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，出处
  */
-const refSourceMenu = useTemplateRef('refSourceMenu');
+const refSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -735,7 +741,7 @@ watch(
 /**
  * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
-watch(stateOpen, (isOpen) => {
+watch(stateOpen, async (isOpen) => {
   if (!isOpen || !props.routeIsList) {
     return;
   }
@@ -747,6 +753,9 @@ watch(stateOpen, (isOpen) => {
   refreshUuidDebounced({ datas: { q: stateKeywordUuid.value } });
   refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
   refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
+
+  await nextTick();
+  triggerQuickFocus();
 });
 
 /**
@@ -765,6 +774,11 @@ const syncSearchPanelViewportMode = (): void => {
  * 事件：根据当前路由快捷聚焦对应控件
  */
 const triggerQuickFocus = () => {
+  if (props.routeIsList) {
+    refUuidMenu.value?.triggerRef.click();
+    return;
+  }
+
   if (props.routeIsAuthors) {
     refAuthorMenu.value?.triggerRef.click();
   } else if (props.routeIsSources) {

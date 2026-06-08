@@ -105,7 +105,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜数据面板顶部锚点。
  */
-const refHotsearchDataPanelTop = useTemplateRef('refHotsearchDataPanelTop');
+const refHotsearchDataPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * Hook：Tauri 运行环境。

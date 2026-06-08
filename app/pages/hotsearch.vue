@@ -71,7 +71,7 @@
     <div class="flex flex-1 flex-col overflow-hidden">
       <div v-if="computedToolbarPanelVisible" :class="['border-default bg-elevated/15 flex shrink-0 flex-col px-4 sm:px-6', computedRouteIsPodcast ? '' : 'border-b']">
         <template v-if="computedRouteIsDataSection">
-          <div class="border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-3 overflow-hidden border-b px-4 sm:-mx-6 sm:px-6">
+          <div class="border-default bg-default/80 relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-3 overflow-hidden px-4 shadow-md shadow-black/3 sm:-mx-6 sm:px-6">
             <div class="relative z-10 min-w-0 flex-1">
               <UNavigationMenu :items="computedDataVariantLinks" highlight class="-translate-x-2.5" />
             </div>
@@ -96,8 +96,10 @@
         </template>
 
         <template v-else-if="computedRouteIsPodcast">
-          <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
-            <div class="border-default after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
+          <div class="bg-default/75 border-default after:border-default relative -mx-4 flex shrink-0 flex-col gap-3 px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6">
+            <div
+              class="border-default bg-default/80 after:border-default relative -mx-4 flex h-12.25 shrink-0 items-center justify-between gap-1.5 overflow-hidden px-4 after:absolute after:inset-x-0 after:bottom-0 after:z-0 after:block after:w-full after:border-b after:content-[''] sm:-mx-6 sm:px-6"
+            >
               <div class="relative z-10 min-w-0 flex-1">
                 <UNavigationMenu v-if="computedPodcastVariantLinks.length > 0" :items="computedPodcastVariantLinks" highlight class="-translate-x-2.5" />
               </div>
@@ -265,7 +267,7 @@ const stateToolbarKeyword = ref('');
 /**
  * 引用：工具栏搜索框。
  */
-const refToolbarSearchInput = useTemplateRef('refToolbarSearchInput');
+const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 /**
  * API：热搜日期摘要。

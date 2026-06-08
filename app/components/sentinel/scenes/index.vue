@@ -97,7 +97,7 @@ const stateForm = reactive<ISentinelScenesConfigFormState>({
 /**
  * 引用：表单
  */
-const refForm = useTemplateRef('refForm');
+const refForm = ref<{ clear: () => void; submit: () => void } | null>(null);
 
 /**
  * 计算属性：表单 id
