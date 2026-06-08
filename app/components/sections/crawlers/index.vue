@@ -26,7 +26,7 @@
           </UFormField>
 
           <UFormField required name="baseUrl" :label="t('pages.crawlers.targets.form.baseUrl.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
-            <UrlInput v-model="stateEditor.baseUrl" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
+            <FormUrlInput v-model="stateEditor.baseUrl" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
             <template #error="{ error }">
               <p v-if="error">{{ error }}</p>
             </template>
@@ -53,8 +53,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
-
-import UrlInput from '@/components/form/url-input/index.vue';
 
 /**
  * Hook：国际化
