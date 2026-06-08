@@ -41,7 +41,7 @@ const stateProtocol = ref<'http' | 'https'>('https');
 /**
  * 状态：当前主体内容。
  */
-const stateValue = ref<string | null>(null);
+const stateValue = ref<string>('');
 
 /**
  * 计算属性：协议选项。
@@ -64,7 +64,7 @@ const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholde
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
   const raw = String(url || '').trim();
   if (!raw) {
-    return { protocol: 'https', value: null as unknown as string };
+    return { protocol: 'https', value: '' };
   }
 
   let protocol: 'http' | 'https' = 'https';
@@ -92,7 +92,7 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @param {string} value 协议后面的主体内容。
  * @returns {string} 完整 URL。
  */
-const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
+const joinUrl = (protocol: 'http' | 'https', value: string): string => {
   const normalizedValue = String(value || '')
     .trim()
     .replace(/^https?:\/\//i, '');
@@ -115,7 +115,7 @@ const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
 const syncFromModel = (value: string): void => {
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value as string | null;
+  stateValue.value = parsed.value;
 };
 
 /**
@@ -129,12 +129,12 @@ const handleValueInput = (value: string | number): void => {
 
   if (props.baseUrlOnly && parsed.value === stateValue.value) {
     const temp = stateValue.value;
-    stateValue.value = null;
+    stateValue.value = '';
     nextTick(() => {
-      stateValue.value = temp as string | null;
+      stateValue.value = temp;
     });
   } else {
-    stateValue.value = parsed.value as string | null;
+    stateValue.value = parsed.value;
   }
 };
 
@@ -144,7 +144,7 @@ const handleInputBlur = (): void => {
   }
   const parsed = splitUrl(joinUrl(stateProtocol.value, stateValue.value));
   if (parsed.value !== stateValue.value) {
-    stateValue.value = parsed.value as string | null;
+    stateValue.value = parsed.value;
   }
 };
 

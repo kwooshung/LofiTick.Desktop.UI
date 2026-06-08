@@ -55,7 +55,6 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 import UrlInput from '@/components/form/url-input/index.vue';
-import type { IQueryResultCrawlerTargetSummaryPage } from '@@/shared/types/index.types';
 
 /**
  * Hook：国际化
