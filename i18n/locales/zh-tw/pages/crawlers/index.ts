@@ -33,6 +33,7 @@ export const crawlers = {
         placeholder: '請輸入基礎URL，如 https://weibo.com',
         verify: {
           required: '基礎URL不能為空',
+          length: '基礎URL不能超過255個字元',
           pattern: '基礎URL格式不正確'
         }
       },

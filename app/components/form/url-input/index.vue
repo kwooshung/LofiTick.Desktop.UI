@@ -100,12 +100,16 @@ const joinUrl = (protocol: 'http' | 'https', value: string | null): string => {
     return '';
   }
 
+  if (props.baseUrlOnly) {
+    return normalizedValue;
+  }
+
   return `${protocol}://${normalizedValue}`;
 };
 
 /**
  * 函数：根据外部值同步内部状态。
- * @param {string} value 完整 URL。
+ * @param {string} value 外部传入的值。
  * @returns {void} 无返回值。
  */
 const syncFromModel = (value: string): void => {

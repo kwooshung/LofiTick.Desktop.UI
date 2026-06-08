@@ -33,6 +33,7 @@ export const crawlers = {
         placeholder: 'ベースURLを入力（例：https://weibo.com）',
         verify: {
           required: 'ベースURLは必須です',
+          length: 'ベースURLは255文字以内です',
           pattern: 'URL形式が不正です'
         }
       },

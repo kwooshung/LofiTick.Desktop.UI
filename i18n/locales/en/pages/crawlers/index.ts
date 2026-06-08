@@ -33,6 +33,7 @@ export const crawlers = {
         placeholder: 'Enter base URL, e.g. https://weibo.com',
         verify: {
           required: 'Base URL is required',
+          length: 'Base URL must not exceed 255 characters',
           pattern: 'Invalid URL format'
         }
       },

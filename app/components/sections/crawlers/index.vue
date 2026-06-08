@@ -25,8 +25,8 @@
             <UInput v-model="stateEditor.name" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.name.placeholder')" />
           </UFormField>
 
-          <UFormField required name="domain" :label="t('pages.crawlers.targets.form.domain.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
-            <UrlInput v-model="stateEditor.domain" base-url-only class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.domain.placeholder')" />
+          <UFormField required name="baseUrl" :label="t('pages.crawlers.targets.form.baseUrl.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <UrlInput v-model="stateEditor.baseUrl" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
             <template #error="{ error }">
               <p v-if="error">{{ error }}</p>
             </template>
@@ -94,6 +94,21 @@ const props = withDefaults(defineProps<IPageCrawlersTargetsProps>(), {
 });
 
 /**
+ * 函数：从完整 URL 提取纯域名
+ * @param {string} url 完整 URL
+ * @returns {string} 纯域名
+ */
+const extractDomainFromUrl = (url: string): string => {
+  const raw = String(url || '').trim();
+  if (!raw) {
+    return '';
+  }
+  const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  const matchResult = withoutProtocol.match(/^[^/?#]+/);
+  return matchResult ? matchResult[0] : withoutProtocol;
+};
+
+/**
  * 常量：表单验证规则
  */
 const schema = z.object({
@@ -103,6 +118,11 @@ const schema = z.object({
     .trim()
     .min(1, t('pages.crawlers.targets.form.name.verify.required'))
     .max(255, t('pages.crawlers.targets.form.name.verify.length')),
+  baseUrl: z
+    .string({ message: t('pages.crawlers.targets.form.baseUrl.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.baseUrl.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.baseUrl.verify.length')),
   domain: z
     .string({ message: t('pages.crawlers.targets.form.domain.verify.required') })
     .trim()
@@ -130,6 +150,7 @@ const stateEditor = ref<IPageCrawlerTargetForm>({
   id: 0,
   name: '',
   domain: '',
+  baseUrl: '',
   description: '',
   isEnabled: true
 });
@@ -307,11 +328,23 @@ const handleCreate = () => {
     id: 0,
     name: '',
     domain: '',
+    baseUrl: '',
     description: '',
     isEnabled: true
   };
   stateEditorOpen.value = true;
 };
+
+/**
+ * 监听：从 baseUrl 自动推导 domain
+ */
+watch(
+  () => stateEditor.value.baseUrl,
+  (val) => {
+    stateEditor.value.domain = extractDomainFromUrl(val ?? '');
+  },
+  { immediate: true }
+);
 
 /**
  * 监听：查重接口返回
@@ -386,6 +419,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     datas: {
       name: event.data.name,
       domain: event.data.domain,
+      baseUrl: event.data.baseUrl,
       description: event.data.description ?? '',
       isEnabled: event.data.isEnabled ?? true
     },
