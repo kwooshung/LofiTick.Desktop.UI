@@ -14,14 +14,14 @@
           <template #content>
             <div class="w-88 space-y-3 p-3 sm:w-96">
               <UCalendar
-                v-model="computedCalendarModelValue"
+                v-model="computedCalendarModelValueUi"
                 color="neutral"
                 variant="subtle"
-                :min-value="computedCalendarMinValue"
-                :max-value="computedCalendarMaxValue"
-                :placeholder="stateCalendarPlaceholder"
-                :prev-page="calendarPrevPageGet"
-                :next-page="calendarNextPageGet"
+                :min-value="computedCalendarMinValueUi"
+                :max-value="computedCalendarMaxValueUi"
+                :placeholder="computedCalendarPlaceholderUi"
+                :prev-page="calendarPrevPageGetUi"
+                :next-page="calendarNextPageGetUi"
                 :prev-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtFirstMonth }"
                 :next-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtLastMonth }"
                 :year-controls="false"
@@ -171,12 +171,27 @@
 </template>
 
 <script setup lang="ts">
-import type { DateValue } from '@internationalized/date';
 import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
 
+/**
+ * 类型：日历日期值。
+ */
+interface ICalendarDateValue {
+  /** 年。 */
+  year: number;
+
+  /** 月。 */
+  month: number;
+
+  /** 日。 */
+  day: number;
+}
+
 type TMediaPlyrExposed = {
-  play: () => Promise<void>;
+  player: {
+    play: () => Promise<void>;
+  } | null;
 };
 
 /**
@@ -409,6 +424,11 @@ const computedDatePickerDisplaySummary = computed(() => computedDateSummaryMap.v
 const computedCalendarMinValue = computed(() => calendarDateFromIsoGet(computedDateSummaries.value.at(-1)?.date ?? computedSelectedDate.value) ?? today(calendarTimeZone));
 
 /**
+ * 计算属性：日历最小日期（UI 边界值）。
+ */
+const computedCalendarMinValueUi = computed(() => computedCalendarMinValue.value as never);
+
+/**
  * 计算属性：日历最大日期。
  */
 const computedCalendarMaxValue = computed(() => {
@@ -421,6 +441,16 @@ const computedCalendarMaxValue = computed(() => {
 
   return latestAvailableDate.compare(todayValue) >= 0 ? latestAvailableDate : todayValue;
 });
+
+/**
+ * 计算属性：日历最大日期（UI 边界值）。
+ */
+const computedCalendarMaxValueUi = computed(() => computedCalendarMaxValue.value as never);
+
+/**
+ * 计算属性：日历当前展示月份（UI 边界值）。
+ */
+const computedCalendarPlaceholderUi = computed(() => stateCalendarPlaceholder.value as never);
 
 /**
  * 计算属性：当前是否位于首个可选月份。
@@ -463,6 +493,16 @@ const computedCalendarModelValue = computed<CalendarDate>({
     stateDatePickerPreviewDate.value = '';
     stateDatePickerOpen.value = false;
     handleDateChange(nextDate);
+  }
+});
+
+/**
+ * 计算属性：日历双向绑定值（UI 边界值）。
+ */
+const computedCalendarModelValueUi = computed({
+  get: () => computedCalendarModelValue.value as never,
+  set: (value: never) => {
+    computedCalendarModelValue.value = value as unknown as CalendarDate;
   }
 });
 
@@ -789,7 +829,7 @@ const handlePodcastVideoModalOpen = async (): Promise<void> => {
   await nextTick();
   statePodcastVideoModalPlayerVisible.value = true;
   await nextTick();
-  await refPodcastVideoPlayer.value?.play();
+  await refPodcastVideoPlayer.value?.player?.play();
 };
 
 /**
@@ -807,7 +847,7 @@ const handlePodcastAudioModalOpen = async (): Promise<void> => {
   await nextTick();
   statePodcastAudioModalPlayerVisible.value = true;
   await nextTick();
-  await refPodcastAudioPlayer.value?.play();
+  await refPodcastAudioPlayer.value?.player?.play();
 };
 
 /**
@@ -832,7 +872,7 @@ const calendarDateFromIsoGet = (value: string): CalendarDate | null => {
  * @param {DateValue} value 日历日期。
  * @return {string}
  */
-const calendarIsoDateGet = (value: DateValue): string => {
+const calendarIsoDateGet = (value: ICalendarDateValue): string => {
   return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
 };
 
@@ -842,7 +882,7 @@ const calendarIsoDateGet = (value: DateValue): string => {
  * @param {DateValue} value 日历日期。
  * @return {IHotsearchArchiveDateSummary | null}
  */
-const calendarDateSummaryGet = (value: DateValue): IHotsearchArchiveDateSummary | null => {
+const calendarDateSummaryGet = (value: ICalendarDateValue): IHotsearchArchiveDateSummary | null => {
   return computedDateSummaryMap.value.get(calendarIsoDateGet(value)) ?? null;
 };
 
@@ -852,7 +892,7 @@ const calendarDateSummaryGet = (value: DateValue): IHotsearchArchiveDateSummary 
  * @param {DateValue} value 日历日期。
  * @return {'primary' | 'success'}
  */
-const calendarDateSummaryColorGet = (value: DateValue): 'primary' | 'success' => {
+const calendarDateSummaryColorGet = (value: ICalendarDateValue): 'primary' | 'success' => {
   const summary = calendarDateSummaryGet(value);
 
   return summary && summary.podcastCount > 0 ? 'success' : 'primary';
@@ -866,7 +906,7 @@ const calendarDateSummaryColorGet = (value: DateValue): 'primary' | 'success' =>
  * @param {DateValue} value 日历日期。
  * @return {boolean}
  */
-const calendarDateSelectableGet = (value: DateValue): boolean => {
+const calendarDateSelectableGet = (value: ICalendarDateValue): boolean => {
   const isoDate = calendarIsoDateGet(value);
 
   return isoDate === computedTodayDate.value || computedDateSummaryMap.value.has(isoDate);
@@ -878,7 +918,7 @@ const calendarDateSelectableGet = (value: DateValue): boolean => {
  * @param {DateValue} value 日历日期。
  * @return {boolean}
  */
-const calendarDateDisabledGet = (value: DateValue): boolean => {
+const calendarDateDisabledGet = (value: ICalendarDateValue): boolean => {
   return !calendarDateSelectableGet(value);
 };
 
@@ -888,7 +928,7 @@ const calendarDateDisabledGet = (value: DateValue): boolean => {
  * @param {DateValue} value 日历日期。
  * @return {string}
  */
-const calendarMonthKeyGet = (value: DateValue): string => {
+const calendarMonthKeyGet = (value: ICalendarDateValue): string => {
   return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}`;
 };
 
@@ -898,7 +938,7 @@ const calendarMonthKeyGet = (value: DateValue): string => {
  * @param {DateValue} value 日历日期。
  * @return {CalendarDate}
  */
-const calendarMonthValueGet = (value: DateValue): CalendarDate => {
+const calendarMonthValueGet = (value: ICalendarDateValue): CalendarDate => {
   return new CalendarDate(value.year, value.month, 1);
 };
 
@@ -924,7 +964,7 @@ const calendarMonthValueFromIsoGet = (value: string): CalendarDate | null => {
  * @param {DateValue} value 目标月份。
  * @return {CalendarDate | null}
  */
-const calendarNearestMonthGet = (value: DateValue): CalendarDate | null => {
+const calendarNearestMonthGet = (value: ICalendarDateValue): CalendarDate | null => {
   const months = computedAvailableCalendarMonths.value;
 
   if (months.length <= 0) {
@@ -953,7 +993,7 @@ const calendarNearestMonthGet = (value: DateValue): CalendarDate | null => {
  * @param {number} delta 偏移量。
  * @return {CalendarDate}
  */
-const calendarAdjacentMonthGet = (value: DateValue, delta: number): CalendarDate => {
+const calendarAdjacentMonthGet = (value: ICalendarDateValue, delta: number): CalendarDate => {
   const months = computedAvailableCalendarMonths.value;
 
   if (months.length <= 0) {
@@ -978,8 +1018,23 @@ const calendarAdjacentMonthGet = (value: DateValue, delta: number): CalendarDate
  * @param {DateValue} value 当前月份。
  * @return {CalendarDate}
  */
-const calendarPrevPageGet = (value: DateValue): CalendarDate => {
+const calendarPrevPageGet = (value: ICalendarDateValue): CalendarDate => {
   return calendarAdjacentMonthGet(value, -1);
+};
+
+/**
+ * 函数：获取上一可选月份（UI 边界值）。
+ *
+ * # Arguments
+ *
+ * * `value` - 当前月份。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const calendarPrevPageGetUi = (value: ICalendarDateValue): never => {
+  return calendarPrevPageGet(value) as never;
 };
 
 /**
@@ -988,8 +1043,23 @@ const calendarPrevPageGet = (value: DateValue): CalendarDate => {
  * @param {DateValue} value 当前月份。
  * @return {CalendarDate}
  */
-const calendarNextPageGet = (value: DateValue): CalendarDate => {
+const calendarNextPageGet = (value: ICalendarDateValue): CalendarDate => {
   return calendarAdjacentMonthGet(value, 1);
+};
+
+/**
+ * 函数：获取下一可选月份（UI 边界值）。
+ *
+ * # Arguments
+ *
+ * * `value` - 当前月份。
+ *
+ * # Returns
+ *
+ * 无返回值。
+ */
+const calendarNextPageGetUi = (value: ICalendarDateValue): never => {
+  return calendarNextPageGet(value) as never;
 };
 
 /**
@@ -998,7 +1068,7 @@ const calendarNextPageGet = (value: DateValue): CalendarDate => {
  * @param {value} value 日历月份值。
  * @return {void}
  */
-const handleCalendarPlaceholderUpdate = (value: DateValue): void => {
+const handleCalendarPlaceholderUpdate = (value: ICalendarDateValue): void => {
   stateCalendarPlaceholder.value = calendarNearestMonthGet(value) ?? computedSelectedMonthValue.value;
 };
 
@@ -1008,7 +1078,7 @@ const handleCalendarPlaceholderUpdate = (value: DateValue): void => {
  * @param {DateValue} value 日历日期。
  * @return {void}
  */
-const handleDatePreview = (value: DateValue): void => {
+const handleDatePreview = (value: ICalendarDateValue): void => {
   const nextDate = calendarIsoDateGet(value);
 
   if (!calendarDateSelectableGet(value)) {
