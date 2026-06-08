@@ -2,7 +2,7 @@
   <UFieldGroup class="w-full">
     <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" :disabled="props.readonly || props.disabled" :class="props.protocolSelectClass" />
 
-    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" />
+    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" @blur="handleInputBlur" />
 
     <slot v-if="slots.actions" name="actions" />
   </UFieldGroup>
@@ -19,7 +19,8 @@ const props = withDefaults(defineProps<IFormUrlInputProps>(), {
   placeholder: '',
   readonly: false,
   disabled: false,
-  protocolSelectClass: 'w-[118px]'
+  protocolSelectClass: 'w-[118px]',
+  baseUrlOnly: false
 });
 
 /**
@@ -63,21 +64,26 @@ const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholde
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
   const raw = String(url || '').trim();
   if (!raw) {
-    return { protocol: 'https', value: null };
+    return { protocol: 'https', value: null as unknown as string };
   }
+
+  let protocol: 'http' | 'https' = 'https';
+  let body: string = raw;
 
   if (/^http:\/\//i.test(raw)) {
-    return { protocol: 'http', value: raw.replace(/^http:\/\//i, '') };
+    protocol = 'http';
+    body = raw.replace(/^http:\/\//i, '');
+  } else if (/^https:\/\//i.test(raw)) {
+    protocol = 'https';
+    body = raw.replace(/^https:\/\//i, '');
   }
 
-  if (/^https:\/\//i.test(raw)) {
-    return { protocol: 'https', value: raw.replace(/^https:\/\//i, '') };
+  if (props.baseUrlOnly) {
+    const matchResult = body.match(/^[^/?#]+/);
+    body = matchResult ? matchResult[0] : body;
   }
 
-  return {
-    protocol: 'https',
-    value: raw.replace(/^https?:\/\//i, '')
-  };
+  return { protocol, value: body };
 };
 
 /**
@@ -116,7 +122,26 @@ const syncFromModel = (value: string): void => {
 const handleValueInput = (value: string | number): void => {
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
-  stateValue.value = parsed.value as string | null;
+
+  if (props.baseUrlOnly && parsed.value === stateValue.value) {
+    const temp = stateValue.value;
+    stateValue.value = null;
+    nextTick(() => {
+      stateValue.value = temp as string | null;
+    });
+  } else {
+    stateValue.value = parsed.value as string | null;
+  }
+};
+
+const handleInputBlur = (): void => {
+  if (!props.baseUrlOnly) {
+    return;
+  }
+  const parsed = splitUrl(joinUrl(stateProtocol.value, stateValue.value));
+  if (parsed.value !== stateValue.value) {
+    stateValue.value = parsed.value as string | null;
+  }
 };
 
 watch(
