@@ -28,23 +28,13 @@ export interface IBuildCrawlerTargetContextMenuItemsOptions {
 /**
  * Hook：爬虫站点动作。
  *
- * 统一承载站点卡片与详情页共用的右键菜单动作、复制与外部打开逻辑。
+ * 统一承载站点卡片与详情页共用的右键菜单动作与复制逻辑。
  *
  * # Returns
  *
  * 返回站点动作构建器与通用辅助函数。
  */
 export const useCrawlerTargetActions = () => {
-  /**
-   * Hook：Tauri 运行环境。
-   */
-  const { isTauriRuntime } = useTauriEnv();
-
-  /**
-   * Hook：窗口能力。
-   */
-  const { openExternalUrl } = useTauriWindow();
-
   /**
    * Hook：国际化。
    */
@@ -91,31 +81,6 @@ export const useCrawlerTargetActions = () => {
         return false;
       }
     }
-  };
-
-  /**
-   * 函数：打开外部站点地址。
-   *
-   * # Arguments
-   *
-   * * `baseUrl` - 站点基础地址。
-   *
-   * # Returns
-   *
-   * 无返回值。
-   */
-  const openCrawlerTargetBaseUrl = async (baseUrl: string): Promise<void> => {
-    const url = String(baseUrl ?? '').trim();
-    if (url === '' || !import.meta.client) {
-      return;
-    }
-
-    if (isTauriRuntime.value) {
-      await openExternalUrl(url);
-      return;
-    }
-
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   /**
@@ -170,12 +135,6 @@ export const useCrawlerTargetActions = () => {
         icon: 'i-lucide:copy',
         disabled: baseUrl === '',
         onSelect: () => void copyToClipboard(baseUrl)
-      },
-      {
-        label: t('pages.crawlers.targets.menu.openBaseUrl'),
-        icon: 'i-lucide:external-link',
-        disabled: baseUrl === '',
-        onSelect: () => void openCrawlerTargetBaseUrl(baseUrl)
       }
     ]);
 
@@ -184,7 +143,6 @@ export const useCrawlerTargetActions = () => {
 
   return {
     copyToClipboard,
-    openCrawlerTargetBaseUrl,
     buildCrawlerTargetContextMenuItems
   };
 };

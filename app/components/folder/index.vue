@@ -21,7 +21,6 @@
       role="option"
       tabindex="0"
       @click.stop="onClick"
-      @contextmenu.stop="handleContextMenu"
       @keydown.stop="handleKeydown"
       @pointerdown.stop="onPointerDown"
       @pointerup.stop="onPointerUp"
@@ -38,7 +37,7 @@
               {{ displayLabel }}
             </div>
             <div v-else ref="refRelabelWrapEl" class="w-full">
-              <UInput v-model="stateDraftLabel" variant="ghost" highlight @keydown.enter.prevent="confirmRelabel" @keydown.esc.prevent="onInputEsc" @blur="handleInputBlur" />
+              <UInput :model-value="stateDraftLabel" variant="ghost" @update:model-value="handleRelabelInputUpdate" @keyup.prevent="handleRelabelInputKeyup" @blur="handleInputBlur" />
             </div>
           </div>
         </div>
@@ -299,6 +298,31 @@ const onInputEsc = () => {
 };
 
 /**
+ * 事件：重命名输入框键盘抬起。
+ * @param {KeyboardEvent} e 键盘事件。
+ */
+const handleRelabelInputKeyup = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    confirmRelabel();
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    onInputEsc();
+  }
+};
+
+/**
+ * 事件：重命名输入框内容更新。
+ * @param {string | number} value 新输入值。
+ */
+const handleRelabelInputUpdate = (value: string | number) => {
+  stateDraftLabel.value = String(value ?? '');
+};
+
+/**
  * 事件：输入框 blur（延迟取消，若根 click 先处理将清理该定时）
  */
 const handleInputBlur = () => {
@@ -356,6 +380,15 @@ const handleKeydown = (e: KeyboardEvent) => {
 const onPointerDown = (e: PointerEvent) => {
   pointerDownPos = { x: e.clientX, y: e.clientY };
   movedBeyondTolerance = false;
+
+  if (e.button === 2) {
+    if (props.selectable && !computedIsSelected.value) {
+      computedIsSelected.value = true;
+    }
+    if (stateIsRenaming.value) {
+      cancelRelabel();
+    }
+  }
 };
 
 /**
@@ -463,25 +496,6 @@ const onClick = (e: MouseEvent) => {
 
   lastClickTime = now;
   lastClickPos = { x: e.clientX, y: e.clientY };
-};
-
-/**
- * 事件：右键菜单
- * @param {MouseEvent} e 鼠标事件
- */
-const handleContextMenu = (e: MouseEvent) => {
-  if (props.disabled) {
-    return;
-  }
-
-  if (props.selectable && !computedIsSelected.value) {
-    computedIsSelected.value = true;
-  }
-  // 右键时退出重命名预备
-  if (stateIsRenaming.value) {
-    cancelRelabel();
-  }
-  emit('context', e);
 };
 
 /**

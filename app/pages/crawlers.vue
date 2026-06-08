@@ -84,8 +84,8 @@
             <UInput v-model="stateEditor.name" class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.name.placeholder')" />
           </UFormField>
 
-          <UFormField required name="domain" :label="t('pages.crawlers.targets.form.domain.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
-            <FormUrlInput v-model="stateEditor.domain" base-url-only class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.domain.placeholder')" />
+          <UFormField required name="baseUrl" :label="t('pages.crawlers.targets.form.baseUrl.label')" :help="computedUniqueDomainHelp" :error="computedUniqueDomainError" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+            <FormUrlInput v-model="stateEditor.baseUrl" base-url-only class="z-1 w-full" :placeholder="t('pages.crawlers.targets.form.baseUrl.placeholder')" />
             <template #error="{ error }">
               <p v-if="error">{{ error }}</p>
             </template>

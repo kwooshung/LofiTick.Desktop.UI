@@ -54,7 +54,19 @@ const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
 /**
  * 计算属性：输入框占位文本。
  */
-const computedInputPlaceholder = computed(() => splitUrl(String(props.placeholder || '')).value);
+const computedInputPlaceholder = computed(() => {
+  const placeholder = String(props.placeholder || '').trim();
+
+  if (!placeholder) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(placeholder)) {
+    return splitUrl(placeholder).value;
+  }
+
+  return placeholder;
+});
 
 /**
  * 函数：拆分完整 URL。

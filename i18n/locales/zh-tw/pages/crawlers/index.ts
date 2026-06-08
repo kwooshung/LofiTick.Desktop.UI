@@ -23,8 +23,7 @@ export const crawlers = {
     menu: {
       open: '開啟站點',
       copyDomain: '複製網域',
-      copyBaseUrl: '複製站點位址',
-      openBaseUrl: '在瀏覽器中開啟'
+      copyBaseUrl: '複製站點位址'
     },
     empty: {
       title: '暫無目標網站',
@@ -50,7 +49,7 @@ export const crawlers = {
       },
       baseUrl: {
         label: '基礎URL',
-        placeholder: '請輸入基礎URL，如 https://weibo.com',
+        placeholder: '請輸入站點網域，如 weibo.com',
         verify: {
           required: '基礎URL不能為空',
           length: '基礎URL不能超過255個字元',

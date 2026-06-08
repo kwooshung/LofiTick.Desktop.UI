@@ -677,19 +677,6 @@ const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
 };
 
 /**
- * 函数：阻止 Tauri 运行时的默认右键菜单
- * @param {MouseEvent} event 鼠标事件
- * @returns {void} 无返回值
- */
-const handleTauriContextMenu = (event: MouseEvent): void => {
-  if (!isTauriRuntime.value) {
-    return;
-  }
-
-  event.preventDefault();
-};
-
-/**
  * 监听：语言代码变化，更新 dayjs 语言
  */
 watch(
@@ -792,10 +779,6 @@ onMounted(() => {
     }
   })();
 
-  if (isTauriRuntime.value) {
-    window.addEventListener('contextmenu', handleTauriContextMenu, true);
-  }
-
   if (!storeAppInfo.states.isDev) {
     console.clear();
   }
@@ -813,9 +796,6 @@ onMounted(() => {
 /**
  * 生命周期：卸载后
  */
-onUnmounted(() => {
-  window.removeEventListener('contextmenu', handleTauriContextMenu, true);
-});
 </script>
 
 <style lang="css">

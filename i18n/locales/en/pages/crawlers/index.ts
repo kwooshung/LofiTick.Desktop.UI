@@ -23,8 +23,7 @@ export const crawlers = {
     menu: {
       open: 'Open Site',
       copyDomain: 'Copy Domain',
-      copyBaseUrl: 'Copy Site URL',
-      openBaseUrl: 'Open in Browser'
+      copyBaseUrl: 'Copy Site URL'
     },
     empty: {
       title: 'No Target Sites',
@@ -50,7 +49,7 @@ export const crawlers = {
       },
       baseUrl: {
         label: 'Base URL',
-        placeholder: 'Enter base URL, e.g. https://weibo.com',
+        placeholder: 'Enter site domain, e.g. weibo.com',
         verify: {
           required: 'Base URL is required',
           length: 'Base URL must not exceed 255 characters',

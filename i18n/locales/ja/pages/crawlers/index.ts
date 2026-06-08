@@ -23,8 +23,7 @@ export const crawlers = {
     menu: {
       open: 'サイトを開く',
       copyDomain: 'ドメインをコピー',
-      copyBaseUrl: 'サイトURLをコピー',
-      openBaseUrl: 'ブラウザで開く'
+      copyBaseUrl: 'サイトURLをコピー'
     },
     empty: {
       title: '対象サイトがありません',
@@ -50,7 +49,7 @@ export const crawlers = {
       },
       baseUrl: {
         label: 'ベースURL',
-        placeholder: 'ベースURLを入力（例：https://weibo.com）',
+        placeholder: 'サイトのドメインを入力（例：weibo.com）',
         verify: {
           required: 'ベースURLは必須です',
           length: 'ベースURLは255文字以内です',
