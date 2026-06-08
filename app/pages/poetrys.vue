@@ -5,7 +5,6 @@
     </template>
 
     <template #toolbar-right>
-      <SelectsEnabled v-if="computedRouteIsList" />
       <SelectsPagesizes cache-key="poetrys" />
       <SearchPoetrys :route-is-list="computedRouteIsList" :route-is-authors="computedRouteIsAuthors" :route-is-dynasties="computedRouteIsDynasties" />
     </template>
