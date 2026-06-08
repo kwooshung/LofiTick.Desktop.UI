@@ -1,6 +1,20 @@
 export const crawlers = {
   title: 'クローラー',
-  searchPlaceholder: '名前または説明で検索',
+  search: {
+    header: {
+      title: 'クローラーを検索',
+      startLabel: 'クリックしてクローラーを検索',
+      conditions: '検索条件が設定されています'
+    },
+    body: {
+      keyword: {
+        placeholder: 'サイト名または説明を検索'
+      },
+      enabled: {
+        placeholder: '有効状態で絞り込む'
+      }
+    }
+  },
   targets: {
     title: 'サイト',
     add: 'サイトを追加',

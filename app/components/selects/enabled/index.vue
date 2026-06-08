@@ -1,8 +1,20 @@
 <template>
-  <USelect v-model="computedEnabled" :items="computedItems" :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }" :placeholder="t('components.selects.enabled.placeholder')" class="min-w-28" />
+  <USelect v-model="computedEnabled" :items="computedItems" :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }" :placeholder="props.placeholder ?? t('components.selects.enabled.placeholder')" class="min-w-28" />
 </template>
 
 <script setup lang="ts">
+/**
+ * 接口：启用状态选择器参数。
+ */
+interface ISelectsEnabledProps {
+  /** 占位文案。 */
+  placeholder?: string;
+}
+
+const props = withDefaults(defineProps<ISelectsEnabledProps>(), {
+  placeholder: undefined
+});
+
 /**
  * Hook：国际化
  */

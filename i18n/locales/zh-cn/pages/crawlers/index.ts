@@ -1,6 +1,20 @@
 export const crawlers = {
   title: '爬虫',
-  searchPlaceholder: '搜索名称或描述',
+  search: {
+    header: {
+      title: '搜索爬虫',
+      startLabel: '点击搜索爬虫',
+      conditions: '已设置搜索条件'
+    },
+    body: {
+      keyword: {
+        placeholder: '搜索站点名称或描述'
+      },
+      enabled: {
+        placeholder: '筛选启用状态'
+      }
+    }
+  },
   targets: {
     title: '站点',
     add: '新增站点',

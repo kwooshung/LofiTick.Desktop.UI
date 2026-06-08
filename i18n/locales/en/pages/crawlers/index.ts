@@ -1,6 +1,20 @@
 export const crawlers = {
   title: 'Crawlers',
-  searchPlaceholder: 'Search by name or description',
+  search: {
+    header: {
+      title: 'Search Crawlers',
+      startLabel: 'Click to search crawlers',
+      conditions: 'Search conditions set'
+    },
+    body: {
+      keyword: {
+        placeholder: 'Search site name or description'
+      },
+      enabled: {
+        placeholder: 'Filter enabled status'
+      }
+    }
+  },
   targets: {
     title: 'Sites',
     add: 'Add Site',

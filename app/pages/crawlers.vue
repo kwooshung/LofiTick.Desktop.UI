@@ -14,28 +14,23 @@
           <SelectsPagesizes cache-key="crawlers" />
 
           <UPopover v-model:open="stateSearchPopoverOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] p-0 overflow-hidden' }">
-            <UInput :model-value="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-56 cursor-pointer xl:w-64" readonly @click="stateSearchPopoverOpen = true">
-              <template #leading>
-                <UIcon name="i-lucide:search" class="text-dimmed size-4" />
-              </template>
-
+            <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }" @click="stateSearchPopoverOpen = true">
               <template #trailing>
-                <div class="flex items-center">
-                  <UButton v-if="stateToolbarKeyword !== ''" color="neutral" variant="ghost" icon="i-lucide:x" size="xs" class="rounded-md" @click.stop="handleFilterReset" />
-                  <UKbd v-else value="/" class="ms-1" />
-                </div>
+                <UKbd value="/" class="ms-auto" />
               </template>
-            </UInput>
+            </UButton>
 
             <template #content>
-              <div class="space-y-4 p-4 sm:p-5">
-                <div>
-                  <div class="text-highlighted text-sm font-semibold">{{ t('pages.crawlers.searchPlaceholder') }}</div>
-                  <div class="text-muted mt-1 text-xs">{{ t('pages.crawlers.targets.title') }}</div>
+              <div class="bg-default flex flex-col gap-4 p-4 sm:p-5">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="text-highlighted text-sm font-semibold">{{ t('pages.crawlers.search.header.title') }}</div>
+                    <div class="text-muted mt-1 text-xs">{{ computedSearchTriggerLabel }}</div>
+                  </div>
                 </div>
 
-                <div class="space-y-3">
-                  <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.crawlers.searchPlaceholder')" :ui="{ trailing: 'pe-1' }" class="w-full" @keyup.enter="handleKeywordApply">
+                <div class="max-h-[min(72vh,30rem)] space-y-3 overflow-y-auto pr-1">
+                  <UInput ref="refToolbarSearchInput" v-model="stateToolbarKeyword" :placeholder="t('pages.crawlers.search.body.keyword.placeholder')" :ui="{ trailing: 'pe-1' }" class="w-full" @keyup.enter="handleKeywordApply">
                     <template #leading>
                       <UIcon name="i-lucide:search" class="text-dimmed size-4" />
                     </template>
@@ -48,7 +43,7 @@
                     </template>
                   </UInput>
 
-                  <SelectsEnabled />
+                  <SelectsEnabled :placeholder="t('pages.crawlers.search.body.enabled.placeholder')" />
                 </div>
 
                 <div class="border-default flex items-center justify-end gap-2 border-t pt-4">
@@ -133,6 +128,18 @@ const route = useRoute();
  * 引用：工具栏搜索框
  */
 const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
+
+/**
+ * 计算属性：是否设置了搜索条件。
+ */
+const computedHasSearchConditions = computed(() => {
+  return stateToolbarKeyword.value.trim() !== '' || String(route.query.enabled ?? '').trim() !== '';
+});
+
+/**
+ * 计算属性：搜索入口按钮文案。
+ */
+const computedSearchTriggerLabel = computed(() => (computedHasSearchConditions.value ? t('pages.crawlers.search.header.conditions') : t('pages.crawlers.search.header.startLabel')));
 
 /**
  * 计算属性：目标站点路由
