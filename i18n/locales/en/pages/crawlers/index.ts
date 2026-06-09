@@ -74,23 +74,7 @@ export const crawlers = {
       title: 'Crawler Logic',
       description: 'Pick nodes on the left and assemble the crawler flow on the right.'
     },
-    logic: {
-      title: 'Crawler Logic',
-      description: 'Canvas, property inspector, and execution preview will live here.',
-      badge: 'Placeholder',
-      empty: {
-        title: 'Crawler logic workspace',
-        description: 'This area will later hold the canvas, node inspector, and run preview.',
-        badges: {
-          canvas: 'Canvas',
-          inspector: 'Inspector',
-          preview: 'Preview'
-        }
-      }
-    },
     nodes: {
-      title: 'Node Library',
-      description: 'Grouped nodes ready for future drag-and-drop editing.',
       groups: {
         flow: {
           title: 'Flow Control',

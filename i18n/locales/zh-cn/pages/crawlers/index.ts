@@ -19,7 +19,7 @@ export const crawlers = {
     title: '站点',
     add: '新增站点',
     edit: '编辑站点',
-    addTask: '添加任务',
+      addTask: '添加爬虫',
     menu: {
       open: '打开站点',
       copyDomain: '复制域名',
@@ -74,23 +74,7 @@ export const crawlers = {
       title: '爬虫逻辑',
       description: '从左侧挑选节点，在右侧拼装爬虫任务流程'
     },
-    logic: {
-      title: '爬虫逻辑',
-      description: '这里先保留节点画布、属性面板与连线能力的占位框',
-      badge: '占位中',
-      empty: {
-        title: '爬虫逻辑区',
-        description: '后续会在这里放置画布、节点属性和执行预览。',
-        badges: {
-          canvas: '画布',
-          inspector: '属性',
-          preview: '预览'
-        }
-      }
-    },
     nodes: {
-      title: '节点列表',
-      description: '按功能分组展示可拖拽节点',
       groups: {
         flow: {
           title: '流程控制',

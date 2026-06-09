@@ -74,23 +74,7 @@ export const crawlers = {
       title: 'クローラーロジック',
       description: '左側でノードを選び、右側でクローラーフローを組み立てます。'
     },
-    logic: {
-      title: 'クローラーロジック',
-      description: 'ここにキャンバス、プロパティ、実行プレビューが入ります。',
-      badge: 'プレースホルダー',
-      empty: {
-        title: 'クローラーロジック作業領域',
-        description: '後でここにキャンバス、ノード詳細、実行プレビューを配置します。',
-        badges: {
-          canvas: 'キャンバス',
-          inspector: 'プロパティ',
-          preview: 'プレビュー'
-        }
-      }
-    },
     nodes: {
-      title: 'ノード一覧',
-      description: '将来のドラッグ＆ドロップ編集に向けてノードを分類表示します。',
       groups: {
         flow: {
           title: 'フロー制御',

@@ -74,23 +74,7 @@ export const crawlers = {
       title: '爬蟲邏輯',
       description: '從左側挑選節點，在右側拼裝爬蟲任務流程'
     },
-    logic: {
-      title: '爬蟲邏輯',
-      description: '這裡先保留節點畫布、屬性面板與連線能力的占位框',
-      badge: '占位中',
-      empty: {
-        title: '爬蟲邏輯區',
-        description: '後續會在這裡放置畫布、節點屬性和執行預覽。',
-        badges: {
-          canvas: '畫布',
-          inspector: '屬性',
-          preview: '預覽'
-        }
-      }
-    },
     nodes: {
-      title: '節點列表',
-      description: '按功能分組展示可拖曳節點',
       groups: {
         flow: {
           title: '流程控制',
