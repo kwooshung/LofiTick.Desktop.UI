@@ -73,7 +73,7 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <SectionsCrawlersBlueprint v-model:open="stateBlueprintDrawerOpen" />
+    <SectionsCrawlersBlueprint v-model:open="stateBlueprintDrawerOpen" @node-select="handleBlueprintNodeSelect" />
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -600,6 +600,12 @@ const links = [
 const handleToolbarCreate = () => {
   stateCreateNonce.value += 1;
 };
+
+/**
+ * 事件：选择蓝图节点菜单项。
+ * @param {ICrawlerBlueprintNodeMenuItem} node 节点菜单项。
+ */
+const handleBlueprintNodeSelect = () => {};
 
 /**
  * 事件：关键词应用
