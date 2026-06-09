@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { defineOrganization } from 'nuxt-schema-org/schema';
+
 import { development } from './development';
 import { production } from './production';
 
