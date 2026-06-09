@@ -19,7 +19,7 @@ export const crawlers = {
     title: '站点',
     add: '新增站点',
     edit: '编辑站点',
-      addTask: '添加爬虫',
+    addTask: '添加爬虫',
     menu: {
       open: '打开站点',
       copyDomain: '复制域名',
