@@ -66,6 +66,11 @@ const { t } = useI18n();
 const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', () => false);
 
 /**
+ * 状态：蓝图抽屉目标站点。
+ */
+const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
@@ -421,6 +426,7 @@ const buildCrawlerTargetContextMenuProps = (row: IQueryResultCrawlerTargetRow) =
       handleEditTarget(row);
     },
     onAddTask: () => {
+      stateBlueprintDrawerTarget.value = row;
       stateBlueprintDrawerOpen.value = true;
     }
   })

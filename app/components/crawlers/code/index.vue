@@ -2,7 +2,7 @@
   <USlideover
     v-model:open="open"
     :title="computedDrawerTitle"
-    :description="baseUrl"
+    :description="computedDrawerDescription"
     side="bottom"
     :overlay="false"
     :ui="{
@@ -12,39 +12,46 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedCurrentSiteName" :base-url="baseUrl" @cancel="open = false" @save="handleSave" />
+      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" @cancel="open = false" @save="handleSave" />
     </template>
   </USlideover>
 </template>
 
 <script setup lang="ts">
 /**
- * 属性：站点基础 URL。
+ * 属性：站点名称与基础 URL。
  */
-withDefaults(
+const props = withDefaults(
   defineProps<{
+    siteName?: string;
     baseUrl?: string;
   }>(),
 
   {
+    siteName: '',
     baseUrl: ''
   }
 );
 
 /**
- * 路由：当前路由
+ * 状态：蓝图抽屉目标站点。
+ */
+const stateDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 路由：当前路由。
  */
 const route = useRoute();
 
 /**
- * Hook：国际化
+ * Hook：国际化。
  */
 const { t } = useI18n();
 
 /**
- * 函数：将站点域名转成展示名称
- * @param {string} domain 站点域名
- * @returns {string} 展示名称
+ * 函数：将站点域名转成展示名称。
+ * @param {string} domain 站点域名。
+ * @returns {string} 展示名称。
  */
 const domainDisplayNameGet = (domain: string): string => {
   const trimmed = String(domain ?? '').trim();
@@ -63,7 +70,7 @@ const domainDisplayNameGet = (domain: string): string => {
 };
 
 /**
- * 计算属性：当前站点域名
+ * 计算属性：当前站点域名。
  */
 const computedCurrentDomain = computed(() => {
   const value = route.params.domain;
@@ -80,9 +87,23 @@ const computedCurrentDomain = computed(() => {
 });
 
 /**
- * 计算属性：当前站点展示名称
+ * 计算属性：当前站点展示名称。
  */
 const computedCurrentSiteName = computed(() => domainDisplayNameGet(computedCurrentDomain.value));
+
+/**
+ * 计算属性：抽屉站点名称。
+ */
+const computedDrawerSiteName = computed(() => {
+  const targetName = String(stateDrawerTarget.value?.name ?? '').trim();
+  if (targetName !== '') {
+    return targetName;
+  }
+
+  const siteName = String(props.siteName ?? '').trim();
+
+  return siteName !== '' ? siteName : computedCurrentSiteName.value;
+});
 
 /**
  * 常量：编辑区标题。
@@ -93,20 +114,32 @@ const editorDrawerTitle = t('pages.crawlers.editor.title');
  * 计算属性：抽屉标题。
  */
 const computedDrawerTitle = computed(() => {
-  const siteName = computedCurrentSiteName.value;
+  const siteName = computedDrawerSiteName.value;
 
   return siteName !== '' ? `${editorDrawerTitle} / ${siteName}` : editorDrawerTitle;
 });
 
 /**
- * 双向绑定：抽屉开关
+ * 计算属性：抽屉描述。
+ */
+const computedDrawerDescription = computed(() => {
+  const targetBaseUrl = String(stateDrawerTarget.value?.baseUrl ?? '').trim();
+  if (targetBaseUrl !== '') {
+    return targetBaseUrl;
+  }
+
+  return String(props.baseUrl ?? '').trim();
+});
+
+/**
+ * 双向绑定：抽屉开关。
  */
 const open = defineModel<boolean>('open', {
   default: false
 });
 
 /**
- * 事件：保存蓝图
+ * 事件：保存蓝图。
  */
 const handleSave = () => {
   open.value = false;
