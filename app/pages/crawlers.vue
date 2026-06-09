@@ -77,6 +77,8 @@
 
     <NuxtPage v-else :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
+    <SectionsCrawlersBlueprint v-model:open="stateBlueprintDrawerOpen" />
+
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
         <UForm id="crawlerTargetEditorForm" :schema="schema" :state="stateEditor" class="w-full max-w-none space-y-4" @submit="handleEditorSubmit">
@@ -225,6 +227,11 @@ const stateSearchPopoverOpen = ref(false);
  * 状态：编辑器开关
  */
 const stateEditorOpen = ref(false);
+
+/**
+ * 状态：蓝图抽屉开关。
+ */
+const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', () => false);
 
 /**
  * 状态：编辑器表单
@@ -493,7 +500,7 @@ const isEditorDomainUnchanged = (): boolean => {
  * 事件：添加任务
  */
 const handleAddTask = () => {
-  void navigateTo(computedPathExecutions.value);
+  stateBlueprintDrawerOpen.value = true;
 };
 
 /**

@@ -69,6 +69,140 @@ export const crawlers = {
       }
     }
   },
+  blueprint: {
+    drawer: {
+      title: '爬虫逻辑',
+      description: '从左侧挑选节点，在右侧拼装爬虫任务流程'
+    },
+    logic: {
+      title: '爬虫逻辑',
+      description: '这里先保留节点画布、属性面板与连线能力的占位框',
+      badge: '占位中',
+      empty: {
+        title: '爬虫逻辑区',
+        description: '后续会在这里放置画布、节点属性和执行预览。',
+        badges: {
+          canvas: '画布',
+          inspector: '属性',
+          preview: '预览'
+        }
+      }
+    },
+    nodes: {
+      title: '节点列表',
+      description: '按功能分组展示可拖拽节点',
+      groups: {
+        flow: {
+          title: '流程控制',
+          description: '用于搭建执行入口、分支与顺序'
+        },
+        request: {
+          title: '网络请求',
+          description: '用于发起请求和处理响应'
+        },
+        parser: {
+          title: '数据解析',
+          description: '用于提取页面和数据内容'
+        },
+        logic: {
+          title: '逻辑与变量',
+          description: '用于条件判断、类型节点与循环'
+        },
+        debug: {
+          title: '调试与辅助',
+          description: '用于日志、预览和失败重试'
+        }
+      },
+      nodes: {
+        flow: {
+          start: {
+            title: '开始节点',
+            description: '蓝图执行入口，可配置初始参数'
+          },
+          end: {
+            title: '结束节点',
+            description: '蓝图执行终点，输出最终结果'
+          },
+          sequence: {
+            title: '顺序执行',
+            description: '按顺序连接多个子流程'
+          },
+          branch: {
+            title: '分支选择',
+            description: '根据条件切换执行分支'
+          }
+        },
+        request: {
+          get: {
+            title: 'GET 请求',
+            description: '发送 HTTP GET 请求'
+          },
+          post: {
+            title: 'POST 请求',
+            description: '发送 HTTP POST 请求'
+          },
+          config: {
+            title: '请求配置',
+            description: '设置请求头、Cookie 与代理'
+          },
+          parse: {
+            title: '响应解析',
+            description: '解析 JSON、HTML 或 XML 响应'
+          }
+        },
+        parser: {
+          css: {
+            title: 'CSS 选择器',
+            description: '从 HTML 中提取元素'
+          },
+          json: {
+            title: 'JSON 解析',
+            description: '提取 JSON 字段'
+          },
+          list: {
+            title: '列表提取',
+            description: '处理分页并展开列表数据'
+          },
+          attr: {
+            title: '属性提取',
+            description: '提取 src、href 等元素属性'
+          }
+        },
+        logic: {
+          boolean: {
+            title: 'Boolean',
+            description: '布尔值节点'
+          },
+          string: {
+            title: 'String',
+            description: '字符串节点'
+          },
+          ifElse: {
+            title: 'if-else',
+            description: '双分支条件判断'
+          },
+          loop: {
+            title: 'for',
+            description: '循环遍历集合或次数'
+          }
+        },
+        debug: {
+          log: {
+            title: '日志输出',
+            description: '输出调试信息'
+          },
+          preview: {
+            title: '数据预览',
+            description: '预览当前节点输出'
+          },
+          retry: {
+            title: '重试机制',
+            description: '失败后自动重试'
+          }
+        }
+      }
+    }
+  },
   executions: {
     title: '执行记录',
     status: {

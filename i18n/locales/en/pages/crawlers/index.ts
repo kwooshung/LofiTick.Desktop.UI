@@ -69,6 +69,140 @@ export const crawlers = {
       }
     }
   },
+  blueprint: {
+    drawer: {
+      title: 'Crawler Logic',
+      description: 'Pick nodes on the left and assemble the crawler flow on the right.'
+    },
+    logic: {
+      title: 'Crawler Logic',
+      description: 'Canvas, property inspector, and execution preview will live here.',
+      badge: 'Placeholder',
+      empty: {
+        title: 'Crawler logic workspace',
+        description: 'This area will later hold the canvas, node inspector, and run preview.',
+        badges: {
+          canvas: 'Canvas',
+          inspector: 'Inspector',
+          preview: 'Preview'
+        }
+      }
+    },
+    nodes: {
+      title: 'Node Library',
+      description: 'Grouped nodes ready for future drag-and-drop editing.',
+      groups: {
+        flow: {
+          title: 'Flow Control',
+          description: 'Build the entry point, branching, and execution order.'
+        },
+        request: {
+          title: 'Network Requests',
+          description: 'Send requests and handle responses.'
+        },
+        parser: {
+          title: 'Data Parsing',
+          description: 'Extract content from pages and structured data.'
+        },
+        logic: {
+          title: 'Logic & Variables',
+          description: 'Use conditions, typed nodes, and loops.'
+        },
+        debug: {
+          title: 'Debug & Utilities',
+          description: 'Use logs, previews, and retry helpers.'
+        }
+      },
+      nodes: {
+        flow: {
+          start: {
+            title: 'Start Node',
+            description: 'Blueprint entry point with initial parameters.'
+          },
+          end: {
+            title: 'End Node',
+            description: 'Blueprint exit point that returns the final result.'
+          },
+          sequence: {
+            title: 'Sequence',
+            description: 'Connect multiple child flows in order.'
+          },
+          branch: {
+            title: 'Branch Selection',
+            description: 'Switch execution branches by condition.'
+          }
+        },
+        request: {
+          get: {
+            title: 'GET Request',
+            description: 'Send an HTTP GET request.'
+          },
+          post: {
+            title: 'POST Request',
+            description: 'Send an HTTP POST request.'
+          },
+          config: {
+            title: 'Request Config',
+            description: 'Set headers, cookies, and proxies.'
+          },
+          parse: {
+            title: 'Response Parsing',
+            description: 'Parse JSON, HTML, or XML responses.'
+          }
+        },
+        parser: {
+          css: {
+            title: 'CSS Selector',
+            description: 'Extract elements from HTML.'
+          },
+          json: {
+            title: 'JSON Parsing',
+            description: 'Pull fields from JSON data.'
+          },
+          list: {
+            title: 'List Extraction',
+            description: 'Handle pagination and expand list items.'
+          },
+          attr: {
+            title: 'Attribute Extraction',
+            description: 'Extract src, href, and other attributes.'
+          }
+        },
+        logic: {
+          boolean: {
+            title: 'Boolean',
+            description: 'Boolean value node.'
+          },
+          string: {
+            title: 'String',
+            description: 'String value node.'
+          },
+          ifElse: {
+            title: 'if-else',
+            description: 'Two-way conditional branch.'
+          },
+          loop: {
+            title: 'for',
+            description: 'Iterate over items or counts.'
+          }
+        },
+        debug: {
+          log: {
+            title: 'Log Output',
+            description: 'Print debugging information.'
+          },
+          preview: {
+            title: 'Data Preview',
+            description: 'Preview the current node output.'
+          },
+          retry: {
+            title: 'Retry Logic',
+            description: 'Retry automatically after failures.'
+          }
+        }
+      }
+    }
+  },
   executions: {
     title: 'Execution Records',
     status: {

@@ -69,6 +69,140 @@ export const crawlers = {
       }
     }
   },
+  blueprint: {
+    drawer: {
+      title: 'クローラーロジック',
+      description: '左側でノードを選び、右側でクローラーフローを組み立てます。'
+    },
+    logic: {
+      title: 'クローラーロジック',
+      description: 'ここにキャンバス、プロパティ、実行プレビューが入ります。',
+      badge: 'プレースホルダー',
+      empty: {
+        title: 'クローラーロジック作業領域',
+        description: '後でここにキャンバス、ノード詳細、実行プレビューを配置します。',
+        badges: {
+          canvas: 'キャンバス',
+          inspector: 'プロパティ',
+          preview: 'プレビュー'
+        }
+      }
+    },
+    nodes: {
+      title: 'ノード一覧',
+      description: '将来のドラッグ＆ドロップ編集に向けてノードを分類表示します。',
+      groups: {
+        flow: {
+          title: 'フロー制御',
+          description: '開始点、分岐、実行順を組み立てます。'
+        },
+        request: {
+          title: 'ネットワークリクエスト',
+          description: 'リクエスト送信とレスポンス処理を行います。'
+        },
+        parser: {
+          title: 'データ解析',
+          description: 'ページや構造化データから内容を抽出します。'
+        },
+        logic: {
+          title: 'ロジックと変数',
+          description: '条件分岐、型ノード、ループを使います。'
+        },
+        debug: {
+          title: 'デバッグと補助',
+          description: 'ログ、プレビュー、再試行を使います。'
+        }
+      },
+      nodes: {
+        flow: {
+          start: {
+            title: '開始ノード',
+            description: '初期パラメータを持つ実行入口です。'
+          },
+          end: {
+            title: '終了ノード',
+            description: '最終結果を返す実行終点です。'
+          },
+          sequence: {
+            title: '順次実行',
+            description: '複数の子フローを順番に接続します。'
+          },
+          branch: {
+            title: '分岐選択',
+            description: '条件に応じて実行分岐を切り替えます。'
+          }
+        },
+        request: {
+          get: {
+            title: 'GET リクエスト',
+            description: 'HTTP GET リクエストを送信します。'
+          },
+          post: {
+            title: 'POST リクエスト',
+            description: 'HTTP POST リクエストを送信します。'
+          },
+          config: {
+            title: 'リクエスト設定',
+            description: 'ヘッダー、Cookie、プロキシを設定します。'
+          },
+          parse: {
+            title: 'レスポンス解析',
+            description: 'JSON、HTML、XML のレスポンスを解析します。'
+          }
+        },
+        parser: {
+          css: {
+            title: 'CSS セレクタ',
+            description: 'HTML から要素を抽出します。'
+          },
+          json: {
+            title: 'JSON 解析',
+            description: 'JSON データからフィールドを取得します。'
+          },
+          list: {
+            title: 'リスト抽出',
+            description: 'ページング処理を含めてリストを展開します。'
+          },
+          attr: {
+            title: '属性抽出',
+            description: 'src、href などの属性を抽出します。'
+          }
+        },
+        logic: {
+          boolean: {
+            title: 'Boolean',
+            description: '真偽値ノードです。'
+          },
+          string: {
+            title: 'String',
+            description: '文字列ノードです。'
+          },
+          ifElse: {
+            title: 'if-else',
+            description: '2 分岐の条件判定です。'
+          },
+          loop: {
+            title: 'for',
+            description: '要素数や集合を繰り返し処理します。'
+          }
+        },
+        debug: {
+          log: {
+            title: 'ログ出力',
+            description: 'デバッグ情報を出力します。'
+          },
+          preview: {
+            title: 'データプレビュー',
+            description: '現在のノード出力を確認します。'
+          },
+          retry: {
+            title: '再試行機構',
+            description: '失敗時に自動で再試行します。'
+          }
+        }
+      }
+    }
+  },
   executions: {
     title: '実行記録',
     status: {

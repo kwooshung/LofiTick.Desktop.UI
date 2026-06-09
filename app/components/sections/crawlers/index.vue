@@ -61,14 +61,14 @@ import { z } from 'zod';
 const { t } = useI18n();
 
 /**
+ * 状态：蓝图抽屉开关。
+ */
+const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', () => false);
+
+/**
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
-
-/**
- * 计算属性：执行记录路由。
- */
-const computedPathExecutions = computed(() => localePath('/crawlers/executions'));
 
 /**
  * Hook：爬虫站点动作。
@@ -426,7 +426,7 @@ const buildCrawlerTargetContextMenuProps = (row: IQueryResultCrawlerTargetRow) =
       handleEditTarget(row);
     },
     onAddTask: () => {
-      void navigateTo(computedPathExecutions.value);
+      stateBlueprintDrawerOpen.value = true;
     }
   })
 });
