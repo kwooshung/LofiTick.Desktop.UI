@@ -156,8 +156,6 @@ export const useCrawlerBlueprintNodeMenu = () => {
       label: t('pages.crawlers.blueprint.nodes.groups.flow.title'),
       icon: 'i-lucide:workflow',
       items: [
-        { key: 'flow.start', label: t('pages.crawlers.blueprint.nodes.flow.start.title'), description: t('pages.crawlers.blueprint.nodes.flow.start.description'), icon: 'i-lucide:play', group: 'flow' },
-        { key: 'flow.end', label: t('pages.crawlers.blueprint.nodes.flow.end.title'), description: t('pages.crawlers.blueprint.nodes.flow.end.description'), icon: 'i-lucide:square', group: 'flow' },
         { key: 'flow.sequence', label: t('pages.crawlers.blueprint.nodes.flow.sequence.title'), description: t('pages.crawlers.blueprint.nodes.flow.sequence.description'), icon: 'i-lucide:arrow-right-left', group: 'flow' },
         { key: 'flow.branch', label: t('pages.crawlers.blueprint.nodes.flow.branch.title'), description: t('pages.crawlers.blueprint.nodes.flow.branch.description'), icon: 'i-lucide:git-branch', group: 'flow' },
         { key: 'flow.parallel', label: t('pages.crawlers.blueprint.nodes.flow.parallel.title'), description: t('pages.crawlers.blueprint.nodes.flow.parallel.description'), icon: 'i-lucide:layers-3', group: 'flow' }
