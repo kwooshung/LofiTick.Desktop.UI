@@ -33,6 +33,15 @@ export const configs = {
     buildAssetsDir: '/_nuxt/'
   },
 
+  site: {
+    name,
+    url: 'https://desktop.ui.lofitick.com/'
+  },
+
+  schemaOrg: {
+    defaults: false
+  },
+
   devServer: {
     host: (process.env.HOST as string) || 'localhost',
     port: Number(process.env.PORT || 3000)
