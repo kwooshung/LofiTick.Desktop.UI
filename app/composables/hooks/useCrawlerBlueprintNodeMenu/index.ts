@@ -1,59 +1,6 @@
 import type { ContextMenuItem } from '@nuxt/ui';
 
-/**
- * 接口：爬虫蓝图节点菜单项。
- */
-export interface ICrawlerBlueprintNodeMenuItem {
-  /**
-   * 属性：节点唯一标识。
-   */
-  key: string;
-
-  /**
-   * 属性：节点标题。
-   */
-  label: string;
-
-  /**
-   * 属性：节点说明。
-   */
-  description: string;
-
-  /**
-   * 属性：节点图标。
-   */
-  icon: string;
-
-  /**
-   * 属性：节点分组。
-   */
-  group: string;
-}
-
-/**
- * 接口：爬虫蓝图节点分组。
- */
-interface ICrawlerBlueprintNodeMenuGroup {
-  /**
-   * 属性：分组唯一标识。
-   */
-  key: string;
-
-  /**
-   * 属性：分组标题。
-   */
-  label: string;
-
-  /**
-   * 属性：分组图标。
-   */
-  icon: string;
-
-  /**
-   * 属性：分组节点列表。
-   */
-  items: ICrawlerBlueprintNodeMenuItem[];
-}
+import type { ICrawlerBlueprintNodeMenuGroup, ICrawlerBlueprintNodeMenuItem } from '@/composables/hooks/useCrawlerBlueprintNodeMenu/index.types';
 
 /**
  * Hook：爬虫蓝图节点右键菜单。
@@ -102,9 +49,108 @@ export const useCrawlerBlueprintNodeMenu = () => {
   const recentLimit = 15;
 
   /**
+   * 常量：蓝图分组显示顺序。
+   */
+  const catalogGroupOrder = [
+    'variable',
+    'flow',
+    'request',
+    'parser',
+    'compare',
+    'logic-op',
+    'logic',
+    'function',
+    'array',
+    'string',
+    'object',
+    'math',
+    'convert',
+    'storage',
+    'delay',
+    'anti-bot',
+    'debug',
+    'helper',
+    'browser',
+    'element',
+    'element-wait',
+    'form',
+    'context',
+    'cookie',
+    'network',
+    'js'
+  ] as const;
+
+  /**
+   * 常量：需要显式整理的分组节点顺序。
+   */
+  const catalogItemOrder = new Map<string, readonly string[]>([['variable', ['logic.set', 'logic.get', 'logic.boolean', 'logic.integer', 'logic.float', 'logic.string', 'logic.array', 'logic.object', 'logic.null']]]);
+
+  /**
+   * 函数：按学习顺序归一化节点目录。
+   *
+   * 会同时去除重复节点项，避免菜单中出现重复入口。
+   *
+   * # Arguments
+   *
+   * * `groups` - 原始节点分组。
+   *
+   * # Returns
+   *
+   * 返回按预设顺序排序后的节点分组。
+   */
+  const normalizeCrawlerBlueprintCatalog = (groups: ICrawlerBlueprintNodeMenuGroup[]): ICrawlerBlueprintNodeMenuGroup[] => {
+    const groupOrderMap = new Map<string, number>(catalogGroupOrder.map((key, index) => [key, index]));
+
+    return groups
+      .map((group, groupIndex) => {
+        const seenItemKeys = new Set<string>();
+        const dedupedItems = group.items.filter((item) => {
+          if (seenItemKeys.has(item.key)) {
+            return false;
+          }
+
+          seenItemKeys.add(item.key);
+          return true;
+        });
+
+        const itemOrder = catalogItemOrder.get(group.key) ?? [];
+        const itemOrderMap = new Map<string, number>(itemOrder.map((key, index) => [key, index]));
+
+        return {
+          ...group,
+          items: dedupedItems
+            .map((item, itemIndex) => ({ item, itemIndex }))
+            .sort((left, right) => {
+              const leftOrder = itemOrderMap.get(left.item.key) ?? Number.MAX_SAFE_INTEGER;
+              const rightOrder = itemOrderMap.get(right.item.key) ?? Number.MAX_SAFE_INTEGER;
+
+              if (leftOrder !== rightOrder) {
+                return leftOrder - rightOrder;
+              }
+
+              return left.itemIndex - right.itemIndex;
+            })
+            .map(({ item }) => item),
+          groupIndex
+        };
+      })
+      .sort((left, right) => {
+        const leftOrder = groupOrderMap.get(left.key) ?? Number.MAX_SAFE_INTEGER;
+        const rightOrder = groupOrderMap.get(right.key) ?? Number.MAX_SAFE_INTEGER;
+
+        if (leftOrder !== rightOrder) {
+          return leftOrder - rightOrder;
+        }
+
+        return left.groupIndex - right.groupIndex;
+      })
+      .map(({ groupIndex: _groupIndex, ...group }) => group);
+  };
+
+  /**
    * 常量：蓝图节点目录。
    */
-  const catalog: ICrawlerBlueprintNodeMenuGroup[] = [
+  const catalogRaw: ICrawlerBlueprintNodeMenuGroup[] = [
     {
       key: 'flow',
       label: t('pages.crawlers.blueprint.nodes.groups.flow.title'),
@@ -277,6 +323,17 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'logicOp.not', label: '!', description: t('pages.crawlers.blueprint.nodes.logicOp.not.description'), icon: 'i-lucide:ban', group: 'logic-op' },
         { key: 'logicOp.nullish', label: '??', description: t('pages.crawlers.blueprint.nodes.logicOp.nullish.description'), icon: 'i-lucide:circle-help', group: 'logic-op' },
         { key: 'logicOp.optional', label: '?.', description: t('pages.crawlers.blueprint.nodes.logicOp.optional.description'), icon: 'i-lucide:link-2', group: 'logic-op' }
+      ]
+    },
+    {
+      key: 'logic',
+      label: t('pages.crawlers.blueprint.nodes.groups.logic.title'),
+      icon: 'i-lucide:git-branch',
+      items: [
+        { key: 'logic.if', label: t('pages.crawlers.blueprint.nodes.logic.if.title'), description: t('pages.crawlers.blueprint.nodes.logic.if.description'), icon: 'i-lucide:git-branch', group: 'logic' },
+        { key: 'logic.ifElse', label: t('pages.crawlers.blueprint.nodes.logic.ifElse.title'), description: t('pages.crawlers.blueprint.nodes.logic.ifElse.description'), icon: 'i-lucide:waypoints', group: 'logic' },
+        { key: 'logic.switch', label: t('pages.crawlers.blueprint.nodes.logic.switch.title'), description: t('pages.crawlers.blueprint.nodes.logic.switch.description'), icon: 'i-lucide:split', group: 'logic' },
+        { key: 'logic.loop', label: t('pages.crawlers.blueprint.nodes.logic.loop.title'), description: t('pages.crawlers.blueprint.nodes.logic.loop.description'), icon: 'i-lucide:repeat', group: 'logic' }
       ]
     },
     {
@@ -490,6 +547,11 @@ export const useCrawlerBlueprintNodeMenu = () => {
       ]
     }
   ];
+
+  /**
+   * 常量：节点索引。
+   */
+  const catalog = normalizeCrawlerBlueprintCatalog(catalogRaw);
 
   /**
    * 常量：节点索引。
