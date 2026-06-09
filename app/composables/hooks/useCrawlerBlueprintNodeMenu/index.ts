@@ -162,9 +162,9 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
         { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
         { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
-          { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
-          { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
-          { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
+        { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
+        { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
+        { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
         { key: 'logic.if', label: t('pages.crawlers.blueprint.nodes.logic.if.title'), description: t('pages.crawlers.blueprint.nodes.logic.if.description'), icon: 'i-lucide:git-branch', group: 'logic' },
         { key: 'logic.ifElse', label: t('pages.crawlers.blueprint.nodes.logic.ifElse.title'), description: t('pages.crawlers.blueprint.nodes.logic.ifElse.description'), icon: 'i-lucide:waypoints', group: 'logic' },
         { key: 'logic.switch', label: t('pages.crawlers.blueprint.nodes.logic.switch.title'), description: t('pages.crawlers.blueprint.nodes.logic.switch.description'), icon: 'i-lucide:split', group: 'logic' },
@@ -221,7 +221,7 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'object.delete', label: 'delete', description: t('pages.crawlers.blueprint.nodes.object.delete.description'), icon: 'i-lucide:trash-2', group: 'object' },
         { key: 'object.keys', label: 'keys', description: t('pages.crawlers.blueprint.nodes.object.keys.description'), icon: 'i-lucide:key-round', group: 'object' },
         { key: 'object.values', label: 'values', description: t('pages.crawlers.blueprint.nodes.object.values.description'), icon: 'i-lucide:list-tree', group: 'object' },
-          { key: 'object.values', label: 'values', description: t('pages.crawlers.blueprint.nodes.object.values.description'), icon: 'i-lucide:list-tree', group: 'object' },
+        { key: 'object.values', label: 'values', description: t('pages.crawlers.blueprint.nodes.object.values.description'), icon: 'i-lucide:list-tree', group: 'object' },
         { key: 'object.entries', label: 'entries', description: t('pages.crawlers.blueprint.nodes.object.entries.description'), icon: 'i-lucide:table-2', group: 'object' },
         { key: 'object.assign', label: 'assign', description: t('pages.crawlers.blueprint.nodes.object.assign.description'), icon: 'i-lucide:layers-3', group: 'object' },
         { key: 'object.hasOwnProperty', label: 'hasOwnProperty', description: t('pages.crawlers.blueprint.nodes.object.hasOwnProperty.description'), icon: 'i-lucide:badge-check', group: 'object' },
@@ -451,9 +451,9 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'cookie.get', label: '获取 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.get.description'), icon: 'i-lucide:cookie', group: 'cookie' },
         { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:circle-plus', group: 'cookie' },
         { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:circle-x', group: 'cookie' },
-          { key: 'cookie.get', label: '获取 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.get.description'), icon: 'i-lucide:cookie', group: 'cookie' },
-          { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:cookie', group: 'cookie' },
-          { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:cookie', group: 'cookie' },
+        { key: 'cookie.get', label: '获取 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.get.description'), icon: 'i-lucide:cookie', group: 'cookie' },
+        { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:cookie', group: 'cookie' },
+        { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:cookie', group: 'cookie' },
         { key: 'cookie.localGet', label: '获取 LocalStorage', description: t('pages.crawlers.blueprint.nodes.cookie.localGet.description'), icon: 'i-lucide:database', group: 'cookie' },
         { key: 'cookie.localSet', label: '设置 LocalStorage', description: t('pages.crawlers.blueprint.nodes.cookie.localSet.description'), icon: 'i-lucide:database-zap', group: 'cookie' },
         { key: 'cookie.sessionGet', label: '获取 SessionStorage', description: t('pages.crawlers.blueprint.nodes.cookie.sessionGet.description'), icon: 'i-lucide:database', group: 'cookie' },
@@ -554,15 +554,18 @@ export const useCrawlerBlueprintNodeMenu = () => {
       .filter((item): item is ICrawlerBlueprintNodeMenuItem => Boolean(item))
       .map((item) => createNodeContextMenuItem(item, onSelect));
 
-    const recentGroup = recentItems.length > 0
-      ? [[
-          {
-            label: t('pages.crawlers.blueprint.nodes.groups.recent.title'),
-            icon: 'i-lucide:history',
-            children: [recentItems]
-          }
-        ]]
-      : [];
+    const recentGroup =
+      recentItems.length > 0
+        ? [
+            [
+              {
+                label: t('pages.crawlers.blueprint.nodes.groups.recent.title'),
+                icon: 'i-lucide:history',
+                children: [recentItems]
+              }
+            ]
+          ]
+        : [];
 
     return [
       ...recentGroup,
