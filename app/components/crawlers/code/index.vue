@@ -27,7 +27,7 @@
 /**
  * 属性：站点基础 URL。
  */
-const props = withDefaults(
+withDefaults(
   defineProps<{
     baseUrl?: string;
   }>(),
