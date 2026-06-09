@@ -1,7 +1,7 @@
 /**
- * 接口：爬虫蓝图节点壳数据。
+ * 接口：爬虫蓝图节点数据。
  */
-export interface ICrawlerBlueprintNodeShellData {
+export interface ICrawlerBlueprintNodeData {
   /**
    * 属性：节点标题。
    */
@@ -21,6 +21,16 @@ export interface ICrawlerBlueprintNodeShellData {
    * 属性：节点视觉风格。
    */
   tone: 'start' | 'end' | 'branch' | 'action';
+
+  /**
+   * 属性：节点标题栏样式。
+   */
+  headerClass: string;
+
+  /**
+   * 属性：节点主体文案。
+   */
+  bodyText: string;
 
   /**
    * 属性：执行输入口数量。

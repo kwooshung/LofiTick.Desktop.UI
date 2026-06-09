@@ -100,13 +100,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ContextMenuItem } from '@nuxt/ui';
-import { MarkerType, Position, VueFlow, useZoomPanHelper } from '@vue-flow/core';
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
-import type { Edge, Node } from '@vue-flow/core';
 
-import CrawlerBlueprintNodeShell from '@/components/sections/crawlers/blueprint/node-shell/index.vue';
+import type { ContextMenuItem } from '@nuxt/ui';
+import type { Edge, Node, NodeTypesObject } from '@vue-flow/core';
+import { Position, useZoomPanHelper, VueFlow } from '@vue-flow/core';
+import type { ICrawlerBlueprintNodeData } from '@/components/crawlers/blueprint/node/index.types';
 
 /**
  * Hook：国际化。
@@ -133,10 +133,43 @@ const blueprintPaletteItems = [
 ] as const;
 
 /**
+ * 函数：获取节点显示配置。
+ * @param {string} nodeType 节点类型。
+ * @return {{ headerClass: string; bodyText: string }} 节点显示配置。
+ */
+const blueprintNodeStyleGet = (nodeType: string) => {
+  switch (nodeType) {
+    case 'start':
+      return {
+        headerClass: 'bg-gradient-to-r from-red-800 via-red-700 to-red-600',
+        bodyText: '执行入口节点。'
+      };
+    case 'end':
+      return {
+        headerClass: 'bg-gradient-to-r from-slate-700 via-slate-600 to-slate-500',
+        bodyText: '流程结束节点。'
+      };
+    case 'branch':
+      return {
+        headerClass: 'bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500',
+        bodyText: '条件分支节点。'
+      };
+    case 'action':
+    default:
+      return {
+        headerClass: 'bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-500',
+        bodyText: '流程操作节点。'
+      };
+  }
+};
+
+/**
  * 常量：蓝图节点类型映射。
  */
-const blueprintNodeTypes = {
-  'blueprint-shell': CrawlerBlueprintNodeShell
+const blueprintNodeTypes: NodeTypesObject = {
+  blueprint: resolveComponent('CrawlersBlueprintNode') as NodeTypesObject[string],
+  end: resolveComponent('CrawlersBlueprintEndNode') as NodeTypesObject[string],
+  start: resolveComponent('CrawlersBlueprintStartNode') as NodeTypesObject[string]
 };
 
 /**
@@ -152,15 +185,15 @@ const blueprintEdgeStyle = {
 /**
  * 常量：蓝图面板演示节点。
  */
-const blueprintDemoNodes = ref<any[]>([]);
+const blueprintDemoNodes = shallowRef<Node<ICrawlerBlueprintNodeData>[]>([]);
 
 /**
  * 常量：蓝图面板初始节点。
  */
-const blueprintDemoInitialNodes = [
+const blueprintDemoInitialNodes: Node<ICrawlerBlueprintNodeData>[] = [
   {
     id: 'start',
-    type: 'blueprint-shell',
+    type: 'start',
     position: { x: 40, y: 180 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
@@ -169,6 +202,7 @@ const blueprintDemoInitialNodes = [
       subtitle: '执行入口节点',
       badge: 'START',
       tone: 'start',
+      ...blueprintNodeStyleGet('start'),
       execInputs: 0,
       execOutputs: 1,
       outputLabels: ['Exec']
@@ -176,7 +210,7 @@ const blueprintDemoInitialNodes = [
   },
   {
     id: 'set-variable',
-    type: 'blueprint-shell',
+    type: 'blueprint',
     position: { x: 320, y: 120 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
@@ -185,6 +219,7 @@ const blueprintDemoInitialNodes = [
       subtitle: '写入当前上下文变量',
       badge: 'ACTION',
       tone: 'action',
+      ...blueprintNodeStyleGet('action'),
       execInputs: 1,
       execOutputs: 1,
       outputLabels: ['Exec']
@@ -192,7 +227,7 @@ const blueprintDemoInitialNodes = [
   },
   {
     id: 'branch',
-    type: 'blueprint-shell',
+    type: 'blueprint',
     position: { x: 620, y: 210 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
@@ -201,6 +236,7 @@ const blueprintDemoInitialNodes = [
       subtitle: '根据条件分成两条执行线',
       badge: 'BRANCH',
       tone: 'branch',
+      ...blueprintNodeStyleGet('branch'),
       execInputs: 1,
       execOutputs: 2,
       outputLabels: ['True', 'False']
@@ -208,7 +244,7 @@ const blueprintDemoInitialNodes = [
   },
   {
     id: 'end',
-    type: 'blueprint-shell',
+    type: 'end',
     position: { x: 900, y: 180 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
@@ -217,6 +253,7 @@ const blueprintDemoInitialNodes = [
       subtitle: '执行出口节点',
       badge: 'END',
       tone: 'end',
+      ...blueprintNodeStyleGet('end'),
       execInputs: 1,
       execOutputs: 0
     }
@@ -235,8 +272,7 @@ const blueprintDemoEdges = ref<Edge[]>([
     selectable: true,
     deletable: true,
     updatable: true,
-    style: blueprintEdgeStyle,
-    markerEnd: MarkerType.ArrowClosed
+    style: blueprintEdgeStyle
   } as Edge,
   {
     id: 'set-variable-branch',
@@ -246,8 +282,7 @@ const blueprintDemoEdges = ref<Edge[]>([
     selectable: true,
     deletable: true,
     updatable: true,
-    style: blueprintEdgeStyle,
-    markerEnd: MarkerType.ArrowClosed
+    style: blueprintEdgeStyle
   } as Edge,
   {
     id: 'branch-end',
@@ -257,8 +292,7 @@ const blueprintDemoEdges = ref<Edge[]>([
     selectable: true,
     deletable: true,
     updatable: true,
-    style: blueprintEdgeStyle,
-    markerEnd: MarkerType.ArrowClosed
+    style: blueprintEdgeStyle
   } as Edge
 ]);
 
@@ -306,22 +340,26 @@ const handleFlowDrop = (event: DragEvent) => {
   const position = project({ x: event.clientX, y: event.clientY });
   const nodeLabel = blueprintPaletteItems.find((item) => item.type === nodeType)?.label ?? '节点';
 
-  blueprintDemoNodes.value.push({
-    id: `${nodeType}-${Date.now()}`,
-    type: 'blueprint-shell',
-    position,
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-    data: {
-      title: nodeLabel,
-      subtitle: '拖拽创建的新节点',
-      badge: 'NODE',
-      tone: nodeType === 'branch' ? 'branch' : 'action',
-      execInputs: nodeType === 'start' ? 0 : 1,
-      execOutputs: nodeType === 'branch' ? 2 : 1,
-      outputLabels: nodeType === 'branch' ? ['True', 'False'] : ['Exec']
+  blueprintDemoNodes.value = [
+    ...blueprintDemoNodes.value,
+    {
+      id: `${nodeType}-${Date.now()}`,
+      type: 'blueprint',
+      position,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      data: {
+        title: nodeLabel,
+        subtitle: '拖拽创建的新节点',
+        badge: 'NODE',
+        tone: nodeType === 'branch' ? 'branch' : 'action',
+        ...blueprintNodeStyleGet(nodeType === 'branch' ? 'branch' : 'action'),
+        execInputs: nodeType === 'start' ? 0 : 1,
+        execOutputs: nodeType === 'branch' ? 2 : 1,
+        outputLabels: nodeType === 'branch' ? ['True', 'False'] : ['Exec']
+      }
     }
-  });
+  ];
 };
 
 /**
@@ -341,8 +379,7 @@ const handleConnect = (connection: { source: string; target: string; sourceHandl
     deletable: true,
     updatable: true,
     animated: true,
-    style: blueprintEdgeStyle,
-    markerEnd: MarkerType.ArrowClosed
+    style: blueprintEdgeStyle
   } as Edge);
 };
 
