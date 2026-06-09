@@ -149,26 +149,19 @@ export const useCrawlerBlueprintNodeMenu = () => {
       ]
     },
     {
-      key: 'logic',
-      label: t('pages.crawlers.blueprint.nodes.groups.logic.title'),
+      key: 'variable',
+      label: t('pages.crawlers.blueprint.nodes.groups.variable.title'),
       icon: 'i-lucide:variable',
       items: [
-        { key: 'logic.boolean', label: t('pages.crawlers.blueprint.nodes.logic.boolean.title'), description: t('pages.crawlers.blueprint.nodes.logic.boolean.description'), icon: 'i-lucide:toggle-left', group: 'logic' },
-        { key: 'logic.integer', label: t('pages.crawlers.blueprint.nodes.logic.integer.title'), description: t('pages.crawlers.blueprint.nodes.logic.integer.description'), icon: 'i-lucide:hash', group: 'logic' },
-        { key: 'logic.float', label: t('pages.crawlers.blueprint.nodes.logic.float.title'), description: t('pages.crawlers.blueprint.nodes.logic.float.description'), icon: 'i-lucide:circle-dot', group: 'logic' },
-        { key: 'logic.string', label: t('pages.crawlers.blueprint.nodes.logic.string.title'), description: t('pages.crawlers.blueprint.nodes.logic.string.description'), icon: 'i-lucide:type', group: 'logic' },
-        { key: 'logic.array', label: t('pages.crawlers.blueprint.nodes.logic.array.title'), description: t('pages.crawlers.blueprint.nodes.logic.array.description'), icon: 'i-lucide:list', group: 'logic' },
-        { key: 'logic.object', label: t('pages.crawlers.blueprint.nodes.logic.object.title'), description: t('pages.crawlers.blueprint.nodes.logic.object.description'), icon: 'i-lucide:box', group: 'logic' },
-        { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
-        { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
-        { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
-        { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
-        { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
-        { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
-        { key: 'logic.if', label: t('pages.crawlers.blueprint.nodes.logic.if.title'), description: t('pages.crawlers.blueprint.nodes.logic.if.description'), icon: 'i-lucide:git-branch', group: 'logic' },
-        { key: 'logic.ifElse', label: t('pages.crawlers.blueprint.nodes.logic.ifElse.title'), description: t('pages.crawlers.blueprint.nodes.logic.ifElse.description'), icon: 'i-lucide:waypoints', group: 'logic' },
-        { key: 'logic.switch', label: t('pages.crawlers.blueprint.nodes.logic.switch.title'), description: t('pages.crawlers.blueprint.nodes.logic.switch.description'), icon: 'i-lucide:split', group: 'logic' },
-        { key: 'logic.loop', label: t('pages.crawlers.blueprint.nodes.logic.loop.title'), description: t('pages.crawlers.blueprint.nodes.logic.loop.description'), icon: 'i-lucide:repeat', group: 'logic' }
+        { key: 'logic.boolean', label: t('pages.crawlers.blueprint.nodes.logic.boolean.title'), description: t('pages.crawlers.blueprint.nodes.logic.boolean.description'), icon: 'i-lucide:toggle-left', group: 'variable' },
+        { key: 'logic.integer', label: t('pages.crawlers.blueprint.nodes.logic.integer.title'), description: t('pages.crawlers.blueprint.nodes.logic.integer.description'), icon: 'i-lucide:hash', group: 'variable' },
+        { key: 'logic.float', label: t('pages.crawlers.blueprint.nodes.logic.float.title'), description: t('pages.crawlers.blueprint.nodes.logic.float.description'), icon: 'i-lucide:circle-dot', group: 'variable' },
+        { key: 'logic.string', label: t('pages.crawlers.blueprint.nodes.logic.string.title'), description: t('pages.crawlers.blueprint.nodes.logic.string.description'), icon: 'i-lucide:type', group: 'variable' },
+        { key: 'logic.array', label: t('pages.crawlers.blueprint.nodes.logic.array.title'), description: t('pages.crawlers.blueprint.nodes.logic.array.description'), icon: 'i-lucide:list', group: 'variable' },
+        { key: 'logic.object', label: t('pages.crawlers.blueprint.nodes.logic.object.title'), description: t('pages.crawlers.blueprint.nodes.logic.object.description'), icon: 'i-lucide:box', group: 'variable' },
+        { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'variable' },
+        { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'variable' },
+        { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'variable' }
       ]
     },
     {
@@ -284,6 +277,17 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'logicOp.not', label: '!', description: t('pages.crawlers.blueprint.nodes.logicOp.not.description'), icon: 'i-lucide:ban', group: 'logic-op' },
         { key: 'logicOp.nullish', label: '??', description: t('pages.crawlers.blueprint.nodes.logicOp.nullish.description'), icon: 'i-lucide:circle-help', group: 'logic-op' },
         { key: 'logicOp.optional', label: '?.', description: t('pages.crawlers.blueprint.nodes.logicOp.optional.description'), icon: 'i-lucide:link-2', group: 'logic-op' }
+      ]
+    },
+    {
+      key: 'logic',
+      label: t('pages.crawlers.blueprint.nodes.groups.logic.title'),
+      icon: 'i-lucide:git-branch',
+      items: [
+        { key: 'logic.if', label: t('pages.crawlers.blueprint.nodes.logic.if.title'), description: t('pages.crawlers.blueprint.nodes.logic.if.description'), icon: 'i-lucide:git-branch', group: 'logic' },
+        { key: 'logic.ifElse', label: t('pages.crawlers.blueprint.nodes.logic.ifElse.title'), description: t('pages.crawlers.blueprint.nodes.logic.ifElse.description'), icon: 'i-lucide:waypoints', group: 'logic' },
+        { key: 'logic.switch', label: t('pages.crawlers.blueprint.nodes.logic.switch.title'), description: t('pages.crawlers.blueprint.nodes.logic.switch.description'), icon: 'i-lucide:split', group: 'logic' },
+        { key: 'logic.loop', label: t('pages.crawlers.blueprint.nodes.logic.loop.title'), description: t('pages.crawlers.blueprint.nodes.logic.loop.description'), icon: 'i-lucide:repeat', group: 'logic' }
       ]
     },
     {

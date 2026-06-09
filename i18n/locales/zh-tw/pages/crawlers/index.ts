@@ -92,9 +92,21 @@ export const crawlers = {
           title: '資料解析',
           description: '用於擷取頁面和資料內容'
         },
+        variable: {
+          title: '變數與資料',
+          description: '用於布林、數字、字串與變數讀寫'
+        },
+        compare: {
+          title: '比較運算',
+          description: '用於大小、相等與不等比較'
+        },
+        logicOp: {
+          title: '邏輯運算',
+          description: '用於與、或、非和空值合併'
+        },
         logic: {
-          title: '邏輯與變數',
-          description: '用於條件判斷、型別節點與循環'
+          title: '條件與循環',
+          description: '用於分支判斷、條件切換與循環執行'
         },
         debug: {
           title: '除錯與輔助',
@@ -119,14 +131,6 @@ export const crawlers = {
         convert: {
           title: '型別轉換',
           description: '用於不同資料型別之間的轉換'
-        },
-        compare: {
-          title: '比較運算',
-          description: '用於大小、相等與不等比較'
-        },
-        logicOp: {
-          title: '邏輯運算',
-          description: '用於與、或、非和空值合併'
         },
         function: {
           title: '函式節點',

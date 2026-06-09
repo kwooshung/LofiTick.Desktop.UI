@@ -92,9 +92,21 @@ export const crawlers = {
           title: 'データ解析',
           description: 'ページや構造化データから内容を抽出します。'
         },
+        variable: {
+          title: '変数とデータ',
+          description: '真偽値、数値、文字列、変数の読み書きを扱います。'
+        },
+        compare: {
+          title: '比較演算',
+          description: '大小、等価、不等価の比較を行います。'
+        },
+        logicOp: {
+          title: '論理演算',
+          description: 'AND、OR、NOT、null 合体演算を行います。'
+        },
         logic: {
-          title: 'ロジックと変数',
-          description: '条件分岐、型ノード、ループを使います。'
+          title: '条件とループ',
+          description: '分岐判定、条件切り替え、ループ実行を扱います。'
         },
         debug: {
           title: 'デバッグと補助',
@@ -119,14 +131,6 @@ export const crawlers = {
         convert: {
           title: '型変換',
           description: '異なるデータ型の相互変換を行います。'
-        },
-        compare: {
-          title: '比較演算',
-          description: '大小、等価、不等価の比較を行います。'
-        },
-        logicOp: {
-          title: '論理演算',
-          description: 'AND、OR、NOT、null 合体演算を行います。'
         },
         function: {
           title: '関数ノード',

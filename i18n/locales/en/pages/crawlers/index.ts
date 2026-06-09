@@ -92,9 +92,21 @@ export const crawlers = {
           title: 'Data Parsing',
           description: 'Extract content from pages and structured data.'
         },
+        variable: {
+          title: 'Variables & Data',
+          description: 'Use booleans, numbers, strings, and variable reads/writes.'
+        },
+        compare: {
+          title: 'Comparison',
+          description: 'Compare values for size, equality, and inequality.'
+        },
+        logicOp: {
+          title: 'Logical Operations',
+          description: 'Use AND, OR, NOT, and nullish coalescing.'
+        },
         logic: {
-          title: 'Logic & Variables',
-          description: 'Use conditions, typed nodes, and loops.'
+          title: 'Condition & Loop',
+          description: 'Use branching, condition switching, and loop execution.'
         },
         debug: {
           title: 'Debug & Utilities',
@@ -119,14 +131,6 @@ export const crawlers = {
         convert: {
           title: 'Type Conversion',
           description: 'Convert between different data types.'
-        },
-        compare: {
-          title: 'Comparison',
-          description: 'Compare values for size, equality, and inequality.'
-        },
-        logicOp: {
-          title: 'Logical Operations',
-          description: 'Use AND, OR, NOT, and nullish coalescing.'
         },
         function: {
           title: 'Function Nodes',
