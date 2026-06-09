@@ -89,11 +89,6 @@ const ULink = resolveComponent('ULink');
 const USwitch = resolveComponent('USwitch');
 
 /**
- * 组件：分页
- */
-const UPagination = resolveComponent('UPagination');
-
-/**
  * Hook：Tauri 环境
  */
 const { isTauriRuntime } = useTauriEnv();

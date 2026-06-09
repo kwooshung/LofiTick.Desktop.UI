@@ -117,16 +117,6 @@
 
 <script setup lang="ts">
 /**
- * 组件：徽标。
- */
-const UBadge = resolveComponent('UBadge');
-
-/**
- * 组件：图标。
- */
-const UIcon = resolveComponent('UIcon');
-
-/**
  * Hook：Tauri 环境。
  */
 const { isTauriRuntime } = useTauriEnv();

@@ -48,11 +48,6 @@ const UButton = resolveComponent('UButton');
 const ULink = resolveComponent('ULink');
 
 /**
- * 组件：分页。
- */
-const UPagination = resolveComponent('UPagination');
-
-/**
  * Hook：国际化。
  */
 const { t } = useI18n();

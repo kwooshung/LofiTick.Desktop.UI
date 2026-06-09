@@ -105,6 +105,7 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 该规则以 `.nuxt/imports.d.ts` 的生成清单为准；不确定时优先查该文件再决定是否补 import。
 - `app/pages/**` 与 `app/components/**` 中，凡是可由 Nuxt 自动注册的本地 `.vue` 组件，禁止显式 `import xxx from './xxx.vue'` 或 `../index.vue` 这类写法；优先直接在模板中使用组件名。
 - 页面层级职责强制：父级路由文件（例如 `app/pages/foo.vue` 或 `app/pages/foo/index.vue`）不能承载某个子路由页面的完整业务实现；子路由页面必须在各自目录中独立实现，禁止通过子页反向导入父页页面来复用整页逻辑。
+- `resolveComponent(...)` 只允许用于真正需要动态渲染或动态映射的场景，例如表格列、运行时按配置切换组件类型、渲染函数中必须拿到组件引用的地方；如果只是静态使用 Nuxt UI 组件或本地组件，必须直接用模板标签或正常静态写法，禁止为了“看起来统一”滥用 `resolveComponent`。
 - 共享类型的全局导入入口固定为 `shared/types/index.types.ts`：凡是需要被页面、组件、composable 高频复用的共享类型，必须先汇总到该文件，再交给 Nuxt 自动导入；禁止在 `app/**` 中长期保留本可通过全局导入获得的 `@@/shared/types/**` 显式 `import type`。
 - 共享值/工具的全局导入入口固定为 `shared/utils/index.ts`：凡是需要被页面、组件、composable 高频复用的常量、枚举值、纯工具函数，必须先确认是否已经从该总出口导出；不要因为"当前文件报未定义"就直接在局部补 `import`。
 - 如果怀疑是"没有全局导入"而不是"类型/变量不存在"，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。

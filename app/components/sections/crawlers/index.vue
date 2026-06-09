@@ -81,11 +81,6 @@ const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetActions();
 const route = useRoute();
 
 /**
- * 组件：分页。
- */
-const UPagination = resolveComponent('UPagination');
-
-/**
  * 状态：分页大小 cookie。
  */
 const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {

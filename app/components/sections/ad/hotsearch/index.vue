@@ -15,11 +15,6 @@
             th: 'py-3 px-3 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r font-semibold',
             td: 'border-b border-default align-top py-4 px-3',
             separator: 'h-0'
-          }"
-        />
-      </div>
-    </div>
-
     <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('pages.ads.hotsearch.table.total', { total: Number(datas?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
@@ -459,17 +454,7 @@ const Datetime = resolveComponent('Datetime');
 /**
  * 组件：徽标。
  */
-const UBadge = resolveComponent('UBadge');
-
-/**
- * 组件：按钮。
- */
 const UButton = resolveComponent('UButton');
-
-/**
- * 组件：媒体播放器。
- */
-const MediaPlayerPlyr = resolveComponent('MediaPlayerPlyr');
 
 /**
  * 组件：浮层提示。
@@ -485,11 +470,6 @@ const UCheckbox = resolveComponent('UCheckbox');
  * 组件：开关。
  */
 const USwitch = resolveComponent('USwitch');
-
-/**
- * 组件：分页。
- */
-const UPagination = resolveComponent('UPagination');
 
 /**
  * Hook：国际化。
