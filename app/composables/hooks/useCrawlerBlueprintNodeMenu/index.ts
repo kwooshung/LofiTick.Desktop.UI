@@ -68,7 +68,28 @@ export const useCrawlerBlueprintNodeMenu = () => {
   /**
    * Hook：国际化。
    */
-  const { t } = useI18n();
+  const { t: rawT } = useI18n();
+
+  /**
+   * 函数：翻译蓝图节点文案。
+   *
+   * 分组文案沿用现有路径，节点项文案自动补齐缺失的 `nodes` 层级。
+   *
+   * # Arguments
+   *
+   * * `key` - 翻译 key。
+   *
+   * # Returns
+   *
+   * 返回对应语言文案；缺失时由 i18n 保持原 key 兜底。
+   */
+  const t = (key: string): string => {
+    if (key.startsWith('pages.crawlers.blueprint.nodes.groups.')) {
+      return rawT(key);
+    }
+
+    return rawT(key.replace('pages.crawlers.blueprint.nodes.', 'pages.crawlers.blueprint.nodes.nodes.'));
+  };
 
   /**
    * 状态：最近使用节点 key 列表。
@@ -141,6 +162,9 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
         { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
         { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
+          { key: 'logic.null', label: t('pages.crawlers.blueprint.nodes.logic.null.title'), description: t('pages.crawlers.blueprint.nodes.logic.null.description'), icon: 'i-lucide:minus', group: 'logic' },
+          { key: 'logic.get', label: t('pages.crawlers.blueprint.nodes.logic.get.title'), description: t('pages.crawlers.blueprint.nodes.logic.get.description'), icon: 'i-lucide:corner-down-left', group: 'logic' },
+          { key: 'logic.set', label: t('pages.crawlers.blueprint.nodes.logic.set.title'), description: t('pages.crawlers.blueprint.nodes.logic.set.description'), icon: 'i-lucide:corner-up-right', group: 'logic' },
         { key: 'logic.if', label: t('pages.crawlers.blueprint.nodes.logic.if.title'), description: t('pages.crawlers.blueprint.nodes.logic.if.description'), icon: 'i-lucide:git-branch', group: 'logic' },
         { key: 'logic.ifElse', label: t('pages.crawlers.blueprint.nodes.logic.ifElse.title'), description: t('pages.crawlers.blueprint.nodes.logic.ifElse.description'), icon: 'i-lucide:waypoints', group: 'logic' },
         { key: 'logic.switch', label: t('pages.crawlers.blueprint.nodes.logic.switch.title'), description: t('pages.crawlers.blueprint.nodes.logic.switch.description'), icon: 'i-lucide:split', group: 'logic' },
@@ -197,6 +221,7 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'object.delete', label: 'delete', description: t('pages.crawlers.blueprint.nodes.object.delete.description'), icon: 'i-lucide:trash-2', group: 'object' },
         { key: 'object.keys', label: 'keys', description: t('pages.crawlers.blueprint.nodes.object.keys.description'), icon: 'i-lucide:key-round', group: 'object' },
         { key: 'object.values', label: 'values', description: t('pages.crawlers.blueprint.nodes.object.values.description'), icon: 'i-lucide:list-tree', group: 'object' },
+          { key: 'object.values', label: 'values', description: t('pages.crawlers.blueprint.nodes.object.values.description'), icon: 'i-lucide:list-tree', group: 'object' },
         { key: 'object.entries', label: 'entries', description: t('pages.crawlers.blueprint.nodes.object.entries.description'), icon: 'i-lucide:table-2', group: 'object' },
         { key: 'object.assign', label: 'assign', description: t('pages.crawlers.blueprint.nodes.object.assign.description'), icon: 'i-lucide:layers-3', group: 'object' },
         { key: 'object.hasOwnProperty', label: 'hasOwnProperty', description: t('pages.crawlers.blueprint.nodes.object.hasOwnProperty.description'), icon: 'i-lucide:badge-check', group: 'object' },
@@ -327,7 +352,7 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'helper.subflow', label: '子流程', description: t('pages.crawlers.blueprint.nodes.helper.subflow.description'), icon: 'i-lucide:workflow', group: 'helper' },
         { key: 'helper.timestamp', label: '时间戳', description: t('pages.crawlers.blueprint.nodes.helper.timestamp.description'), icon: 'i-lucide:calendar-clock', group: 'helper' },
         { key: 'helper.uuid', label: 'UUID 生成', description: t('pages.crawlers.blueprint.nodes.helper.uuid.description'), icon: 'i-lucide:hash', group: 'helper' },
-        { key: 'helper.hash', label: '哈希计算', description: t('pages.crawlers.blueprint.nodes.helper.hash.description'), icon: 'i-lucide:shield-key', group: 'helper' }
+        { key: 'helper.hash', label: '哈希计算', description: t('pages.crawlers.blueprint.nodes.helper.hash.description'), icon: 'i-lucide:hash', group: 'helper' }
       ]
     },
     {
@@ -365,7 +390,7 @@ export const useCrawlerBlueprintNodeMenu = () => {
         { key: 'element.hover', label: '悬停元素', description: t('pages.crawlers.blueprint.nodes.element.hover.description'), icon: 'i-lucide:mouse-pointer-2', group: 'element' },
         { key: 'element.drag', label: '拖拽元素', description: t('pages.crawlers.blueprint.nodes.element.drag.description'), icon: 'i-lucide:move', group: 'element' },
         { key: 'element.scrollToElement', label: '滚动到元素', description: t('pages.crawlers.blueprint.nodes.element.scrollToElement.description'), icon: 'i-lucide:arrow-down-to-line', group: 'element' },
-        { key: 'element.scrollToPosition', label: '滚动到位置', description: t('pages.crawlers.blueprint.nodes.element.scrollToPosition.description'), icon: 'i-lucide:arrows-up-down', group: 'element' },
+        { key: 'element.scrollToPosition', label: '滚动到位置', description: t('pages.crawlers.blueprint.nodes.element.scrollToPosition.description'), icon: 'i-lucide:scroll', group: 'element' },
         { key: 'element.rightClick', label: '右键点击', description: t('pages.crawlers.blueprint.nodes.element.rightClick.description'), icon: 'i-lucide:mouse-pointer-2', group: 'element' },
         { key: 'element.doubleClick', label: '双击', description: t('pages.crawlers.blueprint.nodes.element.doubleClick.description'), icon: 'i-lucide:mouse-pointer-click', group: 'element' },
         { key: 'element.setValue', label: '设置值', description: t('pages.crawlers.blueprint.nodes.element.setValue.description'), icon: 'i-lucide:text-cursor-input', group: 'element' },
@@ -424,12 +449,15 @@ export const useCrawlerBlueprintNodeMenu = () => {
       icon: 'i-lucide:database',
       items: [
         { key: 'cookie.get', label: '获取 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.get.description'), icon: 'i-lucide:cookie', group: 'cookie' },
-        { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:cookie-plus', group: 'cookie' },
-        { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:cookie-x', group: 'cookie' },
+        { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:circle-plus', group: 'cookie' },
+        { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:circle-x', group: 'cookie' },
+          { key: 'cookie.get', label: '获取 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.get.description'), icon: 'i-lucide:cookie', group: 'cookie' },
+          { key: 'cookie.set', label: '设置 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.set.description'), icon: 'i-lucide:cookie', group: 'cookie' },
+          { key: 'cookie.delete', label: '删除 Cookie', description: t('pages.crawlers.blueprint.nodes.cookie.delete.description'), icon: 'i-lucide:cookie', group: 'cookie' },
         { key: 'cookie.localGet', label: '获取 LocalStorage', description: t('pages.crawlers.blueprint.nodes.cookie.localGet.description'), icon: 'i-lucide:database', group: 'cookie' },
-        { key: 'cookie.localSet', label: '设置 LocalStorage', description: t('pages.crawlers.blueprint.nodes.cookie.localSet.description'), icon: 'i-lucide:database-plus', group: 'cookie' },
+        { key: 'cookie.localSet', label: '设置 LocalStorage', description: t('pages.crawlers.blueprint.nodes.cookie.localSet.description'), icon: 'i-lucide:database-zap', group: 'cookie' },
         { key: 'cookie.sessionGet', label: '获取 SessionStorage', description: t('pages.crawlers.blueprint.nodes.cookie.sessionGet.description'), icon: 'i-lucide:database', group: 'cookie' },
-        { key: 'cookie.sessionSet', label: '设置 SessionStorage', description: t('pages.crawlers.blueprint.nodes.cookie.sessionSet.description'), icon: 'i-lucide:database-plus', group: 'cookie' }
+        { key: 'cookie.sessionSet', label: '设置 SessionStorage', description: t('pages.crawlers.blueprint.nodes.cookie.sessionSet.description'), icon: 'i-lucide:database-backup', group: 'cookie' }
       ]
     },
     {
@@ -526,18 +554,18 @@ export const useCrawlerBlueprintNodeMenu = () => {
       .filter((item): item is ICrawlerBlueprintNodeMenuItem => Boolean(item))
       .map((item) => createNodeContextMenuItem(item, onSelect));
 
-    const recentGroup: ContextMenuItem[] = [
-      {
-        label: t('pages.crawlers.blueprint.nodes.groups.recent.title'),
-        icon: 'i-lucide:history',
-        description: t('pages.crawlers.blueprint.nodes.groups.recent.description'),
-        disabled: recentItems.length === 0,
-        children: recentItems.length > 0 ? [recentItems] : undefined
-      }
-    ];
+    const recentGroup = recentItems.length > 0
+      ? [[
+          {
+            label: t('pages.crawlers.blueprint.nodes.groups.recent.title'),
+            icon: 'i-lucide:history',
+            children: [recentItems]
+          }
+        ]]
+      : [];
 
     return [
-      recentGroup,
+      ...recentGroup,
       ...catalog.map((group) => [
         {
           label: group.label,

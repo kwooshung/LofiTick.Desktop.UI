@@ -637,7 +637,7 @@ export const crawlers = {
           },
           arrow: {
             title: 'Arrow Function',
-            description: '() => {} arrow function.'
+            description: 'Arrow function.'
           }
         },
         storage: {

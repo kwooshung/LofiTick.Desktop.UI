@@ -637,7 +637,7 @@ export const crawlers = {
           },
           arrow: {
             title: '箭頭函式',
-            description: '() => {} 箭頭函式'
+            description: '箭頭函式'
           }
         },
         storage: {

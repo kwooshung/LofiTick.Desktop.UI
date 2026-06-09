@@ -637,7 +637,7 @@ export const crawlers = {
           },
           arrow: {
             title: 'アロー関数',
-            description: '() => {} のアロー関数です。'
+            description: 'アロー関数です。'
           }
         },
         storage: {
