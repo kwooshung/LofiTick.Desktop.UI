@@ -69,10 +69,8 @@ export const crawlers = {
       }
     }
   },
-  blueprint: {
-    drawer: {
-      title: 'Crawler Logic'
-    },
+  editor: {
+    title: 'Crawler Logic',
     nodes: {
       groups: {
         recent: {

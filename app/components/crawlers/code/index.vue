@@ -7,18 +7,12 @@
     :overlay="false"
     :ui="{
       header: 'px-4 py-3 sm:px-4 sm:py-3',
-      content: 'bg-default h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] rounded-none shadow-3xl shadow-black/80',
+      content: 'bg-default h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] rounded-none shadow-t-3xl shadow-black',
       body: 'h-full w-full overflow-hidden p-0 sm:p-0'
     }"
   >
     <template #body>
-      <div class="bg-default flex h-full min-h-0 flex-col overflow-hidden">
-        <div class="relative flex min-h-0 flex-1 overflow-hidden"></div>
-        <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 sm:p-3">
-          <UButton type="button" color="neutral" variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</UButton>
-          <UButton type="button" color="primary" icon="i-lucide:save" @click="handleSave">{{ t('common.actions.save') }}</UButton>
-        </div>
-      </div>
+      <CrawlersEditor :site-name="computedCurrentSiteName" :base-url="baseUrl" @cancel="open = false" @save="handleSave" />
     </template>
   </USlideover>
 </template>
@@ -91,12 +85,17 @@ const computedCurrentDomain = computed(() => {
 const computedCurrentSiteName = computed(() => domainDisplayNameGet(computedCurrentDomain.value));
 
 /**
+ * 常量：编辑区标题。
+ */
+const editorDrawerTitle = t('pages.crawlers.editor.title');
+
+/**
  * 计算属性：抽屉标题。
  */
 const computedDrawerTitle = computed(() => {
   const siteName = computedCurrentSiteName.value;
 
-  return siteName !== '' ? `${t('pages.crawlers.blueprint.drawer.title')}（${siteName}）` : t('pages.crawlers.blueprint.drawer.title');
+  return siteName !== '' ? `${editorDrawerTitle} / ${siteName}` : editorDrawerTitle;
 });
 
 /**

@@ -69,10 +69,8 @@ export const crawlers = {
       }
     }
   },
-  blueprint: {
-    drawer: {
-      title: '爬蟲邏輯'
-    },
+  editor: {
+    title: '爬蟲邏輯',
     nodes: {
       groups: {
         recent: {

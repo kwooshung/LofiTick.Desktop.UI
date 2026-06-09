@@ -69,10 +69,8 @@ export const crawlers = {
       }
     }
   },
-  blueprint: {
-    drawer: {
-      title: 'クローラーロジック'
-    },
+  editor: {
+    title: 'クローラーロジック',
     nodes: {
       groups: {
         recent: {
