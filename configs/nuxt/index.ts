@@ -1,5 +1,6 @@
 /// <reference types="node" />
 
+import { defineOrganization } from 'nuxt-schema-org/schema';
 import { development } from './development';
 import { production } from './production';
 
@@ -38,24 +39,20 @@ export const configs = {
     url: 'https://desktop.ui.lofitick.com/'
   },
 
-  schemaOrg: {
-    defaults: false
-  },
-
   devServer: {
     host: (process.env.HOST as string) || 'localhost',
     port: Number(process.env.PORT || 3000)
   },
 
   nitro: {
-    output: {
-      dir: './dist'
-    },
-    esbuild: {
-      options: {
-        target: 'esnext'
-      }
-    }
+    output: {}
+  },
+
+  schemaOrg: {
+    identity: defineOrganization({
+      name,
+      url: 'https://desktop.ui.lofitick.com/'
+    })
   },
 
   vite: {
