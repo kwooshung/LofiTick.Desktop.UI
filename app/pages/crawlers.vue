@@ -73,7 +73,7 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <SectionsCrawlersBlueprint v-model:open="stateBlueprintDrawerOpen" @node-select="handleBlueprintNodeSelect" />
+    <CrawlersCode v-model:open="stateCodeSlideoverOpen" />
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -223,7 +223,7 @@ const stateEditorOpen = ref(false);
 /**
  * 状态：蓝图抽屉开关。
  */
-const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', () => false);
+const stateCodeSlideoverOpen = useState<boolean>('crawlers-blueprint-open', () => false);
 
 /**
  * 状态：编辑器表单
@@ -478,7 +478,7 @@ const isEditorDomainUnchanged = (): boolean => {
  * 事件：添加任务
  */
 const handleAddTask = () => {
-  stateBlueprintDrawerOpen.value = true;
+  stateCodeSlideoverOpen.value = true;
 };
 
 /**
@@ -600,12 +600,6 @@ const links = [
 const handleToolbarCreate = () => {
   stateCreateNonce.value += 1;
 };
-
-/**
- * 事件：选择蓝图节点菜单项。
- * @param {ICrawlerBlueprintNodeMenuItem} node 节点菜单项。
- */
-const handleBlueprintNodeSelect = () => {};
 
 /**
  * 事件：关键词应用
