@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui';
+import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
@@ -191,7 +191,8 @@ const domainDisplayNameGet = (domain: string): string => {
     return t('pages.crawlers.targets.title');
   }
 
-  const host = trimmed.split('/')[0].split('.')[0] ?? trimmed;
+  const domainPart = trimmed.split('/')[0] ?? trimmed;
+  const host = domainPart.split('.')[0] ?? trimmed;
   if (host === '') {
     return trimmed;
   }
@@ -265,6 +266,11 @@ const schema = z.object({
   description: z.string().optional(),
   isEnabled: z.boolean().optional()
 });
+
+/**
+ * 类型：编辑器表单提交值。
+ */
+type TCrawlerTargetEditorSubmit = z.output<typeof schema>;
 
 /**
  * API：获取站点详情
@@ -552,7 +558,7 @@ const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/ta
 /**
  * 事件：提交表单
  */
-const handleEditorSubmit = async (event: FormSubmitEvent<IPageCrawlerTargetForm>) => {
+const handleEditorSubmit = async (event: FormSubmitEvent<TCrawlerTargetEditorSubmit>) => {
   await refreshSave({
     datas: {
       id: event.data.id,
