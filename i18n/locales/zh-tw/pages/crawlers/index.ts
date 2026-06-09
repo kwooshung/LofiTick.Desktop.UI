@@ -71,8 +71,7 @@ export const crawlers = {
   },
   blueprint: {
     drawer: {
-      title: '爬蟲邏輯',
-      description: '從左側挑選節點，在右側拼裝爬蟲任務流程'
+      title: '爬蟲邏輯'
     },
     nodes: {
       groups: {

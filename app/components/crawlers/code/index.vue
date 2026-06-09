@@ -1,8 +1,8 @@
 <template>
   <USlideover
     v-model:open="open"
-    :title="t('pages.crawlers.blueprint.drawer.title')"
-    :description="t('pages.crawlers.blueprint.drawer.description')"
+    :title="computedDrawerTitle"
+    :description="baseUrl"
     side="bottom"
     :overlay="false"
     :ui="{
@@ -25,19 +25,89 @@
 
 <script setup lang="ts">
 /**
- * Hook：国际化。
+ * 属性：站点基础 URL。
+ */
+const props = withDefaults(
+  defineProps<{
+    baseUrl?: string;
+  }>(),
+
+  {
+    baseUrl: ''
+  }
+);
+
+/**
+ * 路由：当前路由
+ */
+const route = useRoute();
+
+/**
+ * Hook：国际化
  */
 const { t } = useI18n();
 
 /**
- * 双向绑定：抽屉开关。
+ * 函数：将站点域名转成展示名称
+ * @param {string} domain 站点域名
+ * @returns {string} 展示名称
+ */
+const domainDisplayNameGet = (domain: string): string => {
+  const trimmed = String(domain ?? '').trim();
+
+  if (trimmed === '') {
+    return '';
+  }
+
+  const host = trimmed.split('/')[0]?.split('.')?.[0]?.trim() ?? '';
+
+  if (host === '') {
+    return trimmed;
+  }
+
+  return host.charAt(0).toUpperCase() + host.slice(1);
+};
+
+/**
+ * 计算属性：当前站点域名
+ */
+const computedCurrentDomain = computed(() => {
+  const value = route.params.domain;
+
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+
+  if (Array.isArray(value)) {
+    return String(value[0] ?? '').trim();
+  }
+
+  return '';
+});
+
+/**
+ * 计算属性：当前站点展示名称
+ */
+const computedCurrentSiteName = computed(() => domainDisplayNameGet(computedCurrentDomain.value));
+
+/**
+ * 计算属性：抽屉标题。
+ */
+const computedDrawerTitle = computed(() => {
+  const siteName = computedCurrentSiteName.value;
+
+  return siteName !== '' ? `${t('pages.crawlers.blueprint.drawer.title')}（${siteName}）` : t('pages.crawlers.blueprint.drawer.title');
+});
+
+/**
+ * 双向绑定：抽屉开关
  */
 const open = defineModel<boolean>('open', {
   default: false
 });
 
 /**
- * 事件：保存蓝图。
+ * 事件：保存蓝图
  */
 const handleSave = () => {
   open.value = false;

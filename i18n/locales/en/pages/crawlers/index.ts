@@ -71,8 +71,7 @@ export const crawlers = {
   },
   blueprint: {
     drawer: {
-      title: 'Crawler Logic',
-      description: 'Pick nodes on the left and assemble the crawler flow on the right.'
+      title: 'Crawler Logic'
     },
     nodes: {
       groups: {

@@ -71,8 +71,7 @@ export const crawlers = {
   },
   blueprint: {
     drawer: {
-      title: 'クローラーロジック',
-      description: '左側でノードを選び、右側でクローラーフローを組み立てます。'
+      title: 'クローラーロジック'
     },
     nodes: {
       groups: {
