@@ -266,7 +266,7 @@ export const useCrawlerBlueprintNodeMenu = () => {
       items: [
         { key: 'compare.eq', label: '==', description: t('pages.crawlers.blueprint.nodes.compare.eq.description'), icon: 'i-lucide:equal', group: 'compare' },
         { key: 'compare.eqStrict', label: '===', description: t('pages.crawlers.blueprint.nodes.compare.eqStrict.description'), icon: 'i-lucide:equal-not', group: 'compare' },
-        { key: 'compare.ne', label: '!=', description: t('pages.crawlers.blueprint.nodes.compare.ne.description'), icon: 'i-lucide:not-equal', group: 'compare' },
+        { key: 'compare.ne', label: '!=', description: t('pages.crawlers.blueprint.nodes.compare.ne.description'), icon: 'i-lucide:equal-not', group: 'compare' },
         { key: 'compare.neStrict', label: '!==', description: t('pages.crawlers.blueprint.nodes.compare.neStrict.description'), icon: 'i-lucide:circle-slash', group: 'compare' },
         { key: 'compare.gt', label: '>', description: t('pages.crawlers.blueprint.nodes.compare.gt.description'), icon: 'i-lucide:chevron-right', group: 'compare' },
         { key: 'compare.gte', label: '>=', description: t('pages.crawlers.blueprint.nodes.compare.gte.description'), icon: 'i-lucide:chevron-right-square', group: 'compare' },

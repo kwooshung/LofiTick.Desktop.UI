@@ -149,8 +149,8 @@ export const crawlers = {
           description: 'Common utilities for time, IDs, and hashes.'
         },
         browser: {
-          title: 'Browser Automation',
-          description: 'Control navigation, screenshots, and tabs.'
+          title: 'WebView2 Automation',
+          description: 'Control navigation, clicks, screenshots, and tabs, prioritizing WebView2 atomic actions.'
         },
         element: {
           title: 'Element Interaction',
@@ -338,6 +338,14 @@ export const crawlers = {
           preview: {
             title: 'Data Preview',
             description: 'Preview the current node output.'
+          },
+          breakpoint: {
+            title: 'Breakpoint Debugging',
+            description: 'Pause execution at a specific point and inspect runtime data.'
+          },
+          error: {
+            title: 'Error Capture',
+            description: 'Capture execution errors and handle them consistently.'
           },
           retry: {
             title: 'Retry Logic',
@@ -1000,20 +1008,20 @@ export const crawlers = {
         },
         js: {
           exec: {
-            title: 'Execute JS',
-            description: 'Run JavaScript code in the page.'
+            title: 'Run Page Script',
+            description: 'Run page scripts only when WebView2 atomic actions are not enough.'
           },
           execReturn: {
-            title: 'Execute JS and Return',
-            description: 'Run JS and get the return value.'
+            title: 'Run Script and Return',
+            description: 'Run page scripts and get the return value only when needed.'
           },
           inject: {
-            title: 'Inject Script',
-            description: 'Inject an external script file.'
+            title: 'Inject Page Script',
+            description: 'Inject an external script file only when needed.'
           },
           listen: {
             title: 'Add Event Listener',
-            description: 'Add an event listener.'
+            description: 'Add a page event listener only when needed.'
           }
         }
       }

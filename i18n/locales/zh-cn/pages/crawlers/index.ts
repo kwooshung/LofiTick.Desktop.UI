@@ -149,8 +149,8 @@ export const crawlers = {
           description: '用于时间、ID 与哈希等通用能力'
         },
         browser: {
-          title: '浏览器自动化',
-          description: '用于页面导航、截图与标签页控制'
+          title: 'WebView2 自动化',
+          description: '用于页面导航、点击、截图与标签页控制，优先走 WebView2 原子能力'
         },
         element: {
           title: '页面元素交互',
@@ -338,6 +338,14 @@ export const crawlers = {
           preview: {
             title: '数据预览',
             description: '预览当前节点输出'
+          },
+          breakpoint: {
+            title: '断点调试',
+            description: '在指定位置暂停节点执行并检查现场数据'
+          },
+          error: {
+            title: '错误捕获',
+            description: '捕获节点执行错误并进行统一处理'
           },
           retry: {
             title: '重试机制',
@@ -1000,20 +1008,20 @@ export const crawlers = {
         },
         js: {
           exec: {
-            title: '执行 JS',
-            description: '在页面执行 JavaScript 代码'
+            title: '执行页面脚本',
+            description: '仅在 WebView2 原子能力不够时执行页面脚本'
           },
           execReturn: {
-            title: '执行 JS 并返回',
-            description: '执行 JS 并获取返回值'
+            title: '执行脚本并返回',
+            description: '仅在必要时执行页面脚本并获取返回值'
           },
           inject: {
-            title: '注入脚本',
-            description: '注入外部脚本文件'
+            title: '注入页面脚本',
+            description: '仅在必要时注入外部脚本文件'
           },
           listen: {
             title: '添加事件监听',
-            description: '添加事件监听器'
+            description: '仅在必要时为页面添加事件监听器'
           }
         }
       }

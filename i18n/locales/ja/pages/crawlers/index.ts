@@ -149,8 +149,8 @@ export const crawlers = {
           description: '時刻、ID、ハッシュなどの共通機能を扱います。'
         },
         browser: {
-          title: 'ブラウザ自動化',
-          description: 'ページ遷移、スクリーンショット、タブ制御を行います。'
+          title: 'WebView2 自動化',
+          description: 'ページ遷移、クリック、スクリーンショット、タブ制御に使います。WebView2 の原子操作を優先します。'
         },
         element: {
           title: '要素操作',
@@ -338,6 +338,14 @@ export const crawlers = {
           preview: {
             title: 'データプレビュー',
             description: '現在のノード出力を確認します。'
+          },
+          breakpoint: {
+            title: 'ブレークポイントデバッグ',
+            description: '指定した位置でノード実行を停止して実行時データを確認します。'
+          },
+          error: {
+            title: 'エラー捕捉',
+            description: 'ノード実行エラーを捕捉して一元的に処理します。'
           },
           retry: {
             title: '再試行機構',
@@ -1000,20 +1008,20 @@ export const crawlers = {
         },
         js: {
           exec: {
-            title: 'JS 実行',
-            description: 'ページ内で JavaScript を実行します。'
+            title: 'ページスクリプト実行',
+            description: 'WebView2 の原子操作で足りない場合にのみページスクリプトを実行します。'
           },
           execReturn: {
-            title: 'JS 実行して返却',
-            description: 'JS を実行して戻り値を取得します。'
+            title: 'スクリプト実行して返却',
+            description: '必要な場合のみページスクリプトを実行して戻り値を取得します。'
           },
           inject: {
-            title: 'スクリプト注入',
-            description: '外部スクリプトファイルを注入します。'
+            title: 'ページスクリプト注入',
+            description: '必要な場合のみ外部スクリプトファイルを注入します。'
           },
           listen: {
             title: 'イベントリスナー追加',
-            description: 'イベントリスナーを追加します。'
+            description: '必要な場合のみページにイベントリスナーを追加します。'
           }
         }
       }
