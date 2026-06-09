@@ -13,12 +13,14 @@
   >
     <template #body>
       <div class="bg-default flex h-full min-h-0 flex-col overflow-hidden">
-        <div class="flex min-h-0 flex-1 items-center justify-center px-4 py-6 sm:px-6">
-          <div class="max-w-md text-center">
-            <UIcon name="i-lucide:workflow" class="text-primary mx-auto size-10" />
-            <div class="text-highlighted mt-4 text-base font-semibold">爬虫逻辑区</div>
-            <div class="text-muted mt-2 text-sm leading-6 text-pretty">后续会在这里放置画布、节点属性和执行预览。</div>
-          </div>
+        <div class="relative flex min-h-0 flex-1 overflow-hidden">
+          <div
+            class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.09),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(20,184,166,0.06),transparent_28%),radial-gradient(circle_at_50%_80%,rgba(168,85,247,0.04),transparent_34%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.05),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(20,184,166,0.035),transparent_28%),radial-gradient(circle_at_50%_80%,rgba(168,85,247,0.025),transparent_34%)]"
+          />
+          <div
+            class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.14)_1px,transparent_1px)] mask-[linear-gradient(to_bottom,rgba(0,0,0,0.9),rgba(0,0,0,0.35)_78%,transparent)] bg-size-[22px_22px] dark:bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)]"
+          />
+          <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,transparent_60%,rgba(15,23,42,0.03)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0,transparent_60%,rgba(15,23,42,0.02)_100%)]" />
         </div>
 
         <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 sm:p-3">
