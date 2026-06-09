@@ -47,10 +47,6 @@ export const configs = {
     output: {}
   },
 
-  schemaOrg: {
-    defaults: false
-  },
-
   vite: {
     build: {
       target: 'esnext',

@@ -13,7 +13,7 @@ export const modules = [
   // 图片处理（性能优化必备）
   '@nuxt/image',
   // SEO 优化（流量必备）
-  '@nuxtjs/seo',
+  // '@nuxtjs/seo',
   // 安全防护（官方推荐）
   'nuxt-security',
 
