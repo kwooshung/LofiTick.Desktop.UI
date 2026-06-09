@@ -1,6 +1,6 @@
 <template>
   <UApp :locale="locales[locale]" :toaster="appConfig.toaster">
-    <UTheme :ui="{ tooltip: { arrow: true } }">
+    <UTheme>
       <NuxtRouteAnnouncer />
       <NuxtLoadingIndicator color="var(--ui-primary)" />
       <NuxtLayout>
@@ -752,9 +752,23 @@ useHead({
 });
 
 /**
+ * 事件：阻止 Tauri 默认右键菜单。
+ * @param {MouseEvent} event 右键菜单事件。
+ */
+const handleTauriContextMenuDefaultPrevent = (event: MouseEvent): void => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  event.preventDefault();
+};
+
+/**
  * 生命周期：挂载后
  */
 onMounted(() => {
+  document.addEventListener('contextmenu', handleTauriContextMenuDefaultPrevent);
+
   loadSettings();
 
   void (async () => {
@@ -796,6 +810,9 @@ onMounted(() => {
 /**
  * 生命周期：卸载后
  */
+onBeforeUnmount(() => {
+  document.removeEventListener('contextmenu', handleTauriContextMenuDefaultPrevent);
+});
 </script>
 
 <style lang="css">

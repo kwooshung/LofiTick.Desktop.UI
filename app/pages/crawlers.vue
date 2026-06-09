@@ -71,11 +71,7 @@
       </div>
     </template>
 
-    <UContextMenu v-if="computedRouteIsDetail && computedDetailContextMenuItems.length > 0" :items="computedDetailContextMenuItems" :ui="{ content: 'w-[min(92vw,20rem)]' }" class="flex min-h-0 flex-1 flex-col">
-      <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
-    </UContextMenu>
-
-    <NuxtPage v-else :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
+    <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
     <SectionsCrawlersBlueprint v-model:open="stateBlueprintDrawerOpen" />
 
@@ -183,11 +179,6 @@ const computedDomain = computed<string>(() => {
   const value = route.params.domain;
   return typeof value === 'string' ? value : Array.isArray(value) ? (value[0] ?? '') : '';
 });
-
-/**
- * Hook：爬虫站点动作。
- */
-const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetActions();
 
 /**
  * 函数：将域名转换为站点显示名
@@ -372,25 +363,6 @@ const computedRouteDetailTitle = computed<string>(() => {
 
   const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
-});
-
-/**
- * 计算属性：详情页右键菜单项。
- */
-const computedDetailContextMenuItems = computed(() => {
-  if (!computedRouteIsDetail.value || !stateDetail.value) {
-    return [];
-  }
-
-  return buildCrawlerTargetContextMenuItems(stateDetail.value, {
-    showOpen: false,
-    onEdit: () => {
-      handleEditTarget();
-    },
-    onAddTask: () => {
-      handleAddTask();
-    }
-  });
 });
 
 /**
