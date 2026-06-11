@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersListRow } from '../list/index.types';
-import type { ICrawlersEditorEmits, ICrawlersEditorProps } from './index.types';
+import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
  * 属性：站点展示名称与基础 URL。
@@ -35,6 +35,11 @@ const emit = defineEmits<ICrawlersEditorEmits>();
 const { t } = useI18n();
 
 /**
+ * Hook：爬虫蓝图。
+ */
+const { groups: blueprintGroups } = useCrawlerBlueprint();
+
+/**
  * 计算属性：描述文本。
  */
 const computedDescription = computed(() => {
@@ -47,73 +52,7 @@ const computedDescription = computed(() => {
 /**
  * 计算属性：分组数据。
  */
-const computedGroups = computed(() => {
-  if (groups.length > 0) {
-    return groups;
-  }
-
-  const siteNameText = String(siteName ?? '').trim();
-  const baseUrlText = String(baseUrl ?? '').trim();
-
-  return [
-    {
-      label: '概览',
-      description: '查看当前站点的基本信息。',
-      iconName: 'i-lucide:layout-dashboard',
-      crawlers: [
-        {
-          key: '1',
-          name: siteNameText !== '' ? siteNameText : '当前站点',
-          description: baseUrlText !== '' ? baseUrlText : '未提供基础 URL。'
-        }
-      ]
-    },
-    {
-      label: '脚本',
-      description: '切换不同脚本片段。',
-      iconName: 'i-lucide:code-2',
-      crawlers: [
-        {
-          key: '2',
-          name: '正文脚本',
-          description: '编辑正文阶段的脚本片段。'
-        },
-        {
-          key: '3',
-          name: '广告脚本',
-          description: '编辑广告阶段的脚本片段。'
-        }
-      ]
-    },
-    {
-      label: '工具',
-      description: '打开调试与辅助功能。',
-      iconName: 'i-lucide:wrench',
-      crawlers: [
-        {
-          key: '4',
-          name: '预览',
-          description: '预览当前配置效果。'
-        },
-        {
-          key: '5',
-          name: '校验',
-          description: '检查配置是否满足基础要求.'
-        },
-        {
-          key: '6',
-          name: '预览',
-          description: '预览当前配置效果。'
-        },
-        {
-          key: '7',
-          name: '校验',
-          description: '检查配置是否满足基础要求。'
-        }
-      ]
-    }
-  ];
-});
+const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
 /**
  * 函数：处理列表点击。

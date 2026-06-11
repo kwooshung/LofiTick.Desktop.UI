@@ -1,4 +1,4 @@
-import type { ICrawlersListGroup, ICrawlersListRow } from '../list/index.types';
+import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
  * 接口：爬虫编辑器属性。

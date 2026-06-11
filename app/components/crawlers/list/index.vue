@@ -1,9 +1,10 @@
 <template>
   <UAccordion
+    type="multiple"
     :items="items"
     :default-value="defaultValue"
     :ui="{
-      item: 'border-default/80 rounded-lg border bg-default/70 px-3 mb-3 overflow-hidden last:border-b',
+      item: 'border-default/80 rounded-lg border bg-default/70 px-3 mb-3 overflow-hidden last:border-b last:mb-0',
       header: 'px-0',
       trigger: 'py-3',
       content: 'overflow-hidden',
@@ -22,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersListEmits, ICrawlersListProps, ICrawlersListRow } from './index.types';
+import type { ICrawlersListEmits, ICrawlersListProps, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
  * 属性：爬虫列表分组数据。

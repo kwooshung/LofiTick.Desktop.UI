@@ -26,16 +26,6 @@ export interface ICrawlersListItemProps {
    * 属性：图标名称。
    */
   iconName?: string;
-
-  /**
-   * 属性：是否选中。
-   */
-  selected?: boolean;
-
-  /**
-   * 属性：是否禁用。
-   */
-  disabled?: boolean;
 }
 
 /**

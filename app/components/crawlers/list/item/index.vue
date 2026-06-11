@@ -1,25 +1,11 @@
 <template>
   <UTooltip :text="description" :content="{ side: 'top' }">
-    <UButton
-      color="neutral"
-      variant="outline"
-      :disabled="disabled"
-      class="aspect-square h-full w-full min-w-0"
-      :ui="{
-        base: 'flex flex-col items-center justify-center gap-2 p-0',
-        leadingIcon: 'text-dimmed size-7',
-        label: 'text-center text-sm font-medium leading-5',
-        trailingIcon: 'hidden'
-      }"
-      :icon="iconName"
-      :label="label"
-      @click="handleClick"
-    />
+    <UButton color="neutral" variant="outline" :disabled="disabled" :icon="iconName" :label="label" @click="handleClick" />
   </UTooltip>
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersListItemEmits, ICrawlersListItemProps } from './index.types';
+import type { ICrawlersListItemEmits, ICrawlersListItemProps } from '@/components/crawlers/list/item/index.types';
 
 /**
  * 属性：爬虫列表项卡片。

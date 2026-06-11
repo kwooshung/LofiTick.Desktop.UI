@@ -12,14 +12,14 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" :groups="groups" :selected-key="selectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
+      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
     </template>
   </USlideover>
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersCodeEmits, ICrawlersCodeProps } from './index.types';
-import type { ICrawlersListRow } from '../list/index.types';
+import type { ICrawlersCodeEmits, ICrawlersCodeProps } from '@/components/crawlers/code/index.types';
+import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
@@ -44,6 +44,11 @@ const route = useRoute();
  * Hook：国际化。
  */
 const { t } = useI18n();
+
+/**
+ * Hook：爬虫蓝图。
+ */
+const { groups: blueprintGroups } = useCrawlerBlueprint();
 
 /**
  * 函数：将站点域名转成展示名称。
@@ -127,6 +132,16 @@ const computedDrawerDescription = computed(() => {
 
   return String(baseUrl ?? '').trim();
 });
+
+/**
+ * 计算属性：蓝图分组。
+ */
+const computedBlueprintGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
+
+/**
+ * 计算属性：默认选中节点。
+ */
+const computedSelectedKey = computed(() => (selectedKey !== '' ? selectedKey : (computedBlueprintGroups.value[0]?.crawlers[0]?.key ?? '')));
 
 /**
  * 双向绑定：抽屉开关。

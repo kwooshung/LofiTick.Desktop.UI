@@ -40,6 +40,11 @@ export default defineAppConfig({
         root: 'relative group overflow-hidden bg-default shadow-lg rounded-lg ring ring-default p-4 flex gap-2.5 focus:outline-none no-drag'
       }
     },
+    accordion: {
+      slots: {
+        trigger: ['cursor-pointer']
+      }
+    },
     modal: {
       slots: {
         overlay: 'no-drag',
