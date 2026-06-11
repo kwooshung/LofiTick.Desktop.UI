@@ -1,6 +1,6 @@
 <template>
   <UTooltip :text="description" :content="{ side: 'top' }">
-    <UButton color="neutral" variant="outline" :disabled="disabled" :icon="iconName" :label="label" @click="handleClick" />
+    <UButton color="neutral" variant="outline" :disabled="disabled" :icon="iconName" :label="label" :ui="{ leadingIcon: 'text-dimmed/75' }" @click="handleClick" />
   </UTooltip>
 </template>
 
@@ -10,7 +10,7 @@ import type { ICrawlersListItemEmits, ICrawlersListItemProps } from '@/component
 /**
  * 属性：爬虫列表项卡片。
  */
-const { disabled = false, description, iconName = 'i-lucide:atom', label } = defineProps<ICrawlersListItemProps>();
+const { disabled = false, description, iconName = 'i-lucide-atom', label } = defineProps<ICrawlersListItemProps>();
 
 /**
  * 事件：爬虫列表项卡片交互。

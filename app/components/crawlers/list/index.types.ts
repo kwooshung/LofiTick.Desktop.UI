@@ -16,6 +16,11 @@ export interface ICrawlersListRow {
    * 属性：条目描述。
    */
   description: string;
+
+  /**
+   * 属性：条目图标名称。
+   */
+  iconName: string;
 }
 
 /**

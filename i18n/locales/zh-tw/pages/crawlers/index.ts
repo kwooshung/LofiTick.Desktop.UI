@@ -140,6 +140,10 @@ export const crawlers = {
         title: '資料處理 - 變數',
         description: '儲存與讀取節點間共用變數。'
       },
+      logic: {
+        title: '資料處理 - 邏輯',
+        description: '比較、布林與空值判斷。'
+      },
       math: {
         title: '資料處理 - 數學',
         description: '基本算術、隨機數與取整。'
@@ -376,6 +380,52 @@ export const crawlers = {
         get: {
           title: '取得變數',
           description: '讀取變數的值。'
+        }
+      },
+      logic: {
+        equal: {
+          title: '等於',
+          description: '判斷兩個值是否相等。'
+        },
+        notEqual: {
+          title: '不等於',
+          description: '判斷兩個值是否不相等。'
+        },
+        greaterThan: {
+          title: '大於',
+          description: '判斷 a > b。'
+        },
+        lessThan: {
+          title: '小於',
+          description: '判斷 a < b。'
+        },
+        greaterThanOrEqual: {
+          title: '大於等於',
+          description: '判斷 a ≥ b。'
+        },
+        lessThanOrEqual: {
+          title: '小於等於',
+          description: '判斷 a ≤ b。'
+        },
+        and: {
+          title: 'AND',
+          description: '邏輯與（兩個布林值）。'
+        },
+        or: {
+          title: 'OR',
+          description: '邏輯或（兩個布林值）。'
+        },
+        not: {
+          title: 'NOT',
+          description: '邏輯非（取反）。'
+        },
+        isEmpty: {
+          title: '是否為空',
+          description: '判斷值是否為空（null/undefined/空字串/空陣列）。'
+        },
+        exists: {
+          title: '是否存在',
+          description: '判斷值是否存在（非 null/undefined）。'
         }
       },
       math: {

@@ -1,6 +1,6 @@
 <template>
   <div class="bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription">
-    <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-80 shrink-0 overflow-y-auto border-r p-3">
+    <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-100 shrink-0 overflow-y-auto border-r p-3">
       <CrawlersList :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
     </aside>
 

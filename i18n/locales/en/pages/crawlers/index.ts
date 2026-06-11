@@ -140,6 +140,10 @@ export const crawlers = {
         title: 'Data Processing - Variables',
         description: 'Store and read shared variables between nodes.'
       },
+      logic: {
+        title: 'Data Processing - Logic',
+        description: 'Comparison, boolean, and empty-value checks.'
+      },
       math: {
         title: 'Data Processing - Math',
         description: 'Basic arithmetic, random numbers, and rounding.'
@@ -376,6 +380,52 @@ export const crawlers = {
         get: {
           title: 'Get Variable',
           description: 'Read a variable value.'
+        }
+      },
+      logic: {
+        equal: {
+          title: 'Equal',
+          description: 'Check whether two values are equal.'
+        },
+        notEqual: {
+          title: 'Not Equal',
+          description: 'Check whether two values are not equal.'
+        },
+        greaterThan: {
+          title: 'Greater Than',
+          description: 'Check whether a > b.'
+        },
+        lessThan: {
+          title: 'Less Than',
+          description: 'Check whether a < b.'
+        },
+        greaterThanOrEqual: {
+          title: 'Greater Than or Equal',
+          description: 'Check whether a ≥ b.'
+        },
+        lessThanOrEqual: {
+          title: 'Less Than or Equal',
+          description: 'Check whether a ≤ b.'
+        },
+        and: {
+          title: 'AND',
+          description: 'Logical AND between two boolean values.'
+        },
+        or: {
+          title: 'OR',
+          description: 'Logical OR between two boolean values.'
+        },
+        not: {
+          title: 'NOT',
+          description: 'Logical NOT, or inversion.'
+        },
+        isEmpty: {
+          title: 'Is Empty',
+          description: 'Check whether a value is empty (null/undefined/empty string/empty array).'
+        },
+        exists: {
+          title: 'Exists',
+          description: 'Check whether a value exists (not null/undefined).'
         }
       },
       math: {

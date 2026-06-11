@@ -15,7 +15,7 @@
       <div class="space-y-3 px-2 pb-4">
         <div class="text-muted border-default mb-4 border-b pb-4 text-xs font-medium tracking-wide uppercase">{{ item.description }}</div>
         <div class="grid grid-cols-2 gap-3">
-          <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="item.icon" :selected="crawler.key === selectedKey" @click="handleItemClick(crawler, $event)" />
+          <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="crawler.iconName" :selected="crawler.key === selectedKey" @click="handleItemClick(crawler, $event)" />
         </div>
       </div>
     </template>
@@ -59,7 +59,6 @@ const items = computed(() =>
  * @returns {void} 无返回值。
  */
 const handleItemClick = (row: ICrawlersListRow, event: MouseEvent): void => {
-  console.log(row);
   emit('click', row, event);
 };
 </script>

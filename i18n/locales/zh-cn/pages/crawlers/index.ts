@@ -140,6 +140,10 @@ export const crawlers = {
         title: '数据处理 - 变量',
         description: '保存和读取节点间共享变量。'
       },
+      logic: {
+        title: '数据处理 - 逻辑',
+        description: '比较、布尔与空值判断。'
+      },
       math: {
         title: '数据处理 - 数学',
         description: '基础算术、随机数与取整。'
@@ -376,6 +380,52 @@ export const crawlers = {
         get: {
           title: '获取变量',
           description: '读取变量的值。'
+        }
+      },
+      logic: {
+        equal: {
+          title: '等于',
+          description: '判断两个值是否相等。'
+        },
+        notEqual: {
+          title: '不等于',
+          description: '判断两个值是否不相等。'
+        },
+        greaterThan: {
+          title: '大于',
+          description: '判断 a > b。'
+        },
+        lessThan: {
+          title: '小于',
+          description: '判断 a < b。'
+        },
+        greaterThanOrEqual: {
+          title: '大于等于',
+          description: '判断 a ≥ b。'
+        },
+        lessThanOrEqual: {
+          title: '小于等于',
+          description: '判断 a ≤ b。'
+        },
+        and: {
+          title: 'AND',
+          description: '逻辑与（两个布尔值）。'
+        },
+        or: {
+          title: 'OR',
+          description: '逻辑或（两个布尔值）。'
+        },
+        not: {
+          title: 'NOT',
+          description: '逻辑非（取反）。'
+        },
+        isEmpty: {
+          title: '是否为空',
+          description: '判断值是否为空（null/undefined/空字符串/空数组）。'
+        },
+        exists: {
+          title: '是否存在',
+          description: '判断值是否存在（非 null/undefined）。'
         }
       },
       math: {

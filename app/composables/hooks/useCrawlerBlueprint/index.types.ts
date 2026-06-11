@@ -16,6 +16,11 @@ export interface ICrawlersBlueprintNodeDefinition {
    * 属性：节点描述翻译键。
    */
   descriptionKey: string;
+
+  /**
+   * 属性：节点图标名称。
+   */
+  iconName: string;
 }
 
 /**

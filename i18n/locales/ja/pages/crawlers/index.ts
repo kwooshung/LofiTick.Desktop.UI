@@ -140,6 +140,10 @@ export const crawlers = {
         title: 'データ処理 - 変数',
         description: 'ノード間で共有する変数を保存・取得します。'
       },
+      logic: {
+        title: 'データ処理 - ロジック',
+        description: '比較、真偽値、空判定を行います。'
+      },
       math: {
         title: 'データ処理 - 数学',
         description: '基本計算、乱数、丸め処理です。'
@@ -376,6 +380,52 @@ export const crawlers = {
         get: {
           title: '変数を取得',
           description: '変数の値を読み取ります。'
+        }
+      },
+      logic: {
+        equal: {
+          title: '等しい',
+          description: '2 つの値が等しいかを判定します。'
+        },
+        notEqual: {
+          title: '等しくない',
+          description: '2 つの値が等しくないかを判定します。'
+        },
+        greaterThan: {
+          title: 'より大きい',
+          description: 'a > b を判定します。'
+        },
+        lessThan: {
+          title: 'より小さい',
+          description: 'a < b を判定します。'
+        },
+        greaterThanOrEqual: {
+          title: '以上',
+          description: 'a ≥ b を判定します。'
+        },
+        lessThanOrEqual: {
+          title: '以下',
+          description: 'a ≤ b を判定します。'
+        },
+        and: {
+          title: 'AND',
+          description: '2 つの真偽値の論理積です。'
+        },
+        or: {
+          title: 'OR',
+          description: '2 つの真偽値の論理和です。'
+        },
+        not: {
+          title: 'NOT',
+          description: '論理否定（反転）です。'
+        },
+        isEmpty: {
+          title: '空かどうか',
+          description: '値が空かどうかを判定します（null/undefined/空文字/空配列）。'
+        },
+        exists: {
+          title: '存在するか',
+          description: '値が存在するかを判定します（null/undefined ではない）。'
         }
       },
       math: {
