@@ -9,3 +9,14 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@internationalized/date@3.12.2'
   - '@nuxt/ui@4.8.1'
+  - '@iconify-json/simple-icons@1.2.86'
+  - '@nuxt/kit@4.4.8'
+  - '@nuxt/nitro-server@4.4.8'
+  - '@nuxt/schema@4.4.8'
+  - '@nuxt/vite-builder@4.4.8'
+  - '@nuxtjs/seo@5.1.4'
+  - '@vue/language-core@3.3.4'
+  - nuxt-schema-org@6.1.2
+  - nuxt@4.4.8
+  - nuxtseo-shared@5.1.4
+  - vue-tsc@3.3.4

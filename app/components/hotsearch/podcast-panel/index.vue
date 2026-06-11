@@ -20,43 +20,45 @@
     </UPageCard>
 
     <template v-else>
-      <Teleport to="#hotsearch-podcast-player-header">
-        <header class="border-default/70 bg-default/92 grid items-center gap-3 border-y px-4 py-4 shadow-sm shadow-black/5 backdrop-blur-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-6">
-          <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
-            <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />
-            <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-forward" :disabled="!computedHasNextSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handleNextSentence" />
-          </div>
+      <ClientOnly>
+        <Teleport to="#hotsearch-podcast-player-header">
+          <header class="border-default/70 bg-default/92 relative z-10 grid items-center gap-3 border-y px-4 py-4 shadow-md shadow-black/3 backdrop-blur-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-6">
+            <div class="bg-default/80 border-default/70 inline-flex items-center gap-2 rounded-lg border p-1">
+              <UButton color="primary" size="sm" :variant="stateAudioPlaying ? 'soft' : 'ghost'" :icon="computedPlaybackPrimaryIcon" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePlaybackPrimaryAction" />
+              <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-back" :disabled="!computedHasPreviousSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handlePreviousSentence" />
+              <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:skip-forward" :disabled="!computedHasNextSentence" class="size-9 justify-center rounded-md active:scale-[0.98]" :ui="{ base: 'shadow-none ring-0' }" @click="handleNextSentence" />
+            </div>
 
-          <div class="border-default/70 bg-default/65 min-w-0 rounded-lg border px-3 py-2.5">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0 flex-1">
-                <div class="text-highlighted truncate text-sm font-medium">
-                  {{ computedHeaderPrimaryLabel }}
+            <div class="border-default/70 bg-default/65 min-w-0 rounded-lg border px-3 py-2.5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="text-highlighted truncate text-sm font-medium">
+                    {{ computedHeaderPrimaryLabel }}
+                  </div>
+                  <p class="text-muted mt-1 line-clamp-1 text-sm leading-6">
+                    {{ computedHeaderSecondaryLabel }}
+                  </p>
                 </div>
-                <p class="text-muted mt-1 line-clamp-1 text-sm leading-6">
-                  {{ computedHeaderSecondaryLabel }}
-                </p>
-              </div>
 
-              <div class="border-default/60 text-toned shrink-0 border-l pl-3 text-right text-xs tabular-nums">
-                {{ computedHeaderCurrentSentenceProgressLabel }}
+                <div class="border-default/60 text-toned shrink-0 border-l pl-3 text-right text-xs tabular-nums">
+                  {{ computedHeaderCurrentSentenceProgressLabel }}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="text-right">
-            <div class="text-highlighted text-[1.65rem] leading-none font-semibold tracking-tight tabular-nums">
-              {{ computedQueueCounterLabel }}
+            <div class="text-right">
+              <div class="text-highlighted text-[1.65rem] leading-none font-semibold tracking-tight tabular-nums">
+                {{ computedQueueCounterLabel }}
+              </div>
+              <div class="mt-1 flex items-center justify-end gap-2 text-xs tabular-nums">
+                <span class="text-toned">{{ computedCurrentOverallProgressLabel }}</span>
+                <span class="text-default/30">/</span>
+                <span class="text-muted">{{ computedTotalDurationLabel }}</span>
+              </div>
             </div>
-            <div class="mt-1 flex items-center justify-end gap-2 text-xs tabular-nums">
-              <span class="text-toned">{{ computedCurrentOverallProgressLabel }}</span>
-              <span class="text-default/30">/</span>
-              <span class="text-muted">{{ computedTotalDurationLabel }}</span>
-            </div>
-          </div>
-        </header>
-      </Teleport>
+          </header>
+        </Teleport>
+      </ClientOnly>
 
       <section class="border-default/70 bg-default/95 divide-default/70 min-h-0 flex-1 divide-y overflow-y-auto border-b">
         <div v-for="(item, index) in computedPodcastView.sentences" :key="item.id" :ref="sentenceRowRefGet(item.id)" class="group px-4 py-3 transition-[background-color,transform] duration-200 sm:px-5" :class="item.id === stateCurrentSentenceId ? 'bg-primary/4.5' : 'hover:bg-muted/25'">

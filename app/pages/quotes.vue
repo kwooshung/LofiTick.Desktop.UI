@@ -5,7 +5,6 @@
     </template>
 
     <template #toolbar-right>
-      <SelectsEnabled v-if="computedRouteIsList" />
       <SelectsPagesizes />
       <SearchQuotes :route-is-list="computedRouteIsList" :route-is-authors="computedRouteIsAuthors" :route-is-sources="computedRouteIsSources" />
     </template>

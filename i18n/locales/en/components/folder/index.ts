@@ -1,3 +1,3 @@
 export const folder = {
-  newfolder: 'New folder'
+  newFolder: 'New folder'
 };

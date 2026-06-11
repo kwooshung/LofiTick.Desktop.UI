@@ -1,5 +1,5 @@
 <template>
-  <UModal :open="props.open" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }" @update:open="eventUpdateOpen">
+  <UModal :open="open" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }" @update:open="eventUpdateOpen">
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
         <UButton color="neutral" variant="ghost" @click="eventUpdateOpen(false)">
@@ -61,7 +61,7 @@ const tauriSettings = useTauriSettings();
 /**
  * 属性：附件目录确认弹窗属性。
  */
-const props = defineProps<ISettingsHotsearchAttachmentsDirDialogProps>();
+const { open, currentPath } = defineProps<ISettingsHotsearchAttachmentsDirDialogProps>();
 
 /**
  * 事件：附件目录确认弹窗事件。
@@ -107,7 +107,7 @@ const eventSelectPath = async (): Promise<void> => {
   stateSelecting.value = true;
 
   try {
-    const picked = await tauriSettings.setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), String(props.currentPath || '').trim());
+    const picked = await tauriSettings.setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), String(currentPath || '').trim());
 
     if (!picked) {
       return;

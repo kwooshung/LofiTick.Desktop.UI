@@ -6,10 +6,6 @@ const config = {
     'stylelint-config-recess-order' // 关键：RECSS 排序顺序
   ],
 
-  plugins: [
-    'stylelint-order' // recess-order 内部已经用了这个插件
-  ],
-
   overrides: [
     {
       files: ['**/*.vue'],

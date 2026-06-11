@@ -12,6 +12,7 @@ export type {
   IPageAdHotsearchProps,
   IPageTableColumnHotsearchAdMaterial
 } from '@@/shared/types/pages/ad/hotsearch/index.types';
+export type { IPageCrawlersTargetsProps, IPageCrawlerTargetForm, IQueryResultCrawlerTargetRow, IQueryResultCrawlerTargetSummaryPage } from '@@/shared/types/pages/crawlers/index.types';
 export type {
   IPageHomePodcastScriptBodyItem,
   IPageHomePodcastScriptGenerateRequest,
@@ -23,8 +24,8 @@ export type {
   TPageHomePodcastLength
 } from '@@/shared/types/pages/home/index.types';
 export type {
-  IHotsearchArchiveDateSummary,
   IHotsearchAdDeliveryPlatformOption,
+  IHotsearchArchiveDateSummary,
   IHotsearchDataPage,
   IHotsearchDataRow,
   IHotsearchMediaPlatformOption,

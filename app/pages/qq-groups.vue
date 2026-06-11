@@ -5,8 +5,6 @@
     </template>
 
     <template #toolbar-right>
-      <SelectsGroupsFull />
-      <SelectsEnabled />
       <SelectsPagesizes />
       <div class="flex items-center gap-2">
         <SearchQqGroups />

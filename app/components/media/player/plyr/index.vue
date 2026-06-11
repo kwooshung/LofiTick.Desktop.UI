@@ -1,13 +1,13 @@
 <template>
   <ClientOnly>
     <div :id="stateId" :class="stateRootClass" :style="stateRootStyle">
-      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="props.poster" :autoplay="props.autoplay" class="size-full bg-transparent" controls playsinline />
-      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full bg-transparent" :autoplay="props.autoplay" controls />
+      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="poster" :autoplay="autoplay" class="size-full bg-transparent" controls playsinline />
+      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full bg-transparent" :autoplay="autoplay" controls />
       <div v-else ref="refElement" class="size-full bg-transparent" :data-plyr-provider="stateEmbedProvider" :data-plyr-embed-id="stateEmbedId" />
 
       <Teleport v-if="stateWaveformEnabled && stateWaveformTeleportTarget" :to="stateWaveformTeleportTarget">
         <div class="media-plyr__waveform-overlay">
-          <MediaAudioWaves :waveform-path="stateWaveformPathResolved" :height="props.waveformHeight" :view-box-width="props.waveformViewBoxWidth" :view-box-height="props.waveformViewBoxHeight" :progress="stateWaveformProgress" :duration="stateWaveformDuration" @seek="mediaPlyrWaveformSeekHandle" />
+          <MediaAudioWaves :waveform-path="stateWaveformPathResolved" :height="waveformHeight" :view-box-width="waveformViewBoxWidth" :view-box-height="waveformViewBoxHeight" :progress="stateWaveformProgress" :duration="stateWaveformDuration" @seek="mediaPlyrWaveformSeekHandle" />
         </div>
       </Teleport>
     </div>
@@ -33,9 +33,7 @@ import type {
 /**
  * Props：组件属性
  */
-const props = withDefaults(defineProps<IMediaPlyrProps>(), {
-  type: 'auto'
-});
+const { id, autoplay, poster, sources, tracks, options: propsOptions = {}, waveformPath, waveformHeight = 40, waveformViewBoxWidth = 370, waveformViewBoxHeight = 32, type = 'auto' } = defineProps<IMediaPlyrProps>();
 
 /**
  * 常量：实例 id 自增计数
@@ -311,7 +309,7 @@ const stateIdGenerated = ref(mediaPlyrIdGet());
 /**
  * 状态：播放器 id
  */
-const stateId = computed(() => props.id || stateIdGenerated.value);
+const stateId = computed(() => id || stateIdGenerated.value);
 
 /**
  * 状态：Plyr 实例
@@ -512,7 +510,7 @@ const mediaPlyrLocaleToBcp47 = (val: string): string => {
 /**
  * 计算属性：媒体源
  */
-const stateSources = computed(() => mediaPlyrSourcesNormalize(props.sources));
+const stateSources = computed(() => mediaPlyrSourcesNormalize(sources));
 
 /**
  * 计算属性：自动识别 provider
@@ -523,13 +521,13 @@ const stateAutoProvider = computed<TMediaPlyrSourceProvider | undefined>(() => s
  * 计算属性：渲染模式
  */
 const stateRenderMode = computed<'video' | 'audio' | 'embed'>(() => {
-  if (props.type === 'youtube' || props.type === 'vimeo') {
+  if (type === 'youtube' || type === 'vimeo') {
     return 'embed';
   }
-  if (props.type === 'audio') {
+  if (type === 'audio') {
     return 'audio';
   }
-  if (props.type === 'video') {
+  if (type === 'video') {
     return 'video';
   }
 
@@ -557,11 +555,11 @@ const stateRenderMode = computed<'video' | 'audio' | 'embed'>(() => {
  * - 目的：满足 waves 组件要求 waveformPath 为必填 string
  */
 const stateWaveformPathResolved = computed(() => {
-  if (typeof props.waveformPath !== 'string') {
+  if (typeof waveformPath !== 'string') {
     return '';
   }
 
-  return props.waveformPath.trim();
+  return waveformPath.trim();
 });
 
 /**
@@ -594,7 +592,7 @@ const stateRootStyle = computed(() => {
     return undefined;
   }
 
-  const height = typeof props.waveformHeight === 'number' && Number.isFinite(props.waveformHeight) && props.waveformHeight > 0 ? props.waveformHeight : 40;
+  const height = typeof waveformHeight === 'number' && Number.isFinite(waveformHeight) && waveformHeight > 0 ? waveformHeight : 40;
 
   return {
     '--media-plyr-waveform-height': `${height}px`
@@ -666,8 +664,8 @@ const mediaPlyrWaveformSeekHandle = (payload: IMediaAudioWavesSeekPayload): void
  * 计算属性：Embed provider
  */
 const stateEmbedProvider = computed<'youtube' | 'vimeo'>(() => {
-  if (props.type === 'youtube' || props.type === 'vimeo') {
-    return props.type;
+  if (type === 'youtube' || type === 'vimeo') {
+    return type;
   }
 
   return stateAutoProvider.value === 'vimeo' ? 'vimeo' : 'youtube';
@@ -686,7 +684,7 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
   /**
    * 常量：选项副本（避免直接修改 props）
    */
-  const options: IMediaPlyrConfig = { ...(props.options ?? {}) };
+  const options: IMediaPlyrConfig = { ...(propsOptions ?? {}) };
 
   /**
    * 常量：controls 原始值
@@ -720,8 +718,8 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
   }
 
   // 组件级 autoplay 语义优先透传到 Plyr 配置。
-  if (options.autoplay === undefined && props.autoplay !== undefined) {
-    options.autoplay = props.autoplay;
+  if (options.autoplay === undefined && autoplay !== undefined) {
+    options.autoplay = autoplay;
   }
 
   return {
@@ -741,13 +739,13 @@ const mediaPlyrSourceGet = (): IMediaPlyrPlayerSource => {
    * 常量：tracks（仅在 props.tracks 为 URL 字符串时启用）
    */
   const tracks: IMediaPlyrPlayerTrack[] =
-    typeof props.tracks === 'string'
+    typeof tracks === 'string'
       ? [
           {
             kind: 'captions',
             label: mediaPlyrLocaleToBcp47(locale.value),
             srclang: mediaPlyrLocaleToBcp47(locale.value),
-            src: props.tracks,
+            src: tracks,
             default: true
           }
         ]
@@ -755,7 +753,7 @@ const mediaPlyrSourceGet = (): IMediaPlyrPlayerSource => {
 
   return {
     type,
-    poster: props.poster,
+    poster,
     sources: stateSources.value,
     tracks
   };
@@ -1129,7 +1127,7 @@ const mediaPlyrCreate = async (): Promise<void> => {
     mediaPlyrWaveformTeleportTargetResolve(player);
     mediaPlyrWaveformSync(player);
 
-    if (props.autoplay === true) {
+    if (autoplay === true) {
       playerPlaySafe();
     }
   });
@@ -1324,7 +1322,7 @@ watch(
  * 监听：媒体源变化
  */
 watch(
-  () => props.sources,
+  () => sources,
   () => {
     mediaPlyrSyncSource();
   },
@@ -1335,7 +1333,7 @@ watch(
  * 监听：封面变化
  */
 watch(
-  () => props.poster,
+  () => poster,
   () => {
     mediaPlyrSyncSource();
   }
@@ -1345,7 +1343,7 @@ watch(
  * 监听：options 变化（通常需要重新初始化）
  */
 watch(
-  () => props.options,
+  () => propsOptions,
   () => {
     mediaPlyrRecreate();
   },
@@ -1358,7 +1356,7 @@ watch(
  * - 注意：不重建 Plyr，只更新覆盖层挂载点与进度同步
  */
 watch(
-  () => [stateWaveformPathResolved.value, props.waveformHeight, props.waveformViewBoxWidth, props.waveformViewBoxHeight] as const,
+  () => [stateWaveformPathResolved.value, waveformHeight, waveformViewBoxWidth, waveformViewBoxHeight] as const,
   () => {
     mediaPlyrWaveformTeleportTargetResolve(statePlayer.value);
     mediaPlyrWaveformSync(statePlayer.value);

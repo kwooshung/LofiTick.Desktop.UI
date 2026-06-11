@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getMethod } from 'h3';
+import { createError, defineEventHandler } from 'h3';
 import { useRuntimeConfig } from 'nitropack/runtime';
 
 /**
@@ -27,13 +27,15 @@ interface IApiSecurityCsrfResponse {
  * 当请求方法不是 `GET`，或当前 token 不可用时返回错误。
  */
 export default defineEventHandler((event): IApiSecurityCsrfResponse => {
-  if (getMethod(event) !== 'GET') {
+  if (event.method !== 'GET') {
     throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' });
   }
 
   const runtimeConfig = useRuntimeConfig(event);
   const token = String((event.context as Record<string, unknown>).csrfToken ?? '').trim();
-  const header = String((runtimeConfig.public as Record<string, unknown>)?.csurf?.headerName ?? '').trim();
+  const publicConfig = runtimeConfig.public as { csurf?: { headerName?: unknown } } | undefined;
+  const csurf = publicConfig?.csurf;
+  const header = String(csurf?.headerName ?? '').trim();
 
   if (token === '' || header === '') {
     throw createError({ statusCode: 500, statusMessage: 'CSRF Token Unavailable' });

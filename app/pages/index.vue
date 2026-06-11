@@ -253,20 +253,6 @@
 <script setup lang="ts">
 import type { UnlistenFn } from '@tauri-apps/api/event';
 
-import type {
-  IPageHomePodcastScriptAdvertisementItem,
-  IPageHomePodcastScriptBodyItem,
-  IPageHomePodcastScriptGenerateResponse,
-  IPageHomeSendWelcomeEmailResponse,
-  IPageHomeWelcomeEmailPayload,
-  ITauriPodcastGenerateAccepted,
-  ITauriPodcastTaskSnapshot,
-  TPageHomePodcastEdition,
-  TPageHomePodcastLength,
-  THotsearchPodcastSegmentType,
-  THotsearchPodcastVoiceKey
-} from '#imports';
-
 import { VueDraggable } from 'vue-draggable-plus';
 
 /**

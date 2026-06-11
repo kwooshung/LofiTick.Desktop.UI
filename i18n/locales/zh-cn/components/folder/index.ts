@@ -1,3 +1,3 @@
 export const folder = {
-  newfolder: '新建文件夹'
+  newFolder: '新建文件夹'
 };

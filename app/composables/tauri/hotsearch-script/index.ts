@@ -7,7 +7,7 @@ import type { IPageHomePodcastScriptGenerateRequest, IPageHomePodcastScriptGener
  * 描述：封装 Desktop 壳侧的热搜播客脚本构建命令。
  * @returns {object} 热搜播客脚本方法。
  */
-export const useTauriHotsearchScript = () => {
+export const useTauriHotsearchScript = (): object => {
   /**
    * Hook：Tauri 环境。
    */

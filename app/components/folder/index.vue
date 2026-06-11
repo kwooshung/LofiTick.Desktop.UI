@@ -21,7 +21,6 @@
       role="option"
       tabindex="0"
       @click.stop="onClick"
-      @contextmenu.stop="handleContextMenu"
       @keydown.stop="handleKeydown"
       @pointerdown.stop="onPointerDown"
       @pointerup.stop="onPointerUp"
@@ -38,7 +37,7 @@
               {{ displayLabel }}
             </div>
             <div v-else ref="refRelabelWrapEl" class="w-full">
-              <UInput v-model="stateDraftLabel" variant="ghost" highlight @keydown.enter.prevent="confirmRelabel" @keydown.esc.prevent="onInputEsc" @blur="handleInputBlur" />
+              <UInput :model-value="stateDraftLabel" variant="ghost" @update:model-value="handleRelabelInputUpdate" @keyup.prevent="handleRelabelInputKeyup" @blur="handleInputBlur" />
             </div>
           </div>
         </div>
@@ -56,33 +55,25 @@ import type { IFolderEmits, IFolderProps } from '@/components/folder/index.types
 /**
  * 属性
  */
-const props = withDefaults(defineProps<IFolderProps>(), {
-  // 标识/显示
-  label: undefined,
-  to: undefined,
-  defaultLabel: undefined,
-  bgColor: 'bg-primary-500',
-  fgColor: 'bg-primary-400',
-
-  // 选择
-  selected: undefined,
-  selectable: true,
-  unselectOnOutside: true,
-
-  // 打开/键盘/指针
-  dblclickDelay: 250,
-  clickMoveTolerance: 4,
-
-  // 重命名
-  relabel: false,
-  relabelOnSecondClick: true,
-  relabelDelay: 30,
-
-  // 右键菜单
-  contextMenuProps: () => ({}),
-
-  disabled: false
-});
+const {
+  label,
+  to,
+  defaultLabel,
+  bgColor = 'bg-primary-500',
+  fgColor = 'bg-primary-400',
+  selected,
+  selectable = true,
+  unselectOnOutside = true,
+  dblclickDelay = 250,
+  clickMoveTolerance = 4,
+  relabel = false,
+  relabelOnSecondClick = true,
+  relabelDelay = 30,
+  relabelOnly = false,
+  contextMenuProps,
+  disabled = false,
+  iconName
+} = defineProps<IFolderProps>();
 
 /**
  * Hook：国际化
@@ -132,22 +123,22 @@ let blurCloseTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 /**
  * 引用：根元素与重命名输入框元素引用
  */
-const refRootEl = useTemplateRef('refRootEl');
+const refRootEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：重命名输入框外层元素引用
  */
-const refRelabelWrapEl = useTemplateRef('refRelabelWrapEl');
+const refRelabelWrapEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：名称元素引用
  */
-const refLabelEl = useTemplateRef('refLabelEl');
+const refLabelEl = ref<HTMLElement | null>(null);
 
 /**
  * 状态：内部选中状态（受控/非受控）
  */
-const stateInnerSelected = ref(props.selected !== undefined ? props.selected : false);
+const stateInnerSelected = ref(selected !== undefined ? selected : false);
 
 /**
  * 状态：重命名状态
@@ -167,19 +158,19 @@ const relabelTimer = ref<ReturnType<typeof setTimeout> | undefined>(undefined);
 /**
  * 计算属性：是否无右键菜单
  */
-const computedNotMenu = computed(() => !(Array.isArray(props.contextMenuProps?.items) && (props.contextMenuProps?.items as ContextMenuItem[]).length > 0));
+const computedNotMenu = computed(() => !(Array.isArray(contextMenuProps?.items) && (contextMenuProps?.items as ContextMenuItem[]).length > 0));
 
 /**
  * 计算属性：是否选中
  */
 const computedIsSelected = computed({
-  get: () => props.selected ?? stateInnerSelected.value,
+  get: () => selected ?? stateInnerSelected.value,
   set: (v: boolean) => {
-    if (!props.selectable) {
+    if (!selectable) {
       return;
     }
 
-    if (props.selected === undefined) {
+    if (selected === undefined) {
       stateInnerSelected.value = v;
     }
 
@@ -196,8 +187,8 @@ const computedIsSelected = computed({
  * 计算属性：默认名称（从语言包读取，缺失时回退为“新建文件夹”）
  */
 const defaultFolderLabel = computed<string>(() => {
-  if (props.defaultLabel && props.defaultLabel.trim().length > 0) {
-    return props.defaultLabel;
+  if (defaultLabel && defaultLabel.trim().length > 0) {
+    return defaultLabel;
   }
 
   const key = 'components.folder.newFolder';
@@ -208,7 +199,7 @@ const defaultFolderLabel = computed<string>(() => {
 /**
  * 计算属性：用于展示的名称（外部 name 优先，否则取默认名称）
  */
-const displayLabel = computed<string>(() => props.label ?? defaultFolderLabel.value);
+const displayLabel = computed<string>(() => label ?? defaultFolderLabel.value);
 
 /**
  * 函数：获取当前重命名输入框元素
@@ -226,7 +217,7 @@ const getRelabelInputEl = (): HTMLInputElement | null => {
  * 函数：进入重命名
  */
 const startRelabel = () => {
-  if (!props.relabel) {
+  if (!relabel) {
     return;
   }
 
@@ -254,19 +245,19 @@ const delayedStartRelabel = () => {
   relabelTimer.value = setTimeout(() => {
     startRelabel();
     relabelTimer.value = undefined;
-  }, props.relabelDelay);
+  }, relabelDelay);
 };
 
 /**
  * 函数：确认重命名
  */
 const confirmRelabel = () => {
-  const label = stateDraftLabel.value?.trim() ?? '';
+  const draftLabel = stateDraftLabel.value?.trim() ?? '';
 
-  if (label && label !== props.label) {
+  if (draftLabel && draftLabel !== displayLabel.value) {
     // 支持 v-model:label 与重命名回调
-    emit('update:label', label);
-    emit('relabel-done', label);
+    emit('update:label', draftLabel);
+    emit('relabel-done', draftLabel);
   }
 
   stateIsRenaming.value = false;
@@ -299,6 +290,31 @@ const onInputEsc = () => {
 };
 
 /**
+ * 事件：重命名输入框键盘抬起。
+ * @param {KeyboardEvent} e 键盘事件。
+ */
+const handleRelabelInputKeyup = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    confirmRelabel();
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    onInputEsc();
+  }
+};
+
+/**
+ * 事件：重命名输入框内容更新。
+ * @param {string | number} value 新输入值。
+ */
+const handleRelabelInputUpdate = (value: string | number) => {
+  stateDraftLabel.value = String(value ?? '');
+};
+
+/**
  * 事件：输入框 blur（延迟取消，若根 click 先处理将清理该定时）
  */
 const handleInputBlur = () => {
@@ -321,7 +337,7 @@ const handleInputBlur = () => {
  * @param {KeyboardEvent} e 键盘事件
  */
 const handleKeydown = (e: KeyboardEvent) => {
-  if (props.disabled) {
+  if (disabled) {
     return;
   }
 
@@ -330,13 +346,13 @@ const handleKeydown = (e: KeyboardEvent) => {
     return;
   }
 
-  if (e.key === 'F2' && computedIsSelected.value && props.relabel) {
+  if (e.key === 'F2' && computedIsSelected.value && relabel) {
     e.preventDefault();
     delayedStartRelabel();
     return;
   }
 
-  if (e.key === ' ' && props.selectable) {
+  if (e.key === ' ' && selectable) {
     e.preventDefault();
     computedIsSelected.value = !computedIsSelected.value;
     return;
@@ -356,6 +372,15 @@ const handleKeydown = (e: KeyboardEvent) => {
 const onPointerDown = (e: PointerEvent) => {
   pointerDownPos = { x: e.clientX, y: e.clientY };
   movedBeyondTolerance = false;
+
+  if (e.button === 2) {
+    if (selectable && !computedIsSelected.value) {
+      computedIsSelected.value = true;
+    }
+    if (stateIsRenaming.value) {
+      cancelRelabel();
+    }
+  }
 };
 
 /**
@@ -367,7 +392,7 @@ const onPointerMove = (e: PointerEvent) => {
   const dy = Math.abs(e.clientY - pointerDownPos.y);
   const moved = Math.hypot(dx, dy);
   // 移动超过容差即判定为拖拽，后续的 click（若产生）将被抑制进入重命名
-  if (moved > props.clickMoveTolerance) {
+  if (moved > clickMoveTolerance) {
     movedBeyondTolerance = true;
   }
 };
@@ -392,13 +417,13 @@ const onPointerUp = () => {
  * @param {MouseEvent} e 鼠标事件
  */
 const onClick = (e: MouseEvent) => {
-  if (props.disabled) {
+  if (disabled) {
     return;
   }
 
   // 存在跳转目标时：仅左键单击触发跳转（不参与选中/重命名判定）
-  if (props.to && e.button === 0) {
-    navigateTo(props.to);
+  if (to && e.button === 0) {
+    navigateTo(to);
     return;
   }
 
@@ -438,17 +463,17 @@ const onClick = (e: MouseEvent) => {
   }
 
   // 双击判定：时间与位移均在阈值内
-  if (timeDiff <= props.dblclickDelay && moved <= props.clickMoveTolerance) {
+  if (timeDiff <= dblclickDelay && moved <= clickMoveTolerance) {
     emit('dblclick', e);
   } else {
     // 非双击
-    if (props.selectable && !computedIsSelected.value) {
+    if (selectable && !computedIsSelected.value) {
       // 第一次单击：进入选中，等待下一次单击进入重命名
       computedIsSelected.value = true;
     } else if (computedIsSelected.value) {
       // 已选中：第二次单击（非双击）直接进入重命名
-      if (props.relabel && props.relabelOnSecondClick) {
-        if (props.relabelOnly) {
+      if (relabel && relabelOnSecondClick) {
+        if (relabelOnly) {
           const target = e.target as Node | null;
           const nameEl = refLabelEl.value;
           if (nameEl && target && nameEl.contains(target)) {
@@ -466,25 +491,6 @@ const onClick = (e: MouseEvent) => {
 };
 
 /**
- * 事件：右键菜单
- * @param {MouseEvent} e 鼠标事件
- */
-const handleContextMenu = (e: MouseEvent) => {
-  if (props.disabled) {
-    return;
-  }
-
-  if (props.selectable && !computedIsSelected.value) {
-    computedIsSelected.value = true;
-  }
-  // 右键时退出重命名预备
-  if (stateIsRenaming.value) {
-    cancelRelabel();
-  }
-  emit('context', e);
-};
-
-/**
  * 事件：右键菜单选中
  * @param {ContextMenuItem} item 选中的菜单项
  */
@@ -494,7 +500,7 @@ const handleMenuSelect = (item: ContextMenuItem) => emit('menu-select', item);
  * 事件：组件外点击 -> 取消选中与重命名就绪
  */
 onClickOutside(refRootEl, () => {
-  if (!props.unselectOnOutside) {
+  if (!unselectOnOutside) {
     return;
   }
   nextTick(() => {
@@ -508,7 +514,7 @@ onClickOutside(refRootEl, () => {
  * 监听：名称或默认名称变更 -> 同步草稿（立即）
  */
 watch(
-  [() => props.label, () => defaultFolderLabel.value],
+  [() => label, () => defaultFolderLabel.value],
   ([n, d]) => {
     if (!stateIsRenaming.value) {
       stateDraftLabel.value = n ?? d;

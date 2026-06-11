@@ -40,19 +40,18 @@
 </template>
 
 <script setup lang="ts">
-
 import type { IEmailLayoutProps } from '@/emails/index.types';
 
 /**
- * 属性：布局属性
+ * 属性：布局属性。
  */
-const props = defineProps<IEmailLayoutProps>();
+const { type } = defineProps<IEmailLayoutProps>();
 
 /**
  * 计算属性：边框颜色
  */
 const computedColorByType = computed(() => {
-  switch (props.type) {
+  switch (type) {
     case 'info':
       return '#0092b8';
     case 'success':

@@ -69,6 +69,11 @@ import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
+ * 属性：页面刷新标记。
+ */
+const { createNonce = 0 } = defineProps<IPageQqGroupsProps>();
+
+/**
  * 组件：Nuxt 时间显示组件
  */
 const Datetime = resolveComponent('Datetime');
@@ -87,11 +92,6 @@ const ULink = resolveComponent('ULink');
  * 组件：开关
  */
 const USwitch = resolveComponent('USwitch');
-
-/**
- * 组件：分页
- */
-const UPagination = resolveComponent('UPagination');
 
 /**
  * Hook：Tauri 环境
@@ -134,10 +134,6 @@ const currentPageSizeGet = (): string => {
 
   return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
 };
-
-const props = withDefaults(defineProps<IPageQqGroupsProps>(), {
-  createNonce: 0
-});
 
 /**
  * 函数：从路由查询参数构建接口查询参数
@@ -448,7 +444,7 @@ const computedQqGroupDatas = computed<IPageTableColumnQqGroup[]>(() => {
   return datas.value.rows.map((item) => ({
     id: item.id,
     name: item.name,
-    number: item.number,
+    number: String(item.number),
     size: item.size,
     url: item.url,
     full: item.full,
@@ -696,7 +692,7 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => props.createNonce,
+  () => createNonce,
   (value, oldValue) => {
     if (typeof value === 'number' && typeof oldValue === 'number' && value !== oldValue) {
       handleCreate();

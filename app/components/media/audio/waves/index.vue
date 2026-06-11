@@ -1,9 +1,9 @@
 <template>
-  <div class="media-audio-waves flex" :class="{ 'media-audio-waves--order-132': stateRectOrderIs132 }" :style="{ height: `${props.height}px` }">
+  <div class="media-audio-waves flex" :class="{ 'media-audio-waves--order-132': stateRectOrderIs132 }" :style="{ height: `${height}px` }">
     <div
       ref="refInteractive"
       class="flex size-full cursor-pointer touch-none"
-      :style="{ height: `${props.height}px` }"
+      :style="{ height: `${height}px` }"
       @pointermove="mediaAudioWavesPreviewUpdateByPointerEvent"
       @pointerleave="mediaAudioWavesPreviewClear"
       @pointerdown="mediaAudioWavesDragStart"
@@ -14,7 +14,7 @@
         <svg :viewBox="stateViewBox" width="100%" height="50%" x="0" y="25%" preserveAspectRatio="none">
           <defs>
             <clipPath :id="stateLineClipId">
-              <path :d="props.waveformPath" stroke-width="0" />
+              <path :d="waveformPath" stroke-width="0" />
             </clipPath>
           </defs>
           <g :clip-path="`url(#${stateLineClipId})`" class="text-neutral-400 dark:text-neutral-400">
@@ -43,12 +43,7 @@ import type { IMediaAudioWavesEmits, IMediaAudioWavesProps } from '@/components/
 /**
  * Props：组件属性
  */
-const props = withDefaults(defineProps<IMediaAudioWavesProps>(), {
-  height: 40,
-  viewBoxWidth: 370,
-  viewBoxHeight: 32,
-  progress: 0
-});
+const { waveformPath, height = 40, viewBoxWidth = 370, viewBoxHeight = 32, progress = 0, duration } = defineProps<IMediaAudioWavesProps>();
 
 /**
  * Emits：组件事件
@@ -226,12 +221,12 @@ const stateLineClipId = computed(() => `media-audio-waves-line-${stateId.replace
 /**
  * 计算属性：viewBox
  */
-const stateViewBox = computed(() => `0 0 ${props.viewBoxWidth} ${props.viewBoxHeight}`);
+const stateViewBox = computed(() => `0 0 ${viewBoxWidth} ${viewBoxHeight}`);
 
 /**
  * 计算属性：进度 rect 宽度（viewBox 坐标）
  */
-const stateProgressWidth = computed(() => props.viewBoxWidth * mediaAudioWavesClamp01(props.progress ?? 0));
+const stateProgressWidth = computed(() => viewBoxWidth * mediaAudioWavesClamp01(progress ?? 0));
 
 /**
  * 计算属性：预览 rect 宽度（viewBox 坐标）
@@ -241,7 +236,7 @@ const statePreviewWidth = computed(() => {
     return 0;
   }
 
-  return props.viewBoxWidth * mediaAudioWavesClamp01(statePreviewPercent.value);
+  return viewBoxWidth * mediaAudioWavesClamp01(statePreviewPercent.value);
 });
 
 /**
@@ -254,7 +249,7 @@ const stateRectOrderIs132 = computed(() => {
   }
 
   const previewPercent = mediaAudioWavesClamp01(statePreviewPercent.value);
-  const progressPercent = mediaAudioWavesClamp01(props.progress ?? 0);
+  const progressPercent = mediaAudioWavesClamp01(progress ?? 0);
 
   return previewPercent > progressPercent;
 });
@@ -272,7 +267,7 @@ const stateIndicatorVisible = computed(() => stateDragging.value || statePreview
  */
 const stateIndicatorPercent = computed(() => {
   if (statePreviewPercent.value === null) {
-    return mediaAudioWavesClamp01(props.progress ?? 0);
+    return mediaAudioWavesClamp01(progress ?? 0);
   }
 
   return mediaAudioWavesClamp01(statePreviewPercent.value);
@@ -292,8 +287,8 @@ const stateIndicatorWidth = computed(() => `${stateIndicatorPercent.value * 100}
 const mediaAudioWavesSeekEmit = (percent: number): void => {
   const normalized = mediaAudioWavesClamp01(percent);
 
-  if (typeof props.duration === 'number' && Number.isFinite(props.duration)) {
-    emit('seek', { percent: normalized, time: props.duration * normalized });
+  if (typeof duration === 'number' && Number.isFinite(duration)) {
+    emit('seek', { percent: normalized, time: duration * normalized });
     return;
   }
 

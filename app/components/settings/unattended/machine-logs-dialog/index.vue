@@ -1,10 +1,10 @@
 <template>
   <UModal v-model:open="stateOpen" :title="t('components.sentinel.scenes.card.fields.logs')" :ui="{ content: 'z-50 max-w-5xl', title: 'w-full font-normal', body: 'max-h-[70vh] overflow-y-auto pr-1' }">
     <template #title>
-      <template v-if="props.machine">
+      <template v-if="machine">
         <div class="min-w-0">
-          <div class="text-highlighted text-lg font-medium">{{ props.machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</div>
-          <div class="text-muted mt-1 text-xs break-all">{{ props.machine.machineCode || '-' }}</div>
+          <div class="text-highlighted text-lg font-medium">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</div>
+          <div class="text-muted mt-1 text-xs break-all">{{ machine.machineCode || '-' }}</div>
         </div>
       </template>
       <template v-else>
@@ -12,7 +12,7 @@
       </template>
     </template>
     <template #body>
-      <div v-if="props.machine" class="space-y-4">
+      <div v-if="machine" class="space-y-4">
         <div ref="refListTop" />
         <template v-if="computedLogs.length > 0">
           <article v-for="item in computedPagedLogs" :key="item.id" class="bg-elevated/40 ring-default space-y-3 rounded-md p-4 ring-1">
@@ -98,7 +98,7 @@ const stateOpen = defineModel<boolean>('open', { default: false });
 /**
  * Props：组件属性
  */
-const props = defineProps<ISettingsUnattendedMachineLogsDialogProps>();
+const { machine } = defineProps<ISettingsUnattendedMachineLogsDialogProps>();
 
 /**
  * 常量：日志弹窗每页条数
@@ -118,7 +118,7 @@ const refListTop = ref<HTMLElement | null>(null);
 /**
  * 计算属性：当前机器日志列表
  */
-const computedLogs = computed(() => (Array.isArray(props.machine?.logs) ? props.machine.logs : []));
+const computedLogs = computed(() => (Array.isArray(machine?.logs) ? machine.logs : []));
 
 /**
  * 计算属性：当前页日志列表
@@ -132,7 +132,7 @@ const computedPagedLogs = computed(() => {
  * 监听：切换机器或重新打开弹窗时回到第一页
  */
 watch(
-  () => [stateOpen.value, props.machine?.machineCode, computedLogs.value.length],
+  () => [stateOpen.value, machine?.machineCode, computedLogs.value.length],
   () => {
     statePage.value = 1;
   }

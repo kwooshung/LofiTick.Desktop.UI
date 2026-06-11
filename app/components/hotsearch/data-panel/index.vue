@@ -80,11 +80,6 @@ const ULink = resolveComponent('ULink');
 const UBadge = resolveComponent('UBadge');
 
 /**
- * 组件：分页。
- */
-const UPagination = resolveComponent('UPagination');
-
-/**
  * Hook：国际化。
  */
 const { t } = useI18n();
@@ -105,7 +100,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜数据面板顶部锚点。
  */
-const refHotsearchDataPanelTop = useTemplateRef('refHotsearchDataPanelTop');
+const refHotsearchDataPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * Hook：Tauri 运行环境。

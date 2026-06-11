@@ -1,7 +1,7 @@
 <template>
   <div v-if="computedMachines.length > 0" class="flex flex-wrap gap-3">
     <div v-for="machine in computedMachines" :key="machine.machineCode" class="max-w-98 min-w-80 flex-[1_1_20.5rem]">
-      <SettingsUnattendedMachineCardBase :machine="machine" :local-machine-code="props.localMachineCode">
+      <SettingsUnattendedMachineCardBase :machine="machine" :local-machine-code="localMachineCode">
         <template #body>
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
@@ -93,7 +93,7 @@ const { t } = useI18n();
 /**
  * Props：组件属性
  */
-const props = defineProps<ISettingsUnattendedSentinelLogsCardsProps>();
+const { localMachineCode, machines } = defineProps<ISettingsUnattendedSentinelLogsCardsProps>();
 
 /**
  * 状态：网卡弹窗是否打开
@@ -114,12 +114,12 @@ const stateActiveMachineCode = ref<string>('');
  * 计算属性：机器列表
  */
 const computedMachines = computed(() => {
-  const machines = Array.isArray(props.machines) ? [...props.machines] : [];
+  const machineList = Array.isArray(machines) ? [...machines] : [];
 
-  return machines.sort((left, right) => {
+  return machineList.sort((left, right) => {
     const leftCode = String(left?.machineCode || '').trim();
     const rightCode = String(right?.machineCode || '').trim();
-    const localCode = String(props.localMachineCode || '').trim();
+    const localCode = String(localMachineCode || '').trim();
 
     const leftIsLocal = leftCode !== '' && leftCode === localCode;
     const rightIsLocal = rightCode !== '' && rightCode === localCode;

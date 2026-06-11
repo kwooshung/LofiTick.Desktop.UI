@@ -12,19 +12,19 @@
     <UFormField :label="t('pages.settings.hotsearch.fields.podcastProgramNames.label')" :description="t('pages.settings.hotsearch.fields.podcastProgramNames.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
       <div class="mt-5 grid gap-4 md:grid-cols-2">
         <UFormField :label="t('pages.settings.hotsearch.fields.podcastMorningProgramName.label')" :ui="{ label: 'text-sm text-highlighted mb-1', container: 'space-y-0' }" class="w-full min-w-0">
-          <UInput :model-value="morningProgramName" color="primary" variant="outline" class="w-full" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastMorningProgramName.placeholder')" @update:model-value="handleMorningProgramNameUpdate" />
+          <UInput :model-value="morningProgramName" color="primary" variant="outline" class="w-full" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastMorningProgramName.placeholder')" @update:model-value="handleMorningProgramNameUpdate" />
         </UFormField>
 
         <UFormField :label="t('pages.settings.hotsearch.fields.podcastEveningProgramName.label')" :ui="{ label: 'text-sm text-highlighted mb-1', container: 'space-y-0' }" class="w-full min-w-0">
-          <UInput :model-value="eveningProgramName" color="primary" variant="outline" class="w-full" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastEveningProgramName.placeholder')" @update:model-value="handleEveningProgramNameUpdate" />
+          <UInput :model-value="eveningProgramName" color="primary" variant="outline" class="w-full" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastEveningProgramName.placeholder')" @update:model-value="handleEveningProgramNameUpdate" />
         </UFormField>
 
         <UFormField :label="t('pages.settings.hotsearch.fields.podcastVipMorningProgramName.label')" :ui="{ label: 'text-sm text-highlighted mb-1', container: 'space-y-0' }" class="w-full min-w-0">
-          <UInput :model-value="vipMorningProgramName" color="primary" variant="outline" class="w-full" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastVipMorningProgramName.placeholder')" @update:model-value="handleVipMorningProgramNameUpdate" />
+          <UInput :model-value="vipMorningProgramName" color="primary" variant="outline" class="w-full" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastVipMorningProgramName.placeholder')" @update:model-value="handleVipMorningProgramNameUpdate" />
         </UFormField>
 
         <UFormField :label="t('pages.settings.hotsearch.fields.podcastVipEveningProgramName.label')" :ui="{ label: 'text-sm text-highlighted mb-1', container: 'space-y-0' }" class="w-full min-w-0">
-          <UInput :model-value="vipEveningProgramName" color="primary" variant="outline" class="w-full" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastVipEveningProgramName.placeholder')" @update:model-value="handleVipEveningProgramNameUpdate" />
+          <UInput :model-value="vipEveningProgramName" color="primary" variant="outline" class="w-full" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastVipEveningProgramName.placeholder')" @update:model-value="handleVipEveningProgramNameUpdate" />
         </UFormField>
       </div>
     </UFormField>
@@ -35,7 +35,7 @@
       :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
       class="flex items-center justify-between gap-3 not-last:pb-4"
     >
-      <UInput :model-value="maleSpeakerName" color="primary" variant="outline" class="w-full md:w-56" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastMaleSpeakerName.placeholder')" @update:model-value="handleMaleSpeakerNameUpdate" />
+      <UInput :model-value="maleSpeakerName" color="primary" variant="outline" class="w-full md:w-56" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastMaleSpeakerName.placeholder')" @update:model-value="handleMaleSpeakerNameUpdate" />
     </UFormField>
 
     <UFormField
@@ -44,13 +44,13 @@
       :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
       class="flex items-center justify-between gap-3 not-last:pb-4"
     >
-      <UInput :model-value="femaleSpeakerName" color="primary" variant="outline" class="w-full md:w-56" :disabled="props.disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastFemaleSpeakerName.placeholder')" @update:model-value="handleFemaleSpeakerNameUpdate" />
+      <UInput :model-value="femaleSpeakerName" color="primary" variant="outline" class="w-full md:w-56" :disabled="disabled" :placeholder="t('pages.settings.hotsearch.fields.podcastFemaleSpeakerName.placeholder')" @update:model-value="handleFemaleSpeakerNameUpdate" />
     </UFormField>
 
     <UFormField :label="t('pages.settings.hotsearch.fields.podcastVariables.label')" :description="t('pages.settings.hotsearch.fields.podcastVariables.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
       <div class="mt-4 flex flex-wrap gap-2">
         <UPopover v-for="item in computedVariableOptions" :key="item.token" mode="hover" :open-delay="120" :close-delay="80" arrow :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'p-3 w-64' }">
-          <UButton variant="outline" size="xs" :disabled="props.disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
+          <UButton variant="outline" size="xs" :disabled="disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
             {{ item.label }}
           </UButton>
 
@@ -73,7 +73,7 @@
             <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.fields.podcastOpeningTemplates.description') }}</p>
           </div>
 
-          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="props.disabled" @click.stop.prevent="handleTemplateItemAppend('opening')">
+          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('opening')">
             {{ t('pages.settings.hotsearch.actions.addOpeningTemplate') }}
           </UButton>
         </div>
@@ -89,7 +89,7 @@
             target=".podcast-template-list"
             :animation="240"
             easing="cubic-bezier(0.22, 1, 0.36, 1)"
-            :disabled="props.disabled"
+            :disabled="disabled"
             direction="vertical"
             draggable=".podcast-template-item"
             chosen-class="podcast-template-item-chosen"
@@ -103,7 +103,7 @@
               <div v-for="item in openingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
                 <SettingsHotsearchPodcastScriptListItem
                   :item="item"
-                  :disabled="props.disabled"
+                  :disabled="disabled"
                   editor-mode="template"
                   :voice-options="computedVoiceOptions"
                   :segment-options="computedTemplateSegmentOptions"
@@ -128,7 +128,7 @@
             <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.fields.podcastClosingTemplates.description') }}</p>
           </div>
 
-          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="props.disabled" @click.stop.prevent="handleTemplateItemAppend('closing')">
+          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('closing')">
             {{ t('pages.settings.hotsearch.actions.addClosingTemplate') }}
           </UButton>
         </div>
@@ -144,7 +144,7 @@
             target=".podcast-template-list"
             :animation="240"
             easing="cubic-bezier(0.22, 1, 0.36, 1)"
-            :disabled="props.disabled"
+            :disabled="disabled"
             direction="vertical"
             draggable=".podcast-template-item"
             chosen-class="podcast-template-item-chosen"
@@ -158,7 +158,7 @@
               <div v-for="item in closingTemplateItems" :key="templateItemRenderKeyGet(item)" class="podcast-template-item flex items-center gap-2">
                 <SettingsHotsearchPodcastScriptListItem
                   :item="item"
-                  :disabled="props.disabled"
+                  :disabled="disabled"
                   editor-mode="template"
                   :voice-options="computedVoiceOptions"
                   :segment-options="computedTemplateSegmentOptions"
@@ -187,10 +187,7 @@ import type { ISettingsHotsearchPodcastScriptListProps } from '@/components/sett
 /**
  * 属性：热搜播客文案列表。
  */
-const props = withDefaults(defineProps<ISettingsHotsearchPodcastScriptListProps>(), {
-  disabled: false,
-  templateItems: () => []
-});
+const { disabled = false, templateItems = [] } = defineProps<ISettingsHotsearchPodcastScriptListProps>();
 
 /**
  * 事件：热搜播客文案设置更新。
@@ -283,7 +280,11 @@ const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right
   return left.every((item, index) => {
     const target = right[index];
 
-    return Boolean(target) && item.voiceKey === target.voiceKey && item.content === target.content && item.segmentType === target.segmentType && item.templateType === target.templateType;
+    if (!target) {
+      return false;
+    }
+
+    return item.voiceKey === target.voiceKey && item.content === target.content && item.segmentType === target.segmentType && item.templateType === target.templateType;
   });
 };
 
@@ -291,7 +292,7 @@ const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right
  * 监听：同步父级模板片段。
  */
 watch(
-  () => props.templateItems,
+  () => templateItems,
   (value) => {
     if (templateItemsEqual(stateTemplateItems.value, value)) {
       return;
@@ -636,8 +637,14 @@ const handleVipEveningProgramNameUpdate = (value: string | number): void => {
  */
 const handleTemplateItemVoiceUpdate = (index: number, value: string | number): void => {
   const nextItems = [...stateTemplateItems.value];
+  const currentItem = nextItems[index];
+
+  if (!currentItem) {
+    return;
+  }
+
   nextItems[index] = {
-    ...nextItems[index],
+    ...currentItem,
     voiceKey: String(value || '') as THotsearchPodcastVoiceKey
   };
   emitTemplateItemsUpdate(nextItems);
@@ -651,8 +658,14 @@ const handleTemplateItemVoiceUpdate = (index: number, value: string | number): v
  */
 const handleTemplateItemContentUpdate = (index: number, value: string | number): void => {
   const nextItems = [...stateTemplateItems.value];
+  const currentItem = nextItems[index];
+
+  if (!currentItem) {
+    return;
+  }
+
   nextItems[index] = {
-    ...nextItems[index],
+    ...currentItem,
     content: String(value ?? '')
   };
   emitTemplateItemsUpdate(nextItems);
@@ -666,6 +679,11 @@ const handleTemplateItemContentUpdate = (index: number, value: string | number):
  */
 const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | number): void => {
   const nextSegmentType = String(value || 'normal') as THotsearchPodcastSegmentType;
+  if (nextSegmentType === 'adContent') {
+    return;
+  }
+
+  const templateSegmentType = nextSegmentType as THotsearchPodcastTemplateSegmentType;
   const nextItems = [...stateTemplateItems.value];
   const currentItem = nextItems[index];
 
@@ -677,9 +695,8 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
 
   nextItems[index] = {
     ...currentItem,
-    voiceKey: isAdPlaceholder ? 'D' : nextItems[index].voiceKey,
-    content: isAdPlaceholder ? '' : nextItems[index].content,
-    segmentType: nextSegmentType
+    content: isAdPlaceholder ? '' : currentItem.content,
+    segmentType: templateSegmentType
   };
 
   if (isAdPlaceholder && activeTemplateItemIndex.value === index) {
@@ -763,35 +780,42 @@ const handleTemplateItemRemove = (index: number): void => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleVariableInsert = async (token: string): Promise<void> => {
-  if (activeTemplateItemIndex.value !== null && stateTemplateItems.value[activeTemplateItemIndex.value]) {
-    const index = activeTemplateItemIndex.value;
-    const currentItem = stateTemplateItems.value[index];
+  const index = activeTemplateItemIndex.value;
 
-    if (currentItem.segmentType === 'adPlaceholder') {
-      return;
-    }
-
-    const selectionStart = activeTemplateItemSelectionStart.value ?? currentItem.content.length;
-    const selectionEnd = activeTemplateItemSelectionEnd.value ?? selectionStart;
-    const nextContent = `${currentItem.content.slice(0, selectionStart)}${token}${currentItem.content.slice(selectionEnd)}`;
-    const nextCursor = selectionStart + token.length;
-    const nextItems = [...stateTemplateItems.value];
-
-    nextItems[index] = {
-      ...currentItem,
-      content: nextContent
-    };
-
-    emitTemplateItemsUpdate(nextItems);
-    activeTemplateItemSelectionStart.value = nextCursor;
-    activeTemplateItemSelectionEnd.value = nextCursor;
-
-    await nextTick();
-
-    const inputElement = templateItemInputElements.value[index];
-    inputElement?.focus();
-    inputElement?.setSelectionRange(nextCursor, nextCursor);
+  if (index === null) {
+    return;
   }
+
+  const currentItem = stateTemplateItems.value[index];
+
+  if (!currentItem) {
+    return;
+  }
+
+  if (currentItem.segmentType === 'adPlaceholder') {
+    return;
+  }
+
+  const selectionStart = activeTemplateItemSelectionStart.value ?? currentItem.content.length;
+  const selectionEnd = activeTemplateItemSelectionEnd.value ?? selectionStart;
+  const nextContent = `${currentItem.content.slice(0, selectionStart)}${token}${currentItem.content.slice(selectionEnd)}`;
+  const nextCursor = selectionStart + token.length;
+  const nextItems = [...stateTemplateItems.value];
+
+  nextItems[index] = {
+    ...currentItem,
+    content: nextContent
+  };
+
+  emitTemplateItemsUpdate(nextItems);
+  activeTemplateItemSelectionStart.value = nextCursor;
+  activeTemplateItemSelectionEnd.value = nextCursor;
+
+  await nextTick();
+
+  const inputElement = templateItemInputElements.value[index];
+  inputElement?.focus();
+  inputElement?.setSelectionRange(nextCursor, nextCursor);
 };
 
 /**
@@ -801,7 +825,7 @@ const handleVariableInsert = async (token: string): Promise<void> => {
  * @returns {void} 无返回值。
  */
 const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType, items: ISettingsHotsearchPodcastTemplateItem[]): void => {
-  if (props.disabled) {
+  if (disabled) {
     return;
   }
 
@@ -824,6 +848,10 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 
   items.forEach((item, orderIndex) => {
     const targetIndex = targetIndexes[orderIndex];
+    if (targetIndex === undefined) {
+      return;
+    }
+
     const sourceIndex = stateTemplateItems.value.indexOf(item);
 
     nextItems[targetIndex] = item;
@@ -837,8 +865,9 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 
   templateItemInputElements.value = nextInputElements;
 
-  if (activeTemplateItemIndex.value !== null && movedIndexMap.has(activeTemplateItemIndex.value)) {
-    activeTemplateItemIndex.value = movedIndexMap.get(activeTemplateItemIndex.value) ?? activeTemplateItemIndex.value;
+  const activeIndex = activeTemplateItemIndex.value;
+  if (activeIndex !== null && movedIndexMap.has(activeIndex)) {
+    activeTemplateItemIndex.value = movedIndexMap.get(activeIndex) ?? activeIndex;
   }
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
@@ -880,14 +909,13 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 }
 
 .podcast-template-item :deep(.podcast-template-handle) {
-  user-select: none;
-  -webkit-user-select: none;
   touch-action: none;
+  user-select: none;
 }
 
 .podcast-template-item:hover :deep(.podcast-template-handle) {
-  background-color: color-mix(in srgb, var(--ui-primary) 8%, transparent);
   color: var(--ui-primary);
+  background-color: color-mix(in srgb, var(--ui-primary) 8%, transparent);
 }
 
 .podcast-template-item-chosen {
@@ -900,8 +928,8 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 }
 
 .podcast-template-item-chosen :deep(.podcast-template-handle) {
-  background-color: color-mix(in srgb, var(--ui-primary) 12%, transparent);
   color: var(--ui-primary);
+  background-color: color-mix(in srgb, var(--ui-primary) 12%, transparent);
 }
 
 .podcast-template-item-ghost {
@@ -910,8 +938,8 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 }
 
 .podcast-template-item-ghost :deep(> div) {
-  border-style: dashed;
   border-color: color-mix(in srgb, var(--ui-primary) 32%, var(--ui-border));
+  border-style: dashed;
 }
 
 .podcast-template-item-drag {
@@ -924,13 +952,13 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
 .podcast-template-item-drag :deep(> div) {
   border-color: color-mix(in srgb, var(--ui-primary) 44%, var(--ui-border));
   box-shadow:
-    0 14px 36px rgba(15, 23, 42, 0.16),
+    0 14px 36px rgb(15 23 42 / 16%),
     0 0 0 1px color-mix(in srgb, var(--ui-primary) 24%, transparent);
 }
 
 .podcast-template-item-drag :deep(.podcast-template-handle) {
-  background-color: color-mix(in srgb, var(--ui-primary) 16%, transparent);
   color: var(--ui-primary);
+  background-color: color-mix(in srgb, var(--ui-primary) 16%, transparent);
 }
 
 .podcast-template-item-fallback {

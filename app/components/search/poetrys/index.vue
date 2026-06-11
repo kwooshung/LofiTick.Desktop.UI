@@ -1,13 +1,13 @@
 <template>
   <template v-if="routeIsList">
     <DefinePoetrySearchPanelBody>
-      <div class="flex flex-col gap-4">
-        <UInput v-model="stateTitle" icon="i-mdi:format-title" variant="outline" :placeholder="t('components.poetrys.search.body.title.placeholder')" autofocus clear class="mb-4">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <UInput v-model="stateTitle" icon="i-mdi:format-title" variant="outline" class="sm:col-span-1" :placeholder="t('components.poetrys.search.body.title.placeholder')" autofocus clear>
           <template v-if="stateTitle.length" #trailing>
             <UButton color="neutral" variant="link" size="sm" icon="i-tabler:x" aria-label="Clear input" @click="stateTitle = ''" />
           </template>
         </UInput>
-        <UInput v-model="stateContent" icon="i-material-symbols:text-snippet-outline" variant="outline" :placeholder="t('components.poetrys.search.body.content.placeholder')" clear class="mb-4">
+        <UInput v-model="stateContent" icon="i-material-symbols:text-snippet-outline" variant="outline" class="sm:col-span-1" :placeholder="t('components.poetrys.search.body.content.placeholder')" clear>
           <template v-if="stateContent.length" #trailing>
             <UButton color="neutral" variant="link" size="sm" icon="i-tabler:x" aria-label="Clear input" @click="stateContent = ''" />
           </template>
@@ -22,10 +22,10 @@
           :placeholder="t('components.poetrys.search.body.dynasty.placeholder')"
           :items="stateItemDynasties"
           :loading="stateLoadingDynasties"
+          class="sm:col-span-1"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         >
           <template #item-trailing="{ item }">
             <span class="text-muted">{{ item?.count }}</span>
@@ -41,15 +41,16 @@
           :placeholder="t('components.poetrys.search.body.author.placeholder')"
           :items="stateItemAuthors"
           :loading="stateLoadingAuthors"
+          class="sm:col-span-1"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         >
           <template #item-trailing="{ item }">
             <span class="text-muted">{{ item?.count }}</span>
           </template>
         </USelectMenu>
+        <USelect v-model="stateEnabled" value-key="id" class="sm:col-span-2" :items="computedEnabledItems" :placeholder="t('components.selects.enabled.placeholder')" />
       </div>
     </DefinePoetrySearchPanelBody>
 
@@ -62,7 +63,7 @@
     </DefinePoetrySearchPanelActions>
 
     <template v-if="stateSearchPanelMobile">
-      <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }" @click="stateOpen = true">
+      <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }" @click="stateOpen = true">
         <template #trailing>
           <UKbd value="/" class="ms-auto" />
         </template>
@@ -78,8 +79,8 @@
       </USlideover>
     </template>
     <template v-else>
-      <UPopover v-model:open="stateOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,52rem)] p-0 overflow-hidden' }">
-        <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }">
+      <UPopover v-model:open="stateOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,44rem)] p-0 overflow-hidden' }">
+        <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }">
           <template #trailing>
             <UKbd value="/" class="ms-auto" />
           </template>
@@ -94,7 +95,7 @@
               </div>
             </div>
 
-            <div class="max-h-[min(72vh,34rem)] overflow-y-auto pr-1">
+            <div class="max-h-[min(72vh,30rem)] overflow-y-auto pr-1">
               <ReusePoetrySearchPanelBody />
             </div>
 
@@ -158,7 +159,7 @@
       </UFieldGroup>
     </div>
   </template>
-  <template v-else-if="props.routeIsDynasties">
+  <template v-else-if="routeIsDynasties">
     <div class="flex items-center gap-2">
       <UFieldGroup>
         <USelectMenu
@@ -194,9 +195,9 @@ import type { SelectItem } from '@nuxt/ui';
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
 
 /**
- * 属性：路由状态（由主页面传入）
+ * 属性：路由状态（由主页面传入）。
  */
-const props = defineProps<IComponentPropsPoetrysSearch>();
+const { routeIsList, routeIsAuthors, routeIsDynasties } = defineProps<IComponentPropsPoetrysSearch>();
 
 /**
  * 模板：诗词搜索面板主体。
@@ -226,12 +227,12 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = useTemplateRef('refAuthorMenu');
+const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，朝代
  */
-const refDynastyMenu = useTemplateRef('refDynastyMenu');
+const refDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -284,6 +285,11 @@ const stateKeywordAuthor = ref('');
 const stateIsAnd = ref(false);
 
 /**
+ * 状态：启用状态筛选。
+ */
+const stateEnabled = ref<'all' | 'enabled' | 'disabled'>('all');
+
+/**
  * 状态：加载朝代联想
  */
 const stateLoadingDynasties = ref(false);
@@ -316,7 +322,7 @@ const computedHasSearchConditions = computed(() => {
 
   const hasText = (typeof q.title !== 'undefined' && String(q.title ?? '').trim().length > 0) || (typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0);
 
-  return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids');
+  return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids') || typeof q.enabled !== 'undefined';
 });
 
 /**
@@ -330,6 +336,15 @@ const computedSearchTriggerLabel = computed(() => (computedHasSearchConditions.v
 const computedPageAuthorSearchTypeItems = computed<SelectItem[]>(() => [
   { id: 'author', label: t('components.poetrys.search.selects.author') },
   { id: 'dynasty', label: t('components.poetrys.search.selects.dynasty') }
+]);
+
+/**
+ * 计算属性：启用状态选项。
+ */
+const computedEnabledItems = computed<SelectItem[]>(() => [
+  { id: 'all', label: t('components.selects.enabled.items.all') },
+  { id: 'enabled', label: t('components.selects.enabled.items.enabled') },
+  { id: 'disabled', label: t('components.selects.enabled.items.disabled') }
 ]);
 
 /**
@@ -383,6 +398,24 @@ const buildHydrateQueryDatas = (key: 'author_ids' | 'dynasty_ids', ids: number[]
   page: '1',
   pagesize: String(Math.max(ids.length, SEARCH_SUGGESTION_LIMIT))
 });
+
+/**
+ * 函数：从路由读取启用状态。
+ * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
+ */
+const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  const value = String(route.query.enabled ?? '').trim();
+
+  if (value === '1') {
+    return 'enabled';
+  }
+
+  if (value === '0') {
+    return 'disabled';
+  }
+
+  return 'all';
+};
 
 /**
  * 函数：查询数组参数
@@ -441,6 +474,8 @@ const applyListDefaultsFromRoute = async (): Promise<void> => {
   if (typeof route.query.is_and !== 'undefined') {
     stateIsAnd.value = String(route.query.is_and) === '1';
   }
+
+  stateEnabled.value = readEnabledStateFromRoute();
 
   // 选择项：根据 ID 设置默认值（使用缓存或当前选择补全 label）
   const dynasty_ids = getQueryIds('dynasty_ids');
@@ -606,7 +641,7 @@ watch(
   () => route.query,
   async () => {
     // 列表页：仅在模态打开时应用默认值
-    if (props.routeIsList) {
+    if (routeIsList) {
       if (stateOpen.value) {
         await applyListDefaultsFromRoute();
         // 刷新联想数据以便补全选择项标签
@@ -617,7 +652,7 @@ watch(
     }
 
     // 其他页面：根据当前页类型同步各自参数
-    if (props.routeIsAuthors) {
+    if (routeIsAuthors) {
       if (statePageAuthorSearchType.value === 'author') {
         await applyAuthorsDefaultsFromRoute();
       } else {
@@ -628,7 +663,7 @@ watch(
       refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
     }
-    if (props.routeIsDynasties) {
+    if (routeIsDynasties) {
       await applyDynastiesDefaultsFromRoute();
       refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
@@ -640,7 +675,7 @@ watch(
  * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
 watch(stateOpen, async (isOpen) => {
-  if (!isOpen || !props.routeIsList) {
+  if (!isOpen || !routeIsList) {
     return;
   }
 
@@ -667,7 +702,7 @@ const syncSearchPanelViewportMode = (): void => {
  * 事件：根据当前路由快捷聚焦对应控件
  */
 const triggerQuickFocus = () => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     if (statePageAuthorSearchType.value === 'author') {
       refAuthorMenu.value?.triggerRef.click();
     } else {
@@ -675,7 +710,7 @@ const triggerQuickFocus = () => {
     }
   }
 
-  if (props.routeIsDynasties) {
+  if (routeIsDynasties) {
     refDynastyMenu.value?.triggerRef.click();
   }
 };
@@ -684,7 +719,7 @@ const triggerQuickFocus = () => {
  * 函数：根据当前路由初始化默认联想数据
  */
 const requestDefaultsForCurrentRoute = async (): Promise<void> => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     stateLoadingAuthors.value = true;
     stateLoadingDynasties.value = true;
     refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
@@ -692,7 +727,7 @@ const requestDefaultsForCurrentRoute = async (): Promise<void> => {
     return;
   }
 
-  if (props.routeIsDynasties) {
+  if (routeIsDynasties) {
     stateLoadingDynasties.value = true;
     refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
     return;
@@ -706,7 +741,7 @@ const updateRouteQueryForSearch = (): void => {
   const query: Record<string, string | string[]> = {};
 
   // 不同页面仅提交对应的查询参数
-  if (props.routeIsList) {
+  if (routeIsList) {
     // 标题
     if (stateTitle.value.trim()) {
       query.title = stateTitle.value.trim();
@@ -731,14 +766,18 @@ const updateRouteQueryForSearch = (): void => {
     if (stateIsAnd.value) {
       query.is_and = '1';
     }
-  } else if (props.routeIsAuthors) {
+
+    if (stateEnabled.value !== 'all') {
+      query.enabled = stateEnabled.value === 'enabled' ? '1' : '0';
+    }
+  } else if (routeIsAuthors) {
     // 作者页：互斥提交 author_ids 或 dynasty_ids
     if (statePageAuthorSearchType.value === 'author' && stateSelectedAuthor.value.length > 0) {
       query.author_ids = stateSelectedAuthor.value.map((i) => String(i.value));
     } else if (statePageAuthorSearchType.value === 'dynasty' && stateSelectedDynasties.value.length > 0) {
       query.dynasty_ids = stateSelectedDynasties.value.map((i) => String(i.value));
     }
-  } else if (props.routeIsDynasties) {
+  } else if (routeIsDynasties) {
     // 朝代页：仅 dynasty_ids
     if (stateSelectedDynasties.value.length > 0) {
       query.dynasty_ids = stateSelectedDynasties.value.map((i) => String(i.value));
@@ -748,11 +787,6 @@ const updateRouteQueryForSearch = (): void => {
   // 保留：每页数量
   if (route.query.pagesize) {
     query.pagesize = route.query.pagesize as string;
-  }
-
-  // 保留：启用状态
-  if (typeof route.query.enabled !== 'undefined') {
-    query.enabled = route.query.enabled as string;
   }
 
   navigateTo({
@@ -775,6 +809,7 @@ const handleReset = (): void => {
   stateKeywordDynasty.value = '';
   stateKeywordAuthor.value = '';
   stateIsAnd.value = false;
+  stateEnabled.value = 'all';
 
   // 自动触发搜索
   handleSearch();
@@ -807,12 +842,12 @@ onMounted(() => {
   requestDefaultsForCurrentRoute();
 
   // 非列表页：初始化应用默认值
-  if (!props.routeIsList) {
-    if (props.routeIsAuthors) {
+  if (!routeIsList) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       return;
     }
-    if (props.routeIsDynasties) {
+    if (routeIsDynasties) {
       applyDynastiesDefaultsFromRoute();
       return;
     }
@@ -837,7 +872,7 @@ defineShortcuts({
    */
   '/': () => {
     if (!storeAuth.states.ui.show) {
-      if (props.routeIsList) {
+      if (routeIsList) {
         stateOpen.value = true;
       } else {
         triggerQuickFocus();

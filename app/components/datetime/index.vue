@@ -3,7 +3,7 @@
     <NuxtTime v-bind="computedNuxtTimeProps" :locale="computedLocale" :relative="true" />
 
     <template #content>
-      {{ props.tooltipPrefix ?? '' }}
+      {{ tooltipPrefix }}
       <NuxtTime v-bind="computedNuxtTimeProps" :locale="computedLocale" :relative="false" year="numeric" month="long" day="numeric" hour="2-digit" minute="2-digit" second="2-digit" />
     </template>
   </UTooltip>
@@ -19,10 +19,7 @@ import type { IDatetimeProps } from '@/components/datetime/index.types';
 /**
  * 属性
  */
-const props = withDefaults(defineProps<IDatetimeProps>(), {
-  relative: true,
-  noRelativeAfter: 7 * 24 * 60 * 60
-});
+const { locale, datetime, value, tooltipPrefix = '', relative = true, noRelativeAfter = 7 * 24 * 60 * 60, ...computedNuxtTimeRest } = defineProps<IDatetimeProps>();
 /**
  * Hook：i18n
  */
@@ -31,21 +28,19 @@ const { locale: currentLocale, locales } = useI18n();
 /**
  * 计算属性：本地化语言区域
  */
-const computedLocale = computed(() => props.locale ?? String(locales.value.find((l) => l.code === currentLocale.value)?.language ?? undefined));
+const computedLocale = computed(() => locale ?? String(locales.value.find((l) => l.code === currentLocale.value)?.language ?? undefined));
 
 /**
  * 计算属性：组件实际消费的时间入参。
  */
-const computedDatetimeInput = computed(() => props.datetime ?? props.value ?? '');
+const computedDatetimeInput = computed(() => datetime ?? value ?? '');
 
 /**
  * 计算属性：传递给 NuxtTime 的属性。
  */
 const computedNuxtTimeProps = computed(() => {
-  const { datetime: _datetime, value: _value, ...rest } = props;
-
   return {
-    ...rest,
+    ...computedNuxtTimeRest,
     datetime: computedDatetimeInput.value
   };
 });
@@ -89,7 +84,7 @@ const computedDatetime = computed(() => {
  */
 const computedShowRelative = computed(() => {
   // 如果属性中明确禁止相对时间，直接返回 false
-  if (props.relative === false) {
+  if (relative === false) {
     return false;
   }
 
@@ -101,6 +96,6 @@ const computedShowRelative = computed(() => {
   const diffMMilliseconds = Math.abs(computedDatetime.value.subtract(DateTime.utcNow()));
 
   // 如果时间差小于等于 noRelativeAfter，则显示相对时间
-  return diffMMilliseconds <= props.noRelativeAfter * 1000;
+  return diffMMilliseconds <= noRelativeAfter * 1000;
 });
 </script>

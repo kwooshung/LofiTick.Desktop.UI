@@ -1,8 +1,9 @@
 <template>
   <template v-if="routeIsList">
     <DefineQuotesSearchPanelBody>
-      <div class="flex flex-col gap-4">
+      <div class="grid gap-3 sm:grid-cols-2">
         <USelectMenu
+          ref="refUuidMenu"
           v-model="stateSelectedUuid"
           v-model:search-term="stateKeywordUuid"
           icon="i-material-symbols:flag-outline-rounded"
@@ -12,12 +13,12 @@
           :placeholder="t('components.quotes.search.body.uuid.placeholder')"
           :items="stateItemsUuid"
           :loading="stateLoadingUuids"
+          class="sm:col-span-2"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         />
-        <UFieldGroup class="mb-4">
+        <UFieldGroup class="sm:col-span-2">
           <USelect v-model="stateQuoteSearchType" value-key="id" :items="computedPageQuoteSearchTypeItems" />
           <UInput v-if="stateQuoteSearchType === 'content'" v-model="stateContent" icon="i-material-symbols:text-snippet-outline" variant="outline" class="w-full" :placeholder="t('components.quotes.search.body.content.placeholder')" clear>
             <template v-if="stateContent.length" #trailing>
@@ -40,10 +41,10 @@
           :placeholder="t('components.quotes.search.body.type.placeholder')"
           :items="stateItemsTypes"
           :loading="stateLoadingTypes"
+          class="sm:col-span-1"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         />
         <USelectMenu
           v-model="stateSourcesSelected"
@@ -55,10 +56,10 @@
           :placeholder="t('components.quotes.search.body.source.placeholder')"
           :items="stateItemsSources"
           :loading="stateLoadingSources"
+          class="sm:col-span-1"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         >
           <template #item-trailing="{ item }">
             <span class="text-muted">{{ item?.count }}</span>
@@ -74,15 +75,16 @@
           :placeholder="t('components.quotes.search.body.author.placeholder')"
           :items="stateItemsAuthor"
           :loading="stateLoadingAuthor"
+          class="sm:col-span-1"
           :ui="{
             trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
           }"
-          class="mb-4"
         >
           <template #item-trailing="{ item }">
             <span class="text-muted">{{ item?.count }}</span>
           </template>
         </USelectMenu>
+        <USelect v-model="stateEnabled" value-key="id" class="sm:col-span-1" :items="computedEnabledItems" :placeholder="t('components.selects.enabled.placeholder')" />
       </div>
     </DefineQuotesSearchPanelBody>
 
@@ -95,7 +97,7 @@
     </DefineQuotesSearchPanelActions>
 
     <template v-if="stateSearchPanelMobile">
-      <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }" @click="stateOpen = true">
+      <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }" @click="stateOpen = true">
         <template #trailing>
           <UKbd value="/" class="ms-auto" />
         </template>
@@ -111,8 +113,8 @@
       </USlideover>
     </template>
     <template v-else>
-      <UPopover v-model:open="stateOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,56rem)] p-0 overflow-hidden' }">
-        <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-60" :ui="{ leadingIcon: 'text-muted' }">
+      <UPopover v-model:open="stateOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,48rem)] p-0 overflow-hidden' }">
+        <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }">
           <template #trailing>
             <UKbd value="/" class="ms-auto" />
           </template>
@@ -127,7 +129,7 @@
               </div>
             </div>
 
-            <div class="max-h-[min(72vh,36rem)] overflow-y-auto pr-1">
+            <div class="max-h-[min(72vh,30rem)] overflow-y-auto pr-1">
               <ReuseQuotesSearchPanelBody />
             </div>
 
@@ -167,7 +169,7 @@
       </UFieldGroup>
     </div>
   </template>
-  <template v-else-if="props.routeIsSources">
+  <template v-else-if="routeIsSources">
     <div class="flex items-center gap-2">
       <UFieldGroup>
         <USelectMenu
@@ -203,9 +205,9 @@ import type { SelectItem } from '@nuxt/ui';
 import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, IComponentPropsQuotesUuidSelectMenuItem } from '@/components/search/quotes/index.types';
 
 /**
- * 属性：路由状态（由主页面传入）
+ * 属性：路由状态（由主页面传入）。
  */
-const props = defineProps<IComponentPropsQuotesSearch>();
+const { routeIsList, routeIsAuthors, routeIsSources } = defineProps<IComponentPropsQuotesSearch>();
 
 /**
  * 模板：名句搜索面板主体。
@@ -235,12 +237,17 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = useTemplateRef('refAuthorMenu');
+const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+
+/**
+ * 引用：选择菜单，UUID
+ */
+const refUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，出处
  */
-const refSourceMenu = useTemplateRef('refSourceMenu');
+const refSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -271,6 +278,11 @@ const stateTranslate = ref('');
  * 状态：列表页内容/译文搜索类型
  */
 const stateQuoteSearchType = ref<'content' | 'translate'>('content');
+
+/**
+ * 状态：启用状态筛选。
+ */
+const stateEnabled = ref<'all' | 'enabled' | 'disabled'>('all');
 
 /**
  * 状态：已选Uuid
@@ -365,7 +377,7 @@ const computedHasSearchConditions = computed(() => {
 
   const hasText = (typeof q.uuid !== 'undefined' && String(q.uuid ?? '').trim().length > 0) || (typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0) || (typeof q.translate !== 'undefined' && String(q.translate ?? '').trim().length > 0);
 
-  return hasText || hasQueryParamIds('type_ids') || hasQueryParamIds('source_ids') || hasQueryParamIds('author_ids');
+  return hasText || hasQueryParamIds('type_ids') || hasQueryParamIds('source_ids') || hasQueryParamIds('author_ids') || typeof q.enabled !== 'undefined';
 });
 
 /**
@@ -379,6 +391,15 @@ const computedSearchTriggerLabel = computed(() => (computedHasSearchConditions.v
 const computedPageQuoteSearchTypeItems = computed<SelectItem[]>(() => [
   { id: 'content', label: t('components.quotes.search.selects.content') },
   { id: 'translate', label: t('components.quotes.search.selects.translate') }
+]);
+
+/**
+ * 计算属性：启用状态选项。
+ */
+const computedEnabledItems = computed<SelectItem[]>(() => [
+  { id: 'all', label: t('components.selects.enabled.items.all') },
+  { id: 'enabled', label: t('components.selects.enabled.items.enabled') },
+  { id: 'disabled', label: t('components.selects.enabled.items.disabled') }
 ]);
 
 /**
@@ -464,6 +485,24 @@ const mapIdsToSelected = (ids: number[], current: IComponentPropsQuotesSelectMen
 };
 
 /**
+ * 函数：从路由读取启用状态。
+ * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
+ */
+const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  const value = String(route.query.enabled ?? '').trim();
+
+  if (value === '1') {
+    return 'enabled';
+  }
+
+  if (value === '0') {
+    return 'disabled';
+  }
+
+  return 'all';
+};
+
+/**
  * 函数：列表页——从路由查询参数应用默认值（在模态打开时执行）
  */
 const applyListDefaultsFromRoute = (): void => {
@@ -505,6 +544,8 @@ const applyListDefaultsFromRoute = (): void => {
   if (typeof q.is_and !== 'undefined') {
     stateIsAnd.value = String(q.is_and) === '1';
   }
+
+  stateEnabled.value = readEnabledStateFromRoute();
 
   // 选择项：根据 ID 设置默认值（使用缓存或当前选择补全 label）
   const typeIds = getQueryIds('type_ids');
@@ -669,7 +710,7 @@ watch(
   () => route.query,
   () => {
     // 列表页：仅在模态打开时应用默认值
-    if (props.routeIsList) {
+    if (routeIsList) {
       if (stateOpen.value) {
         applyListDefaultsFromRoute();
 
@@ -684,12 +725,12 @@ watch(
     }
 
     // 其他页面：根据当前页类型同步各自参数
-    if (props.routeIsAuthors) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
       return;
     }
-    if (props.routeIsSources) {
+    if (routeIsSources) {
       applySourcesDefaultsFromRoute();
       refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
       return;
@@ -700,8 +741,8 @@ watch(
 /**
  * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
-watch(stateOpen, (isOpen) => {
-  if (!isOpen || !props.routeIsList) {
+watch(stateOpen, async (isOpen) => {
+  if (!isOpen || !routeIsList) {
     return;
   }
 
@@ -712,6 +753,9 @@ watch(stateOpen, (isOpen) => {
   refreshUuidDebounced({ datas: { q: stateKeywordUuid.value } });
   refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
   refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
+
+  await nextTick();
+  triggerQuickFocus();
 });
 
 /**
@@ -730,9 +774,14 @@ const syncSearchPanelViewportMode = (): void => {
  * 事件：根据当前路由快捷聚焦对应控件
  */
 const triggerQuickFocus = () => {
-  if (props.routeIsAuthors) {
+  if (routeIsList) {
+    refUuidMenu.value?.triggerRef.click();
+    return;
+  }
+
+  if (routeIsAuthors) {
     refAuthorMenu.value?.triggerRef.click();
-  } else if (props.routeIsSources) {
+  } else if (routeIsSources) {
     refSourceMenu.value?.triggerRef.click();
   }
 };
@@ -741,13 +790,13 @@ const triggerQuickFocus = () => {
  * 函数：根据当前路由初始化默认联想数据
  */
 const requestDefaultsForCurrentRoute = () => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     stateLoadingAuthor.value = true;
     refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
     return;
   }
 
-  if (props.routeIsSources) {
+  if (routeIsSources) {
     stateLoadingSources.value = true;
     refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
     return;
@@ -761,7 +810,7 @@ const updateRouteQueryForSearch = (): void => {
   const query: Record<string, string | string[]> = {};
 
   // 不同页面仅提交对应的查询参数
-  if (props.routeIsList) {
+  if (routeIsList) {
     const uuid = stateUuid.value.trim();
     const content = stateContent.value.trim();
     const translate = stateTranslate.value.trim();
@@ -801,12 +850,16 @@ const updateRouteQueryForSearch = (): void => {
     if (stateIsAnd.value) {
       query.is_and = '1';
     }
-  } else if (props.routeIsAuthors) {
+
+    if (stateEnabled.value !== 'all') {
+      query.enabled = stateEnabled.value === 'enabled' ? '1' : '0';
+    }
+  } else if (routeIsAuthors) {
     // 作者页：仅 author_ids
     if (stateAuthorsSelected.value.length > 0) {
       query.author_ids = stateAuthorsSelected.value.map((i) => String(i.value));
     }
-  } else if (props.routeIsSources) {
+  } else if (routeIsSources) {
     // 出处页：仅 source_ids
     if (stateSourcesSelected.value.length > 0) {
       query.source_ids = stateSourcesSelected.value.map((i) => String(i.value));
@@ -816,11 +869,6 @@ const updateRouteQueryForSearch = (): void => {
   // 保留：每页数量
   if (route.query.pagesize) {
     query.pagesize = route.query.pagesize as string;
-  }
-
-  // 保留：启用状态
-  if (typeof route.query.enabled !== 'undefined') {
-    query.enabled = route.query.enabled as string;
   }
 
   navigateTo({
@@ -849,6 +897,7 @@ const handleReset = (): void => {
   stateKeywordSource.value = '';
   stateKeywordAuthor.value = '';
   stateIsAnd.value = false;
+  stateEnabled.value = 'all';
 
   // 自动触发搜索
   handleSearch();
@@ -862,7 +911,7 @@ const handleReset = (): void => {
  */
 const handleSearch = (): void => {
   // 列表页：优先使用下拉已选 uuid 覆盖输入框内容
-  if (props.routeIsList && stateSelectedUuid.value.length > 0) {
+  if (routeIsList && stateSelectedUuid.value.length > 0) {
     stateUuid.value = String(stateSelectedUuid.value[0]?.label ?? '').trim();
   }
 
@@ -897,13 +946,13 @@ onMounted(() => {
   requestDefaultsForCurrentRoute();
 
   // 非列表页：初始化应用默认值
-  if (!props.routeIsList) {
-    if (props.routeIsAuthors) {
+  if (!routeIsList) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       return;
     }
 
-    if (props.routeIsSources) {
+    if (routeIsSources) {
       applySourcesDefaultsFromRoute();
       return;
     }
@@ -928,7 +977,7 @@ defineShortcuts({
    */
   '/': () => {
     if (!storeAuth.states.ui.show) {
-      if (props.routeIsList) {
+      if (routeIsList) {
         stateOpen.value = true;
       } else {
         triggerQuickFocus();
