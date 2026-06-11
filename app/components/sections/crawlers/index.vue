@@ -56,6 +56,11 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
+ * Props
+ */
+const { createNonce = 0, keyword = '' } = defineProps<IPageCrawlersTargetsProps>();
+
+/**
  * Hook：国际化
  */
 const { t } = useI18n();
@@ -91,14 +96,6 @@ const route = useRoute();
 const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
   default: () => ({}),
   watch: 'shallow'
-});
-
-/**
- * Props
- */
-const props = withDefaults(defineProps<IPageCrawlersTargetsProps>(), {
-  createNonce: 0,
-  keyword: ''
 });
 
 /**
@@ -219,9 +216,9 @@ const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
 const buildCrawlerQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
 
-  const keyword = String(route.query.keyword ?? props.keyword ?? '').trim();
-  if (keyword !== '') {
-    query.keyword = keyword;
+  const keywordValue = String(route.query.keyword ?? keyword ?? '').trim();
+  if (keywordValue !== '') {
+    query.keyword = keywordValue;
   }
 
   const page = String(route.query.page ?? '').trim();
@@ -520,7 +517,7 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
  * 监听：createNonce 变化
  */
 watch(
-  () => props.createNonce,
+  () => createNonce,
   (value, oldValue) => {
     if (typeof value === 'number' && typeof oldValue === 'number' && value !== oldValue) {
       handleCreate();

@@ -12,26 +12,23 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" @cancel="open = false" @save="handleSave" />
+      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" :groups="groups" :selected-key="selectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
     </template>
   </USlideover>
 </template>
 
 <script setup lang="ts">
+import type { ICrawlersCodeEmits, ICrawlersCodeProps } from './index.types';
+import type { ICrawlersListRow } from '../list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
-const props = withDefaults(
-  defineProps<{
-    siteName?: string;
-    baseUrl?: string;
-  }>(),
+const { siteName = '', baseUrl = '', groups = [], selectedKey = '' } = defineProps<ICrawlersCodeProps>();
 
-  {
-    siteName: '',
-    baseUrl: ''
-  }
-);
+/**
+ * 事件：蓝图抽屉事件。
+ */
+const emit = defineEmits<ICrawlersCodeEmits>();
 
 /**
  * 状态：蓝图抽屉目标站点。
@@ -100,9 +97,9 @@ const computedDrawerSiteName = computed(() => {
     return targetName;
   }
 
-  const siteName = String(props.siteName ?? '').trim();
+  const siteNameText = String(siteName ?? '').trim();
 
-  return siteName !== '' ? siteName : computedCurrentSiteName.value;
+  return siteNameText !== '' ? siteNameText : computedCurrentSiteName.value;
 });
 
 /**
@@ -128,7 +125,7 @@ const computedDrawerDescription = computed(() => {
     return targetBaseUrl;
   }
 
-  return String(props.baseUrl ?? '').trim();
+  return String(baseUrl ?? '').trim();
 });
 
 /**
@@ -143,5 +140,15 @@ const open = defineModel<boolean>('open', {
  */
 const handleSave = () => {
   open.value = false;
+};
+
+/**
+ * 函数：处理列表点击。
+ * @param {ICrawlersListRow} row 条目。
+ * @param {MouseEvent} event 鼠标事件。
+ * @returns {void} 无返回值。
+ */
+const handleEditorClick = (row: ICrawlersListRow, event: MouseEvent): void => {
+  emit('click', row, event);
 };
 </script>

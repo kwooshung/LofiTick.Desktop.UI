@@ -159,7 +159,7 @@
       </UFieldGroup>
     </div>
   </template>
-  <template v-else-if="props.routeIsDynasties">
+  <template v-else-if="routeIsDynasties">
     <div class="flex items-center gap-2">
       <UFieldGroup>
         <USelectMenu
@@ -195,9 +195,9 @@ import type { SelectItem } from '@nuxt/ui';
 import type { IComponentPropsPoetrysSearch, IComponentPropsPoetrysSelectMenuItem } from '@/components/search/poetrys/index.types';
 
 /**
- * 属性：路由状态（由主页面传入）
+ * 属性：路由状态（由主页面传入）。
  */
-const props = defineProps<IComponentPropsPoetrysSearch>();
+const { routeIsList, routeIsAuthors, routeIsDynasties } = defineProps<IComponentPropsPoetrysSearch>();
 
 /**
  * 模板：诗词搜索面板主体。
@@ -641,7 +641,7 @@ watch(
   () => route.query,
   async () => {
     // 列表页：仅在模态打开时应用默认值
-    if (props.routeIsList) {
+    if (routeIsList) {
       if (stateOpen.value) {
         await applyListDefaultsFromRoute();
         // 刷新联想数据以便补全选择项标签
@@ -652,7 +652,7 @@ watch(
     }
 
     // 其他页面：根据当前页类型同步各自参数
-    if (props.routeIsAuthors) {
+    if (routeIsAuthors) {
       if (statePageAuthorSearchType.value === 'author') {
         await applyAuthorsDefaultsFromRoute();
       } else {
@@ -663,7 +663,7 @@ watch(
       refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
     }
-    if (props.routeIsDynasties) {
+    if (routeIsDynasties) {
       await applyDynastiesDefaultsFromRoute();
       refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
       return;
@@ -675,7 +675,7 @@ watch(
  * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
 watch(stateOpen, async (isOpen) => {
-  if (!isOpen || !props.routeIsList) {
+  if (!isOpen || !routeIsList) {
     return;
   }
 
@@ -702,7 +702,7 @@ const syncSearchPanelViewportMode = (): void => {
  * 事件：根据当前路由快捷聚焦对应控件
  */
 const triggerQuickFocus = () => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     if (statePageAuthorSearchType.value === 'author') {
       refAuthorMenu.value?.triggerRef.click();
     } else {
@@ -710,7 +710,7 @@ const triggerQuickFocus = () => {
     }
   }
 
-  if (props.routeIsDynasties) {
+  if (routeIsDynasties) {
     refDynastyMenu.value?.triggerRef.click();
   }
 };
@@ -719,7 +719,7 @@ const triggerQuickFocus = () => {
  * 函数：根据当前路由初始化默认联想数据
  */
 const requestDefaultsForCurrentRoute = async (): Promise<void> => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     stateLoadingAuthors.value = true;
     stateLoadingDynasties.value = true;
     refreshDebouncedAuthor({ datas: buildSuggestionDatas(stateKeywordAuthor.value) });
@@ -727,7 +727,7 @@ const requestDefaultsForCurrentRoute = async (): Promise<void> => {
     return;
   }
 
-  if (props.routeIsDynasties) {
+  if (routeIsDynasties) {
     stateLoadingDynasties.value = true;
     refreshDebouncedDynasty({ datas: buildSuggestionDatas(stateKeywordDynasty.value) });
     return;
@@ -741,7 +741,7 @@ const updateRouteQueryForSearch = (): void => {
   const query: Record<string, string | string[]> = {};
 
   // 不同页面仅提交对应的查询参数
-  if (props.routeIsList) {
+  if (routeIsList) {
     // 标题
     if (stateTitle.value.trim()) {
       query.title = stateTitle.value.trim();
@@ -770,14 +770,14 @@ const updateRouteQueryForSearch = (): void => {
     if (stateEnabled.value !== 'all') {
       query.enabled = stateEnabled.value === 'enabled' ? '1' : '0';
     }
-  } else if (props.routeIsAuthors) {
+  } else if (routeIsAuthors) {
     // 作者页：互斥提交 author_ids 或 dynasty_ids
     if (statePageAuthorSearchType.value === 'author' && stateSelectedAuthor.value.length > 0) {
       query.author_ids = stateSelectedAuthor.value.map((i) => String(i.value));
     } else if (statePageAuthorSearchType.value === 'dynasty' && stateSelectedDynasties.value.length > 0) {
       query.dynasty_ids = stateSelectedDynasties.value.map((i) => String(i.value));
     }
-  } else if (props.routeIsDynasties) {
+  } else if (routeIsDynasties) {
     // 朝代页：仅 dynasty_ids
     if (stateSelectedDynasties.value.length > 0) {
       query.dynasty_ids = stateSelectedDynasties.value.map((i) => String(i.value));
@@ -842,12 +842,12 @@ onMounted(() => {
   requestDefaultsForCurrentRoute();
 
   // 非列表页：初始化应用默认值
-  if (!props.routeIsList) {
-    if (props.routeIsAuthors) {
+  if (!routeIsList) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       return;
     }
-    if (props.routeIsDynasties) {
+    if (routeIsDynasties) {
       applyDynastiesDefaultsFromRoute();
       return;
     }
@@ -872,7 +872,7 @@ defineShortcuts({
    */
   '/': () => {
     if (!storeAuth.states.ui.show) {
-      if (props.routeIsList) {
+      if (routeIsList) {
         stateOpen.value = true;
       } else {
         triggerQuickFocus();

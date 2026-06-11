@@ -16,13 +16,13 @@
           </div>
 
           <p class="text-muted text-sm">{{ t('pages.settings.hotsearch.fields.podcastGenerateEnabled.description') }}</p>
-          <p class="text-muted text-sm">{{ props.generateOwnerDescription }}</p>
+          <p class="text-muted text-sm">{{ generateOwnerDescription }}</p>
         </div>
 
-        <USwitch :model-value="props.generateEnabled" :disabled="props.disabled || props.generateDisabled" :loading="props.generateLoading" @update:model-value="handleGenerateEnabledUpdate" />
+        <USwitch :model-value="generateEnabled" :disabled="disabled || generateDisabled" :loading="generateLoading" @update:model-value="handleGenerateEnabledUpdate" />
       </div>
 
-      <div v-for="item in props.items" :key="item.kind" class="flex items-center justify-between gap-4 not-last:pb-4 max-sm:flex-col max-sm:items-start">
+      <div v-for="item in items" :key="item.kind" class="flex items-center justify-between gap-4 not-last:pb-4 max-sm:flex-col max-sm:items-start">
         <div class="min-w-0 flex-1 space-y-1.5">
           <div class="flex min-w-0 flex-wrap items-start gap-2">
             <div class="text-highlighted mb-1 text-base">{{ item.title }}</div>
@@ -35,11 +35,11 @@
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
-          <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="props.disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
+          <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
             {{ t('pages.settings.hotsearch.headMusicActions.previewHeadMusic') }}
           </UButton>
 
-          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="props.disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
+          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
             {{ item.remoteExists ? t('pages.settings.hotsearch.headMusicActions.reuploadHeadMusic') : t('pages.settings.hotsearch.headMusicActions.selectHeadMusic') }}
           </UButton>
         </div>
@@ -207,9 +207,7 @@ import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem,
 /**
  * 属性：热搜开头音乐。
  */
-const props = withDefaults(defineProps<ISettingsHotsearchHeadMusicProps>(), {
-  disabled: false
-});
+const { disabled = false, attachmentsDirConfigured, generateEnabled, generateLoading, generateDisabled = false, generateOwnerExists, generateOwnedByCurrentMachine, generateOwnerDescription, items, uploadRequest, previewRequest } = defineProps<ISettingsHotsearchHeadMusicProps>();
 
 /**
  * 事件：热搜开头音乐。
@@ -293,14 +291,14 @@ const computedPlayerOptions: IMediaPlyrConfig = {
  * 计算属性：当前活动条目。
  */
 const computedActiveItem = computed<ISettingsHotsearchHeadMusicItem | null>(() => {
-  return props.items.find((item) => item.kind === stateUploadKind.value) ?? null;
+  return items.find((item) => item.kind === stateUploadKind.value) ?? null;
 });
 
 /**
  * 计算属性：当前试听条目。
  */
 const computedPreviewItem = computed<ISettingsHotsearchHeadMusicItem | null>(() => {
-  return props.items.find((item) => item.kind === statePreviewKind.value) ?? null;
+  return items.find((item) => item.kind === statePreviewKind.value) ?? null;
 });
 
 /**
@@ -443,7 +441,7 @@ const fileSizeTextGet = (size: number): string => {
  * @returns {string} 描述
  */
 const headMusicStatusDescriptionGet = (item: ISettingsHotsearchHeadMusicItem): string => {
-  if (!props.attachmentsDirConfigured) {
+  if (!attachmentsDirConfigured) {
     return t('pages.settings.hotsearch.status.headMusicNeedAttachmentsDir');
   }
 
@@ -471,14 +469,14 @@ const headMusicStatusDescriptionGet = (item: ISettingsHotsearchHeadMusicItem): s
  * @returns {{ color: 'primary' | 'warning' | 'neutral'; label: string }} 徽标配置
  */
 const generateOwnerBadgeGet = (): { color: 'primary' | 'warning' | 'neutral'; label: string } => {
-  if (props.generateOwnerExists && props.generateOwnedByCurrentMachine) {
+  if (generateOwnerExists && generateOwnedByCurrentMachine) {
     return {
       color: 'primary',
       label: t('pages.settings.hotsearch.status.podcastGenerateOwnedByCurrentMachine')
     };
   }
 
-  if (props.generateOwnerExists) {
+  if (generateOwnerExists) {
     return {
       color: 'warning',
       label: t('pages.settings.hotsearch.status.podcastGenerateOwnedByOtherMachine')
@@ -497,7 +495,7 @@ const generateOwnerBadgeGet = (): { color: 'primary' | 'warning' | 'neutral'; la
  * @returns {{ color: 'success' | 'warning' | 'neutral'; label: string }} 徽标配置
  */
 const headMusicLocalStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
-  if (!props.attachmentsDirConfigured) {
+  if (!attachmentsDirConfigured) {
     return {
       color: 'neutral',
       label: t('pages.settings.hotsearch.status.attachmentsDirUnsetShort')
@@ -523,7 +521,7 @@ const headMusicLocalStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { 
  * @returns {{ color: 'success' | 'warning' | 'neutral'; label: string }} 徽标配置
  */
 const headMusicRemoteStatusBadgeGet = (item: ISettingsHotsearchHeadMusicItem): { color: 'success' | 'warning' | 'neutral'; label: string } => {
-  if (!props.attachmentsDirConfigured) {
+  if (!attachmentsDirConfigured) {
     return {
       color: 'neutral',
       label: t('pages.settings.hotsearch.status.attachmentsDirUnsetShort')
@@ -569,7 +567,7 @@ const openPreviewModal = async (kind: THotsearchPodcastHeadMusicKind): Promise<v
 
   try {
     statePreviewLoadingKind.value = kind;
-    const result = await props.previewRequest(kind);
+    const result = await previewRequest(kind);
     const normalized = (result ?? {}) as Partial<ISettingsHotsearchHeadMusicPreviewResult>;
 
     statePreviewPlaybackUrl.value = String(normalized.previewUrl || '').trim();
@@ -663,7 +661,7 @@ const handleUploadSubmit = async (): Promise<void> => {
   stateUploadSubmitting.value = true;
 
   try {
-    await props.uploadRequest(stateUploadKind.value, stateUploadFile.value);
+    await uploadRequest(stateUploadKind.value, stateUploadFile.value);
     stateUploadModalOpen.value = false;
   } finally {
     stateUploadSubmitting.value = false;

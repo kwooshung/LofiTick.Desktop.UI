@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap gap-3">
     <div v-for="machine in computedMachines" :key="machine.machineCode" class="max-w-98 min-w-80 flex-[1_1_20.5rem]">
-      <SettingsUnattendedMachineCardBase :machine="machine" :local-machine-code="props.localMachineCode">
+      <SettingsUnattendedMachineCardBase :machine="machine" :local-machine-code="localMachineCode">
         <template #machine-remark-content>
           <template v-if="remarkEditingGet(machine.machineCode)">
             <div :ref="remarkInputWrapRef(machine.machineCode)" class="min-w-0 flex-1">
@@ -90,7 +90,7 @@
     </template>
     <template #body>
       <div v-if="computedActiveMachine">
-        <SettingsUnattendedScenesMachineDetails :machine="computedActiveMachine" :local-machine-code="props.localMachineCode" @add="emit('add')" @toggle-enabled="(payload) => emit('toggle-enabled', payload)" @edit="(id) => emit('edit', id)" @delete="(id) => emit('delete', id)" />
+        <SettingsUnattendedScenesMachineDetails :machine="computedActiveMachine" :local-machine-code="localMachineCode" @add="emit('add')" @toggle-enabled="(payload) => emit('toggle-enabled', payload)" @edit="(id) => emit('edit', id)" @delete="(id) => emit('delete', id)" />
       </div>
       <div v-else class="py-6">
         <UEmpty icon="i-lucide-file" :title="t('components.sentinel.scenes.card.empty.data.title')" :description="t('components.sentinel.scenes.card.empty.data.description')" variant="naked" size="sm" :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }" />
@@ -131,7 +131,7 @@ const { t } = useI18n();
 /**
  * Props：组件输入
  */
-const props = defineProps<ISettingsUnattendedScenesCardsProps>();
+const { localMachineCode, logsMachines, machines } = defineProps<ISettingsUnattendedScenesCardsProps>();
 
 /**
  * 事件：组件事件
@@ -188,12 +188,12 @@ const stateActiveMachineCode = ref<string>('');
  * 计算属性：机器列表
  */
 const computedMachines = computed(() => {
-  const machines = Array.isArray(props.machines) ? [...props.machines] : [];
+  const machineList = Array.isArray(machines) ? [...machines] : [];
 
-  return machines.sort((left, right) => {
+  return machineList.sort((left, right) => {
     const leftCode = String(left?.machineCode || '').trim();
     const rightCode = String(right?.machineCode || '').trim();
-    const localCode = String(props.localMachineCode || '').trim();
+    const localCode = String(localMachineCode || '').trim();
 
     const leftIsLocal = leftCode !== '' && leftCode === localCode;
     const rightIsLocal = rightCode !== '' && rightCode === localCode;
@@ -213,7 +213,7 @@ const computedMachines = computed(() => {
  * 计算属性：机器日志映射
  */
 const computedLogsMachineMap = computed(() => {
-  return new Map((Array.isArray(props.logsMachines) ? props.logsMachines : []).map((machine) => [String(machine.machineCode || '').trim(), machine] satisfies [string, IPageSettingsUnattendedSentinelLogsMachineCard]));
+  return new Map((Array.isArray(logsMachines) ? logsMachines : []).map((machine) => [String(machine.machineCode || '').trim(), machine] satisfies [string, IPageSettingsUnattendedSentinelLogsMachineCard]));
 });
 
 /**
@@ -335,7 +335,7 @@ const getRemarkInputEl = (machineCode: string): HTMLInputElement | null => {
  * @param {string} machineCode 机器码
  * @returns {boolean} 是否本机
  */
-const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(props.localMachineCode || '').trim();
+const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(localMachineCode || '').trim();
 
 /**
  * 函数：打开指定机器详情

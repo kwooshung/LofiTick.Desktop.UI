@@ -110,6 +110,9 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 共享值/工具的全局导入入口固定为 `shared/utils/index.ts`：凡是需要被页面、组件、composable 高频复用的常量、枚举值、纯工具函数，必须先确认是否已经从该总出口导出；不要因为"当前文件报未定义"就直接在局部补 `import`。
 - 如果怀疑是"没有全局导入"而不是"类型/变量不存在"，排查顺序固定为：`shared/types/index.types.ts` / `shared/utils/index.ts` -> `.nuxt/imports.d.ts` -> `pnpm exec nuxi prepare`；禁止跳过这条检查链直接下结论。
 - Vue SFC 宏例外（强制）：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 这类编译期宏所使用的类型参数，必须优先使用当前文件可静态解析的显式 `import type`；不要依赖 Nuxt 的全局自动导入类型去喂给这些宏，否则可能出现 `Unresolvable type reference` 编译错误。
+- 事件定义顺序（强制）：如果组件存在事件定义，`defineEmits(...)` 必须写在 `defineProps(...)` 之后，并且保持 `<script setup>` 顶层；不要把事件定义放到 props 之前或函数体内部。
+- 模板 props 访问（强制）：在 Vue 模板里，能不用 `props.xxx` 就不用；优先在 `<script setup>` 中把会直接用于模板展示的字段直接解构成局部常量或计算属性，再在模板中直接使用这些标识符。开始写之前必须先到 `package.json` / lockfile 确认当前 Vue 版本；当前仓库锁定 Vue 3.5.35。Vue 3.5+ 下，能直接从 `defineProps(...)` 解构并保持响应式时，优先直接解构，只有在需要整体透传、动态 key 访问、对象级遍历或确实必须保持对象语义时，才保留 `props` 或改用 `toRefs`。
+- 模板内联定义（强制）：凡是只服务于当前模板、且不会被复用的静态对象或静态配置，优先直接写在模板属性里；不要为了“整洁”把它们提到 `<script setup>` 里再绕一层常量或计算属性。
 
 - 模板引用选择（强制）：在 `<script setup>` 中获取 DOM 或组件引用时，优先使用 `ref` 同名变量自动绑定（Vue 编译器自动识别顶层同名 `ref` 与模板 `ref` 属性）；只有当场景需要动态 ref 名（`:ref="dynamicName"`）或非顶层作用域绑定时，才使用 `useTemplateRef()`。不要在常规场景下为了"显得高级"而刻意使用 `useTemplateRef`。
 
@@ -158,6 +161,9 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
   2. 需要全局/跨组件复用的基础样式与工具类，新增到 [`app/assets/css/main.css`](../app/assets/css/main.css)（例如 `@utility`）。
   3. 页面/组件局部样式再考虑 `scoped`（仅在确有必要且能说明边界时）。
 - 编写 `class` 时，必须优先使用 Tailwind CSS v4 内置 utility class；只有当内置 utility 无法准确表达需求时，才允许补充项目级 `@utility` 或局部样式。
+- Vue 3.5+ 组件中，`withDefaults(defineProps(...))` 应优先改为直接解构默认值的写法；能用 `const { a = 1 } = defineProps<...>()` 就不要再保留 `withDefaults`，模板里也优先直接使用解构出的标识符。
+- `props` / `defineProps` 必须放在 `import` 之后、`<script setup>` 顶层，不允许藏在函数体里或条件分支里。
+- 只在确实会用到时才解构 props；如果某个属性不会被脚本或模板使用，就不要把它从 `defineProps` 里解构出来。
 - 断点来自 [`app/assets/css/main.css`](../app/assets/css/main.css) 的 `@theme` 定义，除 Tailwind 默认断点外，项目额外提供：
   - `3xl`：`120rem`（1920px）
   - `4xl`：`130rem`（2080px）

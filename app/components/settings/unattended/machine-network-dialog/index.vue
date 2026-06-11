@@ -1,10 +1,10 @@
 <template>
   <UModal v-model:open="stateOpen" :title="t('components.sentinel.scenes.card.fields.network')" :ui="{ content: 'z-50 max-w-4xl', title: 'w-full font-normal' }">
     <template #title>
-      <template v-if="props.machine">
+      <template v-if="machine">
         <div class="min-w-0">
-          <div class="text-highlighted text-lg font-medium">{{ props.machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</div>
-          <div class="text-muted mt-1 text-xs break-all">{{ props.machine.machineCode || '-' }}</div>
+          <div class="text-highlighted text-lg font-medium">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</div>
+          <div class="text-muted mt-1 text-xs break-all">{{ machine.machineCode || '-' }}</div>
         </div>
       </template>
       <template v-else>
@@ -12,7 +12,7 @@
       </template>
     </template>
     <template #body>
-      <div v-if="props.machine" class="space-y-5">
+      <div v-if="machine" class="space-y-5">
         <UPageCard variant="naked" :ui="{ root: 'border-0 shadow-none bg-transparent', container: 'sm:p-0 p-0' }">
           <div class="space-y-4 text-sm">
             <div class="flex items-center justify-between gap-3">
@@ -120,7 +120,7 @@ const stateOpen = defineModel<boolean>('open', { default: false });
 /**
  * Props：组件属性
  */
-const props = defineProps<ISettingsUnattendedMachineNetworkDialogProps>();
+const { machine } = defineProps<ISettingsUnattendedMachineNetworkDialogProps>();
 
 /**
  * 状态：当前网卡 Tab
@@ -178,12 +178,12 @@ const ipJoin = (ips: string[]): string => {
 /**
  * 计算属性：IPv4 分组
  */
-const computedIpv4Groups = computed(() => networkGroupsGet(props.machine).filter((group) => ipJoin(Array.isArray(group?.ipv4) ? group.ipv4 : []).trim() !== ''));
+const computedIpv4Groups = computed(() => networkGroupsGet(machine).filter((group) => ipJoin(Array.isArray(group?.ipv4) ? group.ipv4 : []).trim() !== ''));
 
 /**
  * 计算属性：IPv6 分组
  */
-const computedIpv6Groups = computed(() => networkGroupsGet(props.machine).filter((group) => ipJoin(Array.isArray(group?.ipv6) ? group.ipv6 : []).trim() !== ''));
+const computedIpv6Groups = computed(() => networkGroupsGet(machine).filter((group) => ipJoin(Array.isArray(group?.ipv6) ? group.ipv6 : []).trim() !== ''));
 
 /**
  * 函数：处理网卡 Tab 更新
@@ -202,9 +202,9 @@ const handleNetworkTabUpdate = (value: string | number): void => {
  * 监听：机器变化时重置默认 Tab
  */
 watch(
-  () => props.machine,
-  (machine) => {
-    stateNetworkTab.value = networkGroupsGet(machine).some((group) => group.ipv4.length > 0) ? 'ipv4' : 'ipv6';
+  () => machine,
+  (currentMachine) => {
+    stateNetworkTab.value = networkGroupsGet(currentMachine).some((group) => group.ipv4.length > 0) ? 'ipv4' : 'ipv6';
   },
   { immediate: true }
 );

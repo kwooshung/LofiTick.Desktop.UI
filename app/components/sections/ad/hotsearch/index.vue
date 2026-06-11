@@ -433,6 +433,12 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 type TAdInputTimeValue = InputTimeProps['modelValue'];
+
+/**
+ * 属性：页面刷新标记。
+ */
+const { createNonce = 0 } = defineProps<IPageAdHotsearchProps>();
+
 /**
  * 函数：判断是否为单个日期值。
  * @param {unknown} value 日历更新值。
@@ -495,10 +501,6 @@ const { hotsearchAdAssetWrite, hotsearchAdAssetEnsureDownloaded } = useTauriSett
  * Hook：Tauri 窗口能力。
  */
 const { openFileContent } = useTauriWindow();
-
-const props = withDefaults(defineProps<IPageAdHotsearchProps>(), {
-  createNonce: 0
-});
 
 /**
  * 路由。
@@ -3700,7 +3702,7 @@ watch(
 );
 
 watch(
-  () => props.createNonce,
+  () => createNonce,
   (value, oldValue) => {
     if (typeof value === 'number' && typeof oldValue === 'number' && value !== oldValue) {
       handleCreate();

@@ -1,5 +1,5 @@
 <template>
-  <USelect v-model="computedEnabled" :items="computedItems" :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }" :placeholder="props.placeholder ?? t('components.selects.enabled.placeholder')" class="min-w-28" />
+  <USelect v-model="computedEnabled" :items="computedItems" :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }" :placeholder="placeholderText" class="min-w-28" />
 </template>
 
 <script setup lang="ts">
@@ -11,9 +11,7 @@ interface ISelectsEnabledProps {
   placeholder?: string;
 }
 
-const props = withDefaults(defineProps<ISelectsEnabledProps>(), {
-  placeholder: undefined
-});
+const { placeholder = undefined } = defineProps<ISelectsEnabledProps>();
 
 /**
  * Hook：国际化
@@ -32,6 +30,11 @@ const computedItems = computed(() => [
   { label: t('components.selects.enabled.items.enabled'), value: 'enabled' },
   { label: t('components.selects.enabled.items.disabled'), value: 'disabled' }
 ]);
+
+/**
+ * 计算属性：选择器占位文案。
+ */
+const placeholderText = computed(() => placeholder.value ?? t('components.selects.enabled.placeholder'));
 
 /**
  * 计算属性：启用状态（与路由同步）

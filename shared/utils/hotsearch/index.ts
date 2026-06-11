@@ -314,9 +314,9 @@ export const hotsearchPodcastSegmentOptionsGet = (editorMode: 'body' | 'template
 
 /**
  * 函数：列出热搜播客变量。
- * @returns {{ token: string; key: string }[]} 变量列表。
+ * @returns {{ token: string; key: string; descriptionKey: string }[]} 变量列表。
  */
-export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key: string }> =>
+export const hotsearchPodcastVariableOptionsGet = (): Array<{ token: string; key: string; descriptionKey: string }> =>
   HOTSEARCH_PODCAST_VARIABLE_KEYS.map((key) => ({
     token: `[${key}]`,
     key: `pages.settings.hotsearch.variables.${key}`,

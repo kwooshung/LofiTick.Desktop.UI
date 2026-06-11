@@ -52,9 +52,7 @@ import EmailLayout from '@/emails/layout/index.vue';
 /**
  * 属性：欢迎邮件属性
  */
-withDefaults(defineProps<IEmailWelcomeProps>(), {
-  type: 'primary'
-});
+const { type = 'primary' } = defineProps<IEmailWelcomeProps>();
 
 /**
  * 常量：样式

@@ -1,12 +1,12 @@
 <template>
   <div class="relative">
-    <slot v-if="props.overlay || !stateInternalSpinning" />
+    <slot v-if="overlay || !stateInternalSpinning" />
 
     <Transition enter-active-class="transition-opacity duration-300" leave-active-class="transition-opacity duration-300" enter-from-class="opacity-0" leave-to-class="opacity-0">
-      <div v-if="stateInternalSpinning" class="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm" :class="props.maskClass">
+      <div v-if="stateInternalSpinning" class="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm" :class="maskClass">
         <div :class="computedContentClass">
-          <UIcon :name="props.icon" :size="computedSpinnerSize" :class="['animate-spin', props.iconClass]" />
-          <span v-if="tip" :class="props.tipClass">
+          <UIcon :name="icon" :size="computedSpinnerSize" :class="['animate-spin', iconClass]" />
+          <span v-if="tip" :class="tipClass">
             {{ tip }}
           </span>
         </div>
@@ -21,44 +21,33 @@ import type { ISpinProps, TSpinSizePreset } from '@/components/spin/index.types'
 /**
  * 组件：属性
  */
-const props = withDefaults(defineProps<ISpinProps>(), {
-  loading: false,
-  icon: 'i-gg:spinner',
-  overlay: false,
-  tip: '',
-  size: 'default',
-  delay: 300,
-  iconClass: 'text-primary',
-  contentClass: '',
-  tipClass: 'text-sm text-gray-600 dark:text-gray-400',
-  maskClass: 'bg-white/80 dark:bg-gray-900/80'
-});
+const { loading = false, icon = 'i-gg:spinner', overlay = false, tip = '', size = 'default', delay = 300, iconClass = 'text-primary', contentClass = '', tipClass = 'text-sm text-gray-600 dark:text-gray-400', maskClass = 'bg-white/80 dark:bg-gray-900/80' } = defineProps<ISpinProps>();
 
 /**
  * 状态：内部加载状态（处理延迟）
  */
-const stateInternalSpinning = ref<boolean>(props.loading);
+const stateInternalSpinning = ref<boolean>(loading);
 
 /**
  * 计算属性：Spinner 尺寸（UIcon size 支持字符串/数字）
  */
 const computedSpinnerSize = computed(() => {
-  if (typeof props.size === 'number') {
-    return props.size;
+  if (typeof size === 'number') {
+    return size;
   }
   const sizes: Record<TSpinSizePreset, number> = {
     small: 32,
     default: 48,
     large: 64
   };
-  return sizes[props.size as TSpinSizePreset] ?? sizes.default;
+  return sizes[size as TSpinSizePreset] ?? sizes.default;
 });
 
 /**
  * 计算属性：容器间距
  */
 const computedContainerClasses = computed(() => {
-  if (typeof props.size === 'number') {
+  if (typeof size === 'number') {
     return 'gap-3';
   }
   const gaps: Record<TSpinSizePreset, string> = {
@@ -66,14 +55,14 @@ const computedContainerClasses = computed(() => {
     default: 'gap-3',
     large: 'gap-4'
   };
-  return gaps[props.size as TSpinSizePreset] ?? gaps.default;
+  return gaps[size as TSpinSizePreset] ?? gaps.default;
 });
 
 /**
  * 计算属性：内容容器类名。
  */
 const computedContentClass = computed(() => {
-  return ['flex flex-col items-center justify-center', computedContainerClasses.value, props.contentClass].filter(Boolean).join(' ');
+  return ['flex flex-col items-center justify-center', computedContainerClasses.value, contentClass].filter(Boolean).join(' ');
 });
 
 /**
@@ -85,14 +74,14 @@ let delayTimer: NodeJS.Timeout | null = null;
  * 监听：spinning 变化
  */
 watch(
-  () => props.loading,
+  () => loading,
   (newVal) => {
     if (newVal) {
       // 开启加载：延迟显示
-      if (props.delay > 0) {
+      if (delay > 0) {
         delayTimer = setTimeout(() => {
           stateInternalSpinning.value = true;
-        }, props.delay);
+        }, delay);
       } else {
         stateInternalSpinning.value = true;
       }

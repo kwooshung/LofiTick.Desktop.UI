@@ -169,7 +169,7 @@
       </UFieldGroup>
     </div>
   </template>
-  <template v-else-if="props.routeIsSources">
+  <template v-else-if="routeIsSources">
     <div class="flex items-center gap-2">
       <UFieldGroup>
         <USelectMenu
@@ -205,9 +205,9 @@ import type { SelectItem } from '@nuxt/ui';
 import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, IComponentPropsQuotesUuidSelectMenuItem } from '@/components/search/quotes/index.types';
 
 /**
- * 属性：路由状态（由主页面传入）
+ * 属性：路由状态（由主页面传入）。
  */
-const props = defineProps<IComponentPropsQuotesSearch>();
+const { routeIsList, routeIsAuthors, routeIsSources } = defineProps<IComponentPropsQuotesSearch>();
 
 /**
  * 模板：名句搜索面板主体。
@@ -710,7 +710,7 @@ watch(
   () => route.query,
   () => {
     // 列表页：仅在模态打开时应用默认值
-    if (props.routeIsList) {
+    if (routeIsList) {
       if (stateOpen.value) {
         applyListDefaultsFromRoute();
 
@@ -725,12 +725,12 @@ watch(
     }
 
     // 其他页面：根据当前页类型同步各自参数
-    if (props.routeIsAuthors) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
       return;
     }
-    if (props.routeIsSources) {
+    if (routeIsSources) {
       applySourcesDefaultsFromRoute();
       refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
       return;
@@ -742,7 +742,7 @@ watch(
  * 监听：搜索面板打开时，初始化默认值与联想数据。
  */
 watch(stateOpen, async (isOpen) => {
-  if (!isOpen || !props.routeIsList) {
+  if (!isOpen || !routeIsList) {
     return;
   }
 
@@ -774,14 +774,14 @@ const syncSearchPanelViewportMode = (): void => {
  * 事件：根据当前路由快捷聚焦对应控件
  */
 const triggerQuickFocus = () => {
-  if (props.routeIsList) {
+  if (routeIsList) {
     refUuidMenu.value?.triggerRef.click();
     return;
   }
 
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     refAuthorMenu.value?.triggerRef.click();
-  } else if (props.routeIsSources) {
+  } else if (routeIsSources) {
     refSourceMenu.value?.triggerRef.click();
   }
 };
@@ -790,13 +790,13 @@ const triggerQuickFocus = () => {
  * 函数：根据当前路由初始化默认联想数据
  */
 const requestDefaultsForCurrentRoute = () => {
-  if (props.routeIsAuthors) {
+  if (routeIsAuthors) {
     stateLoadingAuthor.value = true;
     refreshAuthorDebounced({ datas: { q: stateKeywordAuthor.value } });
     return;
   }
 
-  if (props.routeIsSources) {
+  if (routeIsSources) {
     stateLoadingSources.value = true;
     refreshSourcesDebounced({ datas: { q: stateKeywordSource.value } });
     return;
@@ -810,7 +810,7 @@ const updateRouteQueryForSearch = (): void => {
   const query: Record<string, string | string[]> = {};
 
   // 不同页面仅提交对应的查询参数
-  if (props.routeIsList) {
+  if (routeIsList) {
     const uuid = stateUuid.value.trim();
     const content = stateContent.value.trim();
     const translate = stateTranslate.value.trim();
@@ -854,12 +854,12 @@ const updateRouteQueryForSearch = (): void => {
     if (stateEnabled.value !== 'all') {
       query.enabled = stateEnabled.value === 'enabled' ? '1' : '0';
     }
-  } else if (props.routeIsAuthors) {
+  } else if (routeIsAuthors) {
     // 作者页：仅 author_ids
     if (stateAuthorsSelected.value.length > 0) {
       query.author_ids = stateAuthorsSelected.value.map((i) => String(i.value));
     }
-  } else if (props.routeIsSources) {
+  } else if (routeIsSources) {
     // 出处页：仅 source_ids
     if (stateSourcesSelected.value.length > 0) {
       query.source_ids = stateSourcesSelected.value.map((i) => String(i.value));
@@ -911,7 +911,7 @@ const handleReset = (): void => {
  */
 const handleSearch = (): void => {
   // 列表页：优先使用下拉已选 uuid 覆盖输入框内容
-  if (props.routeIsList && stateSelectedUuid.value.length > 0) {
+  if (routeIsList && stateSelectedUuid.value.length > 0) {
     stateUuid.value = String(stateSelectedUuid.value[0]?.label ?? '').trim();
   }
 
@@ -946,13 +946,13 @@ onMounted(() => {
   requestDefaultsForCurrentRoute();
 
   // 非列表页：初始化应用默认值
-  if (!props.routeIsList) {
-    if (props.routeIsAuthors) {
+  if (!routeIsList) {
+    if (routeIsAuthors) {
       applyAuthorsDefaultsFromRoute();
       return;
     }
 
-    if (props.routeIsSources) {
+    if (routeIsSources) {
       applySourcesDefaultsFromRoute();
       return;
     }
@@ -977,7 +977,7 @@ defineShortcuts({
    */
   '/': () => {
     if (!storeAuth.states.ui.show) {
-      if (props.routeIsList) {
+      if (routeIsList) {
         stateOpen.value = true;
       } else {
         triggerQuickFocus();

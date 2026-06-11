@@ -4,15 +4,15 @@
       <div class="border-default flex items-center justify-between gap-3 border-b pb-3">
         <div class="flex min-w-0 items-center gap-2">
           <div class="text-highlighted text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.scenes') }}</div>
-          <UBadge color="neutral" variant="outline">{{ props.machine.items.length }}</UBadge>
+          <UBadge color="neutral" variant="outline">{{ machine.items.length }}</UBadge>
         </div>
-        <UButton v-if="isLocalMachine(props.machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
+        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
           {{ t('components.sentinel.scenes.card.actions.addScene') }}
         </UButton>
       </div>
 
-      <div v-if="props.machine.items.length > 0" class="space-y-3">
-        <article v-for="item in props.machine.items" :key="item.id" class="bg-elevated/40 ring-default space-y-4 rounded-md p-4 ring-1">
+      <div v-if="machine.items.length > 0" class="space-y-3">
+        <article v-for="item in machine.items" :key="item.id" class="bg-elevated/40 ring-default space-y-4 rounded-md p-4 ring-1">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0 flex-1 space-y-2">
               <div class="flex min-w-0 flex-wrap items-center gap-2">
@@ -26,12 +26,12 @@
               </div>
             </div>
 
-            <template v-if="isLocalMachine(props.machine.machineCode)">
+            <template v-if="isLocalMachine(machine.machineCode)">
               <USwitch :model-value="Boolean(item.enabled)" @update:model-value="(value: boolean) => emit('toggle-enabled', { id: String(item.id || ''), enabled: Boolean(value) })" />
             </template>
           </div>
 
-          <div v-if="isLocalMachine(props.machine.machineCode)" class="border-default flex items-center justify-end gap-2 border-t pt-3">
+          <div v-if="isLocalMachine(machine.machineCode)" class="border-default flex items-center justify-end gap-2 border-t pt-3">
             <UButton color="primary" variant="outline" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
 
             <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
@@ -55,12 +55,12 @@
         <UEmpty
           icon="i-tabler:layout-grid"
           :title="t('components.sentinel.scenes.card.empty.scenes.title')"
-          :description="isLocalMachine(props.machine.machineCode) ? t('components.sentinel.scenes.card.empty.scenes.localDescription') : t('components.sentinel.scenes.card.empty.scenes.remoteDescription')"
+          :description="isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.empty.scenes.localDescription') : t('components.sentinel.scenes.card.empty.scenes.remoteDescription')"
           variant="naked"
           size="sm"
           :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }"
         >
-          <template v-if="isLocalMachine(props.machine.machineCode)" #actions>
+          <template v-if="isLocalMachine(machine.machineCode)" #actions>
             <UButton icon="i-material-symbols:add-ad-outline-rounded" color="primary" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
           </template>
         </UEmpty>
@@ -93,7 +93,7 @@ const { t } = useI18n();
 /**
  * Props：组件属性
  */
-const props = defineProps<ISettingsUnattendedScenesMachineDetailsProps>();
+const { localMachineCode, machine } = defineProps<ISettingsUnattendedScenesMachineDetailsProps>();
 
 /**
  * 事件：组件事件
@@ -109,7 +109,7 @@ const emit = defineEmits<{
  * @param {string} machineCode 机器码
  * @returns {boolean} 是否本机
  */
-const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(props.localMachineCode || '').trim();
+const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(localMachineCode || '').trim();
 
 /**
  * 函数：构建命令展示文本

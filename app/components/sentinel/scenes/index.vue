@@ -1,8 +1,8 @@
 <template>
   <UPageGrid class="mb-4">
-    <UPageCard icon="i-material-symbols:id-card-outline-sharp" :title="t('components.sentinel.scenes.labels.machineName')" :description="props.machineName" />
-    <UPageCard icon="i-material-symbols:code" :title="t('components.sentinel.scenes.labels.machineId')" :description="props.machineId" />
-    <UPageCard icon="i-lucide:sticky-note" :title="t('components.sentinel.scenes.labels.machineRemark')" :description="props.machineRemark || '-'" />
+    <UPageCard icon="i-material-symbols:id-card-outline-sharp" :title="t('components.sentinel.scenes.labels.machineName')" :description="machineName" />
+    <UPageCard icon="i-material-symbols:code" :title="t('components.sentinel.scenes.labels.machineId')" :description="machineId" />
+    <UPageCard icon="i-lucide:sticky-note" :title="t('components.sentinel.scenes.labels.machineRemark')" :description="machineRemark || '-'" />
   </UPageGrid>
 
   <UForm :id="computedFormId" ref="refForm" :schema="schema" :state="stateForm" class="mb-4 w-full max-w-none space-y-4" @submit="handleSubmit">
@@ -59,19 +59,7 @@ const { t } = useI18n();
 /**
  * Props：组件属性
  */
-const props = withDefaults(defineProps<ISentinelScenesConfigProps>(), {
-  machineId: '',
-  machineName: '',
-  machineRemark: '',
-  sceneName: '',
-  localMachineId: '',
-  execPathEditable: true,
-  sourceExecPathEditable: true,
-  sourceExecPath: '',
-  execPath: '',
-  args: () => [],
-  enabled: true
-});
+const { machineId = '', machineName = '', machineRemark = '', sceneName = '', localMachineId = '', execPathEditable = true, sourceExecPathEditable = true, sourceExecPath = '', execPath = '', args = [], enabled = true, formId = '' } = defineProps<ISentinelScenesConfigProps>();
 
 /**
  * 事件：emit
@@ -87,11 +75,11 @@ const FORM_ID_DEFAULT = 'sentinelScenesEditorForm';
  * 状态：表单状态
  */
 const stateForm = reactive<ISentinelScenesConfigFormState>({
-  sceneName: String(props.sceneName || ''),
-  sourceExecPath: String(props.sourceExecPath || ''),
-  execPath: String(props.execPath || ''),
-  argsText: Array.isArray(props.args) ? props.args.join('\n') : '',
-  enabled: Boolean(props.enabled)
+  sceneName: String(sceneName || ''),
+  sourceExecPath: String(sourceExecPath || ''),
+  execPath: String(execPath || ''),
+  argsText: Array.isArray(args) ? args.join('\n') : '',
+  enabled: Boolean(enabled)
 });
 
 /**
@@ -102,22 +90,22 @@ const refForm = ref<{ clear: () => void; submit: () => void } | null>(null);
 /**
  * 计算属性：表单 id
  */
-const computedFormId = computed(() => String(props.formId || FORM_ID_DEFAULT).trim() || FORM_ID_DEFAULT);
+const computedFormId = computed(() => String(formId || FORM_ID_DEFAULT).trim() || FORM_ID_DEFAULT);
 
 /**
  * 计算属性：表单是否只读
  * 描述：当 machineId 与 localMachineId 都存在时，需二者一致才允许编辑。
  */
 const computedFormReadonly = computed(() => {
-  const machineId = String(props.machineId || '').trim();
-  const localMachineId = String(props.localMachineId || '').trim();
+  const machineIdText = String(machineId || '').trim();
+  const localMachineIdText = String(localMachineId || '').trim();
 
   // 未提供机器码时，视为可编辑（由外部控制提交即可）
-  if (!machineId || !localMachineId) {
+  if (!machineIdText || !localMachineIdText) {
     return false;
   }
 
-  return machineId !== localMachineId;
+  return machineIdText !== localMachineIdText;
 });
 
 /**
@@ -129,19 +117,19 @@ const computedExecPathReadonly = computed(() => {
     return true;
   }
 
-  if (!props.execPathEditable || !props.sourceExecPathEditable) {
+  if (!execPathEditable || !sourceExecPathEditable) {
     return true;
   }
 
-  const machineId = String(props.machineId || '').trim();
-  const localMachineId = String(props.localMachineId || '').trim();
+  const machineIdText = String(machineId || '').trim();
+  const localMachineIdText = String(localMachineId || '').trim();
 
   // 未提供机器码时，仅由外部开关控制
-  if (!machineId || !localMachineId) {
+  if (!machineIdText || !localMachineIdText) {
     return false;
   }
 
-  return machineId !== localMachineId;
+  return machineIdText !== localMachineIdText;
 });
 
 /**
@@ -233,9 +221,9 @@ const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
  * @returns {TSentinelScenesConfigValues} 当前值
  */
 const valuesGet = (): TSentinelScenesConfigValues => ({
-  machineId: String(props.machineId || ''),
-  machineName: String(props.machineName || ''),
-  machineRemark: String(props.machineRemark || ''),
+  machineId: String(machineId || ''),
+  machineName: String(machineName || ''),
+  machineRemark: String(machineRemark || ''),
   sceneName: String(stateForm.sceneName || '').trim(),
   sourceExecPath: String(stateForm.sourceExecPath || '').trim(),
   execPath: String(stateForm.execPath || '').trim(),

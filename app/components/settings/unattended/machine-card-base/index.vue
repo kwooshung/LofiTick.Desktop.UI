@@ -5,16 +5,16 @@
     <div class="relative">
       <div class="mb-7 min-w-0 rounded-md bg-white/34 px-3.5 py-2.75 shadow-sm ring-1 shadow-sky-950/6 ring-sky-300/22 backdrop-blur-lg dark:bg-slate-900/28 dark:shadow-black/8 dark:ring-white/8">
         <div class="flex min-w-0 items-center gap-2">
-          <h3 class="text-highlighted min-w-0 flex-1 truncate text-[15px] leading-6 font-medium">{{ props.machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
-          <UBadge :color="isLocalMachine(props.machine.machineCode) ? 'primary' : 'warning'" variant="soft" size="sm" class="shrink-0 self-center">
-            {{ isLocalMachine(props.machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
+          <h3 class="text-highlighted min-w-0 flex-1 truncate text-[15px] leading-6 font-medium">{{ machine.machineName || t('components.sentinel.scenes.card.machine.unnamed') }}</h3>
+          <UBadge :color="isLocalMachine(machine.machineCode) ? 'primary' : 'warning'" variant="soft" size="sm" class="shrink-0 self-center">
+            {{ isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.machine.local') : t('components.sentinel.scenes.card.machine.remote') }}
           </UBadge>
-          <slot name="header-actions" :machine="props.machine" />
+          <slot name="header-actions" :machine="machine" />
         </div>
 
         <div class="text-muted mt-0.5 flex items-center gap-1.5 text-[11px] leading-4">
-          <UIcon :name="machineOnlineGet(props.machine) ? 'i-lucide:wifi' : 'i-lucide:wifi-off'" :class="['size-3.5', machineOnlineGet(props.machine) ? 'text-success' : 'text-neutral-400']" />
-          <span>{{ machineOnlineGet(props.machine) ? t('components.sentinel.scenes.card.machine.online') : t('components.sentinel.scenes.card.machine.offline') }}</span>
+          <UIcon :name="machineOnlineGet(machine) ? 'i-lucide:wifi' : 'i-lucide:wifi-off'" :class="['size-3.5', machineOnlineGet(machine) ? 'text-success' : 'text-neutral-400']" />
+          <span>{{ machineOnlineGet(machine) ? t('components.sentinel.scenes.card.machine.online') : t('components.sentinel.scenes.card.machine.offline') }}</span>
         </div>
       </div>
 
@@ -24,8 +24,8 @@
             <UIcon name="i-ic:outline-computer" class="text-dimmed size-3.5" />
             <span>{{ t('components.sentinel.scenes.card.fields.machineCode') }}</span>
           </div>
-          <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ props.machine.machineCode || '-' }}</span>
-          <UTooltip v-if="String(props.machine.machineCode || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
+          <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ machine.machineCode || '-' }}</span>
+          <UTooltip v-if="String(machine.machineCode || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
             <UButton :color="stateCodeCopied ? 'success' : 'neutral'" variant="link" size="xs" :icon="stateCodeCopied ? 'i-lucide-copy-check' : 'i-lucide-copy'" :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" @click.stop="handleMachineCodeCopy" />
           </UTooltip>
         </li>
@@ -34,29 +34,29 @@
             <UIcon name="i-lucide:sticky-note" class="text-dimmed size-3.5" />
             <span>{{ t('components.sentinel.scenes.card.fields.machineRemark') }}</span>
           </div>
-          <slot name="machine-remark-content" :machine="props.machine">
-            <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ props.machine.machineRemark || '-' }}</span>
+          <slot name="machine-remark-content" :machine="machine">
+            <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ machine.machineRemark || '-' }}</span>
           </slot>
-          <slot name="machine-remark-actions" :machine="props.machine" />
+          <slot name="machine-remark-actions" :machine="machine" />
         </li>
         <li class="bg-default/22 py-1.15 flex items-center gap-2 rounded-md px-2.5">
           <div class="text-muted flex w-24 shrink-0 items-center gap-1.5 text-xs leading-4.5">
             <UIcon name="i-lucide:clock-3" class="text-dimmed size-3.5" />
             <span>{{ t('components.sentinel.scenes.card.fields.lastSeen') }}</span>
           </div>
-          <span v-if="String(props.machine.machineLastSeenAt || props.machine.lastSeenAt || '').trim()" class="min-w-0 flex-1 self-center leading-4.5">
-            <Datetime :datetime="String(props.machine.machineLastSeenAt || props.machine.lastSeenAt || '').trim()" />
+          <span v-if="String(machine.machineLastSeenAt || machine.lastSeenAt || '').trim()" class="min-w-0 flex-1 self-center leading-4.5">
+            <Datetime :datetime="String(machine.machineLastSeenAt || machine.lastSeenAt || '').trim()" />
           </span>
           <span v-else class="min-w-0 flex-1 self-center leading-4.5 break-all">--</span>
         </li>
       </ul>
 
       <div v-if="$slots.body" class="mt-8">
-        <slot name="body" :machine="props.machine" />
+        <slot name="body" :machine="machine" />
       </div>
 
       <div v-if="$slots.footer" class="border-default/45 mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-3.5">
-        <slot name="footer" :machine="props.machine" />
+        <slot name="footer" :machine="machine" />
       </div>
     </div>
   </div>
@@ -98,7 +98,7 @@ const { copy } = useClipboard();
 /**
  * Props：组件属性
  */
-const props = defineProps<ISettingsUnattendedMachineCardBaseProps>();
+const { machine, localMachineCode } = defineProps<ISettingsUnattendedMachineCardBaseProps>();
 
 /**
  * 状态：机器码复制成功态
@@ -115,26 +115,26 @@ let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
  * @param {string} machineCode 机器码
  * @returns {boolean} 是否本机
  */
-const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(props.localMachineCode || '').trim();
+const isLocalMachine = (machineCode: string): boolean => String(machineCode || '').trim() === String(localMachineCode || '').trim();
 
 /**
  * 函数：获取机器在线状态
  * @param {IPageSettingsUnattendedMachineCardInfo} machine 机器信息
  * @returns {boolean} 是否在线
  */
-const machineOnlineGet = (machine: IPageSettingsUnattendedMachineCardInfo): boolean => {
-  if (typeof machine?.online === 'boolean') {
-    return machine.online;
+const machineOnlineGet = (currentMachine: IPageSettingsUnattendedMachineCardInfo): boolean => {
+  if (typeof currentMachine?.online === 'boolean') {
+    return currentMachine.online;
   }
 
-  return isLocalMachine(String(machine?.machineCode || ''));
+  return isLocalMachine(String(currentMachine?.machineCode || ''));
 };
 
 /**
  * 函数：复制机器码
  */
 const handleMachineCodeCopy = async (): Promise<void> => {
-  const value = String(props.machine.machineCode || '').trim();
+  const value = String(machine.machineCode || '').trim();
   if (!value) {
     return;
   }

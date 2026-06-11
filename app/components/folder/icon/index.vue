@@ -18,8 +18,5 @@ import type { IFolderIconProps } from '@/components/folder/icon/index.types';
 /**
  * 属性
  */
-withDefaults(defineProps<IFolderIconProps>(), {
-  bgColor: 'bg-primary-500',
-  fgColor: 'bg-primary-400'
-});
+const { bgColor = 'bg-primary-500', fgColor = 'bg-primary-400' } = defineProps<IFolderIconProps>();
 </script>

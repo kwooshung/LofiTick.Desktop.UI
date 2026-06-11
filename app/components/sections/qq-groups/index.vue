@@ -69,6 +69,11 @@ import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
+ * 属性：页面刷新标记。
+ */
+const { createNonce = 0 } = defineProps<IPageQqGroupsProps>();
+
+/**
  * 组件：Nuxt 时间显示组件
  */
 const Datetime = resolveComponent('Datetime');
@@ -129,10 +134,6 @@ const currentPageSizeGet = (): string => {
 
   return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
 };
-
-const props = withDefaults(defineProps<IPageQqGroupsProps>(), {
-  createNonce: 0
-});
 
 /**
  * 函数：从路由查询参数构建接口查询参数
@@ -691,7 +692,7 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => props.createNonce,
+  () => createNonce,
   (value, oldValue) => {
     if (typeof value === 'number' && typeof oldValue === 'number' && value !== oldValue) {
       handleCreate();

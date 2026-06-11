@@ -18,16 +18,13 @@ const route = useRoute();
 /**
  * 属性：缓存键（命名空间），默认 'common'
  */
-const props = withDefaults(defineProps<ISelectPagesizesProps>(), {
-  sizes: () => [5, 10, 20, 30, 50, 100],
-  cacheKey: 'common'
-});
+const { sizes = [5, 10, 20, 30, 50, 100], cacheKey = 'common' } = defineProps<ISelectPagesizesProps>();
 
 /**
  * 计算属性：下拉项（使用变量插值）
  */
 const computedItems = computed(() => {
-  return props.sizes.map((n) => ({ label: t('components.selects.pagesizes.item', { count: n }), value: n }));
+  return sizes.map((n) => ({ label: t('components.selects.pagesizes.item', { count: n }), value: n }));
 });
 
 /**
@@ -66,7 +63,7 @@ const pagesize = computed<number>({
     }
 
     // 2. 当前模块的 cookie 值（使用抽离的通用函数）
-    return getPageSizeByCookieParsed(pagesizesCookie.value, props.cacheKey);
+    return getPageSizeByCookieParsed(pagesizesCookie.value, cacheKey);
   },
 
   /**
@@ -86,7 +83,7 @@ const pagesize = computed<number>({
     // 同时写入当前模块的 cookie 值
     pagesizesCookie.value = {
       ...pagesizesCookie.value,
-      [props.cacheKey]: value
+      [cacheKey]: value
     };
   }
 });
@@ -101,7 +98,7 @@ watch(
     if (Number.isFinite(num) && num > 0) {
       pagesizesCookie.value = {
         ...pagesizesCookie.value,
-        [props.cacheKey]: num
+        [cacheKey]: num
       };
     }
   },
