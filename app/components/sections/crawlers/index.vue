@@ -83,7 +83,7 @@ const localePath = useLocalePath();
 /**
  * Hook：爬虫站点动作。
  */
-const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetActions();
+const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetMenuActions();
 
 /**
  * 路由：当前页面路由。

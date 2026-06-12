@@ -724,7 +724,7 @@ export const crawlerBlueprintGroupsBuild = (translate: (key: string) => string):
  *
  * 返回蓝图分组列表。
  */
-export const useCrawlerBlueprint = () => {
+export const useCrawlerBlueprintNodesMenu = () => {
   /**
    * Hook：国际化。
    */

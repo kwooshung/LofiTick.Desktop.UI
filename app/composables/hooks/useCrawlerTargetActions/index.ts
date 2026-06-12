@@ -11,7 +11,7 @@ import type { IBuildCrawlerTargetContextMenuItemsOptions } from '@/composables/h
  *
  * 返回站点动作构建器与通用辅助函数。
  */
-export const useCrawlerTargetActions = () => {
+export const useCrawlerTargetMenuActions = () => {
   /**
    * Hook：国际化。
    */
@@ -38,25 +38,15 @@ export const useCrawlerTargetActions = () => {
       return false;
     }
 
+    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+      return false;
+    }
+
     try {
       await navigator.clipboard.writeText(normalized);
       return true;
     } catch {
-      try {
-        const el = document.createElement('textarea');
-        el.value = normalized;
-        el.style.position = 'fixed';
-        el.style.left = '-9999px';
-        el.style.top = '-9999px';
-        document.body.appendChild(el);
-        el.focus();
-        el.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(el);
-        return ok;
-      } catch {
-        return false;
-      }
+      return false;
     }
   };
 

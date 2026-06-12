@@ -48,7 +48,7 @@ const { t } = useI18n();
 /**
  * Hook：爬虫蓝图。
  */
-const { groups: blueprintGroups } = useCrawlerBlueprint();
+const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 
 /**
  * 函数：将站点域名转成展示名称。
