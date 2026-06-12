@@ -5,7 +5,7 @@
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div class="scrollbar flex-1 p-4"></div>
+      <div class="min-h-0 min-w-full flex-1" />
 
       <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
         <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ t('common.actions.cancel') }}</UButton>

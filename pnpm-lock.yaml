@@ -8,21 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@baklavajs/core':
-        specifier: ^2.8.1
-        version: 2.8.1
-      '@baklavajs/engine':
-        specifier: ^2.8.1
-        version: 2.8.1
-      '@baklavajs/interface-types':
-        specifier: ^2.8.1
-        version: 2.8.1
-      '@baklavajs/renderer-vue':
-        specifier: ^2.8.1
-        version: 2.8.1
-      '@baklavajs/themes':
-        specifier: ^2.8.1
-        version: 2.8.1
       '@fontsource/lora':
         specifier: ^5.2.8
         version: 5.2.8
@@ -119,6 +104,21 @@ importers:
       plyr:
         specifier: ^3.8.4
         version: 3.8.4
+      rete:
+        specifier: ^2.0.6
+        version: 2.0.6
+      rete-area-plugin:
+        specifier: ^2.1.5
+        version: 2.1.5(rete@2.0.6)
+      rete-connection-plugin:
+        specifier: ^2.0.5
+        version: 2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      rete-render-utils:
+        specifier: ^2.0.3
+        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      rete-vue-plugin:
+        specifier: ^2.1.2
+        version: 2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.35(typescript@6.0.3))
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
@@ -445,24 +445,6 @@ packages:
   '@babel/types@8.0.0-rc.6':
     resolution: {integrity: sha512-p7/ABylAYlexb31wtRdIfH9L9A0Z2T/9H6zAqzqndkY2PLkvNNc580wGhp/gGKN4Sp9sQvSkhc6Oga8/O+wTyw==}
     engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@baklavajs/core@2.8.1':
-    resolution: {integrity: sha512-pS8LlTN3+im2QYAOIoj4NfxM/f8fwc2acF9sLwIPOZ+a8DoSYlzsyQX7VFMqg9MshhiJBH0qVhIHFO2kRga7uQ==}
-
-  '@baklavajs/engine@2.8.1':
-    resolution: {integrity: sha512-MbkgzqN9vgS1Bm+VIJL8fVLemj//jWbo5eMihOj/bcctDLdz1DTlawhr06IpPutE+TMvwF24jpWIOdEeWhSjbQ==}
-
-  '@baklavajs/events@2.8.0':
-    resolution: {integrity: sha512-dPl2Z8p7o9HwEOd3TclnHMQTSCuGyUcHyzAxijuQI13LTWUMbtyHl1yBMH5wuy+yUsR6/NQnH//4+rDCyiFoJw==}
-
-  '@baklavajs/interface-types@2.8.1':
-    resolution: {integrity: sha512-QQ1gjhCX0eAhIIwZPbr9FGHVEcdnEGR+FXKf0SdrOazgCS4DPwQVEXs2yj8+0i4hqgWnV7Vs4cPm9cqqIKj+QQ==}
-
-  '@baklavajs/renderer-vue@2.8.1':
-    resolution: {integrity: sha512-RzUYZ3rePfqOnZGXQQoQpccUBg6dCgOx/qTDjzrw01ZwCciZbNfZPV5dp8ednOXQKukPmmvl161MVUgEuBXQqg==}
-
-  '@baklavajs/themes@2.8.1':
-    resolution: {integrity: sha512-qmOfY+Pqk7PY2PJm+ML3vW2CD1taRjxNKmIAJ3x5IbiBaPh2a/DqZz4kwr2PktfOuYokuMLorsm50jj0rlKifA==}
 
   '@bomb.sh/tab@0.0.15':
     resolution: {integrity: sha512-Y90ub44TAvbdO9P8mcD/XPyQjFhiR5xmd4Fk7JErmWmEWEUimNnjWiBrVZ16Tj3GA1rLZ+uvCN2V/pzLawv31g==}
@@ -8200,6 +8182,34 @@ packages:
     resolution: {integrity: sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==}
     engines: {node: '>=18'}
 
+  rete-area-plugin@2.1.5:
+    resolution: {integrity: sha512-iquEvwkQlcsO4cmgM3Z37TG0AWaE536dfA+lCJAze5YJzVx4RBaViUCqdB4dUA/utSytpBCkiDC4D3ztM9akGQ==}
+    peerDependencies:
+      rete: ^2.0.0
+
+  rete-connection-plugin@2.0.5:
+    resolution: {integrity: sha512-KFtlOyEJRc0y9STVgo2T+t+j9u5fxiTxbyzPbMCm0uqncb3b8d2ABDIzvWoNo5zQAh2Oz/OvlUovupbzrGzpSg==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+
+  rete-render-utils@2.0.3:
+    resolution: {integrity: sha512-Oz4W2PNayHocRvlzadb5BCNf+tDzJ8RhTwB3ucBPCdCLKZ974wWDiTSCRfA287L2hmHVzRfBdyAwC03K9eP+4g==}
+    peerDependencies:
+      rete: ^2.0.0
+      rete-area-plugin: ^2.0.0
+
+  rete-vue-plugin@2.1.2:
+    resolution: {integrity: sha512-vMHCaAoJE9C9axEEIxg2nbrSYC6bFp5rWoAzAKGaLaEMT8y6m9mFb1o45dW8SF2v3DrbwXVjuEHRZxmg8CCOfg==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      rete-render-utils: ^2.0.0
+      vue: ^2.6 || ^3.2
+
+  rete@2.0.6:
+    resolution: {integrity: sha512-kPmlKCGFES2VWtY7Y7SCB8ZeXRMsgX5deza9cu4OwmfM/ZUimd461kC3hRyccoyVxE4POlHUx0gg2jcGfusHFg==}
+
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
@@ -9173,10 +9183,6 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@13.0.2:
-    resolution: {integrity: sha512-vzi9uRZ926x4XV73S/4qQaTwPXM2JBj6/6lI/byHH1jOpCzb0zDbfytgA9LcN/hzb2l7WQSQnxITOVx5un/wGw==}
-    hasBin: true
-
   valibot@1.4.1:
     resolution: {integrity: sha512-klCmFTz2jeDluy9RwX+F884TCiogtdBJ/YaxSx1EOBYXa3NXNWj8kR1jjN8rzluwojJVWWaHJ4r1U5LfICnM3g==}
     peerDependencies:
@@ -9862,31 +9868,6 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 8.0.0-rc.6
       '@babel/helper-validator-identifier': 8.0.0-rc.6
-
-  '@baklavajs/core@2.8.1':
-    dependencies:
-      '@baklavajs/events': 2.8.0
-      uuid: 13.0.2
-
-  '@baklavajs/engine@2.8.1':
-    dependencies:
-      '@baklavajs/core': 2.8.1
-      '@baklavajs/events': 2.8.0
-
-  '@baklavajs/events@2.8.0': {}
-
-  '@baklavajs/interface-types@2.8.1':
-    dependencies:
-      '@baklavajs/core': 2.8.1
-      '@baklavajs/engine': 2.8.1
-      '@baklavajs/renderer-vue': 2.8.1
-
-  '@baklavajs/renderer-vue@2.8.1':
-    dependencies:
-      '@baklavajs/core': 2.8.1
-      '@baklavajs/events': 2.8.0
-
-  '@baklavajs/themes@2.8.1': {}
 
   '@bomb.sh/tab@0.0.15(cac@6.7.14)(citty@0.2.2)':
     optionalDependencies:
@@ -18664,6 +18645,35 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
+  rete-area-plugin@2.1.5(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      rete: 2.0.6
+
+  rete-connection-plugin@2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+
+  rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+
+  rete-vue-plugin@2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.35(typescript@6.0.3)):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+      rete-render-utils: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      vue: 3.5.35(typescript@6.0.3)
+
+  rete@2.0.6:
+    dependencies:
+      '@babel/runtime': 7.29.7
+
   retry@0.12.0: {}
 
   reusify@1.1.0: {}
@@ -19751,8 +19761,6 @@ snapshots:
   url-polyfill@1.1.14: {}
 
   util-deprecate@1.0.2: {}
-
-  uuid@13.0.2: {}
 
   valibot@1.4.1(typescript@6.0.3):
     optionalDependencies:
