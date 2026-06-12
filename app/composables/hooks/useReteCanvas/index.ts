@@ -1,7 +1,6 @@
 import { NodeEditor } from 'rete';
-import { AreaPlugin } from 'rete-area-plugin';
+import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
-import { onBeforeUnmount, onMounted, type Ref, shallowRef } from 'vue';
 
 import type { IReteCanvasHandle, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
 
@@ -74,6 +73,14 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     const editor = new NodeEditor<IReteCanvasSchemes>();
     editor.use(area as unknown as AreaPlugin<IReteCanvasSchemes>);
     area.use(renderer);
+
+    AreaExtensions.restrictor(area, {
+      scaling: () => ({ min: 0.3, max: 10 })
+    });
+
+    AreaExtensions.snapGrid(area, {
+      size: 5
+    });
 
     if (isCanvasDisposed) {
       area.destroy();
