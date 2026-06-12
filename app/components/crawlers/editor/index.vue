@@ -88,10 +88,10 @@ const setupDefaultCanvas = async (): Promise<void> => {
 
   const a = createSizedNode('A');
   a.addControl('a', new ClassicPreset.InputControl('text', {}));
-  a.addOutput('a', new ClassicPreset.Output(socket));
+  a.addOutput('a', new ClassicPreset.Output(socket, undefined, true));
 
   const b = createSizedNode('B');
-  b.addInput('b', new ClassicPreset.Input(socket));
+  b.addInput('b', new ClassicPreset.Input(socket, undefined, true));
 
   await currentEditor.addNode(a);
   await currentEditor.addNode(b);

@@ -1,7 +1,7 @@
 import { animate } from 'animejs';
-import { ClassicPreset, NodeEditor } from 'rete';
+import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
-import { ConnectionPlugin, getSourceTarget, Presets as ConnectionPresets } from 'rete-connection-plugin';
+import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
 import { RerouteExtensions, ReroutePlugin } from 'rete-connection-reroute-plugin';
 import { MinimapPlugin } from 'rete-minimap-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
@@ -228,44 +228,25 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     reteAreaInstance.area.content.add(backgroundElement);
 
     const editorInstance = new NodeEditor<IReteCanvasSchemes>();
-    editorInstance.use(reteAreaInstance as unknown as AreaPlugin<IReteCanvasSchemes>);
 
+    const selectorInstance = AreaExtensions.selector();
+    const selectorAccumulating = AreaExtensions.accumulateOnCtrl();
     connection.addPreset(ConnectionPresets.classic.setup());
 
-    connection.addPipe((context) => {
-      if (!context || typeof context !== 'object' || !('type' in context) || context.type !== 'connectiondrop') {
-        return context;
-      }
-
-      const droppedSocket = context.data.socket;
-      if (context.data.created || !droppedSocket) {
-        return context;
-      }
-
-      const pair = getSourceTarget(context.data.initial, droppedSocket);
-      if (!pair) {
-        return context;
-      }
-
-      const [source, target] = pair;
-      if (!source || !target) {
-        return context;
-      }
-
-      const sourceNode = editorInstance.getNode(source.nodeId);
-      const targetNode = editorInstance.getNode(target.nodeId);
-      if (!sourceNode || !targetNode) {
-        return context;
-      }
-
-      const nextConnection = new ClassicPreset.Connection(sourceNode as ClassicPreset.Node, source.key, targetNode as ClassicPreset.Node, target.key) as IReteCanvasSchemes['Connection'];
-      void editorInstance.addConnection(nextConnection);
-
-      return context;
+    AreaExtensions.selectableNodes(reteAreaInstance, selectorInstance, {
+      accumulating: selectorAccumulating
     });
 
     renderer.addPreset(Presets.classic.setup());
-    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
+
+    editorInstance.use(reteAreaInstance as unknown as AreaPlugin<IReteCanvasSchemes>);
+
+    reteAreaInstance.use(connection);
+    reteAreaInstance.use(renderer);
+
+    // 在基础连线能力就位后，再挂附加能力，避免影响 socket 交互链路。
+    RerouteExtensions.selectablePins(reroutePlugin, selectorInstance, selectorAccumulating);
+    renderer.use(reroutePlugin as unknown as Parameters<typeof renderer.use>[0]);
     renderer.addPreset(
       Presets.reroute.setup({
         pointerdown(id) {
@@ -281,25 +262,14 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       })
     );
 
-    renderer.use(reroutePlugin as unknown as Parameters<typeof renderer.use>[0]);
-
-    reteAreaInstance.use(connection);
-    reteAreaInstance.use(renderer);
+    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
     reteAreaInstance.use(minimap as unknown as Parameters<typeof reteAreaInstance.use>[0]);
-
-    const selectorInstance = AreaExtensions.selector();
-    const selectorAccumulating = AreaExtensions.accumulateOnCtrl();
-    RerouteExtensions.selectablePins(reroutePlugin, selectorInstance, selectorAccumulating);
 
     AreaExtensions.restrictor(reteAreaInstance, {
       scaling: () => ({ min: 0.5005, max: 10 })
     });
 
     selector.value = selectorInstance;
-
-    AreaExtensions.selectableNodes(reteAreaInstance, selector.value, {
-      accumulating: selectorAccumulating
-    });
 
     AreaExtensions.simpleNodesOrder(reteAreaInstance);
 
