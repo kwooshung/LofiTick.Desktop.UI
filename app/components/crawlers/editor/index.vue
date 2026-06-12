@@ -52,6 +52,19 @@ const canvasElement = ref<HTMLDivElement | null>(null);
 const { editor: reteEditor, area: reteArea, isReady: reteCanvasReady, destroy: destroyReteCanvas } = useReteCanvas(canvasElement);
 
 /**
+ * 函数：创建带尺寸的画布节点（用于 minimap 正常绘制）。
+ * @param {string} label 节点标题。
+ * @returns {ClassicPreset.Node & { width: number; height: number }} 节点实例。
+ */
+const createSizedNode = (label: string): ClassicPreset.Node & { width: number; height: number } => {
+  const node = new ClassicPreset.Node(label) as ClassicPreset.Node & { width: number; height: number };
+  node.width = 190;
+  node.height = 130;
+
+  return node;
+};
+
+/**
  * 状态：默认节点是否已注入。
  */
 const hasDefaultNodesApplied = ref(false);
@@ -73,11 +86,11 @@ const setupDefaultCanvas = async (): Promise<void> => {
 
   const socket = new ClassicPreset.Socket('socket');
 
-  const input = new ClassicPreset.Node('输入');
+  const input = createSizedNode('输入');
   input.addControl('value', new ClassicPreset.InputControl('text', { initial: 'Hello' }));
   input.addOutput('output', new ClassicPreset.Output(socket, '输出'));
 
-  const output = new ClassicPreset.Node('输出');
+  const output = createSizedNode('输出');
   output.addInput('input', new ClassicPreset.Input(socket, '输入'));
 
   await currentEditor.addNode(input);

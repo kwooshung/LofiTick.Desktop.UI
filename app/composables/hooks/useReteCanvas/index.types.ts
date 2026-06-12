@@ -1,5 +1,6 @@
 import type { ClassicPreset, NodeEditor } from 'rete';
 import type { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
+import type { MinimapExtra } from 'rete-minimap-plugin';
 import type { VueArea2D } from 'rete-vue-plugin';
 import type { ShallowRef } from 'vue';
 
@@ -10,7 +11,7 @@ export interface IReteCanvasSchemes {
   /**
    * 属性：节点类型。
    */
-  Node: ClassicPreset.Node;
+  Node: ClassicPreset.Node & { width: number; height: number };
 
   /**
    * 属性：连线类型。
@@ -21,7 +22,7 @@ export interface IReteCanvasSchemes {
 /**
  * 类型：ReteJS Vue 渲染额外信号。
  */
-export type TReteCanvasAreaExtra = VueArea2D<IReteCanvasSchemes>;
+export type TReteCanvasAreaExtra = VueArea2D<IReteCanvasSchemes> | MinimapExtra;
 
 /**
  * 接口：ReteJS 画布句柄集合。

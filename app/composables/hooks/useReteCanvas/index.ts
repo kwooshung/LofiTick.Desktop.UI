@@ -1,7 +1,15 @@
 import { animate } from 'animejs';
 import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
+import { MinimapPlugin } from 'rete-minimap-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
+
+import type { IReteCanvasHandle, IReteCanvasHandles, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
+
+type IMinimapSchemes = {
+  Node: IReteCanvasSchemes['Node'] & { width: number; height: number };
+  Connection: IReteCanvasSchemes['Connection'];
+};
 
 /**
  * 函数：屏幕坐标转换为画布坐标。
@@ -187,6 +195,9 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     const reteAreaInstance = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
     const renderer = new VuePlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
+    const minimap = new MinimapPlugin<IMinimapSchemes>({
+      boundViewport: true
+    });
 
     backgroundElement = document.createElement('div');
     backgroundElement.setAttribute('aria-hidden', 'true');
@@ -208,10 +219,12 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     reteAreaInstance.area.content.add(backgroundElement);
 
     renderer.addPreset(Presets.classic.setup());
+    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
 
     const editorInstance = new NodeEditor<IReteCanvasSchemes>();
     editorInstance.use(reteAreaInstance as unknown as AreaPlugin<IReteCanvasSchemes>);
     reteAreaInstance.use(renderer);
+    reteAreaInstance.use(minimap as unknown as Parameters<typeof reteAreaInstance.use>[0]);
 
     AreaExtensions.restrictor(reteAreaInstance, {
       scaling: () => ({ min: 0.5005, max: 10 })
