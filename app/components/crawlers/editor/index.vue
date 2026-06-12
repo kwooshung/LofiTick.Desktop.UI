@@ -5,7 +5,7 @@
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div ref="canvasElement" class="crawlers-rete-canvas border-default bg-elevated/20 min-h-0 min-w-full flex-1 overflow-hidden rounded-xl border" />
+      <div ref="canvasElement" class="min-h-0 min-w-full flex-1 overflow-hidden" />
 
       <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
         <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ t('common.actions.cancel') }}</UButton>
@@ -16,11 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ClassicPreset, NodeEditor } from 'rete';
-import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
-import { Presets, VuePlugin } from 'rete-vue-plugin';
-
-import type { ICrawlersEditorEmits, ICrawlersEditorProps, ReteCanvasAreaExtra, ReteCanvasSchemes } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
@@ -48,63 +44,7 @@ const { groups: blueprintGroups } = useCrawlerBlueprint();
  */
 const canvasElement = ref<HTMLDivElement | null>(null);
 
-/**
- * 状态：ReteJS 画布实例。
- */
-let reteArea: AreaPlugin<ReteCanvasSchemes, ReteCanvasAreaExtra> | null = null;
-
-/**
- * 状态：组件卸载标记。
- */
-let isCanvasDisposed = false;
-
-/**
- * 函数：初始化 ReteJS 基础画布。
- *
- * 仅负责创建最小可视化编辑器、插入示例节点并适配视口。
- *
- * # Returns
- *
- * 返回初始化完成的异步任务。
- */
-const initializeReteCanvas = async (): Promise<void> => {
-  const container = canvasElement.value;
-  if (!container) {
-    return;
-  }
-
-  const editor = new NodeEditor<ReteCanvasSchemes>();
-  const area = new AreaPlugin<ReteCanvasSchemes, ReteCanvasAreaExtra>(container);
-  const renderer = new VuePlugin<ReteCanvasSchemes, ReteCanvasAreaExtra>();
-
-  renderer.addPreset(Presets.classic.setup());
-
-  editor.use(area as unknown as AreaPlugin<ReteCanvasSchemes>);
-  area.use(renderer);
-
-  const socket = new ClassicPreset.Socket('text');
-
-  const nodeInput = new ClassicPreset.Node('Input');
-  nodeInput.addControl('value', new ClassicPreset.InputControl('text', { initial: 'Hello Rete' }));
-  nodeInput.addOutput('output', new ClassicPreset.Output(socket, 'Output'));
-
-  const nodeOutput = new ClassicPreset.Node('Output');
-  nodeOutput.addInput('input', new ClassicPreset.Input(socket, 'Input'));
-
-  await editor.addNode(nodeInput);
-  await editor.addNode(nodeOutput);
-  await editor.addConnection(new ClassicPreset.Connection(nodeInput, 'output', nodeOutput, 'input'));
-
-  await area.translate(nodeOutput.id, { x: 300, y: 80 });
-  await AreaExtensions.zoomAt(area, editor.getNodes());
-
-  if (isCanvasDisposed) {
-    area.destroy();
-    return;
-  }
-
-  reteArea = area;
-};
+useReteCanvas(canvasElement);
 
 /**
  * 计算属性：描述文本。
@@ -130,20 +70,4 @@ const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGro
 const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
 };
-
-/**
- * 生命周期：挂载后初始化画布。
- */
-onMounted(() => {
-  void initializeReteCanvas();
-});
-
-/**
- * 生命周期：卸载时销毁画布。
- */
-onBeforeUnmount(() => {
-  isCanvasDisposed = true;
-  reteArea?.destroy();
-  reteArea = null;
-});
 </script>

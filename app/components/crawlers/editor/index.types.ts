@@ -1,6 +1,3 @@
-import type { ClassicPreset } from 'rete';
-import type { VueArea2D } from 'rete-vue-plugin';
-
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
@@ -49,23 +46,3 @@ export interface ICrawlersEditorEmits {
    */
   click: [row: ICrawlersListRow, event: MouseEvent];
 }
-
-/**
- * 类型：ReteJS 画布数据结构。
- */
-export type ReteCanvasSchemes = {
-  /**
-   * 节点类型。
-   */
-  Node: ClassicPreset.Node;
-
-  /**
-   * 连线类型。
-   */
-  Connection: ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>;
-};
-
-/**
- * 类型：ReteJS Vue 渲染额外信号。
- */
-export type ReteCanvasAreaExtra = VueArea2D<ReteCanvasSchemes>;
