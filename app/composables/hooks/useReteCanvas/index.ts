@@ -2,16 +2,10 @@ import { animate } from 'animejs';
 import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
-import { RerouteExtensions, ReroutePlugin } from 'rete-connection-reroute-plugin';
-import { MinimapPlugin } from 'rete-minimap-plugin';
+import type { ReroutePlugin } from 'rete-connection-reroute-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
 
 import type { IReteCanvasHandle, IReteCanvasHandles, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
-
-type IMinimapSchemes = {
-  Node: IReteCanvasSchemes['Node'] & { width: number; height: number };
-  Connection: IReteCanvasSchemes['Connection'];
-};
 
 /**
  * 函数：屏幕坐标转换为画布坐标。
@@ -183,6 +177,21 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
   let backgroundElement: HTMLDivElement | null = null;
 
   /**
+   * 状态：socket 指针按下事件处理器。
+   */
+  let socketPointerDownHandler: ((event: PointerEvent) => void) | null = null;
+
+  /**
+   * 状态：socket 指针抬起事件处理器。
+   */
+  let socketPointerUpHandler: ((event: PointerEvent) => void) | null = null;
+
+  /**
+   * 状态：是否正在进行 socket 连线拖拽。
+   */
+  let isSocketDragging = false;
+
+  /**
    * 状态：组件卸载标记。
    */
   let isCanvasDisposed = false;
@@ -203,10 +212,6 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     const reteAreaInstance = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
     const renderer = new VuePlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
     const connection = new ConnectionPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
-    const minimap = new MinimapPlugin<IMinimapSchemes>({
-      boundViewport: true
-    });
-    const reroutePlugin = new ReroutePlugin<IReteCanvasSchemes>();
 
     backgroundElement = document.createElement('div');
     backgroundElement.setAttribute('aria-hidden', 'true');
@@ -244,26 +249,35 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     reteAreaInstance.use(connection);
     reteAreaInstance.use(renderer);
 
-    // 在基础连线能力就位后，再挂附加能力，避免影响 socket 交互链路。
-    RerouteExtensions.selectablePins(reroutePlugin, selectorInstance, selectorAccumulating);
-    renderer.use(reroutePlugin as unknown as Parameters<typeof renderer.use>[0]);
-    renderer.addPreset(
-      Presets.reroute.setup({
-        pointerdown(id) {
-          reroutePlugin.unselect(id);
-          reroutePlugin.select(id);
-        },
-        contextMenu(id) {
-          reroutePlugin.remove(id);
-        },
-        translate(id, dx, dy) {
-          reroutePlugin.translate(id, dx, dy);
-        }
-      })
-    );
+    // 兜底：强制接管 socket 指针事件，避免节点拖拽抢占导致无法连线。
+    socketPointerDownHandler = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
 
-    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
-    reteAreaInstance.use(minimap as unknown as Parameters<typeof reteAreaInstance.use>[0]);
+      const isSocketTarget = Boolean(target.closest('[data-testid="input-socket"], [data-testid="output-socket"], .socket'));
+      if (!isSocketTarget) {
+        return;
+      }
+
+      isSocketDragging = true;
+      event.stopPropagation();
+      void connection.pick(event, 'down');
+    };
+
+    socketPointerUpHandler = (event: PointerEvent) => {
+      if (!isSocketDragging) {
+        return;
+      }
+
+      isSocketDragging = false;
+      event.stopPropagation();
+      void connection.pick(event, 'up');
+    };
+
+    container.addEventListener('pointerdown', socketPointerDownHandler, true);
+    window.addEventListener('pointerup', socketPointerUpHandler, true);
 
     AreaExtensions.restrictor(reteAreaInstance, {
       scaling: () => ({ min: 0.5005, max: 10 })
@@ -276,6 +290,17 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     reteAreaInstance.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', reteAreaInstance));
 
     if (isCanvasDisposed) {
+      if (socketPointerDownHandler) {
+        container.removeEventListener('pointerdown', socketPointerDownHandler, true);
+        socketPointerDownHandler = null;
+      }
+
+      if (socketPointerUpHandler) {
+        window.removeEventListener('pointerup', socketPointerUpHandler, true);
+        socketPointerUpHandler = null;
+      }
+
+      isSocketDragging = false;
       reteAreaInstance.destroy();
       backgroundElement?.remove();
       backgroundElement = null;
@@ -284,7 +309,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     editor.value = editorInstance;
     area.value = reteAreaInstance;
-    reroutePluginRef.value = reroutePlugin;
+    reroutePluginRef.value = null;
     isReady.value = true;
   };
 
@@ -300,6 +325,19 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
    */
   onBeforeUnmount(() => {
     isCanvasDisposed = true;
+
+    if (socketPointerDownHandler) {
+      canvasElement.value?.removeEventListener('pointerdown', socketPointerDownHandler, true);
+      socketPointerDownHandler = null;
+    }
+
+    if (socketPointerUpHandler) {
+      window.removeEventListener('pointerup', socketPointerUpHandler, true);
+      socketPointerUpHandler = null;
+    }
+
+    isSocketDragging = false;
+
     area.value?.destroy();
     area.value = null;
     editor.value = null;
@@ -320,6 +358,19 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
      */
     destroy: () => {
       isCanvasDisposed = true;
+
+      if (socketPointerDownHandler) {
+        canvasElement.value?.removeEventListener('pointerdown', socketPointerDownHandler, true);
+        socketPointerDownHandler = null;
+      }
+
+      if (socketPointerUpHandler) {
+        window.removeEventListener('pointerup', socketPointerUpHandler, true);
+        socketPointerUpHandler = null;
+      }
+
+      isSocketDragging = false;
+
       area.value?.destroy();
       area.value = null;
       editor.value = null;
