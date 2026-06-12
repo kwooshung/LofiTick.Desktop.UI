@@ -1,9 +1,7 @@
-import { animate as animeAnimate } from 'animejs';
+import { animate } from 'animejs';
 import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
-
-import type { IReteCanvasHandle, IReteCanvasHandles, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
 
 /**
  * 函数：屏幕坐标转换为画布坐标。
@@ -42,18 +40,13 @@ const areaToScreen = (x: number, y: number, transform: { x: number; y: number; k
 });
 
 /**
- * 类型：平滑缩放动画实例。
- */
-type TSmoothZoomAnimation = ReturnType<typeof animeAnimate>;
-
-/**
  * 类：平滑缩放。
  */
 class SmoothZoom extends Zoom {
   /**
    * 状态：当前缩放动画。
    */
-  private animation: TSmoothZoomAnimation | null = null;
+  private animation: ReturnType<typeof animate> | null = null;
 
   /**
    * 状态：动画时长（单位：毫秒）。
@@ -110,7 +103,7 @@ class SmoothZoom extends Zoom {
       this.animation.revert();
     }
 
-    this.animation = animeAnimate(target, {
+    this.animation = animate(target, {
       zoom: k * (1 + delta),
       duration: this.duration,
       easing: this.easing,
