@@ -107,27 +107,6 @@ importers:
       plyr:
         specifier: ^3.8.4
         version: 3.8.4
-      rete:
-        specifier: ^2.0.6
-        version: 2.0.6
-      rete-area-plugin:
-        specifier: ^2.1.5
-        version: 2.1.5(rete@2.0.6)
-      rete-connection-plugin:
-        specifier: ^2.0.5
-        version: 2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
-      rete-connection-reroute-plugin:
-        specifier: ^2.0.3
-        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)
-      rete-minimap-plugin:
-        specifier: ^2.0.3
-        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
-      rete-render-utils:
-        specifier: ^2.0.3
-        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
-      rete-vue-plugin:
-        specifier: ^2.1.2
-        version: 2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.35(typescript@6.0.3))
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
@@ -8193,47 +8172,6 @@ packages:
   restore-cursor@5.1.0:
     resolution: {integrity: sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==}
     engines: {node: '>=18'}
-
-  rete-area-plugin@2.1.5:
-    resolution: {integrity: sha512-iquEvwkQlcsO4cmgM3Z37TG0AWaE536dfA+lCJAze5YJzVx4RBaViUCqdB4dUA/utSytpBCkiDC4D3ztM9akGQ==}
-    peerDependencies:
-      rete: ^2.0.0
-
-  rete-connection-plugin@2.0.5:
-    resolution: {integrity: sha512-KFtlOyEJRc0y9STVgo2T+t+j9u5fxiTxbyzPbMCm0uqncb3b8d2ABDIzvWoNo5zQAh2Oz/OvlUovupbzrGzpSg==}
-    peerDependencies:
-      rete: ^2.0.1
-      rete-area-plugin: ^2.0.0
-
-  rete-connection-reroute-plugin@2.0.3:
-    resolution: {integrity: sha512-8tWNrk7xQO0F3o6nj1mF6w9SdIP2+AYZh0a8811CusI70+T8JoJl7Ex6T5fz6bJVaYObidmZ3p7CD7pccKXc+A==}
-    peerDependencies:
-      rete: ^2.0.1
-      rete-area-plugin: ^2.0.0
-      rete-render-utils: ^2.0.0
-
-  rete-minimap-plugin@2.0.3:
-    resolution: {integrity: sha512-4rLvN6ykTY4Q1k6GO6W80mUbs5BXmGNtSXDumCF+eKkCK2nX8CNZGppcOqjTiWxHmsQfbZaKFwvnWDNwou4HHA==}
-    peerDependencies:
-      rete: ^2.0.1
-      rete-area-plugin: ^2.0.0
-
-  rete-render-utils@2.0.3:
-    resolution: {integrity: sha512-Oz4W2PNayHocRvlzadb5BCNf+tDzJ8RhTwB3ucBPCdCLKZ974wWDiTSCRfA287L2hmHVzRfBdyAwC03K9eP+4g==}
-    peerDependencies:
-      rete: ^2.0.0
-      rete-area-plugin: ^2.0.0
-
-  rete-vue-plugin@2.1.2:
-    resolution: {integrity: sha512-vMHCaAoJE9C9axEEIxg2nbrSYC6bFp5rWoAzAKGaLaEMT8y6m9mFb1o45dW8SF2v3DrbwXVjuEHRZxmg8CCOfg==}
-    peerDependencies:
-      rete: ^2.0.1
-      rete-area-plugin: ^2.0.0
-      rete-render-utils: ^2.0.0
-      vue: ^2.6 || ^3.2
-
-  rete@2.0.6:
-    resolution: {integrity: sha512-kPmlKCGFES2VWtY7Y7SCB8ZeXRMsgX5deza9cu4OwmfM/ZUimd461kC3hRyccoyVxE4POlHUx0gg2jcGfusHFg==}
 
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
@@ -18671,48 +18609,6 @@ snapshots:
     dependencies:
       onetime: 7.0.0
       signal-exit: 4.1.0
-
-  rete-area-plugin@2.1.5(rete@2.0.6):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-
-  rete-connection-plugin@2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-      rete-area-plugin: 2.1.5(rete@2.0.6)
-
-  rete-connection-reroute-plugin@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-      rete-area-plugin: 2.1.5(rete@2.0.6)
-      rete-render-utils: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
-
-  rete-minimap-plugin@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-      rete-area-plugin: 2.1.5(rete@2.0.6)
-
-  rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-      rete-area-plugin: 2.1.5(rete@2.0.6)
-
-  rete-vue-plugin@2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.35(typescript@6.0.3)):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      rete: 2.0.6
-      rete-area-plugin: 2.1.5(rete@2.0.6)
-      rete-render-utils: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
-      vue: 3.5.35(typescript@6.0.3)
-
-  rete@2.0.6:
-    dependencies:
-      '@babel/runtime': 7.29.7
 
   retry@0.12.0: {}
 

@@ -64,13 +64,6 @@
     "nuxt-qrcode": "^0.4.10",
     "nuxt-security": "^2.6.0",
     "plyr": "^3.8.4",
-    "rete": "^2.0.6",
-    "rete-area-plugin": "^2.1.5",
-    "rete-connection-plugin": "^2.0.5",
-    "rete-connection-reroute-plugin": "^2.0.3",
-    "rete-minimap-plugin": "^2.0.3",
-    "rete-render-utils": "^2.0.3",
-    "rete-vue-plugin": "^2.1.2",
     "tailwindcss": "^4.3.0",
     "vue-draggable-plus": "^0.6.1",
     "zod": "^4.4.3"
