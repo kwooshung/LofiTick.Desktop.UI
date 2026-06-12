@@ -49,7 +49,7 @@ const canvasElement = ref<HTMLDivElement | null>(null);
 /**
  * 句柄：ReteJS 画布实例。
  */
-const { editor: reteEditor, area: reteArea, isReady: reteCanvasReady, destroy: destroyReteCanvas } = useReteCanvas(canvasElement);
+const { editor: reteEditor, area: reteArea, reroutePlugin, isReady: reteCanvasReady, destroy: destroyReteCanvas } = useReteCanvas(canvasElement);
 
 /**
  * 函数：创建带尺寸的画布节点（用于 minimap 正常绘制）。
@@ -86,19 +86,30 @@ const setupDefaultCanvas = async (): Promise<void> => {
 
   const socket = new ClassicPreset.Socket('socket');
 
-  const input = createSizedNode('输入');
-  input.addControl('value', new ClassicPreset.InputControl('text', { initial: 'Hello' }));
-  input.addOutput('output', new ClassicPreset.Output(socket, '输出'));
+  const a = createSizedNode('A');
+  a.addControl('a', new ClassicPreset.InputControl('text', {}));
+  a.addOutput('a', new ClassicPreset.Output(socket));
 
-  const output = createSizedNode('输出');
-  output.addInput('input', new ClassicPreset.Input(socket, '输入'));
+  const b = createSizedNode('B');
+  b.addInput('b', new ClassicPreset.Input(socket));
 
-  await currentEditor.addNode(input);
-  await currentEditor.addNode(output);
-  await currentEditor.addConnection(new ClassicPreset.Connection(input as ClassicPreset.Node, 'output', output as ClassicPreset.Node, 'input'));
+  await currentEditor.addNode(a);
+  await currentEditor.addNode(b);
 
-  await currentArea.translate(input.id, { x: 0, y: 0 });
-  await currentArea.translate(output.id, { x: 280, y: 0 });
+  const conn1 = new ClassicPreset.Connection(a as ClassicPreset.Node, 'a', b as ClassicPreset.Node, 'b');
+  const conn2 = new ClassicPreset.Connection(a as ClassicPreset.Node, 'a', b as ClassicPreset.Node, 'b');
+
+  await currentEditor.addConnection(conn1);
+  await currentEditor.addConnection(conn2);
+
+  await currentArea.translate(a.id, { x: 0, y: 0 });
+  await currentArea.translate(b.id, { x: 400, y: 0 });
+
+  // 为连线添加中间折点
+  if (reroutePlugin.value) {
+    reroutePlugin.value.add(conn1.id, { x: 300, y: -50 });
+    reroutePlugin.value.add(conn2.id, { x: 300, y: 200 });
+  }
 
   hasDefaultNodesApplied.value = true;
 };

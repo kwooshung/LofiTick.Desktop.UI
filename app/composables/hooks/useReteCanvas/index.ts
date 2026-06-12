@@ -1,6 +1,8 @@
 import { animate } from 'animejs';
-import { NodeEditor } from 'rete';
+import { ClassicPreset, NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
+import { ConnectionPlugin, getSourceTarget, Presets as ConnectionPresets } from 'rete-connection-plugin';
+import { RerouteExtensions, ReroutePlugin } from 'rete-connection-reroute-plugin';
 import { MinimapPlugin } from 'rete-minimap-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
 
@@ -166,6 +168,11 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
   const selector = shallowRef<ReturnType<typeof AreaExtensions.selector> | null>(null);
 
   /**
+   * 状态：连线重路由插件实例。
+   */
+  const reroutePluginRef = shallowRef<ReroutePlugin<IReteCanvasSchemes> | null>(null);
+
+  /**
    * 状态：初始化完成标记。
    */
   const isReady = shallowRef(false);
@@ -195,9 +202,11 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     const reteAreaInstance = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
     const renderer = new VuePlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
+    const connection = new ConnectionPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
     const minimap = new MinimapPlugin<IMinimapSchemes>({
       boundViewport: true
     });
+    const reroutePlugin = new ReroutePlugin<IReteCanvasSchemes>();
 
     backgroundElement = document.createElement('div');
     backgroundElement.setAttribute('aria-hidden', 'true');
@@ -218,23 +227,81 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     reteAreaInstance.area.content.add(backgroundElement);
 
-    renderer.addPreset(Presets.classic.setup());
-    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
-
     const editorInstance = new NodeEditor<IReteCanvasSchemes>();
     editorInstance.use(reteAreaInstance as unknown as AreaPlugin<IReteCanvasSchemes>);
+
+    connection.addPreset(ConnectionPresets.classic.setup());
+
+    connection.addPipe((context) => {
+      if (!context || typeof context !== 'object' || !('type' in context) || context.type !== 'connectiondrop') {
+        return context;
+      }
+
+      const droppedSocket = context.data.socket;
+      if (context.data.created || !droppedSocket) {
+        return context;
+      }
+
+      const pair = getSourceTarget(context.data.initial, droppedSocket);
+      if (!pair) {
+        return context;
+      }
+
+      const [source, target] = pair;
+      if (!source || !target) {
+        return context;
+      }
+
+      const sourceNode = editorInstance.getNode(source.nodeId);
+      const targetNode = editorInstance.getNode(target.nodeId);
+      if (!sourceNode || !targetNode) {
+        return context;
+      }
+
+      const nextConnection = new ClassicPreset.Connection(sourceNode as ClassicPreset.Node, source.key, targetNode as ClassicPreset.Node, target.key) as IReteCanvasSchemes['Connection'];
+      void editorInstance.addConnection(nextConnection);
+
+      return context;
+    });
+
+    renderer.addPreset(Presets.classic.setup());
+    renderer.addPreset(Presets.minimap.setup({ size: 200 }));
+    renderer.addPreset(
+      Presets.reroute.setup({
+        pointerdown(id) {
+          reroutePlugin.unselect(id);
+          reroutePlugin.select(id);
+        },
+        contextMenu(id) {
+          reroutePlugin.remove(id);
+        },
+        translate(id, dx, dy) {
+          reroutePlugin.translate(id, dx, dy);
+        }
+      })
+    );
+
+    renderer.use(reroutePlugin as unknown as Parameters<typeof renderer.use>[0]);
+
+    reteAreaInstance.use(connection);
     reteAreaInstance.use(renderer);
     reteAreaInstance.use(minimap as unknown as Parameters<typeof reteAreaInstance.use>[0]);
+
+    const selectorInstance = AreaExtensions.selector();
+    const selectorAccumulating = AreaExtensions.accumulateOnCtrl();
+    RerouteExtensions.selectablePins(reroutePlugin, selectorInstance, selectorAccumulating);
 
     AreaExtensions.restrictor(reteAreaInstance, {
       scaling: () => ({ min: 0.5005, max: 10 })
     });
 
-    selector.value = AreaExtensions.selector();
+    selector.value = selectorInstance;
 
     AreaExtensions.selectableNodes(reteAreaInstance, selector.value, {
-      accumulating: AreaExtensions.accumulateOnCtrl()
+      accumulating: selectorAccumulating
     });
+
+    AreaExtensions.simpleNodesOrder(reteAreaInstance);
 
     reteAreaInstance.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', reteAreaInstance));
 
@@ -247,6 +314,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     editor.value = editorInstance;
     area.value = reteAreaInstance;
+    reroutePluginRef.value = reroutePlugin;
     isReady.value = true;
   };
 
@@ -266,6 +334,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     area.value = null;
     editor.value = null;
     selector.value = null;
+    reroutePluginRef.value = null;
     isReady.value = false;
     backgroundElement?.remove();
     backgroundElement = null;
@@ -285,6 +354,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       area.value = null;
       editor.value = null;
       selector.value = null;
+      reroutePluginRef.value = null;
       isReady.value = false;
       backgroundElement?.remove();
       backgroundElement = null;
@@ -292,6 +362,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     editor,
     area,
     selector,
+    reroutePlugin: reroutePluginRef,
     isReady
   };
 };

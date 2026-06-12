@@ -1,5 +1,6 @@
 import type { ClassicPreset, NodeEditor } from 'rete';
 import type { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
+import type { RerouteExtra, ReroutePlugin } from 'rete-connection-reroute-plugin';
 import type { MinimapExtra } from 'rete-minimap-plugin';
 import type { VueArea2D } from 'rete-vue-plugin';
 import type { ShallowRef } from 'vue';
@@ -22,7 +23,7 @@ export interface IReteCanvasSchemes {
 /**
  * 类型：ReteJS Vue 渲染额外信号。
  */
-export type TReteCanvasAreaExtra = VueArea2D<IReteCanvasSchemes> | MinimapExtra;
+export type TReteCanvasAreaExtra = VueArea2D<IReteCanvasSchemes> | MinimapExtra | RerouteExtra;
 
 /**
  * 接口：ReteJS 画布句柄集合。
@@ -42,6 +43,11 @@ export interface IReteCanvasHandles {
    * 属性：节点选择器实例。
    */
   selector: ShallowRef<ReturnType<typeof AreaExtensions.selector> | null>;
+
+  /**
+   * 属性：连线重路由插件实例。
+   */
+  reroutePlugin: ShallowRef<ReroutePlugin<IReteCanvasSchemes> | null>;
 
   /**
    * 属性：初始化完成状态。

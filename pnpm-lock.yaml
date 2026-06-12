@@ -116,6 +116,9 @@ importers:
       rete-connection-plugin:
         specifier: ^2.0.5
         version: 2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      rete-connection-reroute-plugin:
+        specifier: ^2.0.3
+        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)
       rete-minimap-plugin:
         specifier: ^2.0.3
         version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
@@ -8201,6 +8204,13 @@ packages:
     peerDependencies:
       rete: ^2.0.1
       rete-area-plugin: ^2.0.0
+
+  rete-connection-reroute-plugin@2.0.3:
+    resolution: {integrity: sha512-8tWNrk7xQO0F3o6nj1mF6w9SdIP2+AYZh0a8811CusI70+T8JoJl7Ex6T5fz6bJVaYObidmZ3p7CD7pccKXc+A==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      rete-render-utils: ^2.0.0
 
   rete-minimap-plugin@2.0.3:
     resolution: {integrity: sha512-4rLvN6ykTY4Q1k6GO6W80mUbs5BXmGNtSXDumCF+eKkCK2nX8CNZGppcOqjTiWxHmsQfbZaKFwvnWDNwou4HHA==}
@@ -18672,6 +18682,13 @@ snapshots:
       '@babel/runtime': 7.29.7
       rete: 2.0.6
       rete-area-plugin: 2.1.5(rete@2.0.6)
+
+  rete-connection-reroute-plugin@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+      rete-render-utils: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
 
   rete-minimap-plugin@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
     dependencies:
