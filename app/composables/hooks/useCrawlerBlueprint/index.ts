@@ -1,7 +1,5 @@
 import type { ICrawlersListGroup } from '@/components/crawlers/list/index.types';
 
-import type { ICrawlersBlueprintGroupDefinition } from '@/composables/hooks/useCrawlerBlueprint/index.types';
-
 /**
  * 常量：爬虫蓝图分组定义。
  */
