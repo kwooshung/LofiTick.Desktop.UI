@@ -3,7 +3,7 @@ import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
 
-import type { IReteCanvasHandle, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
+import type { IReteCanvasHandle, IReteCanvasSchemes, TReteCanvasAreaExtra, TReteCanvasSetupCallback } from './index.types';
 
 /**
  * 函数：屏幕坐标转换为画布坐标。
@@ -45,165 +45,6 @@ const areaToScreen = (x: number, y: number, transform: { x: number; y: number; k
  * 类型：平滑缩放动画实例。
  */
 type TSmoothZoomAnimation = ReturnType<typeof animate>;
-
-/**
- * 类型：边界平移时的指针位置。
- */
-interface IBoundaryPointerPosition {
-  /**
-   * 属性：屏幕横坐标。
-   */
-  x: number;
-
-  /**
-   * 属性：屏幕纵坐标。
-   */
-  y: number;
-}
-
-/**
- * 函数：创建边界自动平移控制。
- *
- * 拖拽节点靠近编辑器边缘时，按距离比例自动平移视口。
- *
- * # Arguments
- *
- * * `area` - 画布插件实例。
- * * `container` - 画布容器。
- *
- * # Returns
- *
- * 返回销毁方法。
- */
-const panningBoundaryCreate = (area: AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>, container: HTMLElement): { destroy: () => void } => {
-  /**
-   * 常量：触发边界的阈值（单位：像素）。
-   */
-  const threshold = 96;
-
-  /**
-   * 常量：单帧最大平移速度（单位：像素）。
-   */
-  const maxSpeed = 24;
-
-  /**
-   * 状态：是否处于节点拖拽中。
-   */
-  let isNodeDragging = false;
-
-  /**
-   * 状态：当前指针位置。
-   */
-  let pointerPosition: IBoundaryPointerPosition | null = null;
-
-  /**
-   * 状态：动画帧句柄。
-   */
-  let frameId: number | null = null;
-
-  /**
-   * 函数：停止边界平移循环。
-   */
-  const stop = (): void => {
-    if (frameId !== null) {
-      cancelAnimationFrame(frameId);
-      frameId = null;
-    }
-  };
-
-  /**
-   * 函数：计算某个方向上的平移量。
-   *
-   * # Arguments
-   *
-   * * `distance` - 指针到边界的距离。
-   * * `direction` - 平移方向，正值表示坐标增加，负值表示坐标减少。
-   *
-   * # Returns
-   *
-   * 返回该方向上的平移增量。
-   */
-  const computeShift = (distance: number, direction: 1 | -1): number => {
-    if (distance >= threshold) {
-      return 0;
-    }
-
-    return (1 - distance / threshold) * maxSpeed * direction;
-  };
-
-  /**
-   * 函数：执行一帧边界平移。
-   */
-  const step = (): void => {
-    frameId = null;
-
-    if (!isNodeDragging || !pointerPosition) {
-      return;
-    }
-
-    const rect = container.getBoundingClientRect();
-    const leftDistance = pointerPosition.x - rect.left;
-    const rightDistance = rect.right - pointerPosition.x;
-    const topDistance = pointerPosition.y - rect.top;
-    const bottomDistance = rect.bottom - pointerPosition.y;
-
-    const shiftX = computeShift(leftDistance, 1) + computeShift(rightDistance, -1);
-    const shiftY = computeShift(topDistance, 1) + computeShift(bottomDistance, -1);
-
-    if (shiftX === 0 && shiftY === 0) {
-      return;
-    }
-
-    const transform = area.area.transform;
-    void area.area.translate(transform.x + shiftX, transform.y + shiftY);
-    frameId = requestAnimationFrame(step);
-  };
-
-  /**
-   * 函数：启动边界平移循环。
-   */
-  const schedule = (): void => {
-    if (frameId === null) {
-      frameId = requestAnimationFrame(step);
-    }
-  };
-
-  area.addPipe((context) => {
-    if (!context || typeof context !== 'object' || !('type' in context)) {
-      return context;
-    }
-
-    if (context.type === 'nodepicked' || context.type === 'nodetranslate') {
-      isNodeDragging = true;
-    } else if (context.type === 'pointermove') {
-      pointerPosition = {
-        x: context.data.event.clientX,
-        y: context.data.event.clientY
-      };
-
-      if (isNodeDragging) {
-        schedule();
-      }
-    } else if (context.type === 'pointerup') {
-      isNodeDragging = false;
-      pointerPosition = null;
-      stop();
-    }
-
-    return context;
-  });
-
-  return {
-    /**
-     * 函数：销毁边界平移控制。
-     */
-    destroy: (): void => {
-      isNodeDragging = false;
-      pointerPosition = null;
-      stop();
-    }
-  };
-};
 
 /**
  * 类：平滑缩放。
@@ -307,7 +148,7 @@ class SmoothZoom extends Zoom {
  *
  * 返回画布初始化句柄。
  */
-export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteCanvasHandle => {
+export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady?: TReteCanvasSetupCallback): IReteCanvasHandle => {
   /**
    * 状态：ReteJS 画布实例。
    */
@@ -317,11 +158,6 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
    * 状态：网格背景层。
    */
   let backgroundElement: HTMLDivElement | null = null;
-
-  /**
-   * 状态：边界自动平移控制。
-   */
-  let panningBoundary: { destroy: () => void } | null = null;
 
   /**
    * 状态：组件卸载标记。
@@ -373,13 +209,18 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       scaling: () => ({ min: 0.5005, max: 10 })
     });
 
-    AreaExtensions.snapGrid(area, {
-      size: 5
-    });
+    // AreaExtensions.snapGrid(area, {
+    //   size: 5
+    // });
 
     area.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', area));
 
-    panningBoundary = panningBoundaryCreate(area, container);
+    if (onReady) {
+      await onReady({
+        editor,
+        area
+      });
+    }
 
     if (isCanvasDisposed) {
       area.destroy();
@@ -407,8 +248,6 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     reteArea.value = null;
     backgroundElement?.remove();
     backgroundElement = null;
-    panningBoundary?.destroy();
-    panningBoundary = null;
   });
 
   return {
@@ -425,8 +264,6 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       reteArea.value = null;
       backgroundElement?.remove();
       backgroundElement = null;
-      panningBoundary?.destroy();
-      panningBoundary = null;
     }
   };
 };
