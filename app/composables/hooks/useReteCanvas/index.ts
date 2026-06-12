@@ -3,7 +3,7 @@ import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
 
-import type { IReteCanvasHandle, IReteCanvasSchemes, TReteCanvasAreaExtra, TReteCanvasSetupCallback } from './index.types';
+import type { IReteCanvasHandle, IReteCanvasHandles, IReteCanvasSchemes, TReteCanvasAreaExtra } from './index.types';
 
 /**
  * 函数：屏幕坐标转换为画布坐标。
@@ -148,11 +148,21 @@ class SmoothZoom extends Zoom {
  *
  * 返回画布初始化句柄。
  */
-export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady?: TReteCanvasSetupCallback): IReteCanvasHandle => {
+export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteCanvasHandles & IReteCanvasHandle => {
   /**
    * 状态：ReteJS 画布实例。
    */
-  const reteArea = shallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>(null);
+  const editor = shallowRef<NodeEditor<IReteCanvasSchemes> | null>(null);
+
+  /**
+   * 状态：ReteJS 画布插件实例。
+   */
+  const area = shallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>(null);
+
+  /**
+   * 状态：初始化完成标记。
+   */
+  const isReady = shallowRef(false);
 
   /**
    * 状态：网格背景层。
@@ -177,7 +187,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady
       return;
     }
 
-    const area = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
+    const reteAreaInstance = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
     const renderer = new VuePlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
 
     backgroundElement = document.createElement('div');
@@ -197,15 +207,15 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady
       '[background-size:80px_80px,80px_80px,16px_16px,16px_16px]'
     ].join(' ');
 
-    area.area.content.add(backgroundElement);
+    reteAreaInstance.area.content.add(backgroundElement);
 
     renderer.addPreset(Presets.classic.setup());
 
-    const editor = new NodeEditor<IReteCanvasSchemes>();
-    editor.use(area as unknown as AreaPlugin<IReteCanvasSchemes>);
-    area.use(renderer);
+    const editorInstance = new NodeEditor<IReteCanvasSchemes>();
+    editorInstance.use(reteAreaInstance as unknown as AreaPlugin<IReteCanvasSchemes>);
+    reteAreaInstance.use(renderer);
 
-    AreaExtensions.restrictor(area, {
+    AreaExtensions.restrictor(reteAreaInstance, {
       scaling: () => ({ min: 0.5005, max: 10 })
     });
 
@@ -213,23 +223,18 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady
     //   size: 5
     // });
 
-    area.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', area));
-
-    if (onReady) {
-      await onReady({
-        editor,
-        area
-      });
-    }
+    reteAreaInstance.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', reteAreaInstance));
 
     if (isCanvasDisposed) {
-      area.destroy();
+      reteAreaInstance.destroy();
       backgroundElement?.remove();
       backgroundElement = null;
       return;
     }
 
-    reteArea.value = area;
+    editor.value = editorInstance;
+    area.value = reteAreaInstance;
+    isReady.value = true;
   };
 
   /**
@@ -244,8 +249,10 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady
    */
   onBeforeUnmount(() => {
     isCanvasDisposed = true;
-    reteArea.value?.destroy();
-    reteArea.value = null;
+    area.value?.destroy();
+    area.value = null;
+    editor.value = null;
+    isReady.value = false;
     backgroundElement?.remove();
     backgroundElement = null;
   });
@@ -260,10 +267,15 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>, onReady
      */
     destroy: () => {
       isCanvasDisposed = true;
-      reteArea.value?.destroy();
-      reteArea.value = null;
+      area.value?.destroy();
+      area.value = null;
+      editor.value = null;
+      isReady.value = false;
       backgroundElement?.remove();
       backgroundElement = null;
-    }
+    },
+    editor,
+    area,
+    isReady
   };
 };

@@ -20,7 +20,6 @@ import { ClassicPreset } from 'rete';
 
 import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
-import type { IReteCanvasSetupContext } from '@/composables/hooks/useReteCanvas/index.types';
 
 /**
  * 属性：站点展示名称与基础 URL。
@@ -48,17 +47,30 @@ const { groups: blueprintGroups } = useCrawlerBlueprint();
 const canvasElement = ref<HTMLDivElement | null>(null);
 
 /**
+ * 句柄：ReteJS 画布实例。
+ */
+const { editor: reteEditor, area: reteArea, isReady: reteCanvasReady, destroy: destroyReteCanvas } = useReteCanvas(canvasElement);
+
+/**
+ * 状态：默认节点是否已注入。
+ */
+const hasDefaultNodesApplied = ref(false);
+
+/**
  * 函数：初始化默认节点。
- *
- * # Arguments
- *
- * * `context` - ReteJS 画布初始化上下文。
  *
  * # Returns
  *
  * 返回初始化完成后的异步任务。
  */
-const setupDefaultCanvas = async (context: IReteCanvasSetupContext): Promise<void> => {
+const setupDefaultCanvas = async (): Promise<void> => {
+  const currentEditor = reteEditor.value;
+  const currentArea = reteArea.value;
+
+  if (!reteCanvasReady.value || !currentEditor || !currentArea || hasDefaultNodesApplied.value) {
+    return;
+  }
+
   const socket = new ClassicPreset.Socket('socket');
 
   const input = new ClassicPreset.Node('输入');
@@ -68,15 +80,26 @@ const setupDefaultCanvas = async (context: IReteCanvasSetupContext): Promise<voi
   const output = new ClassicPreset.Node('输出');
   output.addInput('input', new ClassicPreset.Input(socket, '输入'));
 
-  await context.editor.addNode(input);
-  await context.editor.addNode(output);
-  await context.editor.addConnection(new ClassicPreset.Connection(input, 'output', output, 'input'));
+  await currentEditor.addNode(input);
+  await currentEditor.addNode(output);
+  await currentEditor.addConnection(new ClassicPreset.Connection(input, 'output', output, 'input'));
 
-  await context.area.translate(input.id, { x: 0, y: 0 });
-  await context.area.translate(output.id, { x: 280, y: 0 });
+  await currentArea.translate(input.id, { x: 0, y: 0 });
+  await currentArea.translate(output.id, { x: 280, y: 0 });
+
+  hasDefaultNodesApplied.value = true;
 };
 
-useReteCanvas(canvasElement, setupDefaultCanvas);
+/**
+ * 监听：当 ReteJS 画布准备就绪时，设置默认节点
+ */
+watch(
+  [reteEditor, reteArea, reteCanvasReady],
+  () => {
+    void setupDefaultCanvas();
+  },
+  { immediate: true }
+);
 
 /**
  * 计算属性：描述文本。
@@ -102,4 +125,11 @@ const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGro
 const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
 };
+
+/**
+ * 生命周期：卸载时销毁画布。
+ */
+onBeforeUnmount(() => {
+  destroyReteCanvas();
+});
 </script>

@@ -1,6 +1,7 @@
 import type { ClassicPreset, NodeEditor } from 'rete';
 import type { AreaPlugin } from 'rete-area-plugin';
 import type { VueArea2D } from 'rete-vue-plugin';
+import type { ShallowRef } from 'vue';
 
 /**
  * 接口：ReteJS 画布数据结构。
@@ -23,24 +24,24 @@ export interface IReteCanvasSchemes {
 export type TReteCanvasAreaExtra = VueArea2D<IReteCanvasSchemes>;
 
 /**
- * 接口：ReteJS 画布初始化上下文。
+ * 接口：ReteJS 画布句柄集合。
  */
-export interface IReteCanvasSetupContext {
+export interface IReteCanvasHandles {
   /**
    * 属性：节点编辑器实例。
    */
-  editor: NodeEditor<IReteCanvasSchemes>;
+  editor: ShallowRef<NodeEditor<IReteCanvasSchemes> | null>;
 
   /**
    * 属性：画布插件实例。
    */
-  area: AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>;
-}
+  area: ShallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>;
 
-/**
- * 类型：ReteJS 画布初始化回调。
- */
-export type TReteCanvasSetupCallback = (context: IReteCanvasSetupContext) => void | Promise<void>;
+  /**
+   * 属性：初始化完成状态。
+   */
+  isReady: Readonly<ShallowRef<boolean>>;
+}
 
 /**
  * 接口：ReteJS 画布初始化句柄。
