@@ -25,6 +25,11 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
   const reteArea = shallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>(null);
 
   /**
+   * 状态：网格背景层。
+   */
+  let backgroundElement: HTMLDivElement | null = null;
+
+  /**
    * 状态：组件卸载标记。
    */
   let isCanvasDisposed = false;
@@ -45,6 +50,25 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     const area = new AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>(container);
     const renderer = new VuePlugin<IReteCanvasSchemes, TReteCanvasAreaExtra>();
 
+    backgroundElement = document.createElement('div');
+    backgroundElement.setAttribute('aria-hidden', 'true');
+    backgroundElement.className = [
+      'pointer-events-none',
+      'absolute',
+      'top-[-320000px]',
+      'left-[-320000px]',
+      'z-0',
+      'table',
+      'h-[640000px]',
+      'w-[640000px]',
+      'bg-[color:var(--ui-bg)]',
+      '[background-image:linear-gradient(var(--ui-border)_2px,transparent_2px),linear-gradient(90deg,var(--ui-border)_2px,transparent_2px),linear-gradient(var(--ui-border)_1px,transparent_1px),linear-gradient(90deg,var(--ui-border)_1px,var(--ui-bg)_1px)]',
+      '[background-position:-2px_-2px,-2px_-2px,-1px_-1px,-1px_-1px]',
+      '[background-size:80px_80px,80px_80px,16px_16px,16px_16px]'
+    ].join(' ');
+
+    area.area.content.add(backgroundElement);
+
     renderer.addPreset(Presets.classic.setup());
 
     const editor = new NodeEditor<IReteCanvasSchemes>();
@@ -53,6 +77,8 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
 
     if (isCanvasDisposed) {
       area.destroy();
+      backgroundElement?.remove();
+      backgroundElement = null;
       return;
     }
 
@@ -73,6 +99,8 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     isCanvasDisposed = true;
     reteArea.value?.destroy();
     reteArea.value = null;
+    backgroundElement?.remove();
+    backgroundElement = null;
   });
 
   return {
@@ -87,6 +115,8 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       isCanvasDisposed = true;
       reteArea.value?.destroy();
       reteArea.value = null;
+      backgroundElement?.remove();
+      backgroundElement = null;
     }
   };
 };
