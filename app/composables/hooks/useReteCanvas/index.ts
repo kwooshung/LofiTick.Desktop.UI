@@ -1,4 +1,4 @@
-import { animate } from 'animejs';
+import { animate as animeAnimate } from 'animejs';
 import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin, Zoom } from 'rete-area-plugin';
 import { Presets, VuePlugin } from 'rete-vue-plugin';
@@ -44,7 +44,7 @@ const areaToScreen = (x: number, y: number, transform: { x: number; y: number; k
 /**
  * 类型：平滑缩放动画实例。
  */
-type TSmoothZoomAnimation = ReturnType<typeof animate>;
+type TSmoothZoomAnimation = ReturnType<typeof animeAnimate>;
 
 /**
  * 类：平滑缩放。
@@ -110,7 +110,7 @@ class SmoothZoom extends Zoom {
       this.animation.revert();
     }
 
-    this.animation = animate(target, {
+    this.animation = animeAnimate(target, {
       zoom: k * (1 + delta),
       duration: this.duration,
       easing: this.easing,
@@ -158,6 +158,11 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
    * 状态：ReteJS 画布插件实例。
    */
   const area = shallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>(null);
+
+  /**
+   * 状态：节点选择器实例。
+   */
+  const selector = shallowRef<ReturnType<typeof AreaExtensions.selector> | null>(null);
 
   /**
    * 状态：初始化完成标记。
@@ -219,9 +224,11 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       scaling: () => ({ min: 0.5005, max: 10 })
     });
 
-    // AreaExtensions.snapGrid(area, {
-    //   size: 5
-    // });
+    selector.value = AreaExtensions.selector();
+
+    AreaExtensions.selectableNodes(reteAreaInstance, selector.value, {
+      accumulating: AreaExtensions.accumulateOnCtrl()
+    });
 
     reteAreaInstance.area.setZoomHandler(new SmoothZoom(0.5, 200, 'cubicBezier(.45,.91,.49,.98)', reteAreaInstance));
 
@@ -252,6 +259,7 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
     area.value?.destroy();
     area.value = null;
     editor.value = null;
+    selector.value = null;
     isReady.value = false;
     backgroundElement?.remove();
     backgroundElement = null;
@@ -270,12 +278,14 @@ export const useReteCanvas = (canvasElement: Ref<HTMLDivElement | null>): IReteC
       area.value?.destroy();
       area.value = null;
       editor.value = null;
+      selector.value = null;
       isReady.value = false;
       backgroundElement?.remove();
       backgroundElement = null;
     },
     editor,
     area,
+    selector,
     isReady
   };
 };

@@ -1,5 +1,5 @@
 import type { ClassicPreset, NodeEditor } from 'rete';
-import type { AreaPlugin } from 'rete-area-plugin';
+import type { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 import type { VueArea2D } from 'rete-vue-plugin';
 import type { ShallowRef } from 'vue';
 
@@ -36,6 +36,11 @@ export interface IReteCanvasHandles {
    * 属性：画布插件实例。
    */
   area: ShallowRef<AreaPlugin<IReteCanvasSchemes, TReteCanvasAreaExtra> | null>;
+
+  /**
+   * 属性：节点选择器实例。
+   */
+  selector: ShallowRef<ReturnType<typeof AreaExtensions.selector> | null>;
 
   /**
    * 属性：初始化完成状态。
