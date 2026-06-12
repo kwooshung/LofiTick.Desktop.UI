@@ -13,6 +13,7 @@
     ["twMerge\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "cSpell.words": [
+    "animejs",
     "autoincrement",
     "autoresize",
     "baklavajs",
@@ -78,6 +79,7 @@
     "Referer",
     "reka",
     "Restricter",
+    "restrictor",
     "SAMEORIGIN",
     "searchs",
     "selectionbox",

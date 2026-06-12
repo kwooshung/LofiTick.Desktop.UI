@@ -95,7 +95,7 @@ const setupDefaultCanvas = async (): Promise<void> => {
 
   await currentEditor.addNode(input);
   await currentEditor.addNode(output);
-  await currentEditor.addConnection(new ClassicPreset.Connection(input, 'output', output, 'input'));
+  await currentEditor.addConnection(new ClassicPreset.Connection(input as ClassicPreset.Node, 'output', output as ClassicPreset.Node, 'input'));
 
   await currentArea.translate(input.id, { x: 0, y: 0 });
   await currentArea.translate(output.id, { x: 280, y: 0 });
