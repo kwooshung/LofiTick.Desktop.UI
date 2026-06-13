@@ -119,6 +119,7 @@ $breakpoint-xs-max: 639px;
 .editor {
   --vf-node-bg: var(--ui-bg);
   --vf-node-text: var(--ui-text);
+  --vf-connection-path: color-mix(in oklab, var(--ui-border) 72%, var(--ui-text) 28%);
   --vf-node-color: var(--ui-text);
   --vf-handle: var(--vf-node-color);
   --vf-box-shadow: var(--vf-node-color);
