@@ -117,8 +117,9 @@ $breakpoint-xs-max: 639px;
 .editor {
   --vf-node-bg: var(--ui-bg);
   --vf-node-text: var(--ui-text);
-  --vf-connection-path: color-mix(in oklab, var(--ui-border) 72%, var(--ui-text) 28%);
-  --vf-handle: var(--ui-text-muted);
+  --vf-node-color: var(--ui-text);
+  --vf-handle: var(--vf-node-color);
+  --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
   --vf-control-border: var(--ui-border);
@@ -318,41 +319,42 @@ $breakpoint-xs-max: 639px;
       &:focus-visible {
         outline: none;
         border: 1px solid var(--vf-node-color);
-        box-shadow: 0 0 0 0.5px var(--vf-box-shadow);
+        --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
     }
 
-    :deep(.vue-flow__node-input) {
+    .vue-flow__node-input {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 85%, var(--color-black) 15%);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    :deep(.vue-flow__node-default) {
+    .vue-flow__node-default {
       --vf-node-color: var(--ui-text);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    :deep(.vue-flow__node-output) {
+    .vue-flow__node-output {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 78%, var(--color-white) 22%);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    :deep(.vue-flow__nodesselection) {
+    .vue-flow__nodesselection {
       z-index: 3;
       pointer-events: none;
       transform-origin: left top;
     }
 
-    :deep(.vue-flow__nodesselection-rect),
-    :deep(.vue-flow__selection) {
+    .vue-flow__nodesselection-rect,
+    .vue-flow__selection {
       background: color-mix(in oklab, var(--ui-primary) 8%, transparent);
       border: 1px dotted color-mix(in oklab, var(--ui-primary) 80%, var(--color-black) 20%);
     }
 
-    :deep(.vue-flow__nodesselection-rect) {
+    .vue-flow__nodesselection-rect {
       position: absolute;
       pointer-events: all;
       cursor: grab;
@@ -367,7 +369,7 @@ $breakpoint-xs-max: 639px;
       }
     }
 
-    :deep(.vue-flow__handle) {
+    .vue-flow__handle {
       position: absolute;
       width: 6px;
       min-width: 5px;
