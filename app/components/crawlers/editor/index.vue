@@ -63,12 +63,6 @@ const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 const nodes = ref([]);
 
 /**
- * 函数：添加边。
- * @param {Edge} edges 边数据。
- */
-onConnect(addEdges);
-
-/**
  * 计算属性：描述文本。
  */
 const computedDescription = computed(() => {
@@ -82,6 +76,12 @@ const computedDescription = computed(() => {
  * 计算属性：分组数据。
  */
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
+
+/**
+ * 函数：添加边。
+ * @param {Edge} edges 边数据。
+ */
+onConnect(addEdges);
 
 /**
  * 函数：处理列表点击。
@@ -168,6 +168,8 @@ $breakpoint-xs-max: 639px;
       z-index: 2;
       pointer-events: none;
       transform-origin: 0 0;
+      transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
     }
 
     .vue-flow__viewport {

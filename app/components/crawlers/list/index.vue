@@ -15,7 +15,7 @@
       <div class="space-y-3 px-2 pb-4">
         <div class="text-muted border-default mb-4 border-b pb-4 text-xs font-medium tracking-wide uppercase">{{ item.description }}</div>
         <div class="grid grid-cols-2 gap-3">
-          <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="crawler.iconName" :selected="crawler.key === selectedKey" @click="handleItemClick(crawler, $event)" />
+          <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :name="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="crawler.iconName" :selected="crawler.key === selectedKey" />
         </div>
       </div>
     </template>
@@ -23,17 +23,12 @@
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersListEmits, ICrawlersListProps, ICrawlersListRow } from '@/components/crawlers/list/index.types';
+import type { ICrawlersListProps } from '@/components/crawlers/list/index.types';
 
 /**
  * 属性：爬虫列表分组数据。
  */
 const { groups = [], selectedKey = '' } = defineProps<ICrawlersListProps>();
-
-/**
- * 事件：爬虫条目点击。
- */
-const emit = defineEmits<ICrawlersListEmits>();
 
 /**
  * 计算属性：默认展开分组。
@@ -51,14 +46,4 @@ const items = computed(() =>
     crawlers: group.crawlers
   }))
 );
-
-/**
- * 函数：处理条目点击。
- * @param {ICrawlersListRow} row 条目。
- * @param {MouseEvent} event 鼠标事件。
- * @returns {void} 无返回值。
- */
-const handleItemClick = (row: ICrawlersListRow, event: MouseEvent): void => {
-  emit('click', row, event);
-};
 </script>

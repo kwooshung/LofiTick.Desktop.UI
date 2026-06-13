@@ -3,6 +3,11 @@
  */
 export interface ICrawlersListItemProps {
   /**
+   * 属性：列表项名称（唯一标识符）
+   */
+  name: string;
+
+  /**
    * 属性：列表项标题。
    */
   label: string;
@@ -26,15 +31,4 @@ export interface ICrawlersListItemProps {
    * 属性：图标名称。
    */
   iconName?: string;
-}
-
-/**
- * 接口：爬虫列表项事件。
- */
-export interface ICrawlersListItemEmits {
-  /**
-   * 事件：点击。
-   * @param {MouseEvent} event 鼠标事件。
-   */
-  click: [event: MouseEvent];
 }

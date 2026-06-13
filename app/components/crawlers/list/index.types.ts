@@ -62,15 +62,3 @@ export interface ICrawlersListProps {
    */
   selectedKey?: string;
 }
-
-/**
- * 接口：爬虫列表项事件。
- */
-export interface ICrawlersListEmits {
-  /**
-   * 事件：点击条目。
-   * @param {ICrawlersListRow} row 条目。
-   * @param {MouseEvent} event 鼠标事件。
-   */
-  click: [row: ICrawlersListRow, event: MouseEvent];
-}
