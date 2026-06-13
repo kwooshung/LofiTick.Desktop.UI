@@ -10,6 +10,7 @@
           <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
             <p v-if="isDragOver">Drop here</p>
           </CrawlersBackgroundDropzone>
+          <MiniMap />
         </VueFlow>
       </div>
 
@@ -23,6 +24,7 @@
 
 <script setup lang="ts">
 import { useVueFlow, VueFlow } from '@vue-flow/core';
+import { MiniMap } from '@vue-flow/minimap';
 
 import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
@@ -410,12 +412,12 @@ $breakpoint-xs-max: 639px;
       }
     }
 
-    :deep(.vue-flow__edgeupdater) {
+    .vue-flow__edgeupdater {
       pointer-events: all;
       cursor: move;
     }
 
-    :deep(.vue-flow__panel) {
+    .vue-flow__panel {
       position: absolute;
       z-index: 5;
       margin: 15px;
