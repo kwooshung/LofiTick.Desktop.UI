@@ -1,5 +1,7 @@
 import { useVueFlow } from '@vue-flow/core';
 
+import type { IUseCrawlerBlueprintDnD } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
+
 let id = 0;
 
 /**
@@ -36,9 +38,10 @@ const state = {
  *
  * 组合式函数会暴露拖拽状态与事件处理器，供画布节点面板直接复用。
  *
- * @returns {object} 拖拽状态与事件处理器。
+ * @returns {IUseCrawlerBlueprintDnD} 拖拽状态与事件处理器。
  */
-const useDragAndDrop = () => {
+
+const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
   const { draggedType, isDragOver, isDragging } = state;
 
   const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow();
@@ -155,4 +158,4 @@ const useDragAndDrop = () => {
   };
 };
 
-export default useDragAndDrop;
+export default useCrawlerBlueprintDnD;

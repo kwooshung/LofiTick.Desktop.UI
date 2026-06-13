@@ -1,12 +1,16 @@
 <template>
-  <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription">
+  <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
     <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-100 shrink-0 overflow-y-auto border-r p-3">
       <CrawlersList :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="bg-default flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
-        <div class="text-muted text-sm">流程画布已移除</div>
+        <VueFlow :nodes="nodes" @dragover="onDragOver" @dragleave="onDragLeave">
+          <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
+            <p v-if="isDragOver">Drop here</p>
+          </CrawlersBackgroundDropzone>
+        </VueFlow>
       </div>
 
       <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
@@ -18,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import { useVueFlow, VueFlow } from '@vue-flow/core';
+
 import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
@@ -37,9 +43,30 @@ const emit = defineEmits<ICrawlersEditorEmits>();
 const { t } = useI18n();
 
 /**
+ * Hook：Vue Flow 实例方法。
+ */
+const { onConnect, addEdges } = useVueFlow();
+
+/**
+ * Hook：爬虫蓝图拖放。
+ */
+const { isDragOver, onDragLeave, onDragOver, onDrop } = useCrawlerBlueprintDnD();
+
+/**
  * Hook：爬虫蓝图。
  */
 const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
+
+/**
+ * 常量：节点数据列表。
+ */
+const nodes = ref([]);
+
+/**
+ * 函数：添加边。
+ * @param {Edge} edges 边数据。
+ */
+onConnect(addEdges);
 
 /**
  * 计算属性：描述文本。
@@ -293,37 +320,37 @@ $breakpoint-xs-max: 639px;
       }
     }
 
-    .vue-flow__node-input {
+    :deep(.vue-flow__node-input) {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 85%, var(--color-black) 15%);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    .vue-flow__node-default {
+    :deep(.vue-flow__node-default) {
       --vf-node-color: var(--ui-text);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    .vue-flow__node-output {
+    :deep(.vue-flow__node-output) {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 78%, var(--color-white) 22%);
       --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
-    .vue-flow__nodesselection {
+    :deep(.vue-flow__nodesselection) {
       z-index: 3;
       pointer-events: none;
       transform-origin: left top;
     }
 
-    .vue-flow__nodesselection-rect,
-    .vue-flow__selection {
+    :deep(.vue-flow__nodesselection-rect),
+    :deep(.vue-flow__selection) {
       background: color-mix(in oklab, var(--ui-primary) 8%, transparent);
       border: 1px dotted color-mix(in oklab, var(--ui-primary) 80%, var(--color-black) 20%);
     }
 
-    .vue-flow__nodesselection-rect {
+    :deep(.vue-flow__nodesselection-rect) {
       position: absolute;
       pointer-events: all;
       cursor: grab;
@@ -338,7 +365,7 @@ $breakpoint-xs-max: 639px;
       }
     }
 
-    .vue-flow__handle {
+    :deep(.vue-flow__handle) {
       position: absolute;
       width: 6px;
       min-width: 5px;
@@ -379,12 +406,12 @@ $breakpoint-xs-max: 639px;
       }
     }
 
-    .vue-flow__edgeupdater {
+    :deep(.vue-flow__edgeupdater) {
       pointer-events: all;
       cursor: move;
     }
 
-    .vue-flow__panel {
+    :deep(.vue-flow__panel) {
       position: absolute;
       z-index: 5;
       margin: 15px;
@@ -571,25 +598,6 @@ $breakpoint-xs-max: 639px;
         top: 100%;
         border-bottom-width: 1px;
       }
-    }
-  }
-
-  .dropzone-background {
-    position: relative;
-    width: 100%;
-    height: 100%;
-
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
     }
   }
 }
