@@ -70,7 +70,15 @@ export const crawlers = {
     }
   },
   editor: {
-    title: 'クローラーロジック'
+    title: 'クローラーロジック',
+    empty: {
+      title: 'キャンバスにまだノードがありません',
+      description: '左側からブループリントノードをキャンバスへドラッグして、クローラーフローを作成してください。'
+    },
+    drag: {
+      title: 'マウスを離すとノードを配置します',
+      description: '現在のブループリントノードはマウス位置に挿入されます。'
+    }
   },
   executions: {
     title: '実行記録',

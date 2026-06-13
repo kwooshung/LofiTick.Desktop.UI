@@ -8,7 +8,32 @@
       <div class="bg-default flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
         <VueFlow :nodes="nodes" @dragover="onDragOver" @dragleave="onDragLeave">
           <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
-            <p v-if="isDragOver">Drop here</p>
+            <UEmpty
+              v-if="isDragOver"
+              icon="i-lucide:mouse-pointer-click"
+              :title="t('pages.crawlers.editor.drag.title')"
+              :description="t('pages.crawlers.editor.drag.description')"
+              variant="naked"
+              size="sm"
+              :ui="{
+                root: 'pointer-events-none rounded-sm border border-1  border-default bg-default px-4 py-3 shadow-sm',
+                header: 'max-w-none',
+                body: 'max-w-none'
+              }"
+            />
+            <UEmpty
+              v-else-if="isCanvasEmpty"
+              icon="i-lucide:workflow"
+              :title="t('pages.crawlers.editor.empty.title')"
+              :description="t('pages.crawlers.editor.empty.description')"
+              variant="naked"
+              size="sm"
+              :ui="{
+                root: 'pointer-events-none rounded-sm border border-1 border-default bg-default px-4 py-3 shadow-sm',
+                header: 'max-w-none',
+                body: 'max-w-none'
+              }"
+            />
           </CrawlersBackgroundDropzone>
           <MiniMap />
         </VueFlow>
@@ -47,7 +72,7 @@ const { t } = useI18n();
 /**
  * Hook：Vue Flow 实例方法。
  */
-const { onConnect, addEdges } = useVueFlow();
+const { nodes, onConnect, addEdges } = useVueFlow();
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -60,9 +85,9 @@ const { isDragOver, onDragLeave, onDragOver, onDrop } = useCrawlerBlueprintDnD()
 const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 
 /**
- * 常量：节点数据列表。
+ * 计算属性：画布是否为空。
  */
-const nodes = ref([]);
+const isCanvasEmpty = computed(() => nodes.value.length === 0);
 
 /**
  * 计算属性：描述文本。
@@ -119,9 +144,9 @@ $breakpoint-xs-max: 639px;
 .editor {
   --vf-node-bg: var(--ui-bg);
   --vf-node-text: var(--ui-text);
-  --vf-connection-path: color-mix(in oklab, var(--ui-border) 72%, var(--ui-text) 28%);
   --vf-node-color: var(--ui-text);
-  --vf-handle: var(--vf-node-color);
+  --vf-connection-path: color-mix(in oklab, var(--ui-border) 72%, var(--ui-text) 28%);
+  --vf-handle: var(--ui-color-neutral-400);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
@@ -202,7 +227,7 @@ $breakpoint-xs-max: 639px;
     .vue-flow__connection-path {
       fill: none;
       stroke: var(--vf-connection-path);
-      stroke-width: 1;
+      stroke-width: 3;
     }
 
     .vue-flow__edge {
@@ -329,19 +354,16 @@ $breakpoint-xs-max: 639px;
 
     .vue-flow__node-input {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 85%, var(--color-black) 15%);
-      --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
     .vue-flow__node-default {
       --vf-node-color: var(--ui-text);
-      --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
     .vue-flow__node-output {
       --vf-node-color: color-mix(in oklab, var(--ui-primary) 78%, var(--color-white) 22%);
-      --vf-handle: var(--vf-node-color);
       --vf-box-shadow: var(--vf-node-color);
     }
 
@@ -374,9 +396,9 @@ $breakpoint-xs-max: 639px;
 
     .vue-flow__handle {
       position: absolute;
-      width: 6px;
+      width: 10px;
       min-width: 5px;
-      height: 6px;
+      height: 10px;
       min-height: 5px;
       pointer-events: none;
       background: var(--vf-handle);

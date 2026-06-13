@@ -70,7 +70,15 @@ export const crawlers = {
     }
   },
   editor: {
-    title: '爬蟲邏輯'
+    title: '爬蟲邏輯',
+    empty: {
+      title: '畫布還沒有節點',
+      description: '從左側拖拽一個藍圖節點到畫布中，開始搭建爬蟲流程。'
+    },
+    drag: {
+      title: '放開滑鼠即可放入節點',
+      description: '目前藍圖節點會依滑鼠位置插入到畫布中。'
+    }
   },
   executions: {
     title: '執行記錄',
