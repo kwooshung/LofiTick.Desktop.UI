@@ -133,7 +133,7 @@
                       :delay="0"
                       overlay
                     >
-                      <div ref="previewCanvasContainerElement" class="w-full">
+                      <div ref="refPreviewCanvasContainerElement" class="w-full">
                         <div class="mx-auto" :class="computedPreviewCanvasClass" :style="computedPreviewCanvasStyle">
                           <div v-if="!stateEditor.asset" class="h-full w-full" :class="isTauriRuntime ? 'cursor-pointer' : ''" @click="handlePreviewUploadAreaClick">
                             <UFileUpload
@@ -172,7 +172,7 @@
                             class="h-full w-full"
                           >
                             <div
-                              ref="previewStageElement"
+                              ref="refPreviewStageElement"
                               class="border-default relative h-full w-full overflow-hidden rounded-sm border bg-black"
                               @pointerdown="handlePreviewPointerDown"
                               @pointermove="handlePreviewPointerMove"
@@ -619,12 +619,12 @@ const stateEditorAdvertisementDragging = ref(false);
 /**
  * 状态：预览画布容器元素。
  */
-const statePreviewCanvasContainerElement = ref<HTMLDivElement | null>(null);
+const refPreviewCanvasContainerElement = ref<HTMLDivElement | null>(null);
 
 /**
  * 状态：预览舞台元素。
  */
-const statePreviewStageElement = ref<HTMLDivElement | null>(null);
+const refPreviewStageElement = ref<HTMLDivElement | null>(null);
 
 /**
  * 状态：预览画布可用宽度。
@@ -2179,7 +2179,7 @@ const computedPreviewBaseMediaSize = computed(() => {
  * 函数：同步预览画布可用宽度。
  */
 const previewCanvasAvailableWidthSync = (): void => {
-  const element = statePreviewCanvasContainerElement.value;
+  const element = refPreviewCanvasContainerElement.value;
 
   if (!element) {
     statePreviewCanvasAvailableWidth.value = 0;
@@ -2193,7 +2193,7 @@ const previewCanvasAvailableWidthSync = (): void => {
  * 函数：同步预览舞台尺寸。
  */
 const previewStageSizeSync = (): void => {
-  const element = statePreviewStageElement.value;
+  const element = refPreviewStageElement.value;
 
   if (!element) {
     statePreviewStageSize.width = 0;
@@ -2452,7 +2452,7 @@ const computedAssetUploadLabel = computed(() => (stateEditor.value.materialType 
 const computedAssetUploadDescription = computed(() => (stateEditor.value.materialType === 'image' ? t('pages.ads.hotsearch.preview.imageDropDescription') : t('pages.ads.hotsearch.preview.videoDropDescription')));
 
 watch(
-  () => [statePreviewCanvasContainerElement.value, statePreviewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
+  () => [refPreviewCanvasContainerElement.value, refPreviewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
   () => {
     nextTick(() => {
       previewCanvasAvailableWidthSync();
@@ -2467,7 +2467,7 @@ watch(
 );
 
 watch(
-  () => [statePreviewCanvasContainerElement.value, statePreviewStageElement.value] as const,
+  () => [refPreviewCanvasContainerElement.value, refPreviewStageElement.value] as const,
   ([canvasElement, stageElement]) => {
     previewStageObserver?.disconnect();
 
@@ -3869,12 +3869,12 @@ onMounted(() => {
     statePreviewOffset.y = clampedOffset.y;
   });
 
-  if (statePreviewCanvasContainerElement.value) {
-    previewStageObserver.observe(statePreviewCanvasContainerElement.value);
+  if (refPreviewCanvasContainerElement.value) {
+    previewStageObserver.observe(refPreviewCanvasContainerElement.value);
   }
 
-  if (statePreviewStageElement.value) {
-    previewStageObserver.observe(statePreviewStageElement.value);
+  if (refPreviewStageElement.value) {
+    previewStageObserver.observe(refPreviewStageElement.value);
   }
 });
 </script>
