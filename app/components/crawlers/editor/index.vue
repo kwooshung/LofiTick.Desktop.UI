@@ -5,8 +5,11 @@
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div class="bg-default flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
-        <VueFlow :nodes="nodes" @dragover="onDragOver" @dragleave="onDragLeave">
+      <div class="bg-default relative flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
+        <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver" @dragleave="onDragLeave">
+          <template #node-start="props">
+            <CrawlersNodesStart v-bind="props" />
+          </template>
           <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
             <UEmpty
               v-if="isDragOver"
@@ -16,7 +19,7 @@
               variant="naked"
               size="sm"
               :ui="{
-                root: 'pointer-events-none rounded-sm border border-1  border-default bg-default px-4 py-3 shadow-sm',
+                root: 'pointer-events-none rounded-lg border border-1 border-default bg-default px-4 py-3 shadow-sm',
                 header: 'max-w-none',
                 body: 'max-w-none'
               }"
@@ -29,7 +32,7 @@
               variant="naked"
               size="sm"
               :ui="{
-                root: 'pointer-events-none rounded-sm border border-1 border-default bg-default px-4 py-3 shadow-sm',
+                root: 'pointer-events-none rounded-lg border border-1 border-default bg-default px-4 py-3 shadow-sm',
                 header: 'max-w-none',
                 body: 'max-w-none'
               }"
@@ -72,7 +75,7 @@ const { t } = useI18n();
 /**
  * Hook：Vue Flow 实例方法。
  */
-const { nodes, onConnect, addEdges } = useVueFlow();
+const { nodes, edges, onConnect, addEdges, addNodes } = useVueFlow();
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -119,6 +122,22 @@ onConnect(addEdges);
 const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
 };
+
+onMounted(() => {
+  if (nodes.value.length === 0) {
+    addNodes({
+      id: '1',
+      type: 'start',
+      position: { x: 100, y: 100 },
+      data: {
+        title: '开始',
+        description: '爬虫的入口节点，负责触发爬虫的执行',
+        showExecIn: false,
+        showExecOut: true
+      }
+    });
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -400,6 +419,7 @@ $breakpoint-xs-max: 639px;
       min-width: 5px;
       height: 10px;
       min-height: 5px;
+      color: var(--vf-handle);
       pointer-events: none;
       background: var(--vf-handle);
       border: 1px solid var(--ui-bg);
