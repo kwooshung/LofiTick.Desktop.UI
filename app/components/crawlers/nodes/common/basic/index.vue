@@ -1,5 +1,5 @@
 <template>
-  <div class="border-default bg-default rounded-lg border shadow-xs transition-shadow duration-300 ease-in-out">
+  <div class="border-default bg-default/65 rounded-lg border shadow-xs transition-shadow duration-300 ease-in-out">
     <div :class="['flex items-start rounded-t-lg p-4', headerBg]">
       <slot name="icon">
         <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />

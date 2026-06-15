@@ -1,7 +1,7 @@
 <template>
   <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
     <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-100 shrink-0 overflow-y-auto border-r p-3">
-      <CrawlersList :groups="computedGroups" :selected-key="selectedKey" />
+      <CrawlersList :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import type { Connection, OnConnectStartParams } from '@vue-flow/core';
 import { useVueFlow, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
@@ -110,23 +111,26 @@ const computedDescription = computed(() => {
  */
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
-const handleConnectStart = ({ nodeId, handleType }) => {
+const handleConnectStart = (connectionEvent: { event?: MouseEvent } & OnConnectStartParams): void => {
+  const { nodeId, handleType } = connectionEvent;
+
   console.clear();
   console.log('on connect start', { nodeId, handleType });
 };
 
-const handleConnect = (params) => {
+const handleConnect = (params: Connection): void => {
   console.log('on connect', params);
-  const newEdge = {
-    ...params,
-    style: { stroke: params.sourceHandle === 'special' ? 'red' : 'blue' }
-  };
 
-  addEdges([newEdge]);
+  // const newEdge = {
+  //   ...params,
+  //   style: { stroke: params.sourceHandle === 'special' ? 'red' : 'blue' }
+  // };
+
+  // addEdges([newEdge]);
   // addEdges(params);
 };
 
-const handleConnectEnd = (event) => {
+const handleConnectEnd = (event?: MouseEvent): void => {
   console.log('on connect end', event);
   console.log('nodes', nodes.value);
   console.log('edges', edges.value);
@@ -209,8 +213,8 @@ $breakpoint-xs-max: 639px;
   --vf-node-bg: var(--ui-bg);
   --vf-node-text: var(--ui-text);
   --vf-node-color: var(--ui-text);
-  --vf-connection-path: color-mix(in oklab, var(--ui-border) 72%, var(--ui-text) 28%);
   --vf-handle: var(--ui-color-neutral-400);
+  --vf-connection-path: var(--ui-color-neutral-600);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
