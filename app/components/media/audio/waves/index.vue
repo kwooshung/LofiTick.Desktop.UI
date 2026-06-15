@@ -73,7 +73,7 @@ const mediaAudioWavesClamp01 = (val: number): number => {
 /**
  * 引用：可交互区域元素
  */
-const refInteractive = ref<HTMLElement | null>(null);
+const stateRefInteractive = ref<HTMLElement | null>(null);
 
 /**
  * 状态：是否处于拖拽中
@@ -92,11 +92,11 @@ const statePreviewPercent = shallowRef<number | null>(null);
  * @returns {number | null} 百分比（0~1），无法计算时返回 null
  */
 const mediaAudioWavesPercentFromPointerEvent = (event: PointerEvent): number | null => {
-  if (!refInteractive.value) {
+  if (!stateRefInteractive.value) {
     return null;
   }
 
-  const rect = refInteractive.value.getBoundingClientRect();
+  const rect = stateRefInteractive.value.getBoundingClientRect();
   if (!Number.isFinite(rect.width) || rect.width <= 0) {
     return null;
   }

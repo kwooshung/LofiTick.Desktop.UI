@@ -299,7 +299,7 @@ const MEDIA_PLYR_CONTROLS_DEFAULT: TMediaPlyrConfigControls[] = ['play-large', '
 /**
  * 引用：播放器 DOM 元素
  */
-const refElement = ref<HTMLVideoElement | HTMLAudioElement | HTMLDivElement | null>(null);
+const stateRefElement = ref<HTMLVideoElement | HTMLAudioElement | HTMLDivElement | null>(null);
 
 /**
  * 状态：播放器 id
@@ -1055,14 +1055,14 @@ const mediaPlyrWaveformSync = (player: Plyr | null): void => {
  * @returns {void} 无返回值
  */
 const mediaPlyrCreate = async (): Promise<void> => {
-  if (!refElement.value) {
+  if (!stateRefElement.value) {
     return;
   }
 
   mediaPlyrDestroy();
 
   const PlyrCtor = await mediaPlyrCtorGet();
-  statePlayer.value = new PlyrCtor(refElement.value, mediaPlyrOptionsGet());
+  statePlayer.value = new PlyrCtor(stateRefElement.value, mediaPlyrOptionsGet());
 
   /**
    * 常量：当前 Plyr 实例

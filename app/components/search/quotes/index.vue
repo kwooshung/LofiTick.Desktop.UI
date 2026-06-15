@@ -237,17 +237,17 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，UUID
  */
-const refUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，出处
  */
-const refSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -775,14 +775,14 @@ const syncSearchPanelViewportMode = (): void => {
  */
 const triggerQuickFocus = () => {
   if (routeIsList) {
-    refUuidMenu.value?.triggerRef.click();
+    stateRefUuidMenu.value?.triggerRef.click();
     return;
   }
 
   if (routeIsAuthors) {
-    refAuthorMenu.value?.triggerRef.click();
+    stateRefAuthorMenu.value?.triggerRef.click();
   } else if (routeIsSources) {
-    refSourceMenu.value?.triggerRef.click();
+    stateRefSourceMenu.value?.triggerRef.click();
   }
 };
 

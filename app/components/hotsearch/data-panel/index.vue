@@ -100,7 +100,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜数据面板顶部锚点。
  */
-const refHotsearchDataPanelTop = ref<HTMLElement | null>(null);
+const stateRefHotsearchDataPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * Hook：Tauri 运行环境。
@@ -402,7 +402,7 @@ watch(
   () => route.query,
   async () => {
     await nextTick();
-    refHotsearchDataPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    stateRefHotsearchDataPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     refreshCurrentPanels();
   }
 );

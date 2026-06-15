@@ -412,12 +412,12 @@ const stateHydrated = ref(false);
 /**
  * 组件：哨兵配置表单实例
  */
-const refSentinelConfig = ref<ISentinelConfigExpose | null>(null);
+const stateRefSentinelConfig = ref<ISentinelConfigExpose | null>(null);
 
 /**
  * 计算属性：哨兵配置分析结果
  */
-const computedSentinelAnalysis = computed(() => refSentinelConfig.value?.analysisGet() ?? null);
+const computedSentinelAnalysis = computed(() => stateRefSentinelConfig.value?.analysisGet() ?? null);
 
 /**
  * 状态：桌面壳当前哨兵状态快照
@@ -741,7 +741,7 @@ onMounted(async () => {
   await nextTick();
 
   if (Object.keys(unattendedSentinel).length > 0) {
-    refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(unattendedSentinel as unknown as ISettingsUnattendedSentinel));
+    stateRefSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(unattendedSentinel as unknown as ISettingsUnattendedSentinel));
   }
 
   stateHydrated.value = true;
@@ -858,7 +858,7 @@ const handleUnattendedEnabledToggle = async (next: boolean): Promise<void> => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
-  const config = refSentinelConfig.value?.configGet();
+  const config = stateRefSentinelConfig.value?.configGet();
   if (!config) {
     return null;
   }
@@ -910,7 +910,7 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null => {
-  const config = refSentinelConfig.value?.configGet();
+  const config = stateRefSentinelConfig.value?.configGet();
   if (!config) {
     return null;
   }
@@ -1088,7 +1088,7 @@ const handleSentinelSync = async () => {
     stateRequestUrl.value = String(remote.request?.url || '').trim();
     stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(remote.onlineWindowSeconds ?? currentOnlineWindowSeconds);
 
-    refSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));
+    stateRefSentinelConfig.value?.resetToOverrides(sentinelOverridesFromSettings(remote as unknown as ISettingsUnattendedSentinel));
 
     await nextTick();
 
@@ -1126,7 +1126,7 @@ const handleSentinelResetToDefaults = async (): Promise<void> => {
   statePersistMuted.value = true;
   try {
     stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(30);
-    refSentinelConfig.value?.resetToDefaults();
+    stateRefSentinelConfig.value?.resetToDefaults();
     await nextTick();
   } finally {
     statePersistMuted.value = false;
@@ -1150,7 +1150,7 @@ const stateScenesEditingId = ref<string | null>(null);
 /**
  * 组件：场景表单组件实例
  */
-const refScenes = ref<ISentinelScenesConfigExpose | null>(null);
+const stateRefScenes = ref<ISentinelScenesConfigExpose | null>(null);
 
 /**
  * 状态：场景表单是否通过校验
@@ -1675,7 +1675,7 @@ const handleScenesValidate = (result: TSentinelScenesConfigValidateResult) => {
  * 事件：抽屉 footer 保存按钮
  */
 const handleScenesFooterSave = () => {
-  refScenes.value?.validateAndSubmit();
+  stateRefScenes.value?.validateAndSubmit();
 };
 
 /**
@@ -1695,7 +1695,7 @@ const handleScenesAddOpen = async (): Promise<void> => {
   const machineName = String(computedMachineName.value || '').trim();
   const machineRemark = String(computedMachineRemark.value || '').trim();
 
-  refScenes.value?.valuesSet({
+  stateRefScenes.value?.valuesSet({
     machineId,
     machineName,
     machineRemark,
@@ -1731,7 +1731,7 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
   const machineName = String(computedMachineName.value || '').trim();
   const machineRemark = String(computedMachineRemark.value || '').trim();
 
-  refScenes.value?.valuesSet({
+  stateRefScenes.value?.valuesSet({
     machineId,
     machineName,
     machineRemark,
@@ -1767,12 +1767,12 @@ const handleScenesPickExecPath = async (current: string): Promise<void> => {
     return;
   }
 
-  const values = refScenes.value?.valuesGet();
+  const values = stateRefScenes.value?.valuesGet();
   if (!values) {
     return;
   }
 
-  refScenes.value?.valuesSet({
+  stateRefScenes.value?.valuesSet({
     ...values,
     sourceExecPath: next,
     execPath: String(next || '').trim() === String(values.sourceExecPath || '').trim() ? String(values.execPath || '').trim() : ''

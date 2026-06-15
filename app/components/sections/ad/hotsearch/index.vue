@@ -550,7 +550,7 @@ const stateDetailPlayerVisible = ref(false);
 /**
  * 引用：详情视频播放器实例。
  */
-const refDetailPlayer = ref<{ player: { play: () => Promise<void> } | null } | null>(null);
+const stateRefDetailPlayer = ref<{ player: { play: () => Promise<void> } | null } | null>(null);
 
 /**
  * 状态：详情广告文案行。
@@ -619,12 +619,12 @@ const stateEditorAdvertisementDragging = ref(false);
 /**
  * 状态：预览画布容器元素。
  */
-const previewCanvasContainerElement = ref<HTMLDivElement | null>(null);
+const statePreviewCanvasContainerElement = ref<HTMLDivElement | null>(null);
 
 /**
  * 状态：预览舞台元素。
  */
-const previewStageElement = ref<HTMLDivElement | null>(null);
+const statePreviewStageElement = ref<HTMLDivElement | null>(null);
 
 /**
  * 状态：预览画布可用宽度。
@@ -2179,7 +2179,7 @@ const computedPreviewBaseMediaSize = computed(() => {
  * 函数：同步预览画布可用宽度。
  */
 const previewCanvasAvailableWidthSync = (): void => {
-  const element = previewCanvasContainerElement.value;
+  const element = statePreviewCanvasContainerElement.value;
 
   if (!element) {
     statePreviewCanvasAvailableWidth.value = 0;
@@ -2193,7 +2193,7 @@ const previewCanvasAvailableWidthSync = (): void => {
  * 函数：同步预览舞台尺寸。
  */
 const previewStageSizeSync = (): void => {
-  const element = previewStageElement.value;
+  const element = statePreviewStageElement.value;
 
   if (!element) {
     statePreviewStageSize.width = 0;
@@ -2452,7 +2452,7 @@ const computedAssetUploadLabel = computed(() => (stateEditor.value.materialType 
 const computedAssetUploadDescription = computed(() => (stateEditor.value.materialType === 'image' ? t('pages.ads.hotsearch.preview.imageDropDescription') : t('pages.ads.hotsearch.preview.videoDropDescription')));
 
 watch(
-  () => [previewCanvasContainerElement.value, previewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
+  () => [statePreviewCanvasContainerElement.value, statePreviewStageElement.value, stateEditor.value.asset?.width ?? 0, stateEditor.value.asset?.height ?? 0, stateEditor.value.frameType] as const,
   () => {
     nextTick(() => {
       previewCanvasAvailableWidthSync();
@@ -2467,7 +2467,7 @@ watch(
 );
 
 watch(
-  () => [previewCanvasContainerElement.value, previewStageElement.value] as const,
+  () => [statePreviewCanvasContainerElement.value, statePreviewStageElement.value] as const,
   ([canvasElement, stageElement]) => {
     previewStageObserver?.disconnect();
 
@@ -2975,7 +2975,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
   stateDetailLines.value = [];
   stateDetailNotes.value = '';
   stateDetailPlayerVisible.value = false;
-  refDetailPlayer.value = null;
+  stateRefDetailPlayer.value = null;
 
   stateDetailRow.value = {
     id: Number(source.id ?? 0),
@@ -3032,7 +3032,7 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
         await nextTick();
         stateDetailPlayerVisible.value = true;
         await nextTick();
-        await refDetailPlayer.value?.player?.play();
+        await stateRefDetailPlayer.value?.player?.play();
       }
     } catch (error) {
       stateDetailAssetPreviewLoading.value = false;
@@ -3718,7 +3718,7 @@ watch(
       stateDetailLines.value = [];
       stateDetailNotes.value = '';
       stateDetailPlayerVisible.value = false;
-      refDetailPlayer.value = null;
+      stateRefDetailPlayer.value = null;
     }
   }
 );
@@ -3869,12 +3869,12 @@ onMounted(() => {
     statePreviewOffset.y = clampedOffset.y;
   });
 
-  if (previewCanvasContainerElement.value) {
-    previewStageObserver.observe(previewCanvasContainerElement.value);
+  if (statePreviewCanvasContainerElement.value) {
+    previewStageObserver.observe(statePreviewCanvasContainerElement.value);
   }
 
-  if (previewStageElement.value) {
-    previewStageObserver.observe(previewStageElement.value);
+  if (statePreviewStageElement.value) {
+    previewStageObserver.observe(statePreviewStageElement.value);
   }
 });
 </script>

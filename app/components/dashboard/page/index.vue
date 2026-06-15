@@ -20,7 +20,7 @@ const route = useRoute();
 /**
  * 引用：仪表板面板组件
  */
-const refDashboardPanelScroll = ref<HTMLElement | null>(null);
+const stateRefDashboardPanelScroll = ref<HTMLElement | null>(null);
 
 /**
  * 监听：路由查询参数变化，滚动到顶部
@@ -28,7 +28,7 @@ const refDashboardPanelScroll = ref<HTMLElement | null>(null);
 watch(
   () => route.query,
   () => {
-    refDashboardPanelScroll.value?.scrollTo({ top: 0 });
+    stateRefDashboardPanelScroll.value?.scrollTo({ top: 0 });
   }
 );
 </script>

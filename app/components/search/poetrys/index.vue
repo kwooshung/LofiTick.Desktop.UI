@@ -227,12 +227,12 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，朝代
  */
-const refDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -704,14 +704,14 @@ const syncSearchPanelViewportMode = (): void => {
 const triggerQuickFocus = () => {
   if (routeIsAuthors) {
     if (statePageAuthorSearchType.value === 'author') {
-      refAuthorMenu.value?.triggerRef.click();
+      stateRefAuthorMenu.value?.triggerRef.click();
     } else {
-      refDynastyMenu.value?.triggerRef.click();
+      stateRefDynastyMenu.value?.triggerRef.click();
     }
   }
 
   if (routeIsDynasties) {
-    refDynastyMenu.value?.triggerRef.click();
+    stateRefDynastyMenu.value?.triggerRef.click();
   }
 };
 

@@ -10,8 +10,8 @@
       </div>
     </div>
     <div v-if="hasNodeContext && (showExecIn || showExecOut)" class="relative h-8">
-      <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" class="h-5! w-4! translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-      <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" class="h-5! w-4! -translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+      <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="h-5! w-4! translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+      <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="h-5! w-4! -translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
     </div>
     <div v-if="$slots.default" class="px-4 py-3">
       <slot />
@@ -23,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import type { Connection } from '@vue-flow/core';
 import { Handle, Position, useNodeId } from '@vue-flow/core';
 
 import type { ICrawlersNodesCommonBasicProps } from '@/components/crawlers/nodes/common/basic/index.types';
@@ -36,4 +37,14 @@ const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconCla
  * 计算属性：当前组件是否运行在 Vue Flow 节点上下文中。
  */
 const hasNodeContext = computed(() => String(useNodeId() ?? '').trim() !== '');
+
+/**
+ * 函数：验证连接目标是否合法（仅允许连接到同一节点的 exec-in）。
+ */
+const isValidConnectionTarget = (connection: Connection): boolean => connection.targetHandle === 'exec-in' && connection.source !== useNodeId();
+
+/**
+ * 函数：验证连接源是否合法（仅允许连接到同一节点的 exec-out）。
+ */
+const isValidConnectionSource = (connection: Connection): boolean => connection.sourceHandle === 'exec-out' && connection.target !== useNodeId();
 </script>

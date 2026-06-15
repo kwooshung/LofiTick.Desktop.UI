@@ -73,7 +73,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜平台面板顶部锚点。
  */
-const refHotsearchPlatformPanelTop = ref<HTMLElement | null>(null);
+const stateRefHotsearchPlatformPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * 函数：获取当前默认日期。
@@ -162,7 +162,7 @@ watch(
   () => route.query,
   async () => {
     await nextTick();
-    refHotsearchPlatformPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    stateRefHotsearchPlatformPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
   }
 );

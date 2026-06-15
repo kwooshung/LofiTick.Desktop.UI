@@ -143,7 +143,7 @@ const route = useRoute();
 /**
  * 引用：工具栏搜索框
  */
-const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
+const stateRefToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 /**
  * 计算属性：是否设置了搜索条件。
@@ -667,7 +667,7 @@ watch(stateSearchPopoverOpen, async (isOpen) => {
   }
 
   await nextTick();
-  refToolbarSearchInput.value?.inputRef?.focus();
+  stateRefToolbarSearchInput.value?.inputRef?.focus();
 });
 
 /**

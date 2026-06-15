@@ -262,12 +262,12 @@ const statePodcastAudioModalPlayerVisible = ref(false);
 /**
  * 引用：播客完整视频播放器实例。
  */
-const refPodcastVideoPlayer = ref<TMediaPlyrExposed | null>(null);
+const stateRefPodcastVideoPlayer = ref<TMediaPlyrExposed | null>(null);
 
 /**
  * 引用：播客完整音频播放器实例。
  */
-const refPodcastAudioPlayer = ref<TMediaPlyrExposed | null>(null);
+const stateRefPodcastAudioPlayer = ref<TMediaPlyrExposed | null>(null);
 
 /**
  * Store：面包屑。
@@ -282,7 +282,7 @@ const stateToolbarKeyword = ref('');
 /**
  * 引用：工具栏搜索框。
  */
-const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
+const stateRefToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 /**
  * API：热搜日期摘要。
@@ -788,7 +788,7 @@ const handlePodcastVideoModalUpdateOpen = (open: boolean): void => {
 
   if (open === false) {
     statePodcastVideoModalPlayerVisible.value = false;
-    refPodcastVideoPlayer.value = null;
+    stateRefPodcastVideoPlayer.value = null;
   }
 };
 
@@ -810,7 +810,7 @@ const handlePodcastAudioModalUpdateOpen = (open: boolean): void => {
 
   if (open === false) {
     statePodcastAudioModalPlayerVisible.value = false;
-    refPodcastAudioPlayer.value = null;
+    stateRefPodcastAudioPlayer.value = null;
   }
 };
 
@@ -829,7 +829,7 @@ const handlePodcastVideoModalOpen = async (): Promise<void> => {
   await nextTick();
   statePodcastVideoModalPlayerVisible.value = true;
   await nextTick();
-  await refPodcastVideoPlayer.value?.player?.play();
+  await stateRefPodcastVideoPlayer.value?.player?.play();
 };
 
 /**
@@ -847,7 +847,7 @@ const handlePodcastAudioModalOpen = async (): Promise<void> => {
   await nextTick();
   statePodcastAudioModalPlayerVisible.value = true;
   await nextTick();
-  await refPodcastAudioPlayer.value?.player?.play();
+  await stateRefPodcastAudioPlayer.value?.player?.play();
 };
 
 /**
@@ -1242,7 +1242,7 @@ defineShortcuts({
    */
   '/': () => {
     if (computedRouteIsDataSection.value) {
-      refToolbarSearchInput.value?.inputRef?.focus();
+      stateRefToolbarSearchInput.value?.inputRef?.focus();
     }
   }
 });

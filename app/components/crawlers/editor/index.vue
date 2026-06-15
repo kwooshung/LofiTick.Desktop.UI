@@ -7,6 +7,7 @@
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="bg-default relative flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
         <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @dragover="onDragOver" @dragleave="onDragLeave" @connect="handleConnect" @connect-start="handleConnectStart" @connect-end="handleConnectEnd">
+          <CrawlersEditorLinesHelper :horizontal="stateHelperLineHorizontal" :vertical="stateHelperLineVertical" />
           <template #node-start="props">
             <CrawlersNodesStart v-bind="props" />
           </template>
@@ -72,6 +73,16 @@ const { siteName = '', baseUrl = '', groups = [], selectedKey = '' } = definePro
 const emit = defineEmits<ICrawlersEditorEmits>();
 
 /**
+ * 状态：辅助线位置。
+ */
+const stateHelperLineHorizontal = ref<number | undefined>(undefined);
+
+/**
+ * 状态：辅助线位置。
+ */
+const stateHelperLineVertical = ref<number | undefined>(undefined);
+
+/**
  * Hook：国际化。
  */
 const { t } = useI18n();
@@ -111,6 +122,39 @@ const computedDescription = computed(() => {
  */
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
+/**
+ * 生命周期：组件挂载后，初始化默认节点数据
+ */
+onMounted(() => {
+  if (nodes.value.length === 0) {
+    addNodes({
+      type: 'start',
+      id: 'start',
+      position: { x: 100, y: 100 }
+    });
+
+    addNodes({
+      type: 'end',
+      id: 'end',
+      position: { x: 1000, y: 100 }
+    });
+  }
+});
+
+/**
+ * 函数：添加边。
+ * @param {Edge} edges 边数据。
+ */
+onConnect(addEdges);
+
+/**
+ * 事件：处理连接开始
+ * @param {Object} connectionEvent 连接事件对象，包含连接事件和连接信息
+ * @param {MouseEvent} connectionEvent.event 连接事件（可选）
+ * @param {OnConnectStartParams} connectionEvent.nodeId 连接开始的节点 ID
+ * @param {OnConnectStartParams} connectionEvent.handleType 连接开始的句柄类型（source 或 target）
+ * @returns {void} 无返回值
+ */
 const handleConnectStart = (connectionEvent: { event?: MouseEvent } & OnConnectStartParams): void => {
   const { nodeId, handleType } = connectionEvent;
 
@@ -118,16 +162,25 @@ const handleConnectStart = (connectionEvent: { event?: MouseEvent } & OnConnectS
   console.log('on connect start', { nodeId, handleType });
 };
 
+/**
+ * 函数：处理连接完成
+ * @param {Connection} params 连接参数对象，包含连接的源节点 ID、目标节点 ID、源句柄 ID 和目标句柄 ID
+ * @returns {void} 无返回值
+ */
 const handleConnect = (params: Connection): void => {
-  console.log('on connect', params);
+  // 如果是执行节点
+  if (params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in') {
+    addEdges({
+      ...params,
+      animated: true,
+      style: { stroke: 'var(--ui-primary)' }
+    });
+  }
 
   // const newEdge = {
   //   ...params,
   //   style: { stroke: params.sourceHandle === 'special' ? 'red' : 'blue' }
   // };
-
-  // addEdges([newEdge]);
-  // addEdges(params);
 };
 
 const handleConnectEnd = (event?: MouseEvent): void => {
@@ -137,10 +190,14 @@ const handleConnectEnd = (event?: MouseEvent): void => {
 };
 
 /**
- * 函数：添加边。
- * @param {Edge} edges 边数据。
+ * 事件：处理模态框保存
  */
-onConnect(addEdges);
+const handelModalSave = () => {
+  console.log('on save');
+  const flowData = toObject();
+  console.log('flowData', flowData);
+  emit('save');
+};
 
 /**
  * 函数：处理列表点击。
@@ -158,35 +215,6 @@ const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
 const handelModalCancel = () => {
   emit('cancel');
 };
-
-/**
- * 事件：处理模态框保存
- */
-const handelModalSave = () => {
-  console.log('on save');
-  const flowData = toObject();
-  console.log('flowData', flowData);
-  emit('save');
-};
-
-/**
- * 生命周期：组件挂载后，初始化默认节点数据
- */
-onMounted(() => {
-  if (nodes.value.length === 0) {
-    addNodes({
-      type: 'start',
-      id: 'start',
-      position: { x: 100, y: 100 }
-    });
-
-    addNodes({
-      type: 'end',
-      id: 'end',
-      position: { x: 500, y: 100 }
-    });
-  }
-});
 </script>
 
 <style lang="scss" scoped>

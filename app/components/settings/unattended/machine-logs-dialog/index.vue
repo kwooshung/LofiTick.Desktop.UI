@@ -113,7 +113,7 @@ const statePage = ref(1);
 /**
  * 引用：日志列表顶部锚点
  */
-const refListTop = ref<HTMLElement | null>(null);
+const stateRefListTop = ref<HTMLElement | null>(null);
 
 /**
  * 计算属性：当前机器日志列表
@@ -143,7 +143,7 @@ watch(
  */
 watch(statePage, async () => {
   await nextTick();
-  refListTop.value?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  stateRefListTop.value?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 });
 
 /**

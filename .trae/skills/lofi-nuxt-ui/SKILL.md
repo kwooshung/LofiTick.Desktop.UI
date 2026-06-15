@@ -256,6 +256,13 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 对象结构（需要写属性注释的那种）一律优先使用 `interface`，禁止用 `type` 定义对象字面量结构。
 - `type` 仅允许用于：联合类型/字面量类型/函数类型/交叉类型等不适合逐属性注释的场景。
 
+#### 5.2.1 组件状态命名（强制）
+
+- 在 `app/**/*.vue` 中，凡是由 `ref`、`reactive`、`shallowRef`、`shallowReactive` 创建且不属于 `props` 的组件状态变量，命名必须使用 `state` 前缀。
+- 命名格式强制：`stateXxx`（例如 `stateLoading`、`stateCanvasRef`、`stateForm`）。
+- 禁止继续使用无 `state` 前缀的状态命名（例如 `loading`、`canvasRef`、`formState`）。
+- `props` 解构字段、`computed`、普通函数、事件处理函数不适用本条，不要求改为 `state` 前缀。
+
 ### 5.3 避免内联类型（强制：说清楚）
 
 - 禁止内联对象字面量类型（例如 `{ a: string }`）到变量/函数签名中；应提取为 `interface/type` 以便注释与维护。

@@ -234,17 +234,17 @@ const { t } = useI18n();
 /**
  * 状态：当前聚焦的模板片段索引。
  */
-const activeTemplateItemIndex = ref<number | null>(null);
+const stateActiveTemplateItemIndex = ref<number | null>(null);
 
 /**
  * 状态：当前文案光标起点。
  */
-const activeTemplateItemSelectionStart = ref<number | null>(null);
+const stateActiveTemplateItemSelectionStart = ref<number | null>(null);
 
 /**
  * 状态：当前文案光标终点。
  */
-const activeTemplateItemSelectionEnd = ref<number | null>(null);
+const stateActiveTemplateItemSelectionEnd = ref<number | null>(null);
 
 /**
  * 状态：本地模板片段列表。
@@ -254,12 +254,12 @@ const stateTemplateItems = ref<ISettingsHotsearchPodcastTemplateItem[]>([]);
 /**
  * 状态：模板片段稳定渲染键列表。
  */
-const templateItemRenderKeys = ref<string[]>([]);
+const stateTemplateItemRenderKeys = ref<string[]>([]);
 
 /**
  * 变量：片段输入框 DOM 引用。
  */
-const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
+const stateTemplateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
 
 /**
  * 状态：当前是否处于模板拖拽中。
@@ -299,7 +299,7 @@ watch(
     }
 
     stateTemplateItems.value = [...value];
-    templateItemRenderKeys.value = value.map((_, index) => templateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
+    stateTemplateItemRenderKeys.value = value.map((_, index) => stateTemplateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
   },
   {
     deep: true,
@@ -398,7 +398,7 @@ const templateItemRenderKeyGet = (item: ISettingsHotsearchPodcastTemplateItem): 
     return templateItemRenderKeyCreate();
   }
 
-  return templateItemRenderKeys.value[index] ?? `template-item-${index}`;
+  return stateTemplateItemRenderKeys.value[index] ?? `template-item-${index}`;
 };
 
 /**
@@ -569,9 +569,9 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
  * @param {string[]} renderKeys 最新渲染键列表。
  * @returns {void} 无返回值。
  */
-const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = templateItemRenderKeys.value): void => {
+const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = stateTemplateItemRenderKeys.value): void => {
   stateTemplateItems.value = [...value];
-  templateItemRenderKeys.value = [...renderKeys];
+  stateTemplateItemRenderKeys.value = [...renderKeys];
   emit('update:template-items', value);
 };
 
@@ -699,11 +699,11 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
     segmentType: templateSegmentType
   };
 
-  if (isAdPlaceholder && activeTemplateItemIndex.value === index) {
-    activeTemplateItemIndex.value = null;
-    activeTemplateItemSelectionStart.value = null;
-    activeTemplateItemSelectionEnd.value = null;
-    templateItemInputElements.value[index]?.blur();
+  if (isAdPlaceholder && stateActiveTemplateItemIndex.value === index) {
+    stateActiveTemplateItemIndex.value = null;
+    stateActiveTemplateItemSelectionStart.value = null;
+    stateActiveTemplateItemSelectionEnd.value = null;
+    stateTemplateItemInputElements.value[index]?.blur();
   }
 
   emitTemplateItemsUpdate(nextItems);
@@ -718,14 +718,14 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
 const handleTemplateItemContentFocus = (index: number, event: Event): void => {
   const target = event.target;
   if (!(target instanceof HTMLInputElement)) {
-    activeTemplateItemIndex.value = index;
+    stateActiveTemplateItemIndex.value = index;
     return;
   }
 
-  activeTemplateItemIndex.value = index;
-  activeTemplateItemSelectionStart.value = target.selectionStart;
-  activeTemplateItemSelectionEnd.value = target.selectionEnd;
-  templateItemInputElements.value[index] = target;
+  stateActiveTemplateItemIndex.value = index;
+  stateActiveTemplateItemSelectionStart.value = target.selectionStart;
+  stateActiveTemplateItemSelectionEnd.value = target.selectionEnd;
+  stateTemplateItemInputElements.value[index] = target;
 };
 
 /**
@@ -735,19 +735,19 @@ const handleTemplateItemContentFocus = (index: number, event: Event): void => {
  */
 const handleTemplateItemAppend = (templateType: THotsearchPodcastTemplateType): void => {
   const nextItems = stateTemplateItems.value.slice();
-  const nextRenderKeys = [...templateItemRenderKeys.value, templateItemRenderKeyCreate()];
+  const nextRenderKeys = [...stateTemplateItemRenderKeys.value, templateItemRenderKeyCreate()];
   nextItems.push(hotsearchPodcastTemplateItemDefaultCreate(templateType));
   const nextIndex = nextItems.length - 1;
 
   stateTemplateItems.value = nextItems;
-  templateItemRenderKeys.value = nextRenderKeys;
+  stateTemplateItemRenderKeys.value = nextRenderKeys;
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
-  activeTemplateItemIndex.value = nextIndex;
-  activeTemplateItemSelectionStart.value = 0;
-  activeTemplateItemSelectionEnd.value = 0;
+  stateActiveTemplateItemIndex.value = nextIndex;
+  stateActiveTemplateItemSelectionStart.value = 0;
+  stateActiveTemplateItemSelectionEnd.value = 0;
 
   void nextTick().then(() => {
-    const inputElement = templateItemInputElements.value[nextIndex];
+    const inputElement = stateTemplateItemInputElements.value[nextIndex];
     inputElement?.focus();
     inputElement?.setSelectionRange(0, 0);
   });
@@ -760,17 +760,17 @@ const handleTemplateItemAppend = (templateType: THotsearchPodcastTemplateType): 
  */
 const handleTemplateItemRemove = (index: number): void => {
   const nextItems = stateTemplateItems.value.filter((_, itemIndex) => itemIndex !== index);
-  const nextRenderKeys = templateItemRenderKeys.value.filter((_, itemIndex) => itemIndex !== index);
+  const nextRenderKeys = stateTemplateItemRenderKeys.value.filter((_, itemIndex) => itemIndex !== index);
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
-  templateItemInputElements.value = templateItemInputElements.value.filter((_, itemIndex) => itemIndex !== index);
+  stateTemplateItemInputElements.value = stateTemplateItemInputElements.value.filter((_, itemIndex) => itemIndex !== index);
 
-  if (activeTemplateItemIndex.value === index) {
-    activeTemplateItemIndex.value = null;
-    activeTemplateItemSelectionStart.value = null;
-    activeTemplateItemSelectionEnd.value = null;
-  } else if (activeTemplateItemIndex.value !== null && activeTemplateItemIndex.value > index) {
-    activeTemplateItemIndex.value -= 1;
+  if (stateActiveTemplateItemIndex.value === index) {
+    stateActiveTemplateItemIndex.value = null;
+    stateActiveTemplateItemSelectionStart.value = null;
+    stateActiveTemplateItemSelectionEnd.value = null;
+  } else if (stateActiveTemplateItemIndex.value !== null && stateActiveTemplateItemIndex.value > index) {
+    stateActiveTemplateItemIndex.value -= 1;
   }
 };
 
@@ -780,7 +780,7 @@ const handleTemplateItemRemove = (index: number): void => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleVariableInsert = async (token: string): Promise<void> => {
-  const index = activeTemplateItemIndex.value;
+  const index = stateActiveTemplateItemIndex.value;
 
   if (index === null) {
     return;
@@ -796,8 +796,8 @@ const handleVariableInsert = async (token: string): Promise<void> => {
     return;
   }
 
-  const selectionStart = activeTemplateItemSelectionStart.value ?? currentItem.content.length;
-  const selectionEnd = activeTemplateItemSelectionEnd.value ?? selectionStart;
+  const selectionStart = stateActiveTemplateItemSelectionStart.value ?? currentItem.content.length;
+  const selectionEnd = stateActiveTemplateItemSelectionEnd.value ?? selectionStart;
   const nextContent = `${currentItem.content.slice(0, selectionStart)}${token}${currentItem.content.slice(selectionEnd)}`;
   const nextCursor = selectionStart + token.length;
   const nextItems = [...stateTemplateItems.value];
@@ -808,12 +808,12 @@ const handleVariableInsert = async (token: string): Promise<void> => {
   };
 
   emitTemplateItemsUpdate(nextItems);
-  activeTemplateItemSelectionStart.value = nextCursor;
-  activeTemplateItemSelectionEnd.value = nextCursor;
+  stateActiveTemplateItemSelectionStart.value = nextCursor;
+  stateActiveTemplateItemSelectionEnd.value = nextCursor;
 
   await nextTick();
 
-  const inputElement = templateItemInputElements.value[index];
+  const inputElement = stateTemplateItemInputElements.value[index];
   inputElement?.focus();
   inputElement?.setSelectionRange(nextCursor, nextCursor);
 };
@@ -842,8 +842,8 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
   }
 
   const nextItems = [...stateTemplateItems.value];
-  const nextInputElements = [...templateItemInputElements.value];
-  const nextRenderKeys = [...templateItemRenderKeys.value];
+  const nextInputElements = [...stateTemplateItemInputElements.value];
+  const nextRenderKeys = [...stateTemplateItemRenderKeys.value];
   const movedIndexMap = new Map<number, number>();
 
   items.forEach((item, orderIndex) => {
@@ -855,19 +855,19 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
     const sourceIndex = stateTemplateItems.value.indexOf(item);
 
     nextItems[targetIndex] = item;
-    nextInputElements[targetIndex] = sourceIndex >= 0 ? (templateItemInputElements.value[sourceIndex] ?? null) : null;
-    nextRenderKeys[targetIndex] = sourceIndex >= 0 ? (templateItemRenderKeys.value[sourceIndex] ?? templateItemRenderKeyCreate()) : templateItemRenderKeyCreate();
+    nextInputElements[targetIndex] = sourceIndex >= 0 ? (stateTemplateItemInputElements.value[sourceIndex] ?? null) : null;
+    nextRenderKeys[targetIndex] = sourceIndex >= 0 ? (stateTemplateItemRenderKeys.value[sourceIndex] ?? templateItemRenderKeyCreate()) : templateItemRenderKeyCreate();
 
     if (sourceIndex >= 0) {
       movedIndexMap.set(sourceIndex, targetIndex);
     }
   });
 
-  templateItemInputElements.value = nextInputElements;
+  stateTemplateItemInputElements.value = nextInputElements;
 
-  const activeIndex = activeTemplateItemIndex.value;
+  const activeIndex = stateActiveTemplateItemIndex.value;
   if (activeIndex !== null && movedIndexMap.has(activeIndex)) {
-    activeTemplateItemIndex.value = movedIndexMap.get(activeIndex) ?? activeIndex;
+    stateActiveTemplateItemIndex.value = movedIndexMap.get(activeIndex) ?? activeIndex;
   }
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);

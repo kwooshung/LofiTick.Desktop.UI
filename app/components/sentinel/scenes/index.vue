@@ -85,7 +85,7 @@ const stateForm = reactive<ISentinelScenesConfigFormState>({
 /**
  * 引用：表单
  */
-const refForm = ref<{ clear: () => void; submit: () => void } | null>(null);
+const stateRefForm = ref<{ clear: () => void; submit: () => void } | null>(null);
 
 /**
  * 计算属性：表单 id
@@ -242,7 +242,7 @@ const valuesSet = (values: TSentinelScenesConfigValues): void => {
   stateForm.argsText = Array.isArray(values.args) ? values.args.join('\n') : '';
   stateForm.enabled = Boolean(values.enabled);
 
-  refForm.value?.clear();
+  stateRefForm.value?.clear();
   validateBuildResult();
 };
 
@@ -266,7 +266,7 @@ const handleSubmit = (_e: FormSubmitEvent<Schema>): void => {
  * @returns {TSentinelScenesConfigValidateResult} 校验结果
  */
 const validateAndSubmit = (): TSentinelScenesConfigValidateResult => {
-  void refForm.value?.submit();
+  void stateRefForm.value?.submit();
   return validateBuildResult();
 };
 
