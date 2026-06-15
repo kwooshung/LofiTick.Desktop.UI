@@ -1,12 +1,12 @@
 <template>
   <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
     <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-100 shrink-0 overflow-y-auto border-r p-3">
-      <CrawlersList :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
+      <CrawlersList :groups="computedGroups" :selected-key="selectedKey" />
     </aside>
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="bg-default relative flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
-        <VueFlow :nodes="nodes" :edges="edges" @dragover="onDragOver" @dragleave="onDragLeave">
+        <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @dragover="onDragOver" @dragleave="onDragLeave" @connect="handleConnect" @connect-start="handleConnectStart" @connect-end="handleConnectEnd">
           <template #node-start="props">
             <CrawlersNodesStart v-bind="props" />
           </template>
@@ -46,8 +46,8 @@
       </div>
 
       <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
-        <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ t('common.actions.cancel') }}</UButton>
-        <UButton type="button" color="primary" icon="i-lucide:save" @click="emit('save')">{{ t('common.actions.save') }}</UButton>
+        <UButton type="button" color="neutral" variant="outline" @click="handelModalCancel">{{ t('common.actions.cancel') }}</UButton>
+        <UButton type="button" color="primary" icon="i-lucide:save" @click="handelModalSave">{{ t('common.actions.save') }}</UButton>
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@ const { t } = useI18n();
 /**
  * Hook：Vue Flow 实例方法。
  */
-const { nodes, edges, onConnect, addEdges, addNodes } = useVueFlow();
+const { nodes, edges, toObject, onConnect, addEdges, addNodes } = useVueFlow();
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -110,6 +110,28 @@ const computedDescription = computed(() => {
  */
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
+const handleConnectStart = ({ nodeId, handleType }) => {
+  console.clear();
+  console.log('on connect start', { nodeId, handleType });
+};
+
+const handleConnect = (params) => {
+  console.log('on connect', params);
+  const newEdge = {
+    ...params,
+    style: { stroke: params.sourceHandle === 'special' ? 'red' : 'blue' }
+  };
+
+  addEdges([newEdge]);
+  // addEdges(params);
+};
+
+const handleConnectEnd = (event) => {
+  console.log('on connect end', event);
+  console.log('nodes', nodes.value);
+  console.log('edges', edges.value);
+};
+
 /**
  * 函数：添加边。
  * @param {Edge} edges 边数据。
@@ -126,30 +148,38 @@ const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
 };
 
+/**
+ * 事件：处理模态框取消
+ */
+const handelModalCancel = () => {
+  emit('cancel');
+};
+
+/**
+ * 事件：处理模态框保存
+ */
+const handelModalSave = () => {
+  console.log('on save');
+  const flowData = toObject();
+  console.log('flowData', flowData);
+  emit('save');
+};
+
+/**
+ * 生命周期：组件挂载后，初始化默认节点数据
+ */
 onMounted(() => {
   if (nodes.value.length === 0) {
     addNodes({
       type: 'start',
-      id: '1',
-      position: { x: 100, y: 100 },
-      data: {
-        title: '开始',
-        description: '爬虫的入口节点，负责触发爬虫的执行',
-        showExecIn: false,
-        showExecOut: true
-      }
+      id: 'start',
+      position: { x: 100, y: 100 }
     });
 
     addNodes({
       type: 'end',
-      id: '2',
-      position: { x: 500, y: 100 },
-      data: {
-        title: '结束',
-        description: '爬虫的结束节点，负责终止爬虫的执行',
-        showExecIn: true,
-        showExecOut: false
-      }
+      id: 'end',
+      position: { x: 500, y: 100 }
     });
   }
 });

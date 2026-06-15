@@ -58,8 +58,8 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
   /**
    * 函数：开始拖拽。
    *
-   * @param event 拖拽事件对象。
-   * @param type 节点类型标识。
+   * @param {DragEvent} event 拖拽事件对象。
+   * @param {string} type 节点类型标识。
    */
   const onDragStart = (event: DragEvent, type: string): void => {
     if (event.dataTransfer) {

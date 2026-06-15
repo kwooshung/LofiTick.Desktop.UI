@@ -22,10 +22,10 @@ const props = defineProps<EdgeProps<ILineEdgeData>>();
 
 const path = computed(() =>
   getBezierPath({
-    sourceX: props.sourceX - 16,
-    sourceY: props.sourceY - 16,
-    targetX: props.targetX + 16,
-    targetY: props.targetY + 16,
+    sourceX: props.sourceX,
+    sourceY: props.sourceY,
+    targetX: props.targetX,
+    targetY: props.targetY,
     sourcePosition: props.sourcePosition,
     targetPosition: props.targetPosition,
     curvature: props.curvature
