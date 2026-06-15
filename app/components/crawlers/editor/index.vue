@@ -10,6 +10,9 @@
           <template #node-start="props">
             <CrawlersNodesStart v-bind="props" />
           </template>
+          <template #node-end="props">
+            <CrawlersNodesEnd v-bind="props" />
+          </template>
           <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
             <UEmpty
               v-if="isDragOver"
@@ -126,14 +129,26 @@ const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
 onMounted(() => {
   if (nodes.value.length === 0) {
     addNodes({
-      id: '1',
       type: 'start',
+      id: '1',
       position: { x: 100, y: 100 },
       data: {
         title: '开始',
         description: '爬虫的入口节点，负责触发爬虫的执行',
         showExecIn: false,
         showExecOut: true
+      }
+    });
+
+    addNodes({
+      type: 'end',
+      id: '2',
+      position: { x: 500, y: 100 },
+      data: {
+        title: '结束',
+        description: '爬虫的结束节点，负责终止爬虫的执行',
+        showExecIn: true,
+        showExecOut: false
       }
     });
   }
@@ -255,7 +270,7 @@ $breakpoint-xs-max: 639px;
 
       &.animated path {
         stroke-dasharray: 5;
-        animation: dashdraw 0.5s linear infinite;
+        animation: dashdraw 500ms linear infinite;
       }
 
       &.animated path.vue-flow__edge-interaction {
@@ -303,7 +318,7 @@ $breakpoint-xs-max: 639px;
 
       .animated {
         stroke-dasharray: 5;
-        animation: dashdraw 0.5s linear infinite;
+        animation: dashdraw 500ms linear infinite;
       }
     }
 
