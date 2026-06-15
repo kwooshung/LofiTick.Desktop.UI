@@ -1,66 +1,38 @@
 <template>
   <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
-    <aside class="border-default bg-elevated/30 scrollbar h-full min-h-0 w-100 shrink-0 overflow-y-auto border-r p-3">
-      <CrawlersList :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
-    </aside>
+    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
 
     <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div class="bg-default relative flex min-h-0 min-w-full flex-1 items-center justify-center overflow-hidden">
-        <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @dragover="onDragOver" @dragleave="onDragLeave" @connect="handleConnect" @connect-start="handleConnectStart" @connect-end="handleConnectEnd" @nodes-change="handleNodesChange">
-          <CrawlersEditorLinesHelper :horizontal="stateHelperLineHorizontal" :vertical="stateHelperLineVertical" />
-          <template #node-start="props">
-            <CrawlersNodesStart v-bind="props" />
-          </template>
-          <template #node-end="props">
-            <CrawlersNodesEnd v-bind="props" />
-          </template>
-          <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
-            <UEmpty
-              v-if="isDragOver"
-              icon="i-lucide:mouse-pointer-click"
-              :title="t('pages.crawlers.editor.drag.title')"
-              :description="t('pages.crawlers.editor.drag.description')"
-              variant="naked"
-              size="sm"
-              :ui="{
-                root: 'pointer-events-none rounded-lg border border-1 border-default bg-default px-4 py-3 shadow-sm',
-                header: 'max-w-none',
-                body: 'max-w-none'
-              }"
-            />
-            <UEmpty
-              v-else-if="isCanvasEmpty"
-              icon="i-lucide:workflow"
-              :title="t('pages.crawlers.editor.empty.title')"
-              :description="t('pages.crawlers.editor.empty.description')"
-              variant="naked"
-              size="sm"
-              :ui="{
-                root: 'pointer-events-none rounded-lg border border-1 border-default bg-default px-4 py-3 shadow-sm',
-                header: 'max-w-none',
-                body: 'max-w-none'
-              }"
-            />
-          </CrawlersBackgroundDropzone>
-          <MiniMap />
-        </VueFlow>
-      </div>
+      <CrawlersEditorCanvas
+        :nodes="nodes"
+        :edges="edges"
+        :helper-line-horizontal="stateHelperLineHorizontal"
+        :helper-line-vertical="stateHelperLineVertical"
+        :is-drag-over="isDragOver"
+        :is-canvas-empty="isCanvasEmpty"
+        :drag-title="t('pages.crawlers.editor.drag.title')"
+        :drag-description="t('pages.crawlers.editor.drag.description')"
+        :empty-title="t('pages.crawlers.editor.empty.title')"
+        :empty-description="t('pages.crawlers.editor.empty.description')"
+        @dragover="onDragOver"
+        @dragleave="onDragLeave"
+        @connect="handleConnect"
+        @connect-start="handleConnectStart"
+        @connect-end="handleConnectEnd"
+        @nodes-change="handleNodesChange"
+      />
 
-      <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
-        <UButton type="button" color="neutral" variant="outline" @click="handelModalCancel">{{ t('common.actions.cancel') }}</UButton>
-        <UButton type="button" color="primary" icon="i-lucide:save" @click="handelModalSave">{{ t('common.actions.save') }}</UButton>
-      </div>
+      <CrawlersEditorActions :cancel-text="t('common.actions.cancel')" :save-text="t('common.actions.save')" @cancel="handelModalCancel" @save="handelModalSave" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Connection, GraphNode, NodeChange, NodePositionChange, OnConnectStartParams, XYPosition } from '@vue-flow/core';
-import { useVueFlow, VueFlow } from '@vue-flow/core';
-import { MiniMap } from '@vue-flow/minimap';
+import { useVueFlow } from '@vue-flow/core';
 
 import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
+import { useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
 /**
  * 属性：站点展示名称与基础 URL。
@@ -123,233 +95,28 @@ const computedDescription = computed(() => {
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
 /**
- * 接口：节点吸附辅助线计算结果。
+ * Hook：编辑器画布交互逻辑。
  */
-interface IGetHelperLinesResult {
-  horizontal?: number;
-  vertical?: number;
-  snapPosition: Partial<XYPosition>;
-}
-
-/**
- * 函数：计算节点拖拽时的辅助线与吸附位置。
- * @param {NodePositionChange} change 节点位置变更。
- * @param {GraphNode[]} nodes 当前节点集合。
- * @param {number} distance 吸附阈值。
- * @returns {IGetHelperLinesResult} 辅助线结果。
- */
-const getHelperLines = (change: NodePositionChange, nodes: GraphNode[], distance = 5): IGetHelperLinesResult => {
-  const defaultResult: IGetHelperLinesResult = {
-    horizontal: undefined,
-    vertical: undefined,
-    snapPosition: { x: undefined, y: undefined }
-  };
-  const nodeA = nodes.find((node) => node.id === change.id);
-
-  if (!nodeA || !change.position) {
-    return defaultResult;
-  }
-
-  const nodeABounds = {
-    left: change.position.x,
-    right: change.position.x + ((nodeA.dimensions.width as number) ?? 0),
-    top: change.position.y,
-    bottom: change.position.y + ((nodeA.dimensions.height as number) ?? 0),
-    width: (nodeA.dimensions.width as number) ?? 0,
-    height: (nodeA.dimensions.height as number) ?? 0
-  };
-
-  let horizontalDistance = distance;
-  let verticalDistance = distance;
-
-  return nodes
-    .filter((node) => node.id !== nodeA.id)
-    .reduce<IGetHelperLinesResult>((result, nodeB) => {
-      const nodeBBounds = {
-        left: nodeB.position.x,
-        right: nodeB.position.x + ((nodeB.dimensions.width as number) ?? 0),
-        top: nodeB.position.y,
-        bottom: nodeB.position.y + ((nodeB.dimensions.height as number) ?? 0),
-        width: nodeB.width ?? 0,
-        height: nodeB.height ?? 0
-      };
-
-      const distanceLeftLeft = Math.abs(nodeABounds.left - nodeBBounds.left);
-
-      if (distanceLeftLeft < verticalDistance) {
-        result.snapPosition.x = nodeBBounds.left;
-        result.vertical = nodeBBounds.left;
-        verticalDistance = distanceLeftLeft;
-      }
-
-      const distanceRightRight = Math.abs(nodeABounds.right - nodeBBounds.right);
-
-      if (distanceRightRight < verticalDistance) {
-        result.snapPosition.x = nodeBBounds.right - nodeABounds.width;
-        result.vertical = nodeBBounds.right;
-        verticalDistance = distanceRightRight;
-      }
-
-      const distanceLeftRight = Math.abs(nodeABounds.left - nodeBBounds.right);
-
-      if (distanceLeftRight < verticalDistance) {
-        result.snapPosition.x = nodeBBounds.right;
-        result.vertical = nodeBBounds.right;
-        verticalDistance = distanceLeftRight;
-      }
-
-      const distanceRightLeft = Math.abs(nodeABounds.right - nodeBBounds.left);
-
-      if (distanceRightLeft < verticalDistance) {
-        result.snapPosition.x = nodeBBounds.left - nodeABounds.width;
-        result.vertical = nodeBBounds.left;
-        verticalDistance = distanceRightLeft;
-      }
-
-      const distanceTopTop = Math.abs(nodeABounds.top - nodeBBounds.top);
-
-      if (distanceTopTop < horizontalDistance) {
-        result.snapPosition.y = nodeBBounds.top;
-        result.horizontal = nodeBBounds.top;
-        horizontalDistance = distanceTopTop;
-      }
-
-      const distanceBottomTop = Math.abs(nodeABounds.bottom - nodeBBounds.top);
-
-      if (distanceBottomTop < horizontalDistance) {
-        result.snapPosition.y = nodeBBounds.top - nodeABounds.height;
-        result.horizontal = nodeBBounds.top;
-        horizontalDistance = distanceBottomTop;
-      }
-
-      const distanceBottomBottom = Math.abs(nodeABounds.bottom - nodeBBounds.bottom);
-
-      if (distanceBottomBottom < horizontalDistance) {
-        result.snapPosition.y = nodeBBounds.bottom - nodeABounds.height;
-        result.horizontal = nodeBBounds.bottom;
-        horizontalDistance = distanceBottomBottom;
-      }
-
-      const distanceTopBottom = Math.abs(nodeABounds.top - nodeBBounds.bottom);
-
-      if (distanceTopBottom < horizontalDistance) {
-        result.snapPosition.y = nodeBBounds.bottom;
-        result.horizontal = nodeBBounds.bottom;
-        horizontalDistance = distanceTopBottom;
-      }
-
-      return result;
-    }, defaultResult);
-};
+const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd } = useCrawlersEditorLogic({
+  nodes,
+  edges,
+  stateHelperLineHorizontal,
+  stateHelperLineVertical,
+  addEdges,
+  applyNodeChanges,
+  addNodes
+});
 
 /**
  * 生命周期：组件挂载后，初始化默认节点数据
  */
-onMounted(() => {
-  if (nodes.value.length === 0) {
-    addNodes({
-      type: 'start',
-      id: 'start',
-      position: { x: 100, y: 100 }
-    });
-
-    addNodes({
-      type: 'end',
-      id: 'end',
-      position: { x: 1000, y: 100 }
-    });
-  }
-});
+onMounted(initializeDefaultNodes);
 
 /**
  * 函数：添加边。
  * @param {Edge} edges 边数据。
  */
 onConnect(addEdges);
-
-/**
- * 函数：根据节点位移更新辅助线并计算吸附位置。
- * @param {NodeChange[]} changes 节点变更集合。
- * @param {GraphNode[]} nodes 当前画布节点集合。
- * @returns {NodeChange[]} 处理后的节点变更集合。
- */
-const updateHelperLines = (changes: NodeChange[], nodes: GraphNode[]): NodeChange[] => {
-  stateHelperLineHorizontal.value = undefined;
-  stateHelperLineVertical.value = undefined;
-
-  const statePositionChange = changes.length === 1 ? changes[0] : undefined;
-
-  if (statePositionChange?.type === 'position' && statePositionChange.dragging && statePositionChange.position) {
-    const helperLines = getHelperLines(statePositionChange as NodePositionChange, nodes);
-
-    // 若命中辅助线，则直接回写当前变更中的坐标实现吸附。
-    statePositionChange.position.x = helperLines.snapPosition.x ?? statePositionChange.position.x;
-    statePositionChange.position.y = helperLines.snapPosition.y ?? statePositionChange.position.y;
-
-    // 记录辅助线坐标，用于画布辅助线渲染。
-    stateHelperLineHorizontal.value = helperLines.horizontal;
-    stateHelperLineVertical.value = helperLines.vertical;
-  }
-
-  return changes;
-};
-
-/**
- * 函数：处理节点变更并应用辅助线吸附。
- * @param {NodeChange[]} changes 节点变更集合。
- * @returns {void} 无返回值。
- */
-const handleNodesChange = (changes: NodeChange[]) => {
-  const updatedChanges = updateHelperLines(changes, nodes.value as GraphNode[]);
-  nodes.value = applyNodeChanges(updatedChanges);
-};
-
-/**
- * 事件：处理连接开始
- * @param {Object} connectionEvent 连接事件对象，包含连接事件和连接信息
- * @param {MouseEvent} connectionEvent.event 连接事件（可选）
- * @param {OnConnectStartParams} connectionEvent.nodeId 连接开始的节点 ID
- * @param {OnConnectStartParams} connectionEvent.handleType 连接开始的句柄类型（source 或 target）
- * @returns {void} 无返回值
- */
-const handleConnectStart = (connectionEvent: { event?: MouseEvent } & OnConnectStartParams): void => {
-  const { nodeId, handleType } = connectionEvent;
-
-  console.clear();
-  console.log('on connect start', { nodeId, handleType });
-};
-
-/**
- * 函数：处理连接完成
- * @param {Connection} params 连接参数对象，包含连接的源节点 ID、目标节点 ID、源句柄 ID 和目标句柄 ID
- * @returns {void} 无返回值
- */
-const handleConnect = (params: Connection): void => {
-  // 如果是执行节点
-  if (params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in') {
-    addEdges({
-      ...params,
-      animated: true,
-      style: { stroke: 'var(--ui-primary)' }
-    });
-  }
-
-  // const newEdge = {
-  //   ...params,
-  //   style: { stroke: params.sourceHandle === 'special' ? 'red' : 'blue' }
-  // };
-};
-
-/**
- * 函数：处理连接结束。
- * @param {MouseEvent} event 鼠标事件（可选）。
- * @returns {void} 无返回值。
- */
-const handleConnectEnd = (event?: MouseEvent): void => {
-  console.log('on connect end', event);
-  console.log('nodes', nodes.value);
-  console.log('edges', edges.value);
-};
 
 /**
  * 事件：处理模态框保存
