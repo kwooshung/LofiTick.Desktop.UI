@@ -4,6 +4,7 @@
       :nodes="nodes"
       :edges="edges"
       :is-valid-connection="isValidConnection"
+      :connection-mode="ConnectionMode.Strict"
       :delete-key-code="['Backspace', 'Delete']"
       :elements-selectable="true"
       :pan-on-drag="[1]"
@@ -150,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { SelectionMode, VueFlow } from '@vue-flow/core';
+import { ConnectionMode, SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';

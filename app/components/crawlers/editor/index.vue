@@ -3,15 +3,17 @@
     <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div class="pointer-events-none absolute top-2 right-3 z-20">
-        <div
+      <div class="absolute top-2 right-3 z-20">
+        <button
+          type="button"
           :class="[
-            'rounded-md border px-3 py-1 text-xs font-medium shadow-sm transition-colors duration-200',
+            'cursor-pointer rounded-md border px-3 py-1 text-xs font-medium shadow-sm transition-colors duration-200',
             computedAutoSaveStatusType === 'success' ? 'border-success/40 bg-success/10 text-success' : computedAutoSaveStatusType === 'error' ? 'border-error/40 bg-error/10 text-error' : 'border-default bg-default/90 text-toned'
           ]"
+          @click="handleAutoSaveManual"
         >
           {{ computedAutoSaveStatusText }}
-        </div>
+        </button>
       </div>
 
       <CrawlersEditorCanvas
@@ -532,6 +534,18 @@ const runAutoSave = (): void => {
   stateAutoSaveStatus.value = success ? 'success' : 'error';
   stateAutoSaveStatusRemainSeconds.value = AUTO_SAVE_STATUS_SECONDS;
   stateAutoSaveCountdown.value = AUTO_SAVE_COUNTDOWN_SECONDS;
+};
+
+/**
+ * 事件：手动触发自动保存。
+ * @returns {void} 无返回值。
+ */
+const handleAutoSaveManual = (): void => {
+  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    return;
+  }
+
+  runAutoSave();
 };
 
 /**

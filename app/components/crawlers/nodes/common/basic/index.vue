@@ -14,7 +14,7 @@
       </div>
     </div>
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
-      <div v-if="computedHasLeftPins" class="flex shrink-0 flex-col gap-1 py-3 pl-3">
+      <div v-if="computedHasLeftPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pl-3">
         <template v-for="pin in computedLeftPins" :key="pin.id">
           <div class="items relative flex min-h-5 cursor-default pl-3.25">
             <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
@@ -28,12 +28,12 @@
       </div>
 
       <div class="flex-1">
-        <div v-if="$slots.default" class="px-4 py-3">
+        <div v-if="$slots.default" class="nodrag cursor-auto px-4 py-3">
           <slot />
         </div>
       </div>
 
-      <div v-if="computedHasRightPins" class="flex shrink-0 flex-col gap-1 py-3 pr-3">
+      <div v-if="computedHasRightPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pr-3">
         <template v-for="pin in computedRightPins" :key="pin.id">
           <div class="iteme relative flex min-h-5 cursor-default pr-3.25">
             <div class="text-right">
@@ -47,7 +47,7 @@
       </div>
     </div>
 
-    <div v-if="$slots.footer" class="pr-4 pb-4 pl-4">
+    <div v-if="$slots.footer" class="nodrag cursor-auto pr-4 pb-4 pl-4">
       <slot name="footer" />
     </div>
   </div>
@@ -69,11 +69,11 @@ const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconCla
  */
 const BASIC_SIDE_PIN_COLOR_CLASS_MAP: Record<TBasicSidePinDataType, string> = {
   exec: 'bg-amber-400',
-  string: 'bg-green-400',
-  number: 'bg-blue-400',
-  boolean: 'bg-purple-400',
-  array: 'bg-orange-400',
-  object: 'bg-cyan-300',
+  string: 'bg-fuchsia-500',
+  number: 'bg-teal-400',
+  boolean: 'bg-red-500',
+  array: 'bg-yellow-400',
+  object: 'bg-orange-500',
   any: 'bg-gray-400'
 };
 
@@ -137,6 +137,87 @@ const resolvePinColorClass = (dataType: TBasicSidePinDataType): string => {
 };
 
 /**
+ * 函数：从 handle id 推断数据类型。
+ *
+ * # Arguments
+ *
+ * * `handleId` - 连接端点 handle 标识。
+ *
+ * # Returns
+ *
+ * 返回可识别的数据类型；无法识别时返回 unknown。
+ */
+const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataType | 'unknown' => {
+  const id = String(handleId ?? '')
+    .trim()
+    .toLowerCase();
+
+  if (id === '') {
+    return 'unknown';
+  }
+
+  if (id === 'exec-in' || id === 'exec-out' || id.includes('exec')) {
+    return 'exec';
+  }
+
+  if (id.includes('boolean') || id.includes('bool') || id.includes('result')) {
+    return 'boolean';
+  }
+
+  if (id.includes('string') || id.includes('message') || id.includes('text') || id.includes('info')) {
+    return 'string';
+  }
+
+  if (id.includes('number') || id.includes('integer') || id.includes('int') || id.includes('float')) {
+    return 'number';
+  }
+
+  if (id.includes('array') || id.includes('list')) {
+    return 'array';
+  }
+
+  if (id.includes('object') || id.includes('struct')) {
+    return 'object';
+  }
+
+  if (id.includes('any')) {
+    return 'any';
+  }
+
+  return 'unknown';
+};
+
+/**
+ * 函数：验证普通数据引脚是否类型兼容。
+ *
+ * # Arguments
+ *
+ * * `connection` - 当前连接信息。
+ *
+ * # Returns
+ *
+ * 类型兼容返回 true，否则返回 false。
+ */
+const isValidSidePinDataTypeConnection = (connection: Connection): boolean => {
+  const sourceType = inferDataTypeFromHandleId(connection.sourceHandle);
+  const targetType = inferDataTypeFromHandleId(connection.targetHandle);
+
+  if (sourceType === 'exec' || targetType === 'exec') {
+    return false;
+  }
+
+  if (sourceType === 'unknown' || targetType === 'unknown') {
+    return true;
+  }
+
+  if (sourceType === 'any' || targetType === 'any') {
+    return true;
+  }
+
+  return sourceType === targetType;
+};
+
+/**
  * 函数：验证连接是否满足 exec-out -> exec-in 规则。
  */
 const isExecConnection = (connection: Connection): boolean => {
@@ -171,7 +252,15 @@ const isValidConnectionSource = (connection: Connection): boolean => {
  * 仅阻止节点连接到自身，其余交由上层流程决定。
  */
 const isValidSidePinTarget = (connection: Connection): boolean => {
-  return connection.source !== stateNodeId;
+  if (!connection.source || !connection.target) {
+    return false;
+  }
+
+  if (connection.source === stateNodeId) {
+    return false;
+  }
+
+  return isValidSidePinDataTypeConnection(connection);
 };
 
 /**
@@ -186,6 +275,14 @@ const isValidSidePinTarget = (connection: Connection): boolean => {
  * 仅阻止节点连接到自身，其余交由上层流程决定。
  */
 const isValidSidePinSource = (connection: Connection): boolean => {
-  return connection.target !== stateNodeId;
+  if (!connection.source || !connection.target) {
+    return false;
+  }
+
+  if (connection.target === stateNodeId) {
+    return false;
+  }
+
+  return isValidSidePinDataTypeConnection(connection);
 };
 </script>
