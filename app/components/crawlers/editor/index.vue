@@ -266,6 +266,10 @@ $breakpoint-xs-max: 639px;
       pointer-events: visibleStroke;
       cursor: pointer;
 
+      &.crawlers-edge-connected .vue-flow__edge-path {
+        stroke: var(--vf-edge-connected);
+      }
+
       &.animated path {
         stroke-dasharray: 5;
         animation: dashdraw 500ms linear infinite;

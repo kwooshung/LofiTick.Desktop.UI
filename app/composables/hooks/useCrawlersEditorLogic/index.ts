@@ -21,7 +21,6 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
         id: 'start',
         position: { x: 100, y: 100 }
       });
-
       addNodes({
         type: 'end',
         id: 'end',
@@ -216,10 +215,18 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const handleConnect = (params: Connection): void => {
     console.log('on connect', params);
     if (isValidConnection(params)) {
+      // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。
+      edges.value = edges.value.filter((edge) => {
+        const isSameSourceExecPin = edge.source === params.source && edge.sourceHandle === params.sourceHandle;
+        const isSameTargetExecPin = edge.target === params.target && edge.targetHandle === params.targetHandle;
+
+        return !isSameSourceExecPin && !isSameTargetExecPin;
+      });
+
       addEdges({
         ...params,
         animated: true,
-        style: { stroke: 'var(--vf-edge-connected)' }
+        class: 'crawlers-edge-connected'
       });
     }
   };
