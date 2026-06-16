@@ -10,17 +10,17 @@ export interface ICrawlersBlueprintNodeDefinition {
   /**
    * 属性：节点标题翻译键。
    */
-  labelKey: string;
+  title: string;
 
   /**
    * 属性：节点描述翻译键。
    */
-  descriptionKey: string;
+  description: string;
 
   /**
    * 属性：节点图标名称。
    */
-  iconName: string;
+  icon: string;
 }
 
 /**
@@ -30,17 +30,17 @@ export interface ICrawlersBlueprintGroupDefinition {
   /**
    * 属性：分组标题翻译键。
    */
-  labelKey: string;
+  title: string;
 
   /**
    * 属性：分组描述翻译键。
    */
-  descriptionKey: string;
+  description: string;
 
   /**
    * 属性：分组图标。
    */
-  iconName: string;
+  icon: string;
 
   /**
    * 属性：分组节点定义。
