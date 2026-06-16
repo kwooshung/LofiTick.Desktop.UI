@@ -41,10 +41,16 @@ const hasNodeContext = computed(() => String(useNodeId() ?? '').trim() !== '');
 /**
  * 函数：验证连接目标是否合法（仅允许连接到同一节点的 exec-in）。
  */
-const isValidConnectionTarget = (connection: Connection): boolean => connection.targetHandle === 'exec-in' && connection.source !== useNodeId();
+const isValidConnectionTarget = (connection: Connection): boolean => {
+  console.log('validate connection target', connection);
+  return connection.targetHandle === 'exec-in' && connection.source !== useNodeId();
+};
 
 /**
  * 函数：验证连接源是否合法（仅允许连接到同一节点的 exec-out）。
  */
-const isValidConnectionSource = (connection: Connection): boolean => connection.sourceHandle === 'exec-out' && connection.target !== useNodeId();
+const isValidConnectionSource = (connection: Connection): boolean => {
+  console.log('validate connection source', connection);
+  return connection.sourceHandle === 'exec-out' && connection.target !== useNodeId();
+};
 </script>

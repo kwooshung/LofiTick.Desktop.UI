@@ -194,6 +194,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {void} 无返回值。
    */
   const handleConnect = (params: Connection): void => {
+    console.log('on connect', params);
     if (params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in') {
       addEdges({
         ...params,

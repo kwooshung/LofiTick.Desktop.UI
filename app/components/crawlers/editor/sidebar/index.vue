@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import type { ICrawlersEditorSidebarEmits, ICrawlersEditorSidebarProps } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
  * 属性：左侧栏显示数据。

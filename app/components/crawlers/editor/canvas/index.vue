@@ -4,8 +4,8 @@
       :nodes="nodes"
       :edges="edges"
       fit-view-on-init
-      @dragover="(event) => emit('dragover', event as DragEvent)"
-      @dragleave="(event) => emit('dragleave', event as DragEvent)"
+      @dragover="(event: DragEvent) => emit('dragover', event as DragEvent)"
+      @dragleave="(event: DragEvent) => emit('dragleave', event as DragEvent)"
       @connect="(params) => emit('connect', params)"
       @connect-start="(params) => emit('connect-start', params as TCrawlersCanvasConnectStartEvent)"
       @connect-end="(event) => emit('connect-end', event as MouseEvent | undefined)"
