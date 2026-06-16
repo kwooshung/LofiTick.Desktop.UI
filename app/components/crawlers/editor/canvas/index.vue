@@ -3,6 +3,7 @@
     <VueFlow
       :nodes="nodes"
       :edges="edges"
+      :is-valid-connection="isValidConnection"
       fit-view-on-init
       @dragover="(event: DragEvent) => emit('dragover', event as DragEvent)"
       @dragleave="(event: DragEvent) => emit('dragleave', event as DragEvent)"
@@ -60,7 +61,7 @@ import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersC
 /**
  * 属性：画布渲染与状态数据。
  */
-const { nodes, edges, helperLineHorizontal, helperLineVertical, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
+const { nodes, edges, isValidConnection, helperLineHorizontal, helperLineVertical, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
 
 /**
  * 事件：画布交互事件。

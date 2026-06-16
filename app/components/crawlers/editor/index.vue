@@ -8,6 +8,7 @@
         :edges="edges"
         :helper-line-horizontal="stateHelperLineHorizontal"
         :helper-line-vertical="stateHelperLineVertical"
+        :is-valid-connection="isValidConnection"
         :is-drag-over="isDragOver"
         :is-canvas-empty="isCanvasEmpty"
         :drag-title="t('pages.crawlers.editor.drag.title')"
@@ -97,7 +98,7 @@ const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGro
 /**
  * Hook：编辑器画布交互逻辑。
  */
-const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd } = useCrawlersEditorLogic({
+const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd, isValidConnection } = useCrawlersEditorLogic({
   nodes,
   edges,
   stateHelperLineHorizontal,

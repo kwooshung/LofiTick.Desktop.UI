@@ -81,6 +81,13 @@ export interface ICrawlersEditorLogicResult {
   handleConnectStart: (connectionEvent: { event?: MouseEvent } & OnConnectStartParams) => void;
 
   /**
+   * 函数：统一校验连接是否合法。
+   * @param {Connection} connection 连接参数。
+   * @returns {boolean} 是否允许连接。
+   */
+  isValidConnection: (connection: Connection) => boolean;
+
+  /**
    * 函数：处理连接完成。
    * @param {Connection} params 连接参数。
    * @returns {void} 无返回值。

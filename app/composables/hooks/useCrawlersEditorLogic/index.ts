@@ -189,13 +189,33 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   };
 
   /**
+   * 函数：统一校验连接是否合法。
+   * @param {Connection} connection 连接参数。
+   * @returns {boolean} 是否允许连接。
+   */
+  const isValidConnection = (connection: Connection): boolean => {
+    const isExecConnection = connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
+
+    if (!isExecConnection || !connection.source || !connection.target) {
+      return false;
+    }
+
+    // 禁止同节点自连。
+    if (connection.source === connection.target) {
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
    * 函数：处理连接完成。
    * @param {Connection} params 连接参数。
    * @returns {void} 无返回值。
    */
   const handleConnect = (params: Connection): void => {
     console.log('on connect', params);
-    if (params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in') {
+    if (isValidConnection(params)) {
       addEdges({
         ...params,
         animated: true,
@@ -219,6 +239,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     initializeDefaultNodes,
     handleNodesChange,
     handleConnectStart,
+    isValidConnection,
     handleConnect,
     handleConnectEnd
   };

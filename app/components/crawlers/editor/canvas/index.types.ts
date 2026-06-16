@@ -25,6 +25,11 @@ export interface ICrawlersEditorCanvasProps {
   helperLineVertical?: number;
 
   /**
+   * 属性：连接合法性校验函数。
+   */
+  isValidConnection: (connection: Connection) => boolean;
+
+  /**
    * 属性：是否拖拽中。
    */
   isDragOver: boolean;
