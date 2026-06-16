@@ -1,15 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :show-exec-in="false" :show-exec-out="false">
-    <div class="relative h-10">
-      <Handle id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="h-5! w-4! translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-
-      <Handle id="exec-out-success" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" :style="{ top: '35%' }" class="h-5! w-4! -translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-      <Handle id="exec-out-fail" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" :style="{ top: '75%' }" class="h-5! w-4! -translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-
-      <span class="text-muted absolute top-[20%] right-3 text-[10px] leading-none">{{ t('components.crawler.blueprint.nodes.navigation.goto.outputs.success') }}</span>
-      <span class="text-muted absolute top-[60%] right-3 text-[10px] leading-none">{{ t('components.crawler.blueprint.nodes.navigation.goto.outputs.fail') }}</span>
-    </div>
-
+  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :right-pins="computedRightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
         <UInput v-model="statePath" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" />
@@ -27,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Connection } from '@vue-flow/core';
-import { Handle, Position, useNode, useNodeId } from '@vue-flow/core';
+import { useNode } from '@vue-flow/core';
 
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationGotoData } from '@/components/crawlers/nodes/navigation/goto/index.types';
 
 /**
@@ -46,11 +36,6 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
-
-/**
- * 常量：当前节点 ID。
- */
-const stateNodeId = useNodeId();
 
 /**
  * 状态：是否已完成 node.data 的首次回填。
@@ -73,26 +58,28 @@ const stateWaitReady = ref(true);
 const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
 
 /**
- * 函数：验证连接是否满足 exec-out* -> exec-in 规则。
+ * 计算属性：右侧数据输出引脚配置。
  */
-const isExecConnection = (connection: Connection): boolean => {
-  const sourceHandle = String(connection.sourceHandle ?? '');
-  return sourceHandle.startsWith('exec-out') && connection.targetHandle === 'exec-in';
-};
-
-/**
- * 函数：验证连接目标是否合法（仅允许其他节点的 exec-out* 连接到当前节点 exec-in）。
- */
-const isValidConnectionTarget = (connection: Connection): boolean => {
-  return isExecConnection(connection) && connection.source !== stateNodeId;
-};
-
-/**
- * 函数：验证连接源是否合法（仅允许当前节点 exec-out* 连接到其他节点 exec-in）。
- */
-const isValidConnectionSource = (connection: Connection): boolean => {
-  return isExecConnection(connection) && connection.target !== stateNodeId;
-};
+const computedRightPins = computed<IBasicSidePin[]>(() => {
+  return [
+    {
+      id: 'result-boolean',
+      label: t('components.crawler.blueprint.nodes.navigation.goto.outputs.boolean'),
+      direction: 'out',
+      dataType: 'boolean',
+      topPercent: 35,
+      description: t('components.crawler.blueprint.nodes.navigation.goto.outputs.booleanDescription')
+    },
+    {
+      id: 'result-message',
+      label: t('components.crawler.blueprint.nodes.navigation.goto.outputs.message'),
+      direction: 'out',
+      dataType: 'string',
+      topPercent: 75,
+      description: t('components.crawler.blueprint.nodes.navigation.goto.outputs.messageDescription')
+    }
+  ];
+});
 
 /**
  * 监听：初始化阶段将 node.data 回填到本地状态。

@@ -13,22 +13,14 @@
         <p v-if="description" :class="['m-0 mt-0.5 truncate text-sm', descriptionClass]">{{ description }}</p>
       </div>
     </div>
-    <div v-if="$slots.default || $slots.footer || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
+    <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
       <div v-if="computedHasLeftPins" class="relative w-28 shrink-0 py-3 pl-3">
         <template v-for="pin in computedLeftPins" :key="pin.id">
           <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
             <div class="relative flex min-h-5 items-center pr-2">
-              <Handle
-                :id="pin.id"
-                type="target"
-                :position="Position.Left"
-                :is-valid-connection="isValidSidePinTarget"
-                class="absolute top-1/2! left-0! h-5! w-4! -translate-y-1/2 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]"
-                :style="{ backgroundColor: resolvePinColor(pin.dataType) }"
-              />
+              <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['absolute top-1/2! left-0! h-3! w-3! -translate-y-1/2 rounded-full! border-2! border-white/15', resolvePinColorClass(pin.dataType)]" />
               <div class="min-w-0 pl-6 text-left">
-                <p class="truncate text-xs leading-4 font-medium text-white/90">{{ pin.label }}</p>
-                <p v-if="pin.description" class="truncate text-[11px] leading-4 text-white/60">{{ pin.description }}</p>
+                <p class="truncate text-sm leading-5 font-medium" :title="pin.description">{{ pin.label }}</p>
               </div>
             </div>
           </div>
@@ -39,9 +31,6 @@
         <div v-if="$slots.default" class="px-4 py-3">
           <slot />
         </div>
-        <div v-if="$slots.footer" class="pr-4 pb-4 pl-4">
-          <slot name="footer" />
-        </div>
       </div>
 
       <div v-if="computedHasRightPins" class="relative w-28 shrink-0 py-3 pr-3">
@@ -49,21 +38,17 @@
           <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
             <div class="relative flex min-h-5 items-center pl-2">
               <div class="min-w-0 pr-6 text-right">
-                <p class="truncate text-xs leading-4 font-medium text-white/90">{{ pin.label }}</p>
-                <p v-if="pin.description" class="truncate text-[11px] leading-4 text-white/60">{{ pin.description }}</p>
+                <p class="truncate text-sm leading-5 font-medium" :title="pin.description">{{ pin.label }}</p>
               </div>
-              <Handle
-                :id="pin.id"
-                type="source"
-                :position="Position.Right"
-                :is-valid-connection="isValidSidePinSource"
-                class="absolute top-1/2! right-0! h-5! w-4! -translate-y-1/2 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]"
-                :style="{ backgroundColor: resolvePinColor(pin.dataType) }"
-              />
+              <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['absolute top-1/2! right-0! h-3! w-3! -translate-y-1/2 rounded-full! border-2! border-white/15', resolvePinColorClass(pin.dataType)]" />
             </div>
           </div>
         </template>
       </div>
+    </div>
+
+    <div v-if="$slots.footer" class="pr-4 pb-4 pl-4">
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -80,16 +65,16 @@ import type { IBasicSidePin, ICrawlersNodesCommonBasicProps, TBasicSidePinDataTy
 const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true, leftPins = [], rightPins = [] } = defineProps<ICrawlersNodesCommonBasicProps>();
 
 /**
- * 常量：当前组件使用的引脚类型颜色映射。
+ * 常量：当前组件使用的引脚类型颜色类名映射。
  */
-const BASIC_SIDE_PIN_COLOR_MAP: Record<TBasicSidePinDataType, string> = {
-  exec: 'rgb(250 204 21)',
-  string: 'rgb(74 222 128)',
-  number: 'rgb(96 165 250)',
-  boolean: 'rgb(192 132 252)',
-  array: 'rgb(251 146 60)',
-  object: 'rgb(103 232 249)',
-  any: 'rgb(156 163 175)'
+const BASIC_SIDE_PIN_COLOR_CLASS_MAP: Record<TBasicSidePinDataType, string> = {
+  exec: 'bg-amber-400',
+  string: 'bg-green-400',
+  number: 'bg-blue-400',
+  boolean: 'bg-purple-400',
+  array: 'bg-orange-400',
+  object: 'bg-cyan-300',
+  any: 'bg-gray-400'
 };
 
 /**
@@ -137,7 +122,7 @@ const hasNodeContext = computed(() => String(stateNodeId ?? '').trim() !== '');
 const computedIsSelected = computed(() => Boolean(stateNode.node.selected));
 
 /**
- * 函数：解析引脚颜色。
+ * 函数：解析引脚颜色类名。
  *
  * # Arguments
  *
@@ -145,10 +130,10 @@ const computedIsSelected = computed(() => Boolean(stateNode.node.selected));
  *
  * # Returns
  *
- * 返回对应的颜色值；未识别时回退为 any 类型颜色。
+ * 返回对应的 Tailwind 颜色类名；未识别时回退为 any 类型颜色类名。
  */
-const resolvePinColor = (dataType: TBasicSidePinDataType): string => {
-  return BASIC_SIDE_PIN_COLOR_MAP[dataType] ?? BASIC_SIDE_PIN_COLOR_MAP.any;
+const resolvePinColorClass = (dataType: TBasicSidePinDataType): string => {
+  return BASIC_SIDE_PIN_COLOR_CLASS_MAP[dataType] ?? BASIC_SIDE_PIN_COLOR_CLASS_MAP.any;
 };
 
 /**
