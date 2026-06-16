@@ -158,6 +158,38 @@ const computedDraftKey = computed(() => {
 });
 
 /**
+ * 函数：同步开始节点域名到节点数据。
+ * @returns {void} 无返回值。
+ */
+const syncStartNodeDomain = (): void => {
+  const domain = computedNormalizedDomain.value;
+  const startNode = nodes.value.find((node) => node.id === 'start');
+
+  if (!startNode) {
+    return;
+  }
+
+  const currentDomain = String((startNode.data as { domain?: string } | undefined)?.domain ?? '');
+  if (currentDomain === domain) {
+    return;
+  }
+
+  nodes.value = nodes.value.map((node) => {
+    if (node.id !== 'start') {
+      return node;
+    }
+
+    return {
+      ...node,
+      data: {
+        ...(node.data as Record<string, unknown> | undefined),
+        domain
+      }
+    };
+  });
+};
+
+/**
  * Hook：编辑器画布交互逻辑。
  */
 const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd, isValidConnection } = useCrawlersEditorLogic({
@@ -459,7 +491,10 @@ onMounted(async () => {
     if (!restored) {
       stateInitializingDefault.value = true;
       initializeDefaultNodes();
+      syncStartNodeDomain();
       stateInitializingDefault.value = false;
+    } else {
+      syncStartNodeDomain();
     }
   }
 
@@ -473,6 +508,27 @@ onMounted(async () => {
     saveDraft();
   }, 10000);
 });
+
+/**
+ * 监听：基础 URL 变化时，刷新开始节点域名。
+ */
+watch(computedNormalizedDomain, () => {
+  syncStartNodeDomain();
+});
+
+/**
+ * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。
+ */
+watch(
+  () => nodes.value.some((node) => node.id === 'start'),
+  (hasStartNode) => {
+    if (!hasStartNode) {
+      return;
+    }
+
+    syncStartNodeDomain();
+  }
+);
 
 /**
  * 生命周期：组件挂载后，记录初始快照。

@@ -19,14 +19,15 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       addNodes({
         type: 'start',
         id: 'start',
-        position: { x: 100, y: 100 },
+        position: { x: 0, y: 0 },
         selectable: true,
         deletable: false
       });
+
       addNodes({
         type: 'end',
         id: 'end',
-        position: { x: 1000, y: 100 },
+        position: { x: 1000, y: 0 },
         selectable: true,
         deletable: false
       });
