@@ -80,6 +80,17 @@ export const crawlers = {
     drag: {
       title: 'Release to place the node',
       description: 'The current blueprint node will be inserted at the mouse position.'
+    },
+    actions: {
+      restore: 'Restore',
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      autoLayout: 'Auto Layout',
+      redo: 'Redo',
+      undo: 'Undo'
+    },
+    draft: {
+      saved: 'Draft auto-saved'
     }
   },
   executions: {

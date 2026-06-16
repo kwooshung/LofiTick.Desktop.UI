@@ -24,12 +24,12 @@
       />
 
       <CrawlersEditorActions
-        :restore-text="t('common.actions.reset')"
-        :zoom-in-text="t('common.actions.zoomIn')"
-        :zoom-out-text="t('common.actions.zoomOut')"
-        :auto-layout-text="t('common.actions.autoLayout')"
-        :redo-text="t('common.actions.redo')"
-        :undo-text="t('common.actions.undo')"
+        :restore-text="t('pages.crawlers.editor.actions.restore')"
+        :zoom-in-text="t('pages.crawlers.editor.actions.zoomIn')"
+        :zoom-out-text="t('pages.crawlers.editor.actions.zoomOut')"
+        :auto-layout-text="t('pages.crawlers.editor.actions.autoLayout')"
+        :redo-text="t('pages.crawlers.editor.actions.redo')"
+        :undo-text="t('pages.crawlers.editor.actions.undo')"
         :cancel-text="t('common.actions.cancel')"
         :save-text="t('common.actions.save')"
         @restore="handleViewportRestore"
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { useVueFlow } from '@vue-flow/core';
+import { debounce } from 'es-toolkit';
 
 import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
@@ -76,6 +77,11 @@ const stateHelperLineVertical = ref<number | undefined>(undefined);
  * Hook：国际化。
  */
 const { t } = useI18n();
+
+/**
+ * Hook：Toast 通知。
+ */
+const toast = useToast();
 
 /**
  * Hook：Vue Flow 实例方法。
@@ -113,6 +119,45 @@ const computedDescription = computed(() => {
 const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGroups.value));
 
 /**
+ * 计算属性：标准化域名。
+ */
+const computedNormalizedDomain = computed(() => {
+  const raw = String(baseUrl ?? '').trim();
+
+  if (raw === '') {
+    return '';
+  }
+
+  const noProtocol = raw.replace(/^https?:\/\//i, '');
+  const host = noProtocol.split('/')[0]?.trim().toLowerCase() ?? '';
+
+  return host;
+});
+
+/**
+ * 常量：草稿缓存键前缀。
+ */
+const DRAFT_ENTRY_PREFIX = 'crawler:blueprint:draft:';
+
+/**
+ * 常量：草稿最大存活时间（7 天，毫秒）。
+ */
+const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * 计算属性：草稿缓存键。
+ */
+const computedDraftKey = computed(() => {
+  const domain = computedNormalizedDomain.value;
+
+  if (domain === '') {
+    return '';
+  }
+
+  return `${DRAFT_ENTRY_PREFIX}${domain}`;
+});
+
+/**
  * Hook：编辑器画布交互逻辑。
  */
 const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd, isValidConnection } = useCrawlersEditorLogic({
@@ -136,6 +181,31 @@ const stateHistory = ref<string[]>([]);
 const stateHistoryIndex = ref(-1);
 
 /**
+ * 状态：是否正在恢复快照。
+ */
+const stateRestoringSnapshot = ref(false);
+
+/**
+ * 状态：是否正在初始化默认节点。
+ */
+const stateInitializingDefault = ref(false);
+
+/**
+ * 状态：是否已尝试草稿恢复。
+ */
+const stateDraftRestored = ref(false);
+
+/**
+ * 状态：上次草稿快照。
+ */
+const stateLastDraftSnapshot = ref('');
+
+/**
+ * 状态：草稿保存定时器。
+ */
+const stateDraftIntervalId = ref<number | null>(null);
+
+/**
  * 函数：生成当前画布快照。
  * @returns {{ nodes: typeof nodes.value; edges: typeof edges.value }} 当前快照。
  */
@@ -147,6 +217,11 @@ const createSnapshot = (): string => JSON.stringify(toObject());
  */
 const pushHistorySnapshot = (): void => {
   const snapshot = createSnapshot();
+  const current = stateHistory.value[stateHistoryIndex.value] ?? '';
+
+  if (current === snapshot) {
+    return;
+  }
 
   stateHistory.value = stateHistory.value.slice(0, stateHistoryIndex.value + 1);
   stateHistory.value.push(snapshot);
@@ -165,8 +240,13 @@ const restoreSnapshot = async (index: number): Promise<void> => {
     return;
   }
 
-  await fromObject(JSON.parse(snapshot) as Parameters<typeof fromObject>[0]);
-  stateHistoryIndex.value = index;
+  stateRestoringSnapshot.value = true;
+  try {
+    await fromObject(JSON.parse(snapshot) as Parameters<typeof fromObject>[0]);
+    stateHistoryIndex.value = index;
+  } finally {
+    stateRestoringSnapshot.value = false;
+  }
 };
 
 /**
@@ -226,10 +306,172 @@ const handleAutoLayout = (): void => {
 };
 
 /**
- * 生命周期：组件挂载后，初始化默认节点数据
+ * 函数：清理所有超过 7 天的草稿。
+ * @returns {void} 无返回值。
  */
-onMounted(() => {
-  initializeDefaultNodes();
+const clearExpiredDrafts = (): void => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const now = Date.now();
+  const keysToDelete: string[] = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(DRAFT_ENTRY_PREFIX)) {
+      continue;
+    }
+
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        keysToDelete.push(key);
+        continue;
+      }
+
+      const entry = JSON.parse(raw) as { ts?: number };
+      if (!entry.ts || now - entry.ts > DRAFT_MAX_AGE_MS) {
+        keysToDelete.push(key);
+      }
+    } catch {
+      keysToDelete.push(key);
+    }
+  }
+
+  for (const key of keysToDelete) {
+    localStorage.removeItem(key);
+  }
+};
+
+/**
+ * 函数：恢复当前域名对应草稿。
+ * @returns {Promise<boolean>} 是否已恢复草稿。
+ */
+const restoreDraft = async (): Promise<boolean> => {
+  if (!import.meta.client) {
+    return false;
+  }
+
+  const key = computedDraftKey.value;
+  if (key === '') {
+    return false;
+  }
+
+  const raw = localStorage.getItem(key);
+  if (!raw) {
+    return false;
+  }
+
+  try {
+    const entry = JSON.parse(raw) as { ts?: number; data?: string };
+
+    // 无时间戳或已过期，清除
+    if (!entry.ts || Date.now() - entry.ts > DRAFT_MAX_AGE_MS) {
+      localStorage.removeItem(key);
+      return false;
+    }
+
+    const data = entry.data;
+    if (!data) {
+      localStorage.removeItem(key);
+      return false;
+    }
+
+    await fromObject(JSON.parse(data) as Parameters<typeof fromObject>[0]);
+    stateHistory.value = [];
+    stateHistoryIndex.value = -1;
+    pushHistorySnapshot();
+    return true;
+  } catch {
+    localStorage.removeItem(key);
+    return false;
+  }
+};
+
+/**
+ * 函数：删除当前域名草稿。
+ * @returns {void} 无返回值。
+ */
+const clearDraft = (): void => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const key = computedDraftKey.value;
+  if (key !== '') {
+    localStorage.removeItem(key);
+  }
+
+  stateLastDraftSnapshot.value = '';
+};
+
+/**
+ * 函数：将当前画布保存到草稿。
+ * @returns {void} 无返回值。
+ */
+const saveDraft = (): void => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const key = computedDraftKey.value;
+  if (key === '') {
+    return;
+  }
+
+  const snapshot = createSnapshot();
+  if (stateLastDraftSnapshot.value === snapshot) {
+    return;
+  }
+
+  localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: snapshot }));
+  stateLastDraftSnapshot.value = snapshot;
+
+  toast.add({
+    description: t('pages.crawlers.editor.draft.saved'),
+    icon: 'i-lucide:save',
+    duration: 2000,
+    close: false
+  });
+};
+
+/**
+ * 函数：防抖记录历史。
+ */
+const pushHistorySnapshotDebounced = debounce(() => {
+  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    return;
+  }
+
+  pushHistorySnapshot();
+}, 180);
+
+/**
+ * 生命周期：组件挂载后，初始化默认节点数据。
+ */
+onMounted(async () => {
+  clearExpiredDrafts();
+
+  if (!stateDraftRestored.value) {
+    stateDraftRestored.value = true;
+    const restored = await restoreDraft();
+    if (!restored) {
+      stateInitializingDefault.value = true;
+      initializeDefaultNodes();
+      stateInitializingDefault.value = false;
+    }
+  }
+
+  stateLastDraftSnapshot.value = createSnapshot();
+
+  stateDraftIntervalId.value = window.setInterval(() => {
+    if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+      return;
+    }
+
+    saveDraft();
+  }, 10000);
 });
 
 /**
@@ -238,17 +480,34 @@ onMounted(() => {
 watchEffect(() => {
   if (nodes.value.length > 0 && stateHistory.value.length === 0) {
     pushHistorySnapshot();
+    saveDraft();
   }
 });
+
+/**
+ * 监听：节点与边变化，持续记录历史与草稿。
+ */
+watch(
+  () => [nodes.value, edges.value],
+  () => {
+    if (stateHistory.value.length === 0) {
+      return;
+    }
+
+    pushHistorySnapshotDebounced();
+  },
+  { deep: true }
+);
 
 /**
  * 事件：处理模态框保存
  */
 const handelModalSave = () => {
-  console.log('on save');
   const flowData = toObject();
-  console.log('flowData', flowData);
-  emit('save');
+  emit('save', {
+    flowData,
+    draftKey: computedDraftKey.value
+  });
 };
 
 /**
@@ -267,6 +526,24 @@ const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
 const handelModalCancel = () => {
   emit('cancel');
 };
+
+/**
+ * 生命周期：组件卸载前，取消防抖任务。
+ */
+onBeforeUnmount(() => {
+  pushHistorySnapshotDebounced.cancel();
+  if (stateDraftIntervalId.value !== null) {
+    window.clearInterval(stateDraftIntervalId.value);
+    stateDraftIntervalId.value = null;
+  }
+});
+
+/**
+ * 向外暴露：草稿清理。
+ */
+defineExpose({
+  clearDraft
+});
 </script>
 
 <style lang="scss" scoped>

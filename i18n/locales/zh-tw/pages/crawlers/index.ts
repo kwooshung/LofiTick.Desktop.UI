@@ -80,6 +80,17 @@ export const crawlers = {
     drag: {
       title: '放開滑鼠即可放入節點',
       description: '目前藍圖節點會依滑鼠位置插入到畫布中。'
+    },
+    actions: {
+      restore: '還原',
+      zoomIn: '放大',
+      zoomOut: '縮小',
+      autoLayout: '自動排版',
+      redo: '恢復',
+      undo: '撤銷'
+    },
+    draft: {
+      saved: '草稿已自動儲存'
     }
   },
   executions: {

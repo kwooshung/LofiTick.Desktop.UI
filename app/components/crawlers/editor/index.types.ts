@@ -1,6 +1,21 @@
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
+ * 接口：编辑器保存载荷。
+ */
+export interface ICrawlersEditorSavePayload {
+  /**
+   * 属性：当前画布导出数据。
+   */
+  flowData: unknown;
+
+  /**
+   * 属性：当前草稿缓存键。
+   */
+  draftKey: string;
+}
+
+/**
  * 接口：爬虫编辑器属性。
  */
 export interface ICrawlersEditorProps {
@@ -32,7 +47,7 @@ export interface ICrawlersEditorEmits {
   /**
    * 事件：保存。
    */
-  save: [];
+  save: [payload: ICrawlersEditorSavePayload];
 
   /**
    * 事件：取消。

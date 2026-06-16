@@ -80,6 +80,17 @@ export const crawlers = {
     drag: {
       title: '松开鼠标即可放入节点',
       description: '当前蓝图节点会按鼠标位置插入到画布中。'
+    },
+    actions: {
+      restore: '还原',
+      zoomIn: '放大',
+      zoomOut: '缩小',
+      autoLayout: '自动排版',
+      redo: '恢复',
+      undo: '撤销'
+    },
+    draft: {
+      saved: '草稿已自动保存'
     }
   },
   executions: {

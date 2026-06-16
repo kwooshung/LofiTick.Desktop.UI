@@ -1,3 +1,4 @@
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
@@ -32,7 +33,7 @@ export interface ICrawlersCodeEmits {
   /**
    * 事件：保存。
    */
-  save: [];
+  save: [payload: ICrawlersEditorSavePayload];
 
   /**
    * 事件：点击左侧列表条目。

@@ -80,6 +80,17 @@ export const crawlers = {
     drag: {
       title: 'マウスを離すとノードを配置します',
       description: '現在のブループリントノードはマウス位置に挿入されます。'
+    },
+    actions: {
+      restore: 'リセット',
+      zoomIn: '拡大',
+      zoomOut: '縮小',
+      autoLayout: '自動レイアウト',
+      redo: 'やり直し',
+      undo: '元に戻す'
+    },
+    draft: {
+      saved: '下書きを自動保存しました'
     }
   },
   executions: {

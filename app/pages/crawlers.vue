@@ -73,7 +73,7 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" />
+    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" @save="handleBlueprintSave" />
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -578,6 +578,34 @@ const handleEditorSubmit = async (event: FormSubmitEvent<TCrawlerTargetEditorSub
 
   stateEditorOpen.value = false;
   await refreshDetail({ replace: true });
+};
+
+/**
+ * 事件：保存蓝图。
+ */
+const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: string }) => {
+  const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
+  if (!target) {
+    return;
+  }
+
+  await refreshSave({
+    datas: {
+      id: Number(target.id ?? 0),
+      name: String(target.name ?? '').trim(),
+      domain: String(target.domain ?? '').trim(),
+      description: String(target.description ?? ''),
+      isEnabled: Boolean(target.isEnabled ?? true)
+    },
+    replace: true
+  });
+
+  if (import.meta.client) {
+    const draftKey = String(payload?.draftKey ?? '').trim();
+    if (draftKey !== '') {
+      localStorage.removeItem(draftKey);
+    }
+  }
 };
 
 /**

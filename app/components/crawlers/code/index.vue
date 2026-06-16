@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import type { ICrawlersCodeEmits, ICrawlersCodeProps } from '@/components/crawlers/code/index.types';
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
@@ -152,8 +153,10 @@ const open = defineModel<boolean>('open', {
 
 /**
  * 事件：保存蓝图。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
  */
-const handleSave = () => {
+const handleSave = (payload: ICrawlersEditorSavePayload) => {
+  emit('save', payload);
   open.value = false;
 };
 
