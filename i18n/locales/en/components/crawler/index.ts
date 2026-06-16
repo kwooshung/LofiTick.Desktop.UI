@@ -80,6 +80,10 @@ export const crawler = {
         end: {
           title: 'End',
           description: 'Terminal node that ends crawler execution'
+        },
+        units: {
+          millisecond: '毫秒',
+          count: 'Times'
         }
       },
       navigation: {
@@ -103,7 +107,7 @@ export const crawler = {
               label: 'Wait for page ready'
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             }
           }
         },
@@ -120,7 +124,7 @@ export const crawler = {
           },
           fields: {
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             },
             waitReady: {
               label: 'Wait for page ready'
@@ -149,7 +153,7 @@ export const crawler = {
               label: 'Wait for page ready'
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             },
             allowNoHistory: {
               label: 'Ignore when no history'
@@ -175,7 +179,7 @@ export const crawler = {
               label: 'Wait for page ready'
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             },
             allowNoHistory: {
               label: 'Ignore when no history'
@@ -218,7 +222,7 @@ export const crawler = {
               placeholder: 'Enter selector, e.g. .news-item'
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             }
           }
         },
@@ -235,7 +239,7 @@ export const crawler = {
           },
           fields: {
             durationMs: {
-              label: 'Duration (ms)'
+              label: 'Duration (毫秒)'
             }
           }
         },
@@ -252,10 +256,10 @@ export const crawler = {
           },
           fields: {
             minMs: {
-              label: 'Min (ms)'
+              label: 'Min (毫秒)'
             },
             maxMs: {
-              label: 'Max (ms)'
+              label: 'Max (毫秒)'
             }
           }
         },
@@ -281,7 +285,7 @@ export const crawler = {
               }
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             }
           }
         },
@@ -303,7 +307,7 @@ export const crawler = {
               placeholder: "Example: window.location.href.includes('/news')"
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             }
           }
         },
@@ -324,7 +328,7 @@ export const crawler = {
               placeholder: 'Enter the text to wait for'
             },
             timeoutMs: {
-              label: 'Timeout (ms)'
+              label: 'Timeout (毫秒)'
             }
           }
         },
@@ -341,12 +345,209 @@ export const crawler = {
           },
           fields: {
             durationMs: {
-              label: 'Delay (ms)'
+              label: 'Delay (毫秒)'
             }
           }
         }
       },
       interaction: {
+        common: {
+          outputs: {
+            boolean: 'Result',
+            booleanDescription: 'Whether interaction execution succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when interaction fails'
+          },
+          fields: {
+            selector: {
+              label: 'Selector',
+              placeholder: 'e.g. #login-btn or .form input[name="email"]'
+            },
+            timeoutMs: {
+              label: 'Timeout (毫秒)'
+            },
+            button: {
+              label: 'Mouse Button',
+              options: {
+                left: 'Left',
+                middle: 'Middle',
+                right: 'Right'
+              }
+            },
+            clickCount: {
+              label: 'Click Count'
+            },
+            hoverDelayMs: {
+              label: 'Hover Delay',
+              input: {
+                prefix: 'Fixed'
+              }
+            },
+            randomHoverDelay: {
+              label: 'Random Hover Delay'
+            },
+            hoverDelayMinMs: {
+              label: 'Min Hover Delay (毫秒)',
+              input: {
+                prefix: 'Min'
+              }
+            },
+            hoverDelayMaxMs: {
+              label: 'Max Hover Delay (毫秒)',
+              input: {
+                prefix: 'Max'
+              }
+            },
+            text: {
+              label: 'Text',
+              placeholder: 'Enter text to type'
+            },
+            content: {
+              label: 'Content',
+              placeholder: 'Enter content to fill'
+            },
+            typeMode: {
+              label: 'Input Mode',
+              options: {
+                type: 'Type Character by Character',
+                fill: 'Fill Directly'
+              }
+            },
+            inputIntervalMs: {
+              label: 'Input Interval',
+              input: {
+                prefix: 'Fixed',
+                unit: '毫秒'
+              }
+            },
+            randomInputInterval: {
+              label: 'Random Interval'
+            },
+            inputIntervalMinMs: {
+              label: 'Min Interval (毫秒)',
+              input: {
+                prefix: 'Min',
+                unit: '毫秒'
+              }
+            },
+            inputIntervalMaxMs: {
+              label: 'Max Interval (毫秒)',
+              input: {
+                prefix: 'Max',
+                unit: '毫秒'
+              }
+            },
+            clearBefore: {
+              label: 'Clear Before Input'
+            },
+            optionMode: {
+              label: 'Option Match Mode',
+              options: {
+                text: 'By Text',
+                value: 'By Value',
+                index: 'By Index'
+              }
+            },
+            optionValue: {
+              label: 'Option Target',
+              placeholder: 'Enter target text / value / index'
+            },
+            skipIfAlreadyState: {
+              label: 'Skip If Already In Target State'
+            },
+            eventName: {
+              label: 'Event Name',
+              placeholder: 'Select an event to dispatch',
+              options: {
+                click: 'Click',
+                dblclick: 'Double Click',
+                mousedown: 'Mouse Down',
+                mouseup: 'Mouse Up',
+                mouseenter: 'Mouse Enter',
+                mouseleave: 'Mouse Leave',
+                mousemove: 'Mouse Move',
+                input: 'Input',
+                change: 'Change',
+                focus: 'Focus',
+                blur: 'Blur',
+                keydown: 'Key Down',
+                keyup: 'Key Up',
+                keypress: 'Key Press',
+                submit: 'Submit'
+              }
+            },
+            bubbles: {
+              label: 'Bubbles'
+            },
+            cancelable: {
+              label: 'Cancelable'
+            },
+            key: {
+              label: 'Key',
+              options: {
+                enter: 'Enter',
+                tab: 'Tab',
+                shiftTab: 'Shift + Tab',
+                escape: 'Escape',
+                space: 'Space',
+                backspace: 'Backspace',
+                delete: 'Delete',
+                insert: 'Insert',
+                home: 'Home',
+                end: 'End',
+                pageUp: 'PageUp',
+                pageDown: 'PageDown',
+                arrowUp: 'ArrowUp',
+                arrowDown: 'ArrowDown',
+                arrowLeft: 'ArrowLeft',
+                arrowRight: 'ArrowRight',
+                f1: 'F1',
+                f2: 'F2',
+                f3: 'F3',
+                f4: 'F4',
+                f5: 'F5',
+                f6: 'F6',
+                f7: 'F7',
+                f8: 'F8',
+                f9: 'F9',
+                f10: 'F10',
+                f11: 'F11',
+                f12: 'F12',
+                ctrlA: 'Ctrl + A (Select All)',
+                ctrlC: 'Ctrl + C (Copy)',
+                ctrlV: 'Ctrl + V (Paste)',
+                ctrlX: 'Ctrl + X (Cut)',
+                ctrlZ: 'Ctrl + Z (Undo)',
+                ctrlY: 'Ctrl + Y (Redo)',
+                ctrlS: 'Ctrl + S (Save)',
+                ctrlP: 'Ctrl + P (Print)',
+                ctrlF: 'Ctrl + F (Find)',
+                ctrlR: 'Ctrl + R (Refresh)',
+                ctrlL: 'Ctrl + L (Address Bar)',
+                ctrlT: 'Ctrl + T (New Tab)',
+                ctrlW: 'Ctrl + W (Close Tab)',
+                ctrlShiftT: 'Ctrl + Shift + T (Restore Tab)',
+                ctrlShiftN: 'Ctrl + Shift + N (Incognito Window)',
+                altTab: 'Alt + Tab (Switch Window)',
+                altF4: 'Alt + F4 (Close Window)',
+                shiftEnter: 'Shift + Enter',
+                metaC: 'Meta + C (Copy on macOS)',
+                metaV: 'Meta + V (Paste on macOS)',
+                metaS: 'Meta + S (Save on macOS)',
+                metaZ: 'Meta + Z (Undo on macOS)'
+              }
+            },
+            repeatCount: {
+              label: 'Repeat Count'
+            },
+            pressDurationMs: {
+              label: 'Press Duration (毫秒)'
+            },
+            simulateNativeInput: {
+              label: 'Simulate Native Input'
+            }
+          }
+        },
         clickElement: {
           title: 'Click Element',
           description: 'Click a target element'

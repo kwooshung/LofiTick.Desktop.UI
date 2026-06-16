@@ -80,6 +80,10 @@ export const crawler = {
         end: {
           title: '结束',
           description: '爬虫的结束节点，负责终止爬虫的执行'
+        },
+        units: {
+          millisecond: '毫秒',
+          count: '次'
         }
       },
       navigation: {
@@ -347,6 +351,203 @@ export const crawler = {
         }
       },
       interaction: {
+        common: {
+          outputs: {
+            boolean: '结果',
+            booleanDescription: '表示交互执行是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            selector: {
+              label: '元素选择器',
+              placeholder: '例如：#login-btn 或 .form input[name="email"]'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            },
+            button: {
+              label: '鼠标按钮',
+              options: {
+                left: '左键',
+                middle: '中键',
+                right: '右键'
+              }
+            },
+            clickCount: {
+              label: '点击次数'
+            },
+            hoverDelayMs: {
+              label: '悬停后延迟',
+              input: {
+                prefix: '固定'
+              }
+            },
+            randomHoverDelay: {
+              label: '随机悬停延迟'
+            },
+            hoverDelayMinMs: {
+              label: '最小悬停延迟毫秒',
+              input: {
+                prefix: '最小'
+              }
+            },
+            hoverDelayMaxMs: {
+              label: '最大悬停延迟毫秒',
+              input: {
+                prefix: '最大'
+              }
+            },
+            text: {
+              label: '文本内容',
+              placeholder: '请输入要输入的文本'
+            },
+            content: {
+              label: '填充内容',
+              placeholder: '请输入要填充的内容'
+            },
+            typeMode: {
+              label: '输入模式',
+              options: {
+                type: '逐字输入',
+                fill: '直接填充'
+              }
+            },
+            inputIntervalMs: {
+              label: '输入间隔',
+              input: {
+                prefix: '固定',
+                unit: '毫秒'
+              }
+            },
+            randomInputInterval: {
+              label: '随机间隔'
+            },
+            inputIntervalMinMs: {
+              label: '最小间隔毫秒',
+              input: {
+                prefix: '最小',
+                unit: '毫秒'
+              }
+            },
+            inputIntervalMaxMs: {
+              label: '最大间隔毫秒',
+              input: {
+                prefix: '最大',
+                unit: '毫秒'
+              }
+            },
+            clearBefore: {
+              label: '输入前清空'
+            },
+            optionMode: {
+              label: '选项匹配模式',
+              options: {
+                text: '按显示文本',
+                value: '按 value',
+                index: '按索引'
+              }
+            },
+            optionValue: {
+              label: '选项目标值',
+              placeholder: '请输入目标文本 / value / 索引'
+            },
+            skipIfAlreadyState: {
+              label: '已是目标状态则跳过'
+            },
+            eventName: {
+              label: '事件名称',
+              placeholder: '请选择要触发的事件',
+              options: {
+                click: '点击 click',
+                dblclick: '双击 dblclick',
+                mousedown: '按下 mousedown',
+                mouseup: '抬起 mouseup',
+                mouseenter: '移入 mouseenter',
+                mouseleave: '移出 mouseleave',
+                mousemove: '移动 mousemove',
+                input: '输入 input',
+                change: '变化 change',
+                focus: '聚焦 focus',
+                blur: '失焦 blur',
+                keydown: '按键按下 keydown',
+                keyup: '按键抬起 keyup',
+                keypress: '按键触发 keypress',
+                submit: '提交 submit'
+              }
+            },
+            bubbles: {
+              label: '允许冒泡'
+            },
+            cancelable: {
+              label: '允许取消'
+            },
+            key: {
+              label: '按键',
+              options: {
+                enter: '回车 Enter',
+                tab: 'Tab',
+                shiftTab: 'Shift + Tab',
+                escape: 'Esc',
+                space: '空格 Space',
+                backspace: '退格 Backspace',
+                delete: '删除 Delete',
+                insert: '插入 Insert',
+                home: 'Home',
+                end: 'End',
+                pageUp: 'PageUp',
+                pageDown: 'PageDown',
+                arrowUp: '方向上 ArrowUp',
+                arrowDown: '方向下 ArrowDown',
+                arrowLeft: '方向左 ArrowLeft',
+                arrowRight: '方向右 ArrowRight',
+                f1: 'F1',
+                f2: 'F2',
+                f3: 'F3',
+                f4: 'F4',
+                f5: 'F5',
+                f6: 'F6',
+                f7: 'F7',
+                f8: 'F8',
+                f9: 'F9',
+                f10: 'F10',
+                f11: 'F11',
+                f12: 'F12',
+                ctrlA: '全选 Ctrl + A',
+                ctrlC: '复制 Ctrl + C',
+                ctrlV: '粘贴 Ctrl + V',
+                ctrlX: '剪切 Ctrl + X',
+                ctrlZ: '撤销 Ctrl + Z',
+                ctrlY: '重做 Ctrl + Y',
+                ctrlS: '保存 Ctrl + S',
+                ctrlP: '打印 Ctrl + P',
+                ctrlF: '查找 Ctrl + F',
+                ctrlR: '刷新 Ctrl + R',
+                ctrlL: '地址栏 Ctrl + L',
+                ctrlT: '新建标签 Ctrl + T',
+                ctrlW: '关闭标签 Ctrl + W',
+                ctrlShiftT: '恢复标签 Ctrl + Shift + T',
+                ctrlShiftN: '无痕窗口 Ctrl + Shift + N',
+                altTab: '切换窗口 Alt + Tab',
+                altF4: '关闭窗口 Alt + F4',
+                shiftEnter: 'Shift + Enter',
+                metaC: 'Mac 复制 Meta + C',
+                metaV: 'Mac 粘贴 Meta + V',
+                metaS: 'Mac 保存 Meta + S',
+                metaZ: 'Mac 撤销 Meta + Z'
+              }
+            },
+            repeatCount: {
+              label: '重复次数'
+            },
+            pressDurationMs: {
+              label: '按下时长毫秒'
+            },
+            simulateNativeInput: {
+              label: '模拟真实设备输入'
+            }
+          }
+        },
         clickElement: {
           title: '点击元素',
           description: '点击指定元素'

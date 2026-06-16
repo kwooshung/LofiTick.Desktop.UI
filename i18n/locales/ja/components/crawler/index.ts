@@ -80,6 +80,10 @@ export const crawler = {
         end: {
           title: '終了',
           description: 'クローラーの実行を終了する終端ノード'
+        },
+        units: {
+          millisecond: '毫秒',
+          count: '回'
         }
       },
       navigation: {
@@ -103,7 +107,7 @@ export const crawler = {
               label: 'ページ準備完了を待機'
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             }
           }
         },
@@ -120,7 +124,7 @@ export const crawler = {
           },
           fields: {
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             },
             waitReady: {
               label: 'ページ準備完了を待機'
@@ -149,7 +153,7 @@ export const crawler = {
               label: 'ページ準備完了を待機'
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             },
             allowNoHistory: {
               label: '履歴なしエラーを無視'
@@ -175,7 +179,7 @@ export const crawler = {
               label: 'ページ準備完了を待機'
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             },
             allowNoHistory: {
               label: '履歴なしエラーを無視'
@@ -218,7 +222,7 @@ export const crawler = {
               placeholder: 'セレクターを入力（例: .news-item）'
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             }
           }
         },
@@ -235,7 +239,7 @@ export const crawler = {
           },
           fields: {
             durationMs: {
-              label: '待機時間（ms）'
+              label: '待機時間（毫秒）'
             }
           }
         },
@@ -252,10 +256,10 @@ export const crawler = {
           },
           fields: {
             minMs: {
-              label: '最小（ms）'
+              label: '最小（毫秒）'
             },
             maxMs: {
-              label: '最大（ms）'
+              label: '最大（毫秒）'
             }
           }
         },
@@ -281,7 +285,7 @@ export const crawler = {
               }
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             }
           }
         },
@@ -303,7 +307,7 @@ export const crawler = {
               placeholder: "例：window.location.href.includes('/news')"
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             }
           }
         },
@@ -324,7 +328,7 @@ export const crawler = {
               placeholder: '待機するテキストを入力'
             },
             timeoutMs: {
-              label: 'タイムアウト（ms）'
+              label: 'タイムアウト（毫秒）'
             }
           }
         },
@@ -341,12 +345,209 @@ export const crawler = {
           },
           fields: {
             durationMs: {
-              label: '遅延（ms）'
+              label: '遅延（毫秒）'
             }
           }
         }
       },
       interaction: {
+        common: {
+          outputs: {
+            boolean: '結果',
+            booleanDescription: '操作実行が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            selector: {
+              label: 'セレクター',
+              placeholder: '例：#login-btn または .form input[name="email"]'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（毫秒）'
+            },
+            button: {
+              label: 'マウスボタン',
+              options: {
+                left: '左',
+                middle: '中',
+                right: '右'
+              }
+            },
+            clickCount: {
+              label: 'クリック回数'
+            },
+            hoverDelayMs: {
+              label: 'ホバー後遅延',
+              input: {
+                prefix: '固定'
+              }
+            },
+            randomHoverDelay: {
+              label: 'ランダムホバー遅延'
+            },
+            hoverDelayMinMs: {
+              label: '最小ホバー遅延（毫秒）',
+              input: {
+                prefix: '最小'
+              }
+            },
+            hoverDelayMaxMs: {
+              label: '最大ホバー遅延（毫秒）',
+              input: {
+                prefix: '最大'
+              }
+            },
+            text: {
+              label: 'テキスト',
+              placeholder: '入力するテキストを入力'
+            },
+            content: {
+              label: '入力内容',
+              placeholder: '埋め込む内容を入力'
+            },
+            typeMode: {
+              label: '入力モード',
+              options: {
+                type: '逐次入力',
+                fill: '直接入力'
+              }
+            },
+            inputIntervalMs: {
+              label: '入力間隔',
+              input: {
+                prefix: '固定',
+                unit: '毫秒'
+              }
+            },
+            randomInputInterval: {
+              label: 'ランダム間隔'
+            },
+            inputIntervalMinMs: {
+              label: '最小間隔（毫秒）',
+              input: {
+                prefix: '最小',
+                unit: '毫秒'
+              }
+            },
+            inputIntervalMaxMs: {
+              label: '最大間隔（毫秒）',
+              input: {
+                prefix: '最大',
+                unit: '毫秒'
+              }
+            },
+            clearBefore: {
+              label: '入力前にクリア'
+            },
+            optionMode: {
+              label: '選択一致モード',
+              options: {
+                text: '表示テキスト',
+                value: 'value',
+                index: 'インデックス'
+              }
+            },
+            optionValue: {
+              label: '選択対象値',
+              placeholder: '対象テキスト / value / インデックスを入力'
+            },
+            skipIfAlreadyState: {
+              label: '既に目標状態ならスキップ'
+            },
+            eventName: {
+              label: 'イベント名',
+              placeholder: '発火するイベントを選択',
+              options: {
+                click: 'クリック click',
+                dblclick: 'ダブルクリック dblclick',
+                mousedown: '押下 mousedown',
+                mouseup: '離す mouseup',
+                mouseenter: '進入 mouseenter',
+                mouseleave: '離脱 mouseleave',
+                mousemove: '移動 mousemove',
+                input: '入力 input',
+                change: '変更 change',
+                focus: 'フォーカス focus',
+                blur: 'ブラー blur',
+                keydown: 'キー押下 keydown',
+                keyup: 'キー離し keyup',
+                keypress: 'キー入力 keypress',
+                submit: '送信 submit'
+              }
+            },
+            bubbles: {
+              label: 'バブリングを許可'
+            },
+            cancelable: {
+              label: 'キャンセル可能'
+            },
+            key: {
+              label: 'キー',
+              options: {
+                enter: 'Enter',
+                tab: 'Tab',
+                shiftTab: 'Shift + Tab',
+                escape: 'Escape',
+                space: 'Space',
+                backspace: 'Backspace',
+                delete: 'Delete',
+                insert: 'Insert',
+                home: 'Home',
+                end: 'End',
+                pageUp: 'PageUp',
+                pageDown: 'PageDown',
+                arrowUp: 'ArrowUp',
+                arrowDown: 'ArrowDown',
+                arrowLeft: 'ArrowLeft',
+                arrowRight: 'ArrowRight',
+                f1: 'F1',
+                f2: 'F2',
+                f3: 'F3',
+                f4: 'F4',
+                f5: 'F5',
+                f6: 'F6',
+                f7: 'F7',
+                f8: 'F8',
+                f9: 'F9',
+                f10: 'F10',
+                f11: 'F11',
+                f12: 'F12',
+                ctrlA: 'Ctrl + A（すべて選択）',
+                ctrlC: 'Ctrl + C（コピー）',
+                ctrlV: 'Ctrl + V（貼り付け）',
+                ctrlX: 'Ctrl + X（切り取り）',
+                ctrlZ: 'Ctrl + Z（元に戻す）',
+                ctrlY: 'Ctrl + Y（やり直し）',
+                ctrlS: 'Ctrl + S（保存）',
+                ctrlP: 'Ctrl + P（印刷）',
+                ctrlF: 'Ctrl + F（検索）',
+                ctrlR: 'Ctrl + R（再読み込み）',
+                ctrlL: 'Ctrl + L（アドレスバー）',
+                ctrlT: 'Ctrl + T（新しいタブ）',
+                ctrlW: 'Ctrl + W（タブを閉じる）',
+                ctrlShiftT: 'Ctrl + Shift + T（タブ復元）',
+                ctrlShiftN: 'Ctrl + Shift + N（シークレットウィンドウ）',
+                altTab: 'Alt + Tab（ウィンドウ切替）',
+                altF4: 'Alt + F4（ウィンドウを閉じる）',
+                shiftEnter: 'Shift + Enter',
+                metaC: 'Meta + C（macOS コピー）',
+                metaV: 'Meta + V（macOS 貼り付け）',
+                metaS: 'Meta + S（macOS 保存）',
+                metaZ: 'Meta + Z（macOS 元に戻す）'
+              }
+            },
+            repeatCount: {
+              label: '繰り返し回数'
+            },
+            pressDurationMs: {
+              label: '押下時間（毫秒）'
+            },
+            simulateNativeInput: {
+              label: '実機入力をシミュレート'
+            }
+          }
+        },
         clickElement: {
           title: '要素をクリック',
           description: '対象要素をクリックします'

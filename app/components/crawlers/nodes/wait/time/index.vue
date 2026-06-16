@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-clock-3" :title="t('components.crawler.blueprint.nodes.wait.time.title')" :description="t('components.crawler.blueprint.nodes.wait.time.description')" header-bg="bg-amber-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.wait.time.fields.durationMs.label')">
-        <UInputNumber v-model="stateDurationMs" :min="100" :step="100" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerWaitTimeDurationMs" v-model="stateDurationMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

@@ -80,6 +80,10 @@ export const crawler = {
         end: {
           title: '結束',
           description: '爬蟲的結束節點，負責終止爬蟲執行'
+        },
+        units: {
+          millisecond: '毫秒',
+          count: '次'
         }
       },
       navigation: {
@@ -347,6 +351,203 @@ export const crawler = {
         }
       },
       interaction: {
+        common: {
+          outputs: {
+            boolean: '結果',
+            booleanDescription: '表示互動執行是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            selector: {
+              label: '元素選擇器',
+              placeholder: '例如：#login-btn 或 .form input[name="email"]'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            },
+            button: {
+              label: '滑鼠按鍵',
+              options: {
+                left: '左鍵',
+                middle: '中鍵',
+                right: '右鍵'
+              }
+            },
+            clickCount: {
+              label: '點擊次數'
+            },
+            hoverDelayMs: {
+              label: '懸停後延遲',
+              input: {
+                prefix: '固定'
+              }
+            },
+            randomHoverDelay: {
+              label: '隨機懸停延遲'
+            },
+            hoverDelayMinMs: {
+              label: '最小懸停延遲毫秒',
+              input: {
+                prefix: '最小'
+              }
+            },
+            hoverDelayMaxMs: {
+              label: '最大懸停延遲毫秒',
+              input: {
+                prefix: '最大'
+              }
+            },
+            text: {
+              label: '文字內容',
+              placeholder: '請輸入要鍵入的文字'
+            },
+            content: {
+              label: '填入內容',
+              placeholder: '請輸入要填入的內容'
+            },
+            typeMode: {
+              label: '輸入模式',
+              options: {
+                type: '逐字輸入',
+                fill: '直接填入'
+              }
+            },
+            inputIntervalMs: {
+              label: '輸入間隔',
+              input: {
+                prefix: '固定',
+                unit: '毫秒'
+              }
+            },
+            randomInputInterval: {
+              label: '隨機間隔'
+            },
+            inputIntervalMinMs: {
+              label: '最小間隔毫秒',
+              input: {
+                prefix: '最小',
+                unit: '毫秒'
+              }
+            },
+            inputIntervalMaxMs: {
+              label: '最大間隔毫秒',
+              input: {
+                prefix: '最大',
+                unit: '毫秒'
+              }
+            },
+            clearBefore: {
+              label: '輸入前清空'
+            },
+            optionMode: {
+              label: '選項匹配模式',
+              options: {
+                text: '依顯示文字',
+                value: '依 value',
+                index: '依索引'
+              }
+            },
+            optionValue: {
+              label: '選項目標值',
+              placeholder: '請輸入目標文字 / value / 索引'
+            },
+            skipIfAlreadyState: {
+              label: '已是目標狀態則略過'
+            },
+            eventName: {
+              label: '事件名稱',
+              placeholder: '請選擇要觸發的事件',
+              options: {
+                click: '點擊 click',
+                dblclick: '雙擊 dblclick',
+                mousedown: '按下 mousedown',
+                mouseup: '放開 mouseup',
+                mouseenter: '移入 mouseenter',
+                mouseleave: '移出 mouseleave',
+                mousemove: '移動 mousemove',
+                input: '輸入 input',
+                change: '變更 change',
+                focus: '聚焦 focus',
+                blur: '失焦 blur',
+                keydown: '按鍵按下 keydown',
+                keyup: '按鍵放開 keyup',
+                keypress: '按鍵觸發 keypress',
+                submit: '提交 submit'
+              }
+            },
+            bubbles: {
+              label: '允許冒泡'
+            },
+            cancelable: {
+              label: '允許取消'
+            },
+            key: {
+              label: '按鍵',
+              options: {
+                enter: 'Enter',
+                tab: 'Tab',
+                shiftTab: 'Shift + Tab',
+                escape: 'Esc',
+                space: '空白 Space',
+                backspace: '退格 Backspace',
+                delete: '刪除 Delete',
+                insert: '插入 Insert',
+                home: 'Home',
+                end: 'End',
+                pageUp: 'PageUp',
+                pageDown: 'PageDown',
+                arrowUp: '方向上 ArrowUp',
+                arrowDown: '方向下 ArrowDown',
+                arrowLeft: '方向左 ArrowLeft',
+                arrowRight: '方向右 ArrowRight',
+                f1: 'F1',
+                f2: 'F2',
+                f3: 'F3',
+                f4: 'F4',
+                f5: 'F5',
+                f6: 'F6',
+                f7: 'F7',
+                f8: 'F8',
+                f9: 'F9',
+                f10: 'F10',
+                f11: 'F11',
+                f12: 'F12',
+                ctrlA: '全選 Ctrl + A',
+                ctrlC: '複製 Ctrl + C',
+                ctrlV: '貼上 Ctrl + V',
+                ctrlX: '剪下 Ctrl + X',
+                ctrlZ: '復原 Ctrl + Z',
+                ctrlY: '重做 Ctrl + Y',
+                ctrlS: '儲存 Ctrl + S',
+                ctrlP: '列印 Ctrl + P',
+                ctrlF: '搜尋 Ctrl + F',
+                ctrlR: '重新整理 Ctrl + R',
+                ctrlL: '網址列 Ctrl + L',
+                ctrlT: '新分頁 Ctrl + T',
+                ctrlW: '關閉分頁 Ctrl + W',
+                ctrlShiftT: '還原分頁 Ctrl + Shift + T',
+                ctrlShiftN: '無痕視窗 Ctrl + Shift + N',
+                altTab: '切換視窗 Alt + Tab',
+                altF4: '關閉視窗 Alt + F4',
+                shiftEnter: 'Shift + Enter',
+                metaC: 'Mac 複製 Meta + C',
+                metaV: 'Mac 貼上 Meta + V',
+                metaS: 'Mac 儲存 Meta + S',
+                metaZ: 'Mac 復原 Meta + Z'
+              }
+            },
+            repeatCount: {
+              label: '重複次數'
+            },
+            pressDurationMs: {
+              label: '按下時長毫秒'
+            },
+            simulateNativeInput: {
+              label: '模擬真實裝置輸入'
+            }
+          }
+        },
         clickElement: {
           title: '點擊元素',
           description: '點擊指定元素'

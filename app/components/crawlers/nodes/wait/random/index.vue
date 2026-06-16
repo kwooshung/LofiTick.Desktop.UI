@@ -2,11 +2,11 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-shuffle" :title="t('components.crawler.blueprint.nodes.wait.random.title')" :description="t('components.crawler.blueprint.nodes.wait.random.description')" header-bg="bg-amber-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.wait.random.fields.minMs.label')">
-        <UInputNumber v-model="stateMinMs" :min="100" :step="100" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerWaitRandomMinMs" v-model="stateMinMs" :min="100" :step="100" prefix="min" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.wait.random.fields.maxMs.label')">
-        <UInputNumber v-model="stateMaxMs" :min="100" :step="100" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerWaitRandomMaxMs" v-model="stateMaxMs" :min="100" :step="100" prefix="max" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

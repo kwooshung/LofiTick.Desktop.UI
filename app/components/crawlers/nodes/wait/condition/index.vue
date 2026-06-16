@@ -6,7 +6,7 @@
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.wait.condition.fields.timeoutMs.label')">
-        <UInputNumber v-model="stateTimeoutMs" :min="100" :step="100" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerWaitConditionTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

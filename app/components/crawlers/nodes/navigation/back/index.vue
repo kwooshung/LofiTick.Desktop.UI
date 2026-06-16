@@ -2,11 +2,11 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-arrow-left" :title="t('components.crawler.blueprint.nodes.navigation.back.title')" :description="t('components.crawler.blueprint.nodes.navigation.back.description')" header-bg="bg-blue-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.steps.label')">
-        <UInputNumber v-model="stateSteps" :min="1" :step="1" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerNavigationBackSteps" v-model="stateSteps" :min="1" :step="1" prefix="#" unit="step" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.timeoutMs.label')">
-        <UInputNumber v-model="stateTimeoutMs" :min="1000" :step="500" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerNavigationBackTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.waitReady.label')">

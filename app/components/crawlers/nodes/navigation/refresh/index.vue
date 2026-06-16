@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-refresh-cw" :title="t('components.crawler.blueprint.nodes.navigation.refresh.title')" :description="t('components.crawler.blueprint.nodes.navigation.refresh.description')" header-bg="bg-blue-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.timeoutMs.label')">
-        <UInputNumber v-model="stateTimeoutMs" :min="1000" :step="500" orientation="vertical" class="w-full" />
+        <CrawlersNodesCommonNumberInput id="crawlerNavigationRefreshTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.waitReady.label')">
