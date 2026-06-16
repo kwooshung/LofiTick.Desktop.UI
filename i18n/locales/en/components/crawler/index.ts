@@ -89,9 +89,9 @@ export const crawler = {
           outputs: {
             success: 'Success',
             fail: 'Fail',
-            boolean: 'boolean',
+            boolean: 'Result',
             booleanDescription: 'Whether the navigation succeeded',
-            message: 'message',
+            message: 'Info',
             messageDescription: 'Error or exception details when navigation fails'
           },
           fields: {

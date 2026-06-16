@@ -89,9 +89,9 @@ export const crawler = {
           outputs: {
             success: '成功',
             fail: '失敗',
-            boolean: 'boolean',
+            boolean: '結果',
             booleanDescription: '表示是否跳轉成功',
-            message: 'message',
+            message: '資訊',
             messageDescription: '失敗時的錯誤訊息或例外說明'
           },
           fields: {

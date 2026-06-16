@@ -5,12 +5,12 @@
         <UInput v-model="statePath" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.waitReady.label')">
-        <USwitch v-model="stateWaitReady" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.timeoutMs.label')">
         <UInputNumber v-model="stateTimeoutMs" :min="1000" :step="500" orientation="vertical" class="w-full" />
+      </UFormField>
+
+      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.waitReady.label')">
+        <USwitch v-model="stateWaitReady" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
