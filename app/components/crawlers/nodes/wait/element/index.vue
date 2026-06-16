@@ -1,10 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-scan-search" :title="t('components.crawler.blueprint.nodes.wait.element.title')" :description="t('components.crawler.blueprint.nodes.wait.element.description')" header-bg="bg-amber-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-scan-search" :title="t('components.crawler.blueprint.nodes.wait.element.title')" :description="t('components.crawler.blueprint.nodes.wait.element.description')" header-bg="bg-amber-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.wait.element.fields.selector.label')">
-        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.wait.element.fields.selector.placeholder')" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.wait.element.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerWaitElementTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
@@ -38,14 +34,18 @@ const stateNode = useNode();
 const stateInitialized = ref(false);
 
 /**
- * 状态：等待元素选择器。
+ * 常量：左侧数据输入引脚配置。
  */
-const stateSelector = ref('');
-
-/**
- * 状态：选择器类型（xpath/css）。
- */
-const stateSelectorType = ref<'xpath' | 'css'>('xpath');
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'element-input',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.element'),
+    direction: 'in',
+    dataType: 'object',
+    topPercent: 50,
+    description: '由元素查询节点输出的目标元素'
+  }
+];
 
 /**
  * 状态：超时时间（毫秒）。
@@ -83,8 +83,6 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateSelector.value = String(data.selector ?? '');
-  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;
   stateInitialized.value = true;
 });
@@ -92,15 +90,13 @@ watchEffect(() => {
 /**
  * 监听：本地状态变化时回写到 node.data。
  */
-watch([stateSelector, stateSelectorType, stateTimeoutMs], () => {
+watch([stateTimeoutMs], () => {
   if (!stateInitialized.value) {
     return;
   }
 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
-    selector: stateSelector.value,
-    selectorType: stateSelectorType.value,
     timeoutMs: stateTimeoutMs.value
   };
 });

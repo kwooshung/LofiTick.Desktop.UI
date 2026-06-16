@@ -85,11 +85,22 @@ export const crawler = {
           millisecond: '毫秒',
           count: '回'
         },
+        pinLabels: {
+          element: '要素',
+          elements: '要素一覧',
+          exists: '存在',
+          context: 'コンテキスト',
+          result: '結果',
+          array: '配列',
+          length: '長さ',
+          index: 'インデックス',
+          item: '項目'
+        },
         selectorInput: {
           mode: {
             options: {
-              xpath: 'XPath セレクタ',
-              css: 'CSS セレクタ'
+              xpath: 'XPath',
+              css: 'CSS'
             }
           },
           invalidHint: '選択した種類とセレクタ構文が一致しない可能性があります。'
@@ -659,16 +670,22 @@ export const crawler = {
           description: 'フォーム要素の値を取得します'
         },
         queryElement: {
-          title: '要素検索',
-          description: '単一要素を検索します'
+          title: '要素セレクター（単体）',
+          description: 'セレクターで単一要素を特定して出力します'
         },
         queryAllElements: {
-          title: '全要素検索',
-          description: '複数要素を検索して一覧で返します'
+          title: '要素セレクター（複数）',
+          description: 'セレクターで要素一覧を特定して出力します'
         },
         executeScript: {
           title: 'スクリプト実行',
-          description: 'カスタム JS を実行して結果を返します'
+          description: 'カスタム JS を実行して結果を返します',
+          fields: {
+            script: {
+              label: 'JavaScript スクリプト',
+              placeholder: '例：return document.title;'
+            }
+          }
         }
       },
       http: {
@@ -868,7 +885,12 @@ export const crawler = {
         },
         item: {
           title: '配列インデックス',
-          description: '指定インデックスの値を取得します'
+          description: '指定インデックスの値を取得します',
+          fields: {
+            index: {
+              label: 'インデックス'
+            }
+          }
         }
       },
       typeConvert: {

@@ -1,10 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-text-cursor-input" :title="t('components.crawler.blueprint.nodes.interaction.inputText.title')" :description="t('components.crawler.blueprint.nodes.interaction.inputText.description')" header-bg="bg-purple-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-text-cursor-input" :title="t('components.crawler.blueprint.nodes.interaction.inputText.title')" :description="t('components.crawler.blueprint.nodes.interaction.inputText.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.text.label')">
         <UTextarea v-model="stateText" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.text.placeholder')" />
       </UFormField>
@@ -74,8 +70,6 @@ const { t } = useI18n();
 
 const stateNode = useNode();
 const stateInitialized = ref(false);
-const stateSelector = ref('');
-const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateText = ref('');
 const stateTypeMode = ref('type');
 const stateRandomInputInterval = ref(false);
@@ -85,6 +79,17 @@ const stateInputIntervalMaxMs = ref(120);
 const stateClearBefore = ref(true);
 const stateTimeoutMs = ref(10000);
 const stateSimulateNativeInput = ref(false);
+
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'element-input',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.element'),
+    direction: 'in',
+    dataType: 'object',
+    topPercent: 50,
+    description: '由元素查询节点输出的目标元素'
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
   {
@@ -124,8 +129,6 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateSelector.value = String(data.selector ?? '');
-  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateText.value = String(data.text ?? '');
   stateTypeMode.value = ['type', 'fill'].includes(String(data.typeMode)) ? String(data.typeMode) : 'type';
   stateRandomInputInterval.value = Boolean(data.randomInputInterval ?? false);
@@ -139,7 +142,7 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateSelectorType, stateText, stateTypeMode, stateRandomInputInterval, stateInputIntervalMs, stateInputIntervalMinMs, stateInputIntervalMaxMs, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
+watch([stateText, stateTypeMode, stateRandomInputInterval, stateInputIntervalMs, stateInputIntervalMinMs, stateInputIntervalMaxMs, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -157,8 +160,6 @@ watch([stateSelector, stateSelectorType, stateText, stateTypeMode, stateRandomIn
 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
-    selector: stateSelector.value,
-    selectorType: stateSelectorType.value,
     text: stateText.value,
     typeMode: stateTypeMode.value,
     randomInputInterval: stateRandomInputInterval.value,

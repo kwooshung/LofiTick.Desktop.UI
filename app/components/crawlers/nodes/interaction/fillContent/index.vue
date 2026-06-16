@@ -1,10 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-form-input" :title="t('components.crawler.blueprint.nodes.interaction.fillContent.title')" :description="t('components.crawler.blueprint.nodes.interaction.fillContent.description')" header-bg="bg-purple-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-form-input" :title="t('components.crawler.blueprint.nodes.interaction.fillContent.title')" :description="t('components.crawler.blueprint.nodes.interaction.fillContent.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.content.label')">
         <UTextarea v-model="stateContent" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.content.placeholder')" />
       </UFormField>
@@ -33,12 +29,21 @@ const { t } = useI18n();
 
 const stateNode = useNode();
 const stateInitialized = ref(false);
-const stateSelector = ref('');
-const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateContent = ref('');
 const stateClearBefore = ref(true);
 const stateTimeoutMs = ref(10000);
 const stateSimulateNativeInput = ref(false);
+
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'element-input',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.element'),
+    direction: 'in',
+    dataType: 'object',
+    topPercent: 50,
+    description: '由元素查询节点输出的目标元素'
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
   {
@@ -65,8 +70,6 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateSelector.value = String(data.selector ?? '');
-  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateContent.value = String(data.content ?? '');
   stateClearBefore.value = Boolean(data.clearBefore ?? true);
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
@@ -74,15 +77,13 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateSelectorType, stateContent, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
+watch([stateContent, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
-    selector: stateSelector.value,
-    selectorType: stateSelectorType.value,
     content: stateContent.value,
     clearBefore: stateClearBefore.value,
     timeoutMs: stateTimeoutMs.value,

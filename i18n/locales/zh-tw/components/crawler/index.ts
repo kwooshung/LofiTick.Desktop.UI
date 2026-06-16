@@ -85,11 +85,22 @@ export const crawler = {
           millisecond: '毫秒',
           count: '次'
         },
+        pinLabels: {
+          element: '元素',
+          elements: '元素列表',
+          exists: '存在',
+          context: '上下文',
+          result: '結果',
+          array: '陣列',
+          length: '長度',
+          index: '索引',
+          item: '資料項'
+        },
         selectorInput: {
           mode: {
             options: {
-              xpath: 'XPath 選擇',
-              css: 'CSS 選擇'
+              xpath: 'XPath',
+              css: 'CSS'
             }
           },
           invalidHint: '目前選擇器與所選類型不匹配，請檢查 XPath/CSS 語法。'
@@ -659,16 +670,22 @@ export const crawler = {
           description: '取得表單元素的值'
         },
         queryElement: {
-          title: '查詢元素',
-          description: '查詢單一元素'
+          title: '元素選擇器（單個）',
+          description: '透過選擇器定位並輸出單一元素'
         },
         queryAllElements: {
-          title: '查詢所有元素',
-          description: '查詢多個元素並回傳列表'
+          title: '元素選擇器（多個）',
+          description: '透過選擇器定位並輸出元素列表'
         },
         executeScript: {
           title: '執行腳本',
-          description: '執行自訂 JS 並回傳結果'
+          description: '執行自訂 JS 並回傳結果',
+          fields: {
+            script: {
+              label: 'JavaScript 腳本',
+              placeholder: '例如：return document.title;'
+            }
+          }
         }
       },
       http: {
@@ -868,7 +885,12 @@ export const crawler = {
         },
         item: {
           title: '陣列索引',
-          description: '取得陣列指定索引的值'
+          description: '取得陣列指定索引的值',
+          fields: {
+            index: {
+              label: '索引'
+            }
+          }
         }
       },
       typeConvert: {

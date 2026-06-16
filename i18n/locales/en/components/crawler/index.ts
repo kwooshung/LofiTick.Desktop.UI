@@ -85,11 +85,22 @@ export const crawler = {
           millisecond: '毫秒',
           count: 'Times'
         },
+        pinLabels: {
+          element: 'Element',
+          elements: 'Elements',
+          exists: 'Exists',
+          context: 'Context',
+          result: 'Result',
+          array: 'Array',
+          length: 'Length',
+          index: 'Index',
+          item: 'Item'
+        },
         selectorInput: {
           mode: {
             options: {
-              xpath: 'XPath Selector',
-              css: 'CSS Selector'
+              xpath: 'XPath',
+              css: 'CSS'
             }
           },
           invalidHint: 'Selector does not match the selected type. Please verify XPath/CSS syntax.'
@@ -659,16 +670,22 @@ export const crawler = {
           description: 'Read a form field value'
         },
         queryElement: {
-          title: 'Query Element',
-          description: 'Query a single element'
+          title: 'Element Selector (Single)',
+          description: 'Locate and output a single element by selector'
         },
         queryAllElements: {
-          title: 'Query All Elements',
-          description: 'Query multiple elements and return a list'
+          title: 'Element Selector (Multiple)',
+          description: 'Locate and output an element list by selector'
         },
         executeScript: {
           title: 'Execute Script',
-          description: 'Run custom JS and return the result'
+          description: 'Run custom JS and return the result',
+          fields: {
+            script: {
+              label: 'JavaScript Script',
+              placeholder: 'Example: return document.title;'
+            }
+          }
         }
       },
       http: {
@@ -868,7 +885,12 @@ export const crawler = {
         },
         item: {
           title: 'Array Index',
-          description: 'Read a value at a given array index'
+          description: 'Read a value at a given array index',
+          fields: {
+            index: {
+              label: 'Index'
+            }
+          }
         }
       },
       typeConvert: {

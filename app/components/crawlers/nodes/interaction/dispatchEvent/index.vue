@@ -1,10 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-send" :title="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.title')" :description="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.description')" header-bg="bg-purple-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-send" :title="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.title')" :description="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.eventName.label')">
         <USelect v-model="stateEventName" class="w-full" :items="stateEventNameOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
@@ -37,13 +33,22 @@ const { t } = useI18n();
 
 const stateNode = useNode();
 const stateInitialized = ref(false);
-const stateSelector = ref('');
-const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateEventName = ref('click');
 const stateBubbles = ref(true);
 const stateCancelable = ref(true);
 const stateTimeoutMs = ref(10000);
 const stateSimulateNativeInput = ref(false);
+
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'element-input',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.element'),
+    direction: 'in',
+    dataType: 'object',
+    topPercent: 50,
+    description: '由元素查询节点输出的目标元素'
+  }
+];
 
 const stateAllowedEventValues = ['click', 'dblclick', 'mousedown', 'mouseup', 'mouseenter', 'mouseleave', 'mousemove', 'input', 'change', 'focus', 'blur', 'keydown', 'keyup', 'keypress', 'submit'] as const;
 
@@ -137,8 +142,6 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateSelector.value = String(data.selector ?? '');
-  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateEventName.value = stateAllowedEventValues.includes(String(data.eventName) as (typeof stateAllowedEventValues)[number]) ? String(data.eventName) : 'click';
   stateBubbles.value = Boolean(data.bubbles ?? true);
   stateCancelable.value = Boolean(data.cancelable ?? true);
@@ -147,15 +150,13 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateSelectorType, stateEventName, stateBubbles, stateCancelable, stateTimeoutMs, stateSimulateNativeInput], () => {
+watch([stateEventName, stateBubbles, stateCancelable, stateTimeoutMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
-    selector: stateSelector.value,
-    selectorType: stateSelectorType.value,
     eventName: stateEventName.value,
     bubbles: stateBubbles.value,
     cancelable: stateCancelable.value,

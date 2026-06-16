@@ -85,11 +85,22 @@ export const crawler = {
           millisecond: '毫秒',
           count: '次'
         },
+        pinLabels: {
+          element: '元素',
+          elements: '元素列表',
+          exists: '存在',
+          context: '上下文',
+          result: '结果',
+          array: '数组',
+          length: '长度',
+          index: '索引',
+          item: '数据项'
+        },
         selectorInput: {
           mode: {
             options: {
-              xpath: 'XPath 选择',
-              css: 'CSS 选择'
+              xpath: 'XPath',
+              css: 'CSS'
             }
           },
           invalidHint: '当前选择器与所选类型不匹配，请检查 XPath/CSS 语法。'
@@ -659,16 +670,22 @@ export const crawler = {
           description: '获取表单元素的值'
         },
         queryElement: {
-          title: '查询元素',
-          description: '查询单个元素'
+          title: '元素选择器（单个）',
+          description: '通过选择器定位并输出单个元素'
         },
         queryAllElements: {
-          title: '查询所有元素',
-          description: '查询多个元素并返回列表'
+          title: '元素选择器（多个）',
+          description: '通过选择器定位并输出元素列表'
         },
         executeScript: {
           title: '执行脚本',
-          description: '执行自定义 JS 并返回结果'
+          description: '执行自定义 JS 并返回结果',
+          fields: {
+            script: {
+              label: 'JavaScript 脚本',
+              placeholder: '例如：return document.title;'
+            }
+          }
         }
       },
       http: {
@@ -868,7 +885,12 @@ export const crawler = {
         },
         item: {
           title: '数组索引',
-          description: '获取数组指定索引的值'
+          description: '获取数组指定索引的值',
+          fields: {
+            index: {
+              label: '索引'
+            }
+          }
         }
       },
       typeConvert: {

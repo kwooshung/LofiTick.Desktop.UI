@@ -1,8 +1,10 @@
 <template>
   <div class="space-y-2">
-    <USelect v-model="stateMode" class="w-full" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
+    <UFieldGroup class="w-full">
+      <USelect v-model="stateMode" class="w-28" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
 
-    <UInput v-model="stateValue" class="w-full" :placeholder="placeholder" />
+      <UInput v-model="stateValue" class="w-full" :placeholder="placeholder" />
+    </UFieldGroup>
 
     <p v-if="computedShowInvalidHint" class="text-error text-xs">{{ t('components.crawler.blueprint.nodes.common.selectorInput.invalidHint') }}</p>
   </div>

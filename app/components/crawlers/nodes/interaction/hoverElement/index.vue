@@ -1,10 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-mouse" :title="t('components.crawler.blueprint.nodes.interaction.hoverElement.title')" :description="t('components.crawler.blueprint.nodes.interaction.hoverElement.description')" header-bg="bg-purple-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-mouse" :title="t('components.crawler.blueprint.nodes.interaction.hoverElement.title')" :description="t('components.crawler.blueprint.nodes.interaction.hoverElement.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
-      </UFormField>
-
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerInteractionHoverTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
@@ -62,14 +58,23 @@ const { t } = useI18n();
 
 const stateNode = useNode();
 const stateInitialized = ref(false);
-const stateSelector = ref('');
-const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateTimeoutMs = ref(10000);
 const stateRandomHoverDelay = ref(false);
 const stateHoverDelayMs = ref(0);
 const stateHoverDelayMinMs = ref(0);
 const stateHoverDelayMaxMs = ref(300);
 const stateSimulateNativeInput = ref(false);
+
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'element-input',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.element'),
+    direction: 'in',
+    dataType: 'object',
+    topPercent: 50,
+    description: '由元素查询节点输出的目标元素'
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
   {
@@ -96,8 +101,6 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateSelector.value = String(data.selector ?? '');
-  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
   stateRandomHoverDelay.value = Boolean(data.randomHoverDelay ?? false);
   stateHoverDelayMs.value = Number.isFinite(Number(data.hoverDelayMs)) ? Math.max(0, Number(data.hoverDelayMs)) : 0;
@@ -108,7 +111,7 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateSelectorType, stateTimeoutMs, stateRandomHoverDelay, stateHoverDelayMs, stateHoverDelayMinMs, stateHoverDelayMaxMs, stateSimulateNativeInput], () => {
+watch([stateTimeoutMs, stateRandomHoverDelay, stateHoverDelayMs, stateHoverDelayMinMs, stateHoverDelayMaxMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -126,8 +129,6 @@ watch([stateSelector, stateSelectorType, stateTimeoutMs, stateRandomHoverDelay, 
 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
-    selector: stateSelector.value,
-    selectorType: stateSelectorType.value,
     timeoutMs: stateTimeoutMs.value,
     randomHoverDelay: stateRandomHoverDelay.value,
     hoverDelayMs: stateHoverDelayMs.value,

@@ -73,7 +73,7 @@ const BASIC_SIDE_PIN_COLOR_CLASS_MAP: Record<TBasicSidePinDataType, string> = {
   number: 'bg-teal-400',
   boolean: 'bg-red-500',
   array: 'bg-yellow-400',
-  object: 'bg-orange-500',
+  object: 'bg-blue-500',
   any: 'bg-gray-400'
 };
 
@@ -176,7 +176,7 @@ const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataT
     return 'array';
   }
 
-  if (id.includes('object') || id.includes('struct')) {
+  if (id.includes('object') || id.includes('struct') || id.includes('element')) {
     return 'object';
   }
 
