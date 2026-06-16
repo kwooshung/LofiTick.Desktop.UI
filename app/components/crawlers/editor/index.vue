@@ -170,7 +170,7 @@ $breakpoint-xs-max: 639px;
   --vf-connection-valid: var(--ui-color-success-800);
   --vf-connection-invalid: var(--ui-error);
   --vf-edge-connected: var(--ui-primary);
-  --vf-edge-selected: var(--ui-color-primary);
+  --vf-edge-selected: var(--ui-primary);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);

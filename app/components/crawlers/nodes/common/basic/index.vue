@@ -1,6 +1,6 @@
 <template>
-  <div class="border-default bg-default/65 rounded-lg border shadow-xs transition-shadow duration-300 ease-in-out">
-    <div :class="['flex items-start rounded-t-lg p-4', headerBg]">
+  <div :class="['border-default bg-default/65 rounded-lg border shadow-xs transition-all duration-200 ease-out', computedIsSelected ? 'ring-primary/45 border-primary shadow-lg ring-2' : 'hover:shadow-sm']">
+    <div :class="['flex items-start rounded-t-lg p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '']">
       <slot name="icon">
         <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />
       </slot>
@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import type { Connection } from '@vue-flow/core';
-import { Handle, Position, useNodeId } from '@vue-flow/core';
+import { Handle, Position, useNode, useNodeId } from '@vue-flow/core';
 
 import type { ICrawlersNodesCommonBasicProps } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -39,9 +39,19 @@ const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconCla
 const stateNodeId = useNodeId();
 
 /**
+ * Hook：当前节点实例。
+ */
+const stateNode = useNode();
+
+/**
  * 计算属性：当前组件是否运行在 Vue Flow 节点上下文中。
  */
 const hasNodeContext = computed(() => String(stateNodeId ?? '').trim() !== '');
+
+/**
+ * 计算属性：当前节点是否处于选中状态。
+ */
+const computedIsSelected = computed(() => Boolean(stateNode.node.selected));
 
 /**
  * 函数：验证连接是否满足 exec-out -> exec-in 规则。

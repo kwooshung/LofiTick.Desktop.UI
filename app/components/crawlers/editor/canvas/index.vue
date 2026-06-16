@@ -4,6 +4,7 @@
       :nodes="nodes"
       :edges="edges"
       :is-valid-connection="isValidConnection"
+      :delete-key-code="['Backspace', 'Delete']"
       fit-view-on-init
       @dragover="(event: DragEvent) => emit('dragover', event as DragEvent)"
       @dragleave="(event: DragEvent) => emit('dragleave', event as DragEvent)"
