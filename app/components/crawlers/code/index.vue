@@ -12,7 +12,7 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
+      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="computedDrawerBaseUrl" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
     </template>
   </USlideover>
 </template>
@@ -123,15 +123,22 @@ const computedDrawerTitle = computed(() => {
 });
 
 /**
- * 计算属性：抽屉描述。
+ * 计算属性：抽屉基础 URL。
  */
-const computedDrawerDescription = computed(() => {
+const computedDrawerBaseUrl = computed(() => {
   const targetBaseUrl = String(stateDrawerTarget.value?.baseUrl ?? '').trim();
   if (targetBaseUrl !== '') {
     return targetBaseUrl;
   }
 
   return String(baseUrl ?? '').trim();
+});
+
+/**
+ * 计算属性：抽屉描述。
+ */
+const computedDrawerDescription = computed(() => {
+  return computedDrawerBaseUrl.value;
 });
 
 /**
