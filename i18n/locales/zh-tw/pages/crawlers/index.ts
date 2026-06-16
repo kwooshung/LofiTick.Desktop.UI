@@ -179,11 +179,11 @@ export const crawlers = {
     },
     nodes: {
       navigation: {
-        goToPage: {
+        goto: {
           title: '跳轉頁面',
           description: '開啟指定 URL。'
         },
-        refreshPage: {
+        refresh: {
           title: '重新整理頁面',
           description: '重新整理目前頁面。'
         },
