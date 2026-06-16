@@ -72,6 +72,16 @@ export const crawler = {
       }
     },
     nodes: {
+      common: {
+        start: {
+          title: '開始',
+          description: 'クローラーの実行を開始する入口ノード'
+        },
+        end: {
+          title: '終了',
+          description: 'クローラーの実行を終了する終端ノード'
+        }
+      },
       navigation: {
         goto: {
           title: 'ページへ移動',

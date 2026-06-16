@@ -331,17 +331,22 @@ $breakpoint-xs-max: 639px;
 
     .vue-flow__pane {
       z-index: 1;
+      cursor: default;
 
       &.draggable {
-        @include cursor-grab;
+        cursor: default;
       }
 
       &.selection {
-        cursor: pointer;
+        cursor: default;
       }
 
       &.dragging {
         @include cursor-grabbing;
+      }
+
+      &.pan-on-drag {
+        @include cursor-grab;
       }
     }
 

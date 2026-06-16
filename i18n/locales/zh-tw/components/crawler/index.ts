@@ -72,6 +72,16 @@ export const crawler = {
       }
     },
     nodes: {
+      common: {
+        start: {
+          title: '開始',
+          description: '爬蟲的入口節點，負責觸發爬蟲執行'
+        },
+        end: {
+          title: '結束',
+          description: '爬蟲的結束節點，負責終止爬蟲執行'
+        }
+      },
       navigation: {
         goto: {
           title: '跳轉頁面',

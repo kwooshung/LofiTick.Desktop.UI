@@ -43,7 +43,10 @@ const items = computed(() =>
     label: group.label,
     description: group.description,
     icon: group.iconName,
-    crawlers: group.crawlers
+    crawlers: group.crawlers.map((crawler) => ({
+      ...crawler,
+      description: crawler.description.replace(/[。．.]+$/u, '')
+    }))
   }))
 );
 </script>

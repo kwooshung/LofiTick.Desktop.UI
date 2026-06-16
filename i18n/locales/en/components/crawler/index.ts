@@ -72,6 +72,16 @@ export const crawler = {
       }
     },
     nodes: {
+      common: {
+        start: {
+          title: 'Start',
+          description: 'Entry node that triggers crawler execution'
+        },
+        end: {
+          title: 'End',
+          description: 'Terminal node that ends crawler execution'
+        }
+      },
       navigation: {
         goto: {
           title: 'Go to Page',
