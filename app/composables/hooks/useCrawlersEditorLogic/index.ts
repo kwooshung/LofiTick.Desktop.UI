@@ -36,7 +36,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @param {number} distance 吸附阈值。
    * @returns {IGetHelperLinesResult} 辅助线结果。
    */
-  const getHelperLines = (change: NodePositionChange, nodes: GraphNode[], distance = 5): IGetHelperLinesResult => {
+  const getHelperLines = (change: NodePositionChange, nodes: GraphNode[], distance: number = 5): IGetHelperLinesResult => {
     const defaultResult: IGetHelperLinesResult = {
       horizontal: undefined,
       vertical: undefined,
