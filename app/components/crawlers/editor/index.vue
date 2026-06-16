@@ -23,7 +23,24 @@
         @nodes-change="handleNodesChange"
       />
 
-      <CrawlersEditorActions :cancel-text="t('common.actions.cancel')" :save-text="t('common.actions.save')" @cancel="handelModalCancel" @save="handelModalSave" />
+      <CrawlersEditorActions
+        :restore-text="t('common.actions.reset')"
+        :zoom-in-text="t('common.actions.zoomIn')"
+        :zoom-out-text="t('common.actions.zoomOut')"
+        :auto-layout-text="t('common.actions.autoLayout')"
+        :redo-text="t('common.actions.redo')"
+        :undo-text="t('common.actions.undo')"
+        :cancel-text="t('common.actions.cancel')"
+        :save-text="t('common.actions.save')"
+        @restore="handleViewportRestore"
+        @zoom-in="handleViewportZoomIn"
+        @zoom-out="handleViewportZoomOut"
+        @auto-layout="handleAutoLayout"
+        @redo="handleRedo"
+        @undo="handleUndo"
+        @cancel="handelModalCancel"
+        @save="handelModalSave"
+      />
     </div>
   </div>
 </template>
@@ -63,7 +80,7 @@ const { t } = useI18n();
 /**
  * Hook：Vue Flow 实例方法。
  */
-const { nodes, edges, toObject, addEdges, addNodes, applyNodeChanges } = useVueFlow();
+const { nodes, edges, toObject, fromObject, fitView, zoomIn, zoomOut, addEdges, addNodes, applyNodeChanges } = useVueFlow();
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -109,9 +126,120 @@ const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleCon
 });
 
 /**
+ * 状态：节点快照历史。
+ */
+const stateHistory = ref<string[]>([]);
+
+/**
+ * 状态：历史游标。
+ */
+const stateHistoryIndex = ref(-1);
+
+/**
+ * 函数：生成当前画布快照。
+ * @returns {{ nodes: typeof nodes.value; edges: typeof edges.value }} 当前快照。
+ */
+const createSnapshot = (): string => JSON.stringify(toObject());
+
+/**
+ * 函数：同步历史快照。
+ * @returns {void} 无返回值。
+ */
+const pushHistorySnapshot = (): void => {
+  const snapshot = createSnapshot();
+
+  stateHistory.value = stateHistory.value.slice(0, stateHistoryIndex.value + 1);
+  stateHistory.value.push(snapshot);
+  stateHistoryIndex.value = stateHistory.value.length - 1;
+};
+
+/**
+ * 函数：恢复历史快照。
+ * @param {number} index 快照索引。
+ * @returns {void} 无返回值。
+ */
+const restoreSnapshot = async (index: number): Promise<void> => {
+  const snapshot = stateHistory.value[index];
+
+  if (!snapshot) {
+    return;
+  }
+
+  await fromObject(JSON.parse(snapshot) as Parameters<typeof fromObject>[0]);
+  stateHistoryIndex.value = index;
+};
+
+/**
+ * 函数：撤销。
+ * @returns {void} 无返回值。
+ */
+const handleUndo = (): void => {
+  if (stateHistoryIndex.value <= 0) {
+    return;
+  }
+
+  void restoreSnapshot(stateHistoryIndex.value - 1);
+};
+
+/**
+ * 函数：恢复。
+ * @returns {void} 无返回值。
+ */
+const handleRedo = (): void => {
+  if (stateHistoryIndex.value >= stateHistory.value.length - 1) {
+    return;
+  }
+
+  void restoreSnapshot(stateHistoryIndex.value + 1);
+};
+
+/**
+ * 函数：还原视图。
+ * @returns {void} 无返回值。
+ */
+const handleViewportRestore = (): void => {
+  void fitView();
+};
+
+/**
+ * 函数：放大视图。
+ * @returns {void} 无返回值。
+ */
+const handleViewportZoomIn = (): void => {
+  void zoomIn();
+};
+
+/**
+ * 函数：缩小视图。
+ * @returns {void} 无返回值。
+ */
+const handleViewportZoomOut = (): void => {
+  void zoomOut();
+};
+
+/**
+ * 函数：自动排版。
+ * @returns {void} 无返回值。
+ */
+const handleAutoLayout = (): void => {
+  void fitView();
+};
+
+/**
  * 生命周期：组件挂载后，初始化默认节点数据
  */
-onMounted(initializeDefaultNodes);
+onMounted(() => {
+  initializeDefaultNodes();
+});
+
+/**
+ * 生命周期：组件挂载后，记录初始快照。
+ */
+watchEffect(() => {
+  if (nodes.value.length > 0 && stateHistory.value.length === 0) {
+    pushHistorySnapshot();
+  }
+});
 
 /**
  * 事件：处理模态框保存

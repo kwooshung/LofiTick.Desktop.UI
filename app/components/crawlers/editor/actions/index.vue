@@ -1,7 +1,29 @@
 <template>
-  <div class="border-default bg-default flex items-center justify-end gap-2 border-t px-3 py-3">
-    <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
-    <UButton type="button" color="primary" icon="i-lucide:save" @click="emit('save')">{{ saveText }}</UButton>
+  <div class="border-default bg-default flex items-center justify-between gap-3 border-t px-3 py-3">
+    <div class="flex items-center gap-2">
+      <UTooltip :text="restoreText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:rotate-ccw" @click="emit('restore')" />
+      </UTooltip>
+      <UTooltip :text="zoomInText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:zoom-in" @click="emit('zoom-in')" />
+      </UTooltip>
+      <UTooltip :text="zoomOutText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:zoom-out" @click="emit('zoom-out')" />
+      </UTooltip>
+      <UTooltip :text="autoLayoutText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:layout-grid" @click="emit('auto-layout')" />
+      </UTooltip>
+      <UTooltip :text="redoText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:redo-2" @click="emit('redo')" />
+      </UTooltip>
+      <UTooltip :text="undoText">
+        <UButton type="button" color="neutral" variant="outline" icon="i-lucide:undo-2" @click="emit('undo')" />
+      </UTooltip>
+    </div>
+    <div class="flex items-center gap-2">
+      <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
+      <UButton type="button" color="primary" icon="i-lucide:save" @click="emit('save')">{{ saveText }}</UButton>
+    </div>
   </div>
 </template>
 
