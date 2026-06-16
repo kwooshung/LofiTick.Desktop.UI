@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('pages.crawlers.blueprint.nodes.navigation.goto.title')" :description="t('pages.crawlers.blueprint.nodes.navigation.goto.description')" />
+  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('pages.crawlers.blueprint.nodes.navigation.goto.title')" :description="t('pages.crawlers.blueprint.nodes.navigation.goto.description')" header-bg="bg-accented" />
 </template>
 
 <script setup lang="ts">
