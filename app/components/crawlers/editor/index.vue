@@ -166,6 +166,9 @@ $breakpoint-xs-max: 639px;
   --vf-node-color: var(--ui-text);
   --vf-handle: var(--ui-color-neutral-400);
   --vf-connection-path: var(--ui-color-neutral-600);
+  --vf-connection-valid: var(--ui-success);
+  --vf-connection-invalid: var(--ui-error);
+  --vf-edge-connected: var(--ui-primary);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
@@ -247,6 +250,15 @@ $breakpoint-xs-max: 639px;
       fill: none;
       stroke: var(--vf-connection-path);
       stroke-width: 3;
+      transition: stroke 140ms ease;
+    }
+
+    .vue-flow__connection-path.valid {
+      stroke: var(--vf-connection-valid);
+    }
+
+    .vue-flow__connection-path.invalid {
+      stroke: var(--vf-connection-invalid);
     }
 
     .vue-flow__edge {

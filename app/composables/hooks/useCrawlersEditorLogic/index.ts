@@ -199,7 +199,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       addEdges({
         ...params,
         animated: true,
-        style: { stroke: 'var(--ui-primary)' }
+        style: { stroke: 'var(--vf-edge-connected)' }
       });
     }
   };
