@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-type" :title="t('pages.crawlers.blueprint.nodes.string.uppercase.title')" :description="t('pages.crawlers.blueprint.nodes.string.uppercase.description')" header-color="" header-bg="bg-teal-500" />
+  <CrawlersNodesCommonBasic icon-name="i-lucide-type" :title="t('components.crawler.blueprint.nodes.string.uppercase.title')" :description="t('components.crawler.blueprint.nodes.string.uppercase.description')" header-color="" header-bg="bg-teal-500" />
 </template>
 
 <script setup lang="ts">
