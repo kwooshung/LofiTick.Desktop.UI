@@ -2,7 +2,18 @@
   <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
     <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
 
-    <div class="bg-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div class="pointer-events-none absolute top-2 right-3 z-20">
+        <div
+          :class="[
+            'rounded-md border px-3 py-1 text-xs font-medium shadow-sm transition-colors duration-200',
+            computedAutoSaveStatusType === 'success' ? 'border-success/40 bg-success/10 text-success' : computedAutoSaveStatusType === 'error' ? 'border-error/40 bg-error/10 text-error' : 'border-default bg-default/90 text-toned'
+          ]"
+        >
+          {{ computedAutoSaveStatusText }}
+        </div>
+      </div>
+
       <CrawlersEditorCanvas
         :nodes="nodes"
         :edges="edges"
@@ -79,11 +90,6 @@ const stateHelperLineVertical = ref<number | undefined>(undefined);
 const { t } = useI18n();
 
 /**
- * Hook：Toast 通知。
- */
-const toast = useToast();
-
-/**
  * Hook：Vue Flow 实例方法。
  */
 const { nodes, edges, toObject, fromObject, fitView, zoomIn, zoomOut, addEdges, addNodes, applyNodeChanges } = useVueFlow();
@@ -138,6 +144,16 @@ const computedNormalizedDomain = computed(() => {
  * 常量：草稿缓存键前缀。
  */
 const DRAFT_ENTRY_PREFIX = 'crawler:blueprint:draft:';
+
+/**
+ * 常量：自动保存倒计时（秒）。
+ */
+const AUTO_SAVE_COUNTDOWN_SECONDS = 10;
+
+/**
+ * 常量：保存结果提示保留时长（秒）。
+ */
+const AUTO_SAVE_STATUS_SECONDS = 2;
 
 /**
  * 常量：草稿最大存活时间（7 天，毫秒）。
@@ -233,9 +249,50 @@ const stateDraftRestored = ref(false);
 const stateLastDraftSnapshot = ref('');
 
 /**
- * 状态：草稿保存定时器。
+ * 状态：自动保存倒计时（秒）。
  */
-const stateDraftIntervalId = ref<number | null>(null);
+const stateAutoSaveCountdown = ref<number>(AUTO_SAVE_COUNTDOWN_SECONDS);
+
+/**
+ * 状态：保存结果提示剩余时长（秒）。
+ */
+const stateAutoSaveStatusRemainSeconds = ref<number>(0);
+
+/**
+ * 状态：自动保存状态。
+ */
+const stateAutoSaveStatus = ref<'idle' | 'success' | 'error'>('idle');
+
+/**
+ * 状态：自动保存轮询定时器。
+ */
+const stateAutoSaveTimerId = ref<number | null>(null);
+
+/**
+ * 计算属性：自动保存状态文案。
+ */
+const computedAutoSaveStatusText = computed(() => {
+  if (stateAutoSaveStatusRemainSeconds.value > 0 && stateAutoSaveStatus.value === 'success') {
+    return t('common.actions.save') + t('pages.crawlers.executions.status.success');
+  }
+
+  if (stateAutoSaveStatusRemainSeconds.value > 0 && stateAutoSaveStatus.value === 'error') {
+    return t('common.actions.save') + t('pages.crawlers.executions.status.failed');
+  }
+
+  return `${stateAutoSaveCountdown.value}s 后自动保存`;
+});
+
+/**
+ * 计算属性：自动保存状态类型。
+ */
+const computedAutoSaveStatusType = computed<'idle' | 'success' | 'error'>(() => {
+  if (stateAutoSaveStatusRemainSeconds.value > 0) {
+    return stateAutoSaveStatus.value;
+  }
+
+  return 'idle';
+});
 
 /**
  * 函数：生成当前画布快照。
@@ -442,30 +499,39 @@ const clearDraft = (): void => {
  * 函数：将当前画布保存到草稿。
  * @returns {void} 无返回值。
  */
-const saveDraft = (): void => {
+const saveDraft = (): boolean => {
   if (!import.meta.client) {
-    return;
+    return true;
   }
 
   const key = computedDraftKey.value;
   if (key === '') {
-    return;
+    return true;
   }
 
-  const snapshot = createSnapshot();
-  if (stateLastDraftSnapshot.value === snapshot) {
-    return;
+  try {
+    const snapshot = createSnapshot();
+    if (stateLastDraftSnapshot.value === snapshot) {
+      return true;
+    }
+
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: snapshot }));
+    stateLastDraftSnapshot.value = snapshot;
+    return true;
+  } catch {
+    return false;
   }
+};
 
-  localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: snapshot }));
-  stateLastDraftSnapshot.value = snapshot;
-
-  toast.add({
-    description: t('pages.crawlers.editor.draft.saved'),
-    icon: 'i-lucide:save',
-    duration: 500,
-    close: false
-  });
+/**
+ * 函数：执行一次自动保存并更新状态提示。
+ * @returns {void} 无返回值。
+ */
+const runAutoSave = (): void => {
+  const success = saveDraft();
+  stateAutoSaveStatus.value = success ? 'success' : 'error';
+  stateAutoSaveStatusRemainSeconds.value = AUTO_SAVE_STATUS_SECONDS;
+  stateAutoSaveCountdown.value = AUTO_SAVE_COUNTDOWN_SECONDS;
 };
 
 /**
@@ -500,13 +566,25 @@ onMounted(async () => {
 
   stateLastDraftSnapshot.value = createSnapshot();
 
-  stateDraftIntervalId.value = window.setInterval(() => {
+  stateAutoSaveTimerId.value = window.setInterval(() => {
     if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
       return;
     }
 
-    saveDraft();
-  }, 10000);
+    if (stateAutoSaveStatusRemainSeconds.value > 0) {
+      stateAutoSaveStatusRemainSeconds.value -= 1;
+      if (stateAutoSaveStatusRemainSeconds.value === 0) {
+        stateAutoSaveStatus.value = 'idle';
+      }
+      return;
+    }
+
+    stateAutoSaveCountdown.value = Math.max(0, stateAutoSaveCountdown.value - 1);
+
+    if (stateAutoSaveCountdown.value === 0) {
+      runAutoSave();
+    }
+  }, 1000);
 });
 
 /**
@@ -588,9 +666,9 @@ const handelModalCancel = () => {
  */
 onBeforeUnmount(() => {
   pushHistorySnapshotDebounced.cancel();
-  if (stateDraftIntervalId.value !== null) {
-    window.clearInterval(stateDraftIntervalId.value);
-    stateDraftIntervalId.value = null;
+  if (stateAutoSaveTimerId.value !== null) {
+    window.clearInterval(stateAutoSaveTimerId.value);
+    stateAutoSaveTimerId.value = null;
   }
 });
 

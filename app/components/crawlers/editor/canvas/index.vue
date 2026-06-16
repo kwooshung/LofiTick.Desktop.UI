@@ -6,7 +6,7 @@
       :is-valid-connection="isValidConnection"
       :delete-key-code="['Backspace', 'Delete']"
       :elements-selectable="true"
-      :pan-on-drag="false"
+      :pan-on-drag="[1]"
       :selection-key-code="true"
       :select-nodes-on-drag="true"
       :selection-mode="SelectionMode.Full"
