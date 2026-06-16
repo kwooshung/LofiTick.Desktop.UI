@@ -2,8 +2,8 @@
   <div :class="['border-default bg-default/65 relative overflow-hidden rounded-lg border shadow-xs transition-all duration-200 ease-out', computedIsSelected ? 'ring-primary/45 border-primary shadow-lg ring-2' : 'hover:shadow-sm']">
     <div :class="['relative flex items-start p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '', showExecIn ? 'pl-8' : '', showExecOut ? 'pr-8' : '']">
       <div v-if="hasNodeContext && (showExecIn || showExecOut)" class="absolute inset-0">
-        <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="absolute left-4! h-5! w-4! rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-        <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="absolute right-4! h-5! w-4! rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+        <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="absolute left-4! h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-white [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+        <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="absolute right-4! h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-white [clip-path:polygon(0_0,100%_50%,0_100%)]" />
       </div>
       <slot name="icon">
         <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />
@@ -14,14 +14,14 @@
       </div>
     </div>
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
-      <div v-if="computedHasLeftPins" class="relative w-28 shrink-0 py-3 pl-3">
+      <div v-if="computedHasLeftPins" class="flex w-28 shrink-0 flex-col gap-3 py-3 pl-3">
         <template v-for="pin in computedLeftPins" :key="pin.id">
-          <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
-            <div class="relative flex min-h-5 items-center pr-2">
-              <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['absolute top-1/2! left-0! h-3! w-3! -translate-y-1/2 rounded-full! border-2! border-white/15', resolvePinColorClass(pin.dataType)]" />
-              <div class="min-w-0 pl-6 text-left">
-                <p class="truncate text-sm leading-5 font-medium" :title="pin.description">{{ pin.label }}</p>
-              </div>
+          <div class="relative flex min-h-5 cursor-default items-center pr-2">
+            <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="[resolvePinColorClass(pin.dataType)]" />
+            <div class="min-w-0 pl-6 text-left">
+              <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
+                <span class="text-sm">{{ pin.label }}</span>
+              </UTooltip>
             </div>
           </div>
         </template>
@@ -33,15 +33,15 @@
         </div>
       </div>
 
-      <div v-if="computedHasRightPins" class="relative w-28 shrink-0 py-3 pr-3">
+      <div v-if="computedHasRightPins" class="flex w-28 shrink-0 flex-col gap-3 py-3 pr-3">
         <template v-for="pin in computedRightPins" :key="pin.id">
-          <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
-            <div class="relative flex min-h-5 items-center pl-2">
-              <div class="min-w-0 pr-6 text-right">
-                <p class="truncate text-sm leading-5 font-medium" :title="pin.description">{{ pin.label }}</p>
-              </div>
-              <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['absolute top-1/2! right-0! h-3! w-3! -translate-y-1/2 rounded-full! border-2! border-white/15', resolvePinColorClass(pin.dataType)]" />
+          <div class="relative flex min-h-5 cursor-default items-center pl-2">
+            <div class="min-w-0 pr-6 text-right">
+              <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
+                <span class="text-sm">{{ pin.label }}</span>
+              </UTooltip>
             </div>
+            <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="[resolvePinColorClass(pin.dataType)]" />
           </div>
         </template>
       </div>

@@ -984,8 +984,6 @@ $breakpoint-xs-max: 639px;
       min-height: 5px;
       color: var(--vf-handle);
       pointer-events: none;
-      background: var(--vf-handle);
-      border: 1px solid var(--ui-bg);
       border-radius: 100%;
 
       &.connectable {
