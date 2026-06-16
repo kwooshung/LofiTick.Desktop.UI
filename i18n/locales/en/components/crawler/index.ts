@@ -85,19 +85,83 @@ export const crawler = {
       navigation: {
         goto: {
           title: 'Go to Page',
-          description: 'Open the specified URL.'
+          description: 'Open the specified URL.',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail'
+          },
+          fields: {
+            path: {
+              label: 'Target Path',
+              placeholder: 'Enter target path, e.g. /news/123'
+            },
+            waitReady: {
+              label: 'Wait for page ready'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         refresh: {
           title: 'Refresh Page',
-          description: 'Refresh the current page.'
+          description: 'Refresh the current page.',
+          fields: {
+            waitReady: {
+              label: 'Wait for page ready'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            },
+            hardReload: {
+              label: 'Hard reload'
+            }
+          }
         },
         back: {
           title: 'Back',
-          description: 'Go back in browser history.'
+          description: 'Go back in browser history.',
+          fields: {
+            steps: {
+              label: 'Steps'
+            },
+            waitReady: {
+              label: 'Wait for page ready'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            },
+            allowNoHistory: {
+              label: 'Ignore when no history'
+            }
+          }
         },
         forward: {
           title: 'Forward',
-          description: 'Go forward in browser history.'
+          description: 'Go forward in browser history.',
+          fields: {
+            steps: {
+              label: 'Steps'
+            },
+            waitReady: {
+              label: 'Wait for page ready'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            },
+            allowNoHistory: {
+              label: 'Ignore when no history'
+            }
+          }
+        },
+        closePage: {
+          title: 'Close Page',
+          description: 'Close the current page session.',
+          fields: {
+            endFlowAfterClose: {
+              label: 'End flow after closing'
+            }
+          }
         }
       },
       wait: {

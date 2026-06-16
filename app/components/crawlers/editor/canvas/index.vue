@@ -25,6 +25,7 @@
       <template #node-navigation-refresh="props"><CrawlersNodesNavigationRefresh v-bind="props" /></template>
       <template #node-navigation-back="props"><CrawlersNodesNavigationBack v-bind="props" /></template>
       <template #node-navigation-forward="props"><CrawlersNodesNavigationForward v-bind="props" /></template>
+      <template #node-navigation-close-page="props"><CrawlersNodesNavigationClose v-bind="props" /></template>
       <template #node-wait-element="props"><CrawlersNodesWaitElement v-bind="props" /></template>
       <template #node-wait-time="props"><CrawlersNodesWaitTime v-bind="props" /></template>
       <template #node-wait-random="props"><CrawlersNodesWaitRandom v-bind="props" /></template>

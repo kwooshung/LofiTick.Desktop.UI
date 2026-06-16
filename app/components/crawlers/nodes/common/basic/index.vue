@@ -1,6 +1,10 @@
 <template>
-  <div :class="['border-default bg-default/65 rounded-lg border shadow-xs transition-all duration-200 ease-out', computedIsSelected ? 'ring-primary/45 border-primary shadow-lg ring-2' : 'hover:shadow-sm']">
-    <div :class="['flex items-start rounded-t-lg p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '']">
+  <div :class="['border-default bg-default/65 relative overflow-hidden rounded-lg border shadow-xs transition-all duration-200 ease-out', computedIsSelected ? 'ring-primary/45 border-primary shadow-lg ring-2' : 'hover:shadow-sm']">
+    <div :class="['relative flex items-start p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '', showExecIn ? 'pl-8' : '', showExecOut ? 'pr-8' : '']">
+      <div v-if="hasNodeContext && (showExecIn || showExecOut)" class="absolute inset-0">
+        <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="absolute left-4! h-5! w-4! rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+        <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="absolute right-4! h-5! w-4! rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+      </div>
       <slot name="icon">
         <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />
       </slot>
@@ -8,10 +12,6 @@
         <h3 :class="['text-md m-0 truncate leading-snug font-bold', titleClass]">{{ title }}</h3>
         <p v-if="description" :class="['m-0 mt-0.5 truncate text-sm', descriptionClass]">{{ description }}</p>
       </div>
-    </div>
-    <div v-if="hasNodeContext && (showExecIn || showExecOut)" class="relative h-8">
-      <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="h-5! w-4! translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-      <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="h-5! w-4! -translate-x-4 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]" />
     </div>
     <div v-if="$slots.default" class="px-4 py-3">
       <slot />

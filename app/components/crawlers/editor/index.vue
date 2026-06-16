@@ -704,7 +704,7 @@ $breakpoint-xs-max: 639px;
   --vf-node-bg: var(--ui-bg);
   --vf-node-text: var(--ui-text);
   --vf-node-color: var(--ui-text);
-  --vf-handle: var(--ui-color-neutral-400);
+  --vf-handle: var(--color-white);
   --vf-connection-path: var(--ui-color-neutral-600);
   --vf-connection-valid: var(--ui-color-success-800);
   --vf-connection-invalid: var(--ui-error);

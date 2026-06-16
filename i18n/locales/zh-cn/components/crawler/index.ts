@@ -85,19 +85,83 @@ export const crawler = {
       navigation: {
         goto: {
           title: '跳转页面',
-          description: '打开指定 URL。'
+          description: '打开指定 URL。',
+          outputs: {
+            success: '成功',
+            fail: '失败'
+          },
+          fields: {
+            path: {
+              label: '目标路径',
+              placeholder: '请输入目标路径，例如 /news/123'
+            },
+            waitReady: {
+              label: '等待页面就绪'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         refresh: {
           title: '刷新页面',
-          description: '刷新当前页面。'
+          description: '刷新当前页面。',
+          fields: {
+            waitReady: {
+              label: '等待页面就绪'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            },
+            hardReload: {
+              label: '强制刷新'
+            }
+          }
         },
         back: {
           title: '后退',
-          description: '浏览器历史后退。'
+          description: '浏览器历史后退。',
+          fields: {
+            steps: {
+              label: '后退步数'
+            },
+            waitReady: {
+              label: '等待页面就绪'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            },
+            allowNoHistory: {
+              label: '无历史时忽略错误'
+            }
+          }
         },
         forward: {
           title: '前进',
-          description: '浏览器历史前进。'
+          description: '浏览器历史前进。',
+          fields: {
+            steps: {
+              label: '前进步数'
+            },
+            waitReady: {
+              label: '等待页面就绪'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            },
+            allowNoHistory: {
+              label: '无历史时忽略错误'
+            }
+          }
+        },
+        closePage: {
+          title: '关闭页面',
+          description: '关闭当前页面会话。',
+          fields: {
+            endFlowAfterClose: {
+              label: '关闭后终止流程'
+            }
+          }
         }
       },
       wait: {

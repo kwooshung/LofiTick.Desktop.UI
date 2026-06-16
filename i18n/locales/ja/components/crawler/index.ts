@@ -85,19 +85,83 @@ export const crawler = {
       navigation: {
         goto: {
           title: 'ページへ移動',
-          description: '指定 URL を開きます。'
+          description: '指定 URL を開きます。',
+          outputs: {
+            success: '成功',
+            fail: '失敗'
+          },
+          fields: {
+            path: {
+              label: '遷移先パス',
+              placeholder: '遷移先パスを入力（例: /news/123）'
+            },
+            waitReady: {
+              label: 'ページ準備完了を待機'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            }
+          }
         },
         refresh: {
           title: 'ページを更新',
-          description: '現在のページを更新します。'
+          description: '現在のページを更新します。',
+          fields: {
+            waitReady: {
+              label: 'ページ準備完了を待機'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            },
+            hardReload: {
+              label: 'ハードリロード'
+            }
+          }
         },
         back: {
           title: '戻る',
-          description: 'ブラウザ履歴を戻ります。'
+          description: 'ブラウザ履歴を戻ります。',
+          fields: {
+            steps: {
+              label: '戻るステップ数'
+            },
+            waitReady: {
+              label: 'ページ準備完了を待機'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            },
+            allowNoHistory: {
+              label: '履歴なしエラーを無視'
+            }
+          }
         },
         forward: {
           title: '進む',
-          description: 'ブラウザ履歴を進みます。'
+          description: 'ブラウザ履歴を進みます。',
+          fields: {
+            steps: {
+              label: '進むステップ数'
+            },
+            waitReady: {
+              label: 'ページ準備完了を待機'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            },
+            allowNoHistory: {
+              label: '履歴なしエラーを無視'
+            }
+          }
+        },
+        closePage: {
+          title: 'ページを閉じる',
+          description: '現在のページセッションを閉じます。',
+          fields: {
+            endFlowAfterClose: {
+              label: '閉じた後にフローを終了'
+            }
+          }
         }
       },
       wait: {

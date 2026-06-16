@@ -32,6 +32,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         icon: 'i-lucide-arrow-right',
         title: 'pages.crawlers.blueprint.nodes.navigation.forward.title',
         description: 'pages.crawlers.blueprint.nodes.navigation.forward.description'
+      },
+      {
+        key: 'navigation-close-page',
+        icon: 'i-lucide:monitor-x',
+        title: 'pages.crawlers.blueprint.nodes.navigation.closePage.title',
+        description: 'pages.crawlers.blueprint.nodes.navigation.closePage.description'
       }
     ]
   },
