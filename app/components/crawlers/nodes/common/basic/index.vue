@@ -8,40 +8,40 @@
       <slot name="icon">
         <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />
       </slot>
-      <div class="flex min-w-0 flex-col">
+      <div class="flex flex-col">
         <h3 :class="['text-md m-0 truncate leading-snug font-bold', titleClass]">{{ title }}</h3>
         <p v-if="description" :class="['m-0 mt-0.5 truncate text-sm', descriptionClass]">{{ description }}</p>
       </div>
     </div>
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
-      <div v-if="computedHasLeftPins" class="flex w-28 shrink-0 flex-col gap-3 py-3 pl-3">
+      <div v-if="computedHasLeftPins" class="flex shrink-0 flex-col gap-1 py-3 pl-3">
         <template v-for="pin in computedLeftPins" :key="pin.id">
-          <div class="relative flex min-h-5 cursor-default items-center pr-2">
-            <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="[resolvePinColorClass(pin.dataType)]" />
-            <div class="min-w-0 pl-6 text-left">
+          <div class="items relative flex min-h-5 cursor-default pl-3.25">
+            <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
+            <div class="text-left">
               <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
-                <span class="text-sm">{{ pin.label }}</span>
+                <span class="block truncate text-sm leading-5 font-medium">{{ pin.label }}</span>
               </UTooltip>
             </div>
           </div>
         </template>
       </div>
 
-      <div class="min-w-0 flex-1">
+      <div class="flex-1">
         <div v-if="$slots.default" class="px-4 py-3">
           <slot />
         </div>
       </div>
 
-      <div v-if="computedHasRightPins" class="flex w-28 shrink-0 flex-col gap-3 py-3 pr-3">
+      <div v-if="computedHasRightPins" class="flex shrink-0 flex-col gap-1 py-3 pr-3">
         <template v-for="pin in computedRightPins" :key="pin.id">
-          <div class="relative flex min-h-5 cursor-default items-center pl-2">
-            <div class="min-w-0 pr-6 text-right">
+          <div class="iteme relative flex min-h-5 cursor-default pr-3.25">
+            <div class="text-right">
               <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
-                <span class="text-sm">{{ pin.label }}</span>
+                <span class="block truncate text-sm leading-5 font-medium">{{ pin.label }}</span>
               </UTooltip>
             </div>
-            <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="[resolvePinColorClass(pin.dataType)]" />
+            <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
           </div>
         </template>
       </div>
