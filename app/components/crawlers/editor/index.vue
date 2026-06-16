@@ -62,7 +62,7 @@ const { t } = useI18n();
 /**
  * Hook：Vue Flow 实例方法。
  */
-const { nodes, edges, toObject, onConnect, addEdges, addNodes, applyNodeChanges } = useVueFlow();
+const { nodes, edges, toObject, addEdges, addNodes, applyNodeChanges } = useVueFlow();
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -111,12 +111,6 @@ const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleCon
  * 生命周期：组件挂载后，初始化默认节点数据
  */
 onMounted(initializeDefaultNodes);
-
-/**
- * 函数：添加边。
- * @param {Edge} edges 边数据。
- */
-onConnect(addEdges);
 
 /**
  * 事件：处理模态框保存

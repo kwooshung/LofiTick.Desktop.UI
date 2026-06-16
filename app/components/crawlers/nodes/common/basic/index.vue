@@ -34,23 +34,35 @@ import type { ICrawlersNodesCommonBasicProps } from '@/components/crawlers/nodes
 const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true } = defineProps<ICrawlersNodesCommonBasicProps>();
 
 /**
- * 计算属性：当前组件是否运行在 Vue Flow 节点上下文中。
+ * 常量：当前节点 ID。
  */
-const hasNodeContext = computed(() => String(useNodeId() ?? '').trim() !== '');
+const stateNodeId = useNodeId();
 
 /**
- * 函数：验证连接目标是否合法（仅允许连接到同一节点的 exec-in）。
+ * 计算属性：当前组件是否运行在 Vue Flow 节点上下文中。
  */
-const isValidConnectionTarget = (connection: Connection): boolean => {
-  console.log('validate connection target', connection);
-  return connection.targetHandle === 'exec-in' && connection.source !== useNodeId();
+const hasNodeContext = computed(() => String(stateNodeId ?? '').trim() !== '');
+
+/**
+ * 函数：验证连接是否满足 exec-out -> exec-in 规则。
+ */
+const isExecConnection = (connection: Connection): boolean => {
+  return connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
 };
 
 /**
- * 函数：验证连接源是否合法（仅允许连接到同一节点的 exec-out）。
+ * 函数：验证连接目标是否合法（仅允许其他节点的 exec-out 连接到当前节点 exec-in）。
+ */
+const isValidConnectionTarget = (connection: Connection): boolean => {
+  console.log('validate connection target', connection);
+  return isExecConnection(connection) && connection.source !== stateNodeId;
+};
+
+/**
+ * 函数：验证连接源是否合法（仅允许当前节点 exec-out 连接到其他节点 exec-in）。
  */
 const isValidConnectionSource = (connection: Connection): boolean => {
   console.log('validate connection source', connection);
-  return connection.sourceHandle === 'exec-out' && connection.target !== useNodeId();
+  return isExecConnection(connection) && connection.target !== stateNodeId;
 };
 </script>
