@@ -431,7 +431,7 @@ const saveDraft = (): void => {
   toast.add({
     description: t('pages.crawlers.editor.draft.saved'),
     icon: 'i-lucide:save',
-    duration: 2000,
+    duration: 500,
     close: false
   });
 };
