@@ -197,27 +197,27 @@ export const crawlers = {
         }
       },
       wait: {
-        waitElement: {
+        element: {
           title: '要素を待機',
           description: '対象要素の出現を待ちます。'
         },
-        waitTime: {
+        time: {
           title: '時間待機',
           description: '指定ミリ秒だけ待機します。'
         },
-        randomWait: {
+        random: {
           title: 'ランダム待機',
           description: '最小値と最大値の間でランダムに待機します。'
         },
-        waitLoadState: {
+        loadState: {
           title: '読み込み状態を待機',
           description: 'ページの読み込み状態を待機します。'
         },
-        waitCondition: {
+        condition: {
           title: '条件を待機',
           description: 'カスタム JS 条件が成立するまで待機します。'
         },
-        waitText: {
+        text: {
           title: 'テキストを待機',
           description: '指定テキストの出現を待ちます。'
         },

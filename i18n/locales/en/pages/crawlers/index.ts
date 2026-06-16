@@ -197,27 +197,27 @@ export const crawlers = {
         }
       },
       wait: {
-        waitElement: {
+        element: {
           title: 'Wait for Element',
           description: 'Wait for a target element to appear.'
         },
-        waitTime: {
+        time: {
           title: 'Wait Time',
           description: 'Wait a fixed number of milliseconds.'
         },
-        randomWait: {
+        random: {
           title: 'Random Wait',
           description: 'Wait randomly within a min/max range.'
         },
-        waitLoadState: {
+        loadState: {
           title: 'Wait for Load State',
           description: 'Wait until the page reaches a load state.'
         },
-        waitCondition: {
+        condition: {
           title: 'Wait for Condition',
           description: 'Wait for a custom JS condition to become true.'
         },
-        waitText: {
+        text: {
           title: 'Wait for Text',
           description: 'Wait for a specific text to appear.'
         },

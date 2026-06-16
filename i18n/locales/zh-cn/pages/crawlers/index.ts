@@ -197,27 +197,27 @@ export const crawlers = {
         }
       },
       wait: {
-        waitElement: {
+        element: {
           title: '等待元素',
           description: '等待指定元素出现。'
         },
-        waitTime: {
+        time: {
           title: '等待时间',
           description: '固定等待指定毫秒数。'
         },
-        randomWait: {
+        random: {
           title: '随机等待',
           description: '在最小值和最大值之间随机等待。'
         },
-        waitLoadState: {
+        loadState: {
           title: '等待加载状态',
           description: '等待页面达到指定加载状态。'
         },
-        waitCondition: {
+        condition: {
           title: '等待条件',
           description: '等待自定义 JS 条件成立。'
         },
-        waitText: {
+        text: {
           title: '等待文本',
           description: '等待页面出现指定文本。'
         },
