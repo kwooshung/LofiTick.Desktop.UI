@@ -110,12 +110,20 @@ export const crawler = {
         refresh: {
           title: '重新整理頁面',
           description: '重新整理目前頁面',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示是否重新整理成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
           fields: {
-            waitReady: {
-              label: '等待頁面就緒'
-            },
             timeoutMs: {
               label: '逾時毫秒'
+            },
+            waitReady: {
+              label: '等待頁面就緒'
             },
             hardReload: {
               label: '強制重新整理'

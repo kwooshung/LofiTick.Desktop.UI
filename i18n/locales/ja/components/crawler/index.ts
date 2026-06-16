@@ -110,12 +110,20 @@ export const crawler = {
         refresh: {
           title: 'ページを更新',
           description: '現在のページを更新します',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '更新が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
           fields: {
-            waitReady: {
-              label: 'ページ準備完了を待機'
-            },
             timeoutMs: {
               label: 'タイムアウト（ms）'
+            },
+            waitReady: {
+              label: 'ページ準備完了を待機'
             },
             hardReload: {
               label: 'ハードリロード'

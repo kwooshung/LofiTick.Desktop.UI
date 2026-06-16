@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :right-pins="computedRightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
-        <UInput v-model="statePath" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" />
+        <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.timeoutMs.label')">

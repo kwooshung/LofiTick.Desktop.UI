@@ -110,12 +110,20 @@ export const crawler = {
         refresh: {
           title: '刷新页面',
           description: '刷新当前页面',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示是否刷新成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
           fields: {
-            waitReady: {
-              label: '等待页面就绪'
-            },
             timeoutMs: {
               label: '超时毫秒'
+            },
+            waitReady: {
+              label: '等待页面就绪'
             },
             hardReload: {
               label: '强制刷新'

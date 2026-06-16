@@ -1,6 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-refresh-cw" :title="t('components.crawler.blueprint.nodes.navigation.refresh.title')" :description="t('components.crawler.blueprint.nodes.navigation.refresh.description')" header-bg="bg-blue-500">
-    <div class="grid grid-cols-2 gap-2">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-refresh-cw" :title="t('components.crawler.blueprint.nodes.navigation.refresh.title')" :description="t('components.crawler.blueprint.nodes.navigation.refresh.description')" header-bg="bg-blue-500" :right-pins="rightPins">
+    <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.timeoutMs.label')">
         <UInputNumber v-model="stateTimeoutMs" :min="1000" :step="500" orientation="vertical" class="w-full" />
       </UFormField>
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { useNode } from '@vue-flow/core';
 
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationRefreshData } from '@/components/crawlers/nodes/navigation/refresh/index.types';
 
 /**
@@ -55,6 +56,28 @@ const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
  * 状态：是否启用强制刷新。
  */
 const stateHardReload = ref(false);
+
+/**
+ * 常量：右侧数据输出引脚配置。
+ */
+const rightPins: IBasicSidePin[] = [
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.navigation.refresh.outputs.boolean'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.navigation.refresh.outputs.booleanDescription')
+  },
+  {
+    id: 'result-message',
+    label: t('components.crawler.blueprint.nodes.navigation.refresh.outputs.message'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.navigation.refresh.outputs.messageDescription')
+  }
+];
 
 /**
  * 监听：初始化阶段将 node.data 回填到本地状态。

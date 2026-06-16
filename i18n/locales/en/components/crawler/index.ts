@@ -110,12 +110,20 @@ export const crawler = {
         refresh: {
           title: 'Refresh Page',
           description: 'Refresh the current page',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether the refresh succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when refresh fails'
+          },
           fields: {
-            waitReady: {
-              label: 'Wait for page ready'
-            },
             timeoutMs: {
               label: 'Timeout (ms)'
+            },
+            waitReady: {
+              label: 'Wait for page ready'
             },
             hardReload: {
               label: 'Hard reload'
