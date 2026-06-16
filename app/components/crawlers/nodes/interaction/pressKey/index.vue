@@ -245,9 +245,11 @@ watch(
       })
       .slice(0, MAX_KEY_PARTS);
 
-    const changed = normalized.length !== parts.length || normalized.some((part, index) => {
-      return part !== parts[index];
-    });
+    const changed =
+      normalized.length !== parts.length ||
+      normalized.some((part, index) => {
+        return part !== parts[index];
+      });
 
     if (changed) {
       stateKeyParts.value = normalized.length > 0 ? normalized : ['Enter'];
