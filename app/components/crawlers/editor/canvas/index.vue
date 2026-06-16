@@ -137,7 +137,7 @@
           }"
         />
       </CrawlersBackgroundDropzone>
-      <MiniMap />
+      <MiniMap class="bg-elevated/90" />
     </VueFlow>
   </div>
 </template>
