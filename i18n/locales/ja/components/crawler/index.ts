@@ -203,31 +203,147 @@ export const crawler = {
       wait: {
         element: {
           title: '要素を待機',
-          description: '対象要素の出現を待ちます'
+          description: '対象要素の出現を待ちます',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '要素待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            selector: {
+              label: 'セレクター',
+              placeholder: 'セレクターを入力（例: .news-item）'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            }
+          }
         },
         time: {
           title: '時間待機',
-          description: '指定ミリ秒だけ待機します'
+          description: '指定ミリ秒だけ待機します',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '時間待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            durationMs: {
+              label: '待機時間（ms）'
+            }
+          }
         },
         random: {
           title: 'ランダム待機',
-          description: '最小値と最大値の間でランダムに待機します'
+          description: '最小値と最大値の間でランダムに待機します',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: 'ランダム待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            minMs: {
+              label: '最小（ms）'
+            },
+            maxMs: {
+              label: '最大（ms）'
+            }
+          }
         },
         loadState: {
           title: '読み込み状態を待機',
-          description: 'ページの読み込み状態を待機します'
+          description: 'ページの読み込み状態を待機します',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '読み込み状態待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            state: {
+              label: '読み込み状態',
+              description: '次へ進む前に待機する読み込み段階を選択します',
+              options: {
+                load: 'load（ページ資源の読み込み完了）',
+                domcontentloaded: 'domcontentloaded（DOM 構造の準備完了）',
+                networkidle: 'networkidle（ネットワーク通信が待機状態）'
+              }
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            }
+          }
         },
         condition: {
           title: '条件を待機',
-          description: 'カスタム JS 条件が成立するまで待機します'
+          description: 'カスタム JS 条件が成立するまで待機します',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '条件待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            expression: {
+              label: '条件式',
+              description: 'true/false を返す JS 式を入力してください。true で次へ進みます',
+              placeholder: "例：window.location.href.includes('/news')"
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            }
+          }
         },
         text: {
           title: 'テキストを待機',
-          description: '指定テキストの出現を待ちます'
+          description: '指定テキストの出現を待ちます',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: 'テキスト待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            text: {
+              label: '対象テキスト',
+              placeholder: '待機するテキストを入力'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ms）'
+            }
+          }
         },
         delay: {
           title: 'ディレイ',
-          description: '純粋な遅延待機です'
+          description: '純粋な遅延待機です',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '遅延待機が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          fields: {
+            durationMs: {
+              label: '遅延（ms）'
+            }
+          }
         }
       },
       interaction: {

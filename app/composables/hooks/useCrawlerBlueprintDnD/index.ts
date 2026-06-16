@@ -2,15 +2,15 @@ import { useVueFlow } from '@vue-flow/core';
 
 import type { IUseCrawlerBlueprintDnD } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
 
-let id = 0;
-
 /**
  * 函数：生成唯一节点 ID。
  *
  * @returns {string} 唯一的拖拽节点 ID。
  */
 const getId = (): string => {
-  return `dndnode_${id++}`;
+  const randomPart = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+
+  return `dndnode_${randomPart}`;
 };
 
 /**
@@ -44,7 +44,26 @@ const state = {
 const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
   const { draggedType, isDragOver, isDragging } = state;
 
-  const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow();
+  const { nodes, addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow();
+
+  /**
+   * 函数：创建与当前画布不冲突的唯一节点 ID。
+   *
+   * @returns {string} 唯一节点 ID。
+   */
+  const createUniqueNodeId = (): string => {
+    const existingNodeIds = new Set(nodes.value.map((node) => String(node.id ?? '')));
+
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const nextId = getId();
+
+      if (!existingNodeIds.has(nextId)) {
+        return nextId;
+      }
+    }
+
+    return `${getId()}_${Date.now().toString(36)}`;
+  };
 
   /**
    * 函数：同步浏览器文本选择开关。
@@ -122,7 +141,7 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
       y: event.clientY
     });
 
-    const nodeId = getId();
+    const nodeId = createUniqueNodeId();
 
     const newNode = {
       id: nodeId,

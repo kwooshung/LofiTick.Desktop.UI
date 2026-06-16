@@ -203,31 +203,147 @@ export const crawler = {
       wait: {
         element: {
           title: '等待元素',
-          description: '等待指定元素出现'
+          description: '等待指定元素出现',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示等待元素是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            selector: {
+              label: '元素选择器',
+              placeholder: '请输入选择器，例如 .news-item'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         time: {
           title: '等待时间',
-          description: '固定等待指定毫秒数'
+          description: '固定等待指定毫秒数',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示等待时间是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            durationMs: {
+              label: '等待毫秒'
+            }
+          }
         },
         random: {
           title: '随机等待',
-          description: '在最小值和最大值之间随机等待'
+          description: '在最小值和最大值之间随机等待',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示随机等待是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            minMs: {
+              label: '最小毫秒'
+            },
+            maxMs: {
+              label: '最大毫秒'
+            }
+          }
         },
         loadState: {
           title: '等待加载状态',
-          description: '等待页面达到指定加载状态'
+          description: '等待页面达到指定加载状态',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示等待加载状态是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            state: {
+              label: '加载状态',
+              description: '选择等待到哪个加载阶段再继续执行',
+              options: {
+                load: 'load（页面资源加载完成）',
+                domcontentloaded: 'domcontentloaded（DOM 结构就绪）',
+                networkidle: 'networkidle（网络请求空闲）'
+              }
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         condition: {
           title: '等待条件',
-          description: '等待自定义 JS 条件成立'
+          description: '等待自定义 JS 条件成立',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示等待条件是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            expression: {
+              label: '条件表达式',
+              description: '请写返回 true/false 的 JS 表达式，表达式结果为 true 时继续流程',
+              placeholder: "示例：window.location.href.includes('/news')"
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         text: {
           title: '等待文本',
-          description: '等待页面出现指定文本'
+          description: '等待页面出现指定文本',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示等待文本是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            text: {
+              label: '目标文本',
+              placeholder: '请输入需要等待出现的文本'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         delay: {
           title: '延迟',
-          description: '纯延迟等待'
+          description: '纯延迟等待',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示延迟等待是否成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
+          fields: {
+            durationMs: {
+              label: '延迟毫秒'
+            }
+          }
         }
       },
       interaction: {

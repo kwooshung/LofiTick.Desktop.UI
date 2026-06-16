@@ -203,31 +203,147 @@ export const crawler = {
       wait: {
         element: {
           title: 'Wait for Element',
-          description: 'Wait for a target element to appear'
+          description: 'Wait for a target element to appear',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether waiting for element succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when waiting for element fails'
+          },
+          fields: {
+            selector: {
+              label: 'Selector',
+              placeholder: 'Enter selector, e.g. .news-item'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         time: {
           title: 'Wait Time',
-          description: 'Wait a fixed number of milliseconds'
+          description: 'Wait a fixed number of milliseconds',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether wait time succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when wait time fails'
+          },
+          fields: {
+            durationMs: {
+              label: 'Duration (ms)'
+            }
+          }
         },
         random: {
           title: 'Random Wait',
-          description: 'Wait randomly within a min/max range'
+          description: 'Wait randomly within a min/max range',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether random wait succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when random wait fails'
+          },
+          fields: {
+            minMs: {
+              label: 'Min (ms)'
+            },
+            maxMs: {
+              label: 'Max (ms)'
+            }
+          }
         },
         loadState: {
           title: 'Wait for Load State',
-          description: 'Wait until the page reaches a load state'
+          description: 'Wait until the page reaches a load state',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether waiting for load state succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when waiting for load state fails'
+          },
+          fields: {
+            state: {
+              label: 'Load State',
+              description: 'Choose the load phase to wait for before continuing',
+              options: {
+                load: 'load (all resources loaded)',
+                domcontentloaded: 'domcontentloaded (DOM is ready)',
+                networkidle: 'networkidle (network is idle)'
+              }
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         condition: {
           title: 'Wait for Condition',
-          description: 'Wait for a custom JS condition to become true'
+          description: 'Wait for a custom JS condition to become true',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether waiting for condition succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when waiting for condition fails'
+          },
+          fields: {
+            expression: {
+              label: 'Condition Expression',
+              description: 'Write a JS expression that returns true/false. Flow continues when it returns true',
+              placeholder: "Example: window.location.href.includes('/news')"
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         text: {
           title: 'Wait for Text',
-          description: 'Wait for a specific text to appear'
+          description: 'Wait for a specific text to appear',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether waiting for text succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when waiting for text fails'
+          },
+          fields: {
+            text: {
+              label: 'Target Text',
+              placeholder: 'Enter the text to wait for'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         delay: {
           title: 'Delay',
-          description: 'Pure delay wait'
+          description: 'Pure delay wait',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether delay wait succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when delay wait fails'
+          },
+          fields: {
+            durationMs: {
+              label: 'Delay (ms)'
+            }
+          }
         }
       },
       interaction: {

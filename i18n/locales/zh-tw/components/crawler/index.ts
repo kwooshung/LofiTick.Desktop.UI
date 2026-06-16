@@ -203,31 +203,147 @@ export const crawler = {
       wait: {
         element: {
           title: '等待元素',
-          description: '等待指定元素出現'
+          description: '等待指定元素出現',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示等待元素是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            selector: {
+              label: '元素選擇器',
+              placeholder: '請輸入選擇器，例如 .news-item'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         time: {
           title: '等待時間',
-          description: '固定等待指定毫秒數'
+          description: '固定等待指定毫秒數',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示等待時間是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            durationMs: {
+              label: '等待毫秒'
+            }
+          }
         },
         random: {
           title: '隨機等待',
-          description: '在最小值與最大值之間隨機等待'
+          description: '在最小值與最大值之間隨機等待',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示隨機等待是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            minMs: {
+              label: '最小毫秒'
+            },
+            maxMs: {
+              label: '最大毫秒'
+            }
+          }
         },
         loadState: {
           title: '等待載入狀態',
-          description: '等待頁面達到指定載入狀態'
+          description: '等待頁面達到指定載入狀態',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示等待載入狀態是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            state: {
+              label: '載入狀態',
+              description: '選擇要等待到哪個載入階段再繼續執行',
+              options: {
+                load: 'load（頁面資源載入完成）',
+                domcontentloaded: 'domcontentloaded（DOM 結構就緒）',
+                networkidle: 'networkidle（網路請求閒置）'
+              }
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         condition: {
           title: '等待條件',
-          description: '等待自訂 JS 條件成立'
+          description: '等待自訂 JS 條件成立',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示等待條件是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            expression: {
+              label: '條件表達式',
+              description: '請填入回傳 true/false 的 JS 表達式，回傳 true 時會繼續流程',
+              placeholder: "範例：window.location.href.includes('/news')"
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         text: {
           title: '等待文字',
-          description: '等待頁面出現指定文字'
+          description: '等待頁面出現指定文字',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示等待文字是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            text: {
+              label: '目標文字',
+              placeholder: '請輸入需要等待出現的文字'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         delay: {
           title: '延遲',
-          description: '純延遲等待'
+          description: '純延遲等待',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '表示延遲等待是否成功',
+            message: '資訊',
+            messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          fields: {
+            durationMs: {
+              label: '延遲毫秒'
+            }
+          }
         }
       },
       interaction: {
