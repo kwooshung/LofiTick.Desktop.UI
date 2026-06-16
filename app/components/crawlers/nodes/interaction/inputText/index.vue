@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-text-cursor-input" :title="t('components.crawler.blueprint.nodes.interaction.inputText.title')" :description="t('components.crawler.blueprint.nodes.interaction.inputText.description')" header-bg="bg-purple-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <UInput v-model="stateSelector" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
+        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.text.label')">
@@ -75,6 +75,7 @@ const { t } = useI18n();
 const stateNode = useNode();
 const stateInitialized = ref(false);
 const stateSelector = ref('');
+const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateText = ref('');
 const stateTypeMode = ref('type');
 const stateRandomInputInterval = ref(false);
@@ -124,6 +125,7 @@ watchEffect(() => {
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateSelector.value = String(data.selector ?? '');
+  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateText.value = String(data.text ?? '');
   stateTypeMode.value = ['type', 'fill'].includes(String(data.typeMode)) ? String(data.typeMode) : 'type';
   stateRandomInputInterval.value = Boolean(data.randomInputInterval ?? false);
@@ -137,7 +139,7 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateText, stateTypeMode, stateRandomInputInterval, stateInputIntervalMs, stateInputIntervalMinMs, stateInputIntervalMaxMs, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
+watch([stateSelector, stateSelectorType, stateText, stateTypeMode, stateRandomInputInterval, stateInputIntervalMs, stateInputIntervalMinMs, stateInputIntervalMaxMs, stateClearBefore, stateTimeoutMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -156,6 +158,7 @@ watch([stateSelector, stateText, stateTypeMode, stateRandomInputInterval, stateI
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     selector: stateSelector.value,
+    selectorType: stateSelectorType.value,
     text: stateText.value,
     typeMode: stateTypeMode.value,
     randomInputInterval: stateRandomInputInterval.value,

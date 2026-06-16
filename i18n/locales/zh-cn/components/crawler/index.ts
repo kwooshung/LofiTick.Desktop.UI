@@ -84,6 +84,15 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: '次'
+        },
+        selectorInput: {
+          mode: {
+            options: {
+              xpath: 'XPath 选择',
+              css: 'CSS 选择'
+            }
+          },
+          invalidHint: '当前选择器与所选类型不匹配，请检查 XPath/CSS 语法。'
         }
       },
       navigation: {
@@ -484,6 +493,9 @@ export const crawler = {
             },
             key: {
               label: '按键',
+              addPart: '添加组合键',
+              removePart: '移除',
+              preview: '当前组合',
               options: {
                 enter: '回车 Enter',
                 tab: 'Tab',

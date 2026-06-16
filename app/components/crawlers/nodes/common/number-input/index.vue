@@ -43,9 +43,7 @@ const computedRootClass = computed(() => {
 });
 
 const computedInputWrapClass = computed(() => {
-  return computedShowPrefix.value
-    ? 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300'
-    : 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
+  return computedShowPrefix.value ? 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300' : 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
 });
 
 const emit = defineEmits<{

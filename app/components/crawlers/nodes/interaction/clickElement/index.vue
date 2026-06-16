@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-mouse-pointer-click" :title="t('components.crawler.blueprint.nodes.interaction.clickElement.title')" :description="t('components.crawler.blueprint.nodes.interaction.clickElement.description')" header-bg="bg-purple-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <UInput v-model="stateSelector" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
+        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
@@ -14,7 +14,7 @@
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.clickCount.label')">
-        <CrawlersNodesCommonNumberInput id="crawlerInteractionClickCount" v-model="stateClickCount" :min="1" :step="1" prefix="#" unit="x" />
+        <CrawlersNodesCommonNumberInput id="crawlerInteractionClickCount" v-model="stateClickCount" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')">
@@ -34,6 +34,7 @@ const { t } = useI18n();
 const stateNode = useNode();
 const stateInitialized = ref(false);
 const stateSelector = ref('');
+const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateTimeoutMs = ref(10000);
 const stateButton = ref('left');
 const stateClickCount = ref(1);
@@ -82,6 +83,7 @@ watchEffect(() => {
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateSelector.value = String(data.selector ?? '');
+  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
   stateButton.value = ['left', 'middle', 'right'].includes(String(data.button)) ? String(data.button) : 'left';
   stateClickCount.value = Number.isFinite(Number(data.clickCount)) ? Math.max(1, Number(data.clickCount)) : 1;
@@ -89,7 +91,7 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateTimeoutMs, stateButton, stateClickCount, stateSimulateNativeInput], () => {
+watch([stateSelector, stateSelectorType, stateTimeoutMs, stateButton, stateClickCount, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -97,6 +99,7 @@ watch([stateSelector, stateTimeoutMs, stateButton, stateClickCount, stateSimulat
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     selector: stateSelector.value,
+    selectorType: stateSelectorType.value,
     timeoutMs: stateTimeoutMs.value,
     button: stateButton.value,
     clickCount: stateClickCount.value,

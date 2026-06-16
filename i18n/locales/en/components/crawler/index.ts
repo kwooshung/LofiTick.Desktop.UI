@@ -84,6 +84,15 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: 'Times'
+        },
+        selectorInput: {
+          mode: {
+            options: {
+              xpath: 'XPath Selector',
+              css: 'CSS Selector'
+            }
+          },
+          invalidHint: 'Selector does not match the selected type. Please verify XPath/CSS syntax.'
         }
       },
       navigation: {
@@ -484,6 +493,9 @@ export const crawler = {
             },
             key: {
               label: 'Key',
+              addPart: 'Add Key Part',
+              removePart: 'Remove',
+              preview: 'Current Combo',
               options: {
                 enter: 'Enter',
                 tab: 'Tab',

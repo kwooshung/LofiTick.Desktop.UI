@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-send" :title="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.title')" :description="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.description')" header-bg="bg-purple-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.label')">
-        <UInput v-model="stateSelector" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
+        <CrawlersNodesCommonSelectorInput v-model="stateSelector" v-model:selector-type="stateSelectorType" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.selector.placeholder')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.eventName.label')">
@@ -38,6 +38,7 @@ const { t } = useI18n();
 const stateNode = useNode();
 const stateInitialized = ref(false);
 const stateSelector = ref('');
+const stateSelectorType = ref<'xpath' | 'css'>('xpath');
 const stateEventName = ref('click');
 const stateBubbles = ref(true);
 const stateCancelable = ref(true);
@@ -137,6 +138,7 @@ watchEffect(() => {
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateSelector.value = String(data.selector ?? '');
+  stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
   stateEventName.value = stateAllowedEventValues.includes(String(data.eventName) as (typeof stateAllowedEventValues)[number]) ? String(data.eventName) : 'click';
   stateBubbles.value = Boolean(data.bubbles ?? true);
   stateCancelable.value = Boolean(data.cancelable ?? true);
@@ -145,7 +147,7 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateSelector, stateEventName, stateBubbles, stateCancelable, stateTimeoutMs, stateSimulateNativeInput], () => {
+watch([stateSelector, stateSelectorType, stateEventName, stateBubbles, stateCancelable, stateTimeoutMs, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -153,6 +155,7 @@ watch([stateSelector, stateEventName, stateBubbles, stateCancelable, stateTimeou
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     selector: stateSelector.value,
+    selectorType: stateSelectorType.value,
     eventName: stateEventName.value,
     bubbles: stateBubbles.value,
     cancelable: stateCancelable.value,

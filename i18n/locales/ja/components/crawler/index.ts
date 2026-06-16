@@ -84,6 +84,15 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: '回'
+        },
+        selectorInput: {
+          mode: {
+            options: {
+              xpath: 'XPath セレクタ',
+              css: 'CSS セレクタ'
+            }
+          },
+          invalidHint: '選択した種類とセレクタ構文が一致しない可能性があります。'
         }
       },
       navigation: {
@@ -484,6 +493,9 @@ export const crawler = {
             },
             key: {
               label: 'キー',
+              addPart: 'キーを追加',
+              removePart: '削除',
+              preview: '現在の組み合わせ',
               options: {
                 enter: 'Enter',
                 tab: 'Tab',
