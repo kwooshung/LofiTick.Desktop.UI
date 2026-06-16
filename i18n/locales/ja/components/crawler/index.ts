@@ -133,6 +133,14 @@ export const crawler = {
         back: {
           title: '戻る',
           description: 'ブラウザ履歴を戻ります',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '戻る操作が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
           fields: {
             steps: {
               label: '戻るステップ数'
@@ -151,6 +159,14 @@ export const crawler = {
         forward: {
           title: '進む',
           description: 'ブラウザ履歴を進みます',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: '進む操作が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
           fields: {
             steps: {
               label: '進むステップ数'
@@ -169,6 +185,14 @@ export const crawler = {
         closePage: {
           title: 'ページを閉じる',
           description: '現在のページセッションを閉じます',
+          outputs: {
+            success: '成功',
+            fail: '失敗',
+            boolean: '結果',
+            booleanDescription: 'ページを閉じる操作が成功したかどうかを示します',
+            message: '情報',
+            messageDescription: '失敗時のエラー情報または例外内容'
+          },
           fields: {
             endFlowAfterClose: {
               label: '閉じた後にフローを終了'

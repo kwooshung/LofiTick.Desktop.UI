@@ -133,6 +133,14 @@ export const crawler = {
         back: {
           title: 'Back',
           description: 'Go back in browser history',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether the back navigation succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when back navigation fails'
+          },
           fields: {
             steps: {
               label: 'Steps'
@@ -151,6 +159,14 @@ export const crawler = {
         forward: {
           title: 'Forward',
           description: 'Go forward in browser history',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether the forward navigation succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when forward navigation fails'
+          },
           fields: {
             steps: {
               label: 'Steps'
@@ -169,6 +185,14 @@ export const crawler = {
         closePage: {
           title: 'Close Page',
           description: 'Close the current page session',
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether closing the page succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when closing the page fails'
+          },
           fields: {
             endFlowAfterClose: {
               label: 'End flow after closing'

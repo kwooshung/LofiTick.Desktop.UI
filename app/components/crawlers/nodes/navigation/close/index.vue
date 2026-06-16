@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide:monitor-x" :title="t('components.crawler.blueprint.nodes.navigation.closePage.title')" :description="t('components.crawler.blueprint.nodes.navigation.closePage.description')" header-bg="bg-blue-500">
+  <CrawlersNodesCommonBasic icon-name="i-lucide:monitor-x" :title="t('components.crawler.blueprint.nodes.navigation.closePage.title')" :description="t('components.crawler.blueprint.nodes.navigation.closePage.description')" header-bg="bg-blue-500" :right-pins="rightPins">
     <UFormField :label="t('components.crawler.blueprint.nodes.navigation.closePage.fields.endFlowAfterClose.label')">
       <USwitch v-model="stateEndFlowAfterClose" />
     </UFormField>
@@ -9,6 +9,7 @@
 <script setup lang="ts">
 import { useNode } from '@vue-flow/core';
 
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationCloseData } from '@/components/crawlers/nodes/navigation/close/index.types';
 
 /**
@@ -30,6 +31,28 @@ const stateInitialized = ref(false);
  * 状态：关闭页面后是否终止流程。
  */
 const stateEndFlowAfterClose = ref(true);
+
+/**
+ * 常量：右侧数据输出引脚配置。
+ */
+const rightPins: IBasicSidePin[] = [
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.navigation.closePage.outputs.boolean'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.navigation.closePage.outputs.booleanDescription')
+  },
+  {
+    id: 'result-message',
+    label: t('components.crawler.blueprint.nodes.navigation.closePage.outputs.message'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.navigation.closePage.outputs.messageDescription')
+  }
+];
 
 /**
  * 监听：初始化阶段将 node.data 回填到本地状态。

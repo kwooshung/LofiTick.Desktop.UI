@@ -1,6 +1,6 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-arrow-left" :title="t('components.crawler.blueprint.nodes.navigation.back.title')" :description="t('components.crawler.blueprint.nodes.navigation.back.description')" header-bg="bg-blue-500">
-    <div class="grid grid-cols-2 gap-2">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-arrow-left" :title="t('components.crawler.blueprint.nodes.navigation.back.title')" :description="t('components.crawler.blueprint.nodes.navigation.back.description')" header-bg="bg-blue-500" :right-pins="rightPins">
+    <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.steps.label')">
         <UInputNumber v-model="stateSteps" :min="1" :step="1" orientation="vertical" class="w-full" />
       </UFormField>
@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import { useNode } from '@vue-flow/core';
 
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationBackData } from '@/components/crawlers/nodes/navigation/back/index.types';
 
 /**
@@ -64,6 +65,28 @@ const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
  * 状态：无历史记录时是否忽略错误。
  */
 const stateAllowNoHistory = ref(true);
+
+/**
+ * 常量：右侧数据输出引脚配置。
+ */
+const rightPins: IBasicSidePin[] = [
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.navigation.back.outputs.boolean'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.navigation.back.outputs.booleanDescription')
+  },
+  {
+    id: 'result-message',
+    label: t('components.crawler.blueprint.nodes.navigation.back.outputs.message'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.navigation.back.outputs.messageDescription')
+  }
+];
 
 /**
  * 监听：初始化阶段将 node.data 回填到本地状态。

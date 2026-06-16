@@ -133,6 +133,14 @@ export const crawler = {
         back: {
           title: '后退',
           description: '浏览器历史后退',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示是否后退成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
           fields: {
             steps: {
               label: '后退步数'
@@ -151,6 +159,14 @@ export const crawler = {
         forward: {
           title: '前进',
           description: '浏览器历史前进',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示是否前进成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
           fields: {
             steps: {
               label: '前进步数'
@@ -169,6 +185,14 @@ export const crawler = {
         closePage: {
           title: '关闭页面',
           description: '关闭当前页面会话',
+          outputs: {
+            success: '成功',
+            fail: '失败',
+            boolean: '结果',
+            booleanDescription: '表示是否关闭页面成功',
+            message: '信息',
+            messageDescription: '失败时的错误信息或异常说明'
+          },
           fields: {
             endFlowAfterClose: {
               label: '关闭后终止流程'
