@@ -167,9 +167,10 @@ $breakpoint-xs-max: 639px;
   --vf-node-color: var(--ui-text);
   --vf-handle: var(--ui-color-neutral-400);
   --vf-connection-path: var(--ui-color-neutral-600);
-  --vf-connection-valid: var(--ui-success);
+  --vf-connection-valid: var(--ui-color-success-800);
   --vf-connection-invalid: var(--ui-error);
   --vf-edge-connected: var(--ui-primary);
+  --vf-edge-selected: var(--ui-primary);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
@@ -293,7 +294,8 @@ $breakpoint-xs-max: 639px;
       &.selected .vue-flow__edge-path,
       &:focus .vue-flow__edge-path,
       &:focus-visible .vue-flow__edge-path {
-        stroke: color-mix(in oklab, var(--ui-text) 80%, var(--color-black) 20%);
+        stroke: var(--vf-edge-selected);
+        stroke-width: 5;
       }
 
       &.updating .vue-flow__edge-path {
