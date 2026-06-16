@@ -5,6 +5,11 @@
       :edges="edges"
       :is-valid-connection="isValidConnection"
       :delete-key-code="['Backspace', 'Delete']"
+      :elements-selectable="true"
+      :pan-on-drag="false"
+      :selection-key-code="true"
+      :select-nodes-on-drag="true"
+      :selection-mode="SelectionMode.Full"
       fit-view-on-init
       @dragover="(event: DragEvent) => emit('dragover', event as DragEvent)"
       @dragleave="(event: DragEvent) => emit('dragleave', event as DragEvent)"
@@ -144,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { VueFlow } from '@vue-flow/core';
+import { SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';
