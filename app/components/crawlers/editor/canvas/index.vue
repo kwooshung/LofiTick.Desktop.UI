@@ -19,6 +19,9 @@
       <template #node-end="props">
         <CrawlersNodesCommonEnd v-bind="props" />
       </template>
+      <template #node-navigation-goto="props">
+        <CrawlersNodesNavigationGoto v-bind="props" />
+      </template>
       <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
         <UEmpty
           v-if="isDragOver"

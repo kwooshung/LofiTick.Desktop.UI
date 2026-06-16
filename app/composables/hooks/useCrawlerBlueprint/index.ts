@@ -10,15 +10,15 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
     iconName: 'i-lucide-compass',
     nodes: [
       {
-        key: 'navigation.go-to-page',
-        labelKey: 'pages.crawlers.blueprint.nodes.navigation.goToPage.title',
-        descriptionKey: 'pages.crawlers.blueprint.nodes.navigation.goToPage.description',
+        key: 'navigation.goto',
+        labelKey: 'pages.crawlers.blueprint.nodes.navigation.goto.title',
+        descriptionKey: 'pages.crawlers.blueprint.nodes.navigation.goto.description',
         iconName: 'i-lucide-external-link'
       },
       {
-        key: 'navigation.refresh-page',
-        labelKey: 'pages.crawlers.blueprint.nodes.navigation.refreshPage.title',
-        descriptionKey: 'pages.crawlers.blueprint.nodes.navigation.refreshPage.description',
+        key: 'navigation.refresh',
+        labelKey: 'pages.crawlers.blueprint.nodes.navigation.refresh.title',
+        descriptionKey: 'pages.crawlers.blueprint.nodes.navigation.refresh.description',
         iconName: 'i-lucide-refresh-cw'
       },
       {
