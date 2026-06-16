@@ -13,11 +13,57 @@
         <p v-if="description" :class="['m-0 mt-0.5 truncate text-sm', descriptionClass]">{{ description }}</p>
       </div>
     </div>
-    <div v-if="$slots.default" class="px-4 py-3">
-      <slot />
-    </div>
-    <div v-if="$slots.footer" class="h-4 pr-4 pb-4 pl-4">
-      <slot />
+    <div v-if="$slots.default || $slots.footer || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
+      <div v-if="computedHasLeftPins" class="relative w-28 shrink-0 py-3 pl-3">
+        <template v-for="pin in computedLeftPins" :key="pin.id">
+          <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
+            <div class="relative flex min-h-5 items-center pr-2">
+              <Handle
+                :id="pin.id"
+                type="target"
+                :position="Position.Left"
+                :is-valid-connection="isValidSidePinTarget"
+                class="absolute top-1/2! left-0! h-5! w-4! -translate-y-1/2 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]"
+                :style="{ backgroundColor: resolvePinColor(pin.dataType) }"
+              />
+              <div class="min-w-0 pl-6 text-left">
+                <p class="truncate text-xs leading-4 font-medium text-white/90">{{ pin.label }}</p>
+                <p v-if="pin.description" class="truncate text-[11px] leading-4 text-white/60">{{ pin.description }}</p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <div v-if="$slots.default" class="px-4 py-3">
+          <slot />
+        </div>
+        <div v-if="$slots.footer" class="pr-4 pb-4 pl-4">
+          <slot name="footer" />
+        </div>
+      </div>
+
+      <div v-if="computedHasRightPins" class="relative w-28 shrink-0 py-3 pr-3">
+        <template v-for="pin in computedRightPins" :key="pin.id">
+          <div class="absolute inset-x-0" :style="{ top: `${pin.topPercent ?? 50}%`, transform: 'translateY(-50%)' }">
+            <div class="relative flex min-h-5 items-center pl-2">
+              <div class="min-w-0 pr-6 text-right">
+                <p class="truncate text-xs leading-4 font-medium text-white/90">{{ pin.label }}</p>
+                <p v-if="pin.description" class="truncate text-[11px] leading-4 text-white/60">{{ pin.description }}</p>
+              </div>
+              <Handle
+                :id="pin.id"
+                type="source"
+                :position="Position.Right"
+                :is-valid-connection="isValidSidePinSource"
+                class="absolute top-1/2! right-0! h-5! w-4! -translate-y-1/2 rounded-none! border-0! [clip-path:polygon(0_0,100%_50%,0_100%)]"
+                :style="{ backgroundColor: resolvePinColor(pin.dataType) }"
+              />
+            </div>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -26,12 +72,25 @@
 import type { Connection } from '@vue-flow/core';
 import { Handle, Position, useNode, useNodeId } from '@vue-flow/core';
 
-import type { ICrawlersNodesCommonBasicProps } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { IBasicSidePin, ICrawlersNodesCommonBasicProps, TBasicSidePinDataType } from '@/components/crawlers/nodes/common/basic/index.types';
 
 /**
  * 属性：基础节点配置。
  */
-const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true } = defineProps<ICrawlersNodesCommonBasicProps>();
+const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true, leftPins = [], rightPins = [] } = defineProps<ICrawlersNodesCommonBasicProps>();
+
+/**
+ * 常量：当前组件使用的引脚类型颜色映射。
+ */
+const BASIC_SIDE_PIN_COLOR_MAP: Record<TBasicSidePinDataType, string> = {
+  exec: 'rgb(250 204 21)',
+  string: 'rgb(74 222 128)',
+  number: 'rgb(96 165 250)',
+  boolean: 'rgb(192 132 252)',
+  array: 'rgb(251 146 60)',
+  object: 'rgb(103 232 249)',
+  any: 'rgb(156 163 175)'
+};
 
 /**
  * 常量：当前节点 ID。
@@ -44,6 +103,30 @@ const stateNodeId = useNodeId();
 const stateNode = useNode();
 
 /**
+ * 计算属性：左侧引脚配置。
+ */
+const computedLeftPins = computed<IBasicSidePin[]>(() => {
+  return leftPins.filter((pin) => pin.direction === 'in');
+});
+
+/**
+ * 计算属性：右侧引脚配置。
+ */
+const computedRightPins = computed<IBasicSidePin[]>(() => {
+  return rightPins.filter((pin) => pin.direction === 'out');
+});
+
+/**
+ * 计算属性：是否存在左侧引脚列。
+ */
+const computedHasLeftPins = computed(() => computedLeftPins.value.length > 0);
+
+/**
+ * 计算属性：是否存在右侧引脚列。
+ */
+const computedHasRightPins = computed(() => computedRightPins.value.length > 0);
+
+/**
  * 计算属性：当前组件是否运行在 Vue Flow 节点上下文中。
  */
 const hasNodeContext = computed(() => String(stateNodeId ?? '').trim() !== '');
@@ -52,6 +135,21 @@ const hasNodeContext = computed(() => String(stateNodeId ?? '').trim() !== '');
  * 计算属性：当前节点是否处于选中状态。
  */
 const computedIsSelected = computed(() => Boolean(stateNode.node.selected));
+
+/**
+ * 函数：解析引脚颜色。
+ *
+ * # Arguments
+ *
+ * * `dataType` - 引脚数据类型。
+ *
+ * # Returns
+ *
+ * 返回对应的颜色值；未识别时回退为 any 类型颜色。
+ */
+const resolvePinColor = (dataType: TBasicSidePinDataType): string => {
+  return BASIC_SIDE_PIN_COLOR_MAP[dataType] ?? BASIC_SIDE_PIN_COLOR_MAP.any;
+};
 
 /**
  * 函数：验证连接是否满足 exec-out -> exec-in 规则。
@@ -74,5 +172,35 @@ const isValidConnectionTarget = (connection: Connection): boolean => {
 const isValidConnectionSource = (connection: Connection): boolean => {
   console.log('validate connection source', connection);
   return isExecConnection(connection) && connection.target !== stateNodeId;
+};
+
+/**
+ * 函数：验证左侧普通引脚连接目标是否合法。
+ *
+ * # Arguments
+ *
+ * * `connection` - 当前连接信息。
+ *
+ * # Returns
+ *
+ * 仅阻止节点连接到自身，其余交由上层流程决定。
+ */
+const isValidSidePinTarget = (connection: Connection): boolean => {
+  return connection.source !== stateNodeId;
+};
+
+/**
+ * 函数：验证右侧普通引脚连接源是否合法。
+ *
+ * # Arguments
+ *
+ * * `connection` - 当前连接信息。
+ *
+ * # Returns
+ *
+ * 仅阻止节点连接到自身，其余交由上层流程决定。
+ */
+const isValidSidePinSource = (connection: Connection): boolean => {
+  return connection.target !== stateNodeId;
 };
 </script>
