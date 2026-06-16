@@ -14,10 +14,10 @@
     >
       <CrawlersEditorLinesHelper :horizontal="helperLineHorizontal" :vertical="helperLineVertical" />
       <template #node-start="props">
-        <CrawlersNodesStart v-bind="props" />
+        <CrawlersNodesCommonStart v-bind="props" />
       </template>
       <template #node-end="props">
-        <CrawlersNodesEnd v-bind="props" />
+        <CrawlersNodesCommonEnd v-bind="props" />
       </template>
       <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
         <UEmpty
