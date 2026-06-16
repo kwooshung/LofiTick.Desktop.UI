@@ -21,14 +21,14 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
         id: 'start',
         position: { x: 100, y: 100 },
         selectable: true,
-        deletable: true
+        deletable: false
       });
       addNodes({
         type: 'end',
         id: 'end',
         position: { x: 1000, y: 100 },
         selectable: true,
-        deletable: true
+        deletable: false
       });
     }
   };
