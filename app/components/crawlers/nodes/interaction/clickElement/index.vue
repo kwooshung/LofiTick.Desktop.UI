@@ -1,5 +1,12 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-mouse-pointer-click" :title="t('components.crawler.blueprint.nodes.interaction.clickElement.title')" :description="t('components.crawler.blueprint.nodes.interaction.clickElement.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-mouse-pointer-click"
+    :title="t('components.crawler.blueprint.nodes.interaction.clickElement.title')"
+    :description="t('components.crawler.blueprint.nodes.interaction.clickElement.description')"
+    header-bg="bg-purple-500"
+    :left-pins="leftPins"
+    :right-pins="rightPins"
+  >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerInteractionClickTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />

@@ -1,5 +1,12 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-form-input" :title="t('components.crawler.blueprint.nodes.interaction.fillContent.title')" :description="t('components.crawler.blueprint.nodes.interaction.fillContent.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-form-input"
+    :title="t('components.crawler.blueprint.nodes.interaction.fillContent.title')"
+    :description="t('components.crawler.blueprint.nodes.interaction.fillContent.description')"
+    header-bg="bg-purple-500"
+    :left-pins="leftPins"
+    :right-pins="rightPins"
+  >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.content.label')">
         <UTextarea v-model="stateContent" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.content.placeholder')" />

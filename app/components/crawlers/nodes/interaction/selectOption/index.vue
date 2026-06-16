@@ -1,5 +1,12 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-list-filter" :title="t('components.crawler.blueprint.nodes.interaction.selectOption.title')" :description="t('components.crawler.blueprint.nodes.interaction.selectOption.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-list-filter"
+    :title="t('components.crawler.blueprint.nodes.interaction.selectOption.title')"
+    :description="t('components.crawler.blueprint.nodes.interaction.selectOption.description')"
+    header-bg="bg-purple-500"
+    :left-pins="leftPins"
+    :right-pins="rightPins"
+  >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.optionMode.label')">
         <USelect v-model="stateOptionMode" class="w-full" :items="stateOptionModeOptions" value-attribute="value" option-attribute="label" />
