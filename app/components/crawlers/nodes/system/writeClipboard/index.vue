@@ -1,5 +1,12 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-clipboard-plus" :title="t('components.crawler.blueprint.nodes.system.writeClipboard.title')" :description="t('components.crawler.blueprint.nodes.system.writeClipboard.description')" header-bg="bg-slate-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-clipboard-plus"
+    :title="t('components.crawler.blueprint.nodes.system.writeClipboard.title')"
+    :description="t('components.crawler.blueprint.nodes.system.writeClipboard.description')"
+    header-bg="bg-slate-500"
+    :left-pins="leftPins"
+    :right-pins="rightPins"
+  >
     <div class="space-y-3">
       <UFormField v-if="!computedHasTextInput" :label="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.label')">
         <UTextarea v-model="stateText" :rows="4" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.placeholder')" />
