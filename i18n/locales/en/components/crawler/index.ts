@@ -730,15 +730,106 @@ export const crawler = {
       scroll: {
         toPosition: {
           title: 'Scroll to Position',
-          description: 'Scroll to a coordinate or element'
+          description: 'Scroll to a coordinate or element',
+          fields: {
+            mode: {
+              label: 'Scroll Target',
+              options: {
+                position: 'Coordinate',
+                element: 'Element'
+              }
+            },
+            x: {
+              label: 'Target X'
+            },
+            y: {
+              label: 'Target Y'
+            },
+            behavior: {
+              label: 'Scroll Behavior',
+              options: {
+                auto: 'Auto',
+                smooth: 'Smooth'
+              }
+            },
+            randomOffset: {
+              label: 'Enable Random Offset'
+            },
+            offsetMin: {
+              label: 'Min Offset'
+            },
+            offsetMax: {
+              label: 'Max Offset'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         intoView: {
           title: 'Scroll into View',
-          description: 'Bring an element into view'
+          description: 'Bring an element into view',
+          fields: {
+            behavior: {
+              label: 'Scroll Behavior',
+              options: {
+                auto: 'Auto',
+                smooth: 'Smooth'
+              }
+            },
+            block: {
+              label: 'Vertical Align'
+            },
+            inline: {
+              label: 'Horizontal Align'
+            },
+            alignOptions: {
+              start: 'Start',
+              center: 'Center',
+              end: 'End',
+              nearest: 'Nearest'
+            },
+            ensureVisible: {
+              label: 'Ensure Final Visibility'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          }
         },
         infinite: {
           title: 'Infinite Scroll',
-          description: 'Keep scrolling to load more content'
+          description: 'Keep scrolling to load more content',
+          fields: {
+            maxIterations: {
+              label: 'Max Iterations'
+            },
+            stepPx: {
+              label: 'Step Pixels'
+            },
+            intervalMs: {
+              label: 'Interval (ms)'
+            },
+            behavior: {
+              label: 'Scroll Behavior',
+              options: {
+                auto: 'Auto',
+                smooth: 'Smooth'
+              }
+            },
+            stopWhenNoChange: {
+              label: 'Stop When Content Unchanged'
+            },
+            maxNoChangeCount: {
+              label: 'Max No-change Count'
+            }
+          },
+          outputs: {
+            iterationCount: {
+              label: 'Iteration Count',
+              description: 'Actual number of scroll iterations'
+            }
+          }
         }
       },
       extract: {

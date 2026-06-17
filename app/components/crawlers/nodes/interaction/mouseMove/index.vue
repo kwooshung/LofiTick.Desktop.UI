@@ -3,16 +3,16 @@
     <div class="space-y-3">
       <div class="space-y-2">
         <UFormField v-if="!computedHasStartXInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.startX.label')">
-          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveStartX" v-model="stateStartX" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveStartX" v-model="stateStartX" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
         </UFormField>
         <UFormField v-if="!computedHasStartYInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.startY.label')">
-          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveStartY" v-model="stateStartY" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveStartY" v-model="stateStartY" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
         </UFormField>
         <UFormField v-if="!computedHasEndXInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.endX.label')">
-          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveEndX" v-model="stateEndX" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveEndX" v-model="stateEndX" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
         </UFormField>
         <UFormField v-if="!computedHasEndYInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.endY.label')">
-          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveEndY" v-model="stateEndY" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveEndY" v-model="stateEndY" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
         </UFormField>
       </div>
 

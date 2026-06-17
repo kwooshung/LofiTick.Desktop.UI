@@ -730,15 +730,106 @@ export const crawler = {
       scroll: {
         toPosition: {
           title: '滚动到位置',
-          description: '滚动到指定坐标或元素'
+          description: '滚动到指定坐标或元素',
+          fields: {
+            mode: {
+              label: '滚动目标',
+              options: {
+                position: '坐标位置',
+                element: '目标元素'
+              }
+            },
+            x: {
+              label: '目标 X'
+            },
+            y: {
+              label: '目标 Y'
+            },
+            behavior: {
+              label: '滚动行为',
+              options: {
+                auto: '自动',
+                smooth: '平滑'
+              }
+            },
+            randomOffset: {
+              label: '启用随机偏移'
+            },
+            offsetMin: {
+              label: '最小偏移'
+            },
+            offsetMax: {
+              label: '最大偏移'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         intoView: {
           title: '滚动进入视野',
-          description: '让元素进入可见区域'
+          description: '让元素进入可见区域',
+          fields: {
+            behavior: {
+              label: '滚动行为',
+              options: {
+                auto: '自动',
+                smooth: '平滑'
+              }
+            },
+            block: {
+              label: '垂直对齐'
+            },
+            inline: {
+              label: '水平对齐'
+            },
+            alignOptions: {
+              start: '起点',
+              center: '居中',
+              end: '终点',
+              nearest: '最近'
+            },
+            ensureVisible: {
+              label: '确保最终可见'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          }
         },
         infinite: {
           title: '无限滚动',
-          description: '循环滚动加载更多内容'
+          description: '循环滚动加载更多内容',
+          fields: {
+            maxIterations: {
+              label: '最大滚动轮次'
+            },
+            stepPx: {
+              label: '每次滚动像素'
+            },
+            intervalMs: {
+              label: '滚动间隔毫秒'
+            },
+            behavior: {
+              label: '滚动行为',
+              options: {
+                auto: '自动',
+                smooth: '平滑'
+              }
+            },
+            stopWhenNoChange: {
+              label: '内容不变时提前停止'
+            },
+            maxNoChangeCount: {
+              label: '最大无变化次数'
+            }
+          },
+          outputs: {
+            iterationCount: {
+              label: '实际滚动轮次',
+              description: '本次执行完成时的滚动次数'
+            }
+          }
         }
       },
       extract: {

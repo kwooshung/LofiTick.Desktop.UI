@@ -730,15 +730,106 @@ export const crawler = {
       scroll: {
         toPosition: {
           title: '捲動到位置',
-          description: '捲動到指定座標或元素'
+          description: '捲動到指定座標或元素',
+          fields: {
+            mode: {
+              label: '捲動目標',
+              options: {
+                position: '座標位置',
+                element: '目標元素'
+              }
+            },
+            x: {
+              label: '目標 X'
+            },
+            y: {
+              label: '目標 Y'
+            },
+            behavior: {
+              label: '捲動行為',
+              options: {
+                auto: '自動',
+                smooth: '平滑'
+              }
+            },
+            randomOffset: {
+              label: '啟用隨機偏移'
+            },
+            offsetMin: {
+              label: '最小偏移'
+            },
+            offsetMax: {
+              label: '最大偏移'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         intoView: {
           title: '捲動進入視野',
-          description: '讓元素進入可見區域'
+          description: '讓元素進入可見區域',
+          fields: {
+            behavior: {
+              label: '捲動行為',
+              options: {
+                auto: '自動',
+                smooth: '平滑'
+              }
+            },
+            block: {
+              label: '垂直對齊'
+            },
+            inline: {
+              label: '水平對齊'
+            },
+            alignOptions: {
+              start: '起點',
+              center: '置中',
+              end: '終點',
+              nearest: '最近'
+            },
+            ensureVisible: {
+              label: '確保最終可見'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          }
         },
         infinite: {
           title: '無限捲動',
-          description: '循環捲動載入更多內容'
+          description: '循環捲動載入更多內容',
+          fields: {
+            maxIterations: {
+              label: '最大捲動輪次'
+            },
+            stepPx: {
+              label: '每次捲動像素'
+            },
+            intervalMs: {
+              label: '捲動間隔毫秒'
+            },
+            behavior: {
+              label: '捲動行為',
+              options: {
+                auto: '自動',
+                smooth: '平滑'
+              }
+            },
+            stopWhenNoChange: {
+              label: '內容不變時提前停止'
+            },
+            maxNoChangeCount: {
+              label: '最大無變化次數'
+            }
+          },
+          outputs: {
+            iterationCount: {
+              label: '實際捲動輪次',
+              description: '本次執行完成時的捲動次數'
+            }
+          }
         }
       },
       extract: {

@@ -730,15 +730,106 @@ export const crawler = {
       scroll: {
         toPosition: {
           title: '位置へスクロール',
-          description: '指定座標や要素へスクロールします'
+          description: '指定座標や要素へスクロールします',
+          fields: {
+            mode: {
+              label: 'スクロール対象',
+              options: {
+                position: '座標位置',
+                element: '対象要素'
+              }
+            },
+            x: {
+              label: '目標 X'
+            },
+            y: {
+              label: '目標 Y'
+            },
+            behavior: {
+              label: 'スクロール挙動',
+              options: {
+                auto: '自動',
+                smooth: 'スムーズ'
+              }
+            },
+            randomOffset: {
+              label: 'ランダムオフセットを有効化'
+            },
+            offsetMin: {
+              label: '最小オフセット'
+            },
+            offsetMax: {
+              label: '最大オフセット'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ミリ秒）'
+            }
+          }
         },
         intoView: {
           title: '表示領域へスクロール',
-          description: '要素を表示領域へ入れます'
+          description: '要素を表示領域へ入れます',
+          fields: {
+            behavior: {
+              label: 'スクロール挙動',
+              options: {
+                auto: '自動',
+                smooth: 'スムーズ'
+              }
+            },
+            block: {
+              label: '垂直位置'
+            },
+            inline: {
+              label: '水平位置'
+            },
+            alignOptions: {
+              start: '開始',
+              center: '中央',
+              end: '終了',
+              nearest: '最近'
+            },
+            ensureVisible: {
+              label: '最終的に可視状態を保証'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ミリ秒）'
+            }
+          }
         },
         infinite: {
           title: '無限スクロール',
-          description: '継続スクロールで追加内容を読み込みます'
+          description: '継続スクロールで追加内容を読み込みます',
+          fields: {
+            maxIterations: {
+              label: '最大スクロール回数'
+            },
+            stepPx: {
+              label: '1 回あたりのスクロール量'
+            },
+            intervalMs: {
+              label: 'スクロール間隔（ミリ秒）'
+            },
+            behavior: {
+              label: 'スクロール挙動',
+              options: {
+                auto: '自動',
+                smooth: 'スムーズ'
+              }
+            },
+            stopWhenNoChange: {
+              label: '内容変化なしで早期停止'
+            },
+            maxNoChangeCount: {
+              label: '最大無変化回数'
+            }
+          },
+          outputs: {
+            iterationCount: {
+              label: '実スクロール回数',
+              description: '今回実行で行われたスクロール回数'
+            }
+          }
         }
       },
       extract: {
