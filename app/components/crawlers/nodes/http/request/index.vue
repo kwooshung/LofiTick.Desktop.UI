@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-globe" :title="t('components.crawler.blueprint.nodes.http.request.title')" :description="t('components.crawler.blueprint.nodes.http.request.description')" header-bg="bg-indigo-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic class="w-153 min-w-153 max-w-153" icon-name="i-lucide-globe" :title="t('components.crawler.blueprint.nodes.http.request.title')" :description="t('components.crawler.blueprint.nodes.http.request.description')" header-bg="bg-indigo-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField v-if="!computedHasMethodInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.method.label')">
         <USelect v-model="stateMethod" class="w-full" :items="stateMethodOptions" value-attribute="value" option-attribute="label" />
