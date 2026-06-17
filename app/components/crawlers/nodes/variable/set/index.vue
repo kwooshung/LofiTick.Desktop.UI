@@ -9,8 +9,9 @@
 
               <UInput v-model="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.variable.set.fields.name.placeholder')" />
 
-              <div v-if="hasTargetPinConnection(item)" class="border-default text-muted flex h-8 w-32 shrink-0 items-center justify-center border-l px-2 text-xs">
-                {{ t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label') }}
+              <div v-if="hasTargetPinConnection(item)" :title="t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label')" class="border-default text-muted flex h-8 w-24 shrink-0 items-center gap-1 overflow-hidden border-l px-2 text-[11px] whitespace-nowrap">
+                <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+                <span class="truncate">{{ t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label') }}</span>
               </div>
 
               <UInput
