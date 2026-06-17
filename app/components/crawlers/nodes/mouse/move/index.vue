@@ -315,37 +315,65 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateStartX, stateStartY, stateEndX, stateEndY, stateCurveType, stateCurveStrength, stateRandomCurveStrength, stateCurveStrengthMin, stateCurveStrengthMax, stateSpeedProfile, stateRandomDuration, stateDurationMs, stateDurationMinMs, stateDurationMaxMs, stateEnableJitter, stateJitterAmplitude, stateRandomJitterAmplitude, stateJitterAmplitudeMin, stateJitterAmplitudeMax, stateJitterFrequency, stateRandomJitterFrequency, stateJitterFrequencyMin, stateJitterFrequencyMax, stateSimulateNativeInput], () => {
-  if (!stateInitialized.value) {
-    return;
-  }
+watch(
+  [
+    stateStartX,
+    stateStartY,
+    stateEndX,
+    stateEndY,
+    stateCurveType,
+    stateCurveStrength,
+    stateRandomCurveStrength,
+    stateCurveStrengthMin,
+    stateCurveStrengthMax,
+    stateSpeedProfile,
+    stateRandomDuration,
+    stateDurationMs,
+    stateDurationMinMs,
+    stateDurationMaxMs,
+    stateEnableJitter,
+    stateJitterAmplitude,
+    stateRandomJitterAmplitude,
+    stateJitterAmplitudeMin,
+    stateJitterAmplitudeMax,
+    stateJitterFrequency,
+    stateRandomJitterFrequency,
+    stateJitterFrequencyMin,
+    stateJitterFrequencyMax,
+    stateSimulateNativeInput
+  ],
+  () => {
+    if (!stateInitialized.value) {
+      return;
+    }
 
-  stateNode.node.data = {
-    ...(stateNode.node.data as Record<string, unknown> | undefined),
-    startX: stateStartX.value,
-    startY: stateStartY.value,
-    endX: stateEndX.value,
-    endY: stateEndY.value,
-    curveType: stateCurveType.value,
-    curveStrength: stateCurveStrength.value,
-    randomCurveStrength: stateRandomCurveStrength.value,
-    curveStrengthMin: stateCurveStrengthMin.value,
-    curveStrengthMax: stateCurveStrengthMax.value,
-    speedProfile: stateSpeedProfile.value,
-    randomDuration: stateRandomDuration.value,
-    durationMs: stateDurationMs.value,
-    durationMinMs: stateDurationMinMs.value,
-    durationMaxMs: stateDurationMaxMs.value,
-    enableJitter: stateEnableJitter.value,
-    jitterAmplitude: stateJitterAmplitude.value,
-    randomJitterAmplitude: stateRandomJitterAmplitude.value,
-    jitterAmplitudeMin: stateJitterAmplitudeMin.value,
-    jitterAmplitudeMax: stateJitterAmplitudeMax.value,
-    jitterFrequency: stateJitterFrequency.value,
-    randomJitterFrequency: stateRandomJitterFrequency.value,
-    jitterFrequencyMin: stateJitterFrequencyMin.value,
-    jitterFrequencyMax: stateJitterFrequencyMax.value,
-    simulateNativeInput: stateSimulateNativeInput.value
-  };
-});
+    stateNode.node.data = {
+      ...(stateNode.node.data as Record<string, unknown> | undefined),
+      startX: stateStartX.value,
+      startY: stateStartY.value,
+      endX: stateEndX.value,
+      endY: stateEndY.value,
+      curveType: stateCurveType.value,
+      curveStrength: stateCurveStrength.value,
+      randomCurveStrength: stateRandomCurveStrength.value,
+      curveStrengthMin: stateCurveStrengthMin.value,
+      curveStrengthMax: stateCurveStrengthMax.value,
+      speedProfile: stateSpeedProfile.value,
+      randomDuration: stateRandomDuration.value,
+      durationMs: stateDurationMs.value,
+      durationMinMs: stateDurationMinMs.value,
+      durationMaxMs: stateDurationMaxMs.value,
+      enableJitter: stateEnableJitter.value,
+      jitterAmplitude: stateJitterAmplitude.value,
+      randomJitterAmplitude: stateRandomJitterAmplitude.value,
+      jitterAmplitudeMin: stateJitterAmplitudeMin.value,
+      jitterAmplitudeMax: stateJitterAmplitudeMax.value,
+      jitterFrequency: stateJitterFrequency.value,
+      randomJitterFrequency: stateRandomJitterFrequency.value,
+      jitterFrequencyMin: stateJitterFrequencyMin.value,
+      jitterFrequencyMax: stateJitterFrequencyMax.value,
+      simulateNativeInput: stateSimulateNativeInput.value
+    };
+  }
+);
 </script>
