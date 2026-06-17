@@ -1684,45 +1684,155 @@ export const crawler = {
         }
       },
       string: {
-        substring: {
-          title: '字符串截取',
-          description: '截取字符串指定部分'
+        uppercase: {
+          title: '大写转换',
+          description: '将文本转换为大写',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待转大写的文本'
+            }
+          }
         },
-        replace: {
-          title: '字符串替换',
-          description: '替换字符串中的内容'
+        lowercase: {
+          title: '小写转换',
+          description: '将文本转换为小写',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待转小写的文本'
+            }
+          }
+        },
+        trim: {
+          title: '去空白',
+          description: '从文本中移除空白字符',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待去空白的文本'
+            },
+            direction: {
+              label: '去空白方向'
+            },
+            whitespaceTypes: {
+              label: '空白类型'
+            }
+          },
+          options: {
+            directionBoth: '两头（前后）',
+            directionStart: '开始（前）',
+            directionEnd: '结束（后）',
+            directionAll: '所有（全部）',
+            whitespaceSpace: '空格',
+            whitespaceTab: '制表符',
+            whitespaceNewline: '换行符',
+            whitespaceCarriageReturn: '回车符',
+            whitespaceVerticalTab: '垂直制表符',
+            whitespaceFormFeed: '换页符'
+          }
+        },
+        length: {
+          title: '计算长度',
+          description: '获取文本的字符长度',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待计算长度的文本'
+            }
+          }
         },
         concat: {
-          title: '字符串拼接',
-          description: '拼接多个字符串'
+          title: '拼接文本',
+          description: '将多个文本段拼接为一个'
+        },
+        split: {
+          title: '分割文本',
+          description: '按分割符将文本分割为数组',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待分割的文本'
+            },
+            separator: {
+              label: '分割符',
+              placeholder: '输入分割符（如 , 或 |）'
+            }
+          }
+        },
+        substring: {
+          title: '截取子串',
+          description: '从文本中截取指定位置的子字符串',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入原始文本'
+            },
+            start: {
+              label: '起始位置'
+            },
+            length: {
+              label: '截取长度'
+            }
+          }
+        },
+        replace: {
+          title: '替换文本',
+          description: '在文本中查找并替换指定内容（全部替换）',
+          fields: {
+            text: {
+              label: '源文本',
+              placeholder: '输入源文本'
+            },
+            search: {
+              label: '查找',
+              placeholder: '输入要查找的文本'
+            },
+            replacement: {
+              label: '替换为',
+              placeholder: '输入替换内容'
+            }
+          }
         },
         regexMatch: {
           title: '正则匹配',
-          description: '使用正则表达式匹配'
+          description: '使用正则表达式从文本中提取匹配内容',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待匹配的文本'
+            },
+            pattern: {
+              label: '正则模式',
+              placeholder: '输入正则表达式（如 \\d+）'
+            },
+            flags: {
+              label: '标志',
+              placeholder: '输入标志（如 g、i、m）'
+            }
+          }
         },
         regexReplace: {
           title: '正则替换',
-          description: '使用正则表达式替换'
-        },
-        split: {
-          title: '字符串分割',
-          description: '按分隔符分割字符串'
-        },
-        length: {
-          title: '字符串长度',
-          description: '获取字符串长度'
-        },
-        uppercase: {
-          title: '转大写',
-          description: '转换为大写'
-        },
-        lowercase: {
-          title: '转小写',
-          description: '转换为小写'
-        },
-        trim: {
-          title: '去除空格',
-          description: '去除字符串首尾空格'
+          description: '使用正则表达式查找并替换文本内容',
+          fields: {
+            text: {
+              label: '源文本',
+              placeholder: '输入源文本'
+            },
+            pattern: {
+              label: '正则模式',
+              placeholder: '输入正则表达式'
+            },
+            replacement: {
+              label: '替换为',
+              placeholder: '输入替换内容（可使用捕获组 $1、$2 等）'
+            },
+            flags: {
+              label: '标志',
+              placeholder: '输入标志（如 g、i、m）'
+            }
+          }
         }
       },
       arrayObject: {

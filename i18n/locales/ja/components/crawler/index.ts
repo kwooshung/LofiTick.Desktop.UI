@@ -1684,45 +1684,155 @@ export const crawler = {
         }
       },
       string: {
-        substring: {
-          title: '文字列切り出し',
-          description: '文字列の一部を切り出します'
+        uppercase: {
+          title: '大文字に変換',
+          description: 'テキストを大文字に変換する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '大文字に変換するテキストを入力してください'
+            }
+          }
         },
-        replace: {
-          title: '文字列置換',
-          description: '文字列の内容を置き換えます'
+        lowercase: {
+          title: '小文字に変換',
+          description: 'テキストを小文字に変換する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '小文字に変換するテキストを入力してください'
+            }
+          }
+        },
+        trim: {
+          title: '空白を削除',
+          description: 'テキストから空白文字を削除する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '空白を削除するテキストを入力してください'
+            },
+            direction: {
+              label: '削除方向'
+            },
+            whitespaceTypes: {
+              label: '空白タイプ'
+            }
+          },
+          options: {
+            directionBoth: '両側',
+            directionStart: '開始（左）',
+            directionEnd: '終了（右）',
+            directionAll: 'すべて',
+            whitespaceSpace: 'スペース',
+            whitespaceTab: 'タブ',
+            whitespaceNewline: '改行',
+            whitespaceCarriageReturn: 'キャリッジリターン',
+            whitespaceVerticalTab: '垂直タブ',
+            whitespaceFormFeed: 'フォームフィード'
+          }
+        },
+        length: {
+          title: '文字列の長さ',
+          description: 'テキストの文字数を取得する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '長さを計算するテキストを入力してください'
+            }
+          }
         },
         concat: {
-          title: '文字列結合',
-          description: '複数の文字列を結合します'
+          title: '結合',
+          description: '複数のテキストセグメントを結合する'
+        },
+        split: {
+          title: '分割',
+          description: 'テキストを区切り文字で分割して配列にする',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '分割するテキストを入力してください'
+            },
+            separator: {
+              label: '区切り文字',
+              placeholder: '区切り文字を入力してください（例: , または |）'
+            }
+          }
+        },
+        substring: {
+          title: '部分文字列',
+          description: '指定した位置からテキストを抽出する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            start: {
+              label: '開始位置'
+            },
+            length: {
+              label: '抽出長'
+            }
+          }
+        },
+        replace: {
+          title: '置換',
+          description: 'テキスト内の指定内容を検索して置換する（すべて置換）',
+          fields: {
+            text: {
+              label: 'ソーステキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            search: {
+              label: '検索',
+              placeholder: '検索するテキストを入力してください'
+            },
+            replacement: {
+              label: '置換先',
+              placeholder: '置換内容を入力してください'
+            }
+          }
         },
         regexMatch: {
           title: '正規表現マッチ',
-          description: '正規表現でマッチします'
+          description: '正規表現パターンを使用してテキストから一致を抽出する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: 'マッチするテキストを入力してください'
+            },
+            pattern: {
+              label: '正規表現パターン',
+              placeholder: '正規表現を入力してください（例: \\d+）'
+            },
+            flags: {
+              label: 'フラグ',
+              placeholder: 'フラグを入力してください（例: g、i、m）'
+            }
+          }
         },
         regexReplace: {
           title: '正規表現置換',
-          description: '正規表現で置き換えます'
-        },
-        split: {
-          title: '文字列分割',
-          description: '区切り文字で文字列を分割します'
-        },
-        length: {
-          title: '文字列長',
-          description: '文字列の長さを取得します'
-        },
-        uppercase: {
-          title: '大文字化',
-          description: '大文字に変換します'
-        },
-        lowercase: {
-          title: '小文字化',
-          description: '小文字に変換します'
-        },
-        trim: {
-          title: '空白除去',
-          description: '文字列の前後空白を除去します'
+          description: '正規表現パターンを使用してテキストを検索して置換する',
+          fields: {
+            text: {
+              label: 'ソーステキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            pattern: {
+              label: '正規表現パターン',
+              placeholder: '正規表現パターンを入力してください'
+            },
+            replacement: {
+              label: '置換先',
+              placeholder: '置換内容を入力してください（キャプチャグループ $1、$2 などを使用可能）'
+            },
+            flags: {
+              label: 'フラグ',
+              placeholder: 'フラグを入力してください（例: g、i、m）'
+            }
+          }
         }
       },
       arrayObject: {
