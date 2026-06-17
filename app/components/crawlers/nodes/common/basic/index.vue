@@ -16,11 +16,11 @@
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
       <div v-if="computedHasLeftPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pl-3">
         <template v-for="pin in computedLeftPins" :key="pin.id">
-          <div class="items relative flex min-h-5 cursor-default pl-3.25">
+          <div class="relative flex min-h-5 items-center justify-start cursor-default pl-3.25 gap-1.5">
             <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
-            <div class="text-left">
+            <div class="grow text-left">
               <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
-                <span class="block truncate text-sm leading-5 font-medium">{{ pin.label }}</span>
+                <span class="block truncate text-left text-sm leading-5 font-medium">{{ pin.label }}</span>
               </UTooltip>
             </div>
           </div>
@@ -35,10 +35,10 @@
 
       <div v-if="computedHasRightPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pr-3">
         <template v-for="pin in computedRightPins" :key="pin.id">
-          <div class="iteme relative flex min-h-5 cursor-default pr-3.25">
-            <div class="text-right">
+          <div class="relative flex min-h-5 items-center justify-end cursor-default pr-3.25 gap-1.5">
+            <div class="grow text-right">
               <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
-                <span class="block truncate text-sm leading-5 font-medium">{{ pin.label }}</span>
+                <span class="block truncate text-right text-sm leading-5 font-medium">{{ pin.label }}</span>
               </UTooltip>
             </div>
             <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
