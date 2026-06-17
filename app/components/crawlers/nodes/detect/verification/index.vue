@@ -135,11 +135,7 @@ watchEffect(() => {
   }
 
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
-  stateVendors.value = Array.isArray(data.vendors)
-    ? data.vendors
-        .map((item) => String(item ?? '').trim())
-        .filter((item) => item !== '')
-    : [...DEFAULT_VENDORS];
+  stateVendors.value = Array.isArray(data.vendors) ? data.vendors.map((item) => String(item ?? '').trim()).filter((item) => item !== '') : [...DEFAULT_VENDORS];
   const strategy = String(data.strategy ?? DEFAULT_STRATEGY);
   stateStrategy.value = ['smart', 'strict', 'lenient'].includes(strategy) ? strategy : DEFAULT_STRATEGY;
   stateNotifyAdmin.value = Boolean(data.notifyAdmin ?? false);
@@ -148,17 +144,21 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateVendors, stateStrategy, stateNotifyAdmin, stateAdminEmailsText], () => {
-  if (!stateInitialized.value) {
-    return;
-  }
+watch(
+  [stateVendors, stateStrategy, stateNotifyAdmin, stateAdminEmailsText],
+  () => {
+    if (!stateInitialized.value) {
+      return;
+    }
 
-  stateNode.node.data = {
-    ...(stateNode.node.data as Record<string, unknown> | undefined),
-    vendors: [...stateVendors.value],
-    strategy: stateStrategy.value,
-    notifyAdmin: stateNotifyAdmin.value,
-    adminEmails: linesFromText(stateAdminEmailsText.value)
-  };
-}, { deep: true });
+    stateNode.node.data = {
+      ...(stateNode.node.data as Record<string, unknown> | undefined),
+      vendors: [...stateVendors.value],
+      strategy: stateStrategy.value,
+      notifyAdmin: stateNotifyAdmin.value,
+      adminEmails: linesFromText(stateAdminEmailsText.value)
+    };
+  },
+  { deep: true }
+);
 </script>
