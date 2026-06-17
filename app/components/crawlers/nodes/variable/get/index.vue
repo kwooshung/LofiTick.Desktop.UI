@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-hash" :title="t('components.crawler.blueprint.nodes.variable.get.title')" :description="t('components.crawler.blueprint.nodes.variable.get.description')" header-bg="bg-fuchsia-500" :right-pins="computedRightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-hash" :title="t('components.crawler.blueprint.nodes.variable.get.title')" :description="t('components.crawler.blueprint.nodes.variable.get.description')" header-bg="bg-fuchsia-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
     <div class="space-y-3">
       <UEmpty v-if="computedVariableOptions.length === 0" icon="i-lucide-search-x" :title="t('components.crawler.blueprint.nodes.variable.get.empty.title')" :description="t('components.crawler.blueprint.nodes.variable.get.empty.description')" />
 
@@ -15,7 +15,7 @@ import { useNode, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { IVariableGetSelectOption } from '@/components/crawlers/nodes/variable/get/index.types';
-import { variableCatalogCollect, variableDefinitionsParse, variableGetOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableCatalogCollect, variableDefinitionsParse, variableGetInputHandleIdGet, variableGetOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 const { t } = useI18n();
 
@@ -38,6 +38,18 @@ const computedVariableOptions = computed<IVariableGetSelectOption[]>(() => {
 
 const computedSelectedVariables = computed(() => {
   return stateSelectedVariableIds.value.map((variableId) => computedVariableCatalog.value.find((item) => item.id === variableId) ?? null).filter((item) => item !== null);
+});
+
+const computedLeftPins = computed<IBasicSidePin[]>(() => {
+  return computedSelectedVariables.value.map((item) => ({
+    id: variableGetInputHandleIdGet(item.id, item.dataType),
+    label: item.name,
+    direction: 'in' as const,
+    dataType: item.dataType,
+    description: t('components.crawler.blueprint.nodes.variable.get.inputs.value.description', {
+      type: t(`components.crawler.blueprint.nodes.variable.common.dataTypes.${item.dataType}`)
+    })
+  }));
 });
 
 const computedRightPins = computed<IBasicSidePin[]>(() => {

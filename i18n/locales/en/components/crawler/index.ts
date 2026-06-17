@@ -1547,6 +1547,11 @@ export const crawler = {
               description: 'Multiple selection is supported, and each variable creates its own typed output pin.'
             }
           },
+          inputs: {
+            value: {
+              description: 'Input overrides the current value of the selected variable ({type})'
+            }
+          },
           outputs: {
             value: {
               description: 'Outputs the current value of the selected variable ({type})'

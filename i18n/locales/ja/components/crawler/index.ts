@@ -1547,6 +1547,11 @@ export const crawler = {
               description: '複数選択に対応しており、変数ごとに対応する型の出力ピンが生成されます。'
             }
           },
+          inputs: {
+            value: {
+              description: '入力は選択した変数の現在値を上書きします（{type}）'
+            }
+          },
           outputs: {
             value: {
               description: '選択した変数の現在値を出力します（{type}）'

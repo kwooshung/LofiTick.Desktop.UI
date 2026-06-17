@@ -70,6 +70,11 @@ export interface IVariableCatalogItem extends IVariableDefinitionData {
   outputHandleId: string;
 
   /**
+   * 属性：获取变量输入引脚 ID。
+   */
+  getterInputHandleId: string;
+
+  /**
    * 属性：获取变量输出引脚 ID。
    */
   getterOutputHandleId: string;
@@ -292,6 +297,17 @@ export const variableGetOutputHandleIdGet = (variableId: string, dataType: TVari
 };
 
 /**
+ * 函数：获取获取变量节点的输入引脚 ID。
+ *
+ * @param {string} variableId 变量 ID。
+ * @param {TVariableValueDataType} dataType 变量数据类型。
+ * @returns {string} 获取变量节点输入引脚 ID。
+ */
+export const variableGetInputHandleIdGet = (variableId: string, dataType: TVariableValueDataType): string => {
+  return `variable-selected-input-${variableId}-${dataType}`;
+};
+
+/**
  * 函数：收集当前画布中已定义的变量目录。
  *
  * @param {IVariableCanvasNodeLike[]} canvasNodes 当前画布节点列表。
@@ -309,6 +325,7 @@ export const variableCatalogCollect = (canvasNodes: IVariableCanvasNodeLike[]): 
         nodeId: String(canvasNode.id ?? ''),
         inputHandleId: variableInputHandleIdGet(variableDefinition.id, variableDefinition.dataType),
         outputHandleId: variableOutputHandleIdGet(variableDefinition.id, variableDefinition.dataType),
+        getterInputHandleId: variableGetInputHandleIdGet(variableDefinition.id, variableDefinition.dataType),
         getterOutputHandleId: variableGetOutputHandleIdGet(variableDefinition.id, variableDefinition.dataType)
       } satisfies IVariableCatalogItem;
     });
@@ -336,6 +353,7 @@ export const variableTypeChangeAffectedEdgeIdsCollect = (canvasNodes: IVariableC
       return Array.isArray(selectedIds) && selectedIds.includes(variableId);
     })
     .map((canvasNode) => String(canvasNode.id ?? ''));
+  const getterInputHandleId = variableGetInputHandleIdGet(variableId, previousType);
   const getterOutputHandleId = variableGetOutputHandleIdGet(variableId, previousType);
 
   return canvasEdges
@@ -343,6 +361,7 @@ export const variableTypeChangeAffectedEdgeIdsCollect = (canvasNodes: IVariableC
       return (
         (String(canvasEdge.target ?? '') === setNodeId && String(canvasEdge.targetHandle ?? '') === inputHandleId) ||
         (String(canvasEdge.source ?? '') === setNodeId && String(canvasEdge.sourceHandle ?? '') === outputHandleId) ||
+        (getterNodeIds.includes(String(canvasEdge.target ?? '')) && String(canvasEdge.targetHandle ?? '') === getterInputHandleId) ||
         (getterNodeIds.includes(String(canvasEdge.source ?? '')) && String(canvasEdge.sourceHandle ?? '') === getterOutputHandleId)
       );
     })

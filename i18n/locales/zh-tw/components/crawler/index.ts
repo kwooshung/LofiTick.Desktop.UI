@@ -1547,6 +1547,11 @@ export const crawler = {
               description: '支援多選；不同變數會生成不同類型的輸出引腳。'
             }
           },
+          inputs: {
+            value: {
+              description: '輸入會覆蓋所選變數的目前值（{type}）'
+            }
+          },
           outputs: {
             value: {
               description: '輸出所選變數的目前值（{type}）'
