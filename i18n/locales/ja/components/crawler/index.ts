@@ -1068,11 +1068,134 @@ export const crawler = {
         },
         getCookies: {
           title: 'Cookie を取得',
-          description: '現在の Cookie を取得します'
+          description: '現在の Cookie を取得します',
+          fields: {
+            scope: {
+              label: '取得範囲',
+              options: {
+                current: '現在のページ',
+                domain: '指定ドメイン',
+                all: 'すべて'
+              }
+            },
+            domain: {
+              label: 'ドメイン',
+              placeholder: '例: example.com'
+            },
+            path: {
+              label: 'パス',
+              placeholder: '例: /account'
+            },
+            includeHttpOnly: {
+              label: 'HttpOnly を含める'
+            },
+            includeSessionOnly: {
+              label: 'Session Cookie を含める'
+            },
+            asString: {
+              label: '文字列で出力'
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ミリ秒）'
+            }
+          },
+          inputs: {
+            contextDescription: '上流コンテキストにはページ、ドメイン、または現在のセッション情報を含められます'
+          },
+          outputs: {
+            cookies: {
+              label: 'Cookie 一覧',
+              description: 'Cookie オブジェクトの一覧'
+            },
+            cookieString: {
+              label: 'Cookie 文字列',
+              description: 'セミコロン区切りの Cookie 文字列'
+            },
+            count: {
+              label: '件数',
+              description: 'Cookie の件数'
+            }
+          }
         },
         setCookies: {
           title: 'Cookie を設定',
-          description: 'Cookie を設定します'
+          description: 'Cookie を設定または更新します',
+          inputs: {
+            cookieDescription: '上流ノードが単一の Cookie 文字列を出力する場合、編集欄の内容を直接置き換えられます'
+          },
+          fields: {
+            mode: {
+              label: '編集方式',
+              options: {
+                single: '単一文字列',
+                pairs: '複数 Cookie'
+              }
+            },
+            cookie: {
+              label: 'Cookie 文字列',
+              placeholder: '例: session_id=abc123; theme=dark'
+            },
+            pairs: {
+              label: 'Cookie 一覧',
+              nameLabel: 'Cookie 名',
+              namePlaceholder: 'Cookie 名',
+              valueLabel: 'Cookie 値',
+              valuePlaceholder: 'Cookie 値',
+              domainLabel: 'ドメイン',
+              domainPlaceholder: '例: example.com',
+              pathLabel: 'パス',
+              pathPlaceholder: '例: /',
+              add: 'Cookie を追加',
+              remove: '削除',
+              preset: {
+                httpOnly: 'HttpOnly',
+                secure: 'Secure',
+                domain: 'Domain',
+                path: 'Path',
+                maxAge: 'Max-Age'
+              }
+            },
+            scope: {
+              label: '適用範囲',
+              options: {
+                current: '現在のページ',
+                domain: '指定ドメイン',
+                all: 'すべて'
+              }
+            },
+            domain: {
+              label: 'ドメイン',
+              placeholder: '例: example.com'
+            },
+            path: {
+              label: 'パス',
+              placeholder: '例: /'
+            },
+            sameSite: {
+              label: 'SameSite',
+              options: {
+                lax: 'Lax',
+                strict: 'Strict',
+                none: 'None'
+              }
+            },
+            expiresAt: {
+              label: '有効期限',
+              placeholder: '日付と時刻を選択'
+            },
+            flags: {
+              label: '追加フラグ'
+            },
+            httpOnly: {
+              label: 'HttpOnly'
+            },
+            secure: {
+              label: 'Secure'
+            },
+            persistent: {
+              label: '永続化'
+            }
+          }
         }
       },
       detect: {

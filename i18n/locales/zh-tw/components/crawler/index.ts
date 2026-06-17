@@ -1068,11 +1068,134 @@ export const crawler = {
         },
         getCookies: {
           title: '取得 Cookies',
-          description: '取得目前 Cookies'
+          description: '取得目前 Cookies',
+          fields: {
+            scope: {
+              label: '取得範圍',
+              options: {
+                current: '目前頁面',
+                domain: '指定網域',
+                all: '全部'
+              }
+            },
+            domain: {
+              label: '網域',
+              placeholder: '例如 example.com'
+            },
+            path: {
+              label: '路徑',
+              placeholder: '例如 /account'
+            },
+            includeHttpOnly: {
+              label: '包含 HttpOnly'
+            },
+            includeSessionOnly: {
+              label: '包含 Session Cookie'
+            },
+            asString: {
+              label: '輸出為字串'
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            }
+          },
+          inputs: {
+            contextDescription: '上游上下文可包含頁面、網域或目前工作階段資訊'
+          },
+          outputs: {
+            cookies: {
+              label: 'Cookies 清單',
+              description: 'Cookie 物件清單'
+            },
+            cookieString: {
+              label: 'Cookie 字串',
+              description: '以分號串接的 Cookie 字串'
+            },
+            count: {
+              label: '數量',
+              description: 'Cookie 數量'
+            }
+          }
         },
         setCookies: {
           title: '設定 Cookies',
-          description: '設定 Cookies'
+          description: '設定或更新 Cookies',
+          inputs: {
+            cookieDescription: '上游輸入單條 Cookie 字串時可直接覆蓋編輯區內容'
+          },
+          fields: {
+            mode: {
+              label: '編輯方式',
+              options: {
+                single: '單字串',
+                pairs: '多條 Cookie'
+              }
+            },
+            cookie: {
+              label: 'Cookie 字串',
+              placeholder: '例如 session_id=abc123; theme=dark'
+            },
+            pairs: {
+              label: 'Cookie 清單',
+              nameLabel: 'Cookie 名稱',
+              namePlaceholder: 'Cookie 名稱',
+              valueLabel: 'Cookie 值',
+              valuePlaceholder: 'Cookie 值',
+              domainLabel: '網域',
+              domainPlaceholder: '例如 example.com',
+              pathLabel: '路徑',
+              pathPlaceholder: '例如 /',
+              add: '新增 Cookie',
+              remove: '刪除',
+              preset: {
+                httpOnly: 'HttpOnly',
+                secure: 'Secure',
+                domain: 'Domain',
+                path: 'Path',
+                maxAge: 'Max-Age'
+              }
+            },
+            scope: {
+              label: '作用範圍',
+              options: {
+                current: '目前頁面',
+                domain: '指定網域',
+                all: '全部'
+              }
+            },
+            domain: {
+              label: '網域',
+              placeholder: '例如 example.com'
+            },
+            path: {
+              label: '路徑',
+              placeholder: '例如 /'
+            },
+            sameSite: {
+              label: 'SameSite',
+              options: {
+                lax: 'Lax',
+                strict: 'Strict',
+                none: 'None'
+              }
+            },
+            expiresAt: {
+              label: '到期時間',
+              placeholder: '請選擇日期和時間'
+            },
+            flags: {
+              label: '附加屬性'
+            },
+            httpOnly: {
+              label: 'HttpOnly'
+            },
+            secure: {
+              label: 'Secure'
+            },
+            persistent: {
+              label: '持久化'
+            }
+          }
         }
       },
       detect: {

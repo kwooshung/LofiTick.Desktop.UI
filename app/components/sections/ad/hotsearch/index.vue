@@ -8,13 +8,12 @@
           :loading="loading"
           class="shrink-0"
           sticky
-          :ui="{
-            base: 'table-fixed border-separate border-spacing-0',
-            thead: '[&>tr]:bg-gradient-to-r [&>tr]:from-elevated/80 [&>tr]:to-elevated/40 [&>tr]:after:content-none',
-            tbody: '[&>tr]:last:[&>td]:border-b-0 [&>tr]:hover:bg-elevated/25 [&>tr]:transition-colors [&>tr]:duration-150',
-            th: 'py-3 px-3 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r font-semibold',
-            td: 'border-b border-default align-top py-4 px-3',
-            separator: 'h-0'
+          :ui="stateTableUi"
+        />
+
+      </div>
+    </div>
+
     <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('pages.ads.hotsearch.table.total', { total: Number(datas?.total ?? 0) }) }}</div>
       <div class="flex items-center gap-1.5">
@@ -476,6 +475,18 @@ const UCheckbox = resolveComponent('UCheckbox');
  * 组件：开关。
  */
 const USwitch = resolveComponent('USwitch');
+
+/**
+ * 常量：热搜广告表格样式配置。
+ */
+const stateTableUi = {
+  base: 'table-fixed border-separate border-spacing-0',
+  thead: '[&>tr]:bg-gradient-to-r [&>tr]:from-elevated/80 [&>tr]:to-elevated/40 [&>tr]:after:content-none',
+  tbody: '[&>tr]:last:[&>td]:border-b-0 [&>tr]:hover:bg-elevated/25 [&>tr]:transition-colors [&>tr]:duration-150',
+  th: 'py-3 px-3 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r font-semibold',
+  td: 'border-b border-default align-top py-4 px-3',
+  separator: 'h-0'
+} as const;
 
 /**
  * Hook：国际化。

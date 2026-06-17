@@ -1068,11 +1068,134 @@ export const crawler = {
         },
         getCookies: {
           title: '获取 Cookies',
-          description: '获取当前 Cookies'
+          description: '获取当前 Cookies',
+          fields: {
+            scope: {
+              label: '获取范围',
+              options: {
+                current: '当前页面',
+                domain: '指定域名',
+                all: '全部'
+              }
+            },
+            domain: {
+              label: '域名',
+              placeholder: '例如 example.com'
+            },
+            path: {
+              label: '路径',
+              placeholder: '例如 /account'
+            },
+            includeHttpOnly: {
+              label: '包含 HttpOnly'
+            },
+            includeSessionOnly: {
+              label: '包含 Session Cookie'
+            },
+            asString: {
+              label: '输出为字符串'
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            }
+          },
+          inputs: {
+            contextDescription: '上游上下文，可包含页面、域名或当前会话信息'
+          },
+          outputs: {
+            cookies: {
+              label: 'Cookies 列表',
+              description: 'Cookie 对象列表'
+            },
+            cookieString: {
+              label: 'Cookie 字符串',
+              description: '以分号拼接的 Cookie 字符串'
+            },
+            count: {
+              label: '数量',
+              description: 'Cookie 数量'
+            }
+          }
         },
         setCookies: {
           title: '设置 Cookies',
-          description: '设置 Cookies'
+          description: '设置或更新 Cookies',
+          inputs: {
+            cookieDescription: '上游输入单条 Cookie 字符串时可直接覆盖编辑区内容'
+          },
+          fields: {
+            mode: {
+              label: '编辑方式',
+              options: {
+                single: '单字符串',
+                pairs: '多条 Cookie'
+              }
+            },
+            cookie: {
+              label: 'Cookie 字符串',
+              placeholder: '例如 session_id=abc123; theme=dark'
+            },
+            pairs: {
+              label: 'Cookie 列表',
+              nameLabel: 'Cookie 名称',
+              namePlaceholder: 'Cookie 名称',
+              valueLabel: 'Cookie 值',
+              valuePlaceholder: 'Cookie 值',
+              domainLabel: '域名',
+              domainPlaceholder: '例如 example.com',
+              pathLabel: '路径',
+              pathPlaceholder: '例如 /',
+              add: '新增 Cookie',
+              remove: '删除',
+              preset: {
+                httpOnly: 'HttpOnly',
+                secure: 'Secure',
+                domain: 'Domain',
+                path: 'Path',
+                maxAge: 'Max-Age'
+              }
+            },
+            scope: {
+              label: '作用范围',
+              options: {
+                current: '当前页面',
+                domain: '指定域名',
+                all: '全部'
+              }
+            },
+            domain: {
+              label: '域名',
+              placeholder: '例如 example.com'
+            },
+            path: {
+              label: '路径',
+              placeholder: '例如 /'
+            },
+            sameSite: {
+              label: 'SameSite',
+              options: {
+                lax: 'Lax',
+                strict: 'Strict',
+                none: 'None'
+              }
+            },
+            expiresAt: {
+              label: '过期时间',
+              placeholder: '请选择日期和时间'
+            },
+            flags: {
+              label: '附加属性'
+            },
+            httpOnly: {
+              label: 'HttpOnly'
+            },
+            secure: {
+              label: 'Secure'
+            },
+            persistent: {
+              label: '持久化'
+            }
+          }
         }
       },
       detect: {

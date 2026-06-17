@@ -1068,11 +1068,134 @@ export const crawler = {
         },
         getCookies: {
           title: 'Get Cookies',
-          description: 'Read current cookies'
+          description: 'Read current cookies',
+          fields: {
+            scope: {
+              label: 'Scope',
+              options: {
+                current: 'Current page',
+                domain: 'Specific domain',
+                all: 'All'
+              }
+            },
+            domain: {
+              label: 'Domain',
+              placeholder: 'e.g. example.com'
+            },
+            path: {
+              label: 'Path',
+              placeholder: 'e.g. /account'
+            },
+            includeHttpOnly: {
+              label: 'Include HttpOnly'
+            },
+            includeSessionOnly: {
+              label: 'Include Session Cookies'
+            },
+            asString: {
+              label: 'Output as string'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            }
+          },
+          inputs: {
+            contextDescription: 'Upstream context may include page, domain, or current session info'
+          },
+          outputs: {
+            cookies: {
+              label: 'Cookies List',
+              description: 'List of cookie objects'
+            },
+            cookieString: {
+              label: 'Cookie String',
+              description: 'Cookie string joined by semicolons'
+            },
+            count: {
+              label: 'Count',
+              description: 'Number of cookies'
+            }
+          }
         },
         setCookies: {
           title: 'Set Cookies',
-          description: 'Write cookies'
+          description: 'Set or update cookies',
+          inputs: {
+            cookieDescription: 'When an upstream node outputs a single cookie string, it can directly replace the editor content'
+          },
+          fields: {
+            mode: {
+              label: 'Edit Mode',
+              options: {
+                single: 'Single string',
+                pairs: 'Multiple cookies'
+              }
+            },
+            cookie: {
+              label: 'Cookie String',
+              placeholder: 'e.g. session_id=abc123; theme=dark'
+            },
+            pairs: {
+              label: 'Cookie List',
+              nameLabel: 'Cookie Name',
+              namePlaceholder: 'Cookie Name',
+              valueLabel: 'Cookie Value',
+              valuePlaceholder: 'Cookie Value',
+              domainLabel: 'Domain',
+              domainPlaceholder: 'e.g. example.com',
+              pathLabel: 'Path',
+              pathPlaceholder: 'e.g. /',
+              add: 'Add Cookie',
+              remove: 'Remove',
+              preset: {
+                httpOnly: 'HttpOnly',
+                secure: 'Secure',
+                domain: 'Domain',
+                path: 'Path',
+                maxAge: 'Max-Age'
+              }
+            },
+            scope: {
+              label: 'Scope',
+              options: {
+                current: 'Current page',
+                domain: 'Specific domain',
+                all: 'All'
+              }
+            },
+            domain: {
+              label: 'Domain',
+              placeholder: 'e.g. example.com'
+            },
+            path: {
+              label: 'Path',
+              placeholder: 'e.g. /'
+            },
+            sameSite: {
+              label: 'SameSite',
+              options: {
+                lax: 'Lax',
+                strict: 'Strict',
+                none: 'None'
+              }
+            },
+            expiresAt: {
+              label: 'Expires At',
+              placeholder: 'Choose date and time'
+            },
+            flags: {
+              label: 'Additional Flags'
+            },
+            httpOnly: {
+              label: 'HttpOnly'
+            },
+            secure: {
+              label: 'Secure'
+            },
+            persistent: {
+              label: 'Persistent'
+            }
+          }
         }
       },
       detect: {

@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-globe" :title="t('components.crawler.blueprint.nodes.http.request.title')" header-bg="bg-indigo-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-globe" :title="t('components.crawler.blueprint.nodes.http.request.title')" :description="t('components.crawler.blueprint.nodes.http.request.description')" header-bg="bg-indigo-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField v-if="!computedHasMethodInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.method.label')">
         <USelect v-model="stateMethod" class="w-full" :items="stateMethodOptions" value-attribute="value" option-attribute="label" />
@@ -11,10 +11,10 @@
 
       <UFormField v-if="!computedHasQueryInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.query.label')">
         <div class="space-y-2">
-          <div v-for="pair in stateQueryPairs" :key="pair.id" :class="stateQueryPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
+          <div v-for="(pair, index) in stateQueryPairs" :key="pair.id" :class="stateQueryPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
             <UInput v-model="pair.key" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.query.form.keyPlaceholder')" />
             <UInput v-model="pair.value" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.query.form.valuePlaceholder')" />
-            <UButton v-if="stateQueryPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.query.form.remove')" @click="removeQueryPair(pair.id)" />
+            <UButton v-if="stateQueryPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.query.form.remove')" @click="removeQueryPair(index)" />
           </div>
 
           <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.http.request.fields.query.form.add')" @click="addQueryPair" />
@@ -23,10 +23,10 @@
 
       <UFormField v-if="!computedHasHeadersInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.headers.label')">
         <div class="space-y-2">
-          <div v-for="pair in stateHeaderPairs" :key="pair.id" :class="stateHeaderPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
+          <div v-for="(pair, index) in stateHeaderPairs" :key="pair.id" :class="stateHeaderPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
             <UInput v-model="pair.key" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.headers.form.keyPlaceholder')" />
             <UInput v-model="pair.value" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.headers.form.valuePlaceholder')" />
-            <UButton v-if="stateHeaderPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.headers.form.remove')" @click="removeHeaderPair(pair.id)" />
+            <UButton v-if="stateHeaderPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.headers.form.remove')" @click="removeHeaderPair(index)" />
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -70,10 +70,10 @@
 
       <UFormField v-else-if="stateBodyType === 'form' && !computedHasBodyInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.body.label')">
         <div class="space-y-2">
-          <div v-for="pair in stateFormPairs" :key="pair.id" :class="stateFormPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
+          <div v-for="(pair, index) in stateFormPairs" :key="pair.id" :class="stateFormPairs.length > 1 ? 'grid grid-cols-[1fr_1fr_auto] gap-2' : 'grid grid-cols-2 gap-2'">
             <UInput v-model="pair.key" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.body.form.keyPlaceholder')" />
             <UInput v-model="pair.value" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.body.form.valuePlaceholder')" />
-            <UButton v-if="stateFormPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.body.form.remove')" @click="removeFormPair(pair.id)" />
+            <UButton v-if="stateFormPairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.request.fields.body.form.remove')" @click="removeFormPair(index)" />
           </div>
 
           <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.http.request.fields.body.form.add')" @click="addFormPair" />
@@ -280,26 +280,26 @@ const addQueryPair = (): void => {
   stateQueryPairs.value.push(createKeyValuePair());
 };
 
-const removeQueryPair = (pairId: string): void => {
+const removeQueryPair = (index: number): void => {
   if (stateQueryPairs.value.length <= 1) {
     stateQueryPairs.value = [createKeyValuePair()];
     return;
   }
 
-  stateQueryPairs.value = stateQueryPairs.value.filter((item) => item.id !== pairId);
+  stateQueryPairs.value.splice(index, 1);
 };
 
 const addHeaderPair = (): void => {
   stateHeaderPairs.value.push(createKeyValuePair());
 };
 
-const removeHeaderPair = (pairId: string): void => {
+const removeHeaderPair = (index: number): void => {
   if (stateHeaderPairs.value.length <= 1) {
     stateHeaderPairs.value = [createKeyValuePair()];
     return;
   }
 
-  stateHeaderPairs.value = stateHeaderPairs.value.filter((item) => item.id !== pairId);
+  stateHeaderPairs.value.splice(index, 1);
 };
 
 const applyHeaderPreset = (key: string, value: string): void => {
@@ -425,13 +425,13 @@ const addFormPair = (): void => {
   stateFormPairs.value.push(createFormPair());
 };
 
-const removeFormPair = (pairId: string): void => {
+const removeFormPair = (index: number): void => {
   if (stateFormPairs.value.length <= 1) {
     stateFormPairs.value = [createFormPair()];
     return;
   }
 
-  stateFormPairs.value = stateFormPairs.value.filter((item) => item.id !== pairId);
+  stateFormPairs.value.splice(index, 1);
 };
 
 const validateJsonBody = (): void => {
@@ -468,14 +468,6 @@ const formatJsonBody = (): void => {
 };
 
 const leftPins: IBasicSidePin[] = [
-  {
-    id: 'context-input',
-    label: t('components.crawler.blueprint.nodes.common.pinLabels.context'),
-    direction: 'in',
-    dataType: 'any',
-    topPercent: 50,
-    description: t('components.crawler.blueprint.nodes.common.pinLabels.context')
-  },
   {
     id: 'method-input',
     label: t('components.crawler.blueprint.nodes.http.request.fields.method.label'),
