@@ -1045,9 +1045,6 @@ export const crawler = {
             },
             followRedirect: {
               label: '跟随重定向'
-            },
-            useCookies: {
-              label: '发送 Cookie'
             }
           },
           outputs: {

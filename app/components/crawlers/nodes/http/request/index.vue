@@ -93,7 +93,6 @@
       </UFormField>
 
       <USwitch v-if="!computedHasFollowRedirectInput" v-model="stateFollowRedirect" :label="t('components.crawler.blueprint.nodes.http.request.fields.followRedirect.label')" />
-      <USwitch v-if="!computedHasUseCookiesInput" v-model="stateUseCookies" :label="t('components.crawler.blueprint.nodes.http.request.fields.useCookies.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>
@@ -137,7 +136,6 @@ const stateFormPairs = ref<IHttpRequestFormPair[]>([]);
 const stateTimeoutMs = ref(15000);
 const stateRetryCount = ref(0);
 const stateFollowRedirect = ref(true);
-const stateUseCookies = ref(true);
 
 const createFormPair = (key: string = '', value: string = ''): IHttpRequestFormPair => {
   const pairId = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -354,7 +352,6 @@ const computedHasBodyInput = computed(() => hasTargetPinConnection('body-input')
 const computedHasTimeoutInput = computed(() => hasTargetPinConnection('timeout-ms-input'));
 const computedHasRetryInput = computed(() => hasTargetPinConnection('retry-count-input'));
 const computedHasFollowRedirectInput = computed(() => hasTargetPinConnection('follow-redirect-input'));
-const computedHasUseCookiesInput = computed(() => hasTargetPinConnection('use-cookies-input'));
 
 const formPairsNormalize = (input: unknown): IHttpRequestFormPair[] => {
   if (!Array.isArray(input)) {
@@ -558,14 +555,6 @@ const leftPins: IBasicSidePin[] = [
     dataType: 'boolean',
     topPercent: 90,
     description: t('components.crawler.blueprint.nodes.http.request.fields.followRedirect.label')
-  },
-  {
-    id: 'use-cookies-input',
-    label: t('components.crawler.blueprint.nodes.http.request.fields.useCookies.label'),
-    direction: 'in',
-    dataType: 'boolean',
-    topPercent: 98,
-    description: t('components.crawler.blueprint.nodes.http.request.fields.useCookies.label')
   }
 ];
 
@@ -672,7 +661,6 @@ watchEffect(() => {
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 15000;
   stateRetryCount.value = Number.isFinite(Number(data.retryCount)) ? Math.max(0, Number(data.retryCount)) : 0;
   stateFollowRedirect.value = Boolean(data.followRedirect ?? true);
-  stateUseCookies.value = Boolean(data.useCookies ?? true);
   stateInitialized.value = true;
 });
 
@@ -737,7 +725,7 @@ watch(
   { deep: true }
 );
 
-watch([stateMethod, stateUrl, stateQuery, stateHeaders, stateReferer, stateCookie, stateBodyType, stateBody, stateTimeoutMs, stateRetryCount, stateFollowRedirect, stateUseCookies], () => {
+watch([stateMethod, stateUrl, stateQuery, stateHeaders, stateReferer, stateCookie, stateBodyType, stateBody, stateTimeoutMs, stateRetryCount, stateFollowRedirect], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -767,7 +755,7 @@ watch([stateMethod, stateUrl, stateQuery, stateHeaders, stateReferer, stateCooki
     timeoutMs: stateTimeoutMs.value,
     retryCount: stateRetryCount.value,
     followRedirect: stateFollowRedirect.value,
-    useCookies: stateUseCookies.value
+    useCookies: String(stateCookie.value ?? '').trim() !== ''
   };
 });
 </script>

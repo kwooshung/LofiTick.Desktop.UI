@@ -1045,9 +1045,6 @@ export const crawler = {
             },
             followRedirect: {
               label: 'リダイレクトを追従'
-            },
-            useCookies: {
-              label: 'Cookies を送信'
             }
           },
           outputs: {
