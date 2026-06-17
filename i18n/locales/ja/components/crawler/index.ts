@@ -1468,13 +1468,90 @@ export const crawler = {
         }
       },
       variable: {
+        common: {
+          dataTypes: {
+            string: '文字列',
+            number: '数値',
+            boolean: '真偽値',
+            array: '配列',
+            object: 'オブジェクト'
+          }
+        },
         set: {
           title: '変数を設定',
-          description: 'データを変数に保存します'
+          description: '現在のキャンバスで共有する変数を定義し、その値を出力します',
+          empty: {
+            title: 'まだ変数が定義されていません',
+            description: '変数を追加すると、それぞれに専用の入力ピンと出力ピンが作成されます。',
+            action: '最初の変数を追加'
+          },
+          inputs: {
+            value: {
+              label: '入力値',
+              description: '上流入力がこの変数のデフォルト値を上書きします'
+            }
+          },
+          outputs: {
+            value: {
+              label: '変数値',
+              description: 'この変数の最新値を出力します'
+            }
+          },
+          fields: {
+            name: {
+              label: '変数名',
+              placeholder: '例：現在ページ'
+            },
+            type: {
+              label: 'データ型'
+            },
+            defaultValue: {
+              label: 'デフォルト値',
+              stringPlaceholder: 'デフォルトの文字列を入力',
+              jsonPlaceholder: '有効な JSON をデフォルト値として入力'
+            },
+            connectedHint: {
+              label: '上流入力が接続されているため、実行時は入力値が優先されます。',
+              description: 'この変数は実行時に接続された入力ピンを優先し、デフォルト値は使用しません。'
+            }
+          },
+          actions: {
+            add: '変数を追加'
+          },
+          dialogs: {
+            changeType: {
+              title: '変数型の変更確認',
+              description: '変数「{name}」には現在 {count} 本の関連エッジがあります。型を変更するとそれらの接続が切断されます。続行しますか？',
+              confirm: '型を変更',
+              cancel: 'キャンセル'
+            }
+          },
+          validations: {
+            nameRequired: '変数名は必須です',
+            nameDuplicate: 'この変数名は現在のキャンバスですでに定義されています',
+            arrayInvalid: 'デフォルト値は有効な配列 JSON である必要があります',
+            objectInvalid: 'デフォルト値は有効なオブジェクト JSON である必要があります'
+          }
         },
         get: {
           title: '変数を取得',
-          description: '変数の値を読み取ります'
+          description: '現在のキャンバスで定義済みの変数を選び、その値を出力します',
+          empty: {
+            title: 'このキャンバスにはまだ読み取れる変数がありません',
+            description: '先に「変数を設定」ノードを配置して、少なくとも 1 つの変数を定義してください。'
+          },
+          fields: {
+            variables: {
+              label: '変数を選択',
+              placeholder: '定義済みの変数を選択',
+              description: '複数選択に対応しており、変数ごとに対応する型の出力ピンが生成されます。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '選択した変数の現在値を出力します（{type}）'
+            }
+          }
         }
       },
       logic: {

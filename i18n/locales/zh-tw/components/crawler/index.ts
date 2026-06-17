@@ -1468,13 +1468,90 @@ export const crawler = {
         }
       },
       variable: {
+        common: {
+          dataTypes: {
+            string: '文字',
+            number: '數字',
+            boolean: '布林',
+            array: '陣列',
+            object: '物件'
+          }
+        },
         set: {
           title: '設定變數',
-          description: '將資料存入變數'
+          description: '定義並輸出目前畫布共用變數',
+          empty: {
+            title: '還沒有定義任何變數',
+            description: '新增變數後，每個變數都會擁有獨立的輸入引腳與輸出引腳。',
+            action: '新增第一個變數'
+          },
+          inputs: {
+            value: {
+              label: '輸入值',
+              description: '上游輸入會覆蓋目前變數的預設值'
+            }
+          },
+          outputs: {
+            value: {
+              label: '變數值',
+              description: '輸出目前變數的最新值'
+            }
+          },
+          fields: {
+            name: {
+              label: '變數名稱',
+              placeholder: '例如：目前頁碼'
+            },
+            type: {
+              label: '資料類型'
+            },
+            defaultValue: {
+              label: '預設值',
+              stringPlaceholder: '請輸入預設文字',
+              jsonPlaceholder: '請輸入合法 JSON 預設值'
+            },
+            connectedHint: {
+              label: '已連接上游輸入，執行時會優先使用輸入值。',
+              description: '目前變數在執行時會優先使用輸入引腳，不會使用預設值。'
+            }
+          },
+          actions: {
+            add: '新增變數'
+          },
+          dialogs: {
+            changeType: {
+              title: '確認修改變數類型',
+              description: '變數「{name}」目前已有 {count} 條關聯連線。修改類型後這些連線會被斷開，是否繼續？',
+              confirm: '確認修改',
+              cancel: '取消'
+            }
+          },
+          validations: {
+            nameRequired: '變數名稱不能為空',
+            nameDuplicate: '此變數名稱已在目前畫布中定義',
+            arrayInvalid: '預設值必須是合法的陣列 JSON',
+            objectInvalid: '預設值必須是合法的物件 JSON'
+          }
         },
         get: {
           title: '取得變數',
-          description: '讀取變數的值'
+          description: '選擇目前畫布已定義變數並輸出對應值',
+          empty: {
+            title: '目前畫布還沒有可讀取的變數',
+            description: '請先放置一個「設定變數」節點並定義變數。'
+          },
+          fields: {
+            variables: {
+              label: '選擇變數',
+              placeholder: '請選擇已定義變數',
+              description: '支援多選；不同變數會生成不同類型的輸出引腳。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '輸出所選變數的目前值（{type}）'
+            }
+          }
         }
       },
       logic: {

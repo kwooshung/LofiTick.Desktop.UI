@@ -1468,13 +1468,90 @@ export const crawler = {
         }
       },
       variable: {
+        common: {
+          dataTypes: {
+            string: '文本',
+            number: '数字',
+            boolean: '布尔',
+            array: '数组',
+            object: '对象'
+          }
+        },
         set: {
           title: '设置变量',
-          description: '将数据存入变量'
+          description: '定义并输出当前画布共享变量',
+          empty: {
+            title: '还没有定义任何变量',
+            description: '新增变量后，每个变量都会拥有独立的输入引脚和输出引脚。',
+            action: '新增第一个变量'
+          },
+          inputs: {
+            value: {
+              label: '输入值',
+              description: '上游输入会覆盖当前变量的默认值'
+            }
+          },
+          outputs: {
+            value: {
+              label: '变量值',
+              description: '输出当前变量的最新值'
+            }
+          },
+          fields: {
+            name: {
+              label: '变量名',
+              placeholder: '例如：当前页码'
+            },
+            type: {
+              label: '数据类型'
+            },
+            defaultValue: {
+              label: '默认值',
+              stringPlaceholder: '请输入默认文本',
+              jsonPlaceholder: '请输入合法 JSON 默认值'
+            },
+            connectedHint: {
+              label: '已连接上游输入，执行时会优先使用输入值。',
+              description: '当前变量在执行时会优先使用输入引脚，不使用默认值。'
+            }
+          },
+          actions: {
+            add: '新增变量'
+          },
+          dialogs: {
+            changeType: {
+              title: '确认修改变量类型',
+              description: '变量“{name}”当前已有 {count} 条关联连线。修改类型后这些连线会被断开，是否继续？',
+              confirm: '确认修改',
+              cancel: '取消'
+            }
+          },
+          validations: {
+            nameRequired: '变量名不能为空',
+            nameDuplicate: '该变量名已经在当前画布中定义',
+            arrayInvalid: '默认值必须是合法的数组 JSON',
+            objectInvalid: '默认值必须是合法的对象 JSON'
+          }
         },
         get: {
           title: '获取变量',
-          description: '读取变量的值'
+          description: '选择当前画布已定义变量并输出对应值',
+          empty: {
+            title: '当前画布还没有可读取的变量',
+            description: '请先放置一个“设置变量”节点并定义变量。'
+          },
+          fields: {
+            variables: {
+              label: '选择变量',
+              placeholder: '请选择已定义变量',
+              description: '支持多选；不同变量会生成不同类型的输出引脚。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '输出所选变量的当前值（{type}）'
+            }
+          }
         }
       },
       logic: {

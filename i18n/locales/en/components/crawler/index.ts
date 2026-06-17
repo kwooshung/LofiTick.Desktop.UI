@@ -1468,13 +1468,90 @@ export const crawler = {
         }
       },
       variable: {
+        common: {
+          dataTypes: {
+            string: 'String',
+            number: 'Number',
+            boolean: 'Boolean',
+            array: 'Array',
+            object: 'Object'
+          }
+        },
         set: {
           title: 'Set Variable',
-          description: 'Store data in a variable'
+          description: 'Define shared variables for the current canvas and expose their values',
+          empty: {
+            title: 'No variables defined yet',
+            description: 'After you add a variable, it will get its own input pin and output pin.',
+            action: 'Add the first variable'
+          },
+          inputs: {
+            value: {
+              label: 'Input Value',
+              description: 'Upstream input overrides the default value for this variable'
+            }
+          },
+          outputs: {
+            value: {
+              label: 'Variable Value',
+              description: 'Outputs the latest value of this variable'
+            }
+          },
+          fields: {
+            name: {
+              label: 'Variable Name',
+              placeholder: 'Example: Current Page'
+            },
+            type: {
+              label: 'Data Type'
+            },
+            defaultValue: {
+              label: 'Default Value',
+              stringPlaceholder: 'Enter default text',
+              jsonPlaceholder: 'Enter valid JSON as the default value'
+            },
+            connectedHint: {
+              label: 'An upstream input is connected. Runtime execution will use the input value first.',
+              description: 'This variable will prefer the connected input pin during execution instead of the default value.'
+            }
+          },
+          actions: {
+            add: 'Add Variable'
+          },
+          dialogs: {
+            changeType: {
+              title: 'Confirm Variable Type Change',
+              description: 'Variable "{name}" currently has {count} linked edge(s). Changing its type will disconnect those edges. Continue?',
+              confirm: 'Change Type',
+              cancel: 'Cancel'
+            }
+          },
+          validations: {
+            nameRequired: 'Variable name cannot be empty',
+            nameDuplicate: 'This variable name is already defined on the current canvas',
+            arrayInvalid: 'Default value must be valid array JSON',
+            objectInvalid: 'Default value must be valid object JSON'
+          }
         },
         get: {
           title: 'Get Variable',
-          description: 'Read a variable value'
+          description: 'Select defined variables on the current canvas and output their values',
+          empty: {
+            title: 'No readable variables on this canvas yet',
+            description: 'Add a Set Variable node first and define at least one variable.'
+          },
+          fields: {
+            variables: {
+              label: 'Select Variables',
+              placeholder: 'Select defined variables',
+              description: 'Multiple selection is supported, and each variable creates its own typed output pin.'
+            }
+          },
+          outputs: {
+            value: {
+              description: 'Outputs the current value of the selected variable ({type})'
+            }
+          }
         }
       },
       logic: {
