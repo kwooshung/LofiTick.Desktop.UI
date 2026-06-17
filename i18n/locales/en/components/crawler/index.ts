@@ -835,19 +835,114 @@ export const crawler = {
       extract: {
         getText: {
           title: 'Get Text',
-          description: 'Read element text content'
+          description: 'Read element text content',
+          fields: {
+            textMode: {
+              label: 'Text Source',
+              options: {
+                innerText: 'innerText (visible text)',
+                textContent: 'textContent (raw text)'
+              }
+            },
+            trim: {
+              label: 'Trim Leading/Trailing Spaces'
+            },
+            normalizeWhitespace: {
+              label: 'Normalize Repeated Whitespace'
+            }
+          },
+          outputs: {
+            text: {
+              label: 'Text Result',
+              description: 'Extracted text content'
+            },
+            lengthDescription: 'Length of extracted text',
+            existsDescription: 'Whether text exists and is non-empty'
+          }
         },
         getAttribute: {
           title: 'Get Attribute',
-          description: 'Read a specific attribute from an element'
+          description: 'Read a specific attribute from an element',
+          fields: {
+            attributeName: {
+              label: 'Attribute Name',
+              placeholder: 'e.g. href / src / data-id'
+            },
+            commonAttribute: {
+              label: 'Common Attributes',
+              options: {
+                custom: 'Custom Input'
+              }
+            },
+            defaultValue: {
+              label: 'Default Value',
+              placeholder: 'Returned when attribute is missing (optional)'
+            }
+          },
+          outputs: {
+            value: {
+              label: 'Attribute Value',
+              description: 'Extracted attribute value'
+            },
+            existsDescription: 'Whether attribute exists'
+          }
         },
         getHtml: {
           title: 'Get HTML',
-          description: 'Read innerHTML or outerHTML'
+          description: 'Read innerHTML or outerHTML',
+          fields: {
+            htmlType: {
+              label: 'HTML Type',
+              options: {
+                outerHTML: 'outerHTML (with element tag)',
+                innerHTML: 'innerHTML (children only)'
+              }
+            },
+            normalizeWhitespace: {
+              label: 'Normalize Repeated Whitespace'
+            }
+          },
+          outputs: {
+            html: {
+              label: 'HTML Result',
+              description: 'Extracted HTML string'
+            },
+            lengthDescription: 'Length of HTML string'
+          }
         },
         getValue: {
           title: 'Get Value',
-          description: 'Read a form field value'
+          description: 'Read a form field value',
+          fields: {
+            valueType: {
+              label: 'Value Type',
+              options: {
+                value: 'value (input value)',
+                checked: 'checked (checkbox state)',
+                text: 'text (text content)'
+              }
+            },
+            trim: {
+              label: 'Trim Leading/Trailing Spaces'
+            },
+            parseNumber: {
+              label: 'Try Parse as Number'
+            }
+          },
+          outputs: {
+            value: {
+              label: 'Raw Result',
+              description: 'Raw extracted result based on selected type'
+            },
+            stringValue: {
+              label: 'String Result',
+              description: 'Result as string'
+            },
+            numberValue: {
+              label: 'Number Result',
+              description: 'Result parsed as number'
+            }
+          }
         },
         queryElement: {
           title: 'Element Selector (Single)',

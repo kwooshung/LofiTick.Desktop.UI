@@ -835,19 +835,114 @@ export const crawler = {
       extract: {
         getText: {
           title: 'テキスト取得',
-          description: '要素のテキストを取得します'
+          description: '要素のテキストを取得します',
+          fields: {
+            textMode: {
+              label: 'テキスト取得元',
+              options: {
+                innerText: 'innerText（可視テキスト）',
+                textContent: 'textContent（生テキスト）'
+              }
+            },
+            trim: {
+              label: '前後の空白を除去'
+            },
+            normalizeWhitespace: {
+              label: '連続空白を正規化'
+            }
+          },
+          outputs: {
+            text: {
+              label: 'テキスト結果',
+              description: '抽出されたテキスト内容'
+            },
+            lengthDescription: 'テキスト長',
+            existsDescription: 'テキストが存在し空でないか'
+          }
         },
         getAttribute: {
           title: '属性取得',
-          description: '要素の指定属性を取得します'
+          description: '要素の指定属性を取得します',
+          fields: {
+            attributeName: {
+              label: '属性名',
+              placeholder: '例: href / src / data-id'
+            },
+            commonAttribute: {
+              label: 'よく使う属性',
+              options: {
+                custom: 'カスタム入力'
+              }
+            },
+            defaultValue: {
+              label: 'デフォルト値',
+              placeholder: '属性が無い場合に返す値（任意）'
+            }
+          },
+          outputs: {
+            value: {
+              label: '属性値',
+              description: '抽出された属性値'
+            },
+            existsDescription: '属性が存在するか'
+          }
         },
         getHtml: {
           title: 'HTML 取得',
-          description: 'innerHTML または outerHTML を取得します'
+          description: 'innerHTML または outerHTML を取得します',
+          fields: {
+            htmlType: {
+              label: 'HTML 種類',
+              options: {
+                outerHTML: 'outerHTML（自身タグを含む）',
+                innerHTML: 'innerHTML（内部内容のみ）'
+              }
+            },
+            normalizeWhitespace: {
+              label: '連続空白を正規化'
+            }
+          },
+          outputs: {
+            html: {
+              label: 'HTML 結果',
+              description: '抽出された HTML 文字列'
+            },
+            lengthDescription: 'HTML 文字列の長さ'
+          }
         },
         getValue: {
           title: '値取得',
-          description: 'フォーム要素の値を取得します'
+          description: 'フォーム要素の値を取得します',
+          fields: {
+            valueType: {
+              label: '値タイプ',
+              options: {
+                value: 'value（入力値）',
+                checked: 'checked（チェック状態）',
+                text: 'text（テキスト内容）'
+              }
+            },
+            trim: {
+              label: '前後の空白を除去'
+            },
+            parseNumber: {
+              label: '数値として解析を試行'
+            }
+          },
+          outputs: {
+            value: {
+              label: '生結果',
+              description: '選択タイプに基づく生の抽出結果'
+            },
+            stringValue: {
+              label: '文字列結果',
+              description: '文字列としての結果'
+            },
+            numberValue: {
+              label: '数値結果',
+              description: '数値解析後の結果'
+            }
+          }
         },
         queryElement: {
           title: '要素セレクター（単体）',

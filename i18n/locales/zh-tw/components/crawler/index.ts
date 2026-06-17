@@ -835,19 +835,114 @@ export const crawler = {
       extract: {
         getText: {
           title: '取得文字',
-          description: '取得元素文字內容'
+          description: '取得元素文字內容',
+          fields: {
+            textMode: {
+              label: '文字來源',
+              options: {
+                innerText: 'innerText（可見文字）',
+                textContent: 'textContent（原始文字）'
+              }
+            },
+            trim: {
+              label: '去除前後空白'
+            },
+            normalizeWhitespace: {
+              label: '壓縮連續空白'
+            }
+          },
+          outputs: {
+            text: {
+              label: '文字結果',
+              description: '提取到的文字內容'
+            },
+            lengthDescription: '文字長度',
+            existsDescription: '文字是否存在且非空'
+          }
         },
         getAttribute: {
           title: '取得屬性',
-          description: '取得元素指定屬性'
+          description: '取得元素指定屬性',
+          fields: {
+            attributeName: {
+              label: '屬性名稱',
+              placeholder: '例如 href / src / data-id'
+            },
+            commonAttribute: {
+              label: '常見屬性',
+              options: {
+                custom: '自訂輸入'
+              }
+            },
+            defaultValue: {
+              label: '預設值',
+              placeholder: '屬性缺失時回傳此值（可留空）'
+            }
+          },
+          outputs: {
+            value: {
+              label: '屬性值',
+              description: '提取到的屬性值'
+            },
+            existsDescription: '屬性是否存在'
+          }
         },
         getHtml: {
           title: '取得 HTML',
-          description: '取得 innerHTML 或 outerHTML'
+          description: '取得 innerHTML 或 outerHTML',
+          fields: {
+            htmlType: {
+              label: 'HTML 類型',
+              options: {
+                outerHTML: 'outerHTML（含自身標籤）',
+                innerHTML: 'innerHTML（僅內部內容）'
+              }
+            },
+            normalizeWhitespace: {
+              label: '壓縮連續空白'
+            }
+          },
+          outputs: {
+            html: {
+              label: 'HTML 結果',
+              description: '提取到的 HTML 字串'
+            },
+            lengthDescription: 'HTML 字串長度'
+          }
         },
         getValue: {
           title: '取得值',
-          description: '取得表單元素的值'
+          description: '取得表單元素的值',
+          fields: {
+            valueType: {
+              label: '值類型',
+              options: {
+                value: 'value（輸入值）',
+                checked: 'checked（勾選狀態）',
+                text: 'text（文字內容）'
+              }
+            },
+            trim: {
+              label: '去除前後空白'
+            },
+            parseNumber: {
+              label: '嘗試解析為數字'
+            }
+          },
+          outputs: {
+            value: {
+              label: '原始結果',
+              description: '依所選類型提取的原始結果'
+            },
+            stringValue: {
+              label: '字串結果',
+              description: '字串形式結果'
+            },
+            numberValue: {
+              label: '數字結果',
+              description: '數字解析結果'
+            }
+          }
         },
         queryElement: {
           title: '元素選擇器（單個）',
