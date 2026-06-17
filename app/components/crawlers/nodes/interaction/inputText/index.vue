@@ -1,12 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic
-    icon-name="i-lucide-text-cursor-input"
-    :title="t('components.crawler.blueprint.nodes.interaction.inputText.title')"
-    :description="t('components.crawler.blueprint.nodes.interaction.inputText.description')"
-    header-bg="bg-purple-500"
-    :left-pins="leftPins"
-    :right-pins="rightPins"
-  >
+  <CrawlersNodesCommonBasic icon-name="i-lucide-text-cursor-input" :title="t('components.crawler.blueprint.nodes.interaction.inputText.title')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.text.label')">
         <UTextarea v-model="stateText" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.interaction.common.fields.text.placeholder')" />
@@ -16,9 +9,7 @@
         <USelect v-model="stateTypeMode" class="w-full" :items="stateTypeModeOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.randomInputInterval.label')">
-        <USwitch v-model="stateRandomInputInterval" />
-      </UFormField>
+      <USwitch v-model="stateRandomInputInterval" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.randomInputInterval.label')" />
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.inputIntervalMs.label')">
         <div v-if="!stateRandomInputInterval" class="grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center">
@@ -53,17 +44,13 @@
         </div>
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.clearBefore.label')">
-        <USwitch v-model="stateClearBefore" />
-      </UFormField>
+      <USwitch v-model="stateClearBefore" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.clearBefore.label')" />
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerInteractionInputTextTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')">
-        <USwitch v-model="stateSimulateNativeInput" />
-      </UFormField>
+      <USwitch v-model="stateSimulateNativeInput" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

@@ -1,8 +1,6 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide:monitor-x" :title="t('components.crawler.blueprint.nodes.navigation.closePage.title')" :description="t('components.crawler.blueprint.nodes.navigation.closePage.description')" header-bg="bg-blue-500" :right-pins="rightPins">
-    <UFormField :label="t('components.crawler.blueprint.nodes.navigation.closePage.fields.endFlowAfterClose.label')">
-      <USwitch v-model="stateEndFlowAfterClose" />
-    </UFormField>
+    <USwitch v-model="stateEndFlowAfterClose" :label="t('components.crawler.blueprint.nodes.navigation.closePage.fields.endFlowAfterClose.label')" />
   </CrawlersNodesCommonBasic>
 </template>
 

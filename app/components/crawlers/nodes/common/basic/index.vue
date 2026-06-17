@@ -252,12 +252,17 @@ const isValidConnectionSource = (connection: Connection): boolean => {
  * 仅阻止节点连接到自身，其余交由上层流程决定。
  */
 const isValidSidePinTarget = (connection: Connection): boolean => {
-  if (!connection.source || !connection.target) {
+  if (!connection.source) {
     return false;
   }
 
   if (connection.source === stateNodeId) {
     return false;
+  }
+
+  // 拖拽过程中 targetHandle 可能暂未确定，先放行，落到目标引脚后再做类型校验。
+  if (!connection.sourceHandle || !connection.targetHandle) {
+    return true;
   }
 
   return isValidSidePinDataTypeConnection(connection);
@@ -275,12 +280,17 @@ const isValidSidePinTarget = (connection: Connection): boolean => {
  * 仅阻止节点连接到自身，其余交由上层流程决定。
  */
 const isValidSidePinSource = (connection: Connection): boolean => {
-  if (!connection.source || !connection.target) {
+  if (!connection.source) {
     return false;
   }
 
-  if (connection.target === stateNodeId) {
+  if (connection.target && connection.target === stateNodeId) {
     return false;
+  }
+
+  // 拖拽过程中 targetHandle 可能暂未确定，先放行，落到目标引脚后再做类型校验。
+  if (!connection.sourceHandle || !connection.targetHandle) {
+    return true;
   }
 
   return isValidSidePinDataTypeConnection(connection);

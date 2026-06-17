@@ -5,13 +5,9 @@
         <CrawlersNodesCommonNumberInput id="crawlerNavigationRefreshTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.waitReady.label')">
-        <USwitch v-model="stateWaitReady" />
-      </UFormField>
+      <USwitch v-model="stateWaitReady" :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.waitReady.label')" />
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.hardReload.label')">
-        <USwitch v-model="stateHardReload" />
-      </UFormField>
+      <USwitch v-model="stateHardReload" :label="t('components.crawler.blueprint.nodes.navigation.refresh.fields.hardReload.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

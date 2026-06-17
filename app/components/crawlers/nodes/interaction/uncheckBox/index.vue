@@ -1,24 +1,13 @@
 <template>
-  <CrawlersNodesCommonBasic
-    icon-name="i-lucide-toggle-left"
-    :title="t('components.crawler.blueprint.nodes.interaction.uncheckBox.title')"
-    :description="t('components.crawler.blueprint.nodes.interaction.uncheckBox.description')"
-    header-bg="bg-purple-500"
-    :left-pins="leftPins"
-    :right-pins="rightPins"
-  >
+  <CrawlersNodesCommonBasic icon-name="i-lucide-toggle-left" :title="t('components.crawler.blueprint.nodes.interaction.uncheckBox.title')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerInteractionUncheckBoxTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.skipIfAlreadyState.label')">
-        <USwitch v-model="stateSkipIfAlreadyState" />
-      </UFormField>
+      <USwitch v-model="stateSkipIfAlreadyState" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.skipIfAlreadyState.label')" />
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')">
-        <USwitch v-model="stateSimulateNativeInput" />
-      </UFormField>
+      <USwitch v-model="stateSimulateNativeInput" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

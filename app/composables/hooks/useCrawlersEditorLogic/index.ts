@@ -1,5 +1,6 @@
 import type { Connection, GraphNode, NodeChange, NodePositionChange, OnConnectStartParams } from '@vue-flow/core';
 
+import type { TBasicSidePinDataType } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersEditorLogicOptions, ICrawlersEditorLogicResult, IGetHelperLinesResult } from '@/composables/hooks/useCrawlersEditorLogic/index.types';
 
 /**
@@ -9,6 +10,75 @@ import type { ICrawlersEditorLogicOptions, ICrawlersEditorLogicResult, IGetHelpe
  */
 export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): ICrawlersEditorLogicResult => {
   const { nodes, edges, stateHelperLineHorizontal, stateHelperLineVertical, addEdges, applyNodeChanges, addNodes } = options;
+
+  /**
+   * 函数：从 handle id 推断引脚数据类型。
+   * @param {string | null | undefined} handleId 引脚 handle 标识。
+   * @returns {TBasicSidePinDataType | 'unknown'} 推断结果。
+   */
+  const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataType | 'unknown' => {
+    const id = String(handleId ?? '')
+      .trim()
+      .toLowerCase();
+
+    if (id === '') {
+      return 'unknown';
+    }
+
+    if (id === 'exec-in' || id === 'exec-out' || id.includes('exec')) {
+      return 'exec';
+    }
+
+    if (id.includes('boolean') || id.includes('bool') || id.includes('result')) {
+      return 'boolean';
+    }
+
+    if (id.includes('string') || id.includes('message') || id.includes('text') || id.includes('info')) {
+      return 'string';
+    }
+
+    if (id.includes('number') || id.includes('integer') || id.includes('int') || id.includes('float')) {
+      return 'number';
+    }
+
+    if (id.includes('array') || id.includes('list')) {
+      return 'array';
+    }
+
+    if (id.includes('object') || id.includes('struct') || id.includes('element')) {
+      return 'object';
+    }
+
+    if (id.includes('any') || id.includes('context') || id.includes('item')) {
+      return 'any';
+    }
+
+    return 'unknown';
+  };
+
+  /**
+   * 函数：校验普通数据引脚类型是否兼容。
+   * @param {Connection} connection 连接参数。
+   * @returns {boolean} 是否兼容。
+   */
+  const isValidDataPinConnection = (connection: Connection): boolean => {
+    const sourceType = inferDataTypeFromHandleId(connection.sourceHandle);
+    const targetType = inferDataTypeFromHandleId(connection.targetHandle);
+
+    if (sourceType === 'exec' || targetType === 'exec') {
+      return false;
+    }
+
+    if (sourceType === 'unknown' || targetType === 'unknown') {
+      return true;
+    }
+
+    if (sourceType === 'any' || targetType === 'any') {
+      return true;
+    }
+
+    return sourceType === targetType;
+  };
 
   /**
    * 函数：初始化默认起止节点。
@@ -198,10 +268,19 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {boolean} 是否允许连接。
    */
   const isValidConnection = (connection: Connection): boolean => {
+    if (!connection.source) {
+      return false;
+    }
+
+    // 拖拽过程中的半连接状态先放行，避免数据引脚无法吸附。
+    if (!connection.sourceHandle || !connection.targetHandle) {
+      return true;
+    }
+
     const isExecConnection = connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
 
-    if (!isExecConnection || !connection.source || !connection.target) {
-      return false;
+    if (!connection.target) {
+      return isExecConnection || isValidDataPinConnection(connection);
     }
 
     // 禁止同节点自连。
@@ -209,7 +288,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return false;
     }
 
-    return true;
+    return isExecConnection || isValidDataPinConnection(connection);
   };
 
   /**
@@ -220,13 +299,23 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const handleConnect = (params: Connection): void => {
     console.log('on connect', params);
     if (isValidConnection(params)) {
-      // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。
-      edges.value = edges.value.filter((edge) => {
-        const isSameSourceExecPin = edge.source === params.source && edge.sourceHandle === params.sourceHandle;
-        const isSameTargetExecPin = edge.target === params.target && edge.targetHandle === params.targetHandle;
+      const isExecConnection = params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in';
 
-        return !isSameSourceExecPin && !isSameTargetExecPin;
-      });
+      if (isExecConnection) {
+        // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。
+        edges.value = edges.value.filter((edge) => {
+          const isSameSourceExecPin = edge.source === params.source && edge.sourceHandle === params.sourceHandle;
+          const isSameTargetExecPin = edge.target === params.target && edge.targetHandle === params.targetHandle;
+
+          return !isSameSourceExecPin && !isSameTargetExecPin;
+        });
+      } else {
+        const hasSameDataEdge = edges.value.some((edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle && edge.target === params.target && edge.targetHandle === params.targetHandle);
+
+        if (hasSameDataEdge) {
+          return;
+        }
+      }
 
       addEdges({
         ...params,

@@ -9,9 +9,7 @@
         <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.waitReady.label')">
-        <USwitch v-model="stateWaitReady" />
-      </UFormField>
+      <USwitch v-model="stateWaitReady" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.waitReady.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

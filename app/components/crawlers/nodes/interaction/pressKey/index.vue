@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-key-round" :title="t('components.crawler.blueprint.nodes.interaction.pressKey.title')" :description="t('components.crawler.blueprint.nodes.interaction.pressKey.description')" header-bg="bg-purple-500" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-key-round" :title="t('components.crawler.blueprint.nodes.interaction.pressKey.title')" header-bg="bg-purple-500" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.key.label')">
         <div class="space-y-2">
@@ -28,9 +28,7 @@
         <CrawlersNodesCommonNumberInput id="crawlerInteractionPressKeyTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')">
-        <USwitch v-model="stateSimulateNativeInput" />
-      </UFormField>
+      <USwitch v-model="stateSimulateNativeInput" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

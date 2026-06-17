@@ -1,25 +1,19 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-send" :title="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.title')" :description="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.description')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-send" :title="t('components.crawler.blueprint.nodes.interaction.dispatchEvent.title')" header-bg="bg-purple-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.eventName.label')">
         <USelect v-model="stateEventName" class="w-full" :items="stateEventNameOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.bubbles.label')">
-        <USwitch v-model="stateBubbles" />
-      </UFormField>
+      <USwitch v-model="stateBubbles" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.bubbles.label')" />
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.cancelable.label')">
-        <USwitch v-model="stateCancelable" />
-      </UFormField>
+      <USwitch v-model="stateCancelable" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.cancelable.label')" />
 
       <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerInteractionDispatchEventTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')">
-        <USwitch v-model="stateSimulateNativeInput" />
-      </UFormField>
+      <USwitch v-model="stateSimulateNativeInput" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>

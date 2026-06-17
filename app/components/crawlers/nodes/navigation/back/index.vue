@@ -9,13 +9,9 @@
         <CrawlersNodesCommonNumberInput id="crawlerNavigationBackTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.waitReady.label')">
-        <USwitch v-model="stateWaitReady" />
-      </UFormField>
+      <USwitch v-model="stateWaitReady" :label="t('components.crawler.blueprint.nodes.navigation.back.fields.waitReady.label')" />
 
-      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.back.fields.allowNoHistory.label')">
-        <USwitch v-model="stateAllowNoHistory" />
-      </UFormField>
+      <USwitch v-model="stateAllowNoHistory" :label="t('components.crawler.blueprint.nodes.navigation.back.fields.allowNoHistory.label')" />
     </div>
   </CrawlersNodesCommonBasic>
 </template>
