@@ -1301,23 +1301,170 @@ export const crawler = {
       system: {
         screenSize: {
           title: '获取屏幕尺寸',
-          description: '获取系统屏幕宽高'
+          description: '获取系统屏幕宽高',
+          outputs: {
+            width: {
+              label: '屏幕宽度',
+              description: '系统屏幕宽度（像素）'
+            },
+            height: {
+              label: '屏幕高度',
+              description: '系统屏幕高度（像素）'
+            },
+            size: {
+              label: '屏幕尺寸对象',
+              description: '包含宽高的屏幕尺寸对象'
+            }
+          }
         },
         windowSize: {
           title: '获取窗口尺寸',
-          description: '获取 WebView 窗口尺寸'
+          description: '获取 WebView 窗口尺寸',
+          outputs: {
+            width: {
+              label: '窗口宽度',
+              description: 'WebView 窗口宽度（像素）'
+            },
+            height: {
+              label: '窗口高度',
+              description: 'WebView 窗口高度（像素）'
+            },
+            size: {
+              label: '窗口尺寸对象',
+              description: '包含宽高的窗口尺寸对象'
+            }
+          }
         },
         mousePosition: {
-          title: '设置鼠标位置',
-          description: '设置鼠标初始位置'
+          title: '获取鼠标位置',
+          description: '获取鼠标在 WebView 与屏幕中的坐标',
+          fields: {
+            outputScope: {
+              label: '输出坐标范围',
+              options: {
+                both: '同时输出 WebView + 屏幕',
+                webview: '仅 WebView 坐标',
+                screen: '仅屏幕坐标'
+              }
+            }
+          },
+          outputs: {
+            webviewX: {
+              label: 'WebView X',
+              description: '鼠标相对 WebView 左上角的 X 坐标'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: '鼠标相对 WebView 左上角的 Y 坐标'
+            },
+            screenX: {
+              label: '屏幕 X',
+              description: '鼠标相对屏幕左上角的 X 坐标'
+            },
+            screenY: {
+              label: '屏幕 Y',
+              description: '鼠标相对屏幕左上角的 Y 坐标'
+            },
+            webviewPoint: {
+              label: 'WebView 坐标对象',
+              description: '包含 WebView 相对坐标的对象'
+            },
+            screenPoint: {
+              label: '屏幕坐标对象',
+              description: '包含屏幕绝对坐标的对象'
+            }
+          }
+        },
+        elementPosition: {
+          title: '获取元素位置',
+          description: '获取元素在 WebView 与屏幕中的坐标位置',
+          fields: {
+            anchorPoint: {
+              label: '锚点',
+              options: {
+                topLeft: '左上角',
+                center: '中心点'
+              }
+            },
+            outputScope: {
+              label: '输出坐标范围',
+              options: {
+                both: '同时输出 WebView + 屏幕',
+                webview: '仅 WebView 坐标',
+                screen: '仅屏幕坐标'
+              }
+            }
+          },
+          outputs: {
+            exists: {
+              label: '元素存在',
+              description: '是否匹配到目标元素'
+            },
+            webviewX: {
+              label: 'WebView X',
+              description: '元素在 WebView 中的 X 坐标'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: '元素在 WebView 中的 Y 坐标'
+            },
+            screenX: {
+              label: '屏幕 X',
+              description: '元素在屏幕中的 X 坐标'
+            },
+            screenY: {
+              label: '屏幕 Y',
+              description: '元素在屏幕中的 Y 坐标'
+            },
+            rectWebview: {
+              label: 'WebView 矩形',
+              description: '元素在 WebView 中的矩形对象'
+            },
+            rectScreen: {
+              label: '屏幕矩形',
+              description: '元素在屏幕中的矩形对象'
+            }
+          }
         },
         readClipboard: {
           title: '读取剪切板',
-          description: '读取系统剪切板内容'
+          description: '读取系统剪切板内容',
+          outputs: {
+            text: {
+              label: '剪切板文本',
+              description: '读取到的剪切板文本内容'
+            },
+            length: {
+              label: '文本长度',
+              description: '剪切板文本长度'
+            },
+            hasText: {
+              label: '是否有文本',
+              description: '剪切板是否包含文本内容'
+            }
+          }
         },
         writeClipboard: {
           title: '写入剪切板',
-          description: '写入内容到系统剪切板'
+          description: '写入内容到系统剪切板',
+          inputs: {
+            text: {
+              label: '写入文本',
+              description: '上游输入的文本将直接写入剪切板'
+            }
+          },
+          fields: {
+            text: {
+              label: '写入文本',
+              placeholder: '请输入要写入剪切板的文本'
+            }
+          },
+          outputs: {
+            text: {
+              label: '已写入文本',
+              description: '本次写入剪切板的文本内容'
+            }
+          }
         }
       },
       variable: {

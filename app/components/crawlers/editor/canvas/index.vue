@@ -63,6 +63,7 @@
       <template #node-system-screen-size="props"><CrawlersNodesSystemScreenSize v-bind="props" /></template>
       <template #node-system-window-size="props"><CrawlersNodesSystemWindowSize v-bind="props" /></template>
       <template #node-system-mouse-position="props"><CrawlersNodesSystemMousePosition v-bind="props" /></template>
+      <template #node-system-element-position="props"><CrawlersNodesSystemElementPosition v-bind="props" /></template>
       <template #node-system-read-clipboard="props"><CrawlersNodesSystemReadClipboard v-bind="props" /></template>
       <template #node-system-write-clipboard="props"><CrawlersNodesSystemWriteClipboard v-bind="props" /></template>
       <template #node-variable-set="props"><CrawlersNodesVariableSet v-bind="props" /></template>

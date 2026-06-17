@@ -305,6 +305,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         description: 'pages.crawlers.blueprint.nodes.system.mousePosition.description'
       },
       {
+        key: 'system-element-position',
+        icon: 'i-lucide-locate-fixed',
+        title: 'pages.crawlers.blueprint.nodes.system.elementPosition.title',
+        description: 'pages.crawlers.blueprint.nodes.system.elementPosition.description'
+      },
+      {
         key: 'system-read-clipboard',
         icon: 'i-lucide-clipboard-copy',
         title: 'pages.crawlers.blueprint.nodes.system.readClipboard.title',

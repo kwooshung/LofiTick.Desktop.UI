@@ -1301,23 +1301,170 @@ export const crawler = {
       system: {
         screenSize: {
           title: '画面サイズ取得',
-          description: '画面の幅と高さを取得します'
+          description: '画面の幅と高さを取得します',
+          outputs: {
+            width: {
+              label: '画面幅',
+              description: 'システム画面の幅（px）'
+            },
+            height: {
+              label: '画面高',
+              description: 'システム画面の高さ（px）'
+            },
+            size: {
+              label: '画面サイズオブジェクト',
+              description: '幅と高さを含む画面サイズオブジェクト'
+            }
+          }
         },
         windowSize: {
           title: 'ウィンドウサイズ取得',
-          description: 'WebView のウィンドウサイズを取得します'
+          description: 'WebView のウィンドウサイズを取得します',
+          outputs: {
+            width: {
+              label: 'ウィンドウ幅',
+              description: 'WebView ウィンドウの幅（px）'
+            },
+            height: {
+              label: 'ウィンドウ高',
+              description: 'WebView ウィンドウの高さ（px）'
+            },
+            size: {
+              label: 'ウィンドウサイズオブジェクト',
+              description: '幅と高さを含むウィンドウサイズオブジェクト'
+            }
+          }
         },
         mousePosition: {
-          title: 'マウス位置設定',
-          description: 'マウスの初期位置を設定します'
+          title: 'マウス位置取得',
+          description: 'マウス座標を WebView と画面の両方で取得します',
+          fields: {
+            outputScope: {
+              label: '出力座標範囲',
+              options: {
+                both: 'WebView + 画面を同時出力',
+                webview: 'WebView 座標のみ',
+                screen: '画面座標のみ'
+              }
+            }
+          },
+          outputs: {
+            webviewX: {
+              label: 'WebView X',
+              description: 'WebView 左上基準のマウス X 座標'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: 'WebView 左上基準のマウス Y 座標'
+            },
+            screenX: {
+              label: '画面 X',
+              description: '画面左上基準のマウス X 座標'
+            },
+            screenY: {
+              label: '画面 Y',
+              description: '画面左上基準のマウス Y 座標'
+            },
+            webviewPoint: {
+              label: 'WebView 座標オブジェクト',
+              description: 'WebView 相対座標を含むオブジェクト'
+            },
+            screenPoint: {
+              label: '画面座標オブジェクト',
+              description: '画面絶対座標を含むオブジェクト'
+            }
+          }
+        },
+        elementPosition: {
+          title: '要素位置取得',
+          description: '要素位置を WebView と画面の両方で取得します',
+          fields: {
+            anchorPoint: {
+              label: 'アンカーポイント',
+              options: {
+                topLeft: '左上',
+                center: '中心'
+              }
+            },
+            outputScope: {
+              label: '出力座標範囲',
+              options: {
+                both: 'WebView + 画面を同時出力',
+                webview: 'WebView 座標のみ',
+                screen: '画面座標のみ'
+              }
+            }
+          },
+          outputs: {
+            exists: {
+              label: '要素存在',
+              description: '対象要素が見つかったか'
+            },
+            webviewX: {
+              label: 'WebView X',
+              description: 'WebView 座標系での要素 X'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: 'WebView 座標系での要素 Y'
+            },
+            screenX: {
+              label: '画面 X',
+              description: '画面座標系での要素 X'
+            },
+            screenY: {
+              label: '画面 Y',
+              description: '画面座標系での要素 Y'
+            },
+            rectWebview: {
+              label: 'WebView 矩形',
+              description: 'WebView 座標系の要素矩形オブジェクト'
+            },
+            rectScreen: {
+              label: '画面矩形',
+              description: '画面座標系の要素矩形オブジェクト'
+            }
+          }
         },
         readClipboard: {
           title: 'クリップボードを読む',
-          description: 'システムのクリップボード内容を読み取ります'
+          description: 'システムのクリップボード内容を読み取ります',
+          outputs: {
+            text: {
+              label: 'クリップボード文字列',
+              description: '読み取ったクリップボード文字列'
+            },
+            length: {
+              label: '文字数',
+              description: 'クリップボード文字列の長さ'
+            },
+            hasText: {
+              label: '文字列有無',
+              description: 'クリップボードに文字列があるか'
+            }
+          }
         },
         writeClipboard: {
           title: 'クリップボードへ書き込む',
-          description: '内容をシステムのクリップボードに書き込みます'
+          description: '内容をシステムのクリップボードに書き込みます',
+          inputs: {
+            text: {
+              label: '入力テキスト',
+              description: '上流入力のテキストをそのままクリップボードへ書き込みます'
+            }
+          },
+          fields: {
+            text: {
+              label: '書き込みテキスト',
+              placeholder: 'クリップボードへ書き込むテキストを入力'
+            }
+          },
+          outputs: {
+            text: {
+              label: '書き込み済みテキスト',
+              description: '今回クリップボードへ書き込んだテキスト'
+            }
+          }
         }
       },
       variable: {

@@ -1301,23 +1301,170 @@ export const crawler = {
       system: {
         screenSize: {
           title: 'Get Screen Size',
-          description: 'Read the system screen width and height'
+          description: 'Read the system screen width and height',
+          outputs: {
+            width: {
+              label: 'Screen Width',
+              description: 'System screen width in pixels'
+            },
+            height: {
+              label: 'Screen Height',
+              description: 'System screen height in pixels'
+            },
+            size: {
+              label: 'Screen Size Object',
+              description: 'Object containing screen width and height'
+            }
+          }
         },
         windowSize: {
           title: 'Get Window Size',
-          description: 'Read the WebView window size'
+          description: 'Read the WebView window size',
+          outputs: {
+            width: {
+              label: 'Window Width',
+              description: 'WebView window width in pixels'
+            },
+            height: {
+              label: 'Window Height',
+              description: 'WebView window height in pixels'
+            },
+            size: {
+              label: 'Window Size Object',
+              description: 'Object containing window width and height'
+            }
+          }
         },
         mousePosition: {
-          title: 'Set Mouse Position',
-          description: 'Set the initial mouse position'
+          title: 'Get Mouse Position',
+          description: 'Read mouse coordinates in both WebView and screen spaces',
+          fields: {
+            outputScope: {
+              label: 'Output Coordinate Scope',
+              options: {
+                both: 'Output WebView + Screen',
+                webview: 'WebView coordinates only',
+                screen: 'Screen coordinates only'
+              }
+            }
+          },
+          outputs: {
+            webviewX: {
+              label: 'WebView X',
+              description: 'Mouse X relative to WebView top-left'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: 'Mouse Y relative to WebView top-left'
+            },
+            screenX: {
+              label: 'Screen X',
+              description: 'Mouse X relative to screen top-left'
+            },
+            screenY: {
+              label: 'Screen Y',
+              description: 'Mouse Y relative to screen top-left'
+            },
+            webviewPoint: {
+              label: 'WebView Point',
+              description: 'Object containing WebView-relative coordinates'
+            },
+            screenPoint: {
+              label: 'Screen Point',
+              description: 'Object containing screen absolute coordinates'
+            }
+          }
+        },
+        elementPosition: {
+          title: 'Get Element Position',
+          description: 'Read element coordinates in both WebView and screen spaces',
+          fields: {
+            anchorPoint: {
+              label: 'Anchor Point',
+              options: {
+                topLeft: 'Top-left',
+                center: 'Center'
+              }
+            },
+            outputScope: {
+              label: 'Output Coordinate Scope',
+              options: {
+                both: 'Output WebView + Screen',
+                webview: 'WebView coordinates only',
+                screen: 'Screen coordinates only'
+              }
+            }
+          },
+          outputs: {
+            exists: {
+              label: 'Element Exists',
+              description: 'Whether the target element is found'
+            },
+            webviewX: {
+              label: 'WebView X',
+              description: 'Element X in WebView coordinates'
+            },
+            webviewY: {
+              label: 'WebView Y',
+              description: 'Element Y in WebView coordinates'
+            },
+            screenX: {
+              label: 'Screen X',
+              description: 'Element X in screen coordinates'
+            },
+            screenY: {
+              label: 'Screen Y',
+              description: 'Element Y in screen coordinates'
+            },
+            rectWebview: {
+              label: 'WebView Rect',
+              description: 'Element rectangle object in WebView coordinates'
+            },
+            rectScreen: {
+              label: 'Screen Rect',
+              description: 'Element rectangle object in screen coordinates'
+            }
+          }
         },
         readClipboard: {
           title: 'Read Clipboard',
-          description: 'Read system clipboard content'
+          description: 'Read system clipboard content',
+          outputs: {
+            text: {
+              label: 'Clipboard Text',
+              description: 'Text content read from clipboard'
+            },
+            length: {
+              label: 'Text Length',
+              description: 'Length of clipboard text'
+            },
+            hasText: {
+              label: 'Has Text',
+              description: 'Whether clipboard contains text content'
+            }
+          }
         },
         writeClipboard: {
           title: 'Write Clipboard',
-          description: 'Write content to the system clipboard'
+          description: 'Write content to the system clipboard',
+          inputs: {
+            text: {
+              label: 'Input Text',
+              description: 'Upstream text input will be written to clipboard directly'
+            }
+          },
+          fields: {
+            text: {
+              label: 'Text to Write',
+              placeholder: 'Enter text to write to clipboard'
+            }
+          },
+          outputs: {
+            text: {
+              label: 'Written Text',
+              description: 'Text content written to clipboard in this step'
+            }
+          }
         }
       },
       variable: {
