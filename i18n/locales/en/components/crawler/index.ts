@@ -651,6 +651,15 @@ export const crawler = {
               label: 'Curve Strength',
               description: 'How strong the path curvature is'
             },
+            randomCurveStrength: {
+              label: 'Random Curve Strength'
+            },
+            curveStrengthMin: {
+              label: 'Min Curve Strength'
+            },
+            curveStrengthMax: {
+              label: 'Max Curve Strength'
+            },
             speedProfile: {
               label: 'Speed Profile',
               options: {
@@ -680,8 +689,26 @@ export const crawler = {
               label: 'Jitter Amplitude',
               description: 'Maximum offset per jitter'
             },
+            randomJitterAmplitude: {
+              label: 'Random Jitter Amplitude'
+            },
+            jitterAmplitudeMin: {
+              label: 'Min Jitter Amplitude'
+            },
+            jitterAmplitudeMax: {
+              label: 'Max Jitter Amplitude'
+            },
             jitterFrequency: {
               label: 'Jitter Frequency'
+            },
+            randomJitterFrequency: {
+              label: 'Random Jitter Frequency'
+            },
+            jitterFrequencyMin: {
+              label: 'Min Jitter Frequency'
+            },
+            jitterFrequencyMax: {
+              label: 'Max Jitter Frequency'
             }
           },
           outputs: {

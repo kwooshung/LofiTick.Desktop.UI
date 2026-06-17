@@ -651,6 +651,15 @@ export const crawler = {
               label: 'カーブ強度',
               description: '軌道の曲がり具合'
             },
+            randomCurveStrength: {
+              label: 'カーブ強度をランダム化'
+            },
+            curveStrengthMin: {
+              label: '最小カーブ強度'
+            },
+            curveStrengthMax: {
+              label: '最大カーブ強度'
+            },
             speedProfile: {
               label: '速度プロファイル',
               options: {
@@ -680,8 +689,26 @@ export const crawler = {
               label: '揺らぎ幅',
               description: '1 回あたりの最大オフセット'
             },
+            randomJitterAmplitude: {
+              label: '揺らぎ幅をランダム化'
+            },
+            jitterAmplitudeMin: {
+              label: '最小揺らぎ幅'
+            },
+            jitterAmplitudeMax: {
+              label: '最大揺らぎ幅'
+            },
             jitterFrequency: {
               label: '揺らぎ頻度'
+            },
+            randomJitterFrequency: {
+              label: '揺らぎ頻度をランダム化'
+            },
+            jitterFrequencyMin: {
+              label: '最小揺らぎ頻度'
+            },
+            jitterFrequencyMax: {
+              label: '最大揺らぎ頻度'
             }
           },
           outputs: {

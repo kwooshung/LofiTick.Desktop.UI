@@ -621,23 +621,110 @@ export const crawler = {
       mouse: {
         move: {
           title: '滑鼠移動',
-          description: '移動滑鼠到指定座標'
-        },
-        curve: {
-          title: '滑鼠曲線',
-          description: '為滑鼠移動加入曲線路徑'
-        },
-        accel: {
-          title: '滑鼠加減速',
-          description: '為滑鼠移動加入加減速效果'
-        },
-        jitter: {
-          title: '滑鼠抖動',
-          description: '為滑鼠移動加入隨機抖動'
-        },
-        duration: {
-          title: '滑鼠移動時長',
-          description: '設定滑鼠移動執行總時長'
+          description: '使用擬人化參數控制滑鼠由起點移動到終點',
+          fields: {
+            startX: {
+              label: '起點 X',
+              description: '滑鼠起始位置 X 座標'
+            },
+            startY: {
+              label: '起點 Y',
+              description: '滑鼠起始位置 Y 座標'
+            },
+            endX: {
+              label: '終點 X',
+              description: '滑鼠目標位置 X 座標'
+            },
+            endY: {
+              label: '終點 Y',
+              description: '滑鼠目標位置 Y 座標'
+            },
+            curveType: {
+              label: '軌跡曲線',
+              options: {
+                linear: '線性',
+                bezier: '貝茲曲線',
+                spline: '樣條曲線'
+              }
+            },
+            curveStrength: {
+              label: '曲率強度',
+              description: '軌跡彎曲程度'
+            },
+            randomCurveStrength: {
+              label: '隨機曲率強度'
+            },
+            curveStrengthMin: {
+              label: '最小曲率強度'
+            },
+            curveStrengthMax: {
+              label: '最大曲率強度'
+            },
+            speedProfile: {
+              label: '速度曲線',
+              options: {
+                linear: '等速',
+                easeIn: '先慢後快',
+                easeOut: '先快後慢',
+                easeInOut: '先慢後快再慢'
+              }
+            },
+            randomDuration: {
+              label: '隨機移動時長'
+            },
+            durationMs: {
+              label: '移動時長',
+              description: '固定移動總時長'
+            },
+            durationMinMs: {
+              label: '最短時長'
+            },
+            durationMaxMs: {
+              label: '最長時長'
+            },
+            enableJitter: {
+              label: '啟用抖動'
+            },
+            jitterAmplitude: {
+              label: '抖動幅度',
+              description: '單次抖動位移幅度'
+            },
+            randomJitterAmplitude: {
+              label: '隨機抖動幅度'
+            },
+            jitterAmplitudeMin: {
+              label: '最小抖動幅度'
+            },
+            jitterAmplitudeMax: {
+              label: '最大抖動幅度'
+            },
+            jitterFrequency: {
+              label: '抖動頻率'
+            },
+            randomJitterFrequency: {
+              label: '隨機抖動頻率'
+            },
+            jitterFrequencyMin: {
+              label: '最小抖動頻率'
+            },
+            jitterFrequencyMax: {
+              label: '最大抖動頻率'
+            }
+          },
+          outputs: {
+            endX: {
+              label: '最終 X',
+              description: '移動結束時的 X 座標'
+            },
+            endY: {
+              label: '最終 Y',
+              description: '移動結束時的 Y 座標'
+            },
+            path: {
+              label: '軌跡點集',
+              description: '完整移動軌跡座標陣列'
+            }
+          }
         }
       },
       scroll: {

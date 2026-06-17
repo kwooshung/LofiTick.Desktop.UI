@@ -651,6 +651,15 @@ export const crawler = {
               label: '曲率强度',
               description: '轨迹弯曲程度'
             },
+            randomCurveStrength: {
+              label: '随机曲率强度'
+            },
+            curveStrengthMin: {
+              label: '最小曲率强度'
+            },
+            curveStrengthMax: {
+              label: '最大曲率强度'
+            },
             speedProfile: {
               label: '速度曲线',
               options: {
@@ -680,8 +689,26 @@ export const crawler = {
               label: '抖动幅度',
               description: '单次抖动位移幅度'
             },
+            randomJitterAmplitude: {
+              label: '随机抖动幅度'
+            },
+            jitterAmplitudeMin: {
+              label: '最小抖动幅度'
+            },
+            jitterAmplitudeMax: {
+              label: '最大抖动幅度'
+            },
             jitterFrequency: {
               label: '抖动频率'
+            },
+            randomJitterFrequency: {
+              label: '随机抖动频率'
+            },
+            jitterFrequencyMin: {
+              label: '最小抖动频率'
+            },
+            jitterFrequencyMax: {
+              label: '最大抖动频率'
             }
           },
           outputs: {

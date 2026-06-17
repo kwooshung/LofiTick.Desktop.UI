@@ -20,9 +20,19 @@
         <USelect v-model="stateCurveType" class="w-full" :items="stateCurveTypeOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
-      <UFormField v-if="!computedHasCurveStrengthInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.curveStrength.label')">
-        <CrawlersNodesCommonNumberInput id="crawlerMouseMoveCurveStrength" v-model="stateCurveStrength" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.percent')" />
-      </UFormField>
+      <USwitch v-if="!computedHasCurveStrengthInput" v-model="stateRandomCurveStrength" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomCurveStrength.label')" />
+
+      <div v-if="!computedHasCurveStrengthInput" class="space-y-2">
+        <UFormField v-if="!stateRandomCurveStrength" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.curveStrength.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveCurveStrength" v-model="stateCurveStrength" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.percent')" />
+        </UFormField>
+        <UFormField v-if="stateRandomCurveStrength" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.curveStrengthMin.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveCurveStrengthMin" v-model="stateCurveStrengthMin" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.percent')" />
+        </UFormField>
+        <UFormField v-if="stateRandomCurveStrength" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.curveStrengthMax.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveCurveStrengthMax" v-model="stateCurveStrengthMax" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.percent')" />
+        </UFormField>
+      </div>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.speedProfile.label')">
         <USelect v-model="stateSpeedProfile" class="w-full" :items="stateSpeedProfileOptions" value-attribute="value" option-attribute="label" />
@@ -44,13 +54,33 @@
 
       <USwitch v-model="stateEnableJitter" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.enableJitter.label')" />
 
-      <UFormField v-if="stateEnableJitter && !computedHasJitterAmplitudeInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterAmplitude.label')">
-        <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterAmplitude" v-model="stateJitterAmplitude" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
-      </UFormField>
+      <USwitch v-if="stateEnableJitter && !computedHasJitterAmplitudeInput" v-model="stateRandomJitterAmplitude" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomJitterAmplitude.label')" />
 
-      <UFormField v-if="stateEnableJitter" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterFrequency.label')">
-        <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterFrequency" v-model="stateJitterFrequency" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
-      </UFormField>
+      <div v-if="stateEnableJitter && !computedHasJitterAmplitudeInput" class="space-y-2">
+        <UFormField v-if="!stateRandomJitterAmplitude" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterAmplitude.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterAmplitude" v-model="stateJitterAmplitude" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+        </UFormField>
+        <UFormField v-if="stateRandomJitterAmplitude" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterAmplitudeMin.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterAmplitudeMin" v-model="stateJitterAmplitudeMin" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+        </UFormField>
+        <UFormField v-if="stateRandomJitterAmplitude" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterAmplitudeMax.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterAmplitudeMax" v-model="stateJitterAmplitudeMax" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
+        </UFormField>
+      </div>
+
+      <USwitch v-if="stateEnableJitter" v-model="stateRandomJitterFrequency" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomJitterFrequency.label')" />
+
+      <div v-if="stateEnableJitter" class="space-y-2">
+        <UFormField v-if="!stateRandomJitterFrequency" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterFrequency.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterFrequency" v-model="stateJitterFrequency" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
+        </UFormField>
+        <UFormField v-if="stateRandomJitterFrequency" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterFrequencyMin.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterFrequencyMin" v-model="stateJitterFrequencyMin" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
+        </UFormField>
+        <UFormField v-if="stateRandomJitterFrequency" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.jitterFrequencyMax.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerMouseMoveJitterFrequencyMax" v-model="stateJitterFrequencyMax" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
+        </UFormField>
+      </div>
 
       <USwitch v-model="stateSimulateNativeInput" :label="t('components.crawler.blueprint.nodes.interaction.common.fields.simulateNativeInput.label')" />
     </div>
@@ -75,6 +105,9 @@ const stateEndX = ref(300);
 const stateEndY = ref(300);
 const stateCurveType = ref('bezier');
 const stateCurveStrength = ref(40);
+const stateRandomCurveStrength = ref(false);
+const stateCurveStrengthMin = ref(20);
+const stateCurveStrengthMax = ref(60);
 const stateSpeedProfile = ref('easeInOut');
 const stateRandomDuration = ref(false);
 const stateDurationMs = ref(600);
@@ -82,7 +115,13 @@ const stateDurationMinMs = ref(400);
 const stateDurationMaxMs = ref(1200);
 const stateEnableJitter = ref(false);
 const stateJitterAmplitude = ref(2);
+const stateRandomJitterAmplitude = ref(false);
+const stateJitterAmplitudeMin = ref(1);
+const stateJitterAmplitudeMax = ref(4);
 const stateJitterFrequency = ref(6);
+const stateRandomJitterFrequency = ref(false);
+const stateJitterFrequencyMin = ref(3);
+const stateJitterFrequencyMax = ref(10);
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -255,6 +294,9 @@ watchEffect(() => {
   stateEndY.value = Number.isFinite(Number(data.endY)) ? Math.max(0, Number(data.endY)) : 300;
   stateCurveType.value = ['linear', 'bezier', 'spline'].includes(String(data.curveType)) ? String(data.curveType) : 'bezier';
   stateCurveStrength.value = Number.isFinite(Number(data.curveStrength)) ? Math.max(0, Number(data.curveStrength)) : 40;
+  stateRandomCurveStrength.value = Boolean(data.randomCurveStrength ?? false);
+  stateCurveStrengthMin.value = Number.isFinite(Number(data.curveStrengthMin)) ? Math.max(0, Number(data.curveStrengthMin)) : 20;
+  stateCurveStrengthMax.value = Number.isFinite(Number(data.curveStrengthMax)) ? Math.max(0, Number(data.curveStrengthMax)) : 60;
   stateSpeedProfile.value = ['linear', 'easeIn', 'easeOut', 'easeInOut'].includes(String(data.speedProfile)) ? String(data.speedProfile) : 'easeInOut';
   stateRandomDuration.value = Boolean(data.randomDuration ?? false);
   stateDurationMs.value = Number.isFinite(Number(data.durationMs)) ? Math.max(50, Number(data.durationMs)) : 600;
@@ -262,28 +304,18 @@ watchEffect(() => {
   stateDurationMaxMs.value = Number.isFinite(Number(data.durationMaxMs)) ? Math.max(50, Number(data.durationMaxMs)) : 1200;
   stateEnableJitter.value = Boolean(data.enableJitter ?? false);
   stateJitterAmplitude.value = Number.isFinite(Number(data.jitterAmplitude)) ? Math.max(0, Number(data.jitterAmplitude)) : 2;
+  stateRandomJitterAmplitude.value = Boolean(data.randomJitterAmplitude ?? false);
+  stateJitterAmplitudeMin.value = Number.isFinite(Number(data.jitterAmplitudeMin)) ? Math.max(0, Number(data.jitterAmplitudeMin)) : 1;
+  stateJitterAmplitudeMax.value = Number.isFinite(Number(data.jitterAmplitudeMax)) ? Math.max(0, Number(data.jitterAmplitudeMax)) : 4;
   stateJitterFrequency.value = Number.isFinite(Number(data.jitterFrequency)) ? Math.max(1, Number(data.jitterFrequency)) : 6;
+  stateRandomJitterFrequency.value = Boolean(data.randomJitterFrequency ?? false);
+  stateJitterFrequencyMin.value = Number.isFinite(Number(data.jitterFrequencyMin)) ? Math.max(1, Number(data.jitterFrequencyMin)) : 3;
+  stateJitterFrequencyMax.value = Number.isFinite(Number(data.jitterFrequencyMax)) ? Math.max(1, Number(data.jitterFrequencyMax)) : 10;
   stateSimulateNativeInput.value = Boolean(data.simulateNativeInput ?? false);
   stateInitialized.value = true;
 });
 
-watch([
-  stateStartX,
-  stateStartY,
-  stateEndX,
-  stateEndY,
-  stateCurveType,
-  stateCurveStrength,
-  stateSpeedProfile,
-  stateRandomDuration,
-  stateDurationMs,
-  stateDurationMinMs,
-  stateDurationMaxMs,
-  stateEnableJitter,
-  stateJitterAmplitude,
-  stateJitterFrequency,
-  stateSimulateNativeInput
-], () => {
+watch([stateStartX, stateStartY, stateEndX, stateEndY, stateCurveType, stateCurveStrength, stateRandomCurveStrength, stateCurveStrengthMin, stateCurveStrengthMax, stateSpeedProfile, stateRandomDuration, stateDurationMs, stateDurationMinMs, stateDurationMaxMs, stateEnableJitter, stateJitterAmplitude, stateRandomJitterAmplitude, stateJitterAmplitudeMin, stateJitterAmplitudeMax, stateJitterFrequency, stateRandomJitterFrequency, stateJitterFrequencyMin, stateJitterFrequencyMax, stateSimulateNativeInput], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -296,6 +328,9 @@ watch([
     endY: stateEndY.value,
     curveType: stateCurveType.value,
     curveStrength: stateCurveStrength.value,
+    randomCurveStrength: stateRandomCurveStrength.value,
+    curveStrengthMin: stateCurveStrengthMin.value,
+    curveStrengthMax: stateCurveStrengthMax.value,
     speedProfile: stateSpeedProfile.value,
     randomDuration: stateRandomDuration.value,
     durationMs: stateDurationMs.value,
@@ -303,7 +338,13 @@ watch([
     durationMaxMs: stateDurationMaxMs.value,
     enableJitter: stateEnableJitter.value,
     jitterAmplitude: stateJitterAmplitude.value,
+    randomJitterAmplitude: stateRandomJitterAmplitude.value,
+    jitterAmplitudeMin: stateJitterAmplitudeMin.value,
+    jitterAmplitudeMax: stateJitterAmplitudeMax.value,
     jitterFrequency: stateJitterFrequency.value,
+    randomJitterFrequency: stateRandomJitterFrequency.value,
+    jitterFrequencyMin: stateJitterFrequencyMin.value,
+    jitterFrequencyMax: stateJitterFrequencyMax.value,
     simulateNativeInput: stateSimulateNativeInput.value
   };
 });
