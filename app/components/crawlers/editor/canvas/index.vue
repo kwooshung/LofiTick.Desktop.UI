@@ -45,7 +45,7 @@
       <template #node-interaction-focus-element="props"><CrawlersNodesInteractionFocusElement v-bind="props" /></template>
       <template #node-interaction-dispatch-event="props"><CrawlersNodesInteractionDispatchEvent v-bind="props" /></template>
       <template #node-interaction-press-key="props"><CrawlersNodesInteractionPressKey v-bind="props" /></template>
-      <template #node-mouse-move="props"><CrawlersNodesMouseMove v-bind="props" /></template>
+      <template #node-mouse-move="props"><CrawlersNodesInteractionMouseMove v-bind="props" /></template>
       <template #node-scroll-to-position="props"><CrawlersNodesScrollToPosition v-bind="props" /></template>
       <template #node-scroll-into-view="props"><CrawlersNodesScrollIntoView v-bind="props" /></template>
       <template #node-scroll-infinite="props"><CrawlersNodesScrollInfinite v-bind="props" /></template>
