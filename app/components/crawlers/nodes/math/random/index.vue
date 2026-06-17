@@ -19,16 +19,7 @@
           <span class="truncate">已连接输入，使用连线值</span>
         </div>
 
-        <UInputNumber
-          v-else
-          id="crawlerMathRandomMin"
-          v-model="stateMin"
-          class="w-full"
-          orientation="vertical"
-          :step="computedNumberStep"
-          :increment="{ color: 'neutral', variant: 'soft' }"
-          :decrement="{ color: 'neutral', variant: 'soft' }"
-        />
+        <UInputNumber v-else id="crawlerMathRandomMin" v-model="stateMin" class="w-full" orientation="vertical" :step="computedNumberStep" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.math.random.fields.max.label')">
@@ -37,16 +28,7 @@
           <span class="truncate">已连接输入，使用连线值</span>
         </div>
 
-        <UInputNumber
-          v-else
-          id="crawlerMathRandomMax"
-          v-model="stateMax"
-          class="w-full"
-          orientation="vertical"
-          :step="computedNumberStep"
-          :increment="{ color: 'neutral', variant: 'soft' }"
-          :decrement="{ color: 'neutral', variant: 'soft' }"
-        />
+        <UInputNumber v-else id="crawlerMathRandomMax" v-model="stateMax" class="w-full" orientation="vertical" :step="computedNumberStep" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
@@ -145,8 +127,7 @@ watchEffect(() => {
   }
 
   const nextIntervalType = String(data.intervalType ?? 'leftClosedRightOpen');
-  stateIntervalType.value =
-    nextIntervalType === 'leftOpenRightClosed' || nextIntervalType === 'open' || nextIntervalType === 'closed' ? nextIntervalType : 'leftClosedRightOpen';
+  stateIntervalType.value = nextIntervalType === 'leftOpenRightClosed' || nextIntervalType === 'open' || nextIntervalType === 'closed' ? nextIntervalType : 'leftClosedRightOpen';
 
   const nextNumberType = String(data.numberType ?? 'float');
   stateNumberType.value = nextNumberType === 'integer' ? 'integer' : 'float';

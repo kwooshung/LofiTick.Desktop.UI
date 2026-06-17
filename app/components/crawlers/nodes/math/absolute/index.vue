@@ -6,16 +6,7 @@
         <span class="truncate">已连接输入，使用连线值</span>
       </div>
 
-      <UInputNumber
-        v-else
-        id="crawlerMathAbsoluteValue"
-        v-model="stateValue"
-        class="w-full"
-        orientation="vertical"
-        :step="0.1"
-        :increment="{ color: 'neutral', variant: 'soft' }"
-        :decrement="{ color: 'neutral', variant: 'soft' }"
-      />
+      <UInputNumber v-else id="crawlerMathAbsoluteValue" v-model="stateValue" class="w-full" orientation="vertical" :step="0.1" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
     </UFormField>
   </CrawlersNodesCommonBasic>
 </template>

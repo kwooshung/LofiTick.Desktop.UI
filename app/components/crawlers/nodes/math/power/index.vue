@@ -7,16 +7,7 @@
           <span class="truncate">已连接输入，使用连线值</span>
         </div>
 
-        <UInputNumber
-          v-else
-          id="crawlerMathPowerBase"
-          v-model="stateBase"
-          class="w-full"
-          orientation="vertical"
-          :step="0.1"
-          :increment="{ color: 'neutral', variant: 'soft' }"
-          :decrement="{ color: 'neutral', variant: 'soft' }"
-        />
+        <UInputNumber v-else id="crawlerMathPowerBase" v-model="stateBase" class="w-full" orientation="vertical" :step="0.1" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
       </UFormField>
 
       <UFormField label="指数 (exp)">
@@ -25,16 +16,7 @@
           <span class="truncate">已连接输入，使用连线值</span>
         </div>
 
-        <UInputNumber
-          v-else
-          id="crawlerMathPowerExp"
-          v-model="stateExp"
-          class="w-full"
-          orientation="vertical"
-          :step="0.1"
-          :increment="{ color: 'neutral', variant: 'soft' }"
-          :decrement="{ color: 'neutral', variant: 'soft' }"
-        />
+        <UInputNumber v-else id="crawlerMathPowerExp" v-model="stateExp" class="w-full" orientation="vertical" :step="0.1" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

@@ -8,8 +8,13 @@
     :right-pins="rightPins"
   >
     <div class="space-y-3">
-      <UFormField v-if="!computedHasTextInput" :label="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.label')">
-        <UTextarea v-model="stateText" :rows="4" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.placeholder')" />
+      <UFormField :label="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.label')">
+        <div v-if="computedHasTextInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">已连接输入，使用连线值</span>
+        </div>
+
+        <UTextarea v-else v-model="stateText" :rows="4" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.system.writeClipboard.fields.text.placeholder')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
