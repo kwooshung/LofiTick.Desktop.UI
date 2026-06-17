@@ -1624,11 +1624,51 @@ export const crawler = {
         },
         round: {
           title: '取整',
-          description: '向下、向上或四舍五入取整'
+          description: '向下、向上或四舍五入取整',
+          fields: {
+            mode: {
+              label: '取整模式',
+              options: {
+                round: '四舍五入',
+                ceil: '向上取整',
+                floor: '向下取整'
+              }
+            }
+          }
         },
         random: {
           title: '随机数',
-          description: '生成指定范围随机数'
+          description: '生成指定范围随机数',
+          fields: {
+            numberType: {
+              label: '随机类型',
+              options: {
+                float: '随机小数',
+                integer: '随机整数'
+              }
+            },
+            intervalType: {
+              label: '区间类型',
+              options: {
+                leftClosedRightOpen: '[min, max)',
+                leftOpenRightClosed: '(min, max]',
+                open: '(min, max)',
+                closed: '[min, max]'
+              },
+              descriptions: {
+                leftClosedRightOpen: '包含最小值，不包含最大值',
+                leftOpenRightClosed: '不包含最小值，包含最大值',
+                open: '最小值和最大值都不包含',
+                closed: '最小值和最大值都包含'
+              }
+            },
+            min: {
+              label: '最小值（min）'
+            },
+            max: {
+              label: '最大值（max）'
+            }
+          }
         },
         absolute: {
           title: '绝对值',

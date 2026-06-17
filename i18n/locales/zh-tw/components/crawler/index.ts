@@ -1624,11 +1624,51 @@ export const crawler = {
         },
         round: {
           title: '取整',
-          description: '向下、向上或四捨五入取整'
+          description: '向下、向上或四捨五入取整',
+          fields: {
+            mode: {
+              label: '取整模式',
+              options: {
+                round: '四捨五入',
+                ceil: '向上取整',
+                floor: '向下取整'
+              }
+            }
+          }
         },
         random: {
           title: '隨機數',
-          description: '產生指定範圍隨機數'
+          description: '產生指定範圍隨機數',
+          fields: {
+            numberType: {
+              label: '隨機類型',
+              options: {
+                float: '隨機小數',
+                integer: '隨機整數'
+              }
+            },
+            intervalType: {
+              label: '區間類型',
+              options: {
+                leftClosedRightOpen: '[min, max)',
+                leftOpenRightClosed: '(min, max]',
+                open: '(min, max)',
+                closed: '[min, max]'
+              },
+              descriptions: {
+                leftClosedRightOpen: '包含最小值，不包含最大值',
+                leftOpenRightClosed: '不包含最小值，包含最大值',
+                open: '最小值與最大值都不包含',
+                closed: '最小值與最大值都包含'
+              }
+            },
+            min: {
+              label: '最小值（min）'
+            },
+            max: {
+              label: '最大值（max）'
+            }
+          }
         },
         absolute: {
           title: '絕對值',

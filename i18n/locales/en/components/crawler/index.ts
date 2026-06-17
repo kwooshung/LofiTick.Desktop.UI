@@ -1624,11 +1624,51 @@ export const crawler = {
         },
         round: {
           title: 'Round',
-          description: 'Round down, up, or to nearest'
+          description: 'Round down, up, or to nearest',
+          fields: {
+            mode: {
+              label: 'Rounding Mode',
+              options: {
+                round: 'Round to Nearest',
+                ceil: 'Round Up',
+                floor: 'Round Down'
+              }
+            }
+          }
         },
         random: {
           title: 'Random Number',
-          description: 'Generate a random number in a range'
+          description: 'Generate a random number in a range',
+          fields: {
+            numberType: {
+              label: 'Random Type',
+              options: {
+                float: 'Float',
+                integer: 'Integer'
+              }
+            },
+            intervalType: {
+              label: 'Interval Type',
+              options: {
+                leftClosedRightOpen: '[min, max)',
+                leftOpenRightClosed: '(min, max]',
+                open: '(min, max)',
+                closed: '[min, max]'
+              },
+              descriptions: {
+                leftClosedRightOpen: 'Include min, exclude max',
+                leftOpenRightClosed: 'Exclude min, include max',
+                open: 'Exclude both min and max',
+                closed: 'Include both min and max'
+              }
+            },
+            min: {
+              label: 'Minimum (min)'
+            },
+            max: {
+              label: 'Maximum (max)'
+            }
+          }
         },
         absolute: {
           title: 'Absolute Value',

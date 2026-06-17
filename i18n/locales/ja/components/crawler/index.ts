@@ -1624,11 +1624,51 @@ export const crawler = {
         },
         round: {
           title: '丸め',
-          description: '切り下げ、切り上げ、四捨五入を行います'
+          description: '切り下げ、切り上げ、四捨五入を行います',
+          fields: {
+            mode: {
+              label: '丸めモード',
+              options: {
+                round: '四捨五入',
+                ceil: '切り上げ',
+                floor: '切り下げ'
+              }
+            }
+          }
         },
         random: {
           title: '乱数',
-          description: '指定範囲の乱数を生成します'
+          description: '指定範囲の乱数を生成します',
+          fields: {
+            numberType: {
+              label: '乱数タイプ',
+              options: {
+                float: '小数',
+                integer: '整数'
+              }
+            },
+            intervalType: {
+              label: '区間タイプ',
+              options: {
+                leftClosedRightOpen: '[min, max)',
+                leftOpenRightClosed: '(min, max]',
+                open: '(min, max)',
+                closed: '[min, max]'
+              },
+              descriptions: {
+                leftClosedRightOpen: '最小値を含み、最大値を含みません',
+                leftOpenRightClosed: '最小値を含まず、最大値を含みます',
+                open: '最小値と最大値の両方を含みません',
+                closed: '最小値と最大値の両方を含みます'
+              }
+            },
+            min: {
+              label: '最小値（min）'
+            },
+            max: {
+              label: '最大値（max）'
+            }
+          }
         },
         absolute: {
           title: '絶対値',

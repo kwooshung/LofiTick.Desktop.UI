@@ -14,7 +14,7 @@
       </div>
     </div>
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">
-      <div v-if="computedHasLeftPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pl-3">
+      <div v-if="computedHasLeftPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pl-4">
         <template v-for="pin in computedLeftPins" :key="pin.id">
           <div class="relative flex min-h-5 cursor-default items-center justify-start gap-1.5 pl-3.25">
             <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div v-if="computedHasRightPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pr-3">
+      <div v-if="computedHasRightPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pr-4">
         <template v-for="pin in computedRightPins" :key="pin.id">
           <div class="relative flex min-h-5 cursor-default items-center justify-end gap-1.5 pr-3.25">
             <div class="grow text-right">

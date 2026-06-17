@@ -17,4 +17,3 @@ const rightPins: IBasicSidePin[] = [
   { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 </script>
-
