@@ -966,7 +966,108 @@ export const crawler = {
       http: {
         request: {
           title: 'HTTP リクエスト',
-          description: 'GET / POST などの純 HTTP を送信します'
+          description: 'GET / POST などの純 HTTP を送信します',
+          fields: {
+            method: {
+              label: 'リクエストメソッド'
+            },
+            url: {
+              label: 'リクエスト URL',
+              placeholder: '例: https://api.example.com/v1/items'
+            },
+            query: {
+              label: 'クエリパラメータ',
+              placeholder: '例：page=1&size=20',
+              form: {
+                keyPlaceholder: 'パラメータ名',
+                valuePlaceholder: 'パラメータ値',
+                add: 'パラメータ追加',
+                remove: '削除'
+              }
+            },
+            headers: {
+              label: 'ヘッダー',
+              placeholder: '例：Authorization: Bearer xxx',
+              form: {
+                keyPlaceholder: 'ヘッダー名',
+                valuePlaceholder: 'ヘッダー値',
+                add: 'ヘッダー追加',
+                remove: '削除'
+              },
+              presets: {
+                authorizationBearer: '定番: Authorization Bearer',
+                contentTypeJson: '定番: Content-Type JSON',
+                contentTypeFormUrlencoded: '定番: Content-Type Form',
+                acceptJson: '定番: Accept JSON',
+                acceptLanguageZhCn: '定番: Accept-Language Chinese',
+                cacheControlNoCache: '定番: Cache-Control No-Cache',
+                xRequestedWith: '定番: X-Requested-With Ajax',
+                userAgentBrowser: '定番: User-Agent Browser'
+              }
+            },
+            referer: {
+              label: 'Referer',
+              placeholder: '例: https://www.example.com/list'
+            },
+            cookie: {
+              label: 'Cookie 文字列',
+              placeholder: '例: session_id=abc123; theme=dark'
+            },
+            bodyType: {
+              label: 'ボディタイプ',
+              options: {
+                none: 'なし',
+                json: 'JSON',
+                form: 'Form',
+                text: 'Text'
+              }
+            },
+            body: {
+              label: 'リクエストボディ',
+              placeholder: '選択したボディタイプに応じて入力',
+              jsonInvalid: 'JSON 形式が不正です。内容を確認してください。',
+              actions: {
+                validate: 'JSON を検証',
+                format: 'JSON を整形'
+              },
+              form: {
+                keyPlaceholder: '項目名',
+                valuePlaceholder: '項目値',
+                add: '項目を追加',
+                remove: '削除'
+              }
+            },
+            timeoutMs: {
+              label: 'タイムアウト（ミリ秒）'
+            },
+            retryCount: {
+              label: 'リトライ回数'
+            },
+            followRedirect: {
+              label: 'リダイレクトを追従'
+            },
+            useCookies: {
+              label: 'Cookies を送信'
+            }
+          },
+          outputs: {
+            response: {
+              label: 'レスポンス結果',
+              description: 'レスポンスボディデータ'
+            },
+            statusCode: {
+              label: 'ステータスコード',
+              description: 'HTTP ステータスコード'
+            },
+            ok: {
+              label: '成功判定',
+              description: 'ステータスが 2xx かどうか'
+            },
+            headers: {
+              label: 'レスポンスヘッダー',
+              description: 'レスポンスヘッダーオブジェクト'
+            }
+          }
         },
         getCookies: {
           title: 'Cookie を取得',

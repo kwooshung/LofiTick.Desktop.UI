@@ -81,12 +81,20 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @param {string} type 节点类型标识。
    */
   const onDragStart = (event: DragEvent, type: string): void => {
+    const normalizedType = String(type ?? '').trim();
+
+    if (normalizedType === '') {
+      return;
+    }
+
     if (event.dataTransfer) {
-      event.dataTransfer.setData('application/vueflow', type);
+      event.dataTransfer.setData('application/vueflow', normalizedType);
+      // 部分运行环境对自定义 MIME 支持不稳定，补一份 text/plain 兜底。
+      event.dataTransfer.setData('text/plain', normalizedType);
       event.dataTransfer.effectAllowed = 'move';
     }
 
-    draggedType.value = type;
+    draggedType.value = normalizedType;
     isDragging.value = true;
 
     document.addEventListener('drop', onDragEnd);
@@ -132,7 +140,13 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @param event 放置事件对象。
    */
   const onDrop = (event: DragEvent): void => {
-    if (!draggedType.value) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const typeFromTransfer = String(event.dataTransfer?.getData('application/vueflow') ?? event.dataTransfer?.getData('text/plain') ?? '').trim();
+    const resolvedType = typeFromTransfer !== '' ? typeFromTransfer : String(draggedType.value ?? '').trim();
+
+    if (resolvedType === '') {
       return;
     }
 
@@ -145,7 +159,7 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
 
     const newNode = {
       id: nodeId,
-      type: draggedType.value,
+      type: resolvedType,
       position,
       data: { label: nodeId }
     };
@@ -164,6 +178,8 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
     });
 
     addNodes(newNode);
+
+    onDragEnd();
   };
 
   return {

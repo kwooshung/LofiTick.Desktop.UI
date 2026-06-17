@@ -470,6 +470,13 @@ const restoreDraft = async (): Promise<boolean> => {
     }
 
     await fromObject(JSON.parse(data) as Parameters<typeof fromObject>[0]);
+
+    // 恢复后若节点为空，视为无效草稿，回退默认初始化流程。
+    if (nodes.value.length === 0) {
+      localStorage.removeItem(key);
+      return false;
+    }
+
     stateHistory.value = [];
     stateHistoryIndex.value = -1;
     pushHistorySnapshot();

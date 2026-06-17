@@ -966,7 +966,108 @@ export const crawler = {
       http: {
         request: {
           title: 'HTTP 请求',
-          description: '发送 GET / POST 等纯 HTTP 请求'
+          description: '发送 GET / POST 等纯 HTTP 请求',
+          fields: {
+            method: {
+              label: '请求方法'
+            },
+            url: {
+              label: '请求 URL',
+              placeholder: '例如 https://api.example.com/v1/items'
+            },
+            query: {
+              label: '查询参数',
+              placeholder: '例如：page=1&size=20',
+              form: {
+                keyPlaceholder: '参数名',
+                valuePlaceholder: '参数值',
+                add: '新增参数',
+                remove: '删除'
+              }
+            },
+            headers: {
+              label: '请求头',
+              placeholder: '例如：Authorization: Bearer xxx',
+              form: {
+                keyPlaceholder: '请求头名称',
+                valuePlaceholder: '请求头值',
+                add: '新增请求头',
+                remove: '删除'
+              },
+              presets: {
+                authorizationBearer: '常用：Authorization Bearer',
+                contentTypeJson: '常用：Content-Type JSON',
+                contentTypeFormUrlencoded: '常用：Content-Type 表单',
+                acceptJson: '常用：Accept JSON',
+                acceptLanguageZhCn: '常用：Accept-Language 中文',
+                cacheControlNoCache: '常用：Cache-Control 禁缓存',
+                xRequestedWith: '常用：X-Requested-With Ajax',
+                userAgentBrowser: '常用：User-Agent 浏览器'
+              }
+            },
+            referer: {
+              label: 'Referer',
+              placeholder: '例如 https://www.example.com/list'
+            },
+            cookie: {
+              label: 'Cookie 字符串',
+              placeholder: '例如 session_id=abc123; theme=dark'
+            },
+            bodyType: {
+              label: '请求体类型',
+              options: {
+                none: '无',
+                json: 'JSON',
+                form: 'Form',
+                text: 'Text'
+              }
+            },
+            body: {
+              label: '请求体',
+              placeholder: '根据请求体类型填写内容',
+              jsonInvalid: 'JSON 格式不合法，请检查后重试',
+              actions: {
+                validate: '校验 JSON',
+                format: '格式化 JSON'
+              },
+              form: {
+                keyPlaceholder: '参数名',
+                valuePlaceholder: '参数值',
+                add: '新增参数',
+                remove: '删除'
+              }
+            },
+            timeoutMs: {
+              label: '超时毫秒'
+            },
+            retryCount: {
+              label: '重试次数'
+            },
+            followRedirect: {
+              label: '跟随重定向'
+            },
+            useCookies: {
+              label: '发送 Cookie'
+            }
+          },
+          outputs: {
+            response: {
+              label: '响应结果',
+              description: '响应体数据'
+            },
+            statusCode: {
+              label: '状态码',
+              description: 'HTTP 状态码'
+            },
+            ok: {
+              label: '是否成功',
+              description: '响应是否为 2xx'
+            },
+            headers: {
+              label: '响应头',
+              description: '响应头对象'
+            }
+          }
         },
         getCookies: {
           title: '获取 Cookies',

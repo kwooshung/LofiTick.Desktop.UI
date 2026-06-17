@@ -966,7 +966,108 @@ export const crawler = {
       http: {
         request: {
           title: 'HTTP Request',
-          description: 'Send raw GET / POST / etc. requests'
+          description: 'Send raw GET / POST / etc. requests',
+          fields: {
+            method: {
+              label: 'Method'
+            },
+            url: {
+              label: 'Request URL',
+              placeholder: 'e.g. https://api.example.com/v1/items'
+            },
+            query: {
+              label: 'Query Params',
+              placeholder: 'e.g. page=1&size=20',
+              form: {
+                keyPlaceholder: 'Param Name',
+                valuePlaceholder: 'Param Value',
+                add: 'Add Param',
+                remove: 'Remove'
+              }
+            },
+            headers: {
+              label: 'Headers',
+              placeholder: 'e.g. Authorization: Bearer xxx',
+              form: {
+                keyPlaceholder: 'Header Name',
+                valuePlaceholder: 'Header Value',
+                add: 'Add Header',
+                remove: 'Remove'
+              },
+              presets: {
+                authorizationBearer: 'Preset: Authorization Bearer',
+                contentTypeJson: 'Preset: Content-Type JSON',
+                contentTypeFormUrlencoded: 'Preset: Content-Type Form',
+                acceptJson: 'Preset: Accept JSON',
+                acceptLanguageZhCn: 'Preset: Accept-Language Chinese',
+                cacheControlNoCache: 'Preset: Cache-Control No-Cache',
+                xRequestedWith: 'Preset: X-Requested-With Ajax',
+                userAgentBrowser: 'Preset: User-Agent Browser'
+              }
+            },
+            referer: {
+              label: 'Referer',
+              placeholder: 'e.g. https://www.example.com/list'
+            },
+            cookie: {
+              label: 'Cookie String',
+              placeholder: 'e.g. session_id=abc123; theme=dark'
+            },
+            bodyType: {
+              label: 'Body Type',
+              options: {
+                none: 'None',
+                json: 'JSON',
+                form: 'Form',
+                text: 'Text'
+              }
+            },
+            body: {
+              label: 'Body',
+              placeholder: 'Fill body content by selected body type',
+              jsonInvalid: 'Invalid JSON format. Please check and try again.',
+              actions: {
+                validate: 'Validate JSON',
+                format: 'Format JSON'
+              },
+              form: {
+                keyPlaceholder: 'Field Name',
+                valuePlaceholder: 'Field Value',
+                add: 'Add Field',
+                remove: 'Remove'
+              }
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            },
+            retryCount: {
+              label: 'Retry Count'
+            },
+            followRedirect: {
+              label: 'Follow Redirects'
+            },
+            useCookies: {
+              label: 'Send Cookies'
+            }
+          },
+          outputs: {
+            response: {
+              label: 'Response',
+              description: 'Response body payload'
+            },
+            statusCode: {
+              label: 'Status Code',
+              description: 'HTTP status code'
+            },
+            ok: {
+              label: 'OK',
+              description: 'Whether status is 2xx'
+            },
+            headers: {
+              label: 'Response Headers',
+              description: 'Response headers object'
+            }
+          }
         },
         getCookies: {
           title: 'Get Cookies',

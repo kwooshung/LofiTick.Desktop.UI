@@ -966,7 +966,108 @@ export const crawler = {
       http: {
         request: {
           title: 'HTTP 請求',
-          description: '傳送 GET / POST 等純 HTTP 請求'
+          description: '傳送 GET / POST 等純 HTTP 請求',
+          fields: {
+            method: {
+              label: '請求方法'
+            },
+            url: {
+              label: '請求 URL',
+              placeholder: '例如 https://api.example.com/v1/items'
+            },
+            query: {
+              label: '查詢參數',
+              placeholder: '例如：page=1&size=20',
+              form: {
+                keyPlaceholder: '參數名稱',
+                valuePlaceholder: '參數值',
+                add: '新增參數',
+                remove: '刪除'
+              }
+            },
+            headers: {
+              label: '請求標頭',
+              placeholder: '例如：Authorization: Bearer xxx',
+              form: {
+                keyPlaceholder: '標頭名稱',
+                valuePlaceholder: '標頭值',
+                add: '新增標頭',
+                remove: '刪除'
+              },
+              presets: {
+                authorizationBearer: '常用：Authorization Bearer',
+                contentTypeJson: '常用：Content-Type JSON',
+                contentTypeFormUrlencoded: '常用：Content-Type 表單',
+                acceptJson: '常用：Accept JSON',
+                acceptLanguageZhCn: '常用：Accept-Language 中文',
+                cacheControlNoCache: '常用：Cache-Control 禁快取',
+                xRequestedWith: '常用：X-Requested-With Ajax',
+                userAgentBrowser: '常用：User-Agent 瀏覽器'
+              }
+            },
+            referer: {
+              label: 'Referer',
+              placeholder: '例如 https://www.example.com/list'
+            },
+            cookie: {
+              label: 'Cookie 字串',
+              placeholder: '例如 session_id=abc123; theme=dark'
+            },
+            bodyType: {
+              label: '請求體類型',
+              options: {
+                none: '無',
+                json: 'JSON',
+                form: 'Form',
+                text: 'Text'
+              }
+            },
+            body: {
+              label: '請求體',
+              placeholder: '依所選請求體類型填寫內容',
+              jsonInvalid: 'JSON 格式不合法，請檢查後再試',
+              actions: {
+                validate: '校驗 JSON',
+                format: '格式化 JSON'
+              },
+              form: {
+                keyPlaceholder: '參數名稱',
+                valuePlaceholder: '參數值',
+                add: '新增參數',
+                remove: '刪除'
+              }
+            },
+            timeoutMs: {
+              label: '逾時毫秒'
+            },
+            retryCount: {
+              label: '重試次數'
+            },
+            followRedirect: {
+              label: '跟隨重新導向'
+            },
+            useCookies: {
+              label: '送出 Cookies'
+            }
+          },
+          outputs: {
+            response: {
+              label: '回應結果',
+              description: '回應主體資料'
+            },
+            statusCode: {
+              label: '狀態碼',
+              description: 'HTTP 狀態碼'
+            },
+            ok: {
+              label: '是否成功',
+              description: '回應是否為 2xx'
+            },
+            headers: {
+              label: '回應標頭',
+              description: '回應標頭物件'
+            }
+          }
         },
         getCookies: {
           title: '取得 Cookies',
