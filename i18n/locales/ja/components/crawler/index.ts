@@ -14,10 +14,6 @@ export const crawler = {
         title: '操作と入力',
         description: 'クリック、入力、選択、キーボード操作です'
       },
-      mouse: {
-        title: '人間らしいマウス移動',
-        description: 'カーブ、速度、揺らぎで自然なマウス移動を再現します'
-      },
       scroll: {
         title: 'スクロールと表示',
         description: 'ページスクロールと表示領域を制御します'
@@ -1684,6 +1680,108 @@ export const crawler = {
         }
       },
       string: {
+        substring: {
+          title: '部分文字列',
+          description: '指定した位置からテキストを抽出する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            start: {
+              label: '開始位置'
+            },
+            length: {
+              label: '抽出長'
+            }
+          }
+        },
+        replace: {
+          title: '置換',
+          description: 'テキスト内の指定内容を検索して置換する（すべて置換）',
+          fields: {
+            text: {
+              label: 'ソーステキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            search: {
+              label: '検索',
+              placeholder: '検索するテキストを入力してください'
+            },
+            replacement: {
+              label: '置換先',
+              placeholder: '置換内容を入力してください'
+            }
+          }
+        },
+        concat: {
+          title: '結合',
+          description: '複数のテキストセグメントを結合する'
+        },
+        regexMatch: {
+          title: '正規表現マッチ',
+          description: '正規表現パターンを使用してテキストから一致を抽出する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: 'マッチするテキストを入力してください'
+            },
+            pattern: {
+              label: '正規表現パターン',
+              placeholder: '正規表現を入力してください（例: \\d+）'
+            },
+            flags: {
+              label: 'フラグ',
+              placeholder: 'フラグを入力してください（例: g、i、m）'
+            }
+          }
+        },
+        regexReplace: {
+          title: '正規表現置換',
+          description: '正規表現パターンを使用してテキストを検索して置換する',
+          fields: {
+            text: {
+              label: 'ソーステキスト',
+              placeholder: 'ソーステキストを入力してください'
+            },
+            pattern: {
+              label: '正規表現パターン',
+              placeholder: '正規表現パターンを入力してください'
+            },
+            replacement: {
+              label: '置換先',
+              placeholder: '置換内容を入力してください（キャプチャグループ $1、$2 などを使用可能）'
+            },
+            flags: {
+              label: 'フラグ',
+              placeholder: 'フラグを入力してください（例: g、i、m）'
+            }
+          }
+        },
+        split: {
+          title: '分割',
+          description: 'テキストを区切り文字で分割して配列にする',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '分割するテキストを入力してください'
+            },
+            separator: {
+              label: '区切り文字',
+              placeholder: '区切り文字を入力してください（例: , または |）'
+            }
+          }
+        },
+        length: {
+          title: '文字列の長さ',
+          description: 'テキストの文字数を取得する',
+          fields: {
+            text: {
+              label: 'テキスト',
+              placeholder: '長さを計算するテキストを入力してください'
+            }
+          }
+        },
         uppercase: {
           title: '大文字に変換',
           description: 'テキストを大文字に変換する',
@@ -1730,108 +1828,6 @@ export const crawler = {
             whitespaceCarriageReturn: 'キャリッジリターン',
             whitespaceVerticalTab: '垂直タブ',
             whitespaceFormFeed: 'フォームフィード'
-          }
-        },
-        length: {
-          title: '文字列の長さ',
-          description: 'テキストの文字数を取得する',
-          fields: {
-            text: {
-              label: 'テキスト',
-              placeholder: '長さを計算するテキストを入力してください'
-            }
-          }
-        },
-        concat: {
-          title: '結合',
-          description: '複数のテキストセグメントを結合する'
-        },
-        split: {
-          title: '分割',
-          description: 'テキストを区切り文字で分割して配列にする',
-          fields: {
-            text: {
-              label: 'テキスト',
-              placeholder: '分割するテキストを入力してください'
-            },
-            separator: {
-              label: '区切り文字',
-              placeholder: '区切り文字を入力してください（例: , または |）'
-            }
-          }
-        },
-        substring: {
-          title: '部分文字列',
-          description: '指定した位置からテキストを抽出する',
-          fields: {
-            text: {
-              label: 'テキスト',
-              placeholder: 'ソーステキストを入力してください'
-            },
-            start: {
-              label: '開始位置'
-            },
-            length: {
-              label: '抽出長'
-            }
-          }
-        },
-        replace: {
-          title: '置換',
-          description: 'テキスト内の指定内容を検索して置換する（すべて置換）',
-          fields: {
-            text: {
-              label: 'ソーステキスト',
-              placeholder: 'ソーステキストを入力してください'
-            },
-            search: {
-              label: '検索',
-              placeholder: '検索するテキストを入力してください'
-            },
-            replacement: {
-              label: '置換先',
-              placeholder: '置換内容を入力してください'
-            }
-          }
-        },
-        regexMatch: {
-          title: '正規表現マッチ',
-          description: '正規表現パターンを使用してテキストから一致を抽出する',
-          fields: {
-            text: {
-              label: 'テキスト',
-              placeholder: 'マッチするテキストを入力してください'
-            },
-            pattern: {
-              label: '正規表現パターン',
-              placeholder: '正規表現を入力してください（例: \\d+）'
-            },
-            flags: {
-              label: 'フラグ',
-              placeholder: 'フラグを入力してください（例: g、i、m）'
-            }
-          }
-        },
-        regexReplace: {
-          title: '正規表現置換',
-          description: '正規表現パターンを使用してテキストを検索して置換する',
-          fields: {
-            text: {
-              label: 'ソーステキスト',
-              placeholder: 'ソーステキストを入力してください'
-            },
-            pattern: {
-              label: '正規表現パターン',
-              placeholder: '正規表現パターンを入力してください'
-            },
-            replacement: {
-              label: '置換先',
-              placeholder: '置換内容を入力してください（キャプチャグループ $1、$2 などを使用可能）'
-            },
-            flags: {
-              label: 'フラグ',
-              placeholder: 'フラグを入力してください（例: g、i、m）'
-            }
           }
         }
       },

@@ -1,5 +1,13 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-split-square-horizontal" :title="t('components.crawler.blueprint.nodes.string.split.title')" :description="t('components.crawler.blueprint.nodes.string.split.description')" header-color="" header-bg="bg-teal-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-split-square-horizontal"
+    :title="t('components.crawler.blueprint.nodes.string.split.title')"
+    :description="t('components.crawler.blueprint.nodes.string.split.description')"
+    header-color=""
+    header-bg="bg-teal-500"
+    :left-pins="leftPins"
+    :right-pins="rightPins"
+  >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.string.split.fields.text.label')">
         <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">

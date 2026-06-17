@@ -14,10 +14,6 @@ export const crawler = {
         title: '交互与输入',
         description: '点击、输入、选择与键盘交互'
       },
-      mouse: {
-        title: '拟人鼠标移动',
-        description: '通过曲线、速度与随机扰动模拟真实鼠标移动'
-      },
       scroll: {
         title: '滚动与视图',
         description: '控制页面滚动与可见区域'
@@ -1684,6 +1680,108 @@ export const crawler = {
         }
       },
       string: {
+        substring: {
+          title: '截取子串',
+          description: '从文本中截取指定位置的子字符串',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入原始文本'
+            },
+            start: {
+              label: '起始位置'
+            },
+            length: {
+              label: '截取长度'
+            }
+          }
+        },
+        replace: {
+          title: '替换文本',
+          description: '在文本中查找并替换指定内容（全部替换）',
+          fields: {
+            text: {
+              label: '源文本',
+              placeholder: '输入源文本'
+            },
+            search: {
+              label: '查找',
+              placeholder: '输入要查找的文本'
+            },
+            replacement: {
+              label: '替换为',
+              placeholder: '输入替换内容'
+            }
+          }
+        },
+        concat: {
+          title: '拼接文本',
+          description: '将多个文本段拼接为一个'
+        },
+        regexMatch: {
+          title: '正则匹配',
+          description: '使用正则表达式从文本中提取匹配内容',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待匹配的文本'
+            },
+            pattern: {
+              label: '正则模式',
+              placeholder: '输入正则表达式（如 \\d+）'
+            },
+            flags: {
+              label: '标志',
+              placeholder: '输入标志（如 g、i、m）'
+            }
+          }
+        },
+        regexReplace: {
+          title: '正则替换',
+          description: '使用正则表达式查找并替换文本内容',
+          fields: {
+            text: {
+              label: '源文本',
+              placeholder: '输入源文本'
+            },
+            pattern: {
+              label: '正则模式',
+              placeholder: '输入正则表达式'
+            },
+            replacement: {
+              label: '替换为',
+              placeholder: '输入替换内容（可使用捕获组 $1、$2 等）'
+            },
+            flags: {
+              label: '标志',
+              placeholder: '输入标志（如 g、i、m）'
+            }
+          }
+        },
+        split: {
+          title: '分割文本',
+          description: '按分割符将文本分割为数组',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待分割的文本'
+            },
+            separator: {
+              label: '分割符',
+              placeholder: '输入分割符（如 , 或 |）'
+            }
+          }
+        },
+        length: {
+          title: '计算长度',
+          description: '获取文本的字符长度',
+          fields: {
+            text: {
+              label: '文本',
+              placeholder: '输入待计算长度的文本'
+            }
+          }
+        },
         uppercase: {
           title: '大写转换',
           description: '将文本转换为大写',
@@ -1730,108 +1828,6 @@ export const crawler = {
             whitespaceCarriageReturn: '回车符',
             whitespaceVerticalTab: '垂直制表符',
             whitespaceFormFeed: '换页符'
-          }
-        },
-        length: {
-          title: '计算长度',
-          description: '获取文本的字符长度',
-          fields: {
-            text: {
-              label: '文本',
-              placeholder: '输入待计算长度的文本'
-            }
-          }
-        },
-        concat: {
-          title: '拼接文本',
-          description: '将多个文本段拼接为一个'
-        },
-        split: {
-          title: '分割文本',
-          description: '按分割符将文本分割为数组',
-          fields: {
-            text: {
-              label: '文本',
-              placeholder: '输入待分割的文本'
-            },
-            separator: {
-              label: '分割符',
-              placeholder: '输入分割符（如 , 或 |）'
-            }
-          }
-        },
-        substring: {
-          title: '截取子串',
-          description: '从文本中截取指定位置的子字符串',
-          fields: {
-            text: {
-              label: '文本',
-              placeholder: '输入原始文本'
-            },
-            start: {
-              label: '起始位置'
-            },
-            length: {
-              label: '截取长度'
-            }
-          }
-        },
-        replace: {
-          title: '替换文本',
-          description: '在文本中查找并替换指定内容（全部替换）',
-          fields: {
-            text: {
-              label: '源文本',
-              placeholder: '输入源文本'
-            },
-            search: {
-              label: '查找',
-              placeholder: '输入要查找的文本'
-            },
-            replacement: {
-              label: '替换为',
-              placeholder: '输入替换内容'
-            }
-          }
-        },
-        regexMatch: {
-          title: '正则匹配',
-          description: '使用正则表达式从文本中提取匹配内容',
-          fields: {
-            text: {
-              label: '文本',
-              placeholder: '输入待匹配的文本'
-            },
-            pattern: {
-              label: '正则模式',
-              placeholder: '输入正则表达式（如 \\d+）'
-            },
-            flags: {
-              label: '标志',
-              placeholder: '输入标志（如 g、i、m）'
-            }
-          }
-        },
-        regexReplace: {
-          title: '正则替换',
-          description: '使用正则表达式查找并替换文本内容',
-          fields: {
-            text: {
-              label: '源文本',
-              placeholder: '输入源文本'
-            },
-            pattern: {
-              label: '正则模式',
-              placeholder: '输入正则表达式'
-            },
-            replacement: {
-              label: '替换为',
-              placeholder: '输入替换内容（可使用捕获组 $1、$2 等）'
-            },
-            flags: {
-              label: '标志',
-              placeholder: '输入标志（如 g、i、m）'
-            }
           }
         }
       },

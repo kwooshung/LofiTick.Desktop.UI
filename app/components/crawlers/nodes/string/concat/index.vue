@@ -7,16 +7,7 @@
           <span class="truncate">已连接输入，使用连线值</span>
         </div>
 
-        <UTextarea
-          v-else
-          :id="`crawlerStringConcat-${segmentId}`"
-          :model-value="segmentValueGet(segmentId)"
-          class="w-full"
-          :rows="2"
-          autoresize
-          :placeholder="`文本段 ${labelFromIndex(index).toUpperCase()}`"
-          @update:model-value="(value) => handleSegmentValueUpdate(segmentId, String(value ?? ''))"
-        />
+        <UTextarea v-else :id="`crawlerStringConcat-${segmentId}`" :model-value="segmentValueGet(segmentId)" class="w-full" :rows="2" autoresize :placeholder="`文本段 ${labelFromIndex(index).toUpperCase()}`" @update:model-value="(value) => handleSegmentValueUpdate(segmentId, String(value ?? ''))" />
       </UFormField>
 
       <div class="flex items-center justify-end gap-2">
@@ -62,7 +53,9 @@ const labelFromIndex = (index: number): string => {
 
 const topPercentFromIndex = (index: number, total: number): number => {
   if (total <= 1) return 50;
-  const start = 20, end = 80, step = (end - start) / (total - 1);
+  const start = 20,
+    end = 80,
+    step = (end - start) / (total - 1);
   return Math.round(start + index * step);
 };
 

@@ -29,13 +29,13 @@ const stateText = ref('');
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
-const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待转大写的文本' }
-];
+const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待转大写的文本' }];
 
 const rightPins: IBasicSidePin[] = [
   { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '大写结果' },
@@ -43,14 +43,18 @@ const rightPins: IBasicSidePin[] = [
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringUppercaseNodeData;
   stateText.value = String(data.text ?? '');
   stateInitialized.value = true;
 });
 
 watch(stateText, () => {
-  if (!stateInitialized.value) return;
+  if (!stateInitialized.value) {
+    return;
+  }
   stateNode.node.data = { ...(stateNode.node.data as Record<string, unknown> | undefined), text: stateText.value };
 });
 </script>

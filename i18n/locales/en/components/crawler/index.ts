@@ -14,10 +14,6 @@ export const crawler = {
         title: 'Interaction and Input',
         description: 'Clicking, typing, selection, and keyboard input'
       },
-      mouse: {
-        title: 'Human-like Mouse Move',
-        description: 'Simulate realistic mouse movement with curve, speed, and jitter'
-      },
       scroll: {
         title: 'Scroll and View',
         description: 'Control page scrolling and visibility'
@@ -1684,6 +1680,108 @@ export const crawler = {
         }
       },
       string: {
+        substring: {
+          title: 'Substring',
+          description: 'Extract substring from specified position',
+          fields: {
+            text: {
+              label: 'Text',
+              placeholder: 'Enter source text'
+            },
+            start: {
+              label: 'Start Position'
+            },
+            length: {
+              label: 'Extract Length'
+            }
+          }
+        },
+        replace: {
+          title: 'Replace',
+          description: 'Find and replace text content (replace all)',
+          fields: {
+            text: {
+              label: 'Source Text',
+              placeholder: 'Enter source text'
+            },
+            search: {
+              label: 'Find',
+              placeholder: 'Enter text to find'
+            },
+            replacement: {
+              label: 'Replace With',
+              placeholder: 'Enter replacement content'
+            }
+          }
+        },
+        concat: {
+          title: 'Concatenate',
+          description: 'Concatenate multiple text segments'
+        },
+        regexMatch: {
+          title: 'Regex Match',
+          description: 'Extract matches using regex pattern',
+          fields: {
+            text: {
+              label: 'Text',
+              placeholder: 'Enter text to match'
+            },
+            pattern: {
+              label: 'Regex Pattern',
+              placeholder: 'Enter regex (e.g. \\d+)'
+            },
+            flags: {
+              label: 'Flags',
+              placeholder: 'Enter flags (e.g. g, i, m)'
+            }
+          }
+        },
+        regexReplace: {
+          title: 'Regex Replace',
+          description: 'Find and replace using regex pattern',
+          fields: {
+            text: {
+              label: 'Source Text',
+              placeholder: 'Enter source text'
+            },
+            pattern: {
+              label: 'Regex Pattern',
+              placeholder: 'Enter regex pattern'
+            },
+            replacement: {
+              label: 'Replace With',
+              placeholder: 'Enter replacement (use $1, $2 for capture groups)'
+            },
+            flags: {
+              label: 'Flags',
+              placeholder: 'Enter flags (e.g. g, i, m)'
+            }
+          }
+        },
+        split: {
+          title: 'Split',
+          description: 'Split text by separator into array',
+          fields: {
+            text: {
+              label: 'Text',
+              placeholder: 'Enter text to split'
+            },
+            separator: {
+              label: 'Separator',
+              placeholder: 'Enter separator (e.g. , or |)'
+            }
+          }
+        },
+        length: {
+          title: 'String Length',
+          description: 'Get the character count of text',
+          fields: {
+            text: {
+              label: 'Text',
+              placeholder: 'Enter text to calculate length'
+            }
+          }
+        },
         uppercase: {
           title: 'Uppercase',
           description: 'Convert text to uppercase',
@@ -1730,108 +1828,6 @@ export const crawler = {
             whitespaceCarriageReturn: 'Carriage Return',
             whitespaceVerticalTab: 'Vertical Tab',
             whitespaceFormFeed: 'Form Feed'
-          }
-        },
-        length: {
-          title: 'String Length',
-          description: 'Get the character count of text',
-          fields: {
-            text: {
-              label: 'Text',
-              placeholder: 'Enter text to calculate length'
-            }
-          }
-        },
-        concat: {
-          title: 'Concatenate',
-          description: 'Concatenate multiple text segments'
-        },
-        split: {
-          title: 'Split',
-          description: 'Split text by separator into array',
-          fields: {
-            text: {
-              label: 'Text',
-              placeholder: 'Enter text to split'
-            },
-            separator: {
-              label: 'Separator',
-              placeholder: 'Enter separator (e.g. , or |)'
-            }
-          }
-        },
-        substring: {
-          title: 'Substring',
-          description: 'Extract substring from specified position',
-          fields: {
-            text: {
-              label: 'Text',
-              placeholder: 'Enter source text'
-            },
-            start: {
-              label: 'Start Position'
-            },
-            length: {
-              label: 'Extract Length'
-            }
-          }
-        },
-        replace: {
-          title: 'Replace',
-          description: 'Find and replace text content (replace all)',
-          fields: {
-            text: {
-              label: 'Source Text',
-              placeholder: 'Enter source text'
-            },
-            search: {
-              label: 'Find',
-              placeholder: 'Enter text to find'
-            },
-            replacement: {
-              label: 'Replace With',
-              placeholder: 'Enter replacement content'
-            }
-          }
-        },
-        regexMatch: {
-          title: 'Regex Match',
-          description: 'Extract matches using regex pattern',
-          fields: {
-            text: {
-              label: 'Text',
-              placeholder: 'Enter text to match'
-            },
-            pattern: {
-              label: 'Regex Pattern',
-              placeholder: 'Enter regex (e.g. \\d+)'
-            },
-            flags: {
-              label: 'Flags',
-              placeholder: 'Enter flags (e.g. g, i, m)'
-            }
-          }
-        },
-        regexReplace: {
-          title: 'Regex Replace',
-          description: 'Find and replace using regex pattern',
-          fields: {
-            text: {
-              label: 'Source Text',
-              placeholder: 'Enter source text'
-            },
-            pattern: {
-              label: 'Regex Pattern',
-              placeholder: 'Enter regex pattern'
-            },
-            replacement: {
-              label: 'Replace With',
-              placeholder: 'Enter replacement (use $1, $2 for capture groups)'
-            },
-            flags: {
-              label: 'Flags',
-              placeholder: 'Enter flags (e.g. g, i, m)'
-            }
           }
         }
       },

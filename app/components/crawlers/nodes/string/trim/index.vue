@@ -76,9 +76,7 @@ const handleWhitespaceTypeToggle = (type: string, checked: boolean): void => {
   }
 };
 
-const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待去空白的文本' }
-];
+const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待去空白的文本' }];
 
 const rightPins: IBasicSidePin[] = [
   { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '去空白结果' },
@@ -94,13 +92,17 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch([stateText, stateDirection, stateWhitespaceTypes], () => {
-  if (!stateInitialized.value) return;
-  stateNode.node.data = {
-    ...(stateNode.node.data as Record<string, unknown> | undefined),
-    text: stateText.value,
-    direction: stateDirection.value,
-    whitespaceTypes: [...stateWhitespaceTypes.value]
-  };
-}, { deep: true });
+watch(
+  [stateText, stateDirection, stateWhitespaceTypes],
+  () => {
+    if (!stateInitialized.value) return;
+    stateNode.node.data = {
+      ...(stateNode.node.data as Record<string, unknown> | undefined),
+      text: stateText.value,
+      direction: stateDirection.value,
+      whitespaceTypes: [...stateWhitespaceTypes.value]
+    };
+  },
+  { deep: true }
+);
 </script>

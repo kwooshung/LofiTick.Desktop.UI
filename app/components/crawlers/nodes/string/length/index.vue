@@ -33,9 +33,7 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
-const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待计算长度的文本' }
-];
+const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待计算长度的文本' }];
 
 const rightPins: IBasicSidePin[] = [
   { id: 'result-number', label: 'length', direction: 'out', dataType: 'number', topPercent: 35, description: '文本长度（字符数）' },
