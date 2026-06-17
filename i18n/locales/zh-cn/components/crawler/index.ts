@@ -15,8 +15,8 @@ export const crawler = {
         description: '点击、输入、选择与键盘交互'
       },
       mouse: {
-        title: '鼠标人类模拟',
-        description: '模拟更自然的鼠标移动轨迹'
+        title: '拟人鼠标移动',
+        description: '通过曲线、速度与随机扰动模拟真实鼠标移动'
       },
       scroll: {
         title: '滚动与视图',
@@ -83,7 +83,9 @@ export const crawler = {
         },
         units: {
           millisecond: '毫秒',
-          count: '次'
+          count: '次',
+          pixel: '像素',
+          percent: '%'
         },
         pinLabels: {
           element: '元素',
@@ -619,23 +621,83 @@ export const crawler = {
       mouse: {
         move: {
           title: '鼠标移动',
-          description: '移动鼠标到指定坐标'
-        },
-        curve: {
-          title: '鼠标曲线',
-          description: '为鼠标移动添加曲线路径'
-        },
-        accel: {
-          title: '鼠标加减速',
-          description: '为鼠标移动添加加减速效果'
-        },
-        jitter: {
-          title: '鼠标抖动',
-          description: '为鼠标移动添加随机抖动'
-        },
-        duration: {
-          title: '鼠标移动时长',
-          description: '设置鼠标移动执行总时长'
+          description: '使用拟人参数控制鼠标从起点移动到终点',
+          fields: {
+            startX: {
+              label: '起点 X',
+              description: '鼠标起始位置 X 坐标'
+            },
+            startY: {
+              label: '起点 Y',
+              description: '鼠标起始位置 Y 坐标'
+            },
+            endX: {
+              label: '终点 X',
+              description: '鼠标目标位置 X 坐标'
+            },
+            endY: {
+              label: '终点 Y',
+              description: '鼠标目标位置 Y 坐标'
+            },
+            curveType: {
+              label: '轨迹曲线',
+              options: {
+                linear: '线性',
+                bezier: '贝塞尔曲线',
+                spline: '样条曲线'
+              }
+            },
+            curveStrength: {
+              label: '曲率强度',
+              description: '轨迹弯曲程度'
+            },
+            speedProfile: {
+              label: '速度曲线',
+              options: {
+                linear: '匀速',
+                easeIn: '先慢后快',
+                easeOut: '先快后慢',
+                easeInOut: '先慢后快再慢'
+              }
+            },
+            randomDuration: {
+              label: '随机移动时长'
+            },
+            durationMs: {
+              label: '移动时长',
+              description: '固定移动总时长'
+            },
+            durationMinMs: {
+              label: '最小时长'
+            },
+            durationMaxMs: {
+              label: '最大时长'
+            },
+            enableJitter: {
+              label: '启用抖动'
+            },
+            jitterAmplitude: {
+              label: '抖动幅度',
+              description: '单次抖动位移幅度'
+            },
+            jitterFrequency: {
+              label: '抖动频率'
+            }
+          },
+          outputs: {
+            endX: {
+              label: '最终 X',
+              description: '移动结束时的 X 坐标'
+            },
+            endY: {
+              label: '最终 Y',
+              description: '移动结束时的 Y 坐标'
+            },
+            path: {
+              label: '轨迹点集',
+              description: '完整移动轨迹坐标数组'
+            }
+          }
         }
       },
       scroll: {

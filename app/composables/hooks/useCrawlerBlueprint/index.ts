@@ -160,43 +160,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         icon: 'i-lucide-key-round',
         title: 'pages.crawlers.blueprint.nodes.interaction.pressKey.title',
         description: 'pages.crawlers.blueprint.nodes.interaction.pressKey.description'
-      }
-    ]
-  },
-  {
-    icon: 'i-lucide-mouse-pointer-2',
-    title: 'pages.crawlers.blueprint.groups.mouse.title',
-    description: 'pages.crawlers.blueprint.groups.mouse.description',
-    nodes: [
+      },
       {
         key: 'mouse-move',
         icon: 'i-lucide-move',
         title: 'pages.crawlers.blueprint.nodes.mouse.move.title',
         description: 'pages.crawlers.blueprint.nodes.mouse.move.description'
-      },
-      {
-        key: 'mouse-curve',
-        icon: 'i-lucide-spline',
-        title: 'pages.crawlers.blueprint.nodes.mouse.curve.title',
-        description: 'pages.crawlers.blueprint.nodes.mouse.curve.description'
-      },
-      {
-        key: 'mouse-accel',
-        icon: 'i-lucide-rocket',
-        title: 'pages.crawlers.blueprint.nodes.mouse.accel.title',
-        description: 'pages.crawlers.blueprint.nodes.mouse.accel.description'
-      },
-      {
-        key: 'mouse-jitter',
-        icon: 'i-lucide-wand-sparkles',
-        title: 'pages.crawlers.blueprint.nodes.mouse.jitter.title',
-        description: 'pages.crawlers.blueprint.nodes.mouse.jitter.description'
-      },
-      {
-        key: 'mouse-duration',
-        icon: 'i-lucide-timer',
-        title: 'pages.crawlers.blueprint.nodes.mouse.duration.title',
-        description: 'pages.crawlers.blueprint.nodes.mouse.duration.description'
       }
     ]
   },
@@ -753,14 +722,14 @@ if (import.meta.vitest) {
     it('builds all groups and keeps node keys', () => {
       const groups = crawlerBlueprintGroupsBuild((key) => key);
 
-      expect(groups).toHaveLength(17);
+      expect(groups).toHaveLength(16);
       expect(groups[0]?.label).toBe('pages.crawlers.blueprint.groups.navigation.title');
       expect(groups[0]?.crawlers[0]?.key).toBe('navigation-goto');
       expect(groups[0]?.crawlers[0]?.iconName).toBe('i-lucide-external-link');
       expect(groups[0]?.crawlers[1]?.iconName).toBe('i-lucide-refresh-cw');
-      expect(groups[9]?.crawlers[0]?.iconName).toBe('i-lucide-variable');
-      expect(groups[10]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
-      expect(groups[10]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
+      expect(groups[8]?.crawlers[0]?.iconName).toBe('i-lucide-variable');
+      expect(groups[9]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
+      expect(groups[9]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
     });
   });
 }

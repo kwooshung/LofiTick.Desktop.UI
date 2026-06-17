@@ -15,8 +15,8 @@ export const crawler = {
         description: 'クリック、入力、選択、キーボード操作です'
       },
       mouse: {
-        title: '人間らしいマウス操作',
-        description: 'より自然なマウス移動軌跡を再現します'
+        title: '人間らしいマウス移動',
+        description: 'カーブ、速度、揺らぎで自然なマウス移動を再現します'
       },
       scroll: {
         title: 'スクロールと表示',
@@ -82,8 +82,10 @@ export const crawler = {
           description: 'クローラーの実行を終了する終端ノード'
         },
         units: {
-          millisecond: '毫秒',
-          count: '回'
+          millisecond: 'ミリ秒',
+          count: '回',
+          pixel: 'px',
+          percent: '%'
         },
         pinLabels: {
           element: '要素',
@@ -619,23 +621,83 @@ export const crawler = {
       mouse: {
         move: {
           title: 'マウス移動',
-          description: '指定座標へマウスを移動します'
-        },
-        curve: {
-          title: 'マウス曲線',
-          description: '移動に曲線軌跡を追加します'
-        },
-        accel: {
-          title: 'マウス加減速',
-          description: '移動に加速・減速を追加します'
-        },
-        jitter: {
-          title: 'マウスジッター',
-          description: 'ランダムな揺らぎを追加します'
-        },
-        duration: {
-          title: 'マウス移動時間',
-          description: '移動の総時間を設定します'
+          description: '人間らしいパラメータで始点から終点へマウスを移動します',
+          fields: {
+            startX: {
+              label: '開始 X',
+              description: '開始位置の X 座標'
+            },
+            startY: {
+              label: '開始 Y',
+              description: '開始位置の Y 座標'
+            },
+            endX: {
+              label: '終了 X',
+              description: '目標位置の X 座標'
+            },
+            endY: {
+              label: '終了 Y',
+              description: '目標位置の Y 座標'
+            },
+            curveType: {
+              label: '軌道カーブ',
+              options: {
+                linear: '直線',
+                bezier: 'ベジェ',
+                spline: 'スプライン'
+              }
+            },
+            curveStrength: {
+              label: 'カーブ強度',
+              description: '軌道の曲がり具合'
+            },
+            speedProfile: {
+              label: '速度プロファイル',
+              options: {
+                linear: '一定速度',
+                easeIn: '徐々に加速',
+                easeOut: '徐々に減速',
+                easeInOut: '加速後に減速'
+              }
+            },
+            randomDuration: {
+              label: '移動時間をランダム化'
+            },
+            durationMs: {
+              label: '移動時間',
+              description: '固定の移動時間'
+            },
+            durationMinMs: {
+              label: '最短時間'
+            },
+            durationMaxMs: {
+              label: '最長時間'
+            },
+            enableJitter: {
+              label: '揺らぎを有効化'
+            },
+            jitterAmplitude: {
+              label: '揺らぎ幅',
+              description: '1 回あたりの最大オフセット'
+            },
+            jitterFrequency: {
+              label: '揺らぎ頻度'
+            }
+          },
+          outputs: {
+            endX: {
+              label: '最終 X',
+              description: '移動完了時の X 座標'
+            },
+            endY: {
+              label: '最終 Y',
+              description: '移動完了時の Y 座標'
+            },
+            path: {
+              label: '軌道ポイント',
+              description: '完全な移動軌道の座標配列'
+            }
+          }
         }
       },
       scroll: {

@@ -15,8 +15,8 @@ export const crawler = {
         description: 'Clicking, typing, selection, and keyboard input'
       },
       mouse: {
-        title: 'Human Mouse Simulation',
-        description: 'Simulate a more natural mouse movement path'
+        title: 'Human-like Mouse Move',
+        description: 'Simulate realistic mouse movement with curve, speed, and jitter'
       },
       scroll: {
         title: 'Scroll and View',
@@ -83,7 +83,9 @@ export const crawler = {
         },
         units: {
           millisecond: '毫秒',
-          count: 'Times'
+          count: 'Times',
+          pixel: 'px',
+          percent: '%'
         },
         pinLabels: {
           element: 'Element',
@@ -619,23 +621,83 @@ export const crawler = {
       mouse: {
         move: {
           title: 'Move Mouse',
-          description: 'Move the mouse to a target coordinate'
-        },
-        curve: {
-          title: 'Mouse Curve',
-          description: 'Add a curved path to mouse movement'
-        },
-        accel: {
-          title: 'Mouse Acceleration',
-          description: 'Add acceleration and deceleration to movement'
-        },
-        jitter: {
-          title: 'Mouse Jitter',
-          description: 'Add random jitter to movement'
-        },
-        duration: {
-          title: 'Mouse Move Duration',
-          description: 'Set the total duration for the move'
+          description: 'Move cursor from start to end with human-like parameters',
+          fields: {
+            startX: {
+              label: 'Start X',
+              description: 'Start X coordinate'
+            },
+            startY: {
+              label: 'Start Y',
+              description: 'Start Y coordinate'
+            },
+            endX: {
+              label: 'End X',
+              description: 'Target X coordinate'
+            },
+            endY: {
+              label: 'End Y',
+              description: 'Target Y coordinate'
+            },
+            curveType: {
+              label: 'Curve Type',
+              options: {
+                linear: 'Linear',
+                bezier: 'Bezier',
+                spline: 'Spline'
+              }
+            },
+            curveStrength: {
+              label: 'Curve Strength',
+              description: 'How strong the path curvature is'
+            },
+            speedProfile: {
+              label: 'Speed Profile',
+              options: {
+                linear: 'Linear',
+                easeIn: 'Ease In',
+                easeOut: 'Ease Out',
+                easeInOut: 'Ease In-Out'
+              }
+            },
+            randomDuration: {
+              label: 'Random Duration'
+            },
+            durationMs: {
+              label: 'Duration',
+              description: 'Fixed move duration'
+            },
+            durationMinMs: {
+              label: 'Min Duration'
+            },
+            durationMaxMs: {
+              label: 'Max Duration'
+            },
+            enableJitter: {
+              label: 'Enable Jitter'
+            },
+            jitterAmplitude: {
+              label: 'Jitter Amplitude',
+              description: 'Maximum offset per jitter'
+            },
+            jitterFrequency: {
+              label: 'Jitter Frequency'
+            }
+          },
+          outputs: {
+            endX: {
+              label: 'Final X',
+              description: 'Final cursor X coordinate'
+            },
+            endY: {
+              label: 'Final Y',
+              description: 'Final cursor Y coordinate'
+            },
+            path: {
+              label: 'Path Points',
+              description: 'Full cursor path coordinates'
+            }
+          }
         }
       },
       scroll: {

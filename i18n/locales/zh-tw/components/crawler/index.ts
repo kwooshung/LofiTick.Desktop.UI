@@ -15,8 +15,8 @@ export const crawler = {
         description: '點擊、輸入、選擇與鍵盤互動'
       },
       mouse: {
-        title: '滑鼠人類模擬',
-        description: '模擬更自然的滑鼠移動軌跡'
+        title: '擬人滑鼠移動',
+        description: '透過曲線、速度與隨機抖動模擬真實滑鼠移動'
       },
       scroll: {
         title: '捲動與視圖',
@@ -83,7 +83,9 @@ export const crawler = {
         },
         units: {
           millisecond: '毫秒',
-          count: '次'
+          count: '次',
+          pixel: '像素',
+          percent: '%'
         },
         pinLabels: {
           element: '元素',

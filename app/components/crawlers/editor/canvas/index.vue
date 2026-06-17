@@ -46,10 +46,6 @@
       <template #node-interaction-dispatch-event="props"><CrawlersNodesInteractionDispatchEvent v-bind="props" /></template>
       <template #node-interaction-press-key="props"><CrawlersNodesInteractionPressKey v-bind="props" /></template>
       <template #node-mouse-move="props"><CrawlersNodesMouseMove v-bind="props" /></template>
-      <template #node-mouse-curve="props"><CrawlersNodesMouseCurve v-bind="props" /></template>
-      <template #node-mouse-accel="props"><CrawlersNodesMouseAccel v-bind="props" /></template>
-      <template #node-mouse-jitter="props"><CrawlersNodesMouseJitter v-bind="props" /></template>
-      <template #node-mouse-duration="props"><CrawlersNodesMouseDuration v-bind="props" /></template>
       <template #node-scroll-to-position="props"><CrawlersNodesScrollToPosition v-bind="props" /></template>
       <template #node-scroll-into-view="props"><CrawlersNodesScrollIntoView v-bind="props" /></template>
       <template #node-scroll-infinite="props"><CrawlersNodesScrollInfinite v-bind="props" /></template>
