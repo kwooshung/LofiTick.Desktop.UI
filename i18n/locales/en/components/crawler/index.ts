@@ -1500,7 +1500,7 @@ export const crawler = {
           fields: {
             name: {
               label: 'Variable Name',
-              placeholder: 'Example: Current Page'
+              placeholder: 'Example: username'
             },
             type: {
               label: 'Data Type'

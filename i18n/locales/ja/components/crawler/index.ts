@@ -1500,7 +1500,7 @@ export const crawler = {
           fields: {
             name: {
               label: '変数名',
-              placeholder: '例：現在ページ'
+              placeholder: '例：username'
             },
             type: {
               label: 'データ型'

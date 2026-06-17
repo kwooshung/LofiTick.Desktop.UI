@@ -33,11 +33,15 @@
 
               <UInput v-else-if="item.dataType === 'boolean'" model-value="" readonly class="w-28 shrink-0 cursor-default">
                 <template #trailing>
-                  <UCheckbox :model-value="Boolean(item.defaultValue)" :label="Boolean(item.defaultValue) ? 'true' : 'false'" @update:model-value="(value) => handleVariableBooleanValueUpdate(item.id, value === true)" />
+                  <USwitch :model-value="Boolean(item.defaultValue)" :label="Boolean(item.defaultValue) ? 'true' : 'false'" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="(value) => handleVariableBooleanValueUpdate(item.id, value === true)" />
                 </template>
               </UInput>
 
-              <div v-else-if="item.dataType === 'array' || item.dataType === 'object'" class="border-default text-muted flex h-8 w-20 shrink-0 items-center justify-center border-l px-2 text-xs">JSON ↓</div>
+              <UInput v-else-if="item.dataType === 'array' || item.dataType === 'object'" model-value="JSON" readonly class="w-24 shrink-0 cursor-default text-xs">
+                <template #trailing>
+                  <UIcon name="i-lucide-chevron-down" class="text-muted size-3" />
+                </template>
+              </UInput>
             </UFieldGroup>
 
             <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" :disabled="stateVariables.length <= 1" @click="handleVariableRemove(index)" />
