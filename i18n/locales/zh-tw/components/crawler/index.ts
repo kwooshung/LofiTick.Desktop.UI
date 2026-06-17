@@ -1201,7 +1201,101 @@ export const crawler = {
       detect: {
         verification: {
           title: '檢測驗證',
-          description: '檢測驗證頁面是否出現'
+          description: '檢測 Cloudflare、Google reCAPTCHA、hCaptcha 等常見驗證防護',
+          fields: {
+            matchMode: {
+              label: '命中模式',
+              options: {
+                any: '任一命中',
+                all: '全部命中'
+              }
+            },
+            vendors: {
+              label: '驗證類型',
+              options: {
+                cloudflareChallenge: 'Cloudflare Challenge',
+                cloudflareTurnstile: 'Cloudflare Turnstile',
+                googleRecaptcha: 'Google reCAPTCHA',
+                hcaptcha: 'hCaptcha',
+                geetest: 'GeeTest 極驗',
+                arkose: 'Arkose Labs FunCaptcha',
+                datadome: 'DataDome',
+                loginWall: '登入牆 / 存取受限頁'
+              }
+            },
+            strategy: {
+              label: '智慧判定策略',
+              options: {
+                smart: '智慧平衡（推薦）',
+                strict: '嚴格判定',
+                lenient: '寬鬆判定'
+              }
+            },
+            notifyAdmin: {
+              label: '命中後寄信通知管理員'
+            },
+            adminEmails: {
+              label: '管理員信箱',
+              placeholder: '每行一個信箱，例如 admin@example.com'
+            },
+            minConfidence: {
+              label: '最小信心分數'
+            },
+            urlKeywords: {
+              label: 'URL 關鍵字',
+              placeholder: '每行一個關鍵字，例如 challenge'
+            },
+            titleKeywords: {
+              label: '標題關鍵字',
+              placeholder: '每行一個關鍵字，例如 Verify you are human'
+            },
+            textKeywords: {
+              label: '頁面文字關鍵字',
+              placeholder: '每行一個關鍵字，例如 I am not a robot'
+            },
+            cookieKeywords: {
+              label: 'Cookie 關鍵字',
+              placeholder: '每行一個 Cookie 鍵名，例如 cf_clearance'
+            },
+            selectors: {
+              label: '選擇器特徵',
+              placeholder: '例如 iframe[src*="recaptcha"]',
+              add: '新增選擇器',
+              remove: '刪除'
+            }
+          },
+          actions: {
+            resetDefaults: '還原常見驗證預設'
+          },
+          inputs: {
+            contextDescription: '傳入頁面上下文、腳本結果或外部檢測輸入'
+          },
+          outputs: {
+            detected: {
+              label: '檢測結果',
+              description: '是否命中驗證或防護頁面'
+            },
+            vendor: {
+              label: '命中廠商',
+              description: '回傳命中的驗證廠商識別'
+            },
+            kind: {
+              label: '驗證類型',
+              description: '回傳驗證類型，例如 challenge 或 login-wall'
+            },
+            confidence: {
+              label: '信心分數',
+              description: '回傳本次檢測信心分數'
+            },
+            matchedSignals: {
+              label: '命中特徵',
+              description: '回傳命中的 URL、文字、選擇器等特徵列表'
+            },
+            details: {
+              label: '檢測詳情',
+              description: '回傳結構化檢測明細物件'
+            }
+          }
         }
       },
       system: {

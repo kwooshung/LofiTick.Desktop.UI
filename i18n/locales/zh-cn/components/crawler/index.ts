@@ -1201,7 +1201,101 @@ export const crawler = {
       detect: {
         verification: {
           title: '检测验证',
-          description: '检测验证页面是否出现'
+          description: '检测 Cloudflare、Google reCAPTCHA、hCaptcha 等常见验证防护',
+          fields: {
+            matchMode: {
+              label: '命中模式',
+              options: {
+                any: '任意命中',
+                all: '全部命中'
+              }
+            },
+            vendors: {
+              label: '验证类型',
+              options: {
+                cloudflareChallenge: 'Cloudflare Challenge',
+                cloudflareTurnstile: 'Cloudflare Turnstile',
+                googleRecaptcha: 'Google reCAPTCHA',
+                hcaptcha: 'hCaptcha',
+                geetest: 'GeeTest 极验',
+                arkose: 'Arkose Labs FunCaptcha',
+                datadome: 'DataDome',
+                loginWall: '登录墙 / 访问受限页'
+              }
+            },
+            strategy: {
+              label: '智能判定策略',
+              options: {
+                smart: '智能平衡（推荐）',
+                strict: '严格判定',
+                lenient: '宽松判定'
+              }
+            },
+            notifyAdmin: {
+              label: '命中后邮件通知管理员'
+            },
+            adminEmails: {
+              label: '管理员邮箱',
+              placeholder: '每行一个邮箱，例如 admin@example.com'
+            },
+            minConfidence: {
+              label: '最小置信度'
+            },
+            urlKeywords: {
+              label: 'URL 关键词',
+              placeholder: '每行一个关键词，例如 challenge'
+            },
+            titleKeywords: {
+              label: '标题关键词',
+              placeholder: '每行一个关键词，例如 Verify you are human'
+            },
+            textKeywords: {
+              label: '页面文本关键词',
+              placeholder: '每行一个关键词，例如 I am not a robot'
+            },
+            cookieKeywords: {
+              label: 'Cookie 关键词',
+              placeholder: '每行一个 Cookie 键名，例如 cf_clearance'
+            },
+            selectors: {
+              label: '选择器特征',
+              placeholder: '例如 iframe[src*="recaptcha"]',
+              add: '新增选择器',
+              remove: '删除'
+            }
+          },
+          actions: {
+            resetDefaults: '恢复常见验证预设'
+          },
+          inputs: {
+            contextDescription: '传入页面上下文、脚本结果或外部检测输入'
+          },
+          outputs: {
+            detected: {
+              label: '检测结果',
+              description: '是否命中验证或防护页面'
+            },
+            vendor: {
+              label: '命中厂商',
+              description: '返回命中的验证厂商标识'
+            },
+            kind: {
+              label: '验证类型',
+              description: '返回验证类型，例如 challenge 或 login-wall'
+            },
+            confidence: {
+              label: '置信度',
+              description: '返回本次检测的置信度分值'
+            },
+            matchedSignals: {
+              label: '命中特征',
+              description: '返回命中的 URL、文本、选择器等特征列表'
+            },
+            details: {
+              label: '检测详情',
+              description: '返回结构化的检测明细对象'
+            }
+          }
         }
       },
       system: {

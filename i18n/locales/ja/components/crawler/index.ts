@@ -1201,7 +1201,101 @@ export const crawler = {
       detect: {
         verification: {
           title: '検証を検出',
-          description: '検証ページの表示を検出します'
+          description: 'Cloudflare、Google reCAPTCHA、hCaptcha などの一般的な検証保護を検出します',
+          fields: {
+            matchMode: {
+              label: '一致モード',
+              options: {
+                any: 'いずれか一致',
+                all: 'すべて一致'
+              }
+            },
+            vendors: {
+              label: '検証タイプ',
+              options: {
+                cloudflareChallenge: 'Cloudflare Challenge',
+                cloudflareTurnstile: 'Cloudflare Turnstile',
+                googleRecaptcha: 'Google reCAPTCHA',
+                hcaptcha: 'hCaptcha',
+                geetest: 'GeeTest',
+                arkose: 'Arkose Labs FunCaptcha',
+                datadome: 'DataDome',
+                loginWall: 'ログインウォール / アクセス制限ページ'
+              }
+            },
+            strategy: {
+              label: 'スマート判定戦略',
+              options: {
+                smart: 'スマートバランス（推奨）',
+                strict: '厳格判定',
+                lenient: '緩やか判定'
+              }
+            },
+            notifyAdmin: {
+              label: '検出時に管理者へメール通知'
+            },
+            adminEmails: {
+              label: '管理者メール',
+              placeholder: '1 行に 1 件、例: admin@example.com'
+            },
+            minConfidence: {
+              label: '最小信頼度'
+            },
+            urlKeywords: {
+              label: 'URL キーワード',
+              placeholder: '1 行に 1 つ、例: challenge'
+            },
+            titleKeywords: {
+              label: 'タイトルキーワード',
+              placeholder: '1 行に 1 つ、例: Verify you are human'
+            },
+            textKeywords: {
+              label: 'ページ本文キーワード',
+              placeholder: '1 行に 1 つ、例: I am not a robot'
+            },
+            cookieKeywords: {
+              label: 'Cookie キーワード',
+              placeholder: '1 行に 1 つ、例: cf_clearance'
+            },
+            selectors: {
+              label: 'セレクターシグナル',
+              placeholder: '例: iframe[src*="recaptcha"]',
+              add: 'セレクターを追加',
+              remove: '削除'
+            }
+          },
+          actions: {
+            resetDefaults: '一般的なプリセットに戻す'
+          },
+          inputs: {
+            contextDescription: 'ページコンテキスト、スクリプト結果、外部検出入力を受け取ります'
+          },
+          outputs: {
+            detected: {
+              label: '検出結果',
+              description: '検証または防護ページが検出されたか'
+            },
+            vendor: {
+              label: '一致ベンダー',
+              description: '一致した検証ベンダー識別子を返します'
+            },
+            kind: {
+              label: '検証種別',
+              description: 'challenge や login-wall などの種別を返します'
+            },
+            confidence: {
+              label: '信頼度',
+              description: '今回の検出信頼度スコアを返します'
+            },
+            matchedSignals: {
+              label: '一致シグナル',
+              description: '一致した URL、本文、セレクターなどのシグナル一覧を返します'
+            },
+            details: {
+              label: '検出詳細',
+              description: '構造化された検出詳細オブジェクトを返します'
+            }
+          }
         }
       },
       system: {
