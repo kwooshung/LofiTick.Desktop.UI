@@ -731,6 +731,13 @@ $breakpoint-xs-max: 639px;
   --vf-connection-invalid: var(--ui-error);
   --vf-edge-connected: var(--ui-primary);
   --vf-edge-selected: var(--ui-primary);
+  --vf-edge-exec: var(--ui-primary);
+  --vf-edge-string: var(--color-fuchsia-500);
+  --vf-edge-number: var(--color-teal-400);
+  --vf-edge-boolean: var(--color-red-500);
+  --vf-edge-array: var(--color-yellow-400);
+  --vf-edge-object: var(--color-blue-500);
+  --vf-edge-any: var(--color-gray-400);
   --vf-box-shadow: var(--vf-node-color);
   --vf-control-bg: var(--ui-bg);
   --vf-control-bg-hover: color-mix(in oklab, var(--ui-bg) 90%, var(--ui-text) 10%);
@@ -833,7 +840,37 @@ $breakpoint-xs-max: 639px;
       cursor: pointer;
 
       &.crawlers-edge-connected .vue-flow__edge-path {
-        stroke: var(--vf-edge-connected);
+        stroke: var(--vf-edge-any);
+        stroke-width: 2;
+      }
+
+      &.crawlers-edge-exec .vue-flow__edge-path {
+        stroke: var(--vf-edge-exec);
+        stroke-width: 3.5;
+      }
+
+      &.crawlers-edge-string .vue-flow__edge-path {
+        stroke: var(--vf-edge-string);
+      }
+
+      &.crawlers-edge-number .vue-flow__edge-path {
+        stroke: var(--vf-edge-number);
+      }
+
+      &.crawlers-edge-boolean .vue-flow__edge-path {
+        stroke: var(--vf-edge-boolean);
+      }
+
+      &.crawlers-edge-array .vue-flow__edge-path {
+        stroke: var(--vf-edge-array);
+      }
+
+      &.crawlers-edge-object .vue-flow__edge-path {
+        stroke: var(--vf-edge-object);
+      }
+
+      &.crawlers-edge-any .vue-flow__edge-path {
+        stroke: var(--vf-edge-any);
       }
 
       &.animated path {
@@ -859,8 +896,13 @@ $breakpoint-xs-max: 639px;
       &.selected .vue-flow__edge-path,
       &:focus .vue-flow__edge-path,
       &:focus-visible .vue-flow__edge-path {
-        stroke: var(--vf-edge-selected);
-        stroke-width: 5;
+        stroke-width: 3;
+      }
+
+      &.crawlers-edge-exec.selected .vue-flow__edge-path,
+      &.crawlers-edge-exec:focus .vue-flow__edge-path,
+      &.crawlers-edge-exec:focus-visible .vue-flow__edge-path {
+        stroke-width: 4.5;
       }
 
       &.updating .vue-flow__edge-path {

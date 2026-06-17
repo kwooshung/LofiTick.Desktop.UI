@@ -57,6 +57,94 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   };
 
   /**
+   * 函数：将推断出的类型规范化为边样式类型。
+   * @param {TBasicSidePinDataType | 'unknown'} dataType 推断结果。
+   * @returns {TBasicSidePinDataType} 可用于边样式的类型。
+   */
+  const normalizeEdgeDataType = (dataType: TBasicSidePinDataType | 'unknown'): TBasicSidePinDataType => {
+    if (dataType === 'unknown') {
+      return 'any';
+    }
+
+    return dataType;
+  };
+
+  /**
+   * 函数：移除已有 class 中旧的边样式标记。
+   * @param {string} className 原始 class。
+   * @returns {string[]} 过滤后的 class 列表。
+   */
+  const removeLegacyEdgeVisualClasses = (className: string): string[] => {
+    return className
+      .split(/\s+/)
+      .map((item) => item.trim())
+      .filter((item) => item !== '')
+      .filter((item) => !item.startsWith('crawlers-edge-'));
+  };
+
+  /**
+   * 函数：根据连接信息构建边的视觉样式信息。
+   * @param {string | null | undefined} sourceHandle 源 handle。
+   * @param {string | null | undefined} targetHandle 目标 handle。
+   * @returns {{ isExecConnection: boolean; edgeDataType: TBasicSidePinDataType }} 样式信息。
+   */
+  const getEdgeVisualMeta = (sourceHandle?: string | null, targetHandle?: string | null): { isExecConnection: boolean; edgeDataType: TBasicSidePinDataType } => {
+    const isExecConnection = sourceHandle === 'exec-out' && targetHandle === 'exec-in';
+    const sourceType = normalizeEdgeDataType(inferDataTypeFromHandleId(sourceHandle));
+    const targetType = normalizeEdgeDataType(inferDataTypeFromHandleId(targetHandle));
+    const edgeDataType = sourceType === 'any' ? targetType : sourceType;
+
+    return {
+      isExecConnection,
+      edgeDataType
+    };
+  };
+
+  /**
+   * 函数：构建边 class 字符串。
+   * @param {string} currentClass 当前 class。
+   * @param {TBasicSidePinDataType} edgeDataType 边数据类型。
+   * @param {boolean} isExecConnection 是否执行线。
+   * @returns {string} 规范化后的 class。
+   */
+  const buildEdgeClassName = (currentClass: string, edgeDataType: TBasicSidePinDataType, isExecConnection: boolean): string => {
+    const baseClasses = removeLegacyEdgeVisualClasses(currentClass);
+
+    return [...baseClasses, 'crawlers-edge-connected', `crawlers-edge-${edgeDataType}`, isExecConnection ? 'crawlers-edge-exec' : 'crawlers-edge-data'].join(' ');
+  };
+
+  /**
+   * 监听：边集合变化时自动补齐视觉样式，保证历史边也遵循类型颜色规则。
+   */
+  watchEffect(() => {
+    if (edges.value.length === 0) {
+      return;
+    }
+
+    let changed = false;
+    const nextEdges = edges.value.map((edge) => {
+      const { isExecConnection, edgeDataType } = getEdgeVisualMeta(edge.sourceHandle, edge.targetHandle);
+      const nextClassName = buildEdgeClassName(String(edge.class ?? ''), edgeDataType, isExecConnection);
+
+      if (String(edge.class ?? '') === nextClassName && Boolean(edge.animated) === isExecConnection) {
+        return edge;
+      }
+
+      changed = true;
+
+      return {
+        ...edge,
+        class: nextClassName,
+        animated: isExecConnection
+      };
+    });
+
+    if (changed) {
+      edges.value = nextEdges;
+    }
+  });
+
+  /**
    * 函数：校验普通数据引脚类型是否兼容。
    * @param {Connection} connection 连接参数。
    * @returns {boolean} 是否兼容。
@@ -299,7 +387,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const handleConnect = (params: Connection): void => {
     console.log('on connect', params);
     if (isValidConnection(params)) {
-      const isExecConnection = params.sourceHandle === 'exec-out' && params.targetHandle === 'exec-in';
+      const { isExecConnection, edgeDataType } = getEdgeVisualMeta(params.sourceHandle, params.targetHandle);
 
       if (isExecConnection) {
         // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。
@@ -319,8 +407,8 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
 
       addEdges({
         ...params,
-        animated: true,
-        class: 'crawlers-edge-connected'
+        animated: isExecConnection,
+        class: buildEdgeClassName('', edgeDataType, isExecConnection)
       });
     }
   };
