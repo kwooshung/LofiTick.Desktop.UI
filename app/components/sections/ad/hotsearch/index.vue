@@ -2,15 +2,7 @@
   <DashboardPage>
     <div class="flex w-full flex-1 gap-1">
       <div class="flex-1">
-        <UTable
-          :columns="columns"
-          :data="computedTableRows"
-          :loading="loading"
-          class="shrink-0"
-          sticky
-          :ui="stateTableUi"
-        />
-
+        <UTable :columns="columns" :data="computedTableRows" :loading="loading" class="shrink-0" sticky :ui="stateTableUi" />
       </div>
     </div>
 

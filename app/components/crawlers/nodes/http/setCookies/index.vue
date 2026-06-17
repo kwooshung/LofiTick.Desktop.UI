@@ -10,11 +10,7 @@
       </UFormField>
 
       <div v-else-if="stateMode !== 'single' && !computedHasCookieInput" class="space-y-3">
-        <div
-          v-for="(pair, index) in stateCookiePairs"
-          :key="pair.id"
-          class="rounded-lg border border-dashed border-default bg-(--ui-bg-soft) p-3"
-        >
+        <div v-for="(pair, index) in stateCookiePairs" :key="pair.id" class="border-default rounded-lg border border-dashed bg-(--ui-bg-soft) p-3">
           <div class="space-y-3">
             <UFormField :label="t('components.crawler.blueprint.nodes.http.setCookies.fields.pairs.nameLabel')">
               <UInput v-model="pair.name" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.http.setCookies.fields.pairs.namePlaceholder')" />
@@ -47,15 +43,7 @@
             </UFormField>
 
             <div class="flex items-end justify-end">
-              <UButton
-                v-if="stateCookiePairs.length > 1"
-                size="xs"
-                color="error"
-                variant="soft"
-                icon="i-lucide-trash-2"
-                :label="t('components.crawler.blueprint.nodes.http.setCookies.fields.pairs.remove')"
-                @click="removeCookiePair(index)"
-              />
+              <UButton v-if="stateCookiePairs.length > 1" size="xs" color="error" variant="soft" icon="i-lucide-trash-2" :label="t('components.crawler.blueprint.nodes.http.setCookies.fields.pairs.remove')" @click="removeCookiePair(index)" />
             </div>
           </div>
 
@@ -83,7 +71,6 @@
         <div class="flex flex-wrap items-center gap-2">
           <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.http.setCookies.fields.pairs.add')" @click="addCookiePair" />
         </div>
-
       </div>
 
       <div v-if="stateMode === 'single' && !computedHasCookieInput" class="space-y-3">
@@ -346,27 +333,43 @@ const removeCookiePair = (index: number): void => {
 };
 
 const handleStateExpiresAtDateUpdate = (value: unknown): void => {
-  cookieExpiresAtDateUpdate(stateExpiresAt.value, (nextValue) => {
-    stateExpiresAt.value = nextValue;
-  }, value);
+  cookieExpiresAtDateUpdate(
+    stateExpiresAt.value,
+    (nextValue) => {
+      stateExpiresAt.value = nextValue;
+    },
+    value
+  );
 };
 
 const handleStateExpiresAtTimeUpdate = (value: TCookieInputTimeValue): void => {
-  cookieExpiresAtTimeUpdate(stateExpiresAt.value, (nextValue) => {
-    stateExpiresAt.value = nextValue;
-  }, value);
+  cookieExpiresAtTimeUpdate(
+    stateExpiresAt.value,
+    (nextValue) => {
+      stateExpiresAt.value = nextValue;
+    },
+    value
+  );
 };
 
 const handleCookiePairExpiresAtDateUpdate = (pair: ICookiePair, value: unknown): void => {
-  cookieExpiresAtDateUpdate(pair.expiresAt, (nextValue) => {
-    pair.expiresAt = nextValue;
-  }, value);
+  cookieExpiresAtDateUpdate(
+    pair.expiresAt,
+    (nextValue) => {
+      pair.expiresAt = nextValue;
+    },
+    value
+  );
 };
 
 const handleCookiePairExpiresAtTimeUpdate = (pair: ICookiePair, value: TCookieInputTimeValue): void => {
-  cookieExpiresAtTimeUpdate(pair.expiresAt, (nextValue) => {
-    pair.expiresAt = nextValue;
-  }, value);
+  cookieExpiresAtTimeUpdate(
+    pair.expiresAt,
+    (nextValue) => {
+      pair.expiresAt = nextValue;
+    },
+    value
+  );
 };
 
 watchEffect(() => {
