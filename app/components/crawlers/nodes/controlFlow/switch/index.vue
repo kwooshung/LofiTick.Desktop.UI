@@ -10,20 +10,37 @@
   >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.matchMode.label')">
-        <USelect v-model="stateMatchMode" class="w-full" :items="stateMatchModeOptions" value-attribute="value" option-attribute="label" />
+        <div v-if="hasTargetPinConnection('input-match-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USelect v-else v-model="stateMatchMode" class="w-full" :items="stateMatchModeOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.label')">
-        <UTextarea v-model="stateCasesText" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.placeholder')" />
+        <div v-if="hasTargetPinConnection('input-cases-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <UTextarea v-else v-model="stateCasesText" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.placeholder')" />
       </UFormField>
 
-      <USwitch v-model="stateUseDefaultBranch" :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')" />
+      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')">
+        <div v-if="hasTargetPinConnection('input-use-default-branch-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USwitch v-else v-model="stateUseDefaultBranch" :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')" />
+      </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -38,6 +55,8 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+const stateNodeId = useNodeId();
+const { edges } = useVueFlow();
 
 /**
  * 状态：是否完成首次数据回填。
@@ -74,6 +93,21 @@ const stateMatchModeOptions = computed(() => [
 ]);
 
 /**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
+const hasTargetPinConnection = (handleId: string): boolean => {
+  const nodeId = String(stateNodeId ?? '').trim();
+
+  if (nodeId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
+};
+
+/**
  * 计算属性：分支列表。
  */
 const computedCaseList = computed(() => {
@@ -99,6 +133,30 @@ const leftPins: IBasicSidePin[] = [
     dataType: 'any',
     topPercent: 50,
     description: t('components.crawler.blueprint.nodes.controlFlow.switch.pinDescriptions.value')
+  },
+  {
+    id: 'input-match-mode-string',
+    label: t('components.crawler.blueprint.nodes.controlFlow.switch.fields.matchMode.label'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 16,
+    description: t('components.crawler.blueprint.nodes.controlFlow.switch.pinDescriptions.matchMode')
+  },
+  {
+    id: 'input-cases-string',
+    label: t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.label'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 72,
+    description: t('components.crawler.blueprint.nodes.controlFlow.switch.pinDescriptions.cases')
+  },
+  {
+    id: 'input-use-default-branch-boolean',
+    label: t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label'),
+    direction: 'in',
+    dataType: 'boolean',
+    topPercent: 88,
+    description: t('components.crawler.blueprint.nodes.controlFlow.switch.pinDescriptions.useDefaultBranch')
   }
 ];
 
@@ -162,9 +220,7 @@ watchEffect(() => {
   /**
    * 常量：cases。
    */
-  const cases = Array.isArray(data.cases)
-    ? data.cases.map((item) => String(item ?? '').trim()).filter((item) => item !== '')
-    : [];
+  const cases = Array.isArray(data.cases) ? data.cases.map((item) => String(item ?? '').trim()).filter((item) => item !== '') : [];
 
   stateCasesText.value = cases.length > 0 ? cases.join('\n') : 'case_1\ncase_2';
   stateUseDefaultBranch.value = Boolean(data.useDefaultBranch ?? true);

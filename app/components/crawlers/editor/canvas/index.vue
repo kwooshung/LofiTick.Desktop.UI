@@ -67,6 +67,7 @@
       <template #node-system-write-clipboard="props"><CrawlersNodesSystemWriteClipboard v-bind="props" /></template>
       <template #node-variable-set="props"><CrawlersNodesVariableSet v-bind="props" /></template>
       <template #node-variable-get="props"><CrawlersNodesVariableGet v-bind="props" /></template>
+      <template #node-constant-get="props"><CrawlersNodesConstantGet v-bind="props" /></template>
       <template #node-logic-equal="props"><CrawlersNodesLogicEqual v-bind="props" /></template>
       <template #node-logic-not-equal="props"><CrawlersNodesLogicNotEqual v-bind="props" /></template>
       <template #node-logic-greater-than="props"><CrawlersNodesLogicGreaterThan v-bind="props" /></template>
@@ -97,6 +98,8 @@
       <template #node-string-uppercase="props"><CrawlersNodesStringUppercase v-bind="props" /></template>
       <template #node-string-lowercase="props"><CrawlersNodesStringLowercase v-bind="props" /></template>
       <template #node-string-trim="props"><CrawlersNodesStringTrim v-bind="props" /></template>
+      <template #node-date-time-now="props"><CrawlersNodesDateTimeNow v-bind="props" /></template>
+      <template #node-date-time-format="props"><CrawlersNodesDateTimeFormat v-bind="props" /></template>
       <template #node-array-object-filter="props"><CrawlersNodesArrayObjectFilter v-bind="props" /></template>
       <template #node-array-object-merge="props"><CrawlersNodesArrayObjectMerge v-bind="props" /></template>
       <template #node-array-object-split="props"><CrawlersNodesArrayObjectSplit v-bind="props" /></template>
@@ -110,7 +113,7 @@
       <template #node-control-flow-loop="props"><CrawlersNodesControlFlowLoop v-bind="props" /></template>
       <template #node-control-flow-condition="props"><CrawlersNodesControlFlowCondition v-bind="props" /></template>
       <template #node-control-flow-switch="props"><CrawlersNodesControlFlowSwitch v-bind="props" /></template>
-      <template #node-output-send-to-api="props"><CrawlersNodesOutputSendToApi v-bind="props" /></template>
+      <template #node-output-save-data="props"><CrawlersNodesOutputSaveData v-bind="props" /></template>
       <template #node-output-print-log="props"><CrawlersNodesOutputPrintLog v-bind="props" /></template>
       <template #node-output-screenshot="props"><CrawlersNodesOutputScreenshot v-bind="props" /></template>
       <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
@@ -149,6 +152,11 @@
 <script setup lang="ts">
 import { ConnectionMode, SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
+
+import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
+import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
+import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
+import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
 
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';
 

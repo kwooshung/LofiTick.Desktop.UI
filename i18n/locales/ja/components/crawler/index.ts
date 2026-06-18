@@ -38,6 +38,10 @@ export const crawler = {
         title: 'データ処理 - 変数',
         description: 'ノード間で共有する変数を保存・取得します'
       },
+      constant: {
+        title: 'データ処理 - 定数',
+        description: 'システム内蔵の定数値を読み取ります'
+      },
       logic: {
         title: 'データ処理 - ロジック',
         description: '比較、真偽値、空判定を行います'
@@ -49,6 +53,10 @@ export const crawler = {
       string: {
         title: 'データ処理 - 文字列',
         description: '文字列の切り出し、置換、結合、正規表現です'
+      },
+      dateTime: {
+        title: 'データ処理 - 日時',
+        description: '現在時刻とタイムスタンプ形式を扱います'
       },
       arrayObject: {
         title: 'データ処理 - 配列とオブジェクト',
@@ -986,7 +994,7 @@ export const crawler = {
           title: 'スクリプト実行',
           description: 'カスタム JS を実行して結果を返します',
           pinDescriptions: {
-            context: '上流から渡されたコンテキストオブジェクト（スクリプトで参照可能）',
+            script: 'スクリプト文字列の入力（下の入力欄を上書き）',
             result: 'スクリプトの実行結果',
             resultArray: '結果が配列ならループ/長さノードへ直接接続可能',
             resultLength: '結果が配列または文字列のときの長さ'
@@ -1595,6 +1603,32 @@ export const crawler = {
           }
         }
       },
+      constant: {
+        get: {
+          title: '定数',
+          description: 'システム内蔵の定数値を出力します',
+          pinDescriptions: {
+            constantKey: '定数キー入力'
+          },
+          outputs: {
+            value: {
+              description: '選択した定数に対応する値'
+            },
+            constantKey: {
+              label: '定数キー',
+              description: '今回参照した定数キー名'
+            }
+          },
+          fields: {
+            constantKey: {
+              label: '定数キー',
+              options: {
+                attachmentDir: '添付ディレクトリ（attachmentDir）'
+              }
+            }
+          }
+        }
+      },
       logic: {
         equal: {
           title: '等しい',
@@ -2044,6 +2078,70 @@ export const crawler = {
           }
         }
       },
+      dateTime: {
+        now: {
+          title: '現在時刻',
+          description: '現在時刻を複数フォーマットで出力します',
+          pinDescriptions: {
+            outputMode: '出力モード入力'
+          },
+          outputs: {
+            iso: {
+              label: 'UTC ISO',
+              description: 'UTC ISO 8601 文字列'
+            },
+            timestamp: {
+              label: 'タイムスタンプ',
+              description: 'Unix タイムスタンプ（ミリ秒）'
+            },
+            mode: {
+              label: '出力モード',
+              description: '現在選択されている出力モード'
+            }
+          },
+          fields: {
+            outputMode: {
+              label: '出力モード',
+              options: {
+                isoUtc: 'UTC ISO 文字列',
+                timestampMs: 'ミリ秒タイムスタンプ'
+              }
+            }
+          }
+        },
+        format: {
+          title: '日時の書式設定',
+          description: '時刻値を指定形式で出力します',
+          pinDescriptions: {
+            value: '書式設定する時刻値',
+            sourceMode: '入力元モード',
+            formatPattern: '書式パターン入力'
+          },
+          outputs: {
+            formatted: {
+              label: '書式結果',
+              description: 'パターンに従って整形した時刻文字列'
+            },
+            sourceMode: {
+              label: '入力元モード',
+              description: '現在有効な入力元モード'
+            }
+          },
+          fields: {
+            sourceMode: {
+              label: '入力元',
+              options: {
+                current: '現在時刻',
+                input: '入力値'
+              }
+            },
+            formatPattern: {
+              label: '書式パターン',
+              placeholder: '例: YYYY-MM-DD HH:mm:ss'
+            }
+          }
+        }
+      },
       arrayObject: {
         filter: {
           title: 'データフィルタ',
@@ -2261,7 +2359,11 @@ export const crawler = {
           description: 'ForEach / While ループです',
           pinDescriptions: {
             array: 'ForEach モードの配列入力',
-            condition: 'While モードの継続条件入力'
+            condition: 'While モードの継続条件入力',
+            mode: 'ループモード入力（forEach / while）',
+            limitIterations: '最大ループ回数を制限するか',
+            maxIterations: '最大ループ回数入力',
+            breakOnError: 'エラー時に中断するか'
           },
           outputs: {
             item: {
@@ -2283,6 +2385,11 @@ export const crawler = {
             maxIterations: {
               label: '最大ループ回数'
             },
+            limitIterations: {
+              label: '最大ループ回数を制限',
+              switchLabel: '制限を有効化',
+              unlimited: '無制限'
+            },
             breakOnError: {
               label: 'エラー時に中断する'
             }
@@ -2294,7 +2401,9 @@ export const crawler = {
           pinDescriptions: {
             condition: '真偽条件入力（boolean モード）',
             valueA: '比較値 A（compare モード）',
-            valueB: '比較値 B（compare モード）'
+            valueB: '比較値 B（compare モード）',
+            mode: '条件モード入力（boolean / compare）',
+            strictCompare: '厳密比較を有効にするか'
           },
           outputs: {
             true: {
@@ -2323,7 +2432,10 @@ export const crawler = {
           title: '多分岐',
           description: 'Switch の多分岐制御です',
           pinDescriptions: {
-            value: '一致判定する入力値'
+            value: '一致判定する入力値',
+            matchMode: '一致モード入力（strict / loose）',
+            cases: '分岐リスト入力（改行区切り）',
+            useDefaultBranch: 'デフォルト分岐を有効にするか'
           },
           outputs: {
             case: {
@@ -2353,30 +2465,26 @@ export const crawler = {
         }
       },
       output: {
-        sendToApi: {
-          title: 'API へ送信',
-          description: 'データを専用 API に送信します',
+        saveData: {
+          title: 'データ保存',
+          description: 'データを指定タイプの保存先へ保存します',
           pinDescriptions: {
-            payload: '送信するペイロードデータ',
-            context: '付加するコンテキストオブジェクト'
+            value: '保存対象のデータ値',
+            saveType: '保存タイプ入力'
           },
           outputs: {
-            response: {
-              label: 'レスポンス',
-              description: 'API からのレスポンスオブジェクト'
+            savedType: {
+              label: '保存タイプ',
+              description: '今回実際に保存したタイプ'
             }
           },
           fields: {
-            endpoint: {
-              label: 'エンドポイント',
-              placeholder: '例：https://api.example.com/crawler/receive'
-            },
-            method: {
-              label: 'HTTP メソッド'
-            },
-            payload: {
-              label: 'ペイロード',
-              placeholder: 'JSON 文字列またはテンプレート文字列を入力'
+            saveType: {
+              label: '保存タイプ',
+              options: {
+                music: '音楽',
+                image: '画像'
+              }
             }
           }
         },
@@ -2385,7 +2493,8 @@ export const crawler = {
           description: 'デバッグ情報を出力します',
           pinDescriptions: {
             value: '出力するログ値',
-            context: '付加コンテキストオブジェクト'
+            level: 'ログレベル入力',
+            template: 'ログテンプレート入力'
           },
           fields: {
             level: {
@@ -2408,7 +2517,9 @@ export const crawler = {
           description: 'ページや要素をキャプチャします',
           pinDescriptions: {
             element: '対象要素（element モード）',
-            context: 'スクリーンショット用コンテキスト'
+            targetMode: '撮影対象モード入力',
+            path: '保存先パス入力',
+            fullPage: 'フルページ撮影スイッチ入力'
           },
           outputs: {
             path: {

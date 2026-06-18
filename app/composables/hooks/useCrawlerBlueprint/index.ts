@@ -344,6 +344,19 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
     ]
   },
   {
+    icon: 'i-lucide-bookmark',
+    title: 'pages.crawlers.blueprint.groups.constant.title',
+    description: 'pages.crawlers.blueprint.groups.constant.description',
+    nodes: [
+      {
+        key: 'constant-get',
+        icon: 'i-lucide-bookmark-check',
+        title: 'pages.crawlers.blueprint.nodes.constant.get.title',
+        description: 'pages.crawlers.blueprint.nodes.constant.get.description'
+      }
+    ]
+  },
+  {
     icon: 'i-lucide-git-compare-arrows',
     title: 'pages.crawlers.blueprint.groups.logic.title',
     description: 'pages.crawlers.blueprint.groups.logic.description',
@@ -545,6 +558,25 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
     ]
   },
   {
+    icon: 'i-lucide-calendar-clock',
+    title: 'pages.crawlers.blueprint.groups.dateTime.title',
+    description: 'pages.crawlers.blueprint.groups.dateTime.description',
+    nodes: [
+      {
+        key: 'date-time-now',
+        icon: 'i-lucide-calendar-clock',
+        title: 'pages.crawlers.blueprint.nodes.dateTime.now.title',
+        description: 'pages.crawlers.blueprint.nodes.dateTime.now.description'
+      },
+      {
+        key: 'date-time-format',
+        icon: 'i-lucide-calendar-range',
+        title: 'pages.crawlers.blueprint.nodes.dateTime.format.title',
+        description: 'pages.crawlers.blueprint.nodes.dateTime.format.description'
+      }
+    ]
+  },
+  {
     icon: 'i-lucide-braces',
     title: 'pages.crawlers.blueprint.groups.arrayObject.title',
     description: 'pages.crawlers.blueprint.groups.arrayObject.description',
@@ -649,10 +681,10 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
     description: 'pages.crawlers.blueprint.groups.output.description',
     nodes: [
       {
-        key: 'output-send-to-api',
-        icon: 'i-lucide-send',
-        title: 'pages.crawlers.blueprint.nodes.output.sendToApi.title',
-        description: 'pages.crawlers.blueprint.nodes.output.sendToApi.description'
+        key: 'output-save-data',
+        icon: 'i-lucide-save',
+        title: 'pages.crawlers.blueprint.nodes.output.saveData.title',
+        description: 'pages.crawlers.blueprint.nodes.output.saveData.description'
       },
       {
         key: 'output-print-log',
@@ -731,14 +763,16 @@ if (import.meta.vitest) {
        */
       const groups = crawlerBlueprintGroupsBuild((key) => key);
 
-      expect(groups).toHaveLength(16);
+      expect(groups).toHaveLength(18);
       expect(groups[0]?.label).toBe('pages.crawlers.blueprint.groups.navigation.title');
       expect(groups[0]?.crawlers[0]?.key).toBe('navigation-goto');
       expect(groups[0]?.crawlers[0]?.iconName).toBe('i-lucide-external-link');
       expect(groups[0]?.crawlers[1]?.iconName).toBe('i-lucide-refresh-cw');
       expect(groups[8]?.crawlers[0]?.iconName).toBe('i-lucide-variable');
-      expect(groups[9]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
-      expect(groups[9]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
+      expect(groups[9]?.label).toBe('pages.crawlers.blueprint.groups.constant.title');
+      expect(groups[10]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
+      expect(groups[10]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
+      expect(groups[13]?.label).toBe('pages.crawlers.blueprint.groups.dateTime.title');
     });
   });
 }

@@ -38,6 +38,10 @@ export const crawler = {
         title: '数据处理 - 变量',
         description: '保存和读取节点间共享变量'
       },
+      constant: {
+        title: '数据处理 - 常量',
+        description: '读取系统内置常量值'
+      },
       logic: {
         title: '数据处理 - 逻辑',
         description: '比较、布尔与空值判断'
@@ -49,6 +53,10 @@ export const crawler = {
       string: {
         title: '数据处理 - 字符串',
         description: '字符串截取、替换、拼接与正则'
+      },
+      dateTime: {
+        title: '数据处理 - 日期时间',
+        description: '处理当前时间与时间戳格式'
       },
       arrayObject: {
         title: '数据处理 - 数组与对象',
@@ -986,7 +994,7 @@ export const crawler = {
           title: '执行脚本',
           description: '执行自定义 JS 并返回结果',
           pinDescriptions: {
-            context: '上游传入的上下文对象，可在脚本中读取',
+            script: '脚本文本输入（覆盖下方文本框）',
             result: '脚本返回结果',
             resultArray: '当结果是数组时可直接接入循环/长度节点',
             resultLength: '当结果是数组或字符串时的长度'
@@ -1595,6 +1603,32 @@ export const crawler = {
           }
         }
       },
+      constant: {
+        get: {
+          title: '常量',
+          description: '输出系统预置常量值',
+          pinDescriptions: {
+            constantKey: '常量键输入'
+          },
+          outputs: {
+            value: {
+              description: '当前常量对应的值'
+            },
+            constantKey: {
+              label: '常量键',
+              description: '当前命中的常量键名'
+            }
+          },
+          fields: {
+            constantKey: {
+              label: '常量键',
+              options: {
+                attachmentDir: '附件目录（attachmentDir）'
+              }
+            }
+          }
+        }
+      },
       logic: {
         equal: {
           title: '等于',
@@ -2044,6 +2078,70 @@ export const crawler = {
           }
         }
       },
+      dateTime: {
+        now: {
+          title: '当前时间',
+          description: '生成当前时间并输出多种格式',
+          pinDescriptions: {
+            outputMode: '输出模式输入'
+          },
+          outputs: {
+            iso: {
+              label: 'UTC ISO',
+              description: 'UTC ISO 8601 字符串'
+            },
+            timestamp: {
+              label: '时间戳',
+              description: 'Unix 时间戳（毫秒）'
+            },
+            mode: {
+              label: '输出模式',
+              description: '当前启用的输出模式'
+            }
+          },
+          fields: {
+            outputMode: {
+              label: '输出模式',
+              options: {
+                isoUtc: 'UTC ISO 字符串',
+                timestampMs: '毫秒时间戳'
+              }
+            }
+          }
+        },
+        format: {
+          title: '日期时间格式化',
+          description: '将时间值按指定格式输出',
+          pinDescriptions: {
+            value: '待格式化的时间值',
+            sourceMode: '来源模式输入',
+            formatPattern: '格式模板输入'
+          },
+          outputs: {
+            formatted: {
+              label: '格式结果',
+              description: '按模板格式化后的时间字符串'
+            },
+            sourceMode: {
+              label: '来源模式',
+              description: '当前使用的来源模式'
+            }
+          },
+          fields: {
+            sourceMode: {
+              label: '来源',
+              options: {
+                current: '当前时间',
+                input: '输入值'
+              }
+            },
+            formatPattern: {
+              label: '格式模板',
+              placeholder: '例如 YYYY-MM-DD HH:mm:ss'
+            }
+          }
+        }
+      },
       arrayObject: {
         filter: {
           title: '数据过滤',
@@ -2261,7 +2359,11 @@ export const crawler = {
           description: 'ForEach / While 循环',
           pinDescriptions: {
             array: 'ForEach 模式下的循环数组输入',
-            condition: 'While 模式下的继续条件输入'
+            condition: 'While 模式下的继续条件输入',
+            mode: '循环模式输入（forEach / while）',
+            limitIterations: '是否限制最大循环次数',
+            maxIterations: '最大循环次数输入',
+            breakOnError: '发生错误时是否中断'
           },
           outputs: {
             item: {
@@ -2283,6 +2385,11 @@ export const crawler = {
             maxIterations: {
               label: '最大循环次数'
             },
+            limitIterations: {
+              label: '限制最大循环次数',
+              switchLabel: '启用限制',
+              unlimited: '不限制'
+            },
             breakOnError: {
               label: '发生错误时中断'
             }
@@ -2294,7 +2401,9 @@ export const crawler = {
           pinDescriptions: {
             condition: '布尔条件输入（boolean 模式）',
             valueA: '比较值 A（compare 模式）',
-            valueB: '比较值 B（compare 模式）'
+            valueB: '比较值 B（compare 模式）',
+            mode: '条件模式输入（boolean / compare）',
+            strictCompare: '是否启用严格比较'
           },
           outputs: {
             true: {
@@ -2323,7 +2432,10 @@ export const crawler = {
           title: '多路分支',
           description: 'Switch 多分支',
           pinDescriptions: {
-            value: '待匹配的输入值'
+            value: '待匹配的输入值',
+            matchMode: '匹配模式输入（strict / loose）',
+            cases: '分支列表输入（按行分隔）',
+            useDefaultBranch: '是否启用默认分支'
           },
           outputs: {
             case: {
@@ -2353,30 +2465,26 @@ export const crawler = {
         }
       },
       output: {
-        sendToApi: {
-          title: '发送到 API',
-          description: '将数据发送到你的专用 API',
+        saveData: {
+          title: '保存数据',
+          description: '将数据保存到指定类型的资源池',
           pinDescriptions: {
-            payload: '待发送的负载数据',
-            context: '附带的上下文对象'
+            value: '待保存的数据值',
+            saveType: '保存类型输入'
           },
           outputs: {
-            response: {
-              label: '响应',
-              description: 'API 返回结果对象'
+            savedType: {
+              label: '保存类型',
+              description: '本次实际保存的类型'
             }
           },
           fields: {
-            endpoint: {
-              label: '接口地址',
-              placeholder: '例如：https://api.example.com/crawler/receive'
-            },
-            method: {
-              label: '请求方法'
-            },
-            payload: {
-              label: '请求负载',
-              placeholder: '请输入 JSON 文本或模板字符串'
+            saveType: {
+              label: '保存类型',
+              options: {
+                music: '音乐',
+                image: '图片'
+              }
             }
           }
         },
@@ -2385,7 +2493,8 @@ export const crawler = {
           description: '输出调试信息',
           pinDescriptions: {
             value: '要输出的日志值',
-            context: '附加上下文对象'
+            level: '日志级别输入',
+            template: '日志模板输入'
           },
           fields: {
             level: {
@@ -2408,7 +2517,9 @@ export const crawler = {
           description: '截取页面或元素',
           pinDescriptions: {
             element: '目标元素（element 模式）',
-            context: '截图上下文对象'
+            targetMode: '截图目标模式输入',
+            path: '截图保存路径输入',
+            fullPage: '全页截图开关输入'
           },
           outputs: {
             path: {

@@ -10,16 +10,28 @@
   >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.mode.label')">
-        <USelect v-model="stateMode" class="w-full" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
+        <div v-if="hasTargetPinConnection('input-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USelect v-else v-model="stateMode" class="w-full" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
-      <USwitch v-model="stateStrictCompare" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')" />
+      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')">
+        <div v-if="hasTargetPinConnection('input-strict-compare-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USwitch v-else v-model="stateStrictCompare" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')" />
+      </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -34,6 +46,8 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+const stateNodeId = useNodeId();
+const { edges } = useVueFlow();
 
 /**
  * 状态：是否完成首次数据回填。
@@ -65,6 +79,21 @@ const stateModeOptions = computed(() => [
 ]);
 
 /**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
+const hasTargetPinConnection = (handleId: string): boolean => {
+  const nodeId = String(stateNodeId ?? '').trim();
+
+  if (nodeId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
+};
+
+/**
  * 常量：左侧数据输入引脚配置。
  */
 const leftPins: IBasicSidePin[] = [
@@ -91,6 +120,22 @@ const leftPins: IBasicSidePin[] = [
     dataType: 'any',
     topPercent: 80,
     description: t('components.crawler.blueprint.nodes.controlFlow.condition.pinDescriptions.valueB')
+  },
+  {
+    id: 'input-mode-string',
+    label: t('components.crawler.blueprint.nodes.controlFlow.condition.fields.mode.label'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 14,
+    description: t('components.crawler.blueprint.nodes.controlFlow.condition.pinDescriptions.mode')
+  },
+  {
+    id: 'input-strict-compare-boolean',
+    label: t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label'),
+    direction: 'in',
+    dataType: 'boolean',
+    topPercent: 92,
+    description: t('components.crawler.blueprint.nodes.controlFlow.condition.pinDescriptions.strictCompare')
   }
 ];
 

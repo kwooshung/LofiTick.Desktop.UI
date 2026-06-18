@@ -38,6 +38,10 @@ export const crawler = {
         title: 'Data Processing - Variables',
         description: 'Store and read shared variables between nodes'
       },
+      constant: {
+        title: 'Data Processing - Constants',
+        description: 'Read built-in system constants'
+      },
       logic: {
         title: 'Data Processing - Logic',
         description: 'Comparison, boolean, and empty-value checks'
@@ -49,6 +53,10 @@ export const crawler = {
       string: {
         title: 'Data Processing - Strings',
         description: 'Substring, replace, concat, and regex'
+      },
+      dateTime: {
+        title: 'Data Processing - Date & Time',
+        description: 'Handle current time and timestamp formats'
       },
       arrayObject: {
         title: 'Data Processing - Arrays and Objects',
@@ -986,7 +994,7 @@ export const crawler = {
           title: 'Execute Script',
           description: 'Run custom JS and return the result',
           pinDescriptions: {
-            context: 'Context object passed from upstream and readable in script',
+            script: 'Script text input (overrides editor content)',
             result: 'Script execution result',
             resultArray: 'When result is an array, can connect to loop/length nodes',
             resultLength: 'Length when result is an array or string'
@@ -1595,6 +1603,32 @@ export const crawler = {
           }
         }
       },
+      constant: {
+        get: {
+          title: 'Constant',
+          description: 'Output built-in constant values',
+          pinDescriptions: {
+            constantKey: 'Constant key input'
+          },
+          outputs: {
+            value: {
+              description: 'Resolved value for the selected constant'
+            },
+            constantKey: {
+              label: 'Constant Key',
+              description: 'Matched constant key name'
+            }
+          },
+          fields: {
+            constantKey: {
+              label: 'Constant Key',
+              options: {
+                attachmentDir: 'Attachment Directory (attachmentDir)'
+              }
+            }
+          }
+        }
+      },
       logic: {
         equal: {
           title: 'Equal',
@@ -1981,6 +2015,70 @@ export const crawler = {
           }
         }
       },
+      dateTime: {
+        now: {
+          title: 'Current Time',
+          description: 'Generate current time in multiple formats',
+          pinDescriptions: {
+            outputMode: 'Output mode input'
+          },
+          outputs: {
+            iso: {
+              label: 'UTC ISO',
+              description: 'UTC ISO 8601 string'
+            },
+            timestamp: {
+              label: 'Timestamp',
+              description: 'Unix timestamp in milliseconds'
+            },
+            mode: {
+              label: 'Output Mode',
+              description: 'Currently selected output mode'
+            }
+          },
+          fields: {
+            outputMode: {
+              label: 'Output Mode',
+              options: {
+                isoUtc: 'UTC ISO string',
+                timestampMs: 'Millisecond timestamp'
+              }
+            }
+          }
+        },
+        format: {
+          title: 'Date Time Format',
+          description: 'Format a time value with a custom pattern',
+          pinDescriptions: {
+            value: 'Time value to format',
+            sourceMode: 'Source mode input',
+            formatPattern: 'Format pattern input'
+          },
+          outputs: {
+            formatted: {
+              label: 'Formatted result',
+              description: 'Time string formatted by the pattern'
+            },
+            sourceMode: {
+              label: 'Source mode',
+              description: 'The currently active source mode'
+            }
+          },
+          fields: {
+            sourceMode: {
+              label: 'Source',
+              options: {
+                current: 'Current time',
+                input: 'Input value'
+              }
+            },
+            formatPattern: {
+              label: 'Format pattern',
+              placeholder: 'e.g. YYYY-MM-DD HH:mm:ss'
+            }
+          }
+        }
+      },
       arrayObject: {
         filter: {
           title: 'Filter Data',
@@ -2198,7 +2296,11 @@ export const crawler = {
           description: 'ForEach / While loop',
           pinDescriptions: {
             array: 'Array input for ForEach mode',
-            condition: 'Continue condition input for While mode'
+            condition: 'Continue condition input for While mode',
+            mode: 'Loop mode input (forEach / while)',
+            limitIterations: 'Whether to limit max iterations',
+            maxIterations: 'Max iterations input',
+            breakOnError: 'Whether to break on error'
           },
           outputs: {
             item: {
@@ -2220,6 +2322,11 @@ export const crawler = {
             maxIterations: {
               label: 'Max iterations'
             },
+            limitIterations: {
+              label: 'Limit max iterations',
+              switchLabel: 'Enable limit',
+              unlimited: 'Unlimited'
+            },
             breakOnError: {
               label: 'Break on error'
             }
@@ -2231,7 +2338,9 @@ export const crawler = {
           pinDescriptions: {
             condition: 'Boolean condition input (boolean mode)',
             valueA: 'Compare value A (compare mode)',
-            valueB: 'Compare value B (compare mode)'
+            valueB: 'Compare value B (compare mode)',
+            mode: 'Condition mode input (boolean / compare)',
+            strictCompare: 'Whether strict compare is enabled'
           },
           outputs: {
             true: {
@@ -2260,7 +2369,10 @@ export const crawler = {
           title: 'Multi-Branch',
           description: 'Switch multi-branch control',
           pinDescriptions: {
-            value: 'Input value to match'
+            value: 'Input value to match',
+            matchMode: 'Match mode input (strict / loose)',
+            cases: 'Case list input (line-separated)',
+            useDefaultBranch: 'Whether default branch is enabled'
           },
           outputs: {
             case: {
@@ -2290,30 +2402,26 @@ export const crawler = {
         }
       },
       output: {
-        sendToApi: {
-          title: 'Send to API',
-          description: 'Send data to your dedicated API',
+        saveData: {
+          title: 'Save Data',
+          description: 'Save data into a selected resource type',
           pinDescriptions: {
-            payload: 'Payload data to send',
-            context: 'Additional context object'
+            value: 'Data value to save',
+            saveType: 'Save type input'
           },
           outputs: {
-            response: {
-              label: 'Response',
-              description: 'API response object'
+            savedType: {
+              label: 'Saved Type',
+              description: 'Actual type used for this save action'
             }
           },
           fields: {
-            endpoint: {
-              label: 'Endpoint',
-              placeholder: 'e.g. https://api.example.com/crawler/receive'
-            },
-            method: {
-              label: 'Method'
-            },
-            payload: {
-              label: 'Payload',
-              placeholder: 'Enter JSON text or template string'
+            saveType: {
+              label: 'Save Type',
+              options: {
+                music: 'Music',
+                image: 'Image'
+              }
             }
           }
         },
@@ -2322,7 +2430,8 @@ export const crawler = {
           description: 'Output debug information',
           pinDescriptions: {
             value: 'Log value to output',
-            context: 'Additional context object'
+            level: 'Log level input',
+            template: 'Log template input'
           },
           fields: {
             level: {
@@ -2345,7 +2454,9 @@ export const crawler = {
           description: 'Capture a page or element',
           pinDescriptions: {
             element: 'Target element (element mode)',
-            context: 'Screenshot context object'
+            targetMode: 'Capture target mode input',
+            path: 'Screenshot save path input',
+            fullPage: 'Full-page switch input'
           },
           outputs: {
             path: {

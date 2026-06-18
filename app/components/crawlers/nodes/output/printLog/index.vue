@@ -1,27 +1,29 @@
 <template>
-  <CrawlersNodesCommonBasic
-    icon-name="i-lucide-print"
-    :title="t('components.crawler.blueprint.nodes.output.printLog.title')"
-    :description="t('components.crawler.blueprint.nodes.output.printLog.description')"
-    header-color=""
-    header-bg="bg-red-500"
-    :left-pins="leftPins"
-    :right-pins="rightPins"
-  >
+  <CrawlersNodesCommonBasic icon-name="i-lucide-print" :title="t('components.crawler.blueprint.nodes.output.printLog.title')" :description="t('components.crawler.blueprint.nodes.output.printLog.description')" header-color="" header-bg="bg-red-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.output.printLog.fields.level.label')">
-        <USelect v-model="stateLevel" class="w-full" :items="stateLevelOptions" value-attribute="value" option-attribute="label" />
+        <div v-if="hasTargetPinConnection('input-level-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USelect v-else v-model="stateLevel" class="w-full" :items="stateLevelOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.output.printLog.fields.template.label')">
-        <UTextarea v-model="stateTemplate" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.output.printLog.fields.template.placeholder')" />
+        <div v-if="hasTargetPinConnection('input-template-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <UTextarea v-else v-model="stateTemplate" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.output.printLog.fields.template.placeholder')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -36,6 +38,8 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+const stateNodeId = useNodeId();
+const { edges } = useVueFlow();
 
 /**
  * 状态：是否完成首次数据回填。
@@ -75,6 +79,21 @@ const stateLevelOptions = computed(() => [
 ]);
 
 /**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
+const hasTargetPinConnection = (handleId: string): boolean => {
+  const nodeId = String(stateNodeId ?? '').trim();
+
+  if (nodeId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
+};
+
+/**
  * 常量：左侧数据输入引脚配置。
  */
 const leftPins: IBasicSidePin[] = [
@@ -87,12 +106,20 @@ const leftPins: IBasicSidePin[] = [
     description: t('components.crawler.blueprint.nodes.output.printLog.pinDescriptions.value')
   },
   {
-    id: 'input-context-object',
-    label: t('components.crawler.blueprint.nodes.common.pinLabels.context'),
+    id: 'input-level-string',
+    label: t('components.crawler.blueprint.nodes.output.printLog.fields.level.label'),
     direction: 'in',
-    dataType: 'object',
-    topPercent: 75,
-    description: t('components.crawler.blueprint.nodes.output.printLog.pinDescriptions.context')
+    dataType: 'string',
+    topPercent: 68,
+    description: t('components.crawler.blueprint.nodes.output.printLog.pinDescriptions.level')
+  },
+  {
+    id: 'input-template-string',
+    label: t('components.crawler.blueprint.nodes.output.printLog.fields.template.label'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 88,
+    description: t('components.crawler.blueprint.nodes.output.printLog.pinDescriptions.template')
   }
 ];
 

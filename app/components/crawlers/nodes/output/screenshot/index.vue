@@ -1,29 +1,38 @@
 <template>
-  <CrawlersNodesCommonBasic
-    icon-name="i-lucide-camera"
-    :title="t('components.crawler.blueprint.nodes.output.screenshot.title')"
-    :description="t('components.crawler.blueprint.nodes.output.screenshot.description')"
-    header-color=""
-    header-bg="bg-red-500"
-    :left-pins="leftPins"
-    :right-pins="rightPins"
-  >
+  <CrawlersNodesCommonBasic icon-name="i-lucide-camera" :title="t('components.crawler.blueprint.nodes.output.screenshot.title')" :description="t('components.crawler.blueprint.nodes.output.screenshot.description')" header-color="" header-bg="bg-red-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.output.screenshot.fields.targetMode.label')">
-        <USelect v-model="stateTargetMode" class="w-full" :items="stateTargetModeOptions" value-attribute="value" option-attribute="label" />
+        <div v-if="hasTargetPinConnection('input-target-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USelect v-else v-model="stateTargetMode" class="w-full" :items="stateTargetModeOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.output.screenshot.fields.path.label')">
-        <UInput v-model="statePath" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.output.screenshot.fields.path.placeholder')" />
+        <div v-if="hasTargetPinConnection('input-path-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <UInput v-else v-model="statePath" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.output.screenshot.fields.path.placeholder')" />
       </UFormField>
 
-      <USwitch v-model="stateFullPage" :label="t('components.crawler.blueprint.nodes.output.screenshot.fields.fullPage.label')" :disabled="stateTargetMode !== 'page'" />
+      <UFormField :label="t('components.crawler.blueprint.nodes.output.screenshot.fields.fullPage.label')">
+        <div v-if="hasTargetPinConnection('input-full-page-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <USwitch v-else v-model="stateFullPage" :label="t('components.crawler.blueprint.nodes.output.screenshot.fields.fullPage.label')" :disabled="stateTargetMode !== 'page'" />
+      </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -38,6 +47,8 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+const stateNodeId = useNodeId();
+const { edges } = useVueFlow();
 
 /**
  * 状态：是否完成首次数据回填。
@@ -74,6 +85,21 @@ const stateTargetModeOptions = computed(() => [
 ]);
 
 /**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
+const hasTargetPinConnection = (handleId: string): boolean => {
+  const nodeId = String(stateNodeId ?? '').trim();
+
+  if (nodeId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
+};
+
+/**
  * 常量：左侧数据输入引脚配置。
  */
 const leftPins: IBasicSidePin[] = [
@@ -86,12 +112,28 @@ const leftPins: IBasicSidePin[] = [
     description: t('components.crawler.blueprint.nodes.output.screenshot.pinDescriptions.element')
   },
   {
-    id: 'input-context-object',
-    label: t('components.crawler.blueprint.nodes.common.pinLabels.context'),
+    id: 'input-target-mode-string',
+    label: t('components.crawler.blueprint.nodes.output.screenshot.fields.targetMode.label'),
     direction: 'in',
-    dataType: 'object',
-    topPercent: 78,
-    description: t('components.crawler.blueprint.nodes.output.screenshot.pinDescriptions.context')
+    dataType: 'string',
+    topPercent: 18,
+    description: t('components.crawler.blueprint.nodes.output.screenshot.pinDescriptions.targetMode')
+  },
+  {
+    id: 'input-path-string',
+    label: t('components.crawler.blueprint.nodes.output.screenshot.fields.path.label'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 62,
+    description: t('components.crawler.blueprint.nodes.output.screenshot.pinDescriptions.path')
+  },
+  {
+    id: 'input-full-page-boolean',
+    label: t('components.crawler.blueprint.nodes.output.screenshot.fields.fullPage.label'),
+    direction: 'in',
+    dataType: 'boolean',
+    topPercent: 88,
+    description: t('components.crawler.blueprint.nodes.output.screenshot.pinDescriptions.fullPage')
   }
 ];
 

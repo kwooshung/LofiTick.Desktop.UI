@@ -2,14 +2,19 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-square-code" :title="t('components.crawler.blueprint.nodes.extract.executeScript.title')" :description="t('components.crawler.blueprint.nodes.extract.executeScript.description')" header-bg="bg-emerald-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.extract.executeScript.fields.script.label')">
-        <UTextarea v-model="stateScript" :rows="6" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.extract.executeScript.fields.script.placeholder')" />
+        <div v-if="hasTargetPinConnection('input-script-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+        </div>
+
+        <UTextarea v-else v-model="stateScript" :rows="6" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.extract.executeScript.fields.script.placeholder')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -19,6 +24,8 @@ const { t } = useI18n();
  * 状态：stateNode。
  */
 const stateNode = useNode();
+const stateNodeId = useNodeId();
+const { edges } = useVueFlow();
 /**
  * 状态：stateInitialized。
  */
@@ -28,14 +35,29 @@ const stateInitialized = ref(false);
  */
 const stateScript = ref('return document.title;');
 
+/**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
+const hasTargetPinConnection = (handleId: string): boolean => {
+  const nodeId = String(stateNodeId ?? '').trim();
+
+  if (nodeId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
+};
+
 const leftPins: IBasicSidePin[] = [
   {
-    id: 'context-input',
-    label: t('components.crawler.blueprint.nodes.common.pinLabels.context'),
+    id: 'input-script-string',
+    label: t('components.crawler.blueprint.nodes.extract.executeScript.fields.script.label'),
     direction: 'in',
-    dataType: 'any',
+    dataType: 'string',
     topPercent: 50,
-    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.context')
+    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.script')
   }
 ];
 

@@ -38,6 +38,10 @@ export const crawler = {
         title: '資料處理 - 變數',
         description: '儲存與讀取節點間共用變數'
       },
+      constant: {
+        title: '資料處理 - 常量',
+        description: '讀取系統內建常量值'
+      },
       logic: {
         title: '資料處理 - 邏輯',
         description: '比較、布林與空值判斷'
@@ -49,6 +53,10 @@ export const crawler = {
       string: {
         title: '資料處理 - 字串',
         description: '字串擷取、替換、拼接與正則'
+      },
+      dateTime: {
+        title: '資料處理 - 日期時間',
+        description: '處理目前時間與時間戳格式'
       },
       arrayObject: {
         title: '資料處理 - 陣列與物件',
@@ -986,7 +994,7 @@ export const crawler = {
           title: '執行腳本',
           description: '執行自訂 JS 並回傳結果',
           pinDescriptions: {
-            context: '上游傳入的上下文物件，可在腳本中讀取',
+            script: '腳本文字輸入（覆蓋下方編輯內容）',
             result: '腳本回傳結果',
             resultArray: '當結果是陣列時可直接接入迴圈/長度節點',
             resultLength: '當結果是陣列或字串時的長度'
@@ -1595,6 +1603,32 @@ export const crawler = {
           }
         }
       },
+      constant: {
+        get: {
+          title: '常量',
+          description: '輸出系統預設常量值',
+          pinDescriptions: {
+            constantKey: '常量鍵輸入'
+          },
+          outputs: {
+            value: {
+              description: '目前常量對應的值'
+            },
+            constantKey: {
+              label: '常量鍵',
+              description: '目前命中的常量鍵名稱'
+            }
+          },
+          fields: {
+            constantKey: {
+              label: '常量鍵',
+              options: {
+                attachmentDir: '附件目錄（attachmentDir）'
+              }
+            }
+          }
+        }
+      },
       logic: {
         equal: {
           title: '等於',
@@ -2020,6 +2054,70 @@ export const crawler = {
           }
         }
       },
+      dateTime: {
+        now: {
+          title: '目前時間',
+          description: '產生目前時間並輸出多種格式',
+          pinDescriptions: {
+            outputMode: '輸出模式輸入'
+          },
+          outputs: {
+            iso: {
+              label: 'UTC ISO',
+              description: 'UTC ISO 8601 字串'
+            },
+            timestamp: {
+              label: '時間戳',
+              description: 'Unix 時間戳（毫秒）'
+            },
+            mode: {
+              label: '輸出模式',
+              description: '目前啟用的輸出模式'
+            }
+          },
+          fields: {
+            outputMode: {
+              label: '輸出模式',
+              options: {
+                isoUtc: 'UTC ISO 字串',
+                timestampMs: '毫秒時間戳'
+              }
+            }
+          }
+        },
+        format: {
+          title: '日期時間格式化',
+          description: '將時間值依指定格式輸出',
+          pinDescriptions: {
+            value: '待格式化的時間值',
+            sourceMode: '來源模式輸入',
+            formatPattern: '格式樣板輸入'
+          },
+          outputs: {
+            formatted: {
+              label: '格式結果',
+              description: '依樣板格式化後的時間字串'
+            },
+            sourceMode: {
+              label: '來源模式',
+              description: '目前使用的來源模式'
+            }
+          },
+          fields: {
+            sourceMode: {
+              label: '來源',
+              options: {
+                current: '目前時間',
+                input: '輸入值'
+              }
+            },
+            formatPattern: {
+              label: '格式樣板',
+              placeholder: '例如 YYYY-MM-DD HH:mm:ss'
+            }
+          }
+        }
+      },
       arrayObject: {
         filter: {
           title: '資料過濾',
@@ -2237,7 +2335,11 @@ export const crawler = {
           description: 'ForEach / While 迴圈',
           pinDescriptions: {
             array: 'ForEach 模式的迴圈陣列輸入',
-            condition: 'While 模式的持續條件輸入'
+            condition: 'While 模式的持續條件輸入',
+            mode: '迴圈模式輸入（forEach / while）',
+            limitIterations: '是否限制最大迴圈次數',
+            maxIterations: '最大迴圈次數輸入',
+            breakOnError: '發生錯誤時是否中斷'
           },
           outputs: {
             item: {
@@ -2259,6 +2361,11 @@ export const crawler = {
             maxIterations: {
               label: '最大迴圈次數'
             },
+            limitIterations: {
+              label: '限制最大迴圈次數',
+              switchLabel: '啟用限制',
+              unlimited: '不限制'
+            },
             breakOnError: {
               label: '發生錯誤時中斷'
             }
@@ -2270,7 +2377,9 @@ export const crawler = {
           pinDescriptions: {
             condition: '布林條件輸入（boolean 模式）',
             valueA: '比較值 A（compare 模式）',
-            valueB: '比較值 B（compare 模式）'
+            valueB: '比較值 B（compare 模式）',
+            mode: '條件模式輸入（boolean / compare）',
+            strictCompare: '是否啟用嚴格比較'
           },
           outputs: {
             true: {
@@ -2299,7 +2408,10 @@ export const crawler = {
           title: '多路分支',
           description: 'Switch 多分支',
           pinDescriptions: {
-            value: '待比對的輸入值'
+            value: '待比對的輸入值',
+            matchMode: '比對模式輸入（strict / loose）',
+            cases: '分支清單輸入（逐行）',
+            useDefaultBranch: '是否啟用預設分支'
           },
           outputs: {
             case: {
@@ -2329,30 +2441,26 @@ export const crawler = {
         }
       },
       output: {
-        sendToApi: {
-          title: '傳送到 API',
-          description: '將資料傳送到你的專用 API',
+        saveData: {
+          title: '保存資料',
+          description: '將資料保存到指定類型的資源池',
           pinDescriptions: {
-            payload: '待傳送的負載資料',
-            context: '附帶的上下文物件'
+            value: '待保存的資料值',
+            saveType: '保存類型輸入'
           },
           outputs: {
-            response: {
-              label: '回應',
-              description: 'API 回傳結果物件'
+            savedType: {
+              label: '保存類型',
+              description: '本次實際保存的類型'
             }
           },
           fields: {
-            endpoint: {
-              label: '介面位址',
-              placeholder: '例如：https://api.example.com/crawler/receive'
-            },
-            method: {
-              label: '請求方法'
-            },
-            payload: {
-              label: '請求負載',
-              placeholder: '請輸入 JSON 文字或模板字串'
+            saveType: {
+              label: '保存類型',
+              options: {
+                music: '音樂',
+                image: '圖片'
+              }
             }
           }
         },
@@ -2361,7 +2469,8 @@ export const crawler = {
           description: '輸出除錯資訊',
           pinDescriptions: {
             value: '要輸出的日誌值',
-            context: '附加上下文物件'
+            level: '日誌等級輸入',
+            template: '日誌模板輸入'
           },
           fields: {
             level: {
@@ -2384,7 +2493,9 @@ export const crawler = {
           description: '擷取頁面或元素',
           pinDescriptions: {
             element: '目標元素（element 模式）',
-            context: '截圖上下文物件'
+            targetMode: '截圖目標模式輸入',
+            path: '截圖保存路徑輸入',
+            fullPage: '整頁截圖開關輸入'
           },
           outputs: {
             path: {
