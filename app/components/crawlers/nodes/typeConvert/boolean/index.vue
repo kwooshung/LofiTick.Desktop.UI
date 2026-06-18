@@ -3,15 +3,8 @@
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.label')">
         <div class="space-y-2">
-          <select multiple class="border-default focus:border-primary focus:ring-primary/20 min-h-22 w-full rounded-md border bg-white px-2 py-1 text-sm outline-none focus:ring" :value="stateSelectedTruthyValues" @change="handleTruthySelectionsNativeChange">
-            <option v-for="item in truthyValueOptions" :key="item" :value="item">{{ item }}</option>
-          </select>
-          <textarea
-            v-model="stateTruthyValuesText"
-            :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')"
-            rows="3"
-            class="border-default focus:border-primary focus:ring-primary/20 w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring"
-          />
+          <USelect :model-value="stateSelectedTruthyValues" :items="truthyValueOptions" multiple class="w-full" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')" @update:model-value="handleTruthySelectChange" />
+          <UTextarea v-model="stateTruthyValuesText" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')" :rows="3" class="w-full" />
         </div>
       </UFormField>
       <div class="flex items-center justify-between rounded-sm border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-500">
@@ -69,20 +62,16 @@ const updateSelectedValuesFromText = (): void => {
   stateSelectedTruthyValues.value = allValues.filter((value) => truthyValueOptions.includes(value));
 };
 
+const handleTruthySelectChange = (val: unknown): void => {
+  stateSelectedTruthyValues.value = Array.isArray(val)
+    ? val.map((v) => (typeof v === 'string' ? v : String((v as Record<string, unknown>)?.value ?? v))).filter((v) => truthyValueOptions.includes(v))
+    : [];
+};
+
 const mergeSelectedValuesToText = (selected: string[]): void => {
   const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.includes(value));
   const merged = [...new Set([...selected, ...customValues])];
   stateTruthyValuesText.value = merged.join(',');
-};
-
-const handleTruthySelectionsNativeChange = (event: Event): void => {
-  const target = event.target as HTMLSelectElement | null;
-  if (!target) {
-    stateSelectedTruthyValues.value = [];
-    return;
-  }
-
-  stateSelectedTruthyValues.value = Array.from(target.selectedOptions).map((option) => option.value);
 };
 
 const skipSync = ref(false);
