@@ -1,5 +1,13 @@
 <template>
-  <CrawlersNodesCommonBasic v-bind="stateNodeAttrs" icon-name="i-lucide-variable" :title="t('components.crawler.blueprint.nodes.variable.set.title')" :description="t('components.crawler.blueprint.nodes.variable.set.description')" header-bg="bg-fuchsia-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
+  <CrawlersNodesCommonBasic
+    v-bind="stateNodeAttrs"
+    icon-name="i-lucide-variable"
+    :title="t('components.crawler.blueprint.nodes.variable.set.title')"
+    :description="t('components.crawler.blueprint.nodes.variable.set.description')"
+    header-bg="bg-fuchsia-500"
+    :left-pins="computedLeftPins"
+    :right-pins="computedRightPins"
+  >
     <div class="space-y-2">
       <template v-if="stateVariables.length > 0">
         <div v-for="(item, index) in stateVariables" :key="item.id" class="space-y-1">

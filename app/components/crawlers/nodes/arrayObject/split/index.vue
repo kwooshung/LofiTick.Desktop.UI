@@ -15,15 +15,7 @@
           <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
-        <CrawlersNodesCommonNumberInput
-          v-else
-          id="crawlerArrayObjectSplitSize"
-          v-model="stateChunkSize"
-          :min="1"
-          :step="1"
-          prefix="#"
-          :unit="t('components.crawler.blueprint.nodes.common.units.item')"
-        />
+        <CrawlersNodesCommonNumberInput v-else id="crawlerArrayObjectSplitSize" v-model="stateChunkSize" :min="1" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.item')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

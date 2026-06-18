@@ -281,20 +281,17 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch(
-  [stateMode, stateSourceIds, stateSourceValues],
-  () => {
-    if (!stateInitialized.value) {
-      return;
-    }
-
-    syncSourceValuesByIds();
-    stateNode.node.data = {
-      ...(stateNode.node.data as Record<string, unknown> | undefined),
-      mode: stateMode.value,
-      sourceIds: [...stateSourceIds.value],
-      sourceValues: { ...stateSourceValues.value }
-    };
+watch([stateMode, stateSourceIds, stateSourceValues], () => {
+  if (!stateInitialized.value) {
+    return;
   }
-);
+
+  syncSourceValuesByIds();
+  stateNode.node.data = {
+    ...(stateNode.node.data as Record<string, unknown> | undefined),
+    mode: stateMode.value,
+    sourceIds: [...stateSourceIds.value],
+    sourceValues: { ...stateSourceValues.value }
+  };
+});
 </script>
