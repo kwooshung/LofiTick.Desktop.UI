@@ -587,6 +587,17 @@ onMounted(async () => {
 
   stateLastDraftSnapshot.value = createSnapshot();
 
+  /**
+   * 延迟调用 fitView，确保 DOM 和节点尺寸完全渲染后再适应视图。
+   *
+   * 这解决了在 modal/slideover 打开时节点被意外放大的问题：
+   * fit-view-on-init 会在 VueFlow 初始化时立即触发，但若此时 DOM 还未完全渲染（例如抽屉正在动画），
+   * fitView 计算的节点边界会不准确。延迟 150ms 调用可让 DOM 完全就位。
+   */
+  setTimeout(() => {
+    void fitView({ padding: 0.15, duration: 300 });
+  }, 150);
+
   stateAutoSaveTimerId.value = window.setInterval(() => {
     if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
       return;

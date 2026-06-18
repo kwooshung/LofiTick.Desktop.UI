@@ -11,7 +11,6 @@
       :selection-key-code="true"
       :select-nodes-on-drag="true"
       :selection-mode="SelectionMode.Full"
-      fit-view-on-init
       @dragover="(event: DragEvent) => emit('dragover', event as DragEvent)"
       @dragleave="(event: DragEvent) => emit('dragleave', event as DragEvent)"
       @connect="(params) => emit('connect', params)"

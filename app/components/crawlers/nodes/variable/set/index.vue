@@ -1,6 +1,6 @@
 <template>
   <CrawlersNodesCommonBasic
-    v-bind="stateNodeAttrs"
+    v-bind="computedNodeRootAttrs"
     icon-name="i-lucide-variable"
     :title="t('components.crawler.blueprint.nodes.variable.set.title')"
     :description="t('components.crawler.blueprint.nodes.variable.set.description')"
@@ -128,16 +128,28 @@ import {
 } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
- * 配置：关闭 fragment 下的自动 attrs 继承，改为手动透传。
+ * 配置：关闭 fragment 下的自动 attrs 继承。
  */
 defineOptions({
   inheritAttrs: false
 });
 
 /**
- * 属性：Vue Flow 注入的节点上下文 attrs。
+ * 属性：当前节点组件接收到的运行时 attrs。
  */
 const stateNodeAttrs = useAttrs();
+
+/**
+ * 计算属性：仅透传影响节点布局的 attrs。
+ */
+const computedNodeRootAttrs = computed(() => {
+  const stateAttrs = stateNodeAttrs as Record<string, unknown>;
+
+  return {
+    class: stateAttrs.class,
+    style: stateAttrs.style
+  };
+});
 
 /**
  * 事件：声明 Vue Flow 注入的节点内部刷新事件。
