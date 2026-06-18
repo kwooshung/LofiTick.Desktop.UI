@@ -68,6 +68,511 @@
 import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
 
+/**
+ * 属性：页面刷新标记。
+ */
+const { createNonce = 0 } = defineProps<IPageQqGroupsProps>();
+
+/**
+ * 组件：Nuxt 时间显示组件
+ */
+const Datetime = resolveComponent('Datetime');
+
+/**
+ * 组件：按钮
+ */
+const UButton = resolveComponent('UButton');
+
+/**
+ * 组件：链接
+ */
+const ULink = resolveComponent('ULink');
+
+/**
+ * 组件：开关
+ */
+const USwitch = resolveComponent('USwitch');
+
+/**
+ * Hook：Tauri 环境
+ */
+const { isTauriRuntime } = useTauriEnv();
+
+/**
+ * Hook：Tauri 窗口能力
+ */
+const { openExternalUrl } = useTauriWindow();
+
+/**
+ * Hook：国际化
+ */
+const { t } = useI18n();
+
+/**
+ * 路由
+ */
+const route = useRoute();
+
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：获取当前生效分页大小。
+ * @returns {string} 分页大小文本。
+ */
+const currentPageSizeGet = (): string => {
+  const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
+
+  if (routeValue !== '') {
+    return routeValue;
+  }
+
+  return String(getPageSizeByCookieParsed(pagesizesCookie.value, 'common'));
+};
+
+/**
+ * 函数：从路由查询参数构建接口查询参数
+ * @returns {Record<string,string|string[]>} 查询参数
+ */
+const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
+  const query: Record<string, string | string[]> = {};
+
+  const name = typeof route.query.name !== 'undefined' ? String(route.query.name).trim() : '';
+  if (name) {
+    query.name = name;
+  }
+
+  const number = typeof route.query.number !== 'undefined' ? String(route.query.number).trim() : '';
+  if (number) {
+    query.number = number;
+  }
+
+  if (String(route.query.is_and) === '1') {
+    query.is_and = '1';
+  }
+
+  const asArray = (v: unknown): string[] => (Array.isArray(v) ? v.map((i) => String(i)) : v != null ? [String(v)] : []);
+
+  const sizes = asArray(route.query.size);
+  if (sizes.length > 0) {
+    query.size = sizes;
+  }
+
+  if (typeof route.query.full !== 'undefined') {
+    query.full = String(route.query.full);
+  }
+
+  if (typeof route.query.enabled !== 'undefined') {
+    query.enabled = String(route.query.enabled);
+  }
+
+  if (typeof route.query.page !== 'undefined') {
+    query.page = String(route.query.page);
+  }
+
+  query.pagesize = currentPageSizeGet();
+
+  if (typeof route.query.order_by !== 'undefined') {
+    const by = String(route.query.order_by);
+    if (by === 'id' || by === 'number' || by === 'size' || by === 'updated' || by === 'created') {
+      query.order_by = by;
+    }
+  }
+
+  if (typeof route.query.order_dir !== 'undefined') {
+    const dir = String(route.query.order_dir).toLowerCase();
+    if (dir === 'asc' || dir === 'desc') {
+      query.order_dir = dir;
+    }
+  }
+
+  return query;
+};
+
+/**
+ * 排序：切换指定字段（互斥）
+ * @param {'id' | 'number' | 'size' | 'updated' | 'created'} field 排序字段
+ */
+const toggleSort = (field: 'id' | 'number' | 'size' | 'updated' | 'created') => {
+  const currentBy = String(route.query.order_by || 'id');
+  const currentDir = String(route.query.order_dir || 'desc');
+  const nextBy = field;
+  const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
+  const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+  q.order_by = nextBy;
+  q.order_dir = nextDir;
+  navigateTo({ path: route.path, query: q });
+};
+
+/**
+ * API：QQ群搜索
+ */
+const { datas, loading, refreshDebounced } = await useApi<IQueryResultSocialQqGroupSummaryPage>('socials/qq/groups', { datas: buildApiQueryFromRoute(), immediate: true });
+
+/**
+ * API：群号/名称查重（防抖请求）
+ */
+const {
+  datas: stateUniqueDatas,
+  loading: stateUniqueLoading,
+  refreshDebounced: refreshUniqueDebounced
+} = await useApi<{ nameExists: boolean; numberExists: boolean }>('socials/qq/groups/unique', {
+  datas: {},
+  immediate: false
+});
+
+/**
+ * API：更新启用状态（复用实例，避免 useFetch key 缓存导致后续不请求）
+ */
+const { refresh: refreshSetEnabled } = await useApi<{ affected: number }>('socials/qq/groups/enabled', { method: 'POST', immediate: false });
+
+/**
+ * API：更新满员状态（复用实例，避免 useFetch key 缓存导致后续不请求）
+ */
+const { refresh: refreshSetFull } = await useApi<{ affected: number }>('socials/qq/groups/full', { method: 'POST', immediate: false });
+
+/**
+ * API：保存（新增/编辑）
+ * - 禁止在函数中直接调用 useApi，统一在这里集中定义
+ */
+const { refresh: refreshSave } = await useApi<{ affected: number }>('socials/qq/groups/add', { method: 'POST', immediate: false });
+
+/**
+ * 状态：名称查重结果
+ */
+const stateUniqueNameExists = ref(false);
+
+/**
+ * 状态：号码查重结果
+ */
+const stateUniqueNumberExists = ref(false);
+
+/**
+ * 状态：当前正在查重的名称字段（用于 help 文案精准显示）
+ */
+const stateUniqueCheckingName = ref(false);
+
+/**
+ * 状态：当前正在查重的号码字段（用于 help 文案精准显示）
+ */
+const stateUniqueCheckingNumber = ref(false);
+
+/**
+ * 计算属性：名称查重提示（使用 FormField help，默认行为：有内容才展示）
+ */
+const computedUniqueNameHelp = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const name = String(stateEditor.value.name ?? '').trim();
+  if (!name) {
+    return undefined;
+  }
+
+  const valid = schema.pick({ name: true }).safeParse({ name }).success;
+  if (!valid) {
+    return undefined;
+  }
+
+  if (stateUniqueLoading.value && stateUniqueCheckingName.value) {
+    return t('pages.socials.qq.groups.form.unique.checking');
+  }
+  return undefined;
+});
+
+/**
+ * 计算属性：名称查重错误（error）
+ */
+const computedUniqueNameError = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const name = String(stateEditor.value.name ?? '').trim();
+  if (!name) {
+    return undefined;
+  }
+
+  return stateUniqueNameExists.value ? t('pages.socials.qq.groups.form.unique.nameExists') : undefined;
+});
+
+/**
+ * 计算属性：群号查重提示（help）
+ */
+const computedUniqueNumberHelp = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const number = String(stateEditor.value.number ?? '').trim();
+  if (!number) {
+    return undefined;
+  }
+
+  const valid = schema.pick({ number: true }).safeParse({ number }).success;
+  if (!valid) {
+    return undefined;
+  }
+
+  if (stateUniqueLoading.value && stateUniqueCheckingNumber.value) {
+    return t('pages.socials.qq.groups.form.unique.checking');
+  }
+  return undefined;
+});
+
+/**
+ * 计算属性：群号查重错误（error，优先级高于 help 且会给输入框上 error 颜色）
+ */
+const computedUniqueNumberError = computed<string | undefined>(() => {
+  if (!stateEditorOpen.value) {
+    return undefined;
+  }
+
+  const number = String(stateEditor.value.number ?? '').trim();
+  if (!number) {
+    return undefined;
+  }
+
+  return stateUniqueNumberExists.value ? t('pages.socials.qq.groups.form.unique.numberExists') : undefined;
+});
+
+/**
+ * 状态：群号复制反馈
+ */
+const stateCopiedNumberId = ref<number | null>(null);
+let stateCopiedNumberTimer: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * 函数：复制到剪贴板
+ * @param {string} text 文本
+ * @returns {Promise<boolean>} 是否成功
+ */
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  if (!import.meta.client) {
+    return false;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'fixed';
+      el.style.left = '-9999px';
+      el.style.top = '-9999px';
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(el);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+};
+
+/**
+ * 事件：复制群号（复制成功后短暂显示对号）
+ * @param {IPageTableColumnQqGroup} row 行数据
+ */
+const handleCopyGroupNumber = async (row: IPageTableColumnQqGroup): Promise<void> => {
+  const ok = await copyToClipboard(String(row.number ?? ''));
+  if (!ok) {
+    return;
+  }
+
+  stateCopiedNumberId.value = row.id;
+  if (stateCopiedNumberTimer) {
+    clearTimeout(stateCopiedNumberTimer);
+  }
+  stateCopiedNumberTimer = setTimeout(() => {
+    if (stateCopiedNumberId.value === row.id) {
+      stateCopiedNumberId.value = null;
+    }
+  }, 1500);
+};
+
+/**
+ * 函数：构建群链接地址。
+ * @param {IPageTableColumnQqGroup} row 行数据
+ * @returns {string} 链接地址
+ */
+const buildGroupLinkUrl = (row: IPageTableColumnQqGroup): string => String(row.url ?? '').trim();
+
+/**
+ * 事件：点击群链接。
+ * @param {MouseEvent} event 点击事件
+ * @param {IPageTableColumnQqGroup} row 行数据
+ */
+const handleGroupLinkClick = async (event: MouseEvent, row: IPageTableColumnQqGroup): Promise<void> => {
+  const url = buildGroupLinkUrl(row);
+  if (!url) {
+    event.preventDefault();
+    return;
+  }
+
+  if (isTauriRuntime.value) {
+    event.preventDefault();
+    await openExternalUrl(url);
+  }
+};
+
+/**
+ * 函数：群规模文案
+ * @param {number} count 人数
+ * @returns {string} 文案
+ */
+const getSizeLabel = (count: number): string => t('pages.socials.qq.groups.form.size.item', { count });
+
+/**
+ * 计算属性：将接口返回映射为表格需要的格式
+ */
+const computedQqGroupDatas = computed<IPageTableColumnQqGroup[]>(() => {
+  if (!datas.value || !datas.value.rows || datas.value.rows.length === 0) {
+    return [];
+  }
+
+  return datas.value.rows.map((item) => ({
+    id: item.id,
+    name: item.name,
+    number: String(item.number),
+    size: item.size,
+    url: item.url,
+    full: item.full,
+    enabled: item.enabled,
+    times: {
+      updated: item.updated,
+      created: item.created
+    }
+  }));
+});
+
+/**
+ * 计算属性：当前页（与路由同步）
+ */
+const computedPage = computed<number>({
+  get: () => {
+    const str = route.query.page as string | undefined;
+    const num = parseInt(str ?? '', 10);
+    return Number.isFinite(num) && num > 0 ? num : 1;
+  },
+  set: (value: number) => {
+    const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
+    q.page = String(Math.max(1, value));
+    navigateTo({ path: route.path, query: q });
+  }
+});
+
+/**
+ * 计算属性：每页数量
+ */
+const computedItemsPerPage = computed<number>(() => {
+  const str = route.query.pagesize as string | undefined;
+  const parsed = parseInt(str ?? '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
+  if (Number.isFinite(cookieSize) && cookieSize > 0) {
+    return cookieSize;
+  }
+  const apiSize = Number(datas.value?.pageSize ?? 20);
+  return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
+});
+
+/**
+ * 函数：切换启用状态
+ * @param {IPageTableColumnQqGroup} row 行数据
+ * @param {boolean} value 启用状态
+ */
+const handleToggleEnabled = async (row: IPageTableColumnQqGroup, value: boolean) => {
+  const prev = row.enabled;
+  row.enabled = value;
+
+  try {
+    await refreshSetEnabled({ datas: { id: row.id, enabled: value }, replace: true });
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  } catch {
+    row.enabled = prev;
+  }
+};
+
+/**
+ * 函数：切换满员状态
+ * @param {IPageTableColumnQqGroup} row 行数据
+ * @param {boolean} value 满员状态
+ */
+const handleToggleFull = async (row: IPageTableColumnQqGroup, value: boolean) => {
+  const prev = row.full;
+  row.full = value;
+
+  try {
+    await refreshSetFull({ datas: { id: row.id, full: value }, replace: true });
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  } catch {
+    row.full = prev;
+  }
+};
+
+/**
+ * 监听：查询参数变化时刷新列表（防抖）
+ */
+watch(
+  () => route.query,
+  () => {
+    refreshDebounced({ datas: buildApiQueryFromRoute(), replace: true });
+  }
+);
+
+/**
+ * 常量：规模下拉项
+ */
+const sizeSelectItems = [
+  { label: getSizeLabel(200), value: 20 },
+  { label: getSizeLabel(500), value: 50 },
+  { label: getSizeLabel(1000), value: 100 },
+  { label: getSizeLabel(2000), value: 200 },
+  { label: getSizeLabel(5000), value: 500 }
+];
+
+/**
+ * 常量：表单验证规则
+ */
+const schema = z.object({
+  id: z.number().optional(),
+  name: z
+    .string({ message: t('pages.socials.qq.groups.form.name.verify.required') })
+    .trim()
+    .min(1, t('pages.socials.qq.groups.form.name.verify.required'))
+    .max(64, t('pages.socials.qq.groups.form.name.verify.length')),
+  number: z
+    .string({ message: t('pages.socials.qq.groups.form.number.verify.required') })
+    .trim()
+    .min(1, t('pages.socials.qq.groups.form.number.verify.required'))
+    .regex(/^\d{5,12}$/, t('pages.socials.qq.groups.form.number.verify.pattern')),
+  size: z.number({ message: t('pages.socials.qq.groups.form.size.verify.required') }).refine((val) => [20, 50, 100, 200, 500].includes(val), { message: t('pages.socials.qq.groups.form.size.verify.pattern') }),
+  url: z
+    .string({ message: t('pages.socials.qq.groups.form.url.verify.required') })
+    .trim()
+    .min(1, t('pages.socials.qq.groups.form.url.verify.required'))
+    .url(t('pages.socials.qq.groups.form.url.verify.pattern')),
+  full: z.boolean().optional(),
+  enabled: z.boolean().optional()
+});
+
+/**
+ * 类型：表单数据
+ */
+type Schema = z.output<typeof schema>;
 
 /**
  * 计算属性：表单是否可提交
@@ -215,7 +720,7 @@ const handleEdit = (row: IPageTableColumnQqGroup) => {
 /**
  * 事件：提交表单
  */
-const handleSubmit = async (payload: z.output<typeof schema>) => {
+const handleSubmit = async (payload: Schema) => {
   if (stateUniqueNameExists.value || stateUniqueNumberExists.value) {
     return;
   }
@@ -239,9 +744,9 @@ const handleSubmit = async (payload: z.output<typeof schema>) => {
 
 /**
  * 事件：提交表单
- * @param {FormSubmitEvent<z.output<typeof schema>>} e 表单提交事件
+ * @param {FormSubmitEvent<Schema>} e 表单提交事件
  */
-const onSubmit = async (e: FormSubmitEvent<z.output<typeof schema>>): Promise<void> => {
+const onSubmit = async (e: FormSubmitEvent<Schema>): Promise<void> => {
   if (schema.safeParse(e.data).success) {
     await handleSubmit(e.data);
   }

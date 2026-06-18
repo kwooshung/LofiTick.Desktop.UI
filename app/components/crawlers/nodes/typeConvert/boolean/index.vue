@@ -32,7 +32,7 @@ const { t } = useI18n();
 const stateNode = useNode();
 const stateInitialized = ref(false);
 const stateTruthyValuesText = ref('true,1,"yes","on"');
-const stateSelectedTruthyValues = ref<string[]>(['true','1','"yes"','"on"']);
+const stateSelectedTruthyValues = ref<string[]>(['true', '1', '"yes"', '"on"']);
 
 const truthyValueOptions = [
   { value: 'true', label: 'true' },
@@ -96,15 +96,19 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
-watch(stateSelectedTruthyValues, (selected) => {
-  if (!stateInitialized.value) {
-    return;
-  }
+watch(
+  stateSelectedTruthyValues,
+  (selected) => {
+    if (!stateInitialized.value) {
+      return;
+    }
 
-  skipSync.value = true;
-  mergeSelectedValuesToText(selected);
-  skipSync.value = false;
-}, { deep: true });
+    skipSync.value = true;
+    mergeSelectedValuesToText(selected);
+    skipSync.value = false;
+  },
+  { deep: true }
+);
 
 watch(stateTruthyValuesText, () => {
   if (!stateInitialized.value || skipSync.value) {
