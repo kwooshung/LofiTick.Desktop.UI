@@ -66,7 +66,7 @@ const { edges } = useVueFlow();
  */
 const stateInitialized = ref(false);
 /**
- * 状态：输入文本值。
+ * 状态：输入文本。
  */
 const stateText = ref('');
 /**

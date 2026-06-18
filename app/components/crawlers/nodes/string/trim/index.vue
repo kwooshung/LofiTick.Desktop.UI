@@ -53,13 +53,16 @@ const { edges } = useVueFlow();
  */
 const stateInitialized = ref(false);
 /**
- * 状态：输入文本值。
+ * 状态：输入文本。
  */
 const stateText = ref('');
 /**
  * 状态：裁剪方向。
  */
 const stateDirection = ref<'both' | 'start' | 'end' | 'all'>('both');
+/**
+ * 常量：默认空白字符类型集合。
+ */
 const DEFAULT_WHITESPACE_TYPES = ['space', 'tab', 'newline', 'carriage-return', 'vertical-tab', 'form-feed'] as const;
 /**
  * 状态：空白字符类型集合。
@@ -79,6 +82,9 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 计算属性：裁剪方向选项。
+ */
 const directionOptions = computed(() => [
   { label: t('components.crawler.blueprint.nodes.string.trim.options.directionBoth'), value: 'both' },
   { label: t('components.crawler.blueprint.nodes.string.trim.options.directionStart'), value: 'start' },
@@ -86,6 +92,9 @@ const directionOptions = computed(() => [
   { label: t('components.crawler.blueprint.nodes.string.trim.options.directionAll'), value: 'all' }
 ]);
 
+/**
+ * 计算属性：空白字符类型选项。
+ */
 const whitespaceTypeOptions = computed(() => [
   { label: t('components.crawler.blueprint.nodes.string.trim.options.whitespaceSpace'), value: 'space' },
   { label: t('components.crawler.blueprint.nodes.string.trim.options.whitespaceTab'), value: 'tab' },
