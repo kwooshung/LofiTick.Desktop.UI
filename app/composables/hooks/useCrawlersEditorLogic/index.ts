@@ -29,7 +29,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return 'exec';
     }
 
-    if (id.includes('boolean') || id.includes('bool') || id.includes('result')) {
+    if (id.includes('boolean') || id.includes('bool')) {
       return 'boolean';
     }
 

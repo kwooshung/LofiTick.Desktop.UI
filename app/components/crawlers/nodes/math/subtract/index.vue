@@ -1,11 +1,7 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide-minus" :title="t('components.crawler.blueprint.nodes.math.subtract.title')" :description="t('components.crawler.blueprint.nodes.math.subtract.description')" header-bg="bg-lime-500" :left-pins="computedLeftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField
-        v-for="(operandId, index) in stateOperandIds"
-        :key="operandId"
-        :label="t('components.crawler.blueprint.nodes.common.operandInputLabel', { label: labelFromIndex(index).toUpperCase() })"
-      >
+      <UFormField v-for="(operandId, index) in stateOperandIds" :key="operandId" :label="t('components.crawler.blueprint.nodes.common.operandInputLabel', { label: labelFromIndex(index).toUpperCase() })">
         <div v-if="hasTargetPinConnection(inputHandleIdFromOperandId(operandId))" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
           <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>

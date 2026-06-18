@@ -1,11 +1,7 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide-link" :title="t('components.crawler.blueprint.nodes.string.concat.title')" :description="t('components.crawler.blueprint.nodes.string.concat.description')" header-color="" header-bg="bg-teal-500" :left-pins="computedLeftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField
-        v-for="(segmentId, index) in stateSegmentIds"
-        :key="segmentId"
-        :label="t('components.crawler.blueprint.nodes.string.concat.fields.segment.label', { label: labelFromIndex(index).toUpperCase() })"
-      >
+      <UFormField v-for="(segmentId, index) in stateSegmentIds" :key="segmentId" :label="t('components.crawler.blueprint.nodes.string.concat.fields.segment.label', { label: labelFromIndex(index).toUpperCase() })">
         <div v-if="hasTargetPinConnection(inputHandleIdFromSegmentId(segmentId))" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
           <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>

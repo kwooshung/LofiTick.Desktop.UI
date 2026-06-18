@@ -4,14 +4,24 @@
 
     <div class="space-y-6 pb-6">
       <UPageCard variant="outline" :ui="{ root: 'rounded-lg', container: 'divide-y divide-default' }">
-        <UFormField :label="t('pages.settings.cron.serverShortcut.fields.serverTaskLabel')" :description="t('pages.settings.cron.serverShortcut.heroDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.serverTaskLabel')"
+          :description="t('pages.settings.cron.serverShortcut.heroDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
             <UBadge color="primary" variant="soft">{{ t('pages.settings.cron.tabs.server') }}</UBadge>
             <UBadge color="neutral" variant="outline">1Panel</UBadge>
           </div>
         </UFormField>
 
-        <UFormField :label="t('pages.settings.cron.serverShortcut.fields.realCronLabel')" :description="t('pages.settings.cron.serverShortcut.fields.realCronDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.realCronLabel')"
+          :description="t('pages.settings.cron.serverShortcut.fields.realCronDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
             <ULink raw :href="computedCronjobsUrl" class="bg-primary text-inverted hover:bg-primary/90 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleOpenExternal(computedCronjobsUrl)">
               <UIcon name="i-lucide:arrow-up-right" class="size-4 shrink-0" />
@@ -24,7 +34,12 @@
           </div>
         </UFormField>
 
-        <UFormField :label="t('pages.settings.cron.serverShortcut.fields.panelBaseLabel')" :description="t('pages.settings.cron.serverShortcut.fields.panelBaseDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.panelBaseLabel')"
+          :description="t('pages.settings.cron.serverShortcut.fields.panelBaseDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-col items-stretch gap-2 justify-self-end xl:items-end">
             <div class="text-highlighted w-full text-sm leading-6 break-all xl:max-w-4xl xl:text-right">{{ computedPanelBase }}</div>
 

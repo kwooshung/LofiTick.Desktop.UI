@@ -160,7 +160,7 @@ const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataT
     return 'exec';
   }
 
-  if (id.includes('boolean') || id.includes('bool') || id.includes('result')) {
+  if (id.includes('boolean') || id.includes('bool')) {
     return 'boolean';
   }
 
