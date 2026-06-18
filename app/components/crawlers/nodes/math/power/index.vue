@@ -48,7 +48,13 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：底数值。
+ */
 const stateBase = ref(2);
+/**
+ * 状态：指数值。
+ */
 const stateExp = ref(2);
 
 const leftPins: IBasicSidePin[] = [

@@ -28,16 +28,25 @@ import type { ICrawlersNodesCommonNumberInputProps } from '@/components/crawlers
  */
 const props = defineProps<ICrawlersNodesCommonNumberInputProps>();
 
+/**
+ * 计算属性：是否显示前缀标签。
+ */
 const computedShowPrefix = computed(() => {
   const prefix = String(props.prefix ?? '').trim();
 
   return prefix !== '' && prefix !== '#';
 });
 
+/**
+ * 计算属性：根容器样式类。
+ */
 const computedRootClass = computed(() => {
   return computedShowPrefix.value ? 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center' : 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
 });
 
+/**
+ * 计算属性：输入包裹容器样式类。
+ */
 const computedInputWrapClass = computed(() => {
   return computedShowPrefix.value ? 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300' : 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
 });

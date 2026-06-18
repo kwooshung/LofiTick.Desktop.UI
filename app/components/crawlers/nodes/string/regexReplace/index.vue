@@ -74,9 +74,21 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：输入文本值。
+ */
 const stateText = ref('');
+/**
+ * 状态：正则表达式。
+ */
 const statePattern = ref('');
+/**
+ * 状态：替换文本。
+ */
 const stateReplacement = ref('');
+/**
+ * 状态：正则标志。
+ */
 const stateFlags = ref('g');
 
 /**

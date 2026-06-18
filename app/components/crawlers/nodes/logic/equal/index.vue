@@ -27,6 +27,9 @@ const stateNode = useNode();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：操作数引脚 ID 集合。
+ */
 const stateOperandIds = ref<string[]>([]);
 
 const createOperandId = (): string => {
@@ -64,6 +67,9 @@ const topPercentFromIndex = (index: number, total: number): number => {
   return Math.round(start + index * step);
 };
 
+/**
+ * 计算属性：左侧输入引脚配置。
+ */
 const computedLeftPins = computed<IBasicSidePin[]>(() => {
   return stateOperandIds.value.map((operandId, index) => ({
     id: `input-${operandId}-any`,
@@ -75,10 +81,16 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
   }));
 });
 
+/**
+ * 函数：新增操作数输入引脚。
+ */
 const handleOperandAdd = (): void => {
   stateOperandIds.value = [...stateOperandIds.value, createOperandId()];
 };
 
+/**
+ * 函数：移除操作数输入引脚。
+ */
 const handleOperandRemove = (): void => {
   if (stateOperandIds.value.length <= 2) {
     return;

@@ -2697,6 +2697,9 @@ const platformLinksRender = (item: IPageTableColumnHotsearchAdMaterial) => {
 
   const links = options.map((option) => {
     const to = buildPlatformLocation(option.key);
+    /**
+     * 状态：当前平台链接是否激活。
+     */
     const isActive = option.key === currentPlatform;
 
     return h(

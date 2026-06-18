@@ -56,7 +56,13 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：输入文本值。
+ */
 const stateText = ref('');
+/**
+ * 状态：分隔符。
+ */
 const stateSeparator = ref(',');
 
 /**

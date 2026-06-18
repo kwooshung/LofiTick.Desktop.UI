@@ -52,9 +52,18 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：输入文本值。
+ */
 const stateText = ref('');
+/**
+ * 状态：裁剪方向。
+ */
 const stateDirection = ref<'both' | 'start' | 'end' | 'all'>('both');
 const DEFAULT_WHITESPACE_TYPES = ['space', 'tab', 'newline', 'carriage-return', 'vertical-tab', 'form-feed'] as const;
+/**
+ * 状态：空白字符类型集合。
+ */
 const stateWhitespaceTypes = ref<string[]>([...DEFAULT_WHITESPACE_TYPES]);
 
 /**
@@ -86,6 +95,9 @@ const whitespaceTypeOptions = computed(() => [
   { label: t('components.crawler.blueprint.nodes.string.trim.options.whitespaceFormFeed'), value: 'form-feed' }
 ]);
 
+/**
+ * 函数：切换空白字符类型。
+ */
 const handleWhitespaceTypeToggle = (type: string, checked: boolean): void => {
   if (checked) {
     stateWhitespaceTypes.value = [...stateWhitespaceTypes.value, type];

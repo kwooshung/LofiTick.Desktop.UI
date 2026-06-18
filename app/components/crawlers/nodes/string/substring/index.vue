@@ -57,8 +57,17 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：输入文本值。
+ */
 const stateText = ref('');
+/**
+ * 状态：起始位置。
+ */
 const stateStart = ref(0);
+/**
+ * 状态：截取长度。
+ */
 const stateLength = ref(10);
 
 /**

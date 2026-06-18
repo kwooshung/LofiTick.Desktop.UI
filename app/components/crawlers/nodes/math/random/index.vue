@@ -60,18 +60,39 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：最小值。
+ */
 const stateMin = ref(0);
+/**
+ * 状态：最大值。
+ */
 const stateMax = ref(1);
+/**
+ * 状态：区间类型。
+ */
 const stateIntervalType = ref<TRandomIntervalType>('leftClosedRightOpen');
+/**
+ * 状态：数值类型。
+ */
 const stateNumberType = ref<TRandomNumberType>('float');
 
+/**
+ * 计算属性：数值步长。
+ */
 const computedNumberStep = computed(() => (stateNumberType.value === 'integer' ? 1 : 0.1));
 
+/**
+ * 计算属性：当前区间说明。
+ */
 const computedSelectedIntervalDescription = computed(() => {
   const targetOption = stateIntervalTypeOptions.value.find((option) => option.value === stateIntervalType.value);
   return String(targetOption?.description ?? '');
 });
 
+/**
+ * 计算属性：区间类型选项。
+ */
 const stateIntervalTypeOptions = computed(() => [
   {
     value: 'leftClosedRightOpen',
@@ -95,6 +116,9 @@ const stateIntervalTypeOptions = computed(() => [
   }
 ]);
 
+/**
+ * 计算属性：数值类型选项。
+ */
 const stateNumberTypeOptions = computed(() => [
   { value: 'float', label: t('components.crawler.blueprint.nodes.math.random.fields.numberType.options.float') },
   { value: 'integer', label: t('components.crawler.blueprint.nodes.math.random.fields.numberType.options.integer') }

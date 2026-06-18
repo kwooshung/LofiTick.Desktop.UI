@@ -41,7 +41,13 @@ const { edges } = useVueFlow();
  * 状态：是否完成首次数据回填。
  */
 const stateInitialized = ref(false);
+/**
+ * 状态：取整模式。
+ */
 const stateRoundMode = ref<TRoundMode>('round');
+/**
+ * 状态：输入数值。
+ */
 const stateValue = ref(0);
 
 const leftPins: IBasicSidePin[] = [
@@ -55,6 +61,9 @@ const leftPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 计算属性：取整模式选项。
+ */
 const stateModeOptions = computed(() => [
   { value: 'round', label: t('components.crawler.blueprint.nodes.math.round.fields.mode.options.round') },
   { value: 'ceil', label: t('components.crawler.blueprint.nodes.math.round.fields.mode.options.ceil') },
