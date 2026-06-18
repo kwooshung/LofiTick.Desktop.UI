@@ -63,7 +63,7 @@ const updateSelectedValuesFromText = (): void => {
 };
 
 const handleTruthySelectChange = (val: unknown): void => {
-  stateSelectedTruthyValues.value = Array.isArray(val);
+  stateSelectedTruthyValues.value = Array.isArray(val) ? val.map((v) => (typeof v === 'string' ? v : String((v as Record<string, unknown>)?.value ?? v))).filter((v) => truthyValueOptions.includes(v)) : [];
 };
 const mergeSelectedValuesToText = (selected: string[]): void => {
   const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.includes(value));
