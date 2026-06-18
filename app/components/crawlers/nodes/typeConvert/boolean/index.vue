@@ -3,16 +3,10 @@
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.label')">
         <div class="space-y-2">
-          <USelectMenu
-            v-model="stateSelectedTruthyValues"
-            :items="truthyValueOptions"
-            multiple
-            clear
-            :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')"
-            class="w-full"
-            :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-          />
-          <UTextarea v-model="stateTruthyValuesText" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')" rows="3" class="w-full" />
+          <select multiple class="border-default focus:border-primary focus:ring-primary/20 min-h-[5.5rem] w-full rounded-md border bg-white px-2 py-1 text-sm outline-none focus:ring" :value="stateSelectedTruthyValues" @change="handleTruthySelectionsNativeChange">
+            <option v-for="item in truthyValueOptions" :key="item" :value="item">{{ item }}</option>
+          </select>
+          <textarea v-model="stateTruthyValuesText" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.boolean.fields.truthyValues.placeholder')" rows="3" class="border-default focus:border-primary focus:ring-primary/20 w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring" />
         </div>
       </UFormField>
       <div class="flex items-center justify-between rounded-sm border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-500">
@@ -32,16 +26,9 @@ const { t } = useI18n();
 const stateNode = useNode();
 const stateInitialized = ref(false);
 const stateTruthyValuesText = ref('true,1,"yes","on"');
-const stateSelectedTruthyValues = ref<string[]>(['true', '1', '"yes"', '"on"']);
+const truthyValueOptions: string[] = ['true', '1', '"yes"', '"on"', 'y', 'ok'];
 
-const truthyValueOptions = [
-  { value: 'true', label: 'true' },
-  { value: '1', label: '1' },
-  { value: '"yes"', label: '"yes"' },
-  { value: '"on"', label: '"on"' },
-  { value: 'y', label: 'y' },
-  { value: 'ok', label: 'ok' }
-];
+const stateSelectedTruthyValues = ref<string[]>(['true', '1', '"yes"', '"on"']);
 
 const leftPins: IBasicSidePin[] = [
   {
@@ -74,13 +61,23 @@ const parseTruthyValues = (text: string): string[] => {
 
 const updateSelectedValuesFromText = (): void => {
   const allValues = parseTruthyValues(stateTruthyValuesText.value);
-  stateSelectedTruthyValues.value = allValues.filter((value) => truthyValueOptions.some((option) => option.value === value));
+  stateSelectedTruthyValues.value = allValues.filter((value) => truthyValueOptions.includes(value));
 };
 
 const mergeSelectedValuesToText = (selected: string[]): void => {
-  const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.some((option) => option.value === value));
+  const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.includes(value));
   const merged = [...new Set([...selected, ...customValues])];
   stateTruthyValuesText.value = merged.join(',');
+};
+
+const handleTruthySelectionsNativeChange = (event: Event): void => {
+  const target = event.target as HTMLSelectElement | null;
+  if (!target) {
+    stateSelectedTruthyValues.value = [];
+    return;
+  }
+
+  stateSelectedTruthyValues.value = Array.from(target.selectedOptions).map((option) => option.value);
 };
 
 const skipSync = ref(false);

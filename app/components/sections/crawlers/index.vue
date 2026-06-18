@@ -465,6 +465,9 @@ watch(
   { immediate: true }
 );
 
+/**
+ * 监听：查重接口 loading 状态变化
+ */
 watch(stateUniqueLoading, (isLoading) => {
   if (!isLoading) {
     stateUniqueCheckingDomain.value = false;
