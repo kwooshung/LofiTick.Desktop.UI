@@ -2143,23 +2143,106 @@ export const crawler = {
       typeConvert: {
         string: {
           title: '文字列へ変換',
-          description: '文字列型に変換します'
+          description: '文字列型に変換します',
+          hint: '任意の型のデータを文字列表現に変換します',
+          inputs: {
+            input: {
+              description: '変換するデータ（任意の型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '変換後の文字列'
+            }
+          },
+          fields: {
+            treatNullAsEmpty: {
+              label: 'null を空文字列として扱う'
+            }
+          }
         },
         number: {
           title: '数値へ変換',
-          description: '数値型に変換します'
+          description: '数値型に変換します',
+          hint: '任意の型のデータを数値に変換します。変換に失敗した場合はデフォルト値を返します',
+          inputs: {
+            input: {
+              description: '変換するデータ（任意の型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '変換後の数値'
+            }
+          },
+          fields: {
+            defaultValue: {
+              label: 'デフォルト値（変換失敗時）'
+            }
+          }
         },
         boolean: {
           title: '真偽値へ変換',
-          description: '真偽値型に変換します'
+          description: '真偽値型に変換します',
+          hint: '任意の型のデータをカスタムルールに基づいて真偽値に変換します',
+          inputs: {
+            input: {
+              description: '変換するデータ（任意の型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '変換後の真偽値'
+            }
+          },
+          fields: {
+            truthyValues: {
+              label: '真値リスト（カンマ区切り）'
+            }
+          }
         },
         json: {
           title: 'JSON へ変換',
-          description: 'JSON 文字列に変換します'
+          description: 'JSON 文字列に変換します',
+          hint: '任意の型のデータを JSON 文字列にシリアライズします',
+          inputs: {
+            input: {
+              description: '変換するデータ（任意の型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'シリアライズされた JSON 文字列'
+            }
+          },
+          fields: {
+            indent: {
+              label: 'インデント幅（0 でインデントなし）'
+            },
+            handleCircular: {
+              label: '循環参照を処理する'
+            }
+          }
         },
         parseJson: {
           title: 'JSON を解析',
-          description: 'JSON 文字列を解析します'
+          description: 'JSON 文字列を解析します',
+          hint: 'JSON 文字列をデータオブジェクトにデシリアライズします。失敗時はフォールバック値を返します',
+          inputs: {
+            input: {
+              description: '解析する JSON 文字列'
+            }
+          },
+          outputs: {
+            result: {
+              description: '解析後のデータオブジェクト'
+            }
+          },
+          fields: {
+            fallbackValue: {
+              label: 'フォールバック値（解析失敗時）'
+            }
+          }
         }
       },
       controlFlow: {

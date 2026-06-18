@@ -66,7 +66,7 @@ const state = {
 const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
   const { draggedType, isDragOver, isDragging } = state;
 
-  const { nodes, addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode, fitView } = useVueFlow();
+  const { nodes, addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow();
 
   /**
    * 函数：创建与当前画布不冲突的唯一节点 ID。
@@ -187,16 +187,16 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
     };
 
     /**
-     * 函数：放置后修正节点位置，使其以鼠标为中心并重新适应视图。
+     * 函数：放置后修正节点位置，使其以鼠标为中心。
      *
-     * 这里通过一次性回调在节点初始化后再修正坐标，并重新计算画布视图范围，然后移除监听。
+     * 这里通过一次性回调在节点初始化后再修正坐标，以鼠标位置为中心放置节点。
+     * 不调用 fitView 避免自动重置用户的当前视图缩放和平移状态（就像点击还原按钮）。
      */
     const { off } = onNodesInitialized(() => {
       updateNode(nodeId, (node) => ({
         position: { x: node.position.x - node.dimensions.width / 2, y: node.position.y - node.dimensions.height / 2 }
       }));
 
-      fitView({ padding: 0.15, duration: 300 });
       off();
     });
 

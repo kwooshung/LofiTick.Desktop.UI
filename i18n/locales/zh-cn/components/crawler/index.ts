@@ -2143,23 +2143,106 @@ export const crawler = {
       typeConvert: {
         string: {
           title: '转字符串',
-          description: '转换为字符串类型'
+          description: '转换为字符串类型',
+          hint: '将任意类型的数据转换为字符串表示',
+          inputs: {
+            input: {
+              description: '待转换的数据（任意类型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '转换后的字符串'
+            }
+          },
+          fields: {
+            treatNullAsEmpty: {
+              label: '将 null 视为空字符串'
+            }
+          }
         },
         number: {
           title: '转数字',
-          description: '转换为数字类型'
+          description: '转换为数字类型',
+          hint: '将任意类型的数据转换为数字，转换失败时返回默认值',
+          inputs: {
+            input: {
+              description: '待转换的数据（任意类型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '转换后的数字'
+            }
+          },
+          fields: {
+            defaultValue: {
+              label: '默认值（转换失败时）'
+            }
+          }
         },
         boolean: {
           title: '转布尔',
-          description: '转换为布尔类型'
+          description: '转换为布尔类型',
+          hint: '将任意类型的数据根据自定义规则转换为布尔值',
+          inputs: {
+            input: {
+              description: '待转换的数据（任意类型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '转换后的布尔值'
+            }
+          },
+          fields: {
+            truthyValues: {
+              label: '真值列表（逗号分隔）'
+            }
+          }
         },
         json: {
           title: '转 JSON',
-          description: '转换为 JSON 字符串'
+          description: '转换为 JSON 字符串',
+          hint: '将任意类型的数据序列化为 JSON 字符串',
+          inputs: {
+            input: {
+              description: '待转换的数据（任意类型）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '序列化后的 JSON 字符串'
+            }
+          },
+          fields: {
+            indent: {
+              label: '缩进宽度（0 为无缩进）'
+            },
+            handleCircular: {
+              label: '处理循环引用'
+            }
+          }
         },
         parseJson: {
           title: '解析 JSON',
-          description: '解析 JSON 字符串'
+          description: '解析 JSON 字符串',
+          hint: '将 JSON 字符串反序列化为数据对象，失败时返回备选值',
+          inputs: {
+            input: {
+              description: '待解析的 JSON 字符串'
+            }
+          },
+          outputs: {
+            result: {
+              description: '解析后的数据对象'
+            }
+          },
+          fields: {
+            fallbackValue: {
+              label: '备选值（解析失败时）'
+            }
+          }
         }
       },
       controlFlow: {

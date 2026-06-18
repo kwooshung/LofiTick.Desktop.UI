@@ -2119,23 +2119,106 @@ export const crawler = {
       typeConvert: {
         string: {
           title: '轉字串',
-          description: '轉換為字串型別'
+          description: '轉換為字串型別',
+          hint: '將任意型別的資料轉換為字串表示',
+          inputs: {
+            input: {
+              description: '待轉換的資料（任意型別）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '轉換後的字串'
+            }
+          },
+          fields: {
+            treatNullAsEmpty: {
+              label: '將 null 視為空字串'
+            }
+          }
         },
         number: {
           title: '轉數字',
-          description: '轉換為數字型別'
+          description: '轉換為數字型別',
+          hint: '將任意型別的資料轉換為數字，轉換失敗時返回預設值',
+          inputs: {
+            input: {
+              description: '待轉換的資料（任意型別）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '轉換後的數字'
+            }
+          },
+          fields: {
+            defaultValue: {
+              label: '預設值（轉換失敗時）'
+            }
+          }
         },
         boolean: {
           title: '轉布林',
-          description: '轉換為布林型別'
+          description: '轉換為布林型別',
+          hint: '將任意型別的資料根據自訂規則轉換為布林值',
+          inputs: {
+            input: {
+              description: '待轉換的資料（任意型別）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '轉換後的布林值'
+            }
+          },
+          fields: {
+            truthyValues: {
+              label: '真值列表（逗號分隔）'
+            }
+          }
         },
         json: {
           title: '轉 JSON',
-          description: '轉換為 JSON 字串'
+          description: '轉換為 JSON 字串',
+          hint: '將任意型別的資料序列化為 JSON 字串',
+          inputs: {
+            input: {
+              description: '待轉換的資料（任意型別）'
+            }
+          },
+          outputs: {
+            result: {
+              description: '序列化後的 JSON 字串'
+            }
+          },
+          fields: {
+            indent: {
+              label: '縮排寬度（0 為無縮排）'
+            },
+            handleCircular: {
+              label: '處理循環參考'
+            }
+          }
         },
         parseJson: {
           title: '解析 JSON',
-          description: '解析 JSON 字串'
+          description: '解析 JSON 字串',
+          hint: '將 JSON 字串反序列化為資料物件，失敗時返回備選值',
+          inputs: {
+            input: {
+              description: '待解析的 JSON 字串'
+            }
+          },
+          outputs: {
+            result: {
+              description: '解析後的資料物件'
+            }
+          },
+          fields: {
+            fallbackValue: {
+              label: '備選值（解析失敗時）'
+            }
+          }
         }
       },
       controlFlow: {

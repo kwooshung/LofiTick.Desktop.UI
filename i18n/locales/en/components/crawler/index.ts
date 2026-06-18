@@ -2080,23 +2080,106 @@ export const crawler = {
       typeConvert: {
         string: {
           title: 'To String',
-          description: 'Convert to string type'
+          description: 'Convert to string type',
+          hint: 'Convert data of any type to its string representation',
+          inputs: {
+            input: {
+              description: 'Data to be converted (any type)'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'Converted string'
+            }
+          },
+          fields: {
+            treatNullAsEmpty: {
+              label: 'Treat null as empty string'
+            }
+          }
         },
         number: {
           title: 'To Number',
-          description: 'Convert to number type'
+          description: 'Convert to number type',
+          hint: 'Convert data of any type to a number, returns default value on conversion failure',
+          inputs: {
+            input: {
+              description: 'Data to be converted (any type)'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'Converted number'
+            }
+          },
+          fields: {
+            defaultValue: {
+              label: 'Default value (on conversion failure)'
+            }
+          }
         },
         boolean: {
           title: 'To Boolean',
-          description: 'Convert to boolean type'
+          description: 'Convert to boolean type',
+          hint: 'Convert data of any type to boolean based on custom rules',
+          inputs: {
+            input: {
+              description: 'Data to be converted (any type)'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'Converted boolean'
+            }
+          },
+          fields: {
+            truthyValues: {
+              label: 'Truthy values (comma-separated)'
+            }
+          }
         },
         json: {
           title: 'To JSON',
-          description: 'Convert to a JSON string'
+          description: 'Convert to a JSON string',
+          hint: 'Serialize data of any type to a JSON string',
+          inputs: {
+            input: {
+              description: 'Data to be converted (any type)'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'Serialized JSON string'
+            }
+          },
+          fields: {
+            indent: {
+              label: 'Indent width (0 for no indent)'
+            },
+            handleCircular: {
+              label: 'Handle circular references'
+            }
+          }
         },
         parseJson: {
           title: 'Parse JSON',
-          description: 'Parse a JSON string'
+          description: 'Parse a JSON string',
+          hint: 'Deserialize a JSON string to a data object, returns fallback value on failure',
+          inputs: {
+            input: {
+              description: 'JSON string to be parsed'
+            }
+          },
+          outputs: {
+            result: {
+              description: 'Parsed data object'
+            }
+          },
+          fields: {
+            fallbackValue: {
+              label: 'Fallback value (on parse failure)'
+            }
+          }
         }
       },
       controlFlow: {
