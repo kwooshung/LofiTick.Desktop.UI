@@ -23,13 +23,34 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateSelector。
+ */
 const stateSelector = ref('');
+/**
+ * 状态：stateSelectorType。
+ */
 const stateSelectorType = ref<'xpath' | 'css'>('xpath');
+/**
+ * 状态：stateAnchorPoint。
+ */
 const stateAnchorPoint = ref('top-left');
+/**
+ * 状态：stateOutputScope。
+ */
 const stateOutputScope = ref('both');
 
+/**
+ * 状态：stateAnchorPointOptions。
+ */
 const stateAnchorPointOptions = computed(() => [
   {
     value: 'top-left',
@@ -41,6 +62,9 @@ const stateAnchorPointOptions = computed(() => [
   }
 ]);
 
+/**
+ * 状态：stateOutputScopeOptions。
+ */
 const stateOutputScopeOptions = computed(() => [
   {
     value: 'both',
@@ -128,13 +152,22 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateSelector.value = String(data.selector ?? '');
   stateSelectorType.value = ['xpath', 'css'].includes(String(data.selectorType)) ? (String(data.selectorType) as 'xpath' | 'css') : 'xpath';
 
+  /**
+   * 常量：anchorPoint。
+   */
   const anchorPoint = String(data.anchorPoint ?? 'top-left');
   stateAnchorPoint.value = ['top-left', 'center'].includes(anchorPoint) ? anchorPoint : 'top-left';
 
+  /**
+   * 常量：outputScope。
+   */
   const outputScope = String(data.outputScope ?? 'both');
   stateOutputScope.value = ['both', 'webview', 'screen'].includes(outputScope) ? outputScope : 'both';
 

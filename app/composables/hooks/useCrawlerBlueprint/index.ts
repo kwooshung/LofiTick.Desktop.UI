@@ -726,6 +726,9 @@ if (import.meta.vitest) {
 
   describe('crawlerBlueprintGroupsBuild', () => {
     it('builds all groups and keeps node keys', () => {
+      /**
+       * 常量：groups。
+       */
       const groups = crawlerBlueprintGroupsBuild((key) => key);
 
       expect(groups).toHaveLength(16);

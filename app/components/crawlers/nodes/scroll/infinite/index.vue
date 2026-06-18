@@ -33,14 +33,38 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateMaxIterations。
+ */
 const stateMaxIterations = ref(20);
+/**
+ * 状态：stateStepPx。
+ */
 const stateStepPx = ref(800);
+/**
+ * 状态：stateIntervalMs。
+ */
 const stateIntervalMs = ref(500);
+/**
+ * 状态：stateBehavior。
+ */
 const stateBehavior = ref('smooth');
+/**
+ * 状态：stateStopWhenNoChange。
+ */
 const stateStopWhenNoChange = ref(true);
+/**
+ * 状态：stateMaxNoChangeCount。
+ */
 const stateMaxNoChangeCount = ref(3);
 
 const rightPins: IBasicSidePin[] = [
@@ -70,6 +94,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateBehaviorOptions。
+ */
 const stateBehaviorOptions = computed(() => {
   return [
     {
@@ -88,6 +115,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateMaxIterations.value = Number.isFinite(Number(data.maxIterations)) ? Math.max(1, Number(data.maxIterations)) : 20;
   stateStepPx.value = Number.isFinite(Number(data.stepPx)) ? Math.max(1, Number(data.stepPx)) : 800;

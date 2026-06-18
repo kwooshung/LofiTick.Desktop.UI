@@ -130,6 +130,9 @@ const computedHasRemote = computed(() => Boolean(statePayload.value?.remote));
  * 计算属性：描述文案
  */
 const computedDescription = computed(() => {
+  /**
+   * 常量：machine。
+   */
   const machine = String(statePayload.value?.machineName || statePayload.value?.machineCode || '').trim();
   if (!machine) {
     return t('components.sentinel.scenes.sync.description');
@@ -201,6 +204,9 @@ const statusColorGet = (status: TUnattendedScenesSyncStatus): 'primary' | 'succe
  * @returns {string} 命令文本
  */
 const commandTextGet = (execPath: string, args: string[]): string => {
+  /**
+   * 常量：parts。
+   */
   const parts = [String(execPath || '').trim(), ...(Array.isArray(args) ? args.map((item) => String(item ?? '').trim()) : [])].filter((item) => item !== '');
 
   return parts

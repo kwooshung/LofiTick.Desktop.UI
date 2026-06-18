@@ -49,6 +49,9 @@ const computedNuxtTimeProps = computed(() => {
  * 计算属性：DateTime 实例
  */
 const computedDatetime = computed(() => {
+  /**
+   * 常量：input。
+   */
   const input = computedDatetimeInput.value;
 
   // 判断传入的时间类型：时间对象

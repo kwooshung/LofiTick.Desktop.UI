@@ -126,6 +126,9 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：routeValue。
+   */
   const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
 
   if (routeValue !== '') {
@@ -142,11 +145,17 @@ const currentPageSizeGet = (): string => {
 const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   const query: Record<string, string | string[]> = {};
 
+  /**
+   * 常量：name。
+   */
   const name = typeof route.query.name !== 'undefined' ? String(route.query.name).trim() : '';
   if (name) {
     query.name = name;
   }
 
+  /**
+   * 常量：number。
+   */
   const number = typeof route.query.number !== 'undefined' ? String(route.query.number).trim() : '';
   if (number) {
     query.number = number;
@@ -156,8 +165,14 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
     query.is_and = '1';
   }
 
+  /**
+   * 常量：asArray。
+   */
   const asArray = (v: unknown): string[] => (Array.isArray(v) ? v.map((i) => String(i)) : v != null ? [String(v)] : []);
 
+  /**
+   * 常量：sizes。
+   */
   const sizes = asArray(route.query.size);
   if (sizes.length > 0) {
     query.size = sizes;
@@ -178,6 +193,9 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   query.pagesize = currentPageSizeGet();
 
   if (typeof route.query.order_by !== 'undefined') {
+    /**
+     * 常量：by。
+     */
     const by = String(route.query.order_by);
     if (by === 'id' || by === 'number' || by === 'size' || by === 'updated' || by === 'created') {
       query.order_by = by;
@@ -185,6 +203,9 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
   }
 
   if (typeof route.query.order_dir !== 'undefined') {
+    /**
+     * 常量：dir。
+     */
     const dir = String(route.query.order_dir).toLowerCase();
     if (dir === 'asc' || dir === 'desc') {
       query.order_dir = dir;
@@ -199,9 +220,21 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
  * @param {'id' | 'number' | 'size' | 'updated' | 'created'} field 排序字段
  */
 const toggleSort = (field: 'id' | 'number' | 'size' | 'updated' | 'created') => {
+  /**
+   * 常量：currentBy。
+   */
   const currentBy = String(route.query.order_by || 'id');
+  /**
+   * 常量：currentDir。
+   */
   const currentDir = String(route.query.order_dir || 'desc');
+  /**
+   * 常量：nextBy。
+   */
   const nextBy = field;
+  /**
+   * 常量：nextDir。
+   */
   const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
   const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
   q.order_by = nextBy;
@@ -270,11 +303,17 @@ const computedUniqueNameHelp = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：name。
+   */
   const name = String(stateEditor.value.name ?? '').trim();
   if (!name) {
     return undefined;
   }
 
+  /**
+   * 常量：valid。
+   */
   const valid = schema.pick({ name: true }).safeParse({ name }).success;
   if (!valid) {
     return undefined;
@@ -294,6 +333,9 @@ const computedUniqueNameError = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：name。
+   */
   const name = String(stateEditor.value.name ?? '').trim();
   if (!name) {
     return undefined;
@@ -310,11 +352,17 @@ const computedUniqueNumberHelp = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：number。
+   */
   const number = String(stateEditor.value.number ?? '').trim();
   if (!number) {
     return undefined;
   }
 
+  /**
+   * 常量：valid。
+   */
   const valid = schema.pick({ number: true }).safeParse({ number }).success;
   if (!valid) {
     return undefined;
@@ -334,6 +382,9 @@ const computedUniqueNumberError = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：number。
+   */
   const number = String(stateEditor.value.number ?? '').trim();
   if (!number) {
     return undefined;
@@ -363,6 +414,9 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
     return true;
   } catch {
     try {
+      /**
+       * 常量：el。
+       */
       const el = document.createElement('textarea');
       el.value = text;
       el.style.position = 'fixed';
@@ -371,6 +425,9 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
       document.body.appendChild(el);
       el.focus();
       el.select();
+      /**
+       * 常量：ok。
+       */
       const ok = document.execCommand('copy');
       document.body.removeChild(el);
       return ok;
@@ -385,6 +442,9 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
  * @param {IPageTableColumnQqGroup} row 行数据
  */
 const handleCopyGroupNumber = async (row: IPageTableColumnQqGroup): Promise<void> => {
+  /**
+   * 常量：ok。
+   */
   const ok = await copyToClipboard(String(row.number ?? ''));
   if (!ok) {
     return;
@@ -414,6 +474,9 @@ const buildGroupLinkUrl = (row: IPageTableColumnQqGroup): string => String(row.u
  * @param {IPageTableColumnQqGroup} row 行数据
  */
 const handleGroupLinkClick = async (event: MouseEvent, row: IPageTableColumnQqGroup): Promise<void> => {
+  /**
+   * 常量：url。
+   */
   const url = buildGroupLinkUrl(row);
   if (!url) {
     event.preventDefault();
@@ -461,7 +524,13 @@ const computedQqGroupDatas = computed<IPageTableColumnQqGroup[]>(() => {
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = route.query.page as string | undefined;
+    /**
+     * 常量：num。
+     */
     const num = parseInt(str ?? '', 10);
     return Number.isFinite(num) && num > 0 ? num : 1;
   },
@@ -476,15 +545,27 @@ const computedPage = computed<number>({
  * 计算属性：每页数量
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：str。
+   */
   const str = route.query.pagesize as string | undefined;
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -495,6 +576,9 @@ const computedItemsPerPage = computed<number>(() => {
  * @param {boolean} value 启用状态
  */
 const handleToggleEnabled = async (row: IPageTableColumnQqGroup, value: boolean) => {
+  /**
+   * 常量：prev。
+   */
   const prev = row.enabled;
   row.enabled = value;
 
@@ -512,6 +596,9 @@ const handleToggleEnabled = async (row: IPageTableColumnQqGroup, value: boolean)
  * @param {boolean} value 满员状态
  */
 const handleToggleFull = async (row: IPageTableColumnQqGroup, value: boolean) => {
+  /**
+   * 常量：prev。
+   */
   const prev = row.full;
   row.full = value;
 
@@ -644,8 +731,17 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.name
     return;
   }
 
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：name。
+   */
   const name = String(stateEditor.value.name ?? '').trim();
+  /**
+   * 常量：number。
+   */
   const number = String(stateEditor.value.number ?? '').trim();
 
   if (!name && !number) {
@@ -656,7 +752,13 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.name
     return;
   }
 
+  /**
+   * 常量：shouldCheckName。
+   */
   const shouldCheckName = !!name && schema.pick({ name: true }).safeParse({ name }).success;
+  /**
+   * 常量：shouldCheckNumber。
+   */
   const shouldCheckNumber = !!number && schema.pick({ number: true }).safeParse({ number }).success;
 
   // 字段不合法时，清掉旧的查重结果，避免残留“重复”提示
@@ -765,9 +867,21 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'id' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.id'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
     },
@@ -793,15 +907,36 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'number' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.number'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('number') });
     },
     cell: ({ row }) => {
+      /**
+       * 函数：isCopied。
+       */
       const isCopied = stateCopiedNumberId.value === row.original.id;
+      /**
+       * 常量：icon。
+       */
       const icon = isCopied ? 'i-lucide-copy-check' : 'i-lucide-copy';
+      /**
+       * 常量：color。
+       */
       const color = isCopied ? 'success' : 'neutral';
 
       return h('div', { class: 'flex items-center gap-1' }, [
@@ -838,9 +973,21 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'size' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.size'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('size') });
     },
@@ -925,9 +1072,21 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'updated' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
@@ -952,9 +1111,21 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'created' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },

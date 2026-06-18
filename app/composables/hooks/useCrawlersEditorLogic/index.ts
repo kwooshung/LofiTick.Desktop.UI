@@ -17,6 +17,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {TBasicSidePinDataType | 'unknown'} 推断结果。
    */
   const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataType | 'unknown' => {
+    /**
+     * 常量：id。
+     */
     const id = String(handleId ?? '')
       .trim()
       .toLowerCase();
@@ -89,9 +92,21 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {{ isExecConnection: boolean; edgeDataType: TBasicSidePinDataType }} 样式信息。
    */
   const getEdgeVisualMeta = (sourceHandle?: string | null, targetHandle?: string | null): { isExecConnection: boolean; edgeDataType: TBasicSidePinDataType } => {
+    /**
+     * 函数：isExecConnection。
+     */
     const isExecConnection = sourceHandle === 'exec-out' && targetHandle === 'exec-in';
+    /**
+     * 常量：sourceType。
+     */
     const sourceType = normalizeEdgeDataType(inferDataTypeFromHandleId(sourceHandle));
+    /**
+     * 常量：targetType。
+     */
     const targetType = normalizeEdgeDataType(inferDataTypeFromHandleId(targetHandle));
+    /**
+     * 常量：edgeDataType。
+     */
     const edgeDataType = sourceType === 'any' ? targetType : sourceType;
 
     return {
@@ -108,6 +123,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {string} 规范化后的 class。
    */
   const buildEdgeClassName = (currentClass: string, edgeDataType: TBasicSidePinDataType, isExecConnection: boolean): string => {
+    /**
+     * 常量：baseClasses。
+     */
     const baseClasses = removeLegacyEdgeVisualClasses(currentClass);
 
     return [...baseClasses, 'crawlers-edge-connected', `crawlers-edge-${edgeDataType}`, isExecConnection ? 'crawlers-edge-exec' : 'crawlers-edge-data'].join(' ');
@@ -121,9 +139,18 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return;
     }
 
+    /**
+     * 常量：changed。
+     */
     let changed = false;
+    /**
+     * 常量：nextEdges。
+     */
     const nextEdges = edges.value.map((edge) => {
       const { isExecConnection, edgeDataType } = getEdgeVisualMeta(edge.sourceHandle, edge.targetHandle);
+      /**
+       * 常量：nextClassName。
+       */
       const nextClassName = buildEdgeClassName(String(edge.class ?? ''), edgeDataType, isExecConnection);
 
       if (String(edge.class ?? '') === nextClassName && Boolean(edge.animated) === isExecConnection) {
@@ -150,7 +177,13 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {boolean} 是否兼容。
    */
   const isValidDataPinConnection = (connection: Connection): boolean => {
+    /**
+     * 常量：sourceType。
+     */
     const sourceType = inferDataTypeFromHandleId(connection.sourceHandle);
+    /**
+     * 常量：targetType。
+     */
     const targetType = inferDataTypeFromHandleId(connection.targetHandle);
 
     if (sourceType === 'exec' || targetType === 'exec') {
@@ -205,12 +238,18 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       vertical: undefined,
       snapPosition: { x: undefined, y: undefined }
     };
+    /**
+     * 常量：nodeA。
+     */
     const nodeA = nodes.find((node) => node.id === change.id);
 
     if (!nodeA || !change.position) {
       return defaultResult;
     }
 
+    /**
+     * 常量：nodeABounds。
+     */
     const nodeABounds = {
       left: change.position.x,
       right: change.position.x + ((nodeA.dimensions.width as number) ?? 0),
@@ -220,12 +259,21 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       height: (nodeA.dimensions.height as number) ?? 0
     };
 
+    /**
+     * 常量：horizontalDistance。
+     */
     let horizontalDistance = distance;
+    /**
+     * 常量：verticalDistance。
+     */
     let verticalDistance = distance;
 
     return nodes
       .filter((node) => node.id !== nodeA.id)
       .reduce<IGetHelperLinesResult>((result, nodeB) => {
+        /**
+         * 常量：nodeBBounds。
+         */
         const nodeBBounds = {
           left: nodeB.position.x,
           right: nodeB.position.x + ((nodeB.dimensions.width as number) ?? 0),
@@ -235,6 +283,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           height: nodeB.height ?? 0
         };
 
+        /**
+         * 常量：distanceLeftLeft。
+         */
         const distanceLeftLeft = Math.abs(nodeABounds.left - nodeBBounds.left);
 
         if (distanceLeftLeft < verticalDistance) {
@@ -243,6 +294,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           verticalDistance = distanceLeftLeft;
         }
 
+        /**
+         * 常量：distanceRightRight。
+         */
         const distanceRightRight = Math.abs(nodeABounds.right - nodeBBounds.right);
 
         if (distanceRightRight < verticalDistance) {
@@ -251,6 +305,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           verticalDistance = distanceRightRight;
         }
 
+        /**
+         * 常量：distanceLeftRight。
+         */
         const distanceLeftRight = Math.abs(nodeABounds.left - nodeBBounds.right);
 
         if (distanceLeftRight < verticalDistance) {
@@ -259,6 +316,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           verticalDistance = distanceLeftRight;
         }
 
+        /**
+         * 常量：distanceRightLeft。
+         */
         const distanceRightLeft = Math.abs(nodeABounds.right - nodeBBounds.left);
 
         if (distanceRightLeft < verticalDistance) {
@@ -267,6 +327,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           verticalDistance = distanceRightLeft;
         }
 
+        /**
+         * 常量：distanceTopTop。
+         */
         const distanceTopTop = Math.abs(nodeABounds.top - nodeBBounds.top);
 
         if (distanceTopTop < horizontalDistance) {
@@ -275,6 +338,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           horizontalDistance = distanceTopTop;
         }
 
+        /**
+         * 常量：distanceBottomTop。
+         */
         const distanceBottomTop = Math.abs(nodeABounds.bottom - nodeBBounds.top);
 
         if (distanceBottomTop < horizontalDistance) {
@@ -283,6 +349,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           horizontalDistance = distanceBottomTop;
         }
 
+        /**
+         * 常量：distanceBottomBottom。
+         */
         const distanceBottomBottom = Math.abs(nodeABounds.bottom - nodeBBounds.bottom);
 
         if (distanceBottomBottom < horizontalDistance) {
@@ -291,6 +360,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
           horizontalDistance = distanceBottomBottom;
         }
 
+        /**
+         * 常量：distanceTopBottom。
+         */
         const distanceTopBottom = Math.abs(nodeABounds.top - nodeBBounds.bottom);
 
         if (distanceTopBottom < horizontalDistance) {
@@ -313,9 +385,15 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     stateHelperLineHorizontal.value = undefined;
     stateHelperLineVertical.value = undefined;
 
+    /**
+     * 状态：statePositionChange。
+     */
     const statePositionChange = changes.length === 1 ? changes[0] : undefined;
 
     if (statePositionChange?.type === 'position' && statePositionChange.dragging && statePositionChange.position) {
+      /**
+       * 常量：helperLines。
+       */
       const helperLines = getHelperLines(statePositionChange as NodePositionChange, nodes);
 
       statePositionChange.position.x = helperLines.snapPosition.x ?? statePositionChange.position.x;
@@ -334,6 +412,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {void} 无返回值。
    */
   const handleNodesChange = (changes: NodeChange[]): void => {
+    /**
+     * 函数：updatedChanges。
+     */
     const updatedChanges = updateHelperLines(changes, nodes.value);
     nodes.value = applyNodeChanges(updatedChanges);
   };
@@ -365,6 +446,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return true;
     }
 
+    /**
+     * 函数：isExecConnection。
+     */
     const isExecConnection = connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
 
     if (!connection.target) {
@@ -392,12 +476,21 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       if (isExecConnection) {
         // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。
         edges.value = edges.value.filter((edge) => {
+          /**
+           * 函数：isSameSourceExecPin。
+           */
           const isSameSourceExecPin = edge.source === params.source && edge.sourceHandle === params.sourceHandle;
+          /**
+           * 函数：isSameTargetExecPin。
+           */
           const isSameTargetExecPin = edge.target === params.target && edge.targetHandle === params.targetHandle;
 
           return !isSameSourceExecPin && !isSameTargetExecPin;
         });
       } else {
+        /**
+         * 函数：hasSameDataEdge。
+         */
         const hasSameDataEdge = edges.value.some((edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle && edge.target === params.target && edge.targetHandle === params.targetHandle);
 
         if (hasSameDataEdge) {

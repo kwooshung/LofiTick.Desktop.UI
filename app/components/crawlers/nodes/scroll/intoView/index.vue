@@ -29,13 +29,34 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateBehavior。
+ */
 const stateBehavior = ref('smooth');
+/**
+ * 状态：stateBlock。
+ */
 const stateBlock = ref('center');
+/**
+ * 状态：stateInline。
+ */
 const stateInline = ref('nearest');
+/**
+ * 状态：stateEnsureVisible。
+ */
 const stateEnsureVisible = ref(true);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
 
 const leftPins: IBasicSidePin[] = [
@@ -68,6 +89,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateBehaviorOptions。
+ */
 const stateBehaviorOptions = computed(() => {
   return [
     {
@@ -81,6 +105,9 @@ const stateBehaviorOptions = computed(() => {
   ];
 });
 
+/**
+ * 状态：stateAlignOptions。
+ */
 const stateAlignOptions = computed(() => {
   return [
     {
@@ -107,6 +134,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateBehavior.value = ['auto', 'smooth'].includes(String(data.behavior)) ? String(data.behavior) : 'smooth';
   stateBlock.value = ['start', 'center', 'end', 'nearest'].includes(String(data.block)) ? String(data.block) : 'center';

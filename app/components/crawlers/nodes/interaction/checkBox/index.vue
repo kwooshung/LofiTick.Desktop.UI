@@ -19,10 +19,25 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSkipIfAlreadyState。
+ */
 const stateSkipIfAlreadyState = ref(true);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -60,6 +75,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
   stateSkipIfAlreadyState.value = Boolean(data.skipIfAlreadyState ?? true);

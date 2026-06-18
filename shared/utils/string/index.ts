@@ -89,6 +89,9 @@ export const ensureChineseSentence = (text: string): string => {
     return text;
   }
 
+  /**
+   * 常量：t。
+   */
   let t = text.trim();
 
   // 先整体替换为中文标点
@@ -96,6 +99,9 @@ export const ensureChineseSentence = (text: string): string => {
 
   // 若末尾包含常见中文句末标点，保持；否则追加
   const end = t.slice(-1);
+  /**
+   * 函数：isEndPunct。
+   */
   const isEndPunct = /[。！？；…]$/.test(end);
   if (isEndPunct) {
     return t;

@@ -58,6 +58,9 @@ import type { ISentinelScenesConfigEmits, ISentinelScenesConfigExpose, ISentinel
  * @returns {TSentinelScenesConfigValidateResult} 校验结果
  */
 const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = schema.safeParse({ sceneName: stateForm.sceneName, sourceExecPath: stateForm.sourceExecPath });
   if (parsed.success) {
     const result: TSentinelScenesConfigValidateResult = { valid: true, errors: {} };
@@ -67,6 +70,9 @@ const validateBuildResult = (): TSentinelScenesConfigValidateResult => {
 
   const errors: ISentinelScenesConfigValidateErrors = {};
   for (const issue of parsed.error.issues) {
+    /**
+     * 常量：key。
+     */
     const key = String(issue.path?.[0] || '').trim();
     if (key === 'sceneName') {
       errors.sceneName = issue.message;

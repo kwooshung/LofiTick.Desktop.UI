@@ -422,8 +422,17 @@ const fileSizeTextGet = (size: number): string => {
     return '0 B';
   }
 
+  /**
+   * 常量：units。
+   */
   const units = ['B', 'KB', 'MB', 'GB'];
+  /**
+   * 常量：next。
+   */
   let next = size;
+  /**
+   * 常量：unitIndex。
+   */
   let unitIndex = 0;
 
   while (next >= 1024 && unitIndex < units.length - 1) {
@@ -431,6 +440,9 @@ const fileSizeTextGet = (size: number): string => {
     unitIndex += 1;
   }
 
+  /**
+   * 常量：digits。
+   */
   const digits = next >= 100 || unitIndex === 0 ? 0 : 1;
   return `${next.toFixed(digits)} ${units[unitIndex]}`;
 };
@@ -567,7 +579,13 @@ const openPreviewModal = async (kind: THotsearchPodcastHeadMusicKind): Promise<v
 
   try {
     statePreviewLoadingKind.value = kind;
+    /**
+     * 常量：result。
+     */
     const result = await previewRequest(kind);
+    /**
+     * 函数：normalized。
+     */
     const normalized = (result ?? {}) as Partial<ISettingsHotsearchHeadMusicPreviewResult>;
 
     statePreviewPlaybackUrl.value = String(normalized.previewUrl || '').trim();

@@ -80,12 +80,18 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
   // 排序：orderBy（updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
+    /**
+     * 常量：by。
+     */
     const by = String(route.query.order_by);
     if (by === 'id' || by === 'count' || by === 'updated' || by === 'created') {
       query.order_by = by;
     }
   }
   if (typeof route.query.order_dir !== 'undefined') {
+    /**
+     * 常量：dir。
+     */
     const dir = String(route.query.order_dir).toLowerCase();
     if (dir === 'asc' || dir === 'desc') {
       query.order_dir = dir;
@@ -120,8 +126,17 @@ const buildSingleFilterLocation = (key: 'dynasty_ids', value: number | string): 
 const toggleSort = (field: 'id' | 'count' | 'updated' | 'created') => {
   // 默认按照编号倒序
   const currentBy = String(route.query.order_by || 'id');
+  /**
+   * 常量：currentDir。
+   */
   const currentDir = String(route.query.order_dir || 'desc');
+  /**
+   * 常量：nextBy。
+   */
   const nextBy = field;
+  /**
+   * 常量：nextDir。
+   */
   const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
   const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
   q.order_by = nextBy;
@@ -159,7 +174,13 @@ const computedProetryDynastiesDatas = computed<IPageTableColumnPoetryDynasties[]
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = route.query.page as string | undefined;
+    /**
+     * 常量：num。
+     */
     const num = parseInt(str ?? '', 10);
     return Number.isFinite(num) && num > 0 ? num : 1;
   },
@@ -174,11 +195,20 @@ const computedPage = computed<number>({
  * 计算属性：每页数量（Number，避免字符串警告）
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：str。
+   */
   const str = route.query.pagesize as string | undefined;
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -205,9 +235,21 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'id' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.id'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
     },
@@ -233,9 +275,21 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'count' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.count'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('count') });
     },
@@ -261,9 +315,21 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'updated' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
@@ -288,9 +354,21 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'created' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },

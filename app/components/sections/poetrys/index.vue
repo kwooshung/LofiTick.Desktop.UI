@@ -143,6 +143,9 @@ const handleViewDetail = async (poetry: IPageTableColumnPoetrys) => {
 
   await refreshDetail({ datas: { id: poetry.id }, replace: true });
 
+  /**
+   * 常量：detail。
+   */
   const detail = detailDatas.value?.detail;
   if (!detail || stateDetailInfo.value.id !== poetry.id) {
     return;
@@ -167,6 +170,9 @@ const poetryKindLabelGet = (kind: IPageTableColumnPoetrys['infos']['kind']): str
  * @returns {string} 章节文案
  */
 const poetryMetaValueGet = (value: string): string => {
+  /**
+   * 常量：text。
+   */
   const text = String(value ?? '').trim();
 
   return text === '' ? t('common.labels.none') : text;
@@ -192,8 +198,17 @@ const poetryLinkedNameGet = (item: { id: number; name: string }): string => {
  * @returns {string} 标题文案
  */
 const poetryTitleDisplayGet = (infos: IPageTableColumnPoetrys['infos'], includeRhythmic: boolean): string => {
+  /**
+   * 常量：title。
+   */
   const title = String(infos.title ?? '').trim();
+  /**
+   * 常量：rhythmicName。
+   */
   const rhythmicName = includeRhythmic ? poetryLinkedNameGet(infos.rhythmic) : '';
+  /**
+   * 常量：wrappedTitle。
+   */
   const wrappedTitle = title === '' ? '' : `《${title}》`;
 
   if (rhythmicName === '') {
@@ -214,7 +229,13 @@ const poetryTitleDisplayGet = (infos: IPageTableColumnPoetrys['infos'], includeR
  * @returns {string} 截断后的文案
  */
 const poetrySentencePreviewGet = (sentence: string, maxLength: number): string => {
+  /**
+   * 常量：text。
+   */
   const text = String(sentence ?? '').trim();
+  /**
+   * 常量：limit。
+   */
   const limit = Math.max(1, Math.trunc(maxLength));
 
   if (text.length <= limit) {
@@ -242,6 +263,9 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：routeValue。
+   */
   const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
 
   if (routeValue !== '') {
@@ -288,6 +312,9 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
   // 多选 ID 参数
   const dynastyId = asArray(route.query.dynasty_ids);
+  /**
+   * 常量：authorId。
+   */
   const authorId = asArray(route.query.author_ids);
   if (dynastyId.length > 0) {
     query.dynasty_ids = dynastyId;
@@ -307,12 +334,18 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
   // 排序：orderBy（updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
+    /**
+     * 常量：by。
+     */
     const by = String(route.query.order_by);
     if (by === 'id' || by === 'updated' || by === 'created') {
       query.order_by = by;
     }
   }
   if (typeof route.query.order_dir !== 'undefined') {
+    /**
+     * 常量：dir。
+     */
     const dir = String(route.query.order_dir).toLowerCase();
     if (dir === 'asc' || dir === 'desc') {
       query.order_dir = dir;
@@ -339,12 +372,18 @@ const buildSingleFilterLocation = (key: 'dynasty_ids' | 'author_ids', value: num
     q.is_and = String(route.query.is_and);
   }
   if (typeof route.query.title !== 'undefined') {
+    /**
+     * 常量：title。
+     */
     const title = String(route.query.title).trim();
     if (title) {
       q.title = title;
     }
   }
   if (typeof route.query.content !== 'undefined') {
+    /**
+     * 常量：content。
+     */
     const content = String(route.query.content).trim();
     if (content) {
       q.content = content;
@@ -363,8 +402,17 @@ const buildSingleFilterLocation = (key: 'dynasty_ids' | 'author_ids', value: num
 const toggleSort = (field: 'id' | 'updated' | 'created') => {
   // 默认按照编号倒序
   const currentBy = String(route.query.order_by || 'id');
+  /**
+   * 常量：currentDir。
+   */
   const currentDir = String(route.query.order_dir || 'desc');
+  /**
+   * 常量：nextBy。
+   */
   const nextBy = field;
+  /**
+   * 常量：nextDir。
+   */
   const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
   const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
   q.order_by = nextBy;
@@ -438,7 +486,13 @@ const computedProetryDatas = computed<IPageTableColumnPoetrys[]>(() => {
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = route.query.page as string | undefined;
+    /**
+     * 常量：num。
+     */
     const num = parseInt(str ?? '', 10);
     return Number.isFinite(num) && num > 0 ? num : 1;
   },
@@ -453,15 +507,27 @@ const computedPage = computed<number>({
  * 计算属性：每页数量（Number，避免字符串警告）
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：str。
+   */
   const str = route.query.pagesize as string | undefined;
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'poetrys');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -491,6 +557,9 @@ watch(
       return;
     }
 
+    /**
+     * 常量：maxPage。
+     */
     const maxPage = Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
     if (page <= maxPage) {
       return;
@@ -508,6 +577,9 @@ watch(
  * - 若路由 query 中存在 enabled 键，则更新后刷新当前列表
  */
 const handleToggleEnabled = async (row: IPageTableColumnPoetrys, value: boolean) => {
+  /**
+   * 常量：prev。
+   */
   const prev = row.enabled;
   row.enabled = value;
 
@@ -552,9 +624,21 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'id' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.id'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
     },
@@ -572,9 +656,21 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     header: t('pages.poetrys.result.table.poem'),
     cell: ({ row }) => {
       const { infos } = row.original;
+      /**
+       * 常量：title。
+       */
       const title = poetryTitleDisplayGet(infos, true);
+      /**
+       * 常量：dynastyName。
+       */
       const dynastyName = poetryLinkedNameGet(infos.dynasty);
+      /**
+       * 常量：authorName。
+       */
       const authorName = poetryLinkedNameGet(infos.author);
+      /**
+       * 常量：titleLine。
+       */
       const titleLine = `${poetryKindLabelGet(infos.kind)}${title}`;
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
@@ -748,13 +844,28 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     header: t('pages.poetrys.result.table.dynastyAuthor'),
     cell: ({ row }) => {
       const { dynasty, author } = row.original.infos;
+      /**
+       * 常量：source。
+       */
       const source = row.original.infos as typeof row.original.infos & {
         dynastyCount?: number;
         authorCount?: number;
       };
+      /**
+       * 常量：dynastyName。
+       */
       const dynastyName = poetryLinkedNameGet(dynasty);
+      /**
+       * 常量：authorName。
+       */
       const authorName = poetryLinkedNameGet(author);
+      /**
+       * 常量：dynastyCount。
+       */
       const dynastyCount = Number.isFinite(Number(dynasty.count)) ? Math.max(0, Math.trunc(Number(dynasty.count))) : Math.max(0, Math.trunc(Number(source.dynastyCount ?? 0)));
+      /**
+       * 常量：authorCount。
+       */
       const authorCount = Number.isFinite(Number(author.count)) ? Math.max(0, Math.trunc(Number(author.count))) : Math.max(0, Math.trunc(Number(source.authorCount ?? 0)));
 
       if (dynastyName === '' && authorName === '') {
@@ -789,8 +900,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
               to: buildSingleFilterLocation('dynasty_ids', row.original.infos.dynasty.id)
             },
             () => {
+              /**
+               * 常量：dynasty。
+               */
               const dynasty = row.original.infos.dynasty;
+              /**
+               * 常量：source。
+               */
               const source = row.original.infos as typeof row.original.infos & { dynastyCount?: number };
+              /**
+               * 常量：count。
+               */
               const count = Number.isFinite(Number(dynasty.count)) ? Math.max(0, Math.trunc(Number(dynasty.count))) : Math.max(0, Math.trunc(Number(source.dynastyCount ?? 0)));
 
               return `${poetryLinkedNameGet(dynasty)}（${count}）`;
@@ -817,8 +937,17 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
               to: buildSingleFilterLocation('author_ids', row.original.infos.author.id)
             },
             () => {
+              /**
+               * 常量：author。
+               */
               const author = row.original.infos.author;
+              /**
+               * 常量：source。
+               */
               const source = row.original.infos as typeof row.original.infos & { authorCount?: number };
+              /**
+               * 常量：count。
+               */
               const count = Number.isFinite(Number(author.count)) ? Math.max(0, Math.trunc(Number(author.count))) : Math.max(0, Math.trunc(Number(source.authorCount ?? 0)));
 
               return `${poetryLinkedNameGet(author)}（${count}）`;
@@ -874,9 +1003,21 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'updated' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
@@ -901,9 +1042,21 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'created' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },

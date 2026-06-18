@@ -45,16 +45,46 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateMode。
+ */
 const stateMode = ref('position');
+/**
+ * 状态：stateX。
+ */
 const stateX = ref(0);
+/**
+ * 状态：stateY。
+ */
 const stateY = ref(0);
+/**
+ * 状态：stateBehavior。
+ */
 const stateBehavior = ref('smooth');
+/**
+ * 状态：stateRandomOffset。
+ */
 const stateRandomOffset = ref(false);
+/**
+ * 状态：stateOffsetMin。
+ */
 const stateOffsetMin = ref(2);
+/**
+ * 状态：stateOffsetMax。
+ */
 const stateOffsetMax = ref(12);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
 
 const leftPins: IBasicSidePin[] = [
@@ -87,6 +117,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateModeOptions。
+ */
 const stateModeOptions = computed(() => {
   return [
     {
@@ -100,6 +133,9 @@ const stateModeOptions = computed(() => {
   ];
 });
 
+/**
+ * 状态：stateBehaviorOptions。
+ */
 const stateBehaviorOptions = computed(() => {
   return [
     {
@@ -118,6 +154,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateMode.value = ['position', 'element'].includes(String(data.mode)) ? String(data.mode) : 'position';
   stateX.value = Number.isFinite(Number(data.x)) ? Math.max(0, Number(data.x)) : 0;
@@ -136,7 +175,13 @@ watch([stateMode, stateX, stateY, stateBehavior, stateRandomOffset, stateOffsetM
     return;
   }
 
+  /**
+   * 常量：offsetMin。
+   */
   const offsetMin = Math.max(0, stateOffsetMin.value);
+  /**
+   * 常量：offsetMax。
+   */
   const offsetMax = Math.max(offsetMin, stateOffsetMax.value);
 
   if (stateOffsetMin.value !== offsetMin) {

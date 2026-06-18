@@ -292,15 +292,36 @@ const stateLocalNetworkReportedOnce = ref(false);
  * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
  */
 const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetworkSnapshot | null): IPageSettingsUnattendedMachineNetworkGroups => {
+  /**
+   * 常量：interfaces。
+   */
   const interfaces = Array.isArray(snapshot?.interfaces) ? snapshot!.interfaces : [];
+  /**
+   * 常量：groups。
+   */
   const groups = interfaces
     .map((iface) => {
+      /**
+       * 常量：name。
+       */
       const name = String(iface?.name ?? '').trim() || '-';
+      /**
+       * 常量：ips。
+       */
       const ips = Array.isArray(iface?.ips) ? iface.ips : [];
 
+      /**
+       * 常量：cleaned。
+       */
       const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
 
+      /**
+       * 常量：ipv4。
+       */
       const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      /**
+       * 常量：ipv6。
+       */
       const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
 
       return { name, ipv4, ipv6 };
@@ -316,16 +337,25 @@ const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetwork
  * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
  */
 const networkNormalizeToGroups = (network: TPageSettingsUnattendedMachineNetwork | null | undefined): IPageSettingsUnattendedMachineNetworkGroups => {
+  /**
+   * 常量：src。
+   */
   const src = network && typeof network === 'object' && !Array.isArray(network) ? (network as unknown as Record<string, unknown>) : null;
   if (!src) {
     return { groups: [] };
   }
 
+  /**
+   * 常量：groups。
+   */
   const groups = src.groups;
   if (Array.isArray(groups)) {
     return { groups: groups as IPageSettingsUnattendedMachineNetworkGroups['groups'] };
   }
 
+  /**
+   * 常量：interfaces。
+   */
   const interfaces = src.interfaces;
   if (Array.isArray(interfaces)) {
     return networkSnapshotToGroups({ interfaces: interfaces as IPageSettingsUnattendedMachineNetworkSnapshot['interfaces'] });
@@ -340,15 +370,39 @@ const networkNormalizeToGroups = (network: TPageSettingsUnattendedMachineNetwork
  * @returns {string} 指纹
  */
 const networkGroupsFingerprint = (groups: IPageSettingsUnattendedMachineNetworkGroups): string => {
+  /**
+   * 常量：list。
+   */
   const list = Array.isArray(groups?.groups) ? groups.groups : [];
+  /**
+   * 函数：normalized。
+   */
   const normalized = list
     .map((g) => {
+      /**
+       * 常量：rec。
+       */
       const rec = toRecord(g) ?? {};
+      /**
+       * 常量：name。
+       */
       const name = String(rec.name ?? '').trim();
+      /**
+       * 常量：rawIpv4。
+       */
       const rawIpv4 = Array.isArray(rec.ipv4) ? rec.ipv4 : [];
+      /**
+       * 常量：rawIpv6。
+       */
       const rawIpv6 = Array.isArray(rec.ipv6) ? rec.ipv6 : [];
 
+      /**
+       * 常量：ipv4。
+       */
       const ipv4 = rawIpv4.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+      /**
+       * 常量：ipv6。
+       */
       const ipv6 = rawIpv6.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
       return {
         name,
@@ -391,6 +445,9 @@ const ONLINE_WINDOW_SECONDS_MAX = 600;
  * 计算属性：请求完整 URL
  */
 const computedRequestUrl = computed(() => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(stateRequestUrl.value || '').trim();
   if (!raw) {
     return '';
@@ -532,6 +589,9 @@ watch(
  * @returns {number} 数字
  */
 const toSafeNumber = (input: unknown, fallback = 0): number => {
+  /**
+   * 常量：n。
+   */
   const n = typeof input === 'number' ? input : Number(input);
   return Number.isFinite(n) ? n : fallback;
 };
@@ -542,6 +602,9 @@ const toSafeNumber = (input: unknown, fallback = 0): number => {
  * @returns {number} 在线窗口秒数
  */
 const onlineWindowSecondsNormalize = (input: unknown): number => {
+  /**
+   * 常量：value。
+   */
   const value = Math.trunc(toSafeNumber(input, 30));
   if (value < ONLINE_WINDOW_SECONDS_MIN) {
     return ONLINE_WINDOW_SECONDS_MIN;
@@ -571,14 +634,29 @@ const toUnattendedStartBehavior = (input: unknown): TUnattendedStartBehavior => 
  * @returns {ISettingsUnattendedSentinel|null} 裁剪后的配置
  */
 const unattendedSentinelPickForPersist = (input: unknown): ISettingsUnattendedSentinel | null => {
+  /**
+   * 常量：src。
+   */
   const src = toRecord(input);
   if (!src) {
     return null;
   }
 
+  /**
+   * 常量：request。
+   */
   const request = toRecord(src.request);
+  /**
+   * 常量：heartbeat。
+   */
   const heartbeat = toRecord(src.heartbeat);
+  /**
+   * 常量：restart。
+   */
   const restart = toRecord(src.restart);
+  /**
+   * 常量：burst。
+   */
   const burst = restart ? toRecord(restart.burst) : null;
 
   return {
@@ -609,13 +687,22 @@ const unattendedSentinelPickForPersist = (input: unknown): ISettingsUnattendedSe
  * @returns {ISettingsUnattended|null} 裁剪后的配置
  */
 const unattendedPickForPersist = (input: unknown): ISettingsUnattended | null => {
+  /**
+   * 常量：src。
+   */
   const src = toRecord(input);
   if (!src) {
     return null;
   }
 
+  /**
+   * 常量：start。
+   */
   const start = toRecord(src.start);
 
+  /**
+   * 常量：sentinel。
+   */
   const sentinel = unattendedSentinelPickForPersist(src.sentinel);
   if (!sentinel) {
     return null;
@@ -637,6 +724,9 @@ const unattendedPickForPersist = (input: unknown): ISettingsUnattended | null =>
  * @returns {{protocol:'http'|'https',host:string}} 拆分结果
  */
 const requestUrlSplit = (url: string) => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(url || '').trim();
   if (!raw) {
     return { protocol: 'https' as const, host: '' };
@@ -696,6 +786,9 @@ onMounted(async () => {
     console.error('[settings/unattended] sentinel snapshot failed', error);
   }
 
+  /**
+   * 函数：settings。
+   */
   const settings = await settingsGet();
 
   try {
@@ -710,10 +803,25 @@ onMounted(async () => {
     // ignore
   }
 
+  /**
+   * 常量：machine。
+   */
   const machine = toRecord(settings.machine) ?? {};
+  /**
+   * 常量：unattended。
+   */
   const unattended = toRecord(settings.unattended) ?? {};
+  /**
+   * 常量：unattendedStart。
+   */
   const unattendedStart = toRecord(unattended.start) ?? {};
+  /**
+   * 常量：unattendedSentinel。
+   */
   const unattendedSentinel = toRecord(unattended.sentinel) ?? {};
+  /**
+   * 常量：unattendedSentinelRequest。
+   */
   const unattendedSentinelRequest = toRecord(unattendedSentinel.request) ?? {};
 
   stateMachineCode.value = String(machine.code || '').trim();
@@ -724,13 +832,22 @@ onMounted(async () => {
   stateStartBehaviors.value = toUnattendedStartBehavior(unattendedStart.behaviors) || stateStartBehaviors.value;
   stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(unattendedSentinel.onlineWindowSeconds);
 
+  /**
+   * 常量：url。
+   */
   const url = String(unattendedSentinelRequest.url || '').trim();
   stateRequestUrl.value = url;
 
+  /**
+   * 常量：requestUrlFilled。
+   */
   let requestUrlFilled = false;
 
   if (!computedRequestUrl.value) {
     await refreshSentinelRequestUrlDefaultGet();
+    /**
+     * 常量：nextUrl。
+     */
     const nextUrl = String(stateSentinelRequestUrlDefault.value?.url || '').trim();
     if (nextUrl) {
       stateRequestUrl.value = nextUrl;
@@ -746,6 +863,9 @@ onMounted(async () => {
 
   stateHydrated.value = true;
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (machineCode) {
     await refreshScenesRemoteGet({ query: { machineCode } });
@@ -756,11 +876,23 @@ onMounted(async () => {
 
   // 页面打开后：对比本机网络与远端记录，不一致则仅上报一次
   if (!stateLocalNetworkReportedOnce.value) {
+    /**
+     * 常量：machineCode。
+     */
     const machineCode = String(stateMachineCode.value || '').trim();
     if (machineCode) {
+      /**
+       * 常量：localGroups。
+       */
       const localGroups = computedLocalNetworkGroups.value;
+      /**
+       * 常量：remoteGroups。
+       */
       const remoteGroups = networkNormalizeToGroups((stateScenesRemote.value?.network as TPageSettingsUnattendedMachineNetwork | null | undefined) ?? null);
 
+      /**
+       * 常量：needReport。
+       */
       const needReport = !stateScenesRemote.value || networkGroupsFingerprint(localGroups) !== networkGroupsFingerprint(remoteGroups);
 
       if (needReport) {
@@ -839,6 +971,9 @@ const handleUnattendedEnabledToggle = async (next: boolean): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：previous。
+   */
   const previous = stateUnattendedEnabled.value;
   stateUnattendedEnabled.value = next;
 
@@ -858,6 +993,9 @@ const handleUnattendedEnabledToggle = async (next: boolean): Promise<void> => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
+  /**
+   * 常量：config。
+   */
   const config = stateRefSentinelConfig.value?.configGet();
   if (!config) {
     return null;
@@ -890,6 +1028,9 @@ const buildSentinelConfigFromUi = (): ISettingsUnattendedSentinel | null => {
  * @returns {ISettingsUnattended|null} 无人值守配置
  */
 const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
+  /**
+   * 常量：sentinel。
+   */
   const sentinel = buildSentinelConfigFromUi();
   if (!sentinel) {
     return null;
@@ -910,6 +1051,9 @@ const buildUnattendedConfigFromUi = (): ISettingsUnattended | null => {
  * @returns {ISettingsUnattendedSentinel|null} 哨兵配置
  */
 const buildSentinelRedisConfigFromUi = (): ISettingsUnattendedSentinel | null => {
+  /**
+   * 常量：config。
+   */
   const config = stateRefSentinelConfig.value?.configGet();
   if (!config) {
     return null;
@@ -954,7 +1098,13 @@ const persistToSettings = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：unattended。
+   */
   const unattended = buildUnattendedConfigFromUi();
+  /**
+   * 常量：unattendedPersist。
+   */
   const unattendedPersist = unattended ? unattendedPickForPersist(unattended) : null;
 
   await settingsUpdate({
@@ -990,6 +1140,9 @@ const persistSentinelToRedis = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：sentinel。
+   */
   const sentinel = buildSentinelRedisConfigFromUi();
   if (!sentinel) {
     return;
@@ -1033,6 +1186,9 @@ watch([stateStartBehaviors, stateRequestUrl], () => {
  * 监听：在线窗口变化时同步写回设置与 Redis
  */
 watch(stateOnlineWindowSeconds, (next) => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = onlineWindowSecondsNormalize(next);
   if (normalized !== next) {
     stateOnlineWindowSeconds.value = normalized;
@@ -1079,11 +1235,17 @@ const handleSentinelSync = async () => {
   try {
     await refreshSentinelRemoteGet();
 
+    /**
+     * 常量：remote。
+     */
     const remote = stateSentinelRemote.value;
     if (!remote) {
       return;
     }
 
+    /**
+     * 常量：currentOnlineWindowSeconds。
+     */
     const currentOnlineWindowSeconds = onlineWindowSecondsNormalize(stateOnlineWindowSeconds.value);
     stateRequestUrl.value = String(remote.request?.url || '').trim();
     stateOnlineWindowSeconds.value = onlineWindowSecondsNormalize(remote.onlineWindowSeconds ?? currentOnlineWindowSeconds);
@@ -1092,6 +1254,9 @@ const handleSentinelSync = async () => {
 
     await nextTick();
 
+    /**
+     * 常量：sentinelPersist。
+     */
     const sentinelPersist = unattendedSentinelPickForPersist({
       ...(remote as unknown as ISettingsUnattendedSentinel),
       onlineWindowSeconds: stateOnlineWindowSeconds.value
@@ -1162,6 +1327,9 @@ const stateScenesFormValid = ref(false);
  * 描述：优先展示 Redis 返回的所有机器；若缺少本机记录，则补一个本机兜底卡片。
  */
 const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedisConfig[]>(() => {
+  /**
+   * 常量：remoteList。
+   */
   const remoteList = (Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : []).map(
     (machine) =>
       ({
@@ -1175,14 +1343,29 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
       }) satisfies IPageSettingsUnattendedScenesMachineRedisConfig
   );
 
+  /**
+   * 常量：localMachineCode。
+   */
   const localMachineCode = String(stateMachineCode.value || '').trim();
   if (!localMachineCode) {
     return remoteList;
   }
 
+  /**
+   * 常量：localMachineName。
+   */
   const localMachineName = String(computedMachineName.value || '').trim();
+  /**
+   * 常量：localItems。
+   */
   const localItems = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
+  /**
+   * 常量：localGroups。
+   */
   const localGroups = computedLocalNetworkGroups.value;
+  /**
+   * 常量：localNetwork。
+   */
   const localNetwork = localGroups.groups.length > 0 ? localGroups : (stateScenesRemote.value?.network ?? undefined);
 
   const localMachine: IPageSettingsUnattendedScenesMachineRedisConfig = {
@@ -1195,11 +1378,17 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     items: localItems
   };
 
+  /**
+   * 常量：idx。
+   */
   const idx = remoteList.findIndex((i) => String(i?.machineCode || '').trim() === localMachineCode);
   if (idx < 0) {
     return [localMachine, ...remoteList];
   }
 
+  /**
+   * 常量：target。
+   */
   const target = remoteList[idx];
   if (!target) {
     return [localMachine, ...remoteList];
@@ -1216,6 +1405,9 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
     items: localItems
   };
 
+  /**
+   * 常量：rest。
+   */
   const rest = remoteList.filter((_, i) => i !== idx);
   return [mergedLocal, ...rest];
 });
@@ -1225,16 +1417,31 @@ const computedScenesMachines = computed<IPageSettingsUnattendedScenesMachineRedi
  * 描述：将日志聚合结果和机器基础信息合并，供独立日志区复用。
  */
 const computedSentinelLogsMachines = computed<IPageSettingsUnattendedSentinelLogsMachineCard[]>(() => {
+  /**
+   * 常量：machineMap。
+   */
   const machineMap = new Map(computedScenesMachines.value.map((machine) => [String(machine.machineCode || '').trim(), machine] satisfies [string, IPageSettingsUnattendedScenesMachineRedisConfig]));
 
+  /**
+   * 常量：groups。
+   */
   const groups = Array.isArray(stateSentinelLogsMachinesRemote.value) ? stateSentinelLogsMachinesRemote.value : [];
   return groups.reduce<IPageSettingsUnattendedSentinelLogsMachineCard[]>((list, group) => {
+    /**
+     * 常量：machineCode。
+     */
     const machineCode = String(group?.machineCode || '').trim();
     if (!machineCode) {
       return list;
     }
 
+    /**
+     * 常量：current。
+     */
     const current = machineMap.get(machineCode);
+    /**
+     * 常量：logs。
+     */
     const logs = Array.isArray(group?.logs) ? group.logs : [];
     if (logs.length === 0) {
       return list;
@@ -1261,6 +1468,9 @@ const computedSentinelLogsMachines = computed<IPageSettingsUnattendedSentinelLog
  * @param {ISettingsUnattendedScenesLocal} [rollbackState] 回滚副本
  */
 const persistLocalScenes = async (items: IPageSettingsUnattendedScenesItem[], rollbackState?: ISettingsUnattendedScenesLocal): Promise<void> => {
+  /**
+   * 常量：next。
+   */
   const next = {
     updatedAt: new Date().toISOString(),
     items: unattendedScenesItemsNormalize(items)
@@ -1286,6 +1496,9 @@ const persistLocalScenes = async (items: IPageSettingsUnattendedScenesItem[], ro
  * @param {ISettingsUnattendedScenesLocal} [rollbackState] 回滚副本
  */
 const persistScenesLocalAndRemote = async (items: IPageSettingsUnattendedScenesItem[], rollbackState?: ISettingsUnattendedScenesLocal): Promise<void> => {
+  /**
+   * 常量：fallbackState。
+   */
   const fallbackState = rollbackState ?? {
     updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
     items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
@@ -1316,6 +1529,9 @@ const persistScenesLocalAndRemote = async (items: IPageSettingsUnattendedScenesI
  * 函数：刷新远程场景缓存
  */
 const refreshScenesRemoteState = async (): Promise<void> => {
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
@@ -1356,11 +1572,17 @@ const { pause: pauseScenesRemotePolling, resume: resumeScenesRemotePolling } = u
  * @returns {Promise<Record<string, boolean>>} 映射表
  */
 const execExistsMapBuild = async (paths: string[]): Promise<Record<string, boolean>> => {
+  /**
+   * 常量：uniquePaths。
+   */
   const uniquePaths = Array.from(new Set(paths.map((item) => String(item || '').trim()).filter((item) => item !== '')));
   if (uniquePaths.length === 0) {
     return {};
   }
 
+  /**
+   * 常量：results。
+   */
   const results = await pathsExistGet(uniquePaths);
   return results.reduce<Record<string, boolean>>((acc, item) => {
     acc[String(item.path || '').trim()] = Boolean(item.exists);
@@ -1373,6 +1595,9 @@ const execExistsMapBuild = async (paths: string[]): Promise<Record<string, boole
  * @param {IPageSettingsUnattendedScenesItem[]} items 场景列表
  */
 const applyLocalScenesToRemote = async (items: IPageSettingsUnattendedScenesItem[]): Promise<void> => {
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
@@ -1406,6 +1631,9 @@ const handleScenesSyncOpen = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
@@ -1416,20 +1644,38 @@ const handleScenesSyncOpen = async (): Promise<void> => {
   try {
     await refreshScenesRemoteState();
 
+    /**
+     * 常量：local。
+     */
     const local = unattendedScenesLocalNormalize(stateScenesLocal.value);
+    /**
+     * 常量：remote。
+     */
     const remote = stateScenesRemote.value ? { ...stateScenesRemote.value, items: unattendedScenesItemsNormalize(stateScenesRemote.value.items) } : null;
     if (local.items.length === 0 && (!remote || remote.items.length === 0)) {
       return;
     }
 
+    /**
+     * 常量：paths。
+     */
     const paths = [...local.items.map((item) => item.execPath), ...(Array.isArray(remote?.items) ? remote!.items.map((item) => item.execPath) : [])];
+    /**
+     * 常量：execExistsByPath。
+     */
     const execExistsByPath = await execExistsMapBuild(paths);
+    /**
+     * 常量：entries。
+     */
     const entries = unattendedScenesSyncEntriesBuild({ local, remote, execExistsByPath });
 
     if (entries.every((entry) => entry.status === 'same')) {
       return;
     }
 
+    /**
+     * 常量：choice。
+     */
     const choice = await unattendedScenesSyncRequest({
       machineCode,
       machineName: String(computedMachineName.value || remote?.machineName || '').trim(),
@@ -1448,6 +1694,9 @@ const handleScenesSyncOpen = async (): Promise<void> => {
       return;
     }
 
+    /**
+     * 函数：mergedItems。
+     */
     const mergedItems = unattendedScenesMergePreferLocal(local.items, unattendedScenesItemsNormalize(remote?.items));
     await persistScenesLocalAndRemote(mergedItems, local);
   } finally {
@@ -1468,6 +1717,9 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
@@ -1477,8 +1729,14 @@ const handleScenesItemToggleEnabled = async (id: string, enabled: boolean): Prom
     updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
     items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
   };
+  /**
+   * 常量：snapshotItems。
+   */
   const snapshotItems = snapshotState.items;
 
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = snapshotItems.map((i) => (String(i?.id || '').trim() === String(id || '').trim() ? { ...i, enabled: Boolean(enabled) } : i));
 
   await persistScenesLocalAndRemote(nextItems, snapshotState);
@@ -1496,6 +1754,9 @@ const handleScenesMachineRemarkUpdate = async (payload: { machineName: string; m
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(payload.machineCode || '').trim();
   if (!machineCode) {
     return;
@@ -1540,6 +1801,9 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
@@ -1549,7 +1813,13 @@ const handleScenesItemDelete = async (id: string): Promise<void> => {
     updatedAt: String(stateScenesLocal.value?.updatedAt || '').trim(),
     items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
   };
+  /**
+   * 常量：snapshotItems。
+   */
   const snapshotItems = snapshotState.items;
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = snapshotItems.filter((i) => String(i?.id || '').trim() !== String(id || '').trim());
 
   await persistScenesLocalAndRemote(nextItems, snapshotState);
@@ -1567,6 +1837,9 @@ const handleScenesMachineDelete = async (payload: { machineName: string; machine
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(payload.machineCode || '').trim();
   if (!machineCode) {
     return;
@@ -1600,11 +1873,17 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     return;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(stateMachineCode.value || '').trim();
   if (!machineCode) {
     return;
   }
 
+  /**
+   * 常量：current。
+   */
   const current = stateScenesRemote.value;
   const base: IPageSettingsUnattendedScenesMachineRedisConfig = {
     machineName: String(computedMachineName.value || '').trim(),
@@ -1613,9 +1892,18 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     items: Array.isArray(stateScenesLocal.value?.items) ? [...stateScenesLocal.value.items] : []
   };
 
+  /**
+   * 常量：editingId。
+   */
   const editingId = String(stateScenesEditingId.value || '').trim();
+  /**
+   * 常量：nextId。
+   */
   const nextId = editingId || (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
 
+  /**
+   * 常量：idx。
+   */
   const idx = base.items.findIndex((i) => String(i?.id || '').trim() === nextId);
 
   const nextItem: IPageSettingsUnattendedScenesItem = {
@@ -1627,9 +1915,15 @@ const handleScenesSubmit = async (values: TSentinelScenesConfigValues): Promise<
     enabled: Boolean(values.enabled)
   };
 
+  /**
+   * 常量：previousExecPath。
+   */
   const previousExecPath = idx >= 0 ? String(base.items[idx]?.execPath || '').trim() : '';
 
   if (nextItem.sourceExecPath) {
+    /**
+     * 常量：materialized。
+     */
     const materialized = await sceneManagedExeMaterialize(nextId, nextItem.sceneName, nextItem.sourceExecPath);
     nextItem.sourceExecPath = String(materialized.sourceExecPath || nextItem.sourceExecPath).trim();
     nextItem.execPath = String(materialized.execPath || nextItem.execPath).trim();
@@ -1691,8 +1985,17 @@ const handleScenesAddOpen = async (): Promise<void> => {
 
   await nextTick();
 
+  /**
+   * 常量：machineId。
+   */
   const machineId = String(stateMachineCode.value || '').trim();
+  /**
+   * 常量：machineName。
+   */
   const machineName = String(computedMachineName.value || '').trim();
+  /**
+   * 常量：machineRemark。
+   */
   const machineRemark = String(computedMachineRemark.value || '').trim();
 
   stateRefScenes.value?.valuesSet({
@@ -1716,7 +2019,13 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：items。
+   */
   const items = Array.isArray(stateScenesLocal.value?.items) ? stateScenesLocal.value.items : [];
+  /**
+   * 常量：target。
+   */
   const target = items.find((i) => String(i?.id || '').trim() === String(id || '').trim());
   if (!target) {
     return;
@@ -1727,8 +2036,17 @@ const handleScenesEditOpen = async (id: string): Promise<void> => {
 
   await nextTick();
 
+  /**
+   * 常量：machineId。
+   */
   const machineId = String(stateMachineCode.value || '').trim();
+  /**
+   * 常量：machineName。
+   */
   const machineName = String(computedMachineName.value || '').trim();
+  /**
+   * 常量：machineRemark。
+   */
   const machineRemark = String(computedMachineRemark.value || '').trim();
 
   stateRefScenes.value?.valuesSet({
@@ -1762,11 +2080,17 @@ const handleScenesPickExecPath = async (current: string): Promise<void> => {
     ]
   };
 
+  /**
+   * 常量：next。
+   */
   const next = await openFile(payload);
   if (!next) {
     return;
   }
 
+  /**
+   * 常量：values。
+   */
   const values = stateRefScenes.value?.valuesGet();
   if (!values) {
     return;

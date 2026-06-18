@@ -28,6 +28,9 @@ const themeModeIconMap = {
  * 计算属性：图标名称
  */
 const iconName = computed(() => {
+  /**
+   * 常量：pref。
+   */
   const pref = (colorMode.preference ?? 'system') as string;
 
   // 仅接受已显式声明的模式；其它值一律回退 system
@@ -43,6 +46,9 @@ const iconName = computed(() => {
  * @param {MouseEvent} event 鼠标事件
  */
 const handleClick = async (event: MouseEvent) => {
+  /**
+   * 常量：el。
+   */
   const el = event.currentTarget as HTMLElement | null;
   await themeModeCycle(el);
 };

@@ -206,6 +206,9 @@ export const variableJsonTextGet = (dataType: TVariableValueDataType, value: unk
     return '';
   }
 
+  /**
+   * 函数：normalizedValue。
+   */
   const normalizedValue = variableValueNormalize(dataType, value);
 
   return JSON.stringify(normalizedValue, null, 2);
@@ -224,6 +227,9 @@ export const variableJsonTextParse = (dataType: TVariableValueDataType, jsonText
   }
 
   try {
+    /**
+     * 函数：parsedValue。
+     */
     const parsedValue = JSON.parse(String(jsonText ?? ''));
 
     return variableValueMatchesDataType(dataType, parsedValue) ? parsedValue : null;
@@ -249,8 +255,17 @@ export const variableDefinitionsParse = (value: unknown): IVariableDefinitionDat
         return null;
       }
 
+      /**
+       * 常量：rawItem。
+       */
       const rawItem = item as Record<string, unknown>;
+      /**
+       * 常量：rawType。
+       */
       const rawType = String(rawItem.dataType ?? 'string');
+      /**
+       * 常量：dataType。
+       */
       const dataType = VARIABLE_VALUE_DATA_TYPES.includes(rawType as TVariableValueDataType) ? (rawType as TVariableValueDataType) : 'string';
 
       return {
@@ -343,17 +358,35 @@ export const variableCatalogCollect = (canvasNodes: IVariableCanvasNodeLike[]): 
  * @returns {string[]} 需要移除的连线 ID 列表。
  */
 export const variableTypeChangeAffectedEdgeIdsCollect = (canvasNodes: IVariableCanvasNodeLike[], canvasEdges: IVariableCanvasEdgeLike[], setNodeId: string, variableId: string, previousType: TVariableValueDataType): string[] => {
+  /**
+   * 常量：inputHandleId。
+   */
   const inputHandleId = variableInputHandleIdGet(variableId, previousType);
+  /**
+   * 常量：outputHandleId。
+   */
   const outputHandleId = variableOutputHandleIdGet(variableId, previousType);
+  /**
+   * 函数：getterNodeIds。
+   */
   const getterNodeIds = canvasNodes
     .filter((canvasNode) => String(canvasNode.type ?? '') === 'variable-get')
     .filter((canvasNode) => {
+      /**
+       * 常量：selectedIds。
+       */
       const selectedIds = (canvasNode.data as IVariableGetNodeData | undefined)?.selectedVariableIds;
 
       return Array.isArray(selectedIds) && selectedIds.includes(variableId);
     })
     .map((canvasNode) => String(canvasNode.id ?? ''));
+  /**
+   * 函数：getterInputHandleId。
+   */
   const getterInputHandleId = variableGetInputHandleIdGet(variableId, previousType);
+  /**
+   * 函数：getterOutputHandleId。
+   */
   const getterOutputHandleId = variableGetOutputHandleIdGet(variableId, previousType);
 
   return canvasEdges

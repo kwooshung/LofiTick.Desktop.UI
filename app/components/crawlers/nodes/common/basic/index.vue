@@ -219,6 +219,9 @@ const resolvePinDataTypeTooltipText = (dataType: TBasicSidePinDataType): string 
  * 返回可识别的数据类型；无法识别时返回 unknown。
  */
 const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataType | 'unknown' => {
+  /**
+   * 常量：id。
+   */
   const id = String(handleId ?? '')
     .trim()
     .toLowerCase();
@@ -270,7 +273,13 @@ const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataT
  * 类型兼容返回 true，否则返回 false。
  */
 const isValidSidePinDataTypeConnection = (connection: Connection): boolean => {
+  /**
+   * 常量：sourceType。
+   */
   const sourceType = inferDataTypeFromHandleId(connection.sourceHandle);
+  /**
+   * 常量：targetType。
+   */
   const targetType = inferDataTypeFromHandleId(connection.targetHandle);
 
   if (sourceType === 'exec' || targetType === 'exec') {

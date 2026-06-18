@@ -82,6 +82,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateMinMs.value = Number.isFinite(Number(data.minMs)) ? Math.max(100, Number(data.minMs)) : DEFAULT_MIN_MS;
   stateMaxMs.value = Number.isFinite(Number(data.maxMs)) ? Math.max(100, Number(data.maxMs)) : DEFAULT_MAX_MS;

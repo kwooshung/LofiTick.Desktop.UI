@@ -27,13 +27,31 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { edges } = useVueFlow();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateText。
+ */
 const stateText = ref('');
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -43,6 +61,9 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 计算属性：computedHasTextInput。
+ */
 const computedHasTextInput = computed(() => hasTargetPinConnection('clipboard-text-input'));
 
 const leftPins: IBasicSidePin[] = [
@@ -88,6 +109,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateText.value = String(data.text ?? '');
   stateInitialized.value = true;

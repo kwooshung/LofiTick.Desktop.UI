@@ -138,26 +138,77 @@ import type { ICookiePair, TCookieInputTimeValue } from '@/components/crawlers/n
 
 const { t } = useI18n();
 
+/**
+ * 常量：COOKIE_EXPIRES_TIME_FALLBACK。
+ */
 const COOKIE_EXPIRES_TIME_FALLBACK = '00:00';
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { edges } = useVueFlow();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateMode。
+ */
 const stateMode = ref('pairs');
+/**
+ * 状态：stateCookie。
+ */
 const stateCookie = ref('');
+/**
+ * 状态：stateCookiePairs。
+ */
 const stateCookiePairs = ref<ICookiePair[]>([createCookiePair()]);
+/**
+ * 状态：stateScope。
+ */
 const stateScope = ref('current');
+/**
+ * 状态：stateDomain。
+ */
 const stateDomain = ref('');
+/**
+ * 状态：statePath。
+ */
 const statePath = ref('/');
+/**
+ * 状态：stateSameSite。
+ */
 const stateSameSite = ref('lax');
+/**
+ * 状态：stateExpiresAt。
+ */
 const stateExpiresAt = ref('');
+/**
+ * 状态：stateHttpOnly。
+ */
 const stateHttpOnly = ref(true);
+/**
+ * 状态：stateSecure。
+ */
 const stateSecure = ref(false);
+/**
+ * 状态：statePersistent。
+ */
 const statePersistent = ref(false);
 
+/**
+ * 函数：createCookiePair。
+ */
 function createCookiePair(name: string = '', value: string = ''): ICookiePair {
+  /**
+   * 常量：pairId。
+   */
   const pairId = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
   return {
@@ -174,7 +225,13 @@ function createCookiePair(name: string = '', value: string = ''): ICookiePair {
   };
 }
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -184,6 +241,9 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 计算属性：computedHasCookieInput。
+ */
 const computedHasCookieInput = computed(() => hasTargetPinConnection('cookie-input'));
 
 const leftPins: IBasicSidePin[] = [
@@ -216,23 +276,35 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateModeOptions。
+ */
 const stateModeOptions = computed(() => [
   { value: 'pairs', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.mode.options.pairs') },
   { value: 'single', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.mode.options.single') }
 ]);
 
+/**
+ * 状态：stateScopeOptions。
+ */
 const stateScopeOptions = computed(() => [
   { value: 'current', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.scope.options.current') },
   { value: 'domain', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.scope.options.domain') },
   { value: 'all', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.scope.options.all') }
 ]);
 
+/**
+ * 状态：stateSameSiteOptions。
+ */
 const stateSameSiteOptions = computed(() => [
   { value: 'lax', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.sameSite.options.lax') },
   { value: 'strict', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.sameSite.options.strict') },
   { value: 'none', label: t('components.crawler.blueprint.nodes.http.setCookies.fields.sameSite.options.none') }
 ]);
 
+/**
+ * 函数：isSingleCalendarDateValue。
+ */
 const isSingleCalendarDateValue = (value: unknown): value is CalendarDate => {
   if (!value || Array.isArray(value) || typeof value !== 'object') {
     return false;
@@ -241,6 +313,9 @@ const isSingleCalendarDateValue = (value: unknown): value is CalendarDate => {
   return 'year' in value && 'month' in value && 'day' in value;
 };
 
+/**
+ * 常量：calendarIsoDateGet。
+ */
 const calendarIsoDateGet = (value: unknown): string => {
   if (!isSingleCalendarDateValue(value)) {
     return '';
@@ -249,27 +324,54 @@ const calendarIsoDateGet = (value: unknown): string => {
   return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
 };
 
+/**
+ * 常量：datePartGet。
+ */
 const datePartGet = (value: string): string => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}$/.exec(String(value ?? '').trim());
 
   return matched?.[1] ?? '';
 };
 
+/**
+ * 常量：timePartGet。
+ */
 const timePartGet = (value: string, fallback: string): string => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})$/.exec(String(value ?? '').trim());
 
   return matched?.[1] ?? fallback;
 };
 
+/**
+ * 常量：localDateTimeMerge。
+ */
 const localDateTimeMerge = (dateText: string, timeText: string): string => `${dateText}T${timeText}`;
 
+/**
+ * 常量：localDateTextGet。
+ */
 const localDateTextGet = (): string => {
+  /**
+   * 常量：now。
+   */
   const now = new Date();
 
   return `${String(now.getFullYear()).padStart(4, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 };
 
+/**
+ * 常量：cookieExpiresAtDateValueGet。
+ */
 const cookieExpiresAtDateValueGet = (value: string): CalendarDate | undefined => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}$/.exec(String(value ?? '').trim());
 
   if (!matched) {
@@ -279,7 +381,13 @@ const cookieExpiresAtDateValueGet = (value: string): CalendarDate | undefined =>
   return new CalendarDate(Number(matched[1]), Number(matched[2]), Number(matched[3]));
 };
 
+/**
+ * 常量：cookieExpiresAtTimeValueGet。
+ */
 const cookieExpiresAtTimeValueGet = (value: string): TCookieInputTimeValue => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = timePartGet(value, COOKIE_EXPIRES_TIME_FALLBACK);
 
   try {
@@ -289,33 +397,57 @@ const cookieExpiresAtTimeValueGet = (value: string): TCookieInputTimeValue => {
   }
 };
 
+/**
+ * 常量：cookieExpiresAtDateTextGet。
+ */
 const cookieExpiresAtDateTextGet = (value: string): string => {
   return datePartGet(value) || t('components.crawler.blueprint.nodes.http.setCookies.fields.expiresAt.placeholder');
 };
 
+/**
+ * 常量：cookieExpiresAtDateUpdate。
+ */
 const cookieExpiresAtDateUpdate = (value: string, updater: (nextValue: string) => void, calendarValue: unknown): void => {
   if (!isSingleCalendarDateValue(calendarValue)) {
     return;
   }
 
+  /**
+   * 常量：nextValue。
+   */
   const nextValue = localDateTimeMerge(calendarIsoDateGet(calendarValue), timePartGet(value, COOKIE_EXPIRES_TIME_FALLBACK));
   updater(nextValue);
 };
 
+/**
+ * 常量：cookieExpiresAtTimeUpdate。
+ */
 const cookieExpiresAtTimeUpdate = (value: string, updater: (nextValue: string) => void, timeValue: TCookieInputTimeValue): void => {
   if (!timeValue) {
     return;
   }
 
+  /**
+   * 常量：dateText。
+   */
   const dateText = datePartGet(value) || localDateTextGet();
+  /**
+   * 常量：nextValue。
+   */
   const nextValue = localDateTimeMerge(dateText, `${String(timeValue.hour).padStart(2, '0')}:${String(timeValue.minute).padStart(2, '0')}`);
   updater(nextValue);
 };
 
+/**
+ * 常量：addCookiePair。
+ */
 const addCookiePair = (): void => {
   stateCookiePairs.value.push(createCookiePair());
 };
 
+/**
+ * 函数：removeCookiePair。
+ */
 const removeCookiePair = (index: number): void => {
   if (stateCookiePairs.value.length <= 1) {
     stateCookiePairs.value = [createCookiePair()];
@@ -325,6 +457,9 @@ const removeCookiePair = (index: number): void => {
   stateCookiePairs.value.splice(index, 1);
 };
 
+/**
+ * 事件：handleStateExpiresAtDateUpdate。
+ */
 const handleStateExpiresAtDateUpdate = (value: unknown): void => {
   cookieExpiresAtDateUpdate(
     stateExpiresAt.value,
@@ -335,6 +470,9 @@ const handleStateExpiresAtDateUpdate = (value: unknown): void => {
   );
 };
 
+/**
+ * 事件：handleStateExpiresAtTimeUpdate。
+ */
 const handleStateExpiresAtTimeUpdate = (value: TCookieInputTimeValue): void => {
   cookieExpiresAtTimeUpdate(
     stateExpiresAt.value,
@@ -345,6 +483,9 @@ const handleStateExpiresAtTimeUpdate = (value: TCookieInputTimeValue): void => {
   );
 };
 
+/**
+ * 事件：handleCookiePairExpiresAtDateUpdate。
+ */
 const handleCookiePairExpiresAtDateUpdate = (pair: ICookiePair, value: unknown): void => {
   cookieExpiresAtDateUpdate(
     pair.expiresAt,
@@ -355,6 +496,9 @@ const handleCookiePairExpiresAtDateUpdate = (pair: ICookiePair, value: unknown):
   );
 };
 
+/**
+ * 事件：handleCookiePairExpiresAtTimeUpdate。
+ */
 const handleCookiePairExpiresAtTimeUpdate = (pair: ICookiePair, value: TCookieInputTimeValue): void => {
   cookieExpiresAtTimeUpdate(
     pair.expiresAt,
@@ -370,6 +514,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateMode.value = ['single', 'pairs'].includes(String(data.mode)) ? String(data.mode) : 'pairs';
   stateCookie.value = String(data.cookie ?? '');

@@ -92,6 +92,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationBackData;
   stateSteps.value = Number.isFinite(Number(data.steps)) ? Math.max(1, Number(data.steps)) : 1;
   stateWaitReady.value = Boolean(data.waitReady ?? true);

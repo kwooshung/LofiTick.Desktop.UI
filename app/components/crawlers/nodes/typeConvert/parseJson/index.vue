@@ -18,8 +18,17 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateFallbackValue。
+ */
 const stateFallbackValue = ref('null');
 
 const leftPins: IBasicSidePin[] = [
@@ -57,6 +66,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateFallbackValue.value = String(data.fallbackValue ?? 'null');
   stateInitialized.value = true;

@@ -15,10 +15,22 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateOutputScope。
+ */
 const stateOutputScope = ref('both');
 
+/**
+ * 状态：stateOutputScopeOptions。
+ */
 const stateOutputScopeOptions = computed(() => [
   {
     value: 'both',
@@ -98,7 +110,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
+  /**
+   * 常量：outputScope。
+   */
   const outputScope = String(data.outputScope ?? 'both');
   stateOutputScope.value = ['both', 'webview', 'screen'].includes(outputScope) ? outputScope : 'both';
   stateInitialized.value = true;

@@ -50,6 +50,9 @@ const stateIndex = ref(0);
  * @returns {number} 归一化后的索引值。
  */
 const normalizeIndex = (value: number): number => {
+  /**
+   * 常量：nextValue。
+   */
   const nextValue = Number.isFinite(Number(value)) ? Math.round(Number(value)) : 0;
   return Math.max(0, nextValue);
 };
@@ -60,6 +63,9 @@ const normalizeIndex = (value: number): number => {
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {
     return false;
@@ -119,6 +125,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IArrayObjectItemNodeData;
   stateIndex.value = normalizeIndex(Number(data.index ?? 0));
   stateInitialized.value = true;
@@ -129,6 +138,9 @@ watch(stateIndex, () => {
     return;
   }
 
+  /**
+   * 函数：normalized。
+   */
   const normalized = normalizeIndex(stateIndex.value);
   if (normalized !== stateIndex.value) {
     stateIndex.value = normalized;

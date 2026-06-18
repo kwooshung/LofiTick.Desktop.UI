@@ -247,6 +247,9 @@ const persistApiBaseLocalDebounced = useDebounceFn(async () => {
     return;
   }
 
+  /**
+   * 常量：config。
+   */
   const config = await tauriApiClient.configUpdate({
     apiBase: String(stateApiBaseValue.value || '').trim()
   });
@@ -284,6 +287,9 @@ const applyOnepanelSettings = (): void => {
  */
 const loadSettings = async (): Promise<void> => {
   if (isTauriRuntime.value) {
+    /**
+     * 常量：apiClientConfig。
+     */
     const apiClientConfig = await tauriApiClient.configGet();
 
     stateApiBaseValue.value = String(apiClientConfig.apiBase || '').trim() || DEFAULT_API_BASE;

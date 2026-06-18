@@ -23,8 +23,14 @@ const normalizeBase64ForUpYun = (input: string): string => input.split('/').join
  * @returns {string} 形如 '/fw/300' 的路径片段，返回空串表示忽略
  */
 const buildUpyunPath = (key: string, value: unknown): string => {
+  /**
+   * 常量：vStr。
+   */
   const vStr = String(value);
 
+  /**
+   * 常量：boolSeg。
+   */
   const boolSeg = (name: string, v: unknown): string => {
     if (typeof v === 'boolean') {
       return `/${name}/${v ? 'true' : 'false'}`;
@@ -41,6 +47,9 @@ const buildUpyunPath = (key: string, value: unknown): string => {
     return '';
   };
 
+  /**
+   * 常量：k。
+   */
   const k = key
     .replace(/^metaIptc$/i, 'meta/iptc')
     .replace(/^metaAll$/i, 'meta/all')
@@ -96,6 +105,9 @@ const buildUpyunPath = (key: string, value: unknown): string => {
       if (typeof value !== 'string') {
         return '';
       }
+      /**
+       * 常量：norm。
+       */
       const norm = normalizeBase64ForUpYun(value);
       return `/watermark/url/${encodeURIComponent(norm)}`;
     }
@@ -117,6 +129,9 @@ const buildUpyunPath = (key: string, value: unknown): string => {
       if (typeof value !== 'string') {
         return '';
       }
+      /**
+       * 常量：norm。
+       */
       const norm = normalizeBase64ForUpYun(value);
       return `/watermark/text/${encodeURIComponent(norm)}`;
     }
@@ -134,6 +149,9 @@ const buildUpyunPath = (key: string, value: unknown): string => {
       if (vStr === 'auto') {
         return '/rotate/auto';
       }
+      /**
+       * 常量：n。
+       */
       const n = +vStr;
       if (isFinite(n) && n > 0 && n <= 360) {
         return `/rotate/${n}`;
@@ -228,6 +246,9 @@ class UpYunBuilder implements IUpYunBuilder {
   }
 
   private pushBool(key: string, on?: boolean): this {
+    /**
+     * 常量：v。
+     */
     const v = on === undefined ? true : on;
     return this.push(key, v);
   }
@@ -296,11 +317,29 @@ class UpYunBuilder implements IUpYunBuilder {
   // ========== watermark ==========
   wmImage(base64Url: string, opts?: { align?: TUpYunGravity; margin?: TUpYunXxYMargin; opacity?: number; percent?: number; repeat?: boolean; animate?: boolean }): IUpYunBuilder {
     this.push('watermark/url', base64Url);
+    /**
+     * 常量：align。
+     */
     const align = opts?.align ?? 'northwest';
+    /**
+     * 常量：margin。
+     */
     const margin = opts?.margin ?? '20x20';
+    /**
+     * 常量：opacity。
+     */
     const opacity = opts?.opacity ?? 100;
+    /**
+     * 常量：percent。
+     */
     const percent = opts?.percent ?? 0;
+    /**
+     * 常量：repeat。
+     */
     const repeat = opts?.repeat ?? false;
+    /**
+     * 常量：animate。
+     */
     const animate = opts?.animate ?? false;
     this.push('watermark/align', align).push('watermark/margin', margin).push('watermark/opacity', opacity).push('watermark/percent', percent).push('watermark/repeat', repeat).push('watermark/animate', animate);
     return this;
@@ -308,15 +347,45 @@ class UpYunBuilder implements IUpYunBuilder {
 
   wmText(base64Text: string, opts?: { align?: TUpYunGravity; margin?: TUpYunXxYMargin; opacity?: number; percent?: number; repeat?: boolean; animate?: boolean; size?: number; font?: TUpYunFont; color?: string; border?: string }): IUpYunBuilder {
     this.push('watermark/text', base64Text);
+    /**
+     * 常量：align。
+     */
     const align = opts?.align ?? 'northwest';
+    /**
+     * 常量：margin。
+     */
     const margin = opts?.margin ?? '20x20';
+    /**
+     * 常量：opacity。
+     */
     const opacity = opts?.opacity ?? 100;
+    /**
+     * 常量：percent。
+     */
     const percent = opts?.percent ?? 0;
+    /**
+     * 常量：repeat。
+     */
     const repeat = opts?.repeat ?? false;
+    /**
+     * 常量：animate。
+     */
     const animate = opts?.animate ?? false;
+    /**
+     * 常量：size。
+     */
     const size = opts?.size ?? 32;
+    /**
+     * 常量：font。
+     */
     const font = opts?.font ?? 'simsun';
+    /**
+     * 常量：color。
+     */
     const color = opts?.color ?? '000000';
+    /**
+     * 常量：border。
+     */
     const border = opts?.border ?? 'FFFFFFFF';
     this.push('watermark/align', align)
       .push('watermark/margin', margin)
@@ -448,6 +517,9 @@ class UpYunBuilder implements IUpYunBuilder {
     const out: string[] = [];
     // gravity 需要位于 crop/clip 后
     let gravitySeg: string | undefined;
+    /**
+     * 函数：hasCropOrClip。
+     */
     let hasCropOrClip = false;
 
     for (const [k, v] of this._ops) {
@@ -455,6 +527,9 @@ class UpYunBuilder implements IUpYunBuilder {
         gravitySeg = buildUpyunPath('gravity', v);
         continue;
       }
+      /**
+       * 常量：seg。
+       */
       const seg = buildUpyunPath(k, v);
       if (seg) {
         out.push(seg);
@@ -472,8 +547,17 @@ class UpYunBuilder implements IUpYunBuilder {
     return this.segments().join('');
   }
   build(src: string): { url: string } {
+    /**
+     * 常量：path。
+     */
     const path = src.startsWith('/') ? src : `/${src}`;
+    /**
+     * 常量：segs。
+     */
     const segs = this.toString();
+    /**
+     * 常量：resource。
+     */
     const resource = segs ? `${path}${this._sep}${segs}` : path;
     return { url: normalizeURL(joinURL(this._baseURL || '', cleanDoubleSlashes(resource))) };
   }
@@ -491,14 +575,26 @@ class UpYunBuilder implements IUpYunBuilder {
  * - 默认分隔符：'!'
  */
 export const createUpYunBuilder = (options?: { baseURL?: string; separator?: TUpYunSeparator }): IUpYunBuilder => {
+  /**
+   * 常量：b。
+   */
   const b = new UpYunBuilder();
 
   if (options?.separator) {
     b.separator(options.separator);
   }
 
+  /**
+   * 常量：store。
+   */
   const store = useStoreCdnDomains();
+  /**
+   * 常量：storeFiles。
+   */
   const storeFiles = store.states.files || '';
+  /**
+   * 常量：base。
+   */
   const base = options?.baseURL || storeFiles;
   if (base) {
     b.baseURL(base);

@@ -75,6 +75,9 @@ const stateWhitespaceTypes = ref<string[]>([...DEFAULT_WHITESPACE_TYPES]);
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {
     return false;
@@ -142,6 +145,9 @@ watchEffect(() => {
   if (stateInitialized.value) {
     return;
   }
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IStringTrimNodeData;
   stateText.value = String(data.text ?? '');
   stateDirection.value = (data.direction ?? 'both') as 'both' | 'start' | 'end' | 'all';

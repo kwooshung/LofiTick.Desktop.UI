@@ -62,13 +62,22 @@ const zoom = computed(() => viewport.value.zoom);
  * @returns {void} 无返回值。
  */
 const updateCanvasHelperLines = (): void => {
+  /**
+   * 常量：canvas。
+   */
   const canvas = refCanvas.value;
+  /**
+   * 常量：ctx。
+   */
   const ctx = canvas?.getContext('2d');
 
   if (!ctx || !canvas) {
     return;
   }
 
+  /**
+   * 常量：dpi。
+   */
   const dpi = window.devicePixelRatio;
   canvas.width = width.value * dpi;
   canvas.height = height.value * dpi;

@@ -25,11 +25,29 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateOptionMode。
+ */
 const stateOptionMode = ref('text');
+/**
+ * 状态：stateOptionValue。
+ */
 const stateOptionValue = ref('');
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -62,6 +80,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateOptionModeOptions。
+ */
 const stateOptionModeOptions = computed(() => {
   return [
     {
@@ -84,6 +105,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateOptionMode.value = ['text', 'value', 'index'].includes(String(data.optionMode)) ? String(data.optionMode) : 'text';
   stateOptionValue.value = String(data.optionValue ?? '');

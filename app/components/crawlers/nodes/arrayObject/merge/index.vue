@@ -100,12 +100,18 @@ const createSourceId = (): string => crypto.randomUUID().slice(0, 8);
  * @returns {string[]} 归一化后的 ID 列表。
  */
 const ensureMinSourceIds = (ids: string[]): string[] => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = ids.filter((id) => String(id ?? '').trim() !== '').map((id) => String(id));
 
   if (normalized.length >= 2) {
     return normalized;
   }
 
+  /**
+   * 常量：nextIds。
+   */
   const nextIds = [...normalized];
   while (nextIds.length < 2) {
     nextIds.push(createSourceId());
@@ -120,6 +126,9 @@ const ensureMinSourceIds = (ids: string[]): string[] => {
  * @returns {string} 标签文本。
  */
 const labelFromIndex = (index: number): string => {
+  /**
+   * 常量：alphabet。
+   */
   const alphabet = 'abcdefghijklmnopqrstuvwxyz';
   return alphabet[index] ?? `v${index + 1}`;
 };
@@ -135,8 +144,17 @@ const topPercentFromIndex = (index: number, total: number): number => {
     return 50;
   }
 
+  /**
+   * 常量：start。
+   */
   const start = 20;
+  /**
+   * 常量：end。
+   */
   const end = 80;
+  /**
+   * 常量：step。
+   */
   const step = (end - start) / (total - 1);
   return Math.round(start + index * step);
 };
@@ -154,6 +172,9 @@ const inputHandleIdFromSourceId = (sourceId: string): string => `input-${sourceI
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {
     return false;
@@ -201,6 +222,9 @@ const handleSourceValueUpdate = (sourceId: string, value: string): void => {
  * 函数：新增数据源。
  */
 const handleSourceAdd = (): void => {
+  /**
+   * 常量：nextId。
+   */
   const nextId = createSourceId();
   stateSourceIds.value = [...stateSourceIds.value, nextId];
   stateSourceValues.value = {
@@ -217,9 +241,15 @@ const handleSourceRemove = (): void => {
     return;
   }
 
+  /**
+   * 函数：removedId。
+   */
   const removedId = stateSourceIds.value[stateSourceIds.value.length - 1];
   stateSourceIds.value = stateSourceIds.value.slice(0, -1);
 
+  /**
+   * 常量：nextValues。
+   */
   const nextValues = { ...stateSourceValues.value };
   delete nextValues[removedId];
   stateSourceValues.value = nextValues;
@@ -234,10 +264,25 @@ const syncSourceValuesByIds = (): void => {
     nextValues[sourceId] = sourceValueGet(sourceId);
   });
 
+  /**
+   * 常量：currentValues。
+   */
   const currentValues = stateSourceValues.value;
+  /**
+   * 常量：currentKeys。
+   */
   const currentKeys = Object.keys(currentValues);
+  /**
+   * 常量：nextKeys。
+   */
   const nextKeys = Object.keys(nextValues);
+  /**
+   * 常量：sameLength。
+   */
   const sameLength = currentKeys.length === nextKeys.length;
+  /**
+   * 常量：sameValues。
+   */
   const sameValues = sameLength && nextKeys.every((key) => currentValues[key] === nextValues[key]);
 
   if (!sameValues) {
@@ -272,7 +317,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IArrayObjectMergeNodeData;
+  /**
+   * 常量：mode。
+   */
   const mode = String(data.mode ?? 'smart') as TArrayObjectMergeMode;
   stateMode.value = ['smart', 'arrayConcat', 'objectAssign'].includes(mode) ? mode : 'smart';
   stateSourceIds.value = ensureMinSourceIds(Array.isArray(data.sourceIds) ? data.sourceIds : []);

@@ -688,6 +688,9 @@ const stateDetailRow = ref<IHotsearchAdMaterialSummaryRow>({
  * @returns {string} 本地日期时间。
  */
 const localDateTimeValueCreate = (value: Date): string => {
+  /**
+   * 常量：pad。
+   */
   const pad = (input: number) => String(input).padStart(2, '0');
 
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
@@ -705,12 +708,18 @@ const editorPlatformIdsDefaultCreate = (): number[] => [];
  * @returns {number[]} 规范化后的平台 ID 列表。
  */
 const editorPlatformIdsNormalize = (value: unknown): number[] => {
+  /**
+   * 常量：platformIds。
+   */
   const platformIds = new Set(adDeliveryPlatformOptions.map((item) => item.id));
 
   if (!Array.isArray(value)) {
     return [];
   }
 
+  /**
+   * 函数：normalized。
+   */
   const normalized = Array.from(new Set(value.map((item) => Number(item)).filter((item) => Number.isInteger(item) && platformIds.has(item))));
 
   return normalized;
@@ -741,6 +750,9 @@ const editorRequiredPlatformKindResolve = (presentationType: IPageAdHotsearchEdi
  * @returns {number[]} 规范化后的平台 ID 列表。
  */
 const editorPlatformIdsByKindNormalize = (value: unknown, requiredKind: THotsearchAdDeliveryPlatformKind | null): number[] => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = editorPlatformIdsNormalize(value);
 
   if (!requiredKind) {
@@ -754,7 +766,13 @@ const editorPlatformIdsByKindNormalize = (value: unknown, requiredKind: THotsear
  * 函数：同步当前表单允许的投放平台。
  */
 const editorPlatformIdsAllowedSync = (): void => {
+  /**
+   * 常量：requiredKind。
+   */
   const requiredKind = editorRequiredPlatformKindResolve(stateEditor.value.presentationType, stateEditor.value.frameType);
+  /**
+   * 函数：normalized。
+   */
   const normalized = editorPlatformIdsByKindNormalize(stateEditor.value.platformIds, requiredKind);
 
   if (normalized.length !== stateEditor.value.platformIds.length || normalized.some((id, index) => id !== stateEditor.value.platformIds[index])) {
@@ -767,8 +785,17 @@ const editorPlatformIdsAllowedSync = (): void => {
  * @returns {IPageAdHotsearchEditorForm} 默认状态。
  */
 const editorDefaultStateCreate = (): IPageAdHotsearchEditorForm => {
+  /**
+   * 常量：now。
+   */
   const now = new Date();
+  /**
+   * 函数：todayStart。
+   */
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  /**
+   * 函数：todayEnd。
+   */
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0);
 
   return {
@@ -861,6 +888,9 @@ const frameTypeOptions = [
  */
 const editorEditionScopeOptions = hotsearchAdEditionScopeOptionsGet();
 
+/**
+ * 常量：adDeliveryPlatformOptions。
+ */
 const adDeliveryPlatformOptions = hotsearchAdDeliveryPlatformOptionsGet();
 
 /**
@@ -880,6 +910,9 @@ const editorPlatformOptions = computed(() => {
     }));
 });
 
+/**
+ * 常量：adDeliveryPlatformKindMap。
+ */
 const adDeliveryPlatformKindMap = computed(() => {
   return new Map(adDeliveryPlatformOptions.map((item) => [item.id, item.deliveryKind]));
 });
@@ -934,6 +967,9 @@ const rowAssetResolve = (id: number, asset: IHotsearchAdMaterialAsset | null | u
  * @param {IHotsearchAdMaterialAsset | null | undefined} asset 主素材。
  */
 const rowDetailExtrasCacheSet = (id: number, platformIds: number[], asset: IHotsearchAdMaterialAsset | null | undefined): void => {
+  /**
+   * 常量：next。
+   */
   const next = new Map(stateRowDetailExtras.value);
 
   next.set(id, {
@@ -965,6 +1001,9 @@ const platformFilterMatches = (platformIds: number[], platformKey: string): bool
  * @returns {string[]} 平台文案列表。
  */
 const platformLabelsGet = (platformIds: number[], frameType: IHotsearchAdMaterialSummaryRow['frameType']): string[] => {
+  /**
+   * 常量：matchedLabels。
+   */
   const matchedLabels = platformOptionsByIdsGet(platformIds).map((option) => t(option.labelKey));
 
   if (matchedLabels.length > 0) {
@@ -1053,6 +1092,9 @@ const schema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endAt'], message: t('pages.ads.hotsearch.validation.endAtAfterStartAt') });
     }
 
+    /**
+     * 常量：requiredPlatformKind。
+     */
     const requiredPlatformKind = editorRequiredPlatformKindResolve(value.presentationType, value.frameType);
 
     if (requiredPlatformKind && value.platformIds.some((id) => adDeliveryPlatformKindMap.value.get(id) !== requiredPlatformKind)) {
@@ -1112,6 +1154,9 @@ const { datas: stateUpyunObjectUrl, refresh: refreshUpyunObjectUrlGet } = await 
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：routeValue。
+   */
   const routeValue = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
 
   if (routeValue !== '') {
@@ -1127,13 +1172,37 @@ const currentPageSizeGet = (): string => {
  */
 const buildApiQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
+  /**
+   * 常量：keyword。
+   */
   const keyword = typeof route.query.keyword === 'string' ? route.query.keyword.trim() : '';
+  /**
+   * 常量：editionScope。
+   */
   const editionScope = typeof route.query.editionScope === 'string' ? route.query.editionScope.trim() : '';
+  /**
+   * 常量：platform。
+   */
   const platform = typeof route.query.platform === 'string' ? route.query.platform.trim() : '';
+  /**
+   * 常量：enabled。
+   */
   const enabled = typeof route.query.enabled === 'string' ? route.query.enabled.trim() : '';
+  /**
+   * 常量：orderBy。
+   */
   const orderBy = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
+  /**
+   * 常量：orderDir。
+   */
   const orderDir = typeof route.query.order_dir === 'string' ? route.query.order_dir.trim() : typeof route.query.orderDir === 'string' ? route.query.orderDir.trim() : '';
+  /**
+   * 常量：page。
+   */
   const page = typeof route.query.page === 'string' ? route.query.page.trim() : '';
+  /**
+   * 常量：pageSize。
+   */
   const pageSize = currentPageSizeGet();
 
   if (keyword !== '') {
@@ -1176,6 +1245,9 @@ const buildApiQueryFromRoute = (): Record<string, string> => {
  * @returns {string} 排序字段。
  */
 const hotsearchOrderByCurrentGet = (): 'id' | 'updated' | 'created' => {
+  /**
+   * 常量：by。
+   */
   const by = typeof route.query.order_by === 'string' ? route.query.order_by.trim() : typeof route.query.orderBy === 'string' ? route.query.orderBy.trim() : '';
 
   if (by === 'id' || by === 'created') {
@@ -1190,6 +1262,9 @@ const hotsearchOrderByCurrentGet = (): 'id' | 'updated' | 'created' => {
  * @returns {string} 排序方向。
  */
 const hotsearchOrderDirCurrentGet = (): 'asc' | 'desc' => {
+  /**
+   * 常量：dir。
+   */
   const dir = typeof route.query.order_dir === 'string' ? route.query.order_dir.trim().toLowerCase() : typeof route.query.orderDir === 'string' ? route.query.orderDir.trim().toLowerCase() : '';
 
   return dir === 'asc' ? 'asc' : 'desc';
@@ -1200,8 +1275,17 @@ const hotsearchOrderDirCurrentGet = (): 'asc' | 'desc' => {
  * @param {string} field 排序字段。
  */
 const _toggleSort = (field: 'id' | 'updated' | 'created') => {
+  /**
+   * 常量：currentBy。
+   */
   const currentBy = hotsearchOrderByCurrentGet();
+  /**
+   * 常量：currentDir。
+   */
   const currentDir = hotsearchOrderDirCurrentGet();
+  /**
+   * 常量：nextDir。
+   */
   const nextDir = currentBy === field && currentDir === 'asc' ? 'desc' : 'asc';
   const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
 
@@ -1249,6 +1333,9 @@ const { refresh: refreshCreate } = await useApi<IHotsearchAdMaterialSaveResult>(
  * @returns {InputTimeProps['modelValue']} 时间值。
  */
 const timeValueFromText = (value: string, fallback: string): InputTimeProps['modelValue'] => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   try {
@@ -1278,6 +1365,9 @@ const textFromTimeValue = (value: InputTimeProps['modelValue'], fallback: string
  * @returns {string} 日期文本。
  */
 const datePartGet = (value: string): string => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}$/.exec(String(value || '').trim());
 
   return matched?.[1] ?? '';
@@ -1290,6 +1380,9 @@ const datePartGet = (value: string): string => {
  * @returns {string} 时间文本。
  */
 const timePartGet = (value: string, fallback: string): string => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})$/.exec(String(value || '').trim());
 
   return matched?.[1] ?? fallback;
@@ -1309,6 +1402,9 @@ const localDateTimeMerge = (dateText: string, timeText: string): string => `${da
  * @returns {CalendarDate} 日历日期。
  */
 const calendarDateFromDateTimeGet = (value: string): CalendarDate | undefined => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}$/.exec(String(value || '').trim());
 
   if (!matched) {
@@ -1333,6 +1429,9 @@ const calendarIsoDateGet = (value: DateValue): string => {
  * @returns {string} 日期按钮文案。
  */
 const calendarButtonLabelGet = (value: string): string => {
+  /**
+   * 常量：dateText。
+   */
   const dateText = datePartGet(value);
 
   return dateText === '' ? t('pages.ads.hotsearch.picker.selectDate') : dateText.replaceAll('-', '/');
@@ -1351,6 +1450,9 @@ const mediaMetadataRead = async (materialType: 'image' | 'video', previewUrl: st
 
   if (materialType === 'image') {
     return await new Promise((resolve) => {
+      /**
+       * 常量：image。
+       */
       const image = new Image();
 
       image.onload = () => {
@@ -1368,6 +1470,9 @@ const mediaMetadataRead = async (materialType: 'image' | 'video', previewUrl: st
   }
 
   return await new Promise((resolve) => {
+    /**
+     * 常量：video。
+     */
     const video = document.createElement('video');
 
     video.preload = 'metadata';
@@ -1397,12 +1502,18 @@ const mediaMetadataRead = async (materialType: 'image' | 'video', previewUrl: st
  * @returns {string} 编辑器本地时间。
  */
 const localDateTimeInputValueGet = (value: unknown, fallback: string): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchDatetimeValueGet(value);
 
   if (normalized === '') {
     return fallback;
   }
 
+  /**
+   * 常量：date。
+   */
   const date = new Date(normalized);
 
   if (Number.isNaN(date.getTime())) {
@@ -1418,6 +1529,9 @@ const localDateTimeInputValueGet = (value: unknown, fallback: string): string =>
  * @returns {string} 扩展名。
  */
 const fileExtGet = (file: File): string => {
+  /**
+   * 常量：matched。
+   */
   const matched = /\.([^.]+)$/.exec(file.name.trim());
 
   return matched?.[1]?.toLowerCase() ?? '';
@@ -1450,7 +1564,13 @@ const VIDEO_FILE_FILTER_EXTENSIONS = Array.from(VIDEO_FILE_EXTENSIONS);
  * @returns {boolean} 是否符合素材类型。
  */
 const materialTypeMatchesFile = (materialType: 'image' | 'video', file: File): boolean => {
+  /**
+   * 常量：mimeType。
+   */
   const mimeType = String(file.type || '').toLowerCase();
+  /**
+   * 常量：extension。
+   */
   const extension = fileExtGet(file);
 
   if (materialType === 'image') {
@@ -1467,6 +1587,9 @@ const materialTypeMatchesFile = (materialType: 'image' | 'video', file: File): b
  * @returns {string} MIME。
  */
 const fileMimeTypeGuess = (fileName: string, materialType: 'image' | 'video'): string => {
+  /**
+   * 常量：extension。
+   */
   const extension = String(fileName.split('.').pop() || '')
     .trim()
     .toLowerCase();
@@ -1504,7 +1627,13 @@ const fileMimeTypeGuess = (fileName: string, materialType: 'image' | 'video'): s
  * @returns {Uint8Array} 字节数组。
  */
 const base64BytesDecode = (base64: string): Uint8Array => {
+  /**
+   * 常量：binary。
+   */
   const binary = atob(base64);
+  /**
+   * 常量：bytes。
+   */
   const bytes = new Uint8Array(binary.length);
 
   for (let index = 0; index < binary.length; index += 1) {
@@ -1553,7 +1682,13 @@ const assetTypeMismatchToastShow = (materialType: 'image' | 'video'): void => {
  * @returns {File} 文件对象。
  */
 const tauriOpenFileResultToFile = (result: IOpenFileContentResult, materialType: 'image' | 'video'): File => {
+  /**
+   * 常量：bytes。
+   */
   const bytes = base64BytesDecode(result.base64);
+  /**
+   * 常量：buffer。
+   */
   const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 
   return new File([buffer], result.fileName, {
@@ -1571,8 +1706,17 @@ const fileSizeTextGet = (size: number): string => {
     return '0 B';
   }
 
+  /**
+   * 常量：units。
+   */
   const units = ['B', 'KB', 'MB', 'GB'];
+  /**
+   * 常量：value。
+   */
   let value = size;
+  /**
+   * 常量：unitIndex。
+   */
   let unitIndex = 0;
 
   while (value >= 1024 && unitIndex < units.length - 1) {
@@ -1589,8 +1733,17 @@ const fileSizeTextGet = (size: number): string => {
  * @returns {string} 文本。
  */
 const durationTextGet = (durationMs: number): string => {
+  /**
+   * 函数：totalSeconds。
+   */
   const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+  /**
+   * 常量：minutes。
+   */
   const minutes = Math.floor(totalSeconds / 60);
+  /**
+   * 常量：seconds。
+   */
   const seconds = totalSeconds % 60;
 
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -1659,13 +1812,22 @@ const editorAssetPathCreate = (file: File): string => {
  * @returns {Promise<IHotsearchAdMaterialAsset>} 已上传素材。
  */
 const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAsset): Promise<IHotsearchAdMaterialAsset> => {
+  /**
+   * 常量：errorMessage。
+   */
   const errorMessage = t('pages.ads.hotsearch.toast.assetUploadFailed');
+  /**
+   * 常量：draftPath。
+   */
   const draftPath = editorAssetPathCreate(file);
 
   if (!isTauriRuntime.value) {
     throw new Error(t('pages.ads.hotsearch.toast.tauriWriteUnsupported'));
   }
 
+  /**
+   * 常量：policy。
+   */
   const policy = await requestUpyunDirectUploadPolicySnapshot(
     {
       save_key: draftPath,
@@ -1673,18 +1835,36 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
     },
     errorMessage
   );
+  /**
+   * 常量：uploadUrl。
+   */
   const uploadUrl = String(policy.upload_url ?? '').trim();
+  /**
+   * 常量：uploadPolicy。
+   */
   const uploadPolicy = String(policy.policy ?? '').trim();
+  /**
+   * 常量：authorization。
+   */
   const authorization = String(policy.authorization ?? '').trim();
+  /**
+   * 常量：resolvedPath。
+   */
   const resolvedPath = String(policy.save_key ?? draftPath).trim();
 
   if (!uploadUrl || !uploadPolicy || !authorization || !resolvedPath) {
     throw new Error(errorMessage);
   }
 
+  /**
+   * 常量：localBytes。
+   */
   const localBytes = Array.from(new Uint8Array(await file.arrayBuffer()));
   await hotsearchAdAssetWrite(resolvedPath.replace(/^\//, ''), localBytes);
 
+  /**
+   * 常量：formData。
+   */
   const formData = new FormData();
   formData.set('policy', uploadPolicy);
   formData.set('authorization', authorization);
@@ -1692,6 +1872,9 @@ const uploadEditorAssetFile = async (file: File, asset: IPageAdHotsearchEditorAs
   formData.set('file', file);
 
   await new Promise<void>((resolve, reject) => {
+    /**
+     * 常量：xhr。
+     */
     const xhr = new XMLHttpRequest();
 
     xhr.open('POST', uploadUrl, true);
@@ -1759,6 +1942,9 @@ const editorAssetPayloadBuild = (asset: IPageAdHotsearchEditorAsset): IHotsearch
  * @returns {Promise<string>} 预览地址。
  */
 const assetPreviewUrlResolve = async (asset: IHotsearchAdMaterialAsset | null | undefined, errorMessage: string): Promise<string> => {
+  /**
+   * 常量：path。
+   */
   const path = String(asset?.path ?? '').trim();
 
   if (!asset || path === '') {
@@ -1773,12 +1959,21 @@ const assetPreviewUrlResolve = async (asset: IHotsearchAdMaterialAsset | null | 
     replace: true
   });
 
+  /**
+   * 常量：signedUrl。
+   */
   const signedUrl = String(stateUpyunObjectUrl.value?.url ?? '').trim();
   if (signedUrl === '') {
     throw new Error(errorMessage);
   }
 
+  /**
+   * 常量：previewUrl。
+   */
   const previewUrl = signedUrl;
+  /**
+   * 常量：localCachePath。
+   */
   const localCachePath = path.replace(/^\//, '');
 
   if (isTauriRuntime.value && localCachePath !== '') {
@@ -1812,6 +2007,9 @@ const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'wi
     previewCanvasAvailableWidthSync();
     previewStageSizeSync();
 
+    /**
+     * 常量：clampedOffset。
+     */
     const clampedOffset = previewOffsetClamp(statePreviewStageSize.width > 0 ? statePreviewStageSize.width * asset.posXRatio : 0, statePreviewStageSize.height > 0 ? statePreviewStageSize.height * asset.posYRatio : 0, statePreviewScale.value);
 
     statePreviewOffset.x = clampedOffset.x;
@@ -1825,6 +2023,9 @@ const editorPreviewLayoutRestore = (asset: Pick<IPageAdHotsearchEditorAsset, 'wi
  * @returns {Promise<IPageAdHotsearchEditorAsset>} 编辑器素材。
  */
 const editorAssetStateBuild = async (asset: IHotsearchAdMaterialAsset): Promise<IPageAdHotsearchEditorAsset> => {
+  /**
+   * 常量：previewUrl。
+   */
   const previewUrl = await assetPreviewUrlResolve(asset, t('pages.ads.hotsearch.toast.assetSignUrlFailed'));
 
   return {
@@ -1851,6 +2052,9 @@ const editorAssetStateBuild = async (asset: IHotsearchAdMaterialAsset): Promise<
  * 函数：清空编辑器素材。
  */
 const editorAssetClear = (): void => {
+  /**
+   * 常量：previewUrl。
+   */
   const previewUrl = String(stateEditor.value.asset?.previewUrl ?? '').trim();
 
   stateEditorAssetLoading.value = false;
@@ -1924,6 +2128,9 @@ const computedIsPortraitPreview = computed(() => stateEditor.value.presentationT
  * 计算属性：详情素材原始宽高比。
  */
 const computedDetailPreviewAspectRatio = computed(() => {
+  /**
+   * 常量：asset。
+   */
   const asset = stateDetailRow.value.asset;
 
   if (asset && asset.width > 0 && asset.height > 0) {
@@ -1946,6 +2153,9 @@ const computedDetailPreviewFrameClass = computed(() => (computedDetailPreviewAsp
  * 计算属性：详情素材预览容器样式。
  */
 const computedDetailPreviewFrameStyle = computed(() => {
+  /**
+   * 常量：asset。
+   */
   const asset = stateDetailRow.value.asset;
 
   if (asset && asset.width > 0 && asset.height > 0) {
@@ -2116,7 +2326,13 @@ const computedPreviewCanvasClass = computed(() => 'w-full');
  * @returns {{ width: string; height: string } | { width: string; aspectRatio: string }} 样式对象。
  */
 const computedPreviewCanvasStyle = computed(() => {
+  /**
+   * 常量：frameRatio。
+   */
   const frameRatio = computedIsPortraitPreview.value ? 9 / 16 : 16 / 9;
+  /**
+   * 常量：availableWidth。
+   */
   const availableWidth = statePreviewCanvasAvailableWidth.value;
 
   if (availableWidth > 0) {
@@ -2143,6 +2359,9 @@ const computedPreviewCanvasStyle = computed(() => {
  * 计算属性：素材原始宽高比。
  */
 const computedPreviewAssetAspectRatio = computed(() => {
+  /**
+   * 常量：asset。
+   */
   const asset = stateEditor.value.asset;
 
   if (asset && asset.width > 0 && asset.height > 0) {
@@ -2156,14 +2375,26 @@ const computedPreviewAssetAspectRatio = computed(() => {
  * 计算属性：素材在舞台内 contain 后的基础尺寸。
  */
 const computedPreviewBaseMediaSize = computed(() => {
+  /**
+   * 常量：stageWidth。
+   */
   const stageWidth = statePreviewStageSize.width;
+  /**
+   * 常量：stageHeight。
+   */
   const stageHeight = statePreviewStageSize.height;
 
   if (stageWidth <= 0 || stageHeight <= 0) {
     return { width: 0, height: 0 };
   }
 
+  /**
+   * 常量：stageAspectRatio。
+   */
   const stageAspectRatio = stageWidth / stageHeight;
+  /**
+   * 常量：assetAspectRatio。
+   */
   const assetAspectRatio = computedPreviewAssetAspectRatio.value;
 
   if (assetAspectRatio >= stageAspectRatio) {
@@ -2183,6 +2414,9 @@ const computedPreviewBaseMediaSize = computed(() => {
  * 函数：同步预览画布可用宽度。
  */
 const previewCanvasAvailableWidthSync = (): void => {
+  /**
+   * 常量：element。
+   */
   const element = refPreviewCanvasContainerElement.value;
 
   if (!element) {
@@ -2197,6 +2431,9 @@ const previewCanvasAvailableWidthSync = (): void => {
  * 函数：同步预览舞台尺寸。
  */
 const previewStageSizeSync = (): void => {
+  /**
+   * 常量：element。
+   */
   const element = refPreviewStageElement.value;
 
   if (!element) {
@@ -2217,18 +2454,42 @@ const previewStageSizeSync = (): void => {
  * @returns {{ x: number; y: number }} 合法偏移。
  */
 const previewOffsetClamp = (x: number, y: number, scale = statePreviewScale.value): { x: number; y: number } => {
+  /**
+   * 常量：stageWidth。
+   */
   const stageWidth = statePreviewStageSize.width;
+  /**
+   * 常量：stageHeight。
+   */
   const stageHeight = statePreviewStageSize.height;
+  /**
+   * 常量：baseWidth。
+   */
   const baseWidth = computedPreviewBaseMediaSize.value.width;
+  /**
+   * 常量：baseHeight。
+   */
   const baseHeight = computedPreviewBaseMediaSize.value.height;
 
   if (stageWidth <= 0 || stageHeight <= 0 || baseWidth <= 0 || baseHeight <= 0) {
     return { x: 0, y: 0 };
   }
 
+  /**
+   * 常量：scaledWidth。
+   */
   const scaledWidth = baseWidth * scale;
+  /**
+   * 常量：scaledHeight。
+   */
   const scaledHeight = baseHeight * scale;
+  /**
+   * 常量：maxOffsetX。
+   */
   const maxOffsetX = scaledWidth <= stageWidth ? (stageWidth - scaledWidth) / 2 : 0;
+  /**
+   * 常量：maxOffsetY。
+   */
   const maxOffsetY = scaledHeight <= stageHeight ? (stageHeight - scaledHeight) / 2 : 0;
 
   return {
@@ -2263,6 +2524,9 @@ const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：materialType。
+   */
   const materialType = stateEditor.value.materialType;
   if (!isTauriRuntime.value || (materialType !== 'image' && materialType !== 'video')) {
     open();
@@ -2272,11 +2536,17 @@ const handlePreviewUploadOpen = async (open: () => void): Promise<void> => {
   stateEditorAssetSelecting.value = true;
 
   try {
+    /**
+     * 常量：result。
+     */
     const result = await openFileContent(assetOpenFilePayloadBuild(materialType));
     if (!result) {
       return;
     }
 
+    /**
+     * 常量：nextFile。
+     */
     const nextFile = tauriOpenFileResultToFile(result, materialType);
     if (!materialTypeMatchesFile(materialType, nextFile)) {
       stateEditorAssetFile.value = null;
@@ -2332,6 +2602,9 @@ const handlePreviewTransformReset = (): void => {
  */
 const handlePreviewZoomIn = (): void => {
   statePreviewScale.value = previewScaleClamp(statePreviewScale.value + 0.1);
+  /**
+   * 常量：clampedOffset。
+   */
   const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
   statePreviewOffset.x = clampedOffset.x;
@@ -2343,6 +2616,9 @@ const handlePreviewZoomIn = (): void => {
  */
 const handlePreviewZoomOut = (): void => {
   statePreviewScale.value = previewScaleClamp(statePreviewScale.value - 0.1);
+  /**
+   * 常量：clampedOffset。
+   */
   const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
   statePreviewOffset.x = clampedOffset.x;
@@ -2359,6 +2635,9 @@ const handlePreviewWheel = (event: WheelEvent): void => {
   }
 
   statePreviewScale.value = previewScaleClamp(statePreviewScale.value + (event.deltaY < 0 ? 0.1 : -0.1));
+  /**
+   * 常量：clampedOffset。
+   */
   const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
   statePreviewOffset.x = clampedOffset.x;
@@ -2374,12 +2653,18 @@ const handlePreviewPointerDown = (event: PointerEvent): void => {
     return;
   }
 
+  /**
+   * 常量：eventTarget。
+   */
   const eventTarget = event.target;
 
   if (eventTarget instanceof HTMLElement && eventTarget.closest('[data-preview-control="true"]')) {
     return;
   }
 
+  /**
+   * 常量：target。
+   */
   const target = event.currentTarget as HTMLElement | null;
 
   statePreviewDragging.active = true;
@@ -2401,6 +2686,9 @@ const handlePreviewPointerMove = (event: PointerEvent): void => {
     return;
   }
 
+  /**
+   * 常量：clampedOffset。
+   */
   const clampedOffset = previewOffsetClamp(statePreviewDragging.originX + (event.clientX - statePreviewDragging.startX), statePreviewDragging.originY + (event.clientY - statePreviewDragging.startY));
 
   statePreviewOffset.x = clampedOffset.x;
@@ -2416,6 +2704,9 @@ const handlePreviewPointerUp = (event: PointerEvent): void => {
     return;
   }
 
+  /**
+   * 常量：target。
+   */
   const target = event.currentTarget as HTMLElement | null;
 
   statePreviewDragging.active = false;
@@ -2462,6 +2753,9 @@ watch(
       previewCanvasAvailableWidthSync();
       previewStageSizeSync();
 
+      /**
+       * 常量：clampedOffset。
+       */
       const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
       statePreviewOffset.x = clampedOffset.x;
@@ -2489,6 +2783,9 @@ watch(
         previewCanvasAvailableWidthSync();
         previewStageSizeSync();
 
+        /**
+         * 常量：clampedOffset。
+         */
         const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
         statePreviewOffset.x = clampedOffset.x;
@@ -2509,6 +2806,9 @@ watch(
 watch(
   () => statePreviewScale.value,
   () => {
+    /**
+     * 常量：clampedOffset。
+     */
     const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
     statePreviewOffset.x = clampedOffset.x;
@@ -2664,13 +2964,22 @@ const adInfoChipRender = (label: string, value: string, tone: 'primary' | 'neutr
  * 返回广告信息单元格节点。
  */
 const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, showAssetMeta = true) => {
+  /**
+   * 常量：title。
+   */
   const title = item.title || t('pages.ads.hotsearch.table.untitled');
+  /**
+   * 常量：primaryChips。
+   */
   const primaryChips = [
     adInfoChipRender(t('pages.ads.hotsearch.table.editionScope'), editionScopeLabelGet(item.editionScope), 'primary'),
     adInfoChipRender(t('pages.ads.hotsearch.table.platform'), platformLabelsGet(item.platformIds, item.frameType).join(' / '), 'primary'),
     adInfoChipRender(t('pages.ads.hotsearch.table.priority'), String(item.priority), 'primary')
   ];
 
+  /**
+   * 常量：assetChips。
+   */
   const assetChips = [
     adInfoChipRender(t('pages.ads.hotsearch.table.materialType'), materialTypeLabelGet(item.materialType)),
     adInfoChipRender(t('pages.ads.hotsearch.table.type'), presentationTypeLabelGet(item.presentationType)),
@@ -2687,14 +2996,26 @@ const hotsearchAdInfoCellRender = (item: IPageTableColumnHotsearchAdMaterial, sh
  * @returns {VNode} 平台链接节点。
  */
 const platformLinksRender = (item: IPageTableColumnHotsearchAdMaterial) => {
+  /**
+   * 常量：currentPlatform。
+   */
   const currentPlatform = typeof route.query.platform === 'string' ? route.query.platform : '';
+  /**
+   * 常量：options。
+   */
   const options = platformOptionsByIdsGet(item.platformIds);
 
   if (options.length === 0) {
     return h('span', { class: 'text-sm text-muted whitespace-normal break-words' }, platformLabelsGet(item.platformIds, item.frameType).join(' / '));
   }
 
+  /**
+   * 常量：links。
+   */
   const links = options.map((option) => {
+    /**
+     * 函数：to。
+     */
     const to = buildPlatformLocation(option.key);
     /**
      * 状态：当前平台链接是否激活。
@@ -2734,8 +3055,14 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     return [];
   }
 
+  /**
+   * 常量：platformFilter。
+   */
   const platformFilter = currentPlatformFilterGet();
 
+  /**
+   * 常量：rows。
+   */
   const rows = datas.value.rows.map((item) => ({
     id: Number(item.id ?? 0),
     title: String(item.title ?? ''),
@@ -2756,8 +3083,17 @@ const computedTableRows = computed<IPageTableColumnHotsearchAdMaterial[]>(() => 
     createdAt: hotsearchDatetimeValueGet(item.createdAt)
   }));
 
+  /**
+   * 常量：by。
+   */
   const by = hotsearchOrderByCurrentGet();
+  /**
+   * 常量：dir。
+   */
   const dir = hotsearchOrderDirCurrentGet();
+  /**
+   * 常量：factor。
+   */
   const factor = dir === 'asc' ? 1 : -1;
 
   rows.sort((left, right) => {
@@ -2839,7 +3175,13 @@ const hotsearchAdMaterialDelete = async (id: number): Promise<void> => {
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = typeof route.query.page === 'string' ? route.query.page : '';
+    /**
+     * 常量：num。
+     */
     const num = Number.parseInt(str, 10);
     return Number.isFinite(num) && num > 0 ? num : 1;
   },
@@ -2854,18 +3196,30 @@ const computedPage = computed<number>({
  * 计算属性：每页数量。
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：routeValue。
+   */
   const routeValue = typeof route.query.pagesize === 'string' ? route.query.pagesize : '';
+  /**
+   * 函数：parsed。
+   */
   const parsed = Number.parseInt(routeValue, 10);
 
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
 
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'ad-hotsearch');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
 
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -2937,6 +3291,9 @@ const handleEditorAdvertisementDragEnd = (): void => {
  * @param {string} value 最新值。
  */
 const handleEditorAdvertisementVoiceUpdate = (index: number, value: string | number): void => {
+  /**
+   * 常量：item。
+   */
   const item = stateEditorAdvertisementItems.value[index];
 
   if (!item) {
@@ -2952,6 +3309,9 @@ const handleEditorAdvertisementVoiceUpdate = (index: number, value: string | num
  * @param {string} value 最新值。
  */
 const handleEditorAdvertisementContentUpdate = (index: number, value: string | number): void => {
+  /**
+   * 常量：item。
+   */
   const item = stateEditorAdvertisementItems.value[index];
 
   if (!item) {
@@ -2974,6 +3334,9 @@ const handleEditorAdvertisementItemRemove = (index: number): void => {
  * @param {IPageTableColumnHotsearchAdMaterial} row 表格行。
  */
 const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
+  /**
+   * 常量：source。
+   */
   const source = datas.value?.rows.find((item) => Number(item.id) === row.id);
   if (!source) {
     return;
@@ -3007,7 +3370,13 @@ const handleViewDetail = (row: IPageTableColumnHotsearchAdMaterial) => {
 
   void (async () => {
     try {
+      /**
+       * 常量：detail。
+       */
       const detail = await hotsearchAdMaterialDetailGet(row.id);
+      /**
+       * 函数：normalizedPlatformIds。
+       */
       const normalizedPlatformIds = editorPlatformIdsNormalize(detail.platformIds);
 
       rowDetailExtrasCacheSet(row.id, normalizedPlatformIds, detail.asset ?? null);
@@ -3068,7 +3437,13 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
   stateDeletePopoverOpenId.value = null;
 
   try {
+    /**
+     * 常量：detail。
+     */
     const detail = await hotsearchAdMaterialDetailGet(row.id);
+    /**
+     * 常量：defaultState。
+     */
     const defaultState = editorDefaultStateCreate();
 
     editorReset();
@@ -3097,6 +3472,9 @@ const handleEdit = async (row: IPageTableColumnHotsearchAdMaterial): Promise<voi
       stateEditorAssetLoading.value = true;
 
       try {
+        /**
+         * 常量：editorAsset。
+         */
         const editorAsset = await editorAssetStateBuild(detail.asset);
 
         stateEditor.value.asset = editorAsset;
@@ -3190,6 +3568,9 @@ const handleCreate = () => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleToggleEnabled = async (row: IPageTableColumnHotsearchAdMaterial, value: boolean): Promise<void> => {
+  /**
+   * 常量：previous。
+   */
   const previous = row.isEnabled;
   row.isEnabled = value;
 
@@ -3207,6 +3588,9 @@ const handleToggleEnabled = async (row: IPageTableColumnHotsearchAdMaterial, val
  * @returns {string} 后端栏目范围。
  */
 const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning' | 'evening' | 'both' => {
+  /**
+   * 常量：uniqueValues。
+   */
   const uniqueValues = Array.from(new Set(values));
 
   if (uniqueValues.includes('morning') && uniqueValues.includes('evening')) {
@@ -3225,8 +3609,17 @@ const editionScopePayloadGet = (values: Array<'morning' | 'evening'>): 'morning'
  * @returns {{ clipStartMs: number; clipEndMs: number; posXRatio: number; posYRatio: number; widthRatio: number; heightRatio: number; zIndex: number }} 当前预览布局。
  */
 const previewLayoutPayloadBuild = (): { clipStartMs: number; clipEndMs: number; posXRatio: number; posYRatio: number; widthRatio: number; heightRatio: number; zIndex: number } => {
+  /**
+   * 常量：stageWidth。
+   */
   const stageWidth = statePreviewStageSize.width;
+  /**
+   * 常量：stageHeight。
+   */
   const stageHeight = statePreviewStageSize.height;
+  /**
+   * 常量：scale。
+   */
   const scale = Number(statePreviewScale.value.toFixed(6));
 
   return {
@@ -3261,10 +3654,25 @@ const advertisementLinesPayloadBuild = (): Array<{ voiceKey: 'M' | 'F' | 'R'; co
  * @returns {Record<string, unknown>} 保存请求。
  */
 const savePayloadBuild = (source: IPageAdHotsearchEditorForm, asset: IHotsearchAdMaterialAsset | null, isEnabled: boolean): Record<string, unknown> => {
+  /**
+   * 常量：presentationType。
+   */
   const presentationType = source.presentationType;
+  /**
+   * 常量：materialType。
+   */
   const materialType = presentationType === 'voice' ? 'none' : source.materialType;
+  /**
+   * 常量：frameType。
+   */
   const frameType = materialType === 'none' ? 'none' : source.frameType;
+  /**
+   * 常量：assetPayload。
+   */
   const assetPayload = materialType === 'none' || !asset ? undefined : { ...asset, ...previewLayoutPayloadBuild() };
+  /**
+   * 常量：lines。
+   */
   const lines = advertisementLinesPayloadBuild();
 
   return {
@@ -3299,6 +3707,9 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
 
   try {
     let uploadedAsset: IHotsearchAdMaterialAsset | null = null;
+    /**
+     * 常量：lines。
+     */
     const lines = advertisementLinesPayloadBuild();
 
     if (lines.length === 0) {
@@ -3321,6 +3732,9 @@ const onSubmit = async (isEnabled: boolean): Promise<void> => {
       }
     }
 
+    /**
+     * 常量：payload。
+     */
     const payload = savePayloadBuild(stateEditor.value, uploadedAsset, isEnabled);
 
     if (stateEditor.value.id > 0) {
@@ -3427,6 +3841,9 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     header: t('pages.ads.hotsearch.table.delivery'),
     meta: { class: { th: 'hidden xl:table-cell 3xl:hidden min-w-30 w-30 text-sm', td: 'hidden xl:table-cell 3xl:hidden min-w-30 w-30 align-middle' } },
     cell: ({ row }) => {
+      /**
+       * 常量：item。
+       */
       const item = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
@@ -3483,6 +3900,9 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
     header: t('pages.ads.hotsearch.table.time'),
     meta: { class: { th: 'xl:hidden w-44 text-sm', td: 'xl:hidden w-44 align-middle' } },
     cell: ({ row }) => {
+      /**
+       * 常量：item。
+       */
       const item = row.original;
 
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
@@ -3598,7 +4018,13 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   }
 ];
 
+/**
+ * 常量：assetSelectionToken。
+ */
 let assetSelectionToken = 0;
+/**
+ * 常量：detailAssetPreviewToken。
+ */
 let detailAssetPreviewToken = 0;
 
 /**
@@ -3617,6 +4043,9 @@ const detailAssetPreviewClear = (): void => {
  */
 const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | undefined): Promise<void> => {
   detailAssetPreviewToken += 1;
+  /**
+   * 常量：currentToken。
+   */
   const currentToken = detailAssetPreviewToken;
 
   stateDetailAssetPreviewLoading.value = false;
@@ -3629,6 +4058,9 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
   stateDetailAssetPreviewLoading.value = true;
 
   try {
+    /**
+     * 常量：previewUrl。
+     */
     const previewUrl = await assetPreviewUrlResolve(asset, t('pages.ads.hotsearch.toast.assetSignUrlFailed'));
 
     if (currentToken !== detailAssetPreviewToken) {
@@ -3661,13 +4093,22 @@ const detailAssetPreviewLoad = async (asset: IHotsearchAdMaterialAsset | null | 
  * @returns {Promise<void>} 无返回值。
  */
 const hydrateCurrentPageRowDetailExtras = async (): Promise<void> => {
+  /**
+   * 常量：platformFilter。
+   */
   const platformFilter = currentPlatformFilterGet();
+  /**
+   * 常量：rows。
+   */
   const rows = datas.value?.rows ?? [];
 
   if (platformFilter === '' || rows.length === 0) {
     return;
   }
 
+  /**
+   * 常量：targets。
+   */
   const targets = rows.map((row) => Number(row.id ?? 0)).filter((id) => id > 0 && !stateRowDetailExtras.value.has(id));
 
   if (targets.length === 0) {
@@ -3677,6 +4118,9 @@ const hydrateCurrentPageRowDetailExtras = async (): Promise<void> => {
   await Promise.all(
     targets.map(async (id) => {
       try {
+        /**
+         * 常量：detail。
+         */
         const detail = await hotsearchAdMaterialDetailGet(id);
 
         rowDetailExtrasCacheSet(id, editorPlatformIdsNormalize(detail.platformIds), detail.asset ?? null);
@@ -3733,6 +4177,9 @@ watch(
 watch(
   () => [...stateEditor.value.platformIds],
   (value) => {
+    /**
+     * 函数：normalized。
+     */
     const normalized = editorPlatformIdsByKindNormalize(value, computedEditorRequiredPlatformKind.value);
 
     if (normalized.length !== stateEditor.value.platformIds.length || normalized.some((id, index) => id !== stateEditor.value.platformIds[index])) {
@@ -3805,6 +4252,9 @@ watch(
   () => stateEditorAssetFile.value,
   async (file) => {
     assetSelectionToken += 1;
+    /**
+     * 常量：currentToken。
+     */
     const currentToken = assetSelectionToken;
 
     stateEditorAssetLoading.value = false;
@@ -3821,9 +4271,18 @@ watch(
     }
 
     stateEditorAssetLoading.value = true;
+    /**
+     * 常量：previewUrl。
+     */
     const previewUrl = URL.createObjectURL(file);
+    /**
+     * 常量：materialType。
+     */
     const materialType = stateEditor.value.materialType;
     try {
+      /**
+       * 常量：metadata。
+       */
       const metadata = await mediaMetadataRead(materialType, previewUrl);
 
       if (currentToken !== assetSelectionToken) {
@@ -3870,6 +4329,9 @@ onMounted(() => {
     previewCanvasAvailableWidthSync();
     previewStageSizeSync();
 
+    /**
+     * 常量：clampedOffset。
+     */
     const clampedOffset = previewOffsetClamp(statePreviewOffset.x, statePreviewOffset.y);
 
     statePreviewOffset.x = clampedOffset.x;

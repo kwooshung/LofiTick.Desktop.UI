@@ -122,6 +122,9 @@ const powerOptions = [
  * 计算属性：系统休眠 Icon
  */
 const computedSystemIcon = computed(() => {
+  /**
+   * 常量：option。
+   */
   const option = powerOptions.find((o) => o.value === storePower.states.policy.system);
   return option ? option.icon : 'i-mdi:sleep';
 });
@@ -130,6 +133,9 @@ const computedSystemIcon = computed(() => {
  * 计算属性：显示器休眠 Icon
  */
 const computedDisplayIcon = computed(() => {
+  /**
+   * 常量：option。
+   */
   const option = powerOptions.find((o) => o.value === storePower.states.policy.display);
   return option ? option.icon : 'i-mdi:sleep';
 });
@@ -142,12 +148,18 @@ const loadStartupEnabled = async (): Promise<void> => {
   stateStartupEnabledLoading.value = true;
 
   try {
+    /**
+     * 常量：conf。
+     */
     const conf = await tauriSettings.get();
 
     if (!conf) {
       return;
     }
 
+    /**
+     * 常量：startup。
+     */
     const startup = conf.startup;
     if (startup && typeof startup === 'object' && !Array.isArray(startup)) {
       stateStartupEnabledValue.value = Boolean((startup as Record<string, unknown>).enabled);

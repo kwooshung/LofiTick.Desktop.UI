@@ -68,6 +68,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateDurationMs.value = Number.isFinite(Number(data.durationMs)) ? Math.max(100, Number(data.durationMs)) : DEFAULT_DURATION_MS;
   stateInitialized.value = true;

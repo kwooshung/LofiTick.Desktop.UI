@@ -37,7 +37,13 @@ const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = 
   {
     provider: 'youtube',
     match: (url) => {
+      /**
+       * 常量：host。
+       */
       const host = url.hostname.toLowerCase();
+      /**
+       * 常量：path。
+       */
       const path = url.pathname.toLowerCase();
 
       if (host === 'youtu.be' || host.endsWith('.youtu.be')) {
@@ -54,7 +60,13 @@ const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = 
   {
     provider: 'vimeo',
     match: (url) => {
+      /**
+       * 常量：host。
+       */
       const host = url.hostname.toLowerCase();
+      /**
+       * 常量：path。
+       */
       const path = url.pathname.toLowerCase();
 
       if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
@@ -76,6 +88,9 @@ const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = 
  * @returns {Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined} 推断结果
  */
 const mediaPlyrSourceProviderFromUrlGet = (url: URL): Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined => {
+  /**
+   * 常量：hit。
+   */
   const hit = MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES.find((rule) => rule.match(url));
   return hit?.provider;
 };
@@ -86,6 +101,9 @@ const mediaPlyrSourceProviderFromUrlGet = (url: URL): Exclude<TMediaPlyrSourcePr
  * @returns {Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined} 推断结果
  */
 const mediaPlyrSourceProviderFromUrlSrcGet = (src: string): Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined => {
+  /**
+   * 常量：raw。
+   */
   const raw = src.trim();
 
   // 非 URL（相对路径、EmbedId 等）不做解析
@@ -109,6 +127,9 @@ const mediaPlyrSourceProviderFromUrlSrcGet = (src: string): Exclude<TMediaPlyrSo
  * @returns {boolean} 是否为音频
  */
 const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
+  /**
+   * 常量：raw。
+   */
   const raw = src.trim();
 
   if (!raw) {
@@ -120,14 +141,26 @@ const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
     return false;
   }
 
+  /**
+   * 常量：cleaned。
+   */
   const cleaned = raw.split('#')[0]?.split('?')[0] ?? raw;
+  /**
+   * 常量：dotIndex。
+   */
   const dotIndex = cleaned.lastIndexOf('.');
 
   if (dotIndex === -1) {
     return false;
   }
 
+  /**
+   * 常量：ext。
+   */
   const ext = cleaned.slice(dotIndex + 1).toLowerCase();
+  /**
+   * 常量：audioExts。
+   */
   const audioExts = new Set(['mp3', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'flac', 'opus']);
 
   return audioExts.has(ext);
@@ -139,6 +172,9 @@ const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
  * @returns {string} BCP 47 语言标签
  */
 const mediaPlyrLocaleToBcp47 = (val: string): string => {
+  /**
+   * 常量：lower。
+   */
   const lower = val.trim().toLowerCase();
 
   if (lower === 'zh-cn') {
@@ -180,7 +216,13 @@ const stateRenderMode = computed<'video' | 'audio' | 'embed'>(() => {
     return 'embed';
   }
 
+  /**
+   * 常量：firstSource。
+   */
   const firstSource = stateSources.value[0];
+  /**
+   * 常量：firstType。
+   */
   const firstType = firstSource?.type;
 
   if (firstType && firstType.startsWith('audio/')) {
@@ -236,6 +278,9 @@ const stateRootStyle = computed(() => {
     return undefined;
   }
 
+  /**
+   * 常量：height。
+   */
   const height = typeof waveformHeight === 'number' && Number.isFinite(waveformHeight) && waveformHeight > 0 ? waveformHeight : 40;
 
   return {
@@ -284,11 +329,17 @@ const stateWaveformTooltipPinned = shallowRef(false);
  * @returns {void} 无返回值
  */
 const mediaPlyrWaveformSeekHandle = (payload: IMediaAudioWavesSeekPayload): void => {
+  /**
+   * 常量：player。
+   */
   const player = statePlayer.value;
   if (!player) {
     return;
   }
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof stateWaveformDuration.value === 'number' && Number.isFinite(stateWaveformDuration.value) && stateWaveformDuration.value > 0 ? stateWaveformDuration.value : undefined;
   if (!duration) {
     return;
@@ -377,6 +428,9 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
  * @returns {Record<string, unknown>} Plyr source
  */
 const mediaPlyrSourceGet = (): IMediaPlyrPlayerSource => {
+  /**
+   * 常量：type。
+   */
   const type = stateRenderMode.value === 'audio' ? 'audio' : 'video';
 
   /**
@@ -439,11 +493,26 @@ const mediaPlyrWaveformTimeFormatMmSs = (seconds: number): string => {
     return '00:00';
   }
 
+  /**
+   * 函数：totalSeconds。
+   */
   const totalSeconds = Math.floor(seconds);
+  /**
+   * 常量：minutes。
+   */
   const minutes = Math.floor(totalSeconds / 60);
+  /**
+   * 常量：sec。
+   */
   const sec = totalSeconds % 60;
 
+  /**
+   * 常量：mm。
+   */
   const mm = String(minutes).padStart(2, '0');
+  /**
+   * 常量：ss。
+   */
   const ss = String(sec).padStart(2, '0');
 
   return `${mm}:${ss}`;
@@ -496,12 +565,21 @@ const mediaPlyrWaveformTooltipUpdateByPercent = (percent: number): void => {
     return;
   }
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof stateWaveformDuration.value === 'number' && Number.isFinite(stateWaveformDuration.value) && stateWaveformDuration.value > 0 ? stateWaveformDuration.value : undefined;
   if (!duration) {
     return;
   }
 
+  /**
+   * 函数：normalized。
+   */
   const normalized = mediaPlyrClamp01(percent);
+  /**
+   * 常量：time。
+   */
   const time = duration * normalized;
 
   stateWaveformTooltip.value.textContent = mediaPlyrWaveformTimeFormatMmSs(time);
@@ -522,17 +600,26 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
     return;
   }
 
+  /**
+   * 常量：abortController。
+   */
   const abortController = stateWaveformAbortController.value;
   if (!abortController) {
     return;
   }
 
+  /**
+   * 常量：container。
+   */
   const container = mediaPlyrContainerGet(player);
   if (!container) {
     stateWaveformTeleportTarget.value = null;
     return;
   }
 
+  /**
+   * 常量：progressContainer。
+   */
   const progressContainer = container.querySelector('.plyr__controls__item.plyr__progress__container');
   if (!(progressContainer instanceof HTMLElement)) {
     // 找不到 progress container：按约定不做任何操作
@@ -549,6 +636,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   // 防御：避免混乱（先清理再创建）
   mediaPlyrWaveformCustomProgressCleanup();
 
+  /**
+   * 常量：nativeProgress。
+   */
   const nativeProgress = progressContainer.querySelector('.plyr__progress');
   if (!(nativeProgress instanceof HTMLElement)) {
     stateWaveformTeleportTarget.value = null;
@@ -558,9 +648,15 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   nativeProgress.classList.add('media-plyr__progress-native--hidden');
   stateWaveformProgressNative.value = nativeProgress;
 
+  /**
+   * 常量：customProgress。
+   */
   const customProgress = document.createElement('div');
   customProgress.className = 'plyr__progress media-plyr__progress-custom';
 
+  /**
+   * 函数：tooltip。
+   */
   const tooltip = document.createElement('span');
   tooltip.className = 'plyr__tooltip';
   tooltip.textContent = '00:00';
@@ -585,6 +681,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
    * @returns {number | null} 百分比（0~1），无法计算时返回 null
    */
   const percentFromPointerEventGet = (event: PointerEvent): number | null => {
+    /**
+     * 常量：rect。
+     */
     const rect = customProgress.getBoundingClientRect();
     if (!Number.isFinite(rect.width) || rect.width <= 0) {
       return null;
@@ -605,6 +704,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   customProgress.addEventListener(
     'pointermove',
     (event) => {
+      /**
+       * 常量：percent。
+       */
       const percent = percentFromPointerEventGet(event);
       if (percent === null) {
         return;
@@ -632,6 +734,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
     (event) => {
       stateWaveformTooltipPinned.value = true;
 
+      /**
+       * 常量：percent。
+       */
       const percent = percentFromPointerEventGet(event);
       if (percent !== null) {
         mediaPlyrWaveformTooltipUpdateByPercent(percent);
@@ -681,13 +786,31 @@ const mediaPlyrWaveformSync = (player: Plyr | null): void => {
     return;
   }
 
+  /**
+   * 常量：candidate。
+   */
   const candidate = player as unknown as { media?: unknown; currentTime?: unknown; duration?: unknown };
+  /**
+   * 常量：media。
+   */
   const media = candidate.media instanceof HTMLMediaElement ? candidate.media : null;
 
+  /**
+   * 常量：durationRaw。
+   */
   const durationRaw = (typeof candidate.duration === 'number' ? candidate.duration : undefined) ?? (media ? media.duration : undefined);
+  /**
+   * 常量：currentTimeRaw。
+   */
   const currentTimeRaw = (typeof candidate.currentTime === 'number' ? candidate.currentTime : undefined) ?? (media ? media.currentTime : undefined);
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof durationRaw === 'number' && Number.isFinite(durationRaw) && durationRaw > 0 ? durationRaw : undefined;
+  /**
+   * 常量：currentTime。
+   */
   const currentTime = typeof currentTimeRaw === 'number' && Number.isFinite(currentTimeRaw) && currentTimeRaw >= 0 ? currentTimeRaw : 0;
 
   stateWaveformDuration.value = duration;
@@ -705,6 +828,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
 
   mediaPlyrDestroy();
 
+  /**
+   * 常量：PlyrCtor。
+   */
   const PlyrCtor = await mediaPlyrCtorGet();
   statePlayer.value = new PlyrCtor(stateRefElement.value, mediaPlyrOptionsGet());
 
@@ -727,7 +853,13 @@ const mediaPlyrCreate = async (): Promise<void> => {
     mediaPlyrWaveformSync(player);
   });
   {
+    /**
+     * 常量：abortController。
+     */
     const abortController = stateWaveformAbortController.value;
+    /**
+     * 常量：media。
+     */
     const media = (player as unknown as { media?: unknown }).media;
 
     if (abortController && media instanceof HTMLMediaElement) {
@@ -756,6 +888,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
    */
   const playerPlaySafe = (): void => {
     try {
+      /**
+       * 常量：result。
+       */
       const result = player.play() as unknown;
       if (result && typeof (result as Promise<unknown>).catch === 'function') {
         (result as Promise<unknown>).catch(() => {
@@ -801,6 +936,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
   if (mediaPlyrSeekToPlayEnabledGet(player)) {
     mediaPlyrSeekToPlayCleanup();
 
+    /**
+     * 常量：abortController。
+     */
     const abortController = new AbortController();
     stateSeekToPlayAbortController.value = abortController;
 
@@ -824,6 +962,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
      */
     let stateSeekInteractEndAt = 0;
 
+    /**
+     * 常量：container。
+     */
     const container = mediaPlyrContainerGet(player);
 
     /**

@@ -75,6 +75,9 @@ const stateModeOptions = computed(() => [
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {
     return false;
@@ -140,7 +143,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IArrayObjectFilterNodeData;
+  /**
+   * 常量：mode。
+   */
   const mode = String(data.mode ?? 'truthy') as TArrayObjectFilterMode;
   stateMode.value = ['truthy', 'nonEmpty', 'distinct'].includes(mode) ? mode : 'truthy';
   statePath.value = String(data.path ?? '');

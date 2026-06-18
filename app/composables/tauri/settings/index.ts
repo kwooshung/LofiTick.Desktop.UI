@@ -81,6 +81,9 @@ export const useTauriSettings = () => {
    * @returns {Promise<Record<string, unknown>>} 设置 JSON
    */
   const get = async (): Promise<Record<string, unknown>> => {
+    /**
+     * 常量：v。
+     */
     const v = await invoke<unknown>('settings_get');
     if (v && typeof v === 'object' && !Array.isArray(v)) {
       return v as Record<string, unknown>;
@@ -95,6 +98,9 @@ export const useTauriSettings = () => {
    * @returns {Promise<Record<string, unknown>>} 更新后的完整设置
    */
   const update = async (patch: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    /**
+     * 常量：v。
+     */
     const v = await invoke<unknown>('settings_update', { patch });
     if (v && typeof v === 'object' && !Array.isArray(v)) {
       return v as Record<string, unknown>;

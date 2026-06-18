@@ -40,17 +40,47 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 常量：MAX_KEY_PARTS。
+ */
 const MAX_KEY_PARTS = 4;
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateKeyParts。
+ */
 const stateKeyParts = ref<string[]>(['Enter']);
+/**
+ * 状态：stateRepeatCount。
+ */
 const stateRepeatCount = ref(1);
+/**
+ * 状态：statePressDurationMs。
+ */
 const statePressDurationMs = ref(0);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
+/**
+ * 状态：stateModifierKeys。
+ */
 const stateModifierKeys = ['Ctrl', 'Shift', 'Alt', 'Meta'] as const;
+/**
+ * 状态：stateCoreKeys。
+ */
 const stateCoreKeys = [
   'Enter',
   'Tab',
@@ -117,6 +147,9 @@ const stateCoreKeys = [
   '9'
 ] as const;
 
+/**
+ * 状态：stateAllowedKeyPartValues。
+ */
 const stateAllowedKeyPartValues = [...stateModifierKeys, ...stateCoreKeys] as const;
 
 const KEY_SYMBOLS: Record<string, string> = {
@@ -141,7 +174,13 @@ const KEY_SYMBOLS: Record<string, string> = {
   ArrowRight: '→'
 };
 
+/**
+ * 函数：normalizeKeyPart。
+ */
 const normalizeKeyPart = (value: unknown): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = String(value ?? '').trim();
   if ((stateAllowedKeyPartValues as readonly string[]).includes(normalized)) {
     return normalized;
@@ -150,8 +189,14 @@ const normalizeKeyPart = (value: unknown): string => {
   return 'Enter';
 };
 
+/**
+ * 状态：stateKeyPartOptions。
+ */
 const stateKeyPartOptions = computed(() => {
   return stateAllowedKeyPartValues.map((value) => {
+    /**
+     * 常量：symbol。
+     */
     const symbol = KEY_SYMBOLS[String(value)] ?? '';
 
     return {
@@ -161,10 +206,16 @@ const stateKeyPartOptions = computed(() => {
   });
 });
 
+/**
+ * 计算属性：computedKeyPreview。
+ */
 const computedKeyPreview = computed(() => {
   return stateKeyParts.value.join('+');
 });
 
+/**
+ * 计算属性：computedKeySymbolPreview。
+ */
 const computedKeySymbolPreview = computed(() => {
   return stateKeyParts.value
     .map((part) => {
@@ -173,6 +224,9 @@ const computedKeySymbolPreview = computed(() => {
     .join(' + ');
 });
 
+/**
+ * 常量：addKeyPart。
+ */
 const addKeyPart = (): void => {
   if (stateKeyParts.value.length >= MAX_KEY_PARTS) {
     return;
@@ -181,6 +235,9 @@ const addKeyPart = (): void => {
   stateKeyParts.value = [...stateKeyParts.value, 'Enter'];
 };
 
+/**
+ * 函数：removeKeyPart。
+ */
 const removeKeyPart = (index: number): void => {
   if (stateKeyParts.value.length <= 1) {
     return;
@@ -215,7 +272,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
+  /**
+   * 常量：keyParts。
+   */
   const keyParts = String(data.key ?? 'Enter')
     .split('+')
     .map((part) => {
@@ -237,12 +300,18 @@ watchEffect(() => {
 watch(
   stateKeyParts,
   (parts) => {
+    /**
+     * 函数：normalized。
+     */
     const normalized = parts
       .map((part) => {
         return normalizeKeyPart(part);
       })
       .slice(0, MAX_KEY_PARTS);
 
+    /**
+     * 常量：changed。
+     */
     const changed =
       normalized.length !== parts.length ||
       normalized.some((part, index) => {

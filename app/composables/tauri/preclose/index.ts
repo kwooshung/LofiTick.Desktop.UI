@@ -29,6 +29,9 @@ export const useTauriPreclose = () => {
     const unlisteners: UnlistenFn[] = [];
 
     try {
+      /**
+       * 常量：main。
+       */
       const main = await WebviewWindow.getByLabel('main');
       if (main) {
         unlisteners.push(

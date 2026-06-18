@@ -63,7 +63,13 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
+/**
+ * 常量：EDITION_SCOPE_ALL_VALUE。
+ */
 const EDITION_SCOPE_ALL_VALUE = 'all';
+/**
+ * 常量：ENABLED_ALL_VALUE。
+ */
 const ENABLED_ALL_VALUE = 'all';
 
 /**
@@ -111,6 +117,9 @@ const stateEnabled = ref(typeof route.query.enabled === 'string' ? route.query.e
  */
 const editionScopeOptions = computed(() => [{ label: t('pages.ads.filters.allEditions'), value: EDITION_SCOPE_ALL_VALUE }, ...hotsearchAdEditionScopeOptionsGet()]);
 
+/**
+ * 常量：platformOptions。
+ */
 const platformOptions = computed(() => [{ label: t('pages.ads.filters.allPlatforms'), value: null }, ...hotsearchAdDeliveryPlatformOptionsGet().map((p) => ({ label: t(p.labelKey), value: p.key }))]);
 
 /**
@@ -126,6 +135,9 @@ const enabledOptions = computed(() => [
  * 计算属性：当前激活的筛选数量。
  */
 const computedActiveFilterCount = computed(() => {
+  /**
+   * 常量：count。
+   */
   let count = 0;
 
   if (stateKeyword.value.trim() !== '') {
@@ -226,7 +238,13 @@ const handleFiltersApply = () => {
   stateFiltersOpen.value = false;
 
   const nextQuery: Record<string, string> = {};
+  /**
+   * 常量：keyword。
+   */
   const keyword = stateKeyword.value.trim();
+  /**
+   * 常量：pageSize。
+   */
   const pageSize = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
 
   if (keyword !== '') {
@@ -267,6 +285,9 @@ const handleFiltersReset = () => {
   stateEnabled.value = ENABLED_ALL_VALUE;
   stateFiltersOpen.value = false;
 
+  /**
+   * 常量：pageSize。
+   */
   const pageSize = typeof route.query.pagesize === 'string' ? route.query.pagesize.trim() : '';
 
   navigateTo({

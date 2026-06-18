@@ -22,12 +22,30 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateValueType。
+ */
 const stateValueType = ref('value');
+/**
+ * 状态：stateTrim。
+ */
 const stateTrim = ref(true);
+/**
+ * 状态：stateParseNumber。
+ */
 const stateParseNumber = ref(false);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
 
 const leftPins: IBasicSidePin[] = [
@@ -76,6 +94,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateValueTypeOptions。
+ */
 const stateValueTypeOptions = computed(() => {
   return [
     {
@@ -98,6 +119,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateValueType.value = ['value', 'checked', 'text'].includes(String(data.valueType)) ? String(data.valueType) : 'value';
   stateTrim.value = Boolean(data.trim ?? true);

@@ -74,6 +74,9 @@ const eventSelectPath = async (): Promise<void> => {
   stateSelecting.value = true;
 
   try {
+    /**
+     * 常量：picked。
+     */
     const picked = await tauriSettings.setAttachmentsDir(t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title'), String(currentPath || '').trim());
 
     if (!picked) {

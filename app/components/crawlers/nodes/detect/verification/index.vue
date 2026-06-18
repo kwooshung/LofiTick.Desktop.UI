@@ -27,16 +27,43 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateVendors。
+ */
 const stateVendors = ref<string[]>([]);
+/**
+ * 状态：stateStrategy。
+ */
 const stateStrategy = ref('smart');
+/**
+ * 状态：stateNotifyAdmin。
+ */
 const stateNotifyAdmin = ref(false);
+/**
+ * 状态：stateAdminEmailsText。
+ */
 const stateAdminEmailsText = ref('');
 
+/**
+ * 常量：DEFAULT_VENDORS。
+ */
 const DEFAULT_VENDORS = ['cloudflare-challenge', 'cloudflare-turnstile', 'google-recaptcha', 'hcaptcha'];
+/**
+ * 常量：DEFAULT_STRATEGY。
+ */
 const DEFAULT_STRATEGY = 'smart';
 
+/**
+ * 状态：stateStrategyOptions。
+ */
 const stateStrategyOptions = computed(() => [
   {
     value: 'smart',
@@ -52,6 +79,9 @@ const stateStrategyOptions = computed(() => [
   }
 ]);
 
+/**
+ * 状态：stateVendorOptions。
+ */
 const stateVendorOptions = computed(() => [
   {
     value: 'cloudflare-challenge',
@@ -122,6 +152,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 常量：linesFromText。
+ */
 const linesFromText = (value: string): string[] => {
   return String(value ?? '')
     .split(/\r?\n/)
@@ -134,8 +167,14 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateVendors.value = Array.isArray(data.vendors) ? data.vendors.map((item) => String(item ?? '').trim()).filter((item) => item !== '') : [...DEFAULT_VENDORS];
+  /**
+   * 常量：strategy。
+   */
   const strategy = String(data.strategy ?? DEFAULT_STRATEGY);
   stateStrategy.value = ['smart', 'strict', 'lenient'].includes(strategy) ? strategy : DEFAULT_STRATEGY;
   stateNotifyAdmin.value = Boolean(data.notifyAdmin ?? false);

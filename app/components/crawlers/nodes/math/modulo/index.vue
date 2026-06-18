@@ -94,6 +94,9 @@ const rightPins: IBasicSidePin[] = [
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -108,6 +111,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IMathModuloNodeData;
   stateValueA.value = Number.isFinite(Number(data.valueA)) ? Number(data.valueA) : 0;
   stateValueB.value = Number.isFinite(Number(data.valueB)) ? Number(data.valueB) : 1;

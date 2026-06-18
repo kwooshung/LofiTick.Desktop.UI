@@ -36,24 +36,51 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 import type { IMathAddNodeData } from '@/components/crawlers/nodes/math/add/index.types';
 
 const { t } = useI18n();
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { edges } = useVueFlow();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateOperandIds。
+ */
 const stateOperandIds = ref<string[]>([]);
+/**
+ * 状态：stateOperandValues。
+ */
 const stateOperandValues = ref<Record<string, number>>({});
 
+/**
+ * 函数：createOperandId。
+ */
 const createOperandId = (): string => {
   return crypto.randomUUID().slice(0, 8);
 };
 
+/**
+ * 常量：ensureMinOperandIds。
+ */
 const ensureMinOperandIds = (ids: string[]): string[] => {
+  /**
+   * 函数：normalizedIds。
+   */
   const normalizedIds = ids.filter((id) => String(id ?? '').trim() !== '').map((id) => String(id));
 
   if (normalizedIds.length >= 2) {
     return normalizedIds;
   }
 
+  /**
+   * 常量：nextIds。
+   */
   const nextIds = [...normalizedIds];
   while (nextIds.length < 2) {
     nextIds.push(createOperandId());
@@ -62,22 +89,43 @@ const ensureMinOperandIds = (ids: string[]): string[] => {
   return nextIds;
 };
 
+/**
+ * 常量：labelFromIndex。
+ */
 const labelFromIndex = (index: number): string => {
+  /**
+   * 常量：alphabet。
+   */
   const alphabet = 'abcdefghijklmnopqrstuvwxyz';
   return alphabet[index] ?? `v${index + 1}`;
 };
 
+/**
+ * 函数：topPercentFromIndex。
+ */
 const topPercentFromIndex = (index: number, total: number): number => {
   if (total <= 1) {
     return 50;
   }
 
+  /**
+   * 常量：start。
+   */
   const start = 20;
+  /**
+   * 常量：end。
+   */
   const end = 80;
+  /**
+   * 常量：step。
+   */
   const step = (end - start) / (total - 1);
   return Math.round(start + index * step);
 };
 
+/**
+ * 计算属性：computedLeftPins。
+ */
 const computedLeftPins = computed<IBasicSidePin[]>(() => {
   return stateOperandIds.value.map((operandId, index) => ({
     id: inputHandleIdFromOperandId(operandId),
@@ -89,11 +137,20 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
   }));
 });
 
+/**
+ * 常量：inputHandleIdFromOperandId。
+ */
 const inputHandleIdFromOperandId = (operandId: string): string => {
   return `input-${operandId}-number`;
 };
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -103,11 +160,20 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 常量：operandValueGet。
+ */
 const operandValueGet = (operandId: string): number => {
+  /**
+   * 常量：rawValue。
+   */
   const rawValue = stateOperandValues.value[operandId];
   return Number.isFinite(Number(rawValue)) ? Number(rawValue) : 0;
 };
 
+/**
+ * 事件：handleOperandValueUpdate。
+ */
 const handleOperandValueUpdate = (operandId: string, value: number): void => {
   stateOperandValues.value = {
     ...stateOperandValues.value,
@@ -115,7 +181,13 @@ const handleOperandValueUpdate = (operandId: string, value: number): void => {
   };
 };
 
+/**
+ * 事件：handleOperandAdd。
+ */
 const handleOperandAdd = (): void => {
+  /**
+   * 常量：nextId。
+   */
   const nextId = createOperandId();
   stateOperandIds.value = [...stateOperandIds.value, nextId];
   stateOperandValues.value = {
@@ -124,19 +196,31 @@ const handleOperandAdd = (): void => {
   };
 };
 
+/**
+ * 事件：handleOperandRemove。
+ */
 const handleOperandRemove = (): void => {
   if (stateOperandIds.value.length <= 2) {
     return;
   }
 
+  /**
+   * 函数：removedId。
+   */
   const removedId = stateOperandIds.value[stateOperandIds.value.length - 1];
   stateOperandIds.value = stateOperandIds.value.slice(0, -1);
 
+  /**
+   * 常量：nextOperandValues。
+   */
   const nextOperandValues = { ...stateOperandValues.value };
   delete nextOperandValues[removedId];
   stateOperandValues.value = nextOperandValues;
 };
 
+/**
+ * 函数：syncOperandValuesByIds。
+ */
 const syncOperandValuesByIds = (): void => {
   const nextOperandValues: Record<string, number> = {};
 
@@ -164,7 +248,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：rawOperandIds。
+   */
   const rawOperandIds = (stateNode.node.data as IMathAddNodeData | undefined)?.operandIds;
+  /**
+   * 常量：rawOperandValues。
+   */
   const rawOperandValues = (stateNode.node.data as IMathAddNodeData | undefined)?.operandValues;
   stateOperandIds.value = ensureMinOperandIds(Array.isArray(rawOperandIds) ? rawOperandIds : []);
   stateOperandValues.value = rawOperandValues && typeof rawOperandValues === 'object' ? { ...rawOperandValues } : {};

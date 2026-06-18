@@ -196,6 +196,9 @@ const computedLanguageIcon = computed(() => String(computedLocalesUnique.value.f
  * 计算属性：截断显示的存放路径
  */
 const computedTruncatedStorage = computed(() => {
+  /**
+   * 常量：p。
+   */
   const p = stateStoragePath.value;
 
   if (!p) {
@@ -223,6 +226,9 @@ const handleSelectStorage = async (): Promise<void> => {
       return;
     }
 
+    /**
+     * 常量：result。
+     */
     const result = await tauriSettings.setAttachmentsDir(t('pages.settings.general.storage.dialogTitle'), stateStoragePath.value);
 
     if (result) {
@@ -317,6 +323,9 @@ const loadSettings = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：conf。
+   */
   const conf = await tauriSettings.get();
 
   if (!conf) {
@@ -325,8 +334,14 @@ const loadSettings = async (): Promise<void> => {
 
   stateStoragePath.value = String(conf.attachmentsDir || '');
 
+  /**
+   * 常量：windowSetting。
+   */
   const windowSetting = conf.window;
   if (windowSetting && typeof windowSetting === 'object' && !Array.isArray(windowSetting)) {
+    /**
+     * 常量：src。
+     */
     const src = windowSetting as Record<string, unknown>;
     stateCloseBehaviorValue.value = String(src.closeBehaviors || 'unset');
     stateRememberWindowStateValue.value = Boolean(src.remember);

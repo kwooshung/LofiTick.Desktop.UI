@@ -60,6 +60,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationCloseData;
   stateEndFlowAfterClose.value = Boolean(data.endFlowAfterClose ?? true);
   stateInitialized.value = true;

@@ -729,6 +729,9 @@ const computedPlatforms = computed(() =>
  * 计算属性：当月天数
  */
 const computedDaysInCurrentMonth = computed(() => {
+  /**
+   * 常量：now。
+   */
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 });
@@ -783,6 +786,9 @@ const computedHotsearchPodcastGenerateDisabled = computed(() => {
  */
 const computedHotsearchPodcastHeadMusicItems = computed(() => {
   return HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => {
+    /**
+     * 常量：remotePath。
+     */
     const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
 
     return {
@@ -805,7 +811,13 @@ const computedHotsearchPodcastHeadMusicItems = computed(() => {
  * 计算属性：本地热搜计划窗口
  */
 const computedLocalScheduleWindows = computed(() => {
+  /**
+   * 常量：platformCount。
+   */
   const platformCount = computedSelectedPlatformCount.value;
+  /**
+   * 常量：windowDurationMinutes。
+   */
   const windowDurationMinutes = hotsearchWindowDurationMinutesGet(platformCount, stateHotsearchConfig.value.platformIntervalSeconds);
 
   return [
@@ -832,11 +844,26 @@ const computedLocalScheduleWindows = computed(() => {
  * @returns {string} 偏移后的时间文本
  */
 const hotsearchTimeShiftText = (value: string, fallback: string, deltaSeconds: number): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = typeof value === 'string' && /^\d{2}:\d{2}$/.test(value.trim()) ? value.trim() : fallback;
   const [hourText, minuteText] = normalized.split(':');
+  /**
+   * 常量：baseSeconds。
+   */
   const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  /**
+   * 常量：nextSeconds。
+   */
   const nextSeconds = (((baseSeconds + Math.trunc(deltaSeconds)) % 86400) + 86400) % 86400;
+  /**
+   * 常量：nextHour。
+   */
   const nextHour = Math.floor(nextSeconds / 3600);
+  /**
+   * 常量：nextMinute。
+   */
   const nextMinute = Math.floor((nextSeconds % 3600) / 60);
   return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
 };
@@ -848,7 +875,13 @@ const hotsearchTimeShiftText = (value: string, fallback: string, deltaSeconds: n
  * @returns {string} 时间范围文本
  */
 const hotsearchTimeRangeText = (value: string, fallback: string): string => {
+  /**
+   * 常量：jitterSeconds。
+   */
   const jitterSeconds = stateHotsearchConfig.value.scheduleJitterSeconds;
+  /**
+   * 函数：normalized。
+   */
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   if (jitterSeconds <= 0) {
@@ -890,9 +923,21 @@ const computedMonthlyEstimate = computed(() => hotsearchEstimatedMonthPointsGet(
  * 计算属性：当前年份天数
  */
 const computedDaysInCurrentYear = computed(() => {
+  /**
+   * 常量：now。
+   */
   const now = new Date();
+  /**
+   * 常量：year。
+   */
   const year = now.getFullYear();
+  /**
+   * 常量：start。
+   */
   const start = new Date(year, 0, 1);
+  /**
+   * 常量：end。
+   */
   const end = new Date(year + 1, 0, 1);
   return Math.round((end.getTime() - start.getTime()) / 86400000);
 });
@@ -911,6 +956,9 @@ const computedWindowDurationMinutes = computed(() => computedLocalScheduleWindow
  * 计算属性：建议早间播客时间
  */
 const computedSuggestedMorningPodcastTime = computed(() => {
+  /**
+   * 常量：baseTime。
+   */
   const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'morning')?.suggestedPodcastAt ?? stateHotsearchConfig.value.morningStartAt;
   return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.morningStartAt);
 });
@@ -919,6 +967,9 @@ const computedSuggestedMorningPodcastTime = computed(() => {
  * 计算属性：建议晚间播客时间
  */
 const computedSuggestedEveningPodcastTime = computed(() => {
+  /**
+   * 常量：baseTime。
+   */
   const baseTime = computedLocalScheduleWindows.value.find((window) => window.key === 'evening')?.suggestedPodcastAt ?? stateHotsearchConfig.value.eveningStartAt;
   return hotsearchTimeRangeText(baseTime, stateHotsearchConfig.value.eveningStartAt);
 });
@@ -1013,6 +1064,9 @@ const computedBudgetStatusYearDescription = computed(() => {
  * @returns {InputTimeProps['modelValue']} 时间值
  */
 const hotsearchTimeValueFromText = (value: string, fallback: string): InputTimeProps['modelValue'] => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   try {
@@ -1062,15 +1116,24 @@ const HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS = {
  * @returns {string} 公开地址；未配置域名时返回空字符串。
  */
 const hotsearchPodcastHeadMusicRemoteUrlBuild = (path: string): string => {
+  /**
+   * 常量：domain。
+   */
   const domain = String(runtimeConfig.public.upyunFilesDomain ?? '')
     .trim()
     .replace(/\/+$/, '');
+  /**
+   * 函数：normalizedPath。
+   */
   const normalizedPath = String(path ?? '').trim();
 
   if (!domain || !normalizedPath) {
     return '';
   }
 
+  /**
+   * 常量：uriPath。
+   */
   const uriPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
   return `${domain}${uriPath}`;
 };
@@ -1095,9 +1158,21 @@ const ensureInternalUseApiSucceeded = (input: unknown, message: string): void =>
  * @returns {Promise<unknown>} 响应 datas。
  */
 const requestTauriApiDatas = async (input: IApiClientRequestInput, message: string): Promise<unknown> => {
+  /**
+   * 常量：output。
+   */
   const output = await tauriApiClient.request(input);
+  /**
+   * 常量：response。
+   */
   const response = toRecord(output.json);
+  /**
+   * 常量：status。
+   */
   const status = toRecord(response?.status);
+  /**
+   * 常量：errorMessage。
+   */
   const errorMessage = String(status?.message ?? '').trim();
 
   if (output.http >= 400) {
@@ -1128,6 +1203,9 @@ const requestHotsearchPodcastGenerateOwnerDatas = async (errorMessage: string): 
   }
 
   await refreshHotsearchPodcastGenerateOwnerGet({ ignoreResponseError: true });
+  /**
+   * 常量：datas。
+   */
   const datas = stateHotsearchPodcastGenerateOwnerRemote.value;
 
   if (datas) {
@@ -1162,7 +1240,13 @@ const hotsearchPodcastGenerateOwnerPayloadBuild = (enabled: boolean, machineCode
  * @returns {Promise<void>} 无返回值。
  */
 const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machineCode: string, machineName: string, ignoreError = false): Promise<void> => {
+  /**
+   * 常量：errorMessage。
+   */
   const errorMessage = t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle');
+  /**
+   * 常量：payload。
+   */
   const payload = hotsearchPodcastGenerateOwnerPayloadBuild(enabled, machineCode, machineName);
 
   if (isTauriRuntime.value) {
@@ -1203,6 +1287,9 @@ const requestHotsearchPodcastGenerateOwnerSet = async (enabled: boolean, machine
 const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
   if (isTauriRuntime.value) {
     try {
+      /**
+       * 常量：datas。
+       */
       const datas = await requestTauriApiDatas(
         {
           method: 'GET',
@@ -1212,6 +1299,9 @@ const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessag
         errorMessage
       );
 
+      /**
+       * 常量：url。
+       */
       const url = String(toRecord(datas)?.url ?? '').trim();
 
       if (url) {
@@ -1228,6 +1318,9 @@ const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessag
     ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
   });
 
+  /**
+   * 常量：url。
+   */
   const url = String(toRecord(stateUpyunObjectUrl.value)?.url ?? '').trim();
 
   if (url) {
@@ -1247,6 +1340,9 @@ const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessag
 const requestUpyunObjectDownloadBase64 = async (query: Record<string, unknown>, errorMessage: string): Promise<string> => {
   if (isTauriRuntime.value) {
     try {
+      /**
+       * 常量：datas。
+       */
       const datas = await requestTauriApiDatas(
         {
           method: 'GET',
@@ -1256,6 +1352,9 @@ const requestUpyunObjectDownloadBase64 = async (query: Record<string, unknown>, 
         errorMessage
       );
 
+      /**
+       * 常量：base64。
+       */
       const base64 = String(toRecord(datas)?.base64 ?? '').trim();
 
       if (base64) {
@@ -1272,6 +1371,9 @@ const requestUpyunObjectDownloadBase64 = async (query: Record<string, unknown>, 
     ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
   });
 
+  /**
+   * 常量：base64。
+   */
   const base64 = String(toRecord(stateUpyunObjectDownload.value)?.base64 ?? '').trim();
 
   if (base64) {
@@ -1307,9 +1409,21 @@ const hotsearchMachineEnsure = async (): Promise<{ machineCode: string; machineN
     return { machineCode: '', machineName: '' };
   }
 
+  /**
+   * 函数：settings。
+   */
   const settings = await tauriSettings.get();
+  /**
+   * 常量：machine。
+   */
   const machine = toRecord((settings as Record<string, unknown>).machine) ?? {};
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(machine.code ?? '').trim();
+  /**
+   * 常量：machineName。
+   */
   let machineName = String(machine.name ?? '').trim();
 
   if (!machineName) {
@@ -1373,10 +1487,19 @@ const refreshHotsearchPodcastHeadMusicLocalExists = async (): Promise<void> => {
   }
 
   try {
+    /**
+     * 常量：paths。
+     */
     const paths = await tauriSettings.hotsearchPodcastHeadMusicPathsGet();
     stateHotsearchPodcastHeadMusicPaths.value = paths;
 
+    /**
+     * 常量：existsResult。
+     */
     const existsResult = await tauriSettings.pathsExistGet([paths.normalPath, paths.vipPath]);
+    /**
+     * 常量：existsMap。
+     */
     const existsMap = new Map(existsResult.map((item) => [item.path, item.exists]));
 
     stateHotsearchPodcastHeadMusicLocalExists.value = {
@@ -1419,6 +1542,9 @@ const refreshHotsearchPodcastHeadMusicRemoteExists = async (): Promise<void> => 
  * @returns {Promise<void>} 无返回值
  */
 const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcastHeadMusicKind): Promise<{ previewUrl: string; remoteAddress: string }> => {
+  /**
+   * 常量：remotePath。
+   */
   const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
 
   if (!remotePath) {
@@ -1429,6 +1555,9 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
 
   try {
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
+    /**
+     * 常量：publicUrl。
+     */
     const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath);
 
     if (publicUrl) {
@@ -1439,6 +1568,9 @@ const refreshHotsearchPodcastHeadMusicPreviewUrl = async (kind: THotsearchPodcas
       };
     }
 
+    /**
+     * 常量：previewUrl。
+     */
     const previewUrl = await requestUpyunObjectUrl(
       {
         path: remotePath,
@@ -1478,6 +1610,9 @@ const refreshHotsearchPodcastHeadMusicPreviewUrlQuietly = async (kind: THotsearc
  */
 const refreshHotsearchPodcastGenerateOwner = async (): Promise<void> => {
   try {
+    /**
+     * 常量：datas。
+     */
     const datas = await requestHotsearchPodcastGenerateOwnerDatas(t('pages.settings.hotsearch.messages.podcastGenerateErrorTitle'));
     stateHotsearchPodcastGenerateOwner.value = hotsearchPodcastGenerateOwnerNormalize(datas);
   } catch {
@@ -1514,7 +1649,13 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
     return;
   }
 
+  /**
+   * 常量：remoteMissingMessage。
+   */
   const remoteMissingMessage = t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing');
+  /**
+   * 常量：remotePath。
+   */
   const remotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
 
   if (!remotePath) {
@@ -1523,6 +1664,9 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
 
   try {
     if (isTauriRuntime.value) {
+      /**
+       * 常量：url。
+       */
       const url =
         hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
         (await requestUpyunObjectUrl(
@@ -1537,6 +1681,9 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
         try {
           await tauriSettings.hotsearchPodcastHeadMusicDownload(kind, url);
         } catch {
+          /**
+           * 常量：base64。
+           */
           const base64 = await requestUpyunObjectDownloadBase64(
             {
               path: remotePath
@@ -1548,7 +1695,13 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
             throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
           }
 
+          /**
+           * 常量：binary。
+           */
           const binary = atob(base64);
+          /**
+           * 常量：bytes。
+           */
           const bytes = Array.from(binary, (char) => char.charCodeAt(0));
           await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
         }
@@ -1558,6 +1711,9 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
         return;
       }
 
+      /**
+       * 常量：base64。
+       */
       const base64 = await requestUpyunObjectDownloadBase64(
         {
           path: remotePath
@@ -1569,10 +1725,19 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
         throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
       }
 
+      /**
+       * 常量：binary。
+       */
       const binary = atob(base64);
+      /**
+       * 常量：bytes。
+       */
       const bytes = Array.from(binary, (char) => char.charCodeAt(0));
       await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, bytes);
     } else {
+      /**
+       * 常量：url。
+       */
       const url =
         hotsearchPodcastHeadMusicRemoteUrlBuild(remotePath) ||
         (await requestUpyunObjectUrl(
@@ -1599,10 +1764,16 @@ const syncHotsearchPodcastHeadMusicFromRemote = async (kind: THotsearchPodcastHe
         throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicDownloadFailed'));
       }
 
+      /**
+       * 常量：bytes。
+       */
       const bytes = new Uint8Array(await response.arrayBuffer());
       await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
     }
   } catch (error) {
+    /**
+     * 常量：message。
+     */
     const message = error instanceof Error ? error.message : String(error ?? '');
 
     if (message === remoteMissingMessage) {
@@ -1629,6 +1800,9 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     return;
   }
 
+  /**
+   * 常量：staleRemotePath。
+   */
   const staleRemotePath = hotsearchPodcastHeadMusicRemotePathGet(kind);
 
   if (staleRemotePath) {
@@ -1645,6 +1819,9 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
   }
 
   stateHotsearchPodcastHeadMusicUploadProgress.value[kind] = 0;
+  /**
+   * 常量：policy。
+   */
   const policy = await requestUpyunDirectUploadPolicySnapshot(
     {
       save_key: hotsearchPodcastHeadMusicRemotePathCreate(kind),
@@ -1653,15 +1830,30 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed')
   );
 
+  /**
+   * 常量：uploadUrl。
+   */
   const uploadUrl = String(policy?.upload_url ?? '').trim();
+  /**
+   * 常量：uploadPolicy。
+   */
   const uploadPolicy = String(policy?.policy ?? '').trim();
+  /**
+   * 常量：authorization。
+   */
   const authorization = String(policy?.authorization ?? '').trim();
+  /**
+   * 常量：saveKey。
+   */
   const saveKey = String(policy?.save_key ?? '').trim();
 
   if (!uploadUrl || !uploadPolicy || !authorization) {
     throw new Error(t('pages.settings.hotsearch.messages.podcastHeadMusicUploadFailed'));
   }
 
+  /**
+   * 常量：formData。
+   */
   const formData = new FormData();
   formData.set('policy', uploadPolicy);
   formData.set('authorization', authorization);
@@ -1671,6 +1863,9 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
   formData.set('file', file);
 
   await new Promise<void>((resolve, reject) => {
+    /**
+     * 常量：xhr。
+     */
     const xhr = new XMLHttpRequest();
 
     xhr.open('POST', uploadUrl, true);
@@ -1699,6 +1894,9 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     xhr.send(formData);
   });
 
+  /**
+   * 常量：bytes。
+   */
   const bytes = new Uint8Array(await file.arrayBuffer());
   await tauriSettings.hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
 
@@ -1710,6 +1908,9 @@ const uploadHotsearchPodcastHeadMusic = async (kind: THotsearchPodcastHeadMusicK
     stateHotsearchPodcastHeadMusicRemoteExists.value[kind] = true;
 
     try {
+      /**
+       * 常量：publicUrl。
+       */
       const publicUrl = hotsearchPodcastHeadMusicRemoteUrlBuild(saveKey);
 
       if (publicUrl) {
@@ -1764,6 +1965,9 @@ const loadRuntimeSchedule = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值
  */
 const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearchLocal): Promise<void> => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchLocalSettingsNormalize(config);
 
   if (!isTauriRuntime.value) {
@@ -1772,6 +1976,9 @@ const persistHotsearchSettingsToLocal = async (config: ISettingsHotsearchLocal):
     return;
   }
 
+  /**
+   * 常量：result。
+   */
   const result = await tauriSettings.update({
     hotsearch: normalized
   });
@@ -1819,6 +2026,9 @@ const requestPersistHotsearchSettings = (): void => {
  * @returns {void} 无返回值。
  */
 const commitPodcastAiRulesMarkdown = (): void => {
+  /**
+   * 常量：nextMarkdown。
+   */
   const nextMarkdown = hotsearchPodcastAiRulesMarkdownCompose(statePodcastAiRulesMarkdownDraft.value, stateHotsearchConfig.value.podcastMaleSpeakerName, stateHotsearchConfig.value.podcastFemaleSpeakerName);
 
   if (stateHotsearchConfig.value.podcastAiRulesMarkdown === nextMarkdown) {
@@ -1844,9 +2054,15 @@ const commitPodcastAiRulesMarkdownDebounced = useDebounceFn(() => {
  * @returns {Promise<void>} 无返回值
  */
 const loadHotsearchSettings = async (): Promise<void> => {
+  /**
+   * 常量：nextConfig。
+   */
   let nextConfig = hotsearchLocalSettingsDefaultCreate();
 
   if (isTauriRuntime.value) {
+    /**
+     * 函数：settings。
+     */
     const settings = await tauriSettings.get();
     nextConfig = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
   }
@@ -1856,7 +2072,13 @@ const loadHotsearchSettings = async (): Promise<void> => {
   try {
     await refreshHotsearchRemoteGet();
     if (stateHotsearchRemoteConfig.value) {
+      /**
+       * 常量：remoteConfig。
+       */
       const remoteConfig = hotsearchSettingsNormalize(stateHotsearchRemoteConfig.value);
+      /**
+       * 函数：mergedLocalConfig。
+       */
       const mergedLocalConfig = hotsearchLocalSettingsNormalize({
         ...stateHotsearchConfig.value,
         ...remoteConfig
@@ -1972,16 +2194,25 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
         return;
       }
 
+      /**
+       * 常量：missingLocalKinds。
+       */
       const missingLocalKinds = HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.filter((kind) => !stateHotsearchPodcastHeadMusicLocalExists.value[kind]);
 
       if (missingLocalKinds.length > 0) {
         const missingRemoteKinds: THotsearchPodcastHeadMusicKind[] = [];
+        /**
+         * 常量：remoteMissingMessage。
+         */
         const remoteMissingMessage = t('pages.settings.hotsearch.messages.podcastHeadMusicRemoteMissing');
 
         for (const kind of missingLocalKinds) {
           try {
             await syncHotsearchPodcastHeadMusicFromRemote(kind);
           } catch (error) {
+            /**
+             * 常量：message。
+             */
             const message = error instanceof Error ? error.message : String(error ?? '');
 
             if (message === remoteMissingMessage) {
@@ -1996,6 +2227,9 @@ const handlePodcastGenerateEnabledUpdate = async (value: boolean): Promise<void>
         if (missingRemoteKinds.length > 0) {
           await refreshHotsearchPodcastHeadMusicRemoteExists();
 
+          /**
+           * 常量：missingTitles。
+           */
           const missingTitles = missingRemoteKinds.map((kind) => computedHotsearchPodcastHeadMusicItems.value.find((item) => item.kind === kind)?.title || kind).join('、');
 
           stateHotsearchPodcastGenerateError.value = t('pages.settings.hotsearch.messages.podcastGenerateHeadMusicMissing');
@@ -2223,6 +2457,9 @@ const handleRetryDelaySecondsUpdate = (value: number | undefined): void => {
  * @param {boolean} enabled 是否启用
  */
 const handlePlatformEnabledUpdate = (platformId: number, enabled: boolean): void => {
+  /**
+   * 常量：nextIds。
+   */
   const nextIds = enabled ? [...new Set([...stateHotsearchConfig.value.platformIds, platformId])] : stateHotsearchConfig.value.platformIds.filter((id) => id !== platformId);
 
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
@@ -2248,6 +2485,9 @@ const handlePlatformsToggleAll = (enabled: boolean): void => {
  * 函数：恢复抓取计划默认设置
  */
 const handleResetScheduleDefaults = (): void => {
+  /**
+   * 常量：defaults。
+   */
   const defaults = hotsearchLocalSettingsDefaultCreate();
 
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
@@ -2273,6 +2513,9 @@ onMounted(async () => {
 watch(
   () => stateHotsearchConfig.value.podcastAiRulesMarkdown,
   (value) => {
+    /**
+     * 常量：editableValue。
+     */
     const editableValue = hotsearchPodcastAiRulesMarkdownEditableExtract(value);
 
     if (editableValue === statePodcastAiRulesMarkdownDraft.value) {

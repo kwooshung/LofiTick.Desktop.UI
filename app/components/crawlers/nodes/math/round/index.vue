@@ -88,6 +88,9 @@ const rightPins: IBasicSidePin[] = [
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -102,7 +105,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IMathRoundNodeData;
+  /**
+   * 常量：nextMode。
+   */
   const nextMode = String(data.roundMode ?? 'round');
   stateRoundMode.value = nextMode === 'ceil' || nextMode === 'floor' ? nextMode : 'round';
   stateValue.value = Number.isFinite(Number(data.value)) ? Number(data.value) : 0;

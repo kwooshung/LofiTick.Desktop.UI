@@ -123,6 +123,9 @@ const machineOnlineGet = (currentMachine: IPageSettingsUnattendedMachineCardInfo
  * 函数：复制机器码
  */
 const handleMachineCodeCopy = async (): Promise<void> => {
+  /**
+   * 常量：value。
+   */
   const value = String(machine.machineCode || '').trim();
   if (!value) {
     return;

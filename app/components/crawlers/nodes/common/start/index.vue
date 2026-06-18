@@ -23,6 +23,9 @@ const stateNode = useNode();
  * 计算属性：开始节点域名。
  */
 const computedDomain = computed(() => {
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesCommonStartData;
   return String(data.domain ?? '').trim();
 });

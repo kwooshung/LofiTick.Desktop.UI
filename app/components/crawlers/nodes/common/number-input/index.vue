@@ -32,6 +32,9 @@ const props = defineProps<ICrawlersNodesCommonNumberInputProps>();
  * 计算属性：是否显示前缀标签。
  */
 const computedShowPrefix = computed(() => {
+  /**
+   * 常量：prefix。
+   */
   const prefix = String(props.prefix ?? '').trim();
 
   return prefix !== '' && prefix !== '#';

@@ -21,11 +21,26 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateHtmlType。
+ */
 const stateHtmlType = ref('outerHTML');
+/**
+ * 状态：stateNormalizeWhitespace。
+ */
 const stateNormalizeWhitespace = ref(false);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
 
 const leftPins: IBasicSidePin[] = [
@@ -66,6 +81,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateHtmlTypeOptions。
+ */
 const stateHtmlTypeOptions = computed(() => {
   return [
     {
@@ -84,6 +102,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateHtmlType.value = ['outerHTML', 'innerHTML'].includes(String(data.htmlType)) ? String(data.htmlType) : 'outerHTML';
   stateNormalizeWhitespace.value = Boolean(data.normalizeWhitespace ?? false);

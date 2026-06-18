@@ -55,6 +55,9 @@ const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
  * 计算属性：输入框占位文本。
  */
 const computedInputPlaceholder = computed(() => {
+  /**
+   * 常量：placeholder。
+   */
   const placeholder = String(props.placeholder || '').trim();
 
   if (!placeholder) {
@@ -74,6 +77,9 @@ const computedInputPlaceholder = computed(() => {
  * @returns {IFormUrlInputSplitResult} 协议与主体内容。
  */
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(url || '').trim();
   if (!raw) {
     return { protocol: 'https', value: '' };
@@ -91,6 +97,9 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
   }
 
   if (props.baseUrlOnly) {
+    /**
+     * 常量：matchResult。
+     */
     const matchResult = body.match(/^[^/?#]+/);
     body = matchResult ? matchResult[0] : body;
   }
@@ -105,6 +114,9 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @returns {string} 完整 URL。
  */
 const joinUrl = (protocol: 'http' | 'https', value: string): string => {
+  /**
+   * 函数：normalizedValue。
+   */
   const normalizedValue = String(value || '')
     .trim()
     .replace(/^https?:\/\//i, '');
@@ -113,6 +125,9 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
   }
 
   if (props.baseUrlOnly) {
+    /**
+     * 常量：matchResult。
+     */
     const matchResult = normalizedValue.match(/^[^/?#]+/);
     return matchResult ? matchResult[0] : normalizedValue;
   }
@@ -126,6 +141,9 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
  * @returns {void} 无返回值。
  */
 const syncFromModel = (value: string): void => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
   stateValue.value = parsed.value;
@@ -137,10 +155,16 @@ const syncFromModel = (value: string): void => {
  * @returns {void} 无返回值。
  */
 const handleValueInput = (value: string | number): void => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
 
   if (props.baseUrlOnly && parsed.value === stateValue.value) {
+    /**
+     * 常量：temp。
+     */
     const temp = stateValue.value;
     stateValue.value = '';
     nextTick(() => {
@@ -151,10 +175,16 @@ const handleValueInput = (value: string | number): void => {
   }
 };
 
+/**
+ * 事件：handleInputBlur。
+ */
 const handleInputBlur = (): void => {
   if (!props.baseUrlOnly) {
     return;
   }
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(joinUrl(stateProtocol.value, stateValue.value));
   if (parsed.value !== stateValue.value) {
     stateValue.value = parsed.value;
@@ -170,6 +200,9 @@ watch(
 );
 
 watch([stateProtocol, stateValue], () => {
+  /**
+   * 常量：nextValue。
+   */
   const nextValue = joinUrl(stateProtocol.value, stateValue.value);
   if (nextValue !== String(model.value || '')) {
     model.value = nextValue;

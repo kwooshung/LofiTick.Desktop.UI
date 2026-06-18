@@ -96,6 +96,9 @@ const mediaAudioWavesPercentFromPointerEvent = (event: PointerEvent): number | n
     return null;
   }
 
+  /**
+   * 常量：rect。
+   */
   const rect = stateRefInteractive.value.getBoundingClientRect();
   if (!Number.isFinite(rect.width) || rect.width <= 0) {
     return null;
@@ -130,6 +133,9 @@ const mediaAudioWavesPreviewUpdateByPointerEvent = (event: PointerEvent): void =
     return;
   }
 
+  /**
+   * 常量：percent。
+   */
   const percent = mediaAudioWavesPercentFromPointerEvent(event);
   if (percent === null) {
     return;
@@ -182,6 +188,9 @@ const mediaAudioWavesDragEnd = (event: PointerEvent): void => {
 
   stateDragging.value = false;
 
+  /**
+   * 常量：percent。
+   */
   const percent = mediaAudioWavesPercentFromPointerEvent(event) ?? statePreviewPercent.value;
   if (typeof percent === 'number') {
     mediaAudioWavesSeekEmit(percent);
@@ -248,7 +257,13 @@ const stateRectOrderIs132 = computed(() => {
     return false;
   }
 
+  /**
+   * 常量：previewPercent。
+   */
   const previewPercent = mediaAudioWavesClamp01(statePreviewPercent.value);
+  /**
+   * 常量：progressPercent。
+   */
   const progressPercent = mediaAudioWavesClamp01(progress ?? 0);
 
   return previewPercent > progressPercent;
@@ -285,6 +300,9 @@ const stateIndicatorWidth = computed(() => `${stateIndicatorPercent.value * 100}
  * @returns {void} 无返回值
  */
 const mediaAudioWavesSeekEmit = (percent: number): void => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = mediaAudioWavesClamp01(percent);
 
   if (typeof duration === 'number' && Number.isFinite(duration)) {

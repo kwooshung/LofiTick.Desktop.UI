@@ -27,9 +27,18 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 常量：COMMON_ATTRIBUTE_VALUES。
+ */
 const COMMON_ATTRIBUTE_VALUES = [
   'id',
   'class',
@@ -70,11 +79,26 @@ const COMMON_ATTRIBUTE_VALUES = [
   'data-url'
 ] as const;
 
+/**
+ * 状态：stateCommonAttribute。
+ */
 const stateCommonAttribute = ref('href');
+/**
+ * 状态：stateAttributeName。
+ */
 const stateAttributeName = ref('href');
+/**
+ * 状态：stateDefaultValue。
+ */
 const stateDefaultValue = ref('');
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
 
+/**
+ * 状态：stateCommonAttributeOptions。
+ */
 const stateCommonAttributeOptions = computed(() => {
   return [
     ...COMMON_ATTRIBUTE_VALUES.map((attribute) => {
@@ -133,6 +157,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateAttributeName.value = String(data.attributeName ?? 'href');
   stateCommonAttribute.value = COMMON_ATTRIBUTE_VALUES.includes(stateAttributeName.value as (typeof COMMON_ATTRIBUTE_VALUES)[number]) ? stateAttributeName.value : '__custom__';

@@ -104,11 +104,20 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
  * @returns {string} 纯域名
  */
 const extractDomainFromUrl = (url: string): string => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(url || '').trim();
   if (!raw) {
     return '';
   }
+  /**
+   * 常量：withoutProtocol。
+   */
   const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  /**
+   * 常量：matchResult。
+   */
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return matchResult ? matchResult[0] : withoutProtocol;
 };
@@ -182,6 +191,9 @@ const stateUniqueCheckingDomainValue = ref('');
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：pagesize。
+   */
   const pagesize = String(route.query.pagesize ?? '').trim();
 
   if (pagesize !== '') {
@@ -196,6 +208,9 @@ const currentPageSizeGet = (): string => {
  * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
  */
 const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  /**
+   * 常量：value。
+   */
   const value = String(route.query.enabled ?? '').trim();
 
   if (value === '1') {
@@ -216,16 +231,25 @@ const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
 const buildCrawlerQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {};
 
+  /**
+   * 常量：keywordValue。
+   */
   const keywordValue = String(route.query.keyword ?? keyword ?? '').trim();
   if (keywordValue !== '') {
     query.keyword = keywordValue;
   }
 
+  /**
+   * 常量：page。
+   */
   const page = String(route.query.page ?? '').trim();
   if (page !== '') {
     query.page = page;
   }
 
+  /**
+   * 常量：enabledState。
+   */
   const enabledState = readEnabledStateFromRoute();
   if (enabledState !== 'all') {
     query.enabled = enabledState === 'enabled' ? '1' : '0';
@@ -259,6 +283,9 @@ const computedTotal = computed<number>(() => Number(stateDatas.value?.total ?? 0
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 函数：parsed。
+     */
     const parsed = parseInt(String(route.query.page ?? ''), 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
   },
@@ -277,16 +304,25 @@ const computedPage = computed<number>({
  * 计算属性：每页数量。
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(String(route.query.pagesize ?? ''), 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
 
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'crawlers');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
 
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(stateDatas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -328,11 +364,17 @@ const computedUniqueDomainHelp = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
   }
 
+  /**
+   * 常量：valid。
+   */
   const valid = schema.pick({ domain: true }).safeParse({ domain }).success;
   if (!valid) {
     return undefined;
@@ -352,6 +394,9 @@ const computedUniqueDomainError = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
@@ -403,8 +448,17 @@ const handleEditTarget = (row: IQueryResultCrawlerTargetRow) => {
  * @returns {boolean} 未变化时返回 true。
  */
 const isEditorDomainUnchanged = (): boolean => {
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
+  /**
+   * 常量：originalDomain。
+   */
   const originalDomain = normalizeDomainForUniqueCompare(String(stateEditorOriginalDomain.value ?? ''));
   return id > 0 && domain !== '' && domain === originalDomain;
 };
@@ -435,6 +489,9 @@ const buildCrawlerTargetContextMenuProps = (row: IQueryResultCrawlerTargetRow) =
 watch(
   () => stateEditor.value.baseUrl,
   (val) => {
+    /**
+     * 常量：domain。
+     */
     const domain = extractDomainFromUrl(val ?? '');
     if (stateEditor.value.baseUrl !== domain) {
       stateEditor.value.baseUrl = domain;
@@ -455,6 +512,9 @@ watch(
       return;
     }
 
+    /**
+     * 常量：domain。
+     */
     const domain = String(stateEditor.value.domain ?? '').trim();
     if (domain === '' || domain !== stateUniqueCheckingDomainValue.value) {
       return;
@@ -485,7 +545,13 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
 
   if (!domain) {
@@ -502,6 +568,9 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：shouldCheckDomain。
+   */
   const shouldCheckDomain = !!domain && schema.pick({ domain: true }).safeParse({ domain }).success;
 
   if (!shouldCheckDomain) {

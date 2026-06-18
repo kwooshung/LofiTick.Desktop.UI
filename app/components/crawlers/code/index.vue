@@ -57,12 +57,18 @@ const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
  * @returns {string} 展示名称。
  */
 const domainDisplayNameGet = (domain: string): string => {
+  /**
+   * 常量：trimmed。
+   */
   const trimmed = String(domain ?? '').trim();
 
   if (trimmed === '') {
     return '';
   }
 
+  /**
+   * 常量：host。
+   */
   const host = trimmed.split('/')[0]?.split('.')?.[0]?.trim() ?? '';
 
   if (host === '') {
@@ -76,6 +82,9 @@ const domainDisplayNameGet = (domain: string): string => {
  * 计算属性：当前站点域名。
  */
 const computedCurrentDomain = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = route.params.domain;
 
   if (typeof value === 'string') {
@@ -98,11 +107,17 @@ const computedCurrentSiteName = computed(() => domainDisplayNameGet(computedCurr
  * 计算属性：抽屉站点名称。
  */
 const computedDrawerSiteName = computed(() => {
+  /**
+   * 常量：targetName。
+   */
   const targetName = String(stateDrawerTarget.value?.name ?? '').trim();
   if (targetName !== '') {
     return targetName;
   }
 
+  /**
+   * 常量：siteNameText。
+   */
   const siteNameText = String(siteName ?? '').trim();
 
   return siteNameText !== '' ? siteNameText : computedCurrentSiteName.value;
@@ -117,6 +132,9 @@ const editorDrawerTitle = t('pages.crawlers.editor.title');
  * 计算属性：抽屉标题。
  */
 const computedDrawerTitle = computed(() => {
+  /**
+   * 常量：siteName。
+   */
   const siteName = computedDrawerSiteName.value;
 
   return siteName !== '' ? `${editorDrawerTitle} / ${siteName}` : editorDrawerTitle;
@@ -126,6 +144,9 @@ const computedDrawerTitle = computed(() => {
  * 计算属性：抽屉基础 URL。
  */
 const computedDrawerBaseUrl = computed(() => {
+  /**
+   * 常量：targetBaseUrl。
+   */
   const targetBaseUrl = String(stateDrawerTarget.value?.baseUrl ?? '').trim();
   if (targetBaseUrl !== '') {
     return targetBaseUrl;

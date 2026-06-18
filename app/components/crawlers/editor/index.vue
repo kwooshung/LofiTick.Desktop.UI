@@ -115,7 +115,13 @@ const isCanvasEmpty = computed(() => nodes.value.length === 0);
  * 计算属性：描述文本。
  */
 const computedDescription = computed(() => {
+  /**
+   * 常量：siteNameText。
+   */
   const siteNameText = String(siteName ?? '').trim();
+  /**
+   * 常量：baseUrlText。
+   */
   const baseUrlText = String(baseUrl ?? '').trim();
 
   return [siteNameText, baseUrlText].filter((value) => value !== '').join(' · ');
@@ -130,13 +136,22 @@ const computedGroups = computed(() => (groups.length > 0 ? groups : blueprintGro
  * 计算属性：标准化域名。
  */
 const computedNormalizedDomain = computed(() => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(baseUrl ?? '').trim();
 
   if (raw === '') {
     return '';
   }
 
+  /**
+   * 常量：noProtocol。
+   */
   const noProtocol = raw.replace(/^https?:\/\//i, '');
+  /**
+   * 常量：host。
+   */
   const host = noProtocol.split('/')[0]?.trim().toLowerCase() ?? '';
 
   return host;
@@ -166,6 +181,9 @@ const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
  * 计算属性：草稿缓存键。
  */
 const computedDraftKey = computed(() => {
+  /**
+   * 常量：domain。
+   */
   const domain = computedNormalizedDomain.value;
 
   if (domain === '') {
@@ -180,13 +198,22 @@ const computedDraftKey = computed(() => {
  * @returns {void} 无返回值。
  */
 const syncStartNodeDomain = (): void => {
+  /**
+   * 常量：domain。
+   */
   const domain = computedNormalizedDomain.value;
+  /**
+   * 常量：startNode。
+   */
   const startNode = nodes.value.find((node) => node.id === 'start');
 
   if (!startNode) {
     return;
   }
 
+  /**
+   * 常量：currentDomain。
+   */
   const currentDomain = String((startNode.data as { domain?: string } | undefined)?.domain ?? '');
   if (currentDomain === domain) {
     return;
@@ -307,7 +334,13 @@ const createSnapshot = (): string => JSON.stringify(toObject());
  * @returns {void} 无返回值。
  */
 const pushHistorySnapshot = (): void => {
+  /**
+   * 常量：snapshot。
+   */
   const snapshot = createSnapshot();
+  /**
+   * 常量：current。
+   */
   const current = stateHistory.value[stateHistoryIndex.value] ?? '';
 
   if (current === snapshot) {
@@ -325,6 +358,9 @@ const pushHistorySnapshot = (): void => {
  * @returns {void} 无返回值。
  */
 const restoreSnapshot = async (index: number): Promise<void> => {
+  /**
+   * 常量：snapshot。
+   */
   const snapshot = stateHistory.value[index];
 
   if (!snapshot) {
@@ -405,22 +441,34 @@ const clearExpiredDrafts = (): void => {
     return;
   }
 
+  /**
+   * 常量：now。
+   */
   const now = Date.now();
   const keysToDelete: string[] = [];
 
   for (let i = 0; i < localStorage.length; i++) {
+    /**
+     * 常量：key。
+     */
     const key = localStorage.key(i);
     if (!key?.startsWith(DRAFT_ENTRY_PREFIX)) {
       continue;
     }
 
     try {
+      /**
+       * 常量：raw。
+       */
       const raw = localStorage.getItem(key);
       if (!raw) {
         keysToDelete.push(key);
         continue;
       }
 
+      /**
+       * 常量：entry。
+       */
       const entry = JSON.parse(raw) as { ts?: number };
       if (!entry.ts || now - entry.ts > DRAFT_MAX_AGE_MS) {
         keysToDelete.push(key);
@@ -444,17 +492,26 @@ const restoreDraft = async (): Promise<boolean> => {
     return false;
   }
 
+  /**
+   * 常量：key。
+   */
   const key = computedDraftKey.value;
   if (key === '') {
     return false;
   }
 
+  /**
+   * 常量：raw。
+   */
   const raw = localStorage.getItem(key);
   if (!raw) {
     return false;
   }
 
   try {
+    /**
+     * 常量：entry。
+     */
     const entry = JSON.parse(raw) as { ts?: number; data?: string };
 
     // 无时间戳或已过期，清除
@@ -463,6 +520,9 @@ const restoreDraft = async (): Promise<boolean> => {
       return false;
     }
 
+    /**
+     * 常量：data。
+     */
     const data = entry.data;
     if (!data) {
       localStorage.removeItem(key);
@@ -496,6 +556,9 @@ const clearDraft = (): void => {
     return;
   }
 
+  /**
+   * 常量：key。
+   */
   const key = computedDraftKey.value;
   if (key !== '') {
     localStorage.removeItem(key);
@@ -513,12 +576,18 @@ const saveDraft = (): boolean => {
     return true;
   }
 
+  /**
+   * 常量：key。
+   */
   const key = computedDraftKey.value;
   if (key === '') {
     return true;
   }
 
   try {
+    /**
+     * 常量：snapshot。
+     */
     const snapshot = createSnapshot();
     if (stateLastDraftSnapshot.value === snapshot) {
       return true;
@@ -537,6 +606,9 @@ const saveDraft = (): boolean => {
  * @returns {void} 无返回值。
  */
 const runAutoSave = (): void => {
+  /**
+   * 常量：success。
+   */
   const success = saveDraft();
   stateAutoSaveStatus.value = success ? 'success' : 'error';
   stateAutoSaveStatusRemainSeconds.value = AUTO_SAVE_STATUS_SECONDS;
@@ -574,6 +646,9 @@ onMounted(async () => {
 
   if (!stateDraftRestored.value) {
     stateDraftRestored.value = true;
+    /**
+     * 常量：restored。
+     */
     const restored = await restoreDraft();
     if (!restored) {
       stateInitializingDefault.value = true;
@@ -669,6 +744,9 @@ watch(
  * 事件：处理模态框保存
  */
 const handelModalSave = () => {
+  /**
+   * 常量：flowData。
+   */
   const flowData = toObject();
   emit('save', {
     flowData,

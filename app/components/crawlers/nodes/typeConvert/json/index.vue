@@ -21,9 +21,21 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateIndent。
+ */
 const stateIndent = ref(2);
+/**
+ * 状态：stateHandleCircular。
+ */
 const stateHandleCircular = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -61,6 +73,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateIndent.value = Number.isFinite(Number(data.indent)) ? Number(data.indent) : 2;
   stateHandleCircular.value = Boolean(data.handleCircular ?? false);

@@ -48,6 +48,9 @@ export const useSettingsThemeMode = (options: IThemeSwitchAnimationOptions = {})
    * @return {boolean} 是否为深色
    */
   const currentIsDarkGet = (): boolean => {
+    /**
+     * 常量：v。
+     */
     const v = colorMode.value;
 
     if (v === 'dark') {
@@ -77,7 +80,13 @@ export const useSettingsThemeMode = (options: IThemeSwitchAnimationOptions = {})
       return;
     }
 
+    /**
+     * 常量：currentIsDark。
+     */
     const currentIsDark = currentIsDarkGet();
+    /**
+     * 常量：nextIsDark。
+     */
     const nextIsDark = themeModeIsDarkGet(mode);
 
     if (currentIsDark !== nextIsDark) {
@@ -95,6 +104,9 @@ export const useSettingsThemeMode = (options: IThemeSwitchAnimationOptions = {})
    * @return {Promise<void>} Promise
    */
   const themeModeCycle = async (triggerEl?: HTMLElement | null): Promise<void> => {
+    /**
+     * 常量：currentPreference。
+     */
     const currentPreference = (colorMode.preference ?? 'system') as TSettingsThemeMode;
     const nextPreference: TSettingsThemeMode = currentPreference === 'dark' ? 'light' : currentPreference === 'light' ? 'system' : 'dark';
 

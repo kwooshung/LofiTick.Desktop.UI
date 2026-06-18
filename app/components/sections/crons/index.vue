@@ -83,6 +83,9 @@ const stateSentinelStatus = ref<ISentinelStatusPayload | null>(null);
  * @return {string} 返回状态文案
  */
 const localSentinelStatusLabelGet = (): string => {
+  /**
+   * 常量：state。
+   */
   const state = stateSentinelStatus.value?.status.state;
 
   if (state === 'online') {
@@ -110,6 +113,9 @@ const localSentinelStatusLabelGet = (): string => {
  * @return {IPageSettingsLocalCronRow['statusColor']} 返回状态颜色
  */
 const localSentinelStatusColorGet = (): IPageSettingsLocalCronRow['statusColor'] => {
+  /**
+   * 常量：state。
+   */
   const state = stateSentinelStatus.value?.status.state;
 
   if (state === 'online') {
@@ -209,7 +215,13 @@ const computedLocalTasks = computed<IPageSettingsLocalCronRow[]>(() => {
     return [];
   }
 
+  /**
+   * 常量：enabledSceneCount。
+   */
   const enabledSceneCount = stateSentinelStatus.value?.attach.enabledSceneCount ?? 0;
+  /**
+   * 常量：recoveryState。
+   */
   const recoveryState = stateSentinelStatus.value?.attach.recoveryState ?? t('common.labels.none');
 
   return [

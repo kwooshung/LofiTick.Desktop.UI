@@ -2,6 +2,9 @@ import type { RouterConfig } from '@nuxt/schema';
 
 export default <RouterConfig>{
   async scrollBehavior(to, from, savedPosition) {
+    /**
+     * 常量：nuxtApp。
+     */
     const nuxtApp = useNuxtApp();
 
     // make sure the route has changed.

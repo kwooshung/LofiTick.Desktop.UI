@@ -72,6 +72,9 @@ const { themeModeSet } = useSettingsThemeMode();
  * @param {MouseEvent} event 鼠标事件
  */
 const onClickColorModeButton = async (mode: string, event: MouseEvent) => {
+  /**
+   * 常量：el。
+   */
   const el = event.currentTarget as HTMLElement | null;
   await themeModeSet(mode as TSettingsThemeMode, el);
 };

@@ -83,6 +83,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationRefreshData;
   stateWaitReady.value = Boolean(data.waitReady ?? true);
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(1000, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;

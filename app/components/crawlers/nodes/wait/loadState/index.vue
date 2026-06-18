@@ -97,7 +97,13 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
+  /**
+   * 常量：state。
+   */
   const state = String(data.state ?? 'networkidle');
   stateLoadState.value = ['load', 'domcontentloaded', 'networkidle'].includes(state) ? state : 'networkidle';
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;

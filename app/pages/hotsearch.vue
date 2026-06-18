@@ -306,9 +306,15 @@ const computedDateSummaryMap = computed(() => new Map(computedDateSummaries.valu
  * 计算属性：可选月份列表。
  */
 const computedAvailableCalendarMonths = computed<CalendarDate[]>(() => {
+  /**
+   * 常量：monthMap。
+   */
   const monthMap = new Map<string, CalendarDate>();
 
   for (const item of computedDateSummaries.value) {
+    /**
+     * 常量：dateValue。
+     */
     const dateValue = calendarDateFromIsoGet(item.date);
 
     if (!dateValue) {
@@ -318,6 +324,9 @@ const computedAvailableCalendarMonths = computed<CalendarDate[]>(() => {
     monthMap.set(calendarMonthKeyGet(dateValue), new CalendarDate(dateValue.year, dateValue.month, 1));
   }
 
+  /**
+   * 函数：todayValue。
+   */
   const todayValue = today(calendarTimeZone);
 
   monthMap.set(calendarMonthKeyGet(todayValue), new CalendarDate(todayValue.year, todayValue.month, 1));
@@ -334,6 +343,9 @@ const computedLatestAvailableDate = computed(() => computedDateSummaries.value[0
  * 计算属性：当前日期字符串。
  */
 const computedTodayDate = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = today(calendarTimeZone);
 
   return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
@@ -343,6 +355,9 @@ const computedTodayDate = computed(() => {
  * 计算属性：当前选中日期。
  */
 const computedSelectedDate = computed(() => {
+  /**
+   * 常量：queryDate。
+   */
   const queryDate = hotsearchQueryStringGet(route.query.date as string | null | Array<string | null> | undefined);
 
   if (queryDate === '') {
@@ -381,6 +396,9 @@ const computedCalendarDefaultMonthValue = computed(() => {
  * 计算属性：日期按钮标题。
  */
 const computedDatePickerButtonLabel = computed(() => {
+  /**
+   * 常量：selectedCalendarDate。
+   */
   const selectedCalendarDate = calendarDateFromIsoGet(computedSelectedDate.value);
 
   if (!selectedCalendarDate) {
@@ -414,7 +432,13 @@ const computedCalendarMinValueUi = computed(() => computedCalendarMinValue.value
  * 计算属性：日历最大日期。
  */
 const computedCalendarMaxValue = computed(() => {
+  /**
+   * 常量：latestAvailableDate。
+   */
   const latestAvailableDate = calendarDateFromIsoGet(computedLatestAvailableDate.value);
+  /**
+   * 函数：todayValue。
+   */
   const todayValue = today(calendarTimeZone);
 
   if (!latestAvailableDate) {
@@ -438,6 +462,9 @@ const computedCalendarPlaceholderUi = computed(() => stateCalendarPlaceholder.va
  * 计算属性：当前是否位于首个可选月份。
  */
 const computedCalendarAtFirstMonth = computed(() => {
+  /**
+   * 常量：firstMonth。
+   */
   const firstMonth = computedAvailableCalendarMonths.value[0];
 
   if (!firstMonth) {
@@ -451,6 +478,9 @@ const computedCalendarAtFirstMonth = computed(() => {
  * 计算属性：当前是否位于最后一个可选月份。
  */
 const computedCalendarAtLastMonth = computed(() => {
+  /**
+   * 常量：lastMonth。
+   */
   const lastMonth = computedAvailableCalendarMonths.value.at(-1);
 
   if (!lastMonth) {
@@ -466,6 +496,9 @@ const computedCalendarAtLastMonth = computed(() => {
 const computedCalendarModelValue = computed<CalendarDate>({
   get: () => calendarDateFromIsoGet(computedSelectedDate.value) ?? today(calendarTimeZone),
   set: (value) => {
+    /**
+     * 常量：nextDate。
+     */
     const nextDate = calendarIsoDateGet(value);
 
     if (!nextDate || calendarDateDisabledGet(value)) {
@@ -492,8 +525,17 @@ const computedCalendarModelValueUi = computed({
  * 计算属性：当前是否位于数据分区。
  */
 const computedRouteIsDataSection = computed(() => {
+  /**
+   * 常量：dataPath。
+   */
   const dataPath = localePath('/hotsearch');
+  /**
+   * 常量：platformsPath。
+   */
   const platformsPath = localePath('/hotsearch/platforms');
+  /**
+   * 常量：tagsPath。
+   */
   const tagsPath = localePath('/hotsearch/tags');
 
   return route.path === dataPath || route.path === platformsPath || route.path === tagsPath;
@@ -576,6 +618,9 @@ const computedDataVariantLinks = computed<NavigationMenuItem[][]>(() => {
     return [];
   }
 
+  /**
+   * 常量：sharedQuery。
+   */
   const sharedQuery = {
     date: computedSelectedDateQuery.value,
     keyword: hotsearchQueryStringGet(route.query.keyword as string | null | Array<string | null> | undefined) || undefined,
@@ -632,6 +677,9 @@ const computedPodcastVariantLinks = computed<NavigationMenuItem[][]>(() => {
     return [];
   }
 
+  /**
+   * 常量：mediaPlatform。
+   */
   const mediaPlatform = hotsearchQueryStringGet(route.query.mediaPlatform as string | null | Array<string | null> | undefined) || undefined;
 
   return [
@@ -839,6 +887,9 @@ const handlePodcastAudioModalOpen = async (): Promise<void> => {
  * @return {CalendarDate | null}
  */
 const calendarDateFromIsoGet = (value: string): CalendarDate | null => {
+  /**
+   * 常量：matched。
+   */
   const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
 
   if (!matched) {
@@ -875,6 +926,9 @@ const calendarDateSummaryGet = (value: ICalendarDateValue): IHotsearchArchiveDat
  * @return {'primary' | 'success'}
  */
 const calendarDateSummaryColorGet = (value: ICalendarDateValue): 'primary' | 'success' => {
+  /**
+   * 常量：summary。
+   */
   const summary = calendarDateSummaryGet(value);
 
   return summary && summary.podcastCount > 0 ? 'success' : 'primary';
@@ -889,6 +943,9 @@ const calendarDateSummaryColorGet = (value: ICalendarDateValue): 'primary' | 'su
  * @return {boolean}
  */
 const calendarDateSelectableGet = (value: ICalendarDateValue): boolean => {
+  /**
+   * 函数：isoDate。
+   */
   const isoDate = calendarIsoDateGet(value);
 
   return isoDate === computedTodayDate.value || computedDateSummaryMap.value.has(isoDate);
@@ -931,6 +988,9 @@ const calendarMonthValueGet = (value: ICalendarDateValue): CalendarDate => {
  * @return {CalendarDate | null}
  */
 const calendarMonthValueFromIsoGet = (value: string): CalendarDate | null => {
+  /**
+   * 常量：dateValue。
+   */
   const dateValue = calendarDateFromIsoGet(value);
 
   if (!dateValue) {
@@ -947,13 +1007,22 @@ const calendarMonthValueFromIsoGet = (value: string): CalendarDate | null => {
  * @return {CalendarDate | null}
  */
 const calendarNearestMonthGet = (value: ICalendarDateValue): CalendarDate | null => {
+  /**
+   * 常量：months。
+   */
   const months = computedAvailableCalendarMonths.value;
 
   if (months.length <= 0) {
     return null;
   }
 
+  /**
+   * 常量：monthValue。
+   */
   const monthValue = calendarMonthValueGet(value);
+  /**
+   * 常量：fallback。
+   */
   let fallback = months[0] ?? null;
 
   for (const item of months) {
@@ -976,19 +1045,31 @@ const calendarNearestMonthGet = (value: ICalendarDateValue): CalendarDate | null
  * @return {CalendarDate}
  */
 const calendarAdjacentMonthGet = (value: ICalendarDateValue, delta: number): CalendarDate => {
+  /**
+   * 常量：months。
+   */
   const months = computedAvailableCalendarMonths.value;
 
   if (months.length <= 0) {
     return calendarMonthValueGet(value);
   }
 
+  /**
+   * 常量：monthKey。
+   */
   const monthKey = calendarMonthKeyGet(value);
+  /**
+   * 常量：currentIndex。
+   */
   const currentIndex = months.findIndex((item) => calendarMonthKeyGet(item) === monthKey);
 
   if (currentIndex === -1) {
     return calendarNearestMonthGet(value) ?? months.at(-1) ?? calendarMonthValueGet(value);
   }
 
+  /**
+   * 常量：nextIndex。
+   */
   const nextIndex = Math.min(Math.max(currentIndex + delta, 0), months.length - 1);
 
   return months[nextIndex] ?? months[currentIndex] ?? calendarMonthValueGet(value);
@@ -1061,6 +1142,9 @@ const handleCalendarPlaceholderUpdate = (value: ICalendarDateValue): void => {
  * @return {void}
  */
 const handleDatePreview = (value: ICalendarDateValue): void => {
+  /**
+   * 常量：nextDate。
+   */
   const nextDate = calendarIsoDateGet(value);
 
   if (!calendarDateSelectableGet(value)) {
@@ -1175,6 +1259,9 @@ storeBreadcrumb.states = [
 const handleDateChange = (date: string): void => {
   stateHasExplicitDateSelection.value = true;
 
+  /**
+   * 常量：nextRouteDate。
+   */
   const nextRouteDate = computedDateSummaryMap.value.has(date) || date === computedTodayDate.value ? date : undefined;
 
   navigateTo({

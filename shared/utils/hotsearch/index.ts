@@ -80,6 +80,9 @@ const hotsearchDateDirectoryPartsGet = (date: Date): { year: string; month: stri
  * @returns {'image' | 'video' | 'audio' | 'file'} 文件类型目录。
  */
 const hotsearchFileTypeDirectoryGet = (fileExt: string): 'image' | 'video' | 'audio' | 'file' => {
+  /**
+   * 函数：normalizedFileExt。
+   */
   const normalizedFileExt = String(fileExt || '')
     .trim()
     .replace(/^\./, '')
@@ -108,6 +111,9 @@ const hotsearchFileTypeDirectoryGet = (fileExt: string): 'image' | 'video' | 'au
  */
 export const hotsearchPodcastAdAssetRemoteDirectoryGet = (fileExt: string, date: Date = new Date()): string => {
   const { year, month, day } = hotsearchDateDirectoryPartsGet(date);
+  /**
+   * 常量：fileTypeDirectory。
+   */
   const fileTypeDirectory = hotsearchFileTypeDirectoryGet(fileExt);
 
   return `/hotsearch/ad/materials/${year}/${month}/${day}/${fileTypeDirectory}`;
@@ -130,10 +136,16 @@ export const hotsearchPodcastAdAssetRelativeDirectoryGet = (fileExt: string, dat
  * @returns {string} 远端对象键。
  */
 export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: Date = new Date()): string => {
+  /**
+   * 函数：normalizedFileExt。
+   */
   const normalizedFileExt = String(fileExt || '')
     .trim()
     .replace(/^\./, '')
     .toLowerCase();
+  /**
+   * 常量：fileName。
+   */
   const fileName = normalizedFileExt === '' ? generateIdBase36(24) : `${generateIdBase36(24)}.${normalizedFileExt}`;
 
   return `${hotsearchPodcastAdAssetRemoteDirectoryGet(fileExt, date)}/${fileName}`;
@@ -145,6 +157,9 @@ export const hotsearchPodcastAdAssetRemotePathCreate = (fileExt: string, date: D
  * @returns {string} 归一化后的时间字符串；空值返回空字符串。
  */
 export const hotsearchDatetimeValueGet = (value: unknown): string => {
+  /**
+   * 常量：text。
+   */
   const text = String(value ?? '').trim();
 
   if (text === '') {
@@ -171,11 +186,20 @@ export const hotsearchSummaryDisplayIdGet = (id: number): string => String(Math.
 const HOTSEARCH_PODCAST_VOICE_KEYS: THotsearchPodcastVoiceKey[] = ['M', 'F', 'R'];
 const HOTSEARCH_PODCAST_TEMPLATE_TYPES: THotsearchPodcastTemplateType[] = ['opening', 'closing'];
 const HOTSEARCH_PODCAST_SEGMENT_TYPES: THotsearchPodcastSegmentType[] = ['normal', 'morningOnly', 'eveningOnly', 'adContent', 'adPlaceholder'];
+/**
+ * 常量：HOTSEARCH_AD_EDITION_SCOPE_OPTIONS。
+ */
 const HOTSEARCH_AD_EDITION_SCOPE_OPTIONS = [
   { label: '仅早报', value: 'morning' },
   { label: '仅晚报', value: 'evening' }
 ] as const;
+/**
+ * 常量：HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX。
+ */
 const HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX = '开头和结尾不需要你来模拟和输出，因为我有现成';
+/**
+ * 常量：HOTSEARCH_PODCAST_VARIABLE_KEYS。
+ */
 const HOTSEARCH_PODCAST_VARIABLE_KEYS = [
   'speakerName',
   'otherSpeakerName',
@@ -348,8 +372,17 @@ export const hotsearchPodcastAdPlaceholderIs = (item: Pick<ISettingsHotsearchPod
  * @returns {string} 固定尾注。
  */
 export const hotsearchPodcastAiRulesSystemLineBuild = (maleSpeakerName: unknown, femaleSpeakerName: unknown): string => {
+  /**
+   * 常量：defaults。
+   */
   const defaults = hotsearchSettingsDefaultCreate();
+  /**
+   * 常量：maleName。
+   */
   const maleName = hotsearchPodcastSpeakerNameNormalize(maleSpeakerName, defaults.podcastMaleSpeakerName);
+  /**
+   * 常量：femaleName。
+   */
   const femaleName = hotsearchPodcastSpeakerNameNormalize(femaleSpeakerName, defaults.podcastFemaleSpeakerName);
 
   return `开头和结尾不需要你来模拟和输出，因为我有现成儿的。男生叫${maleName}，女生叫${femaleName}。`;
@@ -361,12 +394,18 @@ export const hotsearchPodcastAiRulesSystemLineBuild = (maleSpeakerName: unknown,
  * @returns {string} 去除固定尾注后的正文。
  */
 export const hotsearchPodcastAiRulesMarkdownEditableExtract = (input: unknown): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchPodcastTextNormalize(input, '', 20000);
 
   if (!normalized) {
     return '';
   }
 
+  /**
+   * 常量：lines。
+   */
   const lines = normalized.split('\n');
 
   while (lines.length > 0 && !lines.at(-1)?.trim()) {
@@ -374,6 +413,9 @@ export const hotsearchPodcastAiRulesMarkdownEditableExtract = (input: unknown): 
   }
 
   while (lines.length > 0) {
+    /**
+     * 常量：lastLine。
+     */
     const lastLine = lines.at(-1)?.trim() || '';
 
     if (!lastLine.startsWith(HOTSEARCH_PODCAST_AI_RULES_SYSTEM_LINE_PREFIX)) {
@@ -398,7 +440,13 @@ export const hotsearchPodcastAiRulesMarkdownEditableExtract = (input: unknown): 
  * @returns {string} 最终完整 Markdown。
  */
 export const hotsearchPodcastAiRulesMarkdownCompose = (input: unknown, maleSpeakerName: unknown, femaleSpeakerName: unknown): string => {
+  /**
+   * 常量：editable。
+   */
   const editable = hotsearchPodcastAiRulesMarkdownEditableExtract(input);
+  /**
+   * 常量：systemLine。
+   */
   const systemLine = hotsearchPodcastAiRulesSystemLineBuild(maleSpeakerName, femaleSpeakerName);
 
   if (!editable) {
@@ -469,6 +517,9 @@ export const hotsearchPodcastHeadMusicRemotePathCreate = (kind: THotsearchPodcas
  * @returns {ISettingsHotsearch} 共享设置。
  */
 export const hotsearchSharedSettingsExtract = (input: ISettingsHotsearch | ISettingsHotsearchLocal): ISettingsHotsearch => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchSettingsNormalize(input);
 
   return {
@@ -502,6 +553,9 @@ export const hotsearchSharedSettingsExtract = (input: ISettingsHotsearch | ISett
  * @returns {THotsearchPodcastVoiceKey} 归一化后的音色。
  */
 const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchPodcastVoiceKey): THotsearchPodcastVoiceKey => {
+  /**
+   * 常量：rawValue。
+   */
   const rawValue = String(input ?? '').trim();
 
   switch (rawValue) {
@@ -529,6 +583,9 @@ const hotsearchPodcastVoiceKeyNormalize = (input: unknown, fallback: THotsearchP
  * @returns {string} 归一化后的文案。
  */
 const hotsearchPodcastTextNormalize = (input: unknown, fallback: string, maxLength: number): string => {
+  /**
+   * 常量：value。
+   */
   const value = String(input ?? '')
     .replace(/\r\n?/g, '\n')
     .trim();
@@ -557,6 +614,9 @@ const hotsearchPodcastSpeakerNameNormalize = (input: unknown, fallback: string):
  * @returns {THotsearchPodcastTemplateType} 归一化后的模板类型。
  */
 const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsearchPodcastTemplateType): THotsearchPodcastTemplateType => {
+  /**
+   * 常量：rawValue。
+   */
   const rawValue = String(input ?? '').trim();
 
   switch (rawValue) {
@@ -578,6 +638,9 @@ const hotsearchPodcastTemplateTypeNormalize = (input: unknown, fallback: THotsea
  * @returns {THotsearchPodcastTemplateSegmentType} 归一化后的文案类型。
  */
 const hotsearchPodcastTemplateSegmentTypeNormalize = (input: unknown): THotsearchPodcastTemplateSegmentType => {
+  /**
+   * 常量：rawValue。
+   */
   const rawValue = String(input ?? '').trim();
 
   switch (rawValue) {
@@ -628,6 +691,9 @@ const hotsearchPodcastHeadMusicRemotePathNormalize = (input: unknown): string =>
  * @returns {ISettingsHotsearchPodcastHeadMusicRemotePaths} 归一化后的对象路径集合。
  */
 const hotsearchPodcastHeadMusicRemotePathsNormalize = (input: unknown): ISettingsHotsearchPodcastHeadMusicRemotePaths => {
+  /**
+   * 常量：source。
+   */
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
 
   return {
@@ -647,8 +713,17 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
   }
 
   return input.map((item) => {
+    /**
+     * 常量：source。
+     */
     const source = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+    /**
+     * 常量：segmentType。
+     */
     const segmentType = hotsearchPodcastTemplateSegmentTypeNormalize(source.segmentType ?? source.segment_type);
+    /**
+     * 函数：isAdPlaceholder。
+     */
     const isAdPlaceholder = segmentType === 'adPlaceholder';
 
     return {
@@ -667,10 +742,19 @@ const hotsearchPodcastTemplateItemsNormalize = (input: unknown): ISettingsHotsea
  * @returns {string} 归一化后的时间。
  */
 const hotsearchTimeNormalize = (input: unknown, fallback: string): string => {
+  /**
+   * 常量：value。
+   */
   const value = String(input ?? '').trim();
   if (/^\d{2}:\d{2}$/.test(value)) {
     const [hourText, minuteText] = value.split(':');
+    /**
+     * 常量：hour。
+     */
     const hour = Number(hourText);
+    /**
+     * 常量：minute。
+     */
     const minute = Number(minuteText);
     if (Number.isInteger(hour) && Number.isInteger(minute) && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
       return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
@@ -689,6 +773,9 @@ const hotsearchTimeNormalize = (input: unknown, fallback: string): string => {
  * @returns {number} 归一化结果。
  */
 const hotsearchIntegerNormalize = (input: unknown, fallback: number, min: number, max: number): number => {
+  /**
+   * 常量：value。
+   */
   const value = Math.trunc(typeof input === 'number' ? input : Number(input));
   if (!Number.isFinite(value)) {
     return fallback;
@@ -703,11 +790,17 @@ const hotsearchIntegerNormalize = (input: unknown, fallback: number, min: number
  * @returns {number[]} 平台 ID 列表。
  */
 const hotsearchPlatformIdsNormalize = (input: unknown): number[] => {
+  /**
+   * 常量：platformIds。
+   */
   const platformIds = new Set(hotsearchPlatformsList().map((item) => item.id));
   if (!Array.isArray(input)) {
     return hotsearchSettingsDefaultCreate().platformIds;
   }
 
+  /**
+   * 函数：normalized。
+   */
   const normalized = input
     .map((item) => Number(item))
     .filter((item) => Number.isInteger(item) && platformIds.has(item))
@@ -722,13 +815,37 @@ const hotsearchPlatformIdsNormalize = (input: unknown): number[] => {
  * @returns {ISettingsHotsearch} 归一化后的设置。
  */
 export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch => {
+  /**
+   * 常量：defaults。
+   */
   const defaults = hotsearchSettingsDefaultCreate();
+  /**
+   * 常量：source。
+   */
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+  /**
+   * 常量：legacyPlatformIntervalMinutes。
+   */
   const legacyPlatformIntervalMinutes = hotsearchIntegerNormalize(source.platformIntervalMinutes, defaults.platformIntervalSeconds / 60, 1, 120);
+  /**
+   * 常量：legacyPodcastBufferMinutes。
+   */
   const legacyPodcastBufferMinutes = hotsearchIntegerNormalize(source.podcastBufferMinutes, Math.trunc(defaults.podcastBufferSeconds / 60), 0, 240);
+  /**
+   * 常量：legacyRetryDelayMinutes。
+   */
   const legacyRetryDelayMinutes = hotsearchIntegerNormalize(source.retryDelayMinutes, Math.trunc(defaults.retryDelaySeconds / 60), 1, 240);
+  /**
+   * 常量：podcastTemplateItems。
+   */
   const podcastTemplateItems = hotsearchPodcastTemplateItemsNormalize(source.podcastTemplateItems);
+  /**
+   * 常量：podcastMaleSpeakerName。
+   */
   const podcastMaleSpeakerName = hotsearchPodcastSpeakerNameNormalize(source.podcastMaleSpeakerName, defaults.podcastMaleSpeakerName);
+  /**
+   * 常量：podcastFemaleSpeakerName。
+   */
   const podcastFemaleSpeakerName = hotsearchPodcastSpeakerNameNormalize(source.podcastFemaleSpeakerName, defaults.podcastFemaleSpeakerName);
 
   return {
@@ -761,8 +878,17 @@ export const hotsearchSettingsNormalize = (input: unknown): ISettingsHotsearch =
  * @returns {ISettingsHotsearchLocal} 归一化后的本地设置。
  */
 export const hotsearchLocalSettingsNormalize = (input: unknown): ISettingsHotsearchLocal => {
+  /**
+   * 常量：defaults。
+   */
   const defaults = hotsearchLocalSettingsDefaultCreate();
+  /**
+   * 常量：shared。
+   */
   const shared = hotsearchSettingsNormalize(input);
+  /**
+   * 常量：source。
+   */
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
 
   return {
@@ -777,15 +903,30 @@ export const hotsearchLocalSettingsNormalize = (input: unknown): ISettingsHotsea
  * @returns {ISettingsHotsearchPodcastGenerateOwner | null} 归一化后的占用信息。
  */
 export const hotsearchPodcastGenerateOwnerNormalize = (input: unknown): ISettingsHotsearchPodcastGenerateOwner | null => {
+  /**
+   * 常量：source。
+   */
   const source = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : null;
 
   if (!source) {
     return null;
   }
 
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(source.machineCode ?? '').trim();
+  /**
+   * 常量：machineName。
+   */
   const machineName = String(source.machineName ?? '').trim();
+  /**
+   * 常量：enabledAt。
+   */
   const enabledAt = String(source.enabledAt ?? '').trim();
+  /**
+   * 函数：updatedAt。
+   */
   const updatedAt = String(source.updatedAt ?? '').trim();
 
   if (machineCode === '' || machineName === '') {
@@ -807,7 +948,13 @@ export const hotsearchPodcastGenerateOwnerNormalize = (input: unknown): ISetting
  * @returns {number} 预计窗口耗时。
  */
 export const hotsearchWindowDurationSecondsGet = (platformCount: number, intervalSeconds: number): number => {
+  /**
+   * 常量：count。
+   */
   const count = Math.max(0, Math.trunc(platformCount));
+  /**
+   * 常量：interval。
+   */
   const interval = Math.max(1, Math.trunc(intervalSeconds));
   return count <= 0 ? 0 : count * interval;
 };
@@ -829,12 +976,30 @@ export const hotsearchWindowDurationMinutesGet = (platformCount: number, interva
  * @returns {string} 结果时间。
  */
 export const hotsearchTimeAddSeconds = (time: string, seconds: number): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchTimeNormalize(time, '00:00');
   const [hourText, minuteText] = normalized.split(':');
+  /**
+   * 常量：baseSeconds。
+   */
   const baseSeconds = Number(hourText) * 3600 + Number(minuteText) * 60;
+  /**
+   * 常量：nextSeconds。
+   */
   const nextSeconds = (((baseSeconds + Math.max(0, Math.trunc(seconds))) % 86400) + 86400) % 86400;
+  /**
+   * 常量：nextHour。
+   */
   const nextHour = Math.floor(nextSeconds / 3600);
+  /**
+   * 常量：nextMinute。
+   */
   const nextMinute = Math.floor((nextSeconds % 3600) / 60);
+  /**
+   * 常量：nextSecond。
+   */
   const nextSecond = nextSeconds % 60;
 
   if (nextSecond === 0) {
@@ -851,11 +1016,26 @@ export const hotsearchTimeAddSeconds = (time: string, seconds: number): string =
  * @returns {string} 结果时间。
  */
 export const hotsearchTimeAddMinutes = (time: string, minutes: number): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = hotsearchTimeNormalize(time, '00:00');
   const [hourText, minuteText] = normalized.split(':');
+  /**
+   * 常量：baseMinutes。
+   */
   const baseMinutes = Number(hourText) * 60 + Number(minuteText);
+  /**
+   * 常量：nextMinutes。
+   */
   const nextMinutes = (((baseMinutes + Math.max(0, Math.trunc(minutes))) % (24 * 60)) + 24 * 60) % (24 * 60);
+  /**
+   * 常量：nextHour。
+   */
   const nextHour = Math.floor(nextMinutes / 60);
+  /**
+   * 常量：nextMinute。
+   */
   const nextMinute = nextMinutes % 60;
   return `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
 };
@@ -867,6 +1047,9 @@ export const hotsearchTimeAddMinutes = (time: string, minutes: number): string =
  * @returns {string} 建议播客时间。
  */
 export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, startAt: string): string => {
+  /**
+   * 常量：durationSeconds。
+   */
   const durationSeconds = hotsearchWindowDurationSecondsGet(settings.platformIds.length, settings.platformIntervalSeconds);
   return hotsearchTimeAddSeconds(startAt, durationSeconds + settings.podcastBufferSeconds);
 };
@@ -878,13 +1061,22 @@ export const hotsearchSuggestedPodcastTimeGet = (settings: ISettingsHotsearch, s
  * @returns {number} 预计积分消耗。
  */
 export const hotsearchEstimatedDayPointsGet = (platformCount: number, intervalSeconds: number): number => {
+  /**
+   * 常量：count。
+   */
   const count = Math.max(0, Math.trunc(platformCount));
+  /**
+   * 常量：windowDurationSeconds。
+   */
   const windowDurationSeconds = hotsearchWindowDurationSecondsGet(platformCount, intervalSeconds);
 
   if (count <= 0 || windowDurationSeconds <= 0) {
     return 0;
   }
 
+  /**
+   * 常量：fullRoundsPerDay。
+   */
   const fullRoundsPerDay = Math.max(1, Math.floor(86400 / windowDurationSeconds));
   return fullRoundsPerDay * count;
 };
@@ -897,6 +1089,9 @@ export const hotsearchEstimatedDayPointsGet = (platformCount: number, intervalSe
  * @returns {number} 预计积分消耗。
  */
 export const hotsearchEstimatedMonthPointsGet = (platformCount: number, intervalSeconds: number, daysInMonth: number): number => {
+  /**
+   * 常量：days。
+   */
   const days = Math.max(1, Math.trunc(daysInMonth));
   return hotsearchEstimatedDayPointsGet(platformCount, intervalSeconds) * days;
 };

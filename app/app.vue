@@ -51,6 +51,9 @@ const computedDir = computed(() => locales[locale.value].dir);
  * 计算属性：主题颜色
  */
 const computedColor = computed(() => {
+  /**
+   * 常量：neutralKey。
+   */
   const neutralKey = appConfig.ui.colors.neutral as keyof typeof colors;
   return colorMode.value === 'dark' ? (colors[neutralKey] && typeof colors[neutralKey] === 'object' ? colors[neutralKey][900] : 'black') : 'white';
 });
@@ -168,9 +171,15 @@ const toRecord = (input: unknown): Record<string, unknown> | null => {
  * @returns {string} 远端地址；未配置公开域名时返回空字符串
  */
 const startupHotsearchHeadMusicRemoteUrlBuild = (path: string): string => {
+  /**
+   * 常量：domain。
+   */
   const domain = String(runtimeConfig.public.upyunFilesDomain || '')
     .trim()
     .replace(/\/+$/, '');
+  /**
+   * 函数：normalizedPath。
+   */
   const normalizedPath = String(path || '').trim();
 
   if (!domain || !normalizedPath) {
@@ -210,11 +219,17 @@ const startupHotsearchHeadMusicRemotePathGet = (kind: THotsearchPodcastHeadMusic
  * @returns {Promise<void>} 无返回值
  */
 const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHeadMusicKind, hotsearch: ISettingsHotsearchLocal): Promise<void> => {
+  /**
+   * 常量：remotePath。
+   */
   const remotePath = startupHotsearchHeadMusicRemotePathGet(kind, hotsearch);
   if (!remotePath) {
     throw new Error('hotsearch head music path missing');
   }
 
+  /**
+   * 常量：url。
+   */
   let url = startupHotsearchHeadMusicRemoteUrlBuild(remotePath);
 
   if (!url) {
@@ -233,11 +248,17 @@ const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHe
     throw new Error('hotsearch head music url missing');
   }
 
+  /**
+   * 常量：response。
+   */
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('hotsearch head music download failed');
   }
 
+  /**
+   * 常量：bytes。
+   */
   const bytes = new Uint8Array(await response.arrayBuffer());
   await hotsearchPodcastHeadMusicWrite(kind, Array.from(bytes));
 };
@@ -247,15 +268,30 @@ const startupHotsearchHeadMusicSyncFromRemote = async (kind: THotsearchPodcastHe
  * @returns {Promise<void>} 无返回值
  */
 const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
+  /**
+   * 函数：settings。
+   */
   const settings = await settingsGet();
+  /**
+   * 常量：hotsearch。
+   */
   const hotsearch = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
 
   if (!hotsearch.podcastGenerateEnabled) {
     return;
   }
 
+  /**
+   * 常量：machine。
+   */
   const machine = toRecord((settings as Record<string, unknown>).machine) ?? {};
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(machine.code ?? '').trim();
+  /**
+   * 常量：machineName。
+   */
   let machineName = String(machine.name ?? '').trim();
 
   if (!machineName) {
@@ -276,6 +312,9 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：owner。
+   */
   const owner = await startupHotsearchPodcastGenerateOwnerRefresh();
   if (owner && owner.machineCode !== machineCode) {
     await settingsUpdate({
@@ -295,6 +334,9 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：remoteExistsList。
+   */
   const remoteExistsList = HOTSEARCH_PODCAST_HEAD_MUSIC_KINDS.map((kind) => startupHotsearchHeadMusicRemotePathGet(kind, hotsearch) !== '');
   if (remoteExistsList.some((exists) => !exists)) {
     await settingsUpdate({
@@ -306,7 +348,13 @@ const startupHotsearchPodcastGenerateSync = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：localExistsResults。
+   */
   const localExistsResults = await pathsExistGet([headMusicPaths.normalPath, headMusicPaths.vipPath]);
+  /**
+   * 常量：localExistsMap。
+   */
   const localExistsMap = localExistsResults.reduce<Record<string, boolean>>((acc, item) => {
     acc[String(item.path || '').trim()] = Boolean(item.exists);
     return acc;
@@ -350,15 +398,36 @@ const handleHotsearchAttachmentsDirPick = async (_picked: string): Promise<void>
  * @returns {IPageSettingsUnattendedMachineNetworkGroups} 分组结构
  */
 const networkSnapshotToGroups = (snapshot: IPageSettingsUnattendedMachineNetworkSnapshot | null): IPageSettingsUnattendedMachineNetworkGroups => {
+  /**
+   * 常量：interfaces。
+   */
   const interfaces = Array.isArray(snapshot?.interfaces) ? snapshot!.interfaces : [];
+  /**
+   * 常量：groups。
+   */
   const groups = interfaces
     .map((iface) => {
+      /**
+       * 常量：name。
+       */
       const name = String(iface?.name ?? '').trim() || '-';
+      /**
+       * 常量：ips。
+       */
       const ips = Array.isArray(iface?.ips) ? iface.ips : [];
 
+      /**
+       * 常量：cleaned。
+       */
       const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
 
+      /**
+       * 常量：ipv4。
+       */
       const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      /**
+       * 常量：ipv6。
+       */
       const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
 
       return { name, ipv4, ipv6 };
@@ -388,7 +457,13 @@ const sharedSettingsSyncOnStartup = async (): Promise<void> => {
   try {
     await refreshHotsearchRemoteGet({ ignoreResponseError: true });
     if (stateHotsearchRemoteConfig.value) {
+      /**
+       * 函数：settings。
+       */
       const settings = await settingsGet();
+      /**
+       * 常量：currentLocalSettings。
+       */
       const currentLocalSettings = hotsearchLocalSettingsNormalize((settings as Record<string, unknown>).hotsearch);
 
       await settingsUpdate({
@@ -426,11 +501,17 @@ const sharedSettingsSyncOnStartup = async (): Promise<void> => {
  * @returns {Promise<Record<string, boolean>>} 路径存在性映射
  */
 const startupExecExistsMapBuild = async (paths: string[]): Promise<Record<string, boolean>> => {
+  /**
+   * 常量：uniquePaths。
+   */
   const uniquePaths = Array.from(new Set(paths.map((item) => String(item || '').trim()).filter((item) => item !== '')));
   if (uniquePaths.length === 0) {
     return {};
   }
 
+  /**
+   * 常量：results。
+   */
   const results = await pathsExistGet(uniquePaths);
   return results.reduce<Record<string, boolean>>((acc, item) => {
     acc[String(item.path || '').trim()] = Boolean(item.exists);
@@ -447,6 +528,9 @@ const startupExecExistsMapBuild = async (paths: string[]): Promise<Record<string
  * @returns {Promise<void>} 无返回值
  */
 const startupScenesPersistLocalAndRemote = async (machineCode: string, machineName: string, items: IPageSettingsUnattendedScenesItem[], rollbackState: ISettingsUnattendedScenesLocal): Promise<void> => {
+  /**
+   * 常量：nextLocal。
+   */
   const nextLocal = {
     updatedAt: new Date().toISOString(),
     items: unattendedScenesItemsNormalize(items)
@@ -504,13 +588,25 @@ const unattendedScenesSyncOnStartup = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：machine。
+   */
   const machine = toRecord(settings.machine) ?? {};
+  /**
+   * 常量：unattended。
+   */
   const unattended = toRecord(settings.unattended) ?? {};
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(machine.code ?? '').trim();
   if (!machineCode) {
     return;
   }
 
+  /**
+   * 常量：machineName。
+   */
   let machineName = String(machine.name ?? '').trim();
   if (!machineName) {
     try {
@@ -526,7 +622,13 @@ const unattendedScenesSyncOnStartup = async (): Promise<void> => {
     // ignore
   }
 
+  /**
+   * 常量：local。
+   */
   const local = unattendedScenesLocalNormalize(unattended.scenes);
+  /**
+   * 常量：remote。
+   */
   const remote = stateScenesRemoteFetched.value
     ? {
         ...stateScenesRemoteFetched.value,
@@ -538,14 +640,26 @@ const unattendedScenesSyncOnStartup = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：paths。
+   */
   const paths = [...local.items.map((item) => item.execPath), ...(Array.isArray(remote?.items) ? remote.items.map((item) => item.execPath) : [])];
+  /**
+   * 常量：execExistsByPath。
+   */
   const execExistsByPath = await startupExecExistsMapBuild(paths);
+  /**
+   * 常量：entries。
+   */
   const entries = unattendedScenesSyncEntriesBuild({ local, remote, execExistsByPath });
 
   if (entries.every((entry) => entry.status === 'same')) {
     return;
   }
 
+  /**
+   * 常量：choice。
+   */
   const choice = await unattendedScenesSyncRequest({
     machineCode,
     machineName: String(machineName || remote?.machineName || '').trim(),
@@ -564,6 +678,9 @@ const unattendedScenesSyncOnStartup = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 函数：mergedItems。
+   */
   const mergedItems = unattendedScenesMergePreferLocal(local.items, unattendedScenesItemsNormalize(remote?.items));
   await startupScenesPersistLocalAndRemote(machineCode, machineName, mergedItems, local);
 };
@@ -592,12 +709,21 @@ const unattendedStartupReportOnce = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：machine。
+   */
   const machine = toRecord(settings.machine) ?? {};
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(machine.code ?? '').trim();
   if (!machineCode) {
     return;
   }
 
+  /**
+   * 常量：machineName。
+   */
   let machineName = String(machine.name ?? '').trim();
   if (!machineName) {
     try {
@@ -614,6 +740,9 @@ const unattendedStartupReportOnce = async (): Promise<void> => {
     // ignore
   }
 
+  /**
+   * 常量：network。
+   */
   const network = networkSnapshotToGroups(snapshot);
 
   try {
@@ -648,7 +777,13 @@ const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：apiBase。
+   */
   const apiBase = String(runtimeConfig.public.apiBase || '').trim();
+  /**
+   * 常量：signAesSeed。
+   */
   const signAesSeed = String(runtimeConfig.public.signAesSeed || '').trim();
   if (!apiBase && !signAesSeed) {
     console.warn('[tauri-api-client] runtime config missing', {
@@ -658,6 +793,9 @@ const tauriApiClientConfigSyncOnce = async (): Promise<void> => {
     return;
   }
 
+  /**
+   * 常量：currentConfig。
+   */
   const currentConfig = await tauriApiClientConfigGet();
   const nextPatch: IApiClientConfigPatch = {};
 
@@ -691,10 +829,25 @@ watch(
  * 函数：从 localStorage 加载并应用主题设置。
  */
 const loadSettings = (): void => {
+  /**
+   * 常量：mode。
+   */
   const mode = localStorage.getItem('app-theme-mode');
+  /**
+   * 常量：primary。
+   */
   const primary = localStorage.getItem('app-theme-primary');
+  /**
+   * 常量：neutral。
+   */
   const neutral = localStorage.getItem('app-theme-neutral');
+  /**
+   * 常量：radius。
+   */
   const radius = localStorage.getItem('app-theme-radius');
+  /**
+   * 常量：blackAsPrimary。
+   */
   const blackAsPrimary = localStorage.getItem('app-theme-black-as-primary');
 
   if (mode) {

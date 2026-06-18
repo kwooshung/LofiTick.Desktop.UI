@@ -25,12 +25,33 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateEventName。
+ */
 const stateEventName = ref('click');
+/**
+ * 状态：stateBubbles。
+ */
 const stateBubbles = ref(true);
+/**
+ * 状态：stateCancelable。
+ */
 const stateCancelable = ref(true);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -44,6 +65,9 @@ const leftPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateAllowedEventValues。
+ */
 const stateAllowedEventValues = ['click', 'dblclick', 'mousedown', 'mouseup', 'mouseenter', 'mouseleave', 'mousemove', 'input', 'change', 'focus', 'blur', 'keydown', 'keyup', 'keypress', 'submit'] as const;
 
 const rightPins: IBasicSidePin[] = [
@@ -65,6 +89,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateEventNameOptions。
+ */
 const stateEventNameOptions = computed(() => {
   return [
     {
@@ -135,6 +162,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateEventName.value = stateAllowedEventValues.includes(String(data.eventName) as (typeof stateAllowedEventValues)[number]) ? String(data.eventName) : 'click';
   stateBubbles.value = Boolean(data.bubbles ?? true);

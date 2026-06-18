@@ -473,6 +473,9 @@ const computedCanGeneratePodcastScript = computed(() => statePodcastScriptBodyIt
  * 计算属性：是否正在处理播客音频任务。
  */
 const computedPodcastAudioBusy = computed(() => {
+  /**
+   * 常量：status。
+   */
   const status = statePodcastTaskSnapshot.value?.status;
   return statePodcastAudioLoading.value || status === 'accepted' || status === 'running';
 });
@@ -503,6 +506,9 @@ const computedPodcastOutputDirectory = computed(() => podcastOutputDirectoryGet(
  * 计算属性：播客任务提示标题。
  */
 const computedPodcastTaskTitle = computed(() => {
+  /**
+   * 常量：status。
+   */
   const status = statePodcastTaskSnapshot.value?.status;
 
   if (!status) {
@@ -520,6 +526,9 @@ const computedPodcastTaskTitle = computed(() => {
  * 计算属性：播客任务提示颜色。
  */
 const computedPodcastTaskColor = computed(() => {
+  /**
+   * 常量：status。
+   */
   const status = statePodcastTaskSnapshot.value?.status;
 
   if (status === 'succeeded') {
@@ -551,6 +560,9 @@ const handleSendWelcomeEmail = async (): Promise<void> => {
   try {
     await refreshWelcomeEmail({ datas: { locale: locale.value }, replace: true });
 
+    /**
+     * 常量：payload。
+     */
     const payload = stateWelcomeEmailDatas.value;
     if (!payload || !payload.subject || !payload.html) {
       throw new Error('welcome payload missing');
@@ -597,6 +609,9 @@ const resetPodcastAudioState = (): void => {
  * @returns {string} 输出目录
  */
 const podcastOutputDirectoryGet = (finalFilePath: string): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = String(finalFilePath || '').trim();
   if (!normalized) {
     return '';
@@ -628,6 +643,9 @@ const podcastAudioErrorRawGet = (input: unknown): string => {
  * @returns {string} 面向用户的错误提示
  */
 const podcastAudioErrorMessageFormat = (input: unknown): string => {
+  /**
+   * 常量：raw。
+   */
   const raw = podcastAudioErrorRawGet(input);
   if (!raw) {
     return t('pages.home.podcastScript.result.audio.errorFallback');
@@ -726,6 +744,9 @@ const handlePodcastBodyItemRemove = (index: number): void => {
  * @returns {void} 无返回值
  */
 const handlePodcastBodyItemVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastScriptBodyItems.value[index];
 
   if (!item) {
@@ -742,6 +763,9 @@ const handlePodcastBodyItemVoiceUpdate = (index: number, value: THotsearchPodcas
  * @returns {void} 无返回值
  */
 const handlePodcastBodyItemContentUpdate = (index: number, value: string): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastScriptBodyItems.value[index];
 
   if (!item) {
@@ -775,6 +799,9 @@ const handlePodcastAdOpeningItemRemove = (index: number): void => {
  * @returns {void} 无返回值
  */
 const handlePodcastAdOpeningVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastAdOpeningItems.value[index];
 
   if (!item) {
@@ -791,6 +818,9 @@ const handlePodcastAdOpeningVoiceUpdate = (index: number, value: THotsearchPodca
  * @returns {void} 无返回值
  */
 const handlePodcastAdOpeningContentUpdate = (index: number, value: string): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastAdOpeningItems.value[index];
 
   if (!item) {
@@ -824,6 +854,9 @@ const handlePodcastAdClosingItemRemove = (index: number): void => {
  * @returns {void} 无返回值
  */
 const handlePodcastAdClosingVoiceUpdate = (index: number, value: THotsearchPodcastVoiceKey): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastAdClosingItems.value[index];
 
   if (!item) {
@@ -840,6 +873,9 @@ const handlePodcastAdClosingVoiceUpdate = (index: number, value: THotsearchPodca
  * @returns {void} 无返回值
  */
 const handlePodcastAdClosingContentUpdate = (index: number, value: string): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastAdClosingItems.value[index];
 
   if (!item) {
@@ -856,6 +892,9 @@ const handlePodcastAdClosingContentUpdate = (index: number, value: string): void
  * @returns {void} 无返回值
  */
 const handlePodcastBodyItemSegmentTypeUpdate = (index: number, value: THotsearchPodcastSegmentType): void => {
+  /**
+   * 常量：item。
+   */
   const item = statePodcastScriptBodyItems.value[index];
 
   if (!item) {
@@ -904,6 +943,9 @@ const handlePodcastAudioGenerate = async (): Promise<void> => {
   statePodcastAudioError.value = '';
 
   try {
+    /**
+     * 常量：accepted。
+     */
     const accepted = await hotsearchScript.generate(statePodcastScriptDatas.value);
     statePodcastAudioAccepted.value = accepted;
     statePodcastTaskSnapshot.value = await tauriPodcast.taskGet(accepted.taskId);

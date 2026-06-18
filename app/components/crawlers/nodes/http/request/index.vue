@@ -167,28 +167,88 @@ import type { IHttpRequestFormPair, IHttpRequestKeyValuePair } from '@/component
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { edges } = useVueFlow();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateMethod。
+ */
 const stateMethod = ref('GET');
+/**
+ * 状态：stateUrl。
+ */
 const stateUrl = ref('');
+/**
+ * 状态：stateQuery。
+ */
 const stateQuery = ref('');
+/**
+ * 状态：stateHeaders。
+ */
 const stateHeaders = ref('');
+/**
+ * 状态：stateQueryPairs。
+ */
 const stateQueryPairs = ref<IHttpRequestKeyValuePair[]>([]);
+/**
+ * 状态：stateHeaderPairs。
+ */
 const stateHeaderPairs = ref<IHttpRequestKeyValuePair[]>([]);
+/**
+ * 状态：stateBodyType。
+ */
 const stateBodyType = ref('none');
+/**
+ * 状态：stateBody。
+ */
 const stateBody = ref('');
+/**
+ * 状态：stateReferer。
+ */
 const stateReferer = ref('');
+/**
+ * 状态：stateCookie。
+ */
 const stateCookie = ref('');
+/**
+ * 状态：stateJsonError。
+ */
 const stateJsonError = ref('');
+/**
+ * 状态：stateFormPairs。
+ */
 const stateFormPairs = ref<IHttpRequestFormPair[]>([]);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(15000);
+/**
+ * 状态：stateRetryCount。
+ */
 const stateRetryCount = ref(0);
+/**
+ * 状态：stateFollowRedirect。
+ */
 const stateFollowRedirect = ref(true);
 
+/**
+ * 函数：createFormPair。
+ */
 const createFormPair = (key: string = '', value: string = ''): IHttpRequestFormPair => {
+  /**
+   * 常量：pairId。
+   */
   const pairId = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
   return {
@@ -198,7 +258,13 @@ const createFormPair = (key: string = '', value: string = ''): IHttpRequestFormP
   };
 };
 
+/**
+ * 函数：createKeyValuePair。
+ */
 const createKeyValuePair = (key: string = '', value: string = ''): IHttpRequestKeyValuePair => {
+  /**
+   * 常量：pairId。
+   */
   const pairId = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
   return {
@@ -208,6 +274,9 @@ const createKeyValuePair = (key: string = '', value: string = ''): IHttpRequestK
   };
 };
 
+/**
+ * 常量：keyValuePairsNormalize。
+ */
 const keyValuePairsNormalize = (input: unknown): IHttpRequestKeyValuePair[] => {
   if (!Array.isArray(input)) {
     return [];
@@ -215,6 +284,9 @@ const keyValuePairsNormalize = (input: unknown): IHttpRequestKeyValuePair[] => {
 
   return input
     .map((item) => {
+      /**
+       * 常量：src。
+       */
       const src = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : null;
 
       if (!src) {
@@ -226,13 +298,22 @@ const keyValuePairsNormalize = (input: unknown): IHttpRequestKeyValuePair[] => {
     .filter((item): item is IHttpRequestKeyValuePair => item !== null);
 };
 
+/**
+ * 常量：queryPairsFromText。
+ */
 const queryPairsFromText = (queryText: string): IHttpRequestKeyValuePair[] => {
+  /**
+   * 常量：query。
+   */
   const query = String(queryText ?? '').trim();
 
   if (query === '') {
     return [createKeyValuePair()];
   }
 
+  /**
+   * 常量：params。
+   */
   const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
   const pairs: IHttpRequestKeyValuePair[] = [];
 
@@ -243,10 +324,19 @@ const queryPairsFromText = (queryText: string): IHttpRequestKeyValuePair[] => {
   return pairs.length > 0 ? pairs : [createKeyValuePair()];
 };
 
+/**
+ * 常量：queryPairsToText。
+ */
 const queryPairsToText = (pairs: IHttpRequestKeyValuePair[]): string => {
+  /**
+   * 常量：params。
+   */
   const params = new URLSearchParams();
 
   for (const pair of pairs) {
+    /**
+     * 常量：key。
+     */
     const key = String(pair.key ?? '').trim();
 
     if (key === '') {
@@ -259,7 +349,13 @@ const queryPairsToText = (pairs: IHttpRequestKeyValuePair[]): string => {
   return params.toString();
 };
 
+/**
+ * 常量：headerPairsFromText。
+ */
 const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] => {
+  /**
+   * 常量：text。
+   */
   const text = String(headersText ?? '').trim();
 
   if (text === '') {
@@ -267,8 +363,14 @@ const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] =>
   }
 
   try {
+    /**
+     * 常量：jsonValue。
+     */
     const jsonValue = JSON.parse(text) as unknown;
     if (jsonValue && typeof jsonValue === 'object' && !Array.isArray(jsonValue)) {
+      /**
+       * 常量：entries。
+       */
       const entries = Object.entries(jsonValue as Record<string, unknown>).map(([key, value]) => createKeyValuePair(key, String(value ?? '')));
 
       return entries.length > 0 ? entries : [createKeyValuePair()];
@@ -277,6 +379,9 @@ const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] =>
     // 忽略 JSON 解析失败，继续按 header 行解析。
   }
 
+  /**
+   * 常量：lines。
+   */
   const lines = text
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -284,6 +389,9 @@ const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] =>
   const pairs: IHttpRequestKeyValuePair[] = [];
 
   for (const line of lines) {
+    /**
+     * 常量：splitIndex。
+     */
     const splitIndex = line.indexOf(':');
 
     if (splitIndex < 0) {
@@ -291,7 +399,13 @@ const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] =>
       continue;
     }
 
+    /**
+     * 常量：key。
+     */
     const key = line.slice(0, splitIndex).trim();
+    /**
+     * 常量：value。
+     */
     const value = line.slice(splitIndex + 1).trim();
     pairs.push(createKeyValuePair(key, value));
   }
@@ -299,10 +413,16 @@ const headerPairsFromText = (headersText: string): IHttpRequestKeyValuePair[] =>
   return pairs.length > 0 ? pairs : [createKeyValuePair()];
 };
 
+/**
+ * 常量：headerPairsToText。
+ */
 const headerPairsToText = (pairs: IHttpRequestKeyValuePair[]): string => {
   const lines: string[] = [];
 
   for (const pair of pairs) {
+    /**
+     * 常量：key。
+     */
     const key = String(pair.key ?? '').trim();
 
     if (key === '') {
@@ -315,22 +435,34 @@ const headerPairsToText = (pairs: IHttpRequestKeyValuePair[]): string => {
   return lines.join('\n');
 };
 
+/**
+ * 常量：ensureQueryPairsReady。
+ */
 const ensureQueryPairsReady = (): void => {
   if (stateQueryPairs.value.length === 0) {
     stateQueryPairs.value = queryPairsFromText(stateQuery.value);
   }
 };
 
+/**
+ * 常量：ensureHeaderPairsReady。
+ */
 const ensureHeaderPairsReady = (): void => {
   if (stateHeaderPairs.value.length === 0) {
     stateHeaderPairs.value = headerPairsFromText(stateHeaders.value);
   }
 };
 
+/**
+ * 常量：addQueryPair。
+ */
 const addQueryPair = (): void => {
   stateQueryPairs.value.push(createKeyValuePair());
 };
 
+/**
+ * 函数：removeQueryPair。
+ */
 const removeQueryPair = (index: number): void => {
   if (stateQueryPairs.value.length <= 1) {
     stateQueryPairs.value = [createKeyValuePair()];
@@ -340,10 +472,16 @@ const removeQueryPair = (index: number): void => {
   stateQueryPairs.value.splice(index, 1);
 };
 
+/**
+ * 常量：addHeaderPair。
+ */
 const addHeaderPair = (): void => {
   stateHeaderPairs.value.push(createKeyValuePair());
 };
 
+/**
+ * 函数：removeHeaderPair。
+ */
 const removeHeaderPair = (index: number): void => {
   if (stateHeaderPairs.value.length <= 1) {
     stateHeaderPairs.value = [createKeyValuePair()];
@@ -353,8 +491,17 @@ const removeHeaderPair = (index: number): void => {
   stateHeaderPairs.value.splice(index, 1);
 };
 
+/**
+ * 常量：applyHeaderPreset。
+ */
 const applyHeaderPreset = (key: string, value: string): void => {
+  /**
+   * 常量：keyLower。
+   */
   const keyLower = key.toLowerCase();
+  /**
+   * 常量：existing。
+   */
   const existing = stateHeaderPairs.value.find(
     (item) =>
       String(item.key ?? '')
@@ -367,8 +514,17 @@ const applyHeaderPreset = (key: string, value: string): void => {
     return;
   }
 
+  /**
+   * 常量：emptyPair。
+   */
   const emptyPair = stateHeaderPairs.value.find((item) => {
+    /**
+     * 常量：itemKey。
+     */
     const itemKey = String(item.key ?? '').trim();
+    /**
+     * 常量：itemValue。
+     */
     const itemValue = String(item.value ?? '').trim();
 
     return itemKey === '' && itemValue === '';
@@ -383,7 +539,13 @@ const applyHeaderPreset = (key: string, value: string): void => {
   stateHeaderPairs.value.push(createKeyValuePair(key, value));
 };
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '');
 
   if (nodeId === '') {
@@ -393,17 +555,50 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 计算属性：computedHasMethodInput。
+ */
 const computedHasMethodInput = computed(() => hasTargetPinConnection('method-input'));
+/**
+ * 计算属性：computedHasUrlInput。
+ */
 const computedHasUrlInput = computed(() => hasTargetPinConnection('url-input'));
+/**
+ * 计算属性：computedHasQueryInput。
+ */
 const computedHasQueryInput = computed(() => hasTargetPinConnection('query-input'));
+/**
+ * 计算属性：computedHasHeadersInput。
+ */
 const computedHasHeadersInput = computed(() => hasTargetPinConnection('headers-input'));
+/**
+ * 计算属性：computedHasRefererInput。
+ */
 const computedHasRefererInput = computed(() => hasTargetPinConnection('referer-input'));
+/**
+ * 计算属性：computedHasCookieInput。
+ */
 const computedHasCookieInput = computed(() => hasTargetPinConnection('cookie-input'));
+/**
+ * 计算属性：computedHasBodyInput。
+ */
 const computedHasBodyInput = computed(() => hasTargetPinConnection('body-input'));
+/**
+ * 计算属性：computedHasTimeoutInput。
+ */
 const computedHasTimeoutInput = computed(() => hasTargetPinConnection('timeout-ms-input'));
+/**
+ * 计算属性：computedHasRetryInput。
+ */
 const computedHasRetryInput = computed(() => hasTargetPinConnection('retry-count-input'));
+/**
+ * 计算属性：computedHasFollowRedirectInput。
+ */
 const computedHasFollowRedirectInput = computed(() => hasTargetPinConnection('follow-redirect-input'));
 
+/**
+ * 常量：formPairsNormalize。
+ */
 const formPairsNormalize = (input: unknown): IHttpRequestFormPair[] => {
   if (!Array.isArray(input)) {
     return [];
@@ -411,6 +606,9 @@ const formPairsNormalize = (input: unknown): IHttpRequestFormPair[] => {
 
   return input
     .map((item) => {
+      /**
+       * 常量：src。
+       */
       const src = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : null;
 
       if (!src) {
@@ -422,7 +620,13 @@ const formPairsNormalize = (input: unknown): IHttpRequestFormPair[] => {
     .filter((item): item is IHttpRequestFormPair => item !== null);
 };
 
+/**
+ * 常量：formPairsFromBody。
+ */
 const formPairsFromBody = (bodyText: string): IHttpRequestFormPair[] => {
+  /**
+   * 常量：body。
+   */
   const body = String(bodyText ?? '').trim();
 
   if (body === '') {
@@ -430,8 +634,14 @@ const formPairsFromBody = (bodyText: string): IHttpRequestFormPair[] => {
   }
 
   try {
+    /**
+     * 常量：jsonValue。
+     */
     const jsonValue = JSON.parse(body) as unknown;
     if (jsonValue && typeof jsonValue === 'object' && !Array.isArray(jsonValue)) {
+      /**
+       * 常量：entries。
+       */
       const entries = Object.entries(jsonValue as Record<string, unknown>).map(([key, value]) => createFormPair(key, String(value ?? '')));
 
       return entries.length > 0 ? entries : [createFormPair()];
@@ -440,6 +650,9 @@ const formPairsFromBody = (bodyText: string): IHttpRequestFormPair[] => {
     // 忽略 JSON 解析失败，继续尝试按 querystring 解析。
   }
 
+  /**
+   * 常量：params。
+   */
   const params = new URLSearchParams(body);
   const pairs: IHttpRequestFormPair[] = [];
 
@@ -450,10 +663,19 @@ const formPairsFromBody = (bodyText: string): IHttpRequestFormPair[] => {
   return pairs.length > 0 ? pairs : [createFormPair()];
 };
 
+/**
+ * 常量：formPairsToBody。
+ */
 const formPairsToBody = (pairs: IHttpRequestFormPair[]): string => {
+  /**
+   * 常量：params。
+   */
   const params = new URLSearchParams();
 
   for (const pair of pairs) {
+    /**
+     * 常量：key。
+     */
     const key = String(pair.key ?? '').trim();
 
     if (key === '') {
@@ -466,16 +688,25 @@ const formPairsToBody = (pairs: IHttpRequestFormPair[]): string => {
   return params.toString();
 };
 
+/**
+ * 常量：ensureFormPairsReady。
+ */
 const ensureFormPairsReady = (): void => {
   if (stateFormPairs.value.length === 0) {
     stateFormPairs.value = formPairsFromBody(stateBody.value);
   }
 };
 
+/**
+ * 常量：addFormPair。
+ */
 const addFormPair = (): void => {
   stateFormPairs.value.push(createFormPair());
 };
 
+/**
+ * 函数：removeFormPair。
+ */
 const removeFormPair = (index: number): void => {
   if (stateFormPairs.value.length <= 1) {
     stateFormPairs.value = [createFormPair()];
@@ -485,7 +716,13 @@ const removeFormPair = (index: number): void => {
   stateFormPairs.value.splice(index, 1);
 };
 
+/**
+ * 常量：validateJsonBody。
+ */
 const validateJsonBody = (): void => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(stateBody.value ?? '').trim();
 
   if (raw === '') {
@@ -501,7 +738,13 @@ const validateJsonBody = (): void => {
   }
 };
 
+/**
+ * 常量：formatJsonBody。
+ */
 const formatJsonBody = (): void => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(stateBody.value ?? '').trim();
 
   if (raw === '') {
@@ -510,6 +753,9 @@ const formatJsonBody = (): void => {
   }
 
   try {
+    /**
+     * 函数：parsed。
+     */
     const parsed = JSON.parse(raw) as unknown;
     stateBody.value = JSON.stringify(parsed, null, 2);
     stateJsonError.value = '';
@@ -644,6 +890,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateMethodOptions。
+ */
 const stateMethodOptions = computed(() => {
   return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].map((method) => {
     return {
@@ -653,6 +902,9 @@ const stateMethodOptions = computed(() => {
   });
 });
 
+/**
+ * 状态：stateBodyTypeOptions。
+ */
 const stateBodyTypeOptions = computed(() => {
   return [
     {
@@ -679,6 +931,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateMethod.value = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].includes(String(data.method)) ? String(data.method) : 'GET';
   stateUrl.value = String(data.url ?? '');

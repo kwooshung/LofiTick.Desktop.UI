@@ -15,16 +15,31 @@ import type { ICrawlersNodesCommonSelectorInputProps, TCrawlersNodesCommonSelect
 
 const { t } = useI18n();
 
+/**
+ * 常量：props。
+ */
 const props = defineProps<ICrawlersNodesCommonSelectorInputProps>();
 
+/**
+ * 常量：emit。
+ */
 const emit = defineEmits<{
   'update:modelValue': [value: string];
   'update:selectorType': [value: TCrawlersNodesCommonSelectorType];
 }>();
 
+/**
+ * 状态：stateMode。
+ */
 const stateMode = ref<TCrawlersNodesCommonSelectorType>('xpath');
+/**
+ * 状态：stateValue。
+ */
 const stateValue = ref('');
 
+/**
+ * 状态：stateModeOptions。
+ */
 const stateModeOptions = computed(() => {
   return [
     {
@@ -38,7 +53,13 @@ const stateModeOptions = computed(() => {
   ];
 });
 
+/**
+ * 计算属性：computedShowInvalidHint。
+ */
 const computedShowInvalidHint = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = stateValue.value.trim();
   if (value === '') {
     return false;

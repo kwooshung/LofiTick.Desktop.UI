@@ -104,7 +104,13 @@ const isLocalMachine = (machineCode: string): boolean => String(machineCode || '
  * @returns {string} 展示文本
  */
 const scenesCommandTextGet = (execPath: string, args: string[]): string => {
+  /**
+   * 常量：safeExecPath。
+   */
   const safeExecPath = String(execPath || '').trim();
+  /**
+   * 常量：safeArgs。
+   */
   const safeArgs = Array.isArray(args) ? args.map((item) => String(item)) : [];
 
   return [safeExecPath, ...safeArgs].filter((item) => String(item).trim() !== '').join(' ');

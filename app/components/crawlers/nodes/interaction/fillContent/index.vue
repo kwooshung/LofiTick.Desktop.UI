@@ -23,11 +23,29 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateContent。
+ */
 const stateContent = ref('');
+/**
+ * 状态：stateClearBefore。
+ */
 const stateClearBefore = ref(true);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -65,6 +83,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateContent.value = String(data.content ?? '');
   stateClearBefore.value = Boolean(data.clearBefore ?? true);

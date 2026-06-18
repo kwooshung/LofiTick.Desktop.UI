@@ -115,6 +115,9 @@ const computedLogs = computed(() => (Array.isArray(machine?.logs) ? machine.logs
  * 计算属性：当前页日志列表
  */
 const computedPagedLogs = computed(() => {
+  /**
+   * 常量：start。
+   */
   const start = (Math.max(statePage.value, 1) - 1) * LOGS_PAGE_SIZE;
   return computedLogs.value.slice(start, start + LOGS_PAGE_SIZE);
 });
@@ -143,6 +146,9 @@ watch(statePage, async () => {
  * @returns {'error' | 'warning' | 'success' | 'primary' | 'neutral'} 颜色
  */
 const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'primary' | 'neutral' => {
+  /**
+   * 常量：safeLevel。
+   */
   const safeLevel = String(level || '')
     .trim()
     .toLowerCase();
@@ -168,6 +174,9 @@ const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'primar
  * @returns {boolean} 是否为 ISO 日期时间
  */
 const isoDatetimeLikeGet = (value: string): boolean => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (!safeValue) {
     return false;
@@ -182,17 +191,32 @@ const isoDatetimeLikeGet = (value: string): boolean => {
  * @returns {TPageSettingsUnattendedLogMessageSegment[]} 切片列表
  */
 const logMessageSegmentsGet = (message: string): TPageSettingsUnattendedLogMessageSegment[] => {
+  /**
+   * 常量：safeMessage。
+   */
   const safeMessage = String(message || '');
   if (!safeMessage) {
     return [{ type: 'text', value: '-' }];
   }
 
+  /**
+   * 常量：matcher。
+   */
   const matcher = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/g;
   const segments: TPageSettingsUnattendedLogMessageSegment[] = [];
+  /**
+   * 常量：cursor。
+   */
   let cursor = 0;
 
   for (const match of safeMessage.matchAll(matcher)) {
+    /**
+     * 常量：index。
+     */
     const index = typeof match.index === 'number' ? match.index : -1;
+    /**
+     * 常量：value。
+     */
     const value = String(match[0] || '');
     if (index < 0 || !value) {
       continue;
@@ -219,11 +243,17 @@ const logMessageSegmentsGet = (message: string): TPageSettingsUnattendedLogMessa
  * @returns {{ key: string; value: string }[]} 键值对列表
  */
 const keyValuePairsGet = (text: string): { key: string; value: string }[] => {
+  /**
+   * 常量：safeText。
+   */
   const safeText = String(text || '').trim();
   if (!safeText) {
     return [];
   }
 
+  /**
+   * 常量：matches。
+   */
   const matches = Array.from(safeText.matchAll(/([^\s=]+)=/g));
   if (matches.length === 0) {
     return [];
@@ -231,9 +261,21 @@ const keyValuePairsGet = (text: string): { key: string; value: string }[] => {
 
   return matches
     .map((match, index) => {
+      /**
+       * 常量：key。
+       */
       const key = String(match[1] || '').trim();
+      /**
+       * 常量：start。
+       */
       const start = (match.index ?? 0) + match[0].length;
+      /**
+       * 常量：end。
+       */
       const end = index + 1 < matches.length ? (matches[index + 1].index ?? safeText.length) : safeText.length;
+      /**
+       * 常量：value。
+       */
       const value = safeText.slice(start, end).trim();
 
       return { key, value };
@@ -248,6 +290,9 @@ const keyValuePairsGet = (text: string): { key: string; value: string }[] => {
  * @returns {string} 文本
  */
 const logLocaleTextGet = (key: string, fallback: string): string => {
+  /**
+   * 常量：translated。
+   */
   const translated = String(t(key) || '');
   return translated && translated !== key ? translated : fallback;
 };
@@ -265,6 +310,9 @@ const logKeyLikeGet = (value: string): boolean => String(value || '').startsWith
  * @returns {string | null} i18n key
  */
 const logSummaryKeyGet = (summary: string): string | null => {
+  /**
+   * 常量：safeSummary。
+   */
   const safeSummary = String(summary || '').trim();
   const map: Record<string, string> = {
     哨兵状态已切换为在线: 'components.sentinel.scenes.card.logsMeta.summaries.sentinelStatusOnline',
@@ -287,6 +335,9 @@ const logSummaryKeyGet = (summary: string): string | null => {
  * @returns {string | null} i18n key
  */
 const logMessageKeyGet = (message: string): string | null => {
+  /**
+   * 常量：safeMessage。
+   */
   const safeMessage = String(message || '').trim();
   const map: Record<string, string> = {
     关闭前查询场景应用运行中进程失败: 'components.sentinel.scenes.card.logsMeta.messages.failedQueryRunningProcessBeforeShutdown',
@@ -319,6 +370,9 @@ const logMessageKeyGet = (message: string): string | null => {
  * @returns {string} 本地化后的正文
  */
 const logMessageTextLocalizedGet = (message: string): string => {
+  /**
+   * 常量：safeMessage。
+   */
   const safeMessage = String(message || '').trim();
   if (!safeMessage) {
     return '-';
@@ -328,6 +382,9 @@ const logMessageTextLocalizedGet = (message: string): string => {
     return logLocaleTextGet(safeMessage, safeMessage);
   }
 
+  /**
+   * 常量：key。
+   */
   const key = logMessageKeyGet(safeMessage);
   return key ? logLocaleTextGet(key, safeMessage) : safeMessage;
 };
@@ -338,6 +395,9 @@ const logMessageTextLocalizedGet = (message: string): string => {
  * @returns {string} 标签文本
  */
 const logEntryLabelGet = (key: string): string => {
+  /**
+   * 常量：safeKey。
+   */
   const safeKey = String(key || '').trim();
   const labelMap: Record<string, string> = {
     reason: 'components.sentinel.scenes.card.logsMeta.labels.reason',
@@ -363,6 +423,9 @@ const logEntryLabelGet = (key: string): string => {
  * @returns {string} 本地化后的值
  */
 const logKnownValueLocalizedGet = (value: string): string => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (!safeValue || safeValue === '-') {
     return safeValue || '-';
@@ -406,6 +469,9 @@ const logKnownValueLocalizedGet = (value: string): string => {
     执行场景应用重启: 'components.sentinel.scenes.card.logsMeta.values.executeSceneRestart'
   };
 
+  /**
+   * 常量：key。
+   */
   const key = keyMap[safeValue];
   return key ? logLocaleTextGet(key, safeValue) : safeValue;
 };
@@ -416,6 +482,9 @@ const logKnownValueLocalizedGet = (value: string): string => {
  * @returns {string} 本地化后的 reason
  */
 const logReasonLocalizedGet = (value: string): string => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (logKeyLikeGet(safeValue)) {
     return logLocaleTextGet(safeValue, safeValue);
@@ -442,7 +511,13 @@ const logReasonLocalizedGet = (value: string): string => {
  * @returns {string} 本地化后的值
  */
 const logEntryValueLocalizedGet = (key: string, value: string): string => {
+  /**
+   * 常量：safeKey。
+   */
   const safeKey = String(key || '').trim();
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (!safeValue || safeValue === '-' || isoDatetimeLikeGet(safeValue)) {
     return safeValue || '-';
@@ -461,7 +536,13 @@ const logEntryValueLocalizedGet = (key: string, value: string): string => {
  * @returns {IPageSettingsUnattendedStructuredLogMessage | null} 结构化结果
  */
 const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachineCard['logs'][number]): IPageSettingsUnattendedStructuredLogMessage | null => {
+  /**
+   * 常量：safeMessage。
+   */
   const safeMessage = String(item.message || '').trim();
+  /**
+   * 常量：safeArgs。
+   */
   const safeArgs = item.messageArgs ?? {};
 
   if (logKeyLikeGet(safeMessage) && Object.keys(safeArgs).length > 0) {
@@ -490,6 +571,9 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
     ];
 
     for (const [fieldKey, labelKey] of recoveryKeyMap) {
+      /**
+       * 常量：fieldValue。
+       */
       const fieldValue = safeArgs[fieldKey];
       if (!fieldValue) {
         continue;
@@ -513,13 +597,25 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
     return null;
   }
 
+  /**
+   * 常量：firstPairIndex。
+   */
   const firstPairIndex = safeMessage.search(/\s(?:reason|message|recovery)=/);
   if (firstPairIndex < 0) {
     return null;
   }
 
+  /**
+   * 常量：summary。
+   */
   const summary = safeMessage.slice(0, firstPairIndex).trim();
+  /**
+   * 常量：detailText。
+   */
   const detailText = safeMessage.slice(firstPairIndex).trim();
+  /**
+   * 常量：pairs。
+   */
   const pairs = keyValuePairsGet(detailText);
   if (!summary || pairs.length === 0) {
     return null;
@@ -530,6 +626,9 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
 
   for (const pair of pairs) {
     if (pair.key === 'recovery') {
+      /**
+       * 常量：nestedPairs。
+       */
       const nestedPairs = keyValuePairsGet(pair.value);
       if (nestedPairs.length > 0) {
         recoveryEntries.push(
@@ -552,6 +651,9 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
 
   return {
     summary: (() => {
+      /**
+       * 常量：key。
+       */
       const key = logSummaryKeyGet(summary);
       return key ? logLocaleTextGet(key, summary) : summary;
     })(),
@@ -566,9 +668,21 @@ const structuredLogMessageGet = (item: IPageSettingsUnattendedSentinelLogsMachin
  * @returns {string[]} 元信息列表
  */
 const logMetaValuesGet = (item: IPageSettingsUnattendedSentinelLogsMachineCard['logs'][number]): string[] => {
+  /**
+   * 常量：stage。
+   */
   const stage = logMetaValueLocalizedGet(item.stage);
+  /**
+   * 常量：step。
+   */
   const step = logMetaValueLocalizedGet(item.step);
+  /**
+   * 常量：state。
+   */
   const state = logMetaStateLocalizedGet(item.state);
+  /**
+   * 常量：values。
+   */
   const values = [stage, step];
 
   if (state && state !== '-' && state !== stage && state !== step) {
@@ -583,6 +697,9 @@ const logMetaValuesGet = (item: IPageSettingsUnattendedSentinelLogsMachineCard['
  * @returns {boolean} 是否中文
  */
 const logMetaValueLocalizedGet = (value: string): string => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (!safeValue) {
     return '-';
@@ -601,6 +718,9 @@ const logMetaValueLocalizedGet = (value: string): string => {
  * @returns {string} 本地化后的状态
  */
 const logMetaStateLocalizedGet = (value: string): string => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '')
     .trim()
     .toLowerCase();

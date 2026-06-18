@@ -33,6 +33,9 @@ export const useCrawlerTargetMenuActions = () => {
       return false;
     }
 
+    /**
+     * 函数：normalized。
+     */
     const normalized = String(text ?? '').trim();
     if (normalized === '') {
       return false;
@@ -63,7 +66,13 @@ export const useCrawlerTargetMenuActions = () => {
    * 右键菜单分组。
    */
   const buildCrawlerTargetContextMenuItems = (row: IQueryResultCrawlerTargetRow, options: IBuildCrawlerTargetContextMenuItemsOptions = {}): ContextMenuItem[][] => {
+    /**
+     * 常量：domain。
+     */
     const domain = String(row.domain ?? '').trim();
+    /**
+     * 常量：baseUrl。
+     */
     const baseUrl = String(row.baseUrl ?? '').trim();
 
     const groups: ContextMenuItem[][] = [];

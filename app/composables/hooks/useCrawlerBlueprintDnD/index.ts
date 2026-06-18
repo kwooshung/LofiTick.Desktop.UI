@@ -8,6 +8,9 @@ import type { IUseCrawlerBlueprintDnD } from '@/composables/hooks/useCrawlerBlue
  * @returns {string} 唯一的拖拽节点 ID。
  */
 const getId = (): string => {
+  /**
+   * 常量：randomPart。
+   */
   const randomPart = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 
   return `dndnode_${randomPart}`;
@@ -22,6 +25,9 @@ const getId = (): string => {
  * @returns {string} 规范化后的节点类型。
  */
 const normalizeNodeType = (type: string): string => {
+  /**
+   * 常量：trimmed。
+   */
   const trimmed = String(type ?? '').trim();
 
   if (trimmed === '') {
@@ -74,9 +80,15 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @returns {string} 唯一节点 ID。
    */
   const createUniqueNodeId = (): string => {
+    /**
+     * 常量：existingNodeIds。
+     */
     const existingNodeIds = new Set(nodes.value.map((node) => String(node.id ?? '')));
 
     for (let attempt = 0; attempt < 8; attempt++) {
+      /**
+       * 常量：nextId。
+       */
       const nextId = getId();
 
       if (!existingNodeIds.has(nextId)) {
@@ -103,6 +115,9 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @param {string} type 节点类型标识。
    */
   const onDragStart = (event: DragEvent, type: string): void => {
+    /**
+     * 函数：normalizedType。
+     */
     const normalizedType = normalizeNodeType(type);
 
     if (normalizedType === '') {
@@ -165,20 +180,35 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
     event.preventDefault();
     event.stopPropagation();
 
+    /**
+     * 常量：typeFromTransfer。
+     */
     const typeFromTransfer = normalizeNodeType(String(event.dataTransfer?.getData('application/vueflow') ?? event.dataTransfer?.getData('text/plain') ?? ''));
+    /**
+     * 常量：resolvedType。
+     */
     const resolvedType = typeFromTransfer !== '' ? typeFromTransfer : normalizeNodeType(String(draggedType.value ?? ''));
 
     if (resolvedType === '') {
       return;
     }
 
+    /**
+     * 常量：position。
+     */
     const position = screenToFlowCoordinate({
       x: event.clientX,
       y: event.clientY
     });
 
+    /**
+     * 常量：nodeId。
+     */
     const nodeId = createUniqueNodeId();
 
+    /**
+     * 常量：newNode。
+     */
     const newNode = {
       id: nodeId,
       type: resolvedType,

@@ -50,6 +50,9 @@ const computedEnabled = computed({
    * @param {string} value 选择值
    */
   set: (value: string) => {
+    /**
+     * 常量：query。
+     */
     const query = { ...route.query };
 
     if (value === 'enabled') {

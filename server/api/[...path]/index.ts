@@ -37,6 +37,9 @@ const trimTrailingSlash = (input: string): string => input.replace(/\/+$/, '');
  * @return {boolean} 是否为 JSON
  */
 const isJsonContentType = (contentType: string | null): boolean => {
+  /**
+   * 常量：v。
+   */
   const v = String(contentType ?? '').toLowerCase();
   return v.includes('application/json');
 };
@@ -50,6 +53,9 @@ const boolFromRuntimeConfig = (input: unknown): boolean => {
   if (typeof input === 'boolean') {
     return input;
   }
+  /**
+   * 常量：v。
+   */
   const v = String(input ?? '')
     .trim()
     .toLowerCase();
@@ -68,6 +74,9 @@ const boolFromRuntimeConfig = (input: unknown): boolean => {
  * @returns {void} 无返回
  */
 const validateFakeParams = (params: Record<string, unknown>): void => {
+  /**
+   * 常量：nonce。
+   */
   const nonce = params.nonce;
   if (typeof nonce !== 'string') {
     throw createError({ statusCode: 403, statusMessage: 'Missing nonce' });
@@ -76,6 +85,9 @@ const validateFakeParams = (params: Record<string, unknown>): void => {
     throw createError({ statusCode: 403, statusMessage: 'Invalid nonce' });
   }
 
+  /**
+   * 常量：sign。
+   */
   const sign = params.sign;
   if (typeof sign !== 'string') {
     throw createError({ statusCode: 403, statusMessage: 'Missing sign' });
@@ -94,6 +106,9 @@ const toResponseHeaders = (headers: Headers): Record<string, string> => {
   const out: Record<string, string> = {};
 
   headers.forEach((value, key) => {
+    /**
+     * 常量：k。
+     */
     const k = String(key).toLowerCase();
 
     // 由 H3 自动管理/会导致响应长度不一致
@@ -130,10 +145,22 @@ interface ICsrfAttach {
  * @return {ICsrfAttach | null} CSRF attach（不存在则 null）
  */
 const pickCsrfAttach = (raw: unknown): ICsrfAttach | null => {
+  /**
+   * 常量：src。
+   */
   const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  /**
+   * 常量：attach。
+   */
   const attach = src?.attach && typeof src.attach === 'object' && !Array.isArray(src.attach) ? (src.attach as Record<string, unknown>) : null;
+  /**
+   * 常量：csrf。
+   */
   const csrf = attach?.csrf && typeof attach.csrf === 'object' && !Array.isArray(attach.csrf) ? (attach.csrf as Record<string, unknown>) : null;
 
+  /**
+   * 函数：token。
+   */
   const token = String(csrf?.token ?? '').trim();
   if (token === '') {
     return null;
@@ -156,21 +183,36 @@ const stripCsrfFields = (raw: unknown): unknown => {
     return raw;
   }
 
+  /**
+   * 常量：out。
+   */
   const out = { ...(raw as Record<string, unknown>) };
 
+  /**
+   * 常量：datas。
+   */
   const datas = out.datas;
   if (datas && typeof datas === 'object' && !Array.isArray(datas)) {
+    /**
+     * 常量：d。
+     */
     const d = { ...(datas as Record<string, unknown>) };
     delete d.csrf_cookie_name;
     delete d.csrf_header_name;
     out.datas = d;
   }
 
+  /**
+   * 常量：attach。
+   */
   const attach = out.attach;
   if (!attach || typeof attach !== 'object' || Array.isArray(attach)) {
     return out;
   }
 
+  /**
+   * 常量：attachObj。
+   */
   const attachObj = { ...(attach as Record<string, unknown>) };
   delete attachObj.csrf;
 
@@ -191,22 +233,52 @@ const stripCsrfFields = (raw: unknown): unknown => {
  * - 改写 JSON：删除 `attach.sign_refresh` 后再返回给前端
  */
 export default defineEventHandler(async (event) => {
+  /**
+   * 常量：config。
+   */
   const config = useRuntimeConfig();
+  /**
+   * 常量：apiBase。
+   */
   const apiBase = String(config.public.apiBase ?? '').trim();
   if (apiBase === '') {
     throw createError({ statusCode: 500, statusMessage: 'NUXT_PUBLIC_API_BASE missing' });
   }
 
+  /**
+   * 常量：enableFakeParamsValidate。
+   */
   const enableFakeParamsValidate = boolFromRuntimeConfig((config as Record<string, unknown>).signFakeParamsValidate);
 
+  /**
+   * 常量：url。
+   */
   const url = getRequestURL(event);
+  /**
+   * 常量：upstreamBase。
+   */
   const upstreamBase = trimTrailingSlash(apiBase);
 
+  /**
+   * 常量：params。
+   */
   const params = event.context.params as { path?: string | string[] } | undefined;
+  /**
+   * 常量：rest。
+   */
   const rest = params?.path;
+  /**
+   * 常量：restPath。
+   */
   const restPath = Array.isArray(rest) ? rest.join('/') : String(rest ?? '');
+  /**
+   * 常量：upstreamPath。
+   */
   const upstreamPath = `/${restPath}`.replace(/\/+/g, '/');
 
+  /**
+   * 常量：upstreamUrl。
+   */
   const upstreamUrl = new URL(upstreamBase + upstreamPath);
   upstreamUrl.search = url.search;
 
@@ -227,6 +299,9 @@ export default defineEventHandler(async (event) => {
 
   // 透传调用方 header（但排除 Host/Content-Length 等由 fetch 管理的字段）
   for (const [key, value] of Object.entries(getHeaders(event))) {
+    /**
+     * 常量：k。
+     */
     const k = String(key).toLowerCase();
     if (k === 'host' || k === 'content-length') {
       continue;
@@ -242,6 +317,9 @@ export default defineEventHandler(async (event) => {
   // 提示：当前 refresh cookie name（用于条件2响应注入时落盘）
   const cookieNameHint = getRequestHeader(event, 'x-sign-blob-cookie-name');
 
+  /**
+   * 常量：method。
+   */
   const method = String(event.method ?? 'GET').toUpperCase();
 
   // sign/init 需要作为 server-to-server：避免透传浏览器 Origin/Referer 触发后端“仅内部下发 csrf attach”的保护。
@@ -252,13 +330,22 @@ export default defineEventHandler(async (event) => {
 
   // 写请求自动补上游 CSRF Header（Double-Submit：Cookie+Header 必须同值）。
   if (method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE') {
+    /**
+     * 函数：token。
+     */
     const token = String(getCookie(event, csrfCookieName) ?? '').trim();
     if (token !== '') {
       upstreamHeaders.set(csrfHeaderName, token);
     }
   }
 
+  /**
+   * 常量：reqContentType。
+   */
   const reqContentType = getRequestHeader(event, 'content-type');
+  /**
+   * 常量：rawBody。
+   */
   const rawBody = method === 'GET' || method === 'HEAD' ? undefined : await readRawBody(event);
 
   // 代理层假参数校验（可开关）：仅对非 sign init/refresh 请求生效。
@@ -268,6 +355,9 @@ export default defineEventHandler(async (event) => {
     let bodyParams: Record<string, unknown> = {};
     if (rawBody !== undefined && rawBody !== null && isJsonContentType(reqContentType ?? null)) {
       try {
+        /**
+         * 函数：parsed。
+         */
         const parsed = JSON.parse(String(rawBody));
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           bodyParams = parsed as Record<string, unknown>;
@@ -298,7 +388,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  /**
+   * 常量：status。
+   */
   const status = upstreamRes.status;
+  /**
+   * 常量：contentType。
+   */
   const contentType = upstreamRes.headers.get('content-type');
 
   setResponseStatus(event, status);
@@ -315,12 +411,27 @@ export default defineEventHandler(async (event) => {
     return upstreamRes._data;
   }
 
+  /**
+   * 常量：blob。
+   */
   const blob = pickSignRefreshBlob(json);
   if (blob !== '') {
+    /**
+     * 常量：jsonObj。
+     */
     const jsonObj = json && typeof json === 'object' && !Array.isArray(json) ? (json as Record<string, unknown>) : {};
+    /**
+     * 常量：datas。
+     */
     const datas = jsonObj.datas;
+    /**
+     * 常量：cookieName。
+     */
     const cookieName = resolveSignBlobCookieName({ datas, hintHeader: cookieNameHint });
 
+    /**
+     * 函数：isHttps。
+     */
     const isHttps = url.protocol === 'https:';
 
     setCookie(event, cookieName, blob, {
@@ -336,10 +447,19 @@ export default defineEventHandler(async (event) => {
   // sign/init 下发的 csrf attach：落 Nuxt 域名 HttpOnly cookie，并剥离返回给浏览器。
   const csrfAttach = pickCsrfAttach(json);
   if (csrfAttach) {
+    /**
+     * 常量：cookieName。
+     */
     const cookieName = csrfAttach.cookie_name || csrfCookieName;
+    /**
+     * 函数：tokenExisting。
+     */
     const tokenExisting = String(getCookie(event, cookieName) ?? '').trim();
 
     if (tokenExisting === '') {
+      /**
+       * 函数：isHttps。
+       */
       const isHttps = url.protocol === 'https:';
       setCookie(event, cookieName, csrfAttach.token, {
         httpOnly: true,

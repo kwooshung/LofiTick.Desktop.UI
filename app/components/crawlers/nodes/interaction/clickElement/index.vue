@@ -25,11 +25,29 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateButton。
+ */
 const stateButton = ref('left');
+/**
+ * 状态：stateClickCount。
+ */
 const stateClickCount = ref(1);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -62,6 +80,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateButtonOptions。
+ */
 const stateButtonOptions = computed(() => {
   return [
     {
@@ -84,6 +105,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
   stateButton.value = ['left', 'middle', 'right'].includes(String(data.button)) ? String(data.button) : 'left';

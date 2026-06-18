@@ -52,13 +52,37 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateRandomHoverDelay。
+ */
 const stateRandomHoverDelay = ref(false);
+/**
+ * 状态：stateHoverDelayMs。
+ */
 const stateHoverDelayMs = ref(0);
+/**
+ * 状态：stateHoverDelayMinMs。
+ */
 const stateHoverDelayMinMs = ref(0);
+/**
+ * 状态：stateHoverDelayMaxMs。
+ */
 const stateHoverDelayMaxMs = ref(300);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -96,6 +120,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : 10000;
   stateRandomHoverDelay.value = Boolean(data.randomHoverDelay ?? false);
@@ -112,7 +139,13 @@ watch([stateTimeoutMs, stateRandomHoverDelay, stateHoverDelayMs, stateHoverDelay
     return;
   }
 
+  /**
+   * 常量：hoverDelayMinMs。
+   */
   const hoverDelayMinMs = Math.max(0, stateHoverDelayMinMs.value);
+  /**
+   * 常量：hoverDelayMaxMs。
+   */
   const hoverDelayMaxMs = Math.max(hoverDelayMinMs, stateHoverDelayMaxMs.value);
 
   if (stateHoverDelayMinMs.value !== hoverDelayMinMs) {

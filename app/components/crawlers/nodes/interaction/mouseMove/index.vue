@@ -135,34 +135,115 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { edges } = useVueFlow();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
 
+/**
+ * 状态：stateStartX。
+ */
 const stateStartX = ref(0);
+/**
+ * 状态：stateStartY。
+ */
 const stateStartY = ref(0);
+/**
+ * 状态：stateEndX。
+ */
 const stateEndX = ref(300);
+/**
+ * 状态：stateEndY。
+ */
 const stateEndY = ref(300);
+/**
+ * 状态：stateCurveType。
+ */
 const stateCurveType = ref('bezier');
+/**
+ * 状态：stateCurveStrength。
+ */
 const stateCurveStrength = ref(40);
+/**
+ * 状态：stateRandomCurveStrength。
+ */
 const stateRandomCurveStrength = ref(false);
+/**
+ * 状态：stateCurveStrengthMin。
+ */
 const stateCurveStrengthMin = ref(20);
+/**
+ * 状态：stateCurveStrengthMax。
+ */
 const stateCurveStrengthMax = ref(60);
+/**
+ * 状态：stateSpeedProfile。
+ */
 const stateSpeedProfile = ref('easeInOut');
+/**
+ * 状态：stateRandomDuration。
+ */
 const stateRandomDuration = ref(false);
+/**
+ * 状态：stateDurationMs。
+ */
 const stateDurationMs = ref(600);
+/**
+ * 状态：stateDurationMinMs。
+ */
 const stateDurationMinMs = ref(400);
+/**
+ * 状态：stateDurationMaxMs。
+ */
 const stateDurationMaxMs = ref(1200);
+/**
+ * 状态：stateEnableJitter。
+ */
 const stateEnableJitter = ref(false);
+/**
+ * 状态：stateJitterAmplitude。
+ */
 const stateJitterAmplitude = ref(2);
+/**
+ * 状态：stateRandomJitterAmplitude。
+ */
 const stateRandomJitterAmplitude = ref(false);
+/**
+ * 状态：stateJitterAmplitudeMin。
+ */
 const stateJitterAmplitudeMin = ref(1);
+/**
+ * 状态：stateJitterAmplitudeMax。
+ */
 const stateJitterAmplitudeMax = ref(4);
+/**
+ * 状态：stateJitterFrequency。
+ */
 const stateJitterFrequency = ref(6);
+/**
+ * 状态：stateRandomJitterFrequency。
+ */
 const stateRandomJitterFrequency = ref(false);
+/**
+ * 状态：stateJitterFrequencyMin。
+ */
 const stateJitterFrequencyMin = ref(3);
+/**
+ * 状态：stateJitterFrequencyMax。
+ */
 const stateJitterFrequencyMax = ref(10);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -267,6 +348,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateCurveTypeOptions。
+ */
 const stateCurveTypeOptions = computed(() => {
   return [
     {
@@ -284,6 +368,9 @@ const stateCurveTypeOptions = computed(() => {
   ];
 });
 
+/**
+ * 状态：stateSpeedProfileOptions。
+ */
 const stateSpeedProfileOptions = computed(() => {
   return [
     {
@@ -305,7 +392,13 @@ const stateSpeedProfileOptions = computed(() => {
   ];
 });
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (handleId: string) => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '');
 
   if (nodeId === '') {
@@ -315,12 +408,33 @@ const hasTargetPinConnection = (handleId: string) => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 计算属性：computedHasStartXInput。
+ */
 const computedHasStartXInput = computed(() => hasTargetPinConnection('start-x-input'));
+/**
+ * 计算属性：computedHasStartYInput。
+ */
 const computedHasStartYInput = computed(() => hasTargetPinConnection('start-y-input'));
+/**
+ * 计算属性：computedHasEndXInput。
+ */
 const computedHasEndXInput = computed(() => hasTargetPinConnection('end-x-input'));
+/**
+ * 计算属性：computedHasEndYInput。
+ */
 const computedHasEndYInput = computed(() => hasTargetPinConnection('end-y-input'));
+/**
+ * 计算属性：computedHasDurationInput。
+ */
 const computedHasDurationInput = computed(() => hasTargetPinConnection('duration-ms-input'));
+/**
+ * 计算属性：computedHasCurveStrengthInput。
+ */
 const computedHasCurveStrengthInput = computed(() => hasTargetPinConnection('curve-strength-input'));
+/**
+ * 计算属性：computedHasJitterAmplitudeInput。
+ */
 const computedHasJitterAmplitudeInput = computed(() => hasTargetPinConnection('jitter-amplitude-input'));
 
 watchEffect(() => {
@@ -328,6 +442,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateStartX.value = Number.isFinite(Number(data.startX)) ? Math.max(0, Number(data.startX)) : 0;
   stateStartY.value = Number.isFinite(Number(data.startY)) ? Math.max(0, Number(data.startY)) : 0;

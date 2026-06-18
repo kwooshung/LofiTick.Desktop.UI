@@ -62,16 +62,49 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateText。
+ */
 const stateText = ref('');
+/**
+ * 状态：stateTypeMode。
+ */
 const stateTypeMode = ref('type');
+/**
+ * 状态：stateRandomInputInterval。
+ */
 const stateRandomInputInterval = ref(false);
+/**
+ * 状态：stateInputIntervalMs。
+ */
 const stateInputIntervalMs = ref(60);
+/**
+ * 状态：stateInputIntervalMinMs。
+ */
 const stateInputIntervalMinMs = ref(40);
+/**
+ * 状态：stateInputIntervalMaxMs。
+ */
 const stateInputIntervalMaxMs = ref(120);
+/**
+ * 状态：stateClearBefore。
+ */
 const stateClearBefore = ref(true);
+/**
+ * 状态：stateTimeoutMs。
+ */
 const stateTimeoutMs = ref(10000);
+/**
+ * 状态：stateSimulateNativeInput。
+ */
 const stateSimulateNativeInput = ref(false);
 
 const leftPins: IBasicSidePin[] = [
@@ -104,6 +137,9 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 状态：stateTypeModeOptions。
+ */
 const stateTypeModeOptions = computed(() => {
   return [
     {
@@ -122,6 +158,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateText.value = String(data.text ?? '');
   stateTypeMode.value = ['type', 'fill'].includes(String(data.typeMode)) ? String(data.typeMode) : 'type';
@@ -141,7 +180,13 @@ watch([stateText, stateTypeMode, stateRandomInputInterval, stateInputIntervalMs,
     return;
   }
 
+  /**
+   * 常量：inputIntervalMinMs。
+   */
   const inputIntervalMinMs = Math.max(0, stateInputIntervalMinMs.value);
+  /**
+   * 常量：inputIntervalMaxMs。
+   */
   const inputIntervalMaxMs = Math.max(inputIntervalMinMs, stateInputIntervalMaxMs.value);
 
   if (stateInputIntervalMinMs.value !== inputIntervalMinMs) {

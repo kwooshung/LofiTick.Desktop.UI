@@ -19,16 +19,31 @@ import { variableCatalogCollect, variableDefinitionsParse, variableGetInputHandl
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
 const { nodes } = useVueFlow();
 
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateSelectedVariableIds。
+ */
 const stateSelectedVariableIds = ref<string[]>([]);
 
+/**
+ * 计算属性：computedVariableCatalog。
+ */
 const computedVariableCatalog = computed(() => {
   return variableCatalogCollect(nodes.value);
 });
 
+/**
+ * 计算属性：computedVariableOptions。
+ */
 const computedVariableOptions = computed<IVariableGetSelectOption[]>(() => {
   return computedVariableCatalog.value.map((item) => ({
     value: item.id,
@@ -36,10 +51,16 @@ const computedVariableOptions = computed<IVariableGetSelectOption[]>(() => {
   }));
 });
 
+/**
+ * 计算属性：computedSelectedVariables。
+ */
 const computedSelectedVariables = computed(() => {
   return stateSelectedVariableIds.value.map((variableId) => computedVariableCatalog.value.find((item) => item.id === variableId) ?? null).filter((item) => item !== null);
 });
 
+/**
+ * 计算属性：computedLeftPins。
+ */
 const computedLeftPins = computed<IBasicSidePin[]>(() => {
   return computedSelectedVariables.value.map((item) => ({
     id: variableGetInputHandleIdGet(item.id, item.dataType),
@@ -52,6 +73,9 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
   }));
 });
 
+/**
+ * 计算属性：computedRightPins。
+ */
 const computedRightPins = computed<IBasicSidePin[]>(() => {
   return [
     ...computedSelectedVariables.value.map((item) => ({
@@ -78,6 +102,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：rawSelectedIds。
+   */
   const rawSelectedIds = (stateNode.node.data as Record<string, unknown> | undefined)?.selectedVariableIds;
   stateSelectedVariableIds.value = Array.isArray(rawSelectedIds) ? rawSelectedIds.map((item) => String(item)) : [];
   stateInitialized.value = true;
@@ -86,6 +113,9 @@ watchEffect(() => {
 watch(
   computedVariableCatalog,
   () => {
+    /**
+     * 常量：availableIds。
+     */
     const availableIds = new Set(computedVariableCatalog.value.map((item) => item.id));
     stateSelectedVariableIds.value = stateSelectedVariableIds.value.filter((variableId) => availableIds.has(variableId));
   },

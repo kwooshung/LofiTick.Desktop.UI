@@ -191,7 +191,13 @@ const defaultFolderLabel = computed<string>(() => {
     return defaultLabel;
   }
 
+  /**
+   * 常量：key。
+   */
   const key = 'components.folder.newFolder';
+  /**
+   * 常量：translated。
+   */
   const translated = t(key) as unknown as string;
   return translated === key ? 'new folder' : translated;
 });
@@ -206,6 +212,9 @@ const displayLabel = computed<string>(() => label ?? defaultFolderLabel.value);
  * @return {HTMLInputElement | null} 输入框元素
  */
 const getRelabelInputEl = (): HTMLInputElement | null => {
+  /**
+   * 常量：wrap。
+   */
   const wrap = stateRefRelabelWrapEl.value;
   if (!wrap) {
     return null;
@@ -226,6 +235,9 @@ const startRelabel = () => {
   emit('relabel-start');
 
   nextTick(() => {
+    /**
+     * 常量：input。
+     */
     const input = getRelabelInputEl();
     if (input) {
       input.focus();
@@ -252,6 +264,9 @@ const delayedStartRelabel = () => {
  * 函数：确认重命名
  */
 const confirmRelabel = () => {
+  /**
+   * 常量：draftLabel。
+   */
   const draftLabel = stateDraftLabel.value?.trim() ?? '';
 
   if (draftLabel && draftLabel !== displayLabel.value) {
@@ -388,8 +403,17 @@ const onPointerDown = (e: PointerEvent) => {
  * @param {PointerEvent} e 指针事件
  */
 const onPointerMove = (e: PointerEvent) => {
+  /**
+   * 常量：dx。
+   */
   const dx = Math.abs(e.clientX - pointerDownPos.x);
+  /**
+   * 常量：dy。
+   */
   const dy = Math.abs(e.clientY - pointerDownPos.y);
+  /**
+   * 常量：moved。
+   */
   const moved = Math.hypot(dx, dy);
   // 移动超过容差即判定为拖拽，后续的 click（若产生）将被抑制进入重命名
   if (moved > clickMoveTolerance) {
@@ -427,15 +451,36 @@ const onClick = (e: MouseEvent) => {
     return;
   }
 
+  /**
+   * 常量：now。
+   */
   const now = Date.now();
+  /**
+   * 常量：timeDiff。
+   */
   const timeDiff = now - lastClickTime;
+  /**
+   * 常量：dx。
+   */
   const dx = Math.abs(e.clientX - lastClickPos.x);
+  /**
+   * 常量：dy。
+   */
   const dy = Math.abs(e.clientY - lastClickPos.y);
+  /**
+   * 常量：moved。
+   */
   const moved = Math.hypot(dx, dy);
 
   // 若当前处于重命名态：点击输入框之外但仍在组件内部 -> 退出重命名但保持选中
   if (stateIsRenaming.value) {
+    /**
+     * 常量：input。
+     */
     const input = getRelabelInputEl();
+    /**
+     * 常量：target。
+     */
     const target = e.target as Node | null;
 
     if (!input || (target && !input.contains(target))) {
@@ -474,7 +519,13 @@ const onClick = (e: MouseEvent) => {
       // 已选中：第二次单击（非双击）直接进入重命名
       if (relabel && relabelOnSecondClick) {
         if (relabelOnly) {
+          /**
+           * 常量：target。
+           */
           const target = e.target as Node | null;
+          /**
+           * 常量：nameEl。
+           */
           const nameEl = stateRefLabelEl.value;
           if (nameEl && target && nameEl.contains(target)) {
             delayedStartRelabel();

@@ -87,6 +87,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationGotoData;
   statePath.value = String(data.path ?? data.url ?? '');
   stateWaitReady.value = Boolean(data.waitReady ?? true);

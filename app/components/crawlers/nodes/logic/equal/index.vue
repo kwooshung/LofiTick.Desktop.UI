@@ -32,17 +32,29 @@ const stateInitialized = ref(false);
  */
 const stateOperandIds = ref<string[]>([]);
 
+/**
+ * 函数：createOperandId。
+ */
 const createOperandId = (): string => {
   return crypto.randomUUID().slice(0, 8);
 };
 
+/**
+ * 常量：ensureMinOperandIds。
+ */
 const ensureMinOperandIds = (ids: string[]): string[] => {
+  /**
+   * 函数：normalizedIds。
+   */
   const normalizedIds = ids.filter((id) => String(id ?? '').trim() !== '').map((id) => String(id));
 
   if (normalizedIds.length >= 2) {
     return normalizedIds;
   }
 
+  /**
+   * 常量：nextIds。
+   */
   const nextIds = [...normalizedIds];
   while (nextIds.length < 2) {
     nextIds.push(createOperandId());
@@ -51,18 +63,36 @@ const ensureMinOperandIds = (ids: string[]): string[] => {
   return nextIds;
 };
 
+/**
+ * 常量：labelFromIndex。
+ */
 const labelFromIndex = (index: number): string => {
+  /**
+   * 常量：alphabet。
+   */
   const alphabet = 'abcdefghijklmnopqrstuvwxyz';
   return alphabet[index] ?? `v${index + 1}`;
 };
 
+/**
+ * 函数：topPercentFromIndex。
+ */
 const topPercentFromIndex = (index: number, total: number): number => {
   if (total <= 1) {
     return 50;
   }
 
+  /**
+   * 常量：start。
+   */
   const start = 20;
+  /**
+   * 常量：end。
+   */
   const end = 80;
+  /**
+   * 常量：step。
+   */
   const step = (end - start) / (total - 1);
   return Math.round(start + index * step);
 };
@@ -123,6 +153,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：rawOperandIds。
+   */
   const rawOperandIds = (stateNode.node.data as ILogicEqualNodeData | undefined)?.compareOperandIds;
   stateOperandIds.value = ensureMinOperandIds(Array.isArray(rawOperandIds) ? rawOperandIds : []);
   stateInitialized.value = true;

@@ -86,6 +86,9 @@ const computedNumberStep = computed(() => (stateNumberType.value === 'integer' ?
  * 计算属性：当前区间说明。
  */
 const computedSelectedIntervalDescription = computed(() => {
+  /**
+   * 常量：targetOption。
+   */
   const targetOption = stateIntervalTypeOptions.value.find((option) => option.value === stateIntervalType.value);
   return String(targetOption?.description ?? '');
 });
@@ -130,6 +133,9 @@ const stateNumberTypeOptions = computed(() => [
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
 
   if (nodeId === '') {
@@ -175,6 +181,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IMathRandomNodeData;
   stateMin.value = Number.isFinite(Number(data.min)) ? Number(data.min) : 0;
   stateMax.value = Number.isFinite(Number(data.max)) ? Number(data.max) : 1;
@@ -182,9 +191,15 @@ watchEffect(() => {
     stateMax.value = stateMin.value;
   }
 
+  /**
+   * 常量：nextIntervalType。
+   */
   const nextIntervalType = String(data.intervalType ?? 'leftClosedRightOpen');
   stateIntervalType.value = nextIntervalType === 'leftOpenRightClosed' || nextIntervalType === 'open' || nextIntervalType === 'closed' ? nextIntervalType : 'leftClosedRightOpen';
 
+  /**
+   * 常量：nextNumberType。
+   */
   const nextNumberType = String(data.numberType ?? 'float');
   stateNumberType.value = nextNumberType === 'integer' ? 'integer' : 'float';
 

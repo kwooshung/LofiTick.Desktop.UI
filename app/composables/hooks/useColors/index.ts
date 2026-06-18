@@ -58,6 +58,9 @@ const normalizeColorNames = (newColor: string | string[]): string[] => {
   const resolvedColorNames: string[] = [];
 
   colorNames.forEach((colorName) => {
+    /**
+     * 常量：resolvedColorName。
+     */
     const resolvedColorName = colorName.trim().toLowerCase();
 
     // 空值直接忽略
@@ -155,6 +158,9 @@ const generateColorArray = (newColor: string | string[], shades: TColorShades[])
       return;
     }
 
+    /**
+     * 常量：colorValue。
+     */
     const colorValue = (colors as TTailwindColorsMap)[colorName];
 
     if (typeof colorValue === 'object' && colorValue !== null) {
@@ -259,14 +265,26 @@ export const useColors = (prefix: TUseColorsPrefix, newColors: string | string[]
    * 常量：去重后的颜色名称集合
    */
   const resolvedLightNames = uniq(lightNames);
+  /**
+   * 常量：resolvedDarkNames。
+   */
   const resolvedDarkNames = uniq(darkNames);
+  /**
+   * 常量：resolvedAllNames。
+   */
   const resolvedAllNames = uniq(allNames);
 
   /**
    * 常量：去重后的色阶集合
    */
   const resolvedLightShades = numberArrayUniqueSortAsc(lightColors.shades);
+  /**
+   * 常量：resolvedDarkShadesFinal。
+   */
   const resolvedDarkShadesFinal = numberArrayUniqueSortAsc(darkColors.shades);
+  /**
+   * 常量：resolvedAllShades。
+   */
   const resolvedAllShades = numberArrayUniqueSortAsc(allShades);
 
   /**

@@ -93,6 +93,9 @@ const parseTruthyValues = (text: string): string[] => {
  * 函数：根据文本反向同步下拉选中值。
  */
 const updateSelectedValuesFromText = (): void => {
+  /**
+   * 常量：allValues。
+   */
   const allValues = parseTruthyValues(stateTruthyValuesText.value);
   stateSelectedTruthyValues.value = allValues.filter((value) => truthyValueOptions.includes(value));
 };
@@ -110,7 +113,13 @@ const handleTruthySelectChange = (val: unknown): void => {
  * @param {string[]} selected 当前下拉选中值。
  */
 const mergeSelectedValuesToText = (selected: string[]): void => {
+  /**
+   * 常量：customValues。
+   */
   const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.includes(value));
+  /**
+   * 函数：merged。
+   */
   const merged = [...new Set([...selected, ...customValues])];
   stateTruthyValuesText.value = merged.join(',');
 };
@@ -128,6 +137,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
   stateTruthyValuesText.value = String(data.truthyValuesText ?? 'true,1,"yes","on"');
   updateSelectedValuesFromText();

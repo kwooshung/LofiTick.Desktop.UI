@@ -182,6 +182,9 @@ const computedVariantOptions = computed(() => hotsearchPodcastVariantOptionsGet(
  * 计算属性：当前播客变体。
  */
 const computedVariant = computed<THotsearchPodcastVariantKey | null>(() => {
+  /**
+   * 常量：path。
+   */
   const path = route.path;
 
   if (path === localePath('/hotsearch/podcast/morning-short')) {
@@ -258,7 +261,13 @@ const computedPlaybackPrimaryIcon = computed(() => {
  * 计算属性：顶部队列计数标签。
  */
 const computedQueueCounterLabel = computed(() => {
+  /**
+   * 常量：padWidth。
+   */
   const padWidth = Math.max(3, String(computedSentenceTotal.value).length);
+  /**
+   * 常量：currentIndex。
+   */
   const currentIndex = computedCurrentSentenceIndex.value >= 0 ? computedCurrentSentenceIndex.value + 1 : 0;
 
   return `${String(currentIndex).padStart(padWidth, '0')}/${String(computedSentenceTotal.value).padStart(padWidth, '0')}`;
@@ -272,6 +281,9 @@ const computedCurrentSentenceElapsedSeconds = computed(() => {
     return 0;
   }
 
+  /**
+   * 常量：durationSeconds。
+   */
   const durationSeconds = sentenceDurationSecondsGet(computedCurrentSentence.value);
 
   if (durationSeconds <= 0) {
@@ -304,7 +316,13 @@ const computedCurrentOverallProgressLabel = computed(() => {
     return '00:00';
   }
 
+  /**
+   * 常量：finishedSeconds。
+   */
   const finishedSeconds = computedPodcastView.value.sentences.slice(0, computedCurrentSentenceIndex.value).reduce((total, item) => total + sentenceDurationSecondsGet(item), 0);
+  /**
+   * 常量：elapsedSeconds。
+   */
   const elapsedSeconds = Math.min(finishedSeconds + computedCurrentSentenceElapsedSeconds.value, computedTotalDurationSeconds.value);
 
   return podcastDurationLabelGet(elapsedSeconds);
@@ -318,6 +336,9 @@ const computedHeaderPrimaryLabel = computed(() => {
     return t('pages.hotsearch.podcast.notStarted');
   }
 
+  /**
+   * 常量：headerSentenceIndex。
+   */
   const headerSentenceIndex = computedPodcastView.value.sentences.findIndex((item) => item.id === computedHeaderSentence.value?.id);
 
   return `${sentenceOrderLabelGet(Math.max(headerSentenceIndex, 0))} · ${computedHeaderSentence.value.speakerName}`;
@@ -357,8 +378,17 @@ const computedHeaderCurrentSentenceProgressLabel = computed(() => {
  * 返回统一的已播/总长时间标签。
  */
 const sentencePlaybackLabelGet = (sentenceId: string): string => {
+  /**
+   * 常量：sentence。
+   */
   const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
+  /**
+   * 常量：durationSeconds。
+   */
   const durationSeconds = sentence ? sentenceDurationSecondsGet(sentence) : 0;
+  /**
+   * 常量：elapsedSeconds。
+   */
   const elapsedSeconds = stateCurrentSentenceId.value === sentenceId ? Math.min(computedCurrentSentenceElapsedSeconds.value, durationSeconds) : 0;
 
   return `${podcastDurationLabelGet(elapsedSeconds)} / ${podcastDurationLabelGet(durationSeconds)}`;
@@ -380,9 +410,15 @@ const computedTotalDurationLabel = computed(() => podcastDurationLabelGet(comput
  * 生命周期：初始化音频实例。
  */
 onMounted(() => {
+  /**
+   * 常量：audio。
+   */
   const audio = new Audio();
 
   audio.addEventListener('timeupdate', () => {
+    /**
+     * 常量：targetDurationSeconds。
+     */
     const targetDurationSeconds = computedCurrentSentenceTargetDurationSeconds.value;
 
     if (targetDurationSeconds <= 0) {
@@ -410,6 +446,9 @@ onMounted(() => {
       return;
     }
 
+    /**
+     * 常量：nextSentence。
+     */
     const nextSentence = sentenceNeighborGet(1);
 
     if (!nextSentence) {
@@ -425,6 +464,9 @@ onMounted(() => {
       return;
     }
 
+    /**
+     * 常量：targetDurationSeconds。
+     */
     const targetDurationSeconds = computedCurrentSentenceTargetDurationSeconds.value;
 
     if (targetDurationSeconds <= 0) {
@@ -454,6 +496,9 @@ onMounted(() => {
       return;
     }
 
+    /**
+     * 常量：nextSentence。
+     */
     const nextSentence = sentenceNeighborGet(1);
 
     if (!nextSentence) {
@@ -604,12 +649,18 @@ const sentenceOrderLabelGet = (index: number): string => {
  * 对应的秒数。
  */
 const sentenceDurationSecondsGet = (sentence: IHotsearchPodcastSentence): number => {
+  /**
+   * 常量：matched。
+   */
   const matched = /([\d.]+)\s*s/i.exec(sentence.durationLabel.trim());
 
   if (!matched) {
     return 0;
   }
 
+  /**
+   * 常量：seconds。
+   */
   const seconds = Number(matched[1]);
   return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
 };
@@ -626,9 +677,21 @@ const sentenceDurationSecondsGet = (sentence: IHotsearchPodcastSentence): number
  * 格式化后的时长标签。
  */
 const podcastDurationLabelGet = (seconds: number): string => {
+  /**
+   * 函数：totalSeconds。
+   */
   const totalSeconds = Math.max(0, Math.floor(seconds));
+  /**
+   * 常量：hours。
+   */
   const hours = Math.floor(totalSeconds / 3600);
+  /**
+   * 常量：minutes。
+   */
   const minutes = Math.floor((totalSeconds % 3600) / 60);
+  /**
+   * 常量：secs。
+   */
   const secs = totalSeconds % 60;
 
   if (hours > 0) {
@@ -669,12 +732,18 @@ const computedSentenceDurationGet = (sentenceId: string): number | undefined => 
     return stateCurrentSentenceDuration.value;
   }
 
+  /**
+   * 常量：sentence。
+   */
   const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
 
   if (!sentence) {
     return undefined;
   }
 
+  /**
+   * 常量：seconds。
+   */
   const seconds = sentenceDurationSecondsGet(sentence);
   return seconds > 0 ? seconds : undefined;
 };
@@ -726,6 +795,9 @@ const sentenceScrollIntoView = (sentenceId: string): void => {
  * 无返回值。
  */
 const handleSentencePlay = async (sentenceId: string, fromSequence = false): Promise<void> => {
+  /**
+   * 常量：sentence。
+   */
   const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
 
   if (!sentence || !stateAudio.value) {
@@ -790,6 +862,9 @@ const handleSentenceToggle = (sentenceId: string): void => {
  * 无返回值。
  */
 const handlePlayAll = (): void => {
+  /**
+   * 常量：firstSentence。
+   */
   const firstSentence = computedPodcastView.value.sentences[0];
 
   if (!firstSentence) {
@@ -833,6 +908,9 @@ const handlePlaybackPrimaryAction = (): void => {
  * 无返回值。
  */
 const handlePreviousSentence = (): void => {
+  /**
+   * 常量：previousSentence。
+   */
   const previousSentence = sentenceNeighborGet(-1);
 
   if (!previousSentence) {
@@ -850,6 +928,9 @@ const handlePreviousSentence = (): void => {
  * 无返回值。
  */
 const handleNextSentence = (): void => {
+  /**
+   * 常量：nextSentence。
+   */
   const nextSentence = sentenceNeighborGet(1);
 
   if (!nextSentence) {
@@ -881,6 +962,9 @@ const handlePauseAudio = (): void => {
  * 无返回值。
  */
 const handlePlaybackCompleted = (): void => {
+  /**
+   * 常量：firstSentence。
+   */
   const firstSentence = computedPodcastView.value.sentences[0];
 
   if (!stateAudio.value || !firstSentence) {
@@ -941,6 +1025,9 @@ const handleStopAudio = (): void => {
  * 无返回值。
  */
 const handleSentenceSeek = (sentenceId: string, percent: number): void => {
+  /**
+   * 常量：sentence。
+   */
   const sentence = computedPodcastView.value.sentences.find((item) => item.id === sentenceId);
 
   if (!sentence || !stateAudio.value) {

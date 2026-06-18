@@ -116,6 +116,9 @@ import { z } from 'zod';
  */
 definePageMeta({
   key: (route) => {
+    /**
+     * 常量：domain。
+     */
     const domain = route.params.domain;
     if (typeof domain === 'string' && domain.trim() !== '') {
       return `crawlers-detail-${domain}`;
@@ -176,6 +179,9 @@ const computedRouteIsDetail = computed<boolean>(() => typeof route.params.domain
  * 计算属性：站点域名
  */
 const computedDomain = computed<string>(() => {
+  /**
+   * 常量：value。
+   */
   const value = route.params.domain;
   return typeof value === 'string' ? value : Array.isArray(value) ? (value[0] ?? '') : '';
 });
@@ -186,12 +192,21 @@ const computedDomain = computed<string>(() => {
  * @returns {string} 站点显示名
  */
 const domainDisplayNameGet = (domain: string): string => {
+  /**
+   * 常量：trimmed。
+   */
   const trimmed = domain.trim();
   if (trimmed === '') {
     return t('pages.crawlers.targets.title');
   }
 
+  /**
+   * 常量：domainPart。
+   */
   const domainPart = trimmed.split('/')[0] ?? trimmed;
+  /**
+   * 常量：host。
+   */
   const host = domainPart.split('.')[0] ?? trimmed;
   if (host === '') {
     return trimmed;
@@ -320,11 +335,17 @@ const computedUniqueDomainHelp = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
   }
 
+  /**
+   * 常量：valid。
+   */
   const valid = schema.pick({ domain: true }).safeParse({ domain }).success;
   if (!valid) {
     return undefined;
@@ -344,6 +365,9 @@ const computedUniqueDomainError = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
@@ -366,11 +390,17 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * 计算属性：详情页标题
  */
 const computedRouteDetailTitle = computed<string>(() => {
+  /**
+   * 常量：detailName。
+   */
   const detailName = String(stateDetail.value?.name ?? '').trim();
   if (detailName !== '') {
     return detailName;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
 });
@@ -457,12 +487,21 @@ const handleEditTarget = () => {
  * @returns {string} 归一化域名。
  */
 const normalizeDomainForUniqueCompare = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(value ?? '').trim();
   if (raw === '') {
     return '';
   }
 
+  /**
+   * 常量：withoutProtocol。
+   */
   const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  /**
+   * 常量：matchResult。
+   */
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return (matchResult ? matchResult[0] : withoutProtocol).trim().toLowerCase();
 };
@@ -472,8 +511,17 @@ const normalizeDomainForUniqueCompare = (value: string): string => {
  * @returns {boolean} 未变化时返回 true。
  */
 const isEditorDomainUnchanged = (): boolean => {
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
+  /**
+   * 常量：originalDomain。
+   */
   const originalDomain = normalizeDomainForUniqueCompare(String(stateEditorOriginalDomain.value ?? ''));
   return id > 0 && domain !== '' && domain === originalDomain;
 };
@@ -497,6 +545,9 @@ watch(
       return;
     }
 
+    /**
+     * 常量：domain。
+     */
     const domain = String(stateEditor.value.domain ?? '').trim();
     if (domain === '' || domain !== stateUniqueCheckingDomainValue.value) {
       return;
@@ -524,7 +575,13 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
 
   if (!domain) {
@@ -541,6 +598,9 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：shouldCheckDomain。
+   */
   const shouldCheckDomain = !!domain && schema.pick({ domain: true }).safeParse({ domain }).success;
 
   if (!shouldCheckDomain) {
@@ -583,6 +643,9 @@ const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>
  * 事件：保存蓝图。
  */
 const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: string }) => {
+  /**
+   * 常量：target。
+   */
   const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
   if (!target) {
     return;
@@ -600,6 +663,9 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
   });
 
   if (import.meta.client) {
+    /**
+     * 常量：draftKey。
+     */
     const draftKey = String(payload?.draftKey ?? '').trim();
     if (draftKey !== '') {
       localStorage.removeItem(draftKey);
@@ -638,7 +704,13 @@ const handleToolbarCreate = () => {
  * 事件：关键词应用
  */
 const handleKeywordApply = () => {
+  /**
+   * 常量：keyword。
+   */
   const keyword = stateToolbarKeyword.value.trim();
+  /**
+   * 常量：query。
+   */
   const query = { ...route.query };
 
   query.page = '1';
@@ -658,6 +730,9 @@ const handleKeywordApply = () => {
  */
 const handleFilterReset = () => {
   stateToolbarKeyword.value = '';
+  /**
+   * 常量：query。
+   */
   const query = { ...route.query };
 
   delete query.keyword;

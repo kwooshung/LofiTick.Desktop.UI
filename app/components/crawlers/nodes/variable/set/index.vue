@@ -143,6 +143,9 @@ const stateNodeAttrs = useAttrs();
  * 计算属性：仅透传影响节点布局的 attrs。
  */
 const computedNodeRootAttrs = computed(() => {
+  /**
+   * 状态：stateAttrs。
+   */
   const stateAttrs = stateNodeAttrs as Record<string, unknown>;
 
   return {
@@ -160,15 +163,36 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
+/**
+ * 状态：stateNode。
+ */
 const stateNode = useNode();
+/**
+ * 状态：stateNodeId。
+ */
 const stateNodeId = useNodeId();
 const { nodes, edges } = useVueFlow();
 
+/**
+ * 状态：stateInitialized。
+ */
 const stateInitialized = ref(false);
+/**
+ * 状态：stateVariables。
+ */
 const stateVariables = ref<IVariableSetEditorItem[]>([]);
+/**
+ * 状态：stateTypeChangeModalOpen。
+ */
 const stateTypeChangeModalOpen = ref(false);
+/**
+ * 状态：statePendingTypeChange。
+ */
 const statePendingTypeChange = ref<IVariableSetTypeChangePendingState | null>(null);
 
+/**
+ * 计算属性：computedDataTypeOptions。
+ */
 const computedDataTypeOptions = computed(() => {
   return variableValueDataTypesGet().map((dataType) => ({
     value: dataType,
@@ -176,8 +200,14 @@ const computedDataTypeOptions = computed(() => {
   }));
 });
 
+/**
+ * 计算属性：computedVariableCatalog。
+ */
 const computedVariableCatalog = computed(() => variableCatalogCollect(nodes.value));
 
+/**
+ * 计算属性：computedLeftPins。
+ */
 const computedLeftPins = computed<IBasicSidePin[]>(() => {
   return stateVariables.value.map((item) => ({
     id: variableInputHandleIdGet(item.id, item.dataType),
@@ -188,6 +218,9 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
   }));
 });
 
+/**
+ * 计算属性：computedRightPins。
+ */
 const computedRightPins = computed<IBasicSidePin[]>(() => {
   return [
     ...stateVariables.value.map((item) => ({
@@ -211,20 +244,38 @@ const computedRightPins = computed<IBasicSidePin[]>(() => {
  * 计算属性：当前引脚结构签名。
  */
 const computedPinSignature = computed(() => {
+  /**
+   * 常量：leftSignature。
+   */
   const leftSignature = computedLeftPins.value.map((pin) => `${pin.id}:${pin.dataType}`).join('|');
+  /**
+   * 常量：rightSignature。
+   */
   const rightSignature = computedRightPins.value.map((pin) => `${pin.id}:${pin.dataType}`).join('|');
 
   return `${leftSignature}#${rightSignature}`;
 });
 
+/**
+ * 计算属性：computedTypeChangeDialogDescription。
+ */
 const computedTypeChangeDialogDescription = computed(() => {
+  /**
+   * 常量：pendingState。
+   */
   const pendingState = statePendingTypeChange.value;
 
   if (!pendingState) {
     return '';
   }
 
+  /**
+   * 常量：currentItem。
+   */
   const currentItem = stateVariables.value.find((item) => item.id === pendingState.variableId);
+  /**
+   * 常量：variableName。
+   */
   const variableName = variableDefinitionNameNormalize(currentItem?.name ?? '') || t('components.crawler.blueprint.nodes.variable.set.outputs.value.label');
 
   return t('components.crawler.blueprint.nodes.variable.set.dialogs.changeType.description', {
@@ -233,8 +284,17 @@ const computedTypeChangeDialogDescription = computed(() => {
   });
 });
 
+/**
+ * 函数：createEditorItem。
+ */
 const createEditorItem = (variableDefinition?: Partial<IVariableDefinitionData>): IVariableSetEditorItem => {
+  /**
+   * 常量：dataType。
+   */
   const dataType = variableDefinition?.dataType ?? 'string';
+  /**
+   * 常量：defaultValue。
+   */
   const defaultValue = variableDefinition?.defaultValue ?? variableDefaultValueCreate(dataType);
 
   return {
@@ -246,8 +306,17 @@ const createEditorItem = (variableDefinition?: Partial<IVariableDefinitionData>)
   };
 };
 
+/**
+ * 函数：hasTargetPinConnection。
+ */
 const hasTargetPinConnection = (item: IVariableSetEditorItem): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
+  /**
+   * 事件：handleId。
+   */
   const handleId = variableInputHandleIdGet(item.id, item.dataType);
 
   if (nodeId === '') {
@@ -257,13 +326,22 @@ const hasTargetPinConnection = (item: IVariableSetEditorItem): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
+/**
+ * 常量：variableNameErrorGet。
+ */
 const variableNameErrorGet = (item: IVariableSetEditorItem): string => {
+  /**
+   * 函数：normalizedName。
+   */
   const normalizedName = variableDefinitionNameNormalize(item.name);
 
   if (normalizedName === '') {
     return t('components.crawler.blueprint.nodes.variable.set.validations.nameRequired');
   }
 
+  /**
+   * 常量：duplicateCount。
+   */
   const duplicateCount = computedVariableCatalog.value.filter((catalogItem) => catalogItem.id !== item.id && variableDefinitionNameNormalize(catalogItem.name) === normalizedName).length;
 
   if (duplicateCount > 0) {
@@ -273,6 +351,9 @@ const variableNameErrorGet = (item: IVariableSetEditorItem): string => {
   return '';
 };
 
+/**
+ * 常量：variableDefaultValueErrorGet。
+ */
 const variableDefaultValueErrorGet = (item: IVariableSetEditorItem): string => {
   if (hasTargetPinConnection(item)) {
     return '';
@@ -289,15 +370,27 @@ const variableDefaultValueErrorGet = (item: IVariableSetEditorItem): string => {
   return '';
 };
 
+/**
+ * 事件：handleVariableAdd。
+ */
 const handleVariableAdd = (): void => {
   stateVariables.value.push(createEditorItem());
 };
 
+/**
+ * 事件：handleVariableRemove。
+ */
 const handleVariableRemove = (index: number): void => {
   stateVariables.value.splice(index, 1);
 };
 
+/**
+ * 事件：handleVariableStringValueUpdate。
+ */
 const handleVariableStringValueUpdate = (variableId: string, value: string | number): void => {
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem) {
@@ -307,7 +400,13 @@ const handleVariableStringValueUpdate = (variableId: string, value: string | num
   targetItem.defaultValue = String(value ?? '');
 };
 
+/**
+ * 事件：handleVariableNumberValueUpdate。
+ */
 const handleVariableNumberValueUpdate = (variableId: string, value: number): void => {
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem) {
@@ -317,7 +416,13 @@ const handleVariableNumberValueUpdate = (variableId: string, value: number): voi
   targetItem.defaultValue = Number.isFinite(Number(value)) ? Number(value) : 0;
 };
 
+/**
+ * 事件：handleVariableBooleanValueUpdate。
+ */
 const handleVariableBooleanValueUpdate = (variableId: string, value: boolean): void => {
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem) {
@@ -327,7 +432,13 @@ const handleVariableBooleanValueUpdate = (variableId: string, value: boolean): v
   targetItem.defaultValue = Boolean(value);
 };
 
+/**
+ * 事件：handleVariableJsonValueUpdate。
+ */
 const handleVariableJsonValueUpdate = (variableId: string, value: string | number): void => {
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem) {
@@ -336,6 +447,9 @@ const handleVariableJsonValueUpdate = (variableId: string, value: string | numbe
 
   targetItem.jsonText = String(value ?? '');
 
+  /**
+   * 函数：parsedValue。
+   */
   const parsedValue = variableJsonTextParse(targetItem.dataType, targetItem.jsonText);
 
   if (parsedValue !== null) {
@@ -343,7 +457,13 @@ const handleVariableJsonValueUpdate = (variableId: string, value: string | numbe
   }
 };
 
+/**
+ * 常量：applyVariableTypeChange。
+ */
 const applyVariableTypeChange = (variableId: string, nextType: TVariableValueDataType): void => {
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem) {
@@ -355,15 +475,30 @@ const applyVariableTypeChange = (variableId: string, nextType: TVariableValueDat
   targetItem.jsonText = variableJsonTextGet(nextType, targetItem.defaultValue);
 };
 
+/**
+ * 事件：handleVariableTypeUpdate。
+ */
 const handleVariableTypeUpdate = (variableId: string, nextValue: string | number): void => {
+  /**
+   * 常量：nextType。
+   */
   const nextType = String(nextValue ?? '') as TVariableValueDataType;
+  /**
+   * 常量：targetItem。
+   */
   const targetItem = stateVariables.value.find((item) => item.id === variableId);
 
   if (!targetItem || !variableValueDataTypesGet().includes(nextType) || nextType === targetItem.dataType) {
     return;
   }
 
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
+  /**
+   * 常量：affectedEdgeIds。
+   */
   const affectedEdgeIds = variableTypeChangeAffectedEdgeIdsCollect(nodes.value, edges.value, nodeId, variableId, targetItem.dataType);
 
   if (affectedEdgeIds.length === 0) {
@@ -381,12 +516,21 @@ const handleVariableTypeUpdate = (variableId: string, nextValue: string | number
   stateTypeChangeModalOpen.value = true;
 };
 
+/**
+ * 事件：handleTypeChangeCancel。
+ */
 const handleTypeChangeCancel = (): void => {
   statePendingTypeChange.value = null;
   stateTypeChangeModalOpen.value = false;
 };
 
+/**
+ * 事件：handleTypeChangeConfirm。
+ */
 const handleTypeChangeConfirm = (): void => {
+  /**
+   * 常量：pendingState。
+   */
   const pendingState = statePendingTypeChange.value;
 
   if (!pendingState) {
@@ -399,6 +543,9 @@ const handleTypeChangeConfirm = (): void => {
   stateTypeChangeModalOpen.value = false;
 };
 
+/**
+ * 常量：serializeVariables。
+ */
 const serializeVariables = (): IVariableDefinitionData[] => {
   return stateVariables.value.map((item) => ({
     id: item.id,
@@ -413,6 +560,9 @@ watchEffect(() => {
     return;
   }
 
+  /**
+   * 常量：variables。
+   */
   const variables = variableDefinitionsParse((stateNode.node.data as Record<string, unknown> | undefined)?.variables);
   stateVariables.value = variables.length > 0 ? variables.map((item) => createEditorItem(item)) : [createEditorItem()];
   stateInitialized.value = true;

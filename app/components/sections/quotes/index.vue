@@ -89,6 +89,9 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：routeValue。
+   */
   const routeValue = typeof route.query.pagesize !== 'undefined' ? String(route.query.pagesize).trim() : '';
 
   if (routeValue !== '') {
@@ -143,7 +146,13 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
   // 多选 ID 参数
   const typeIds = asArray(route.query.type_ids);
+  /**
+   * 常量：authorIds。
+   */
   const authorIds = asArray(route.query.author_ids);
+  /**
+   * 常量：sourceIds。
+   */
   const sourceIds = asArray(route.query.source_ids);
   if (typeIds.length > 0) {
     query.type_ids = typeIds;
@@ -166,12 +175,18 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 
   // 排序：orderBy（id/updated/created）与 order_dir（asc/desc）
   if (typeof route.query.order_by !== 'undefined') {
+    /**
+     * 常量：by。
+     */
     const by = String(route.query.order_by);
     if (by === 'id' || by === 'updated' || by === 'created') {
       query.order_by = by;
     }
   }
   if (typeof route.query.order_dir !== 'undefined') {
+    /**
+     * 常量：dir。
+     */
     const dir = String(route.query.order_dir).toLowerCase();
     if (dir === 'asc' || dir === 'desc') {
       query.order_dir = dir;
@@ -188,8 +203,17 @@ const buildApiQueryFromRoute = (): Record<string, string | string[]> => {
 const toggleSort = (field: 'id' | 'updated' | 'created') => {
   // 默认按照编号倒序
   const currentBy = String(route.query.order_by || 'id');
+  /**
+   * 常量：currentDir。
+   */
   const currentDir = String(route.query.order_dir || 'desc');
+  /**
+   * 常量：nextBy。
+   */
   const nextBy = field;
+  /**
+   * 常量：nextDir。
+   */
   const nextDir = currentBy === field ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
   const q: Record<string, string | string[]> = { ...route.query } as Record<string, string | string[]>;
   q.order_by = nextBy;
@@ -252,7 +276,13 @@ const computedQuoteDatas = computed<IPageTableColumnQuotes[]>(() => {
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = route.query.page as string | undefined;
+    /**
+     * 常量：num。
+     */
     const num = parseInt(str ?? '', 10);
     return Number.isFinite(num) && num > 0 ? num : 1;
   },
@@ -267,15 +297,27 @@ const computedPage = computed<number>({
  * 计算属性：每页数量（Number，避免字符串警告）
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：str。
+   */
   const str = route.query.pagesize as string | undefined;
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(str ?? '', 10);
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'common');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(datas.value?.pageSize ?? 20);
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
 });
@@ -285,6 +327,9 @@ const computedItemsPerPage = computed<number>(() => {
  * - 若路由 query 中存在 enabled 键，则更新后刷新当前列表
  */
 const handleToggleEnabled = async (row: IPageTableColumnQuotes, value: boolean) => {
+  /**
+   * 常量：prev。
+   */
   const prev = row.enabled;
   row.enabled = value;
 
@@ -311,6 +356,9 @@ const buildQuoteDetailUrl = (uuid: string): string => `https://hitokoto.cn?uuid=
  * @param {string} uuid 名句 UUID
  */
 const handleClickSentenceLink = async (event: MouseEvent, uuid: string): Promise<void> => {
+  /**
+   * 常量：url。
+   */
   const url = buildQuoteDetailUrl(uuid);
 
   if (isTauriRuntime.value) {
@@ -337,18 +385,27 @@ const buildSingleFilterLocation = (key: 'type_ids' | 'source_ids' | 'author_ids'
     q.is_and = String(route.query.is_and);
   }
   if (typeof route.query.uuid !== 'undefined') {
+    /**
+     * 常量：uuid。
+     */
     const uuid = String(route.query.uuid).trim();
     if (uuid) {
       q.uuid = uuid;
     }
   }
   if (typeof route.query.content !== 'undefined') {
+    /**
+     * 常量：content。
+     */
     const content = String(route.query.content).trim();
     if (content) {
       q.content = content;
     }
   }
   if (typeof route.query.translate !== 'undefined') {
+    /**
+     * 常量：translate。
+     */
     const translate = String(route.query.translate).trim();
     if (translate) {
       q.translate = translate;
@@ -383,9 +440,21 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'id' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.quotes.result.table.id'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('id') });
     },
@@ -403,9 +472,21 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.sentence'),
     cell: ({ row }) => {
       const { sentence, translate, source, author, typeId } = row.original.infos;
+      /**
+       * 常量：typeLabel。
+       */
       const typeLabel = t(`components.quotes.search.types.${typeId}`);
+      /**
+       * 常量：bookTitlePrefix。
+       */
       const bookTitlePrefix = t('common.content.bookTitle.prefix');
+      /**
+       * 常量：bookTitleSuffix。
+       */
       const bookTitleSuffix = t('common.content.bookTitle.suffix');
+      /**
+       * 常量：nodes。
+       */
       const nodes = [
         h('div', { class: 'min-w-0' }, [
           h(
@@ -427,7 +508,13 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
         nodes.push(h('p', { class: 'text-sm text-dimmed mt-1' }, translate));
       }
 
+      /**
+       * 常量：sourceName。
+       */
       const sourceName = source?.name || 'unknown';
+      /**
+       * 常量：authorName。
+       */
       const authorName = author?.name || 'unknown';
       nodes.push(
         h('div', { class: 'text-xs text-muted mt-1' }, [
@@ -478,6 +565,9 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.sentence'),
     cell: ({ row }) => {
       const { sentence, translate } = row.original.infos;
+      /**
+       * 常量：nodes。
+       */
       const nodes = [
         h('div', { class: 'min-w-0' }, [
           h(
@@ -513,10 +603,25 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.typeSourceAuthor'),
     cell: ({ row }) => {
       const { source, author, typeId } = row.original.infos;
+      /**
+       * 常量：typeLabel。
+       */
       const typeLabel = t(`components.quotes.search.types.${typeId}`);
+      /**
+       * 常量：bookTitlePrefix。
+       */
       const bookTitlePrefix = t('common.content.bookTitle.prefix');
+      /**
+       * 常量：bookTitleSuffix。
+       */
       const bookTitleSuffix = t('common.content.bookTitle.suffix');
+      /**
+       * 常量：sourceName。
+       */
       const sourceName = source?.name || 'unknown';
+      /**
+       * 常量：authorName。
+       */
       const authorName = author?.name || 'unknown';
 
       return h('div', { class: 'text-sm text-muted mt-1' }, [
@@ -564,6 +669,9 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.type'),
     cell: ({ row }) => {
       const { typeId } = row.original.infos;
+      /**
+       * 常量：typeLabel。
+       */
       const typeLabel = t(`components.quotes.search.types.${typeId}`);
       return h(
         ULink,
@@ -587,6 +695,9 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.source'),
     cell: ({ row }) => {
       const { source } = row.original.infos;
+      /**
+       * 常量：sourceName。
+       */
       const sourceName = source?.name || 'unknown';
 
       return h(
@@ -611,6 +722,9 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     header: t('pages.quotes.result.table.author'),
     cell: ({ row }) => {
       const { author } = row.original.infos;
+      /**
+       * 常量：authorName。
+       */
       const authorName = author?.name || 'unknown';
 
       return h(
@@ -673,9 +787,21 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'updated' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.quotes.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
@@ -700,9 +826,21 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       }
     },
     header: () => {
+      /**
+       * 常量：by。
+       */
       const by = String(route.query.order_by || 'id');
+      /**
+       * 常量：dir。
+       */
       const dir = String(route.query.order_dir || 'desc');
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = by === 'created' ? (dir === 'asc' ? 'asc' : 'desc') : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.quotes.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },

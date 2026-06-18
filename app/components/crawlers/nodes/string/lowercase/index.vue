@@ -48,6 +48,9 @@ const stateText = ref('');
  * @returns {boolean} 是否已连接。
  */
 const hasTargetPinConnection = (handleId: string): boolean => {
+  /**
+   * 常量：nodeId。
+   */
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {
     return false;
@@ -82,6 +85,9 @@ watchEffect(() => {
   if (stateInitialized.value) {
     return;
   }
+  /**
+   * 常量：data。
+   */
   const data = (stateNode.node.data ?? {}) as IStringLowercaseNodeData;
   stateText.value = String(data.text ?? '');
   stateInitialized.value = true;

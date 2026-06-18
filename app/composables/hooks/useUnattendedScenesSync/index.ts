@@ -29,7 +29,13 @@ export const unattendedScenesItemsNormalize = (items: unknown): IPageSettingsUna
   }
 
   return items.map((item) => {
+    /**
+     * 常量：src。
+     */
     const src = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+    /**
+     * 常量：args。
+     */
     const args = Array.isArray(src.args) ? src.args.map((value) => String(value ?? '')) : [];
 
     return {
@@ -55,6 +61,9 @@ export const unattendedScenesItemsNormalize = (items: unknown): IPageSettingsUna
  * 返回规范化后的本地场景副本。
  */
 export const unattendedScenesLocalNormalize = (input: unknown): ISettingsUnattendedScenesLocal => {
+  /**
+   * 常量：src。
+   */
   const src = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
 
   return {
@@ -76,9 +85,15 @@ export const unattendedScenesLocalNormalize = (input: unknown): ISettingsUnatten
  * 返回合并结果。
  */
 export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnattendedScenesItem[], remoteItems: IPageSettingsUnattendedScenesItem[]): IPageSettingsUnattendedScenesItem[] => {
+  /**
+   * 函数：merged。
+   */
   const merged = new Map<string, IPageSettingsUnattendedScenesItem>();
 
   for (const item of remoteItems) {
+    /**
+     * 常量：id。
+     */
     const id = String(item?.id ?? '').trim();
     if (!id) {
       continue;
@@ -87,6 +102,9 @@ export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnatte
   }
 
   for (const item of localItems) {
+    /**
+     * 常量：id。
+     */
     const id = String(item?.id ?? '').trim();
     if (!id) {
       continue;
@@ -111,11 +129,26 @@ export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnatte
  * 返回按重要性排序的对比条目。
  */
 export const unattendedScenesSyncEntriesBuild = (args: IUnattendedScenesSyncEntriesBuildArgs): IUnattendedScenesSyncEntry[] => {
+  /**
+   * 常量：localItems。
+   */
   const localItems = unattendedScenesItemsNormalize(args.local.items);
+  /**
+   * 常量：remoteItems。
+   */
   const remoteItems = unattendedScenesItemsNormalize(args.remote?.items);
 
+  /**
+   * 常量：localMap。
+   */
   const localMap = new Map(localItems.map((item) => [String(item.id || '').trim(), item]));
+  /**
+   * 常量：remoteMap。
+   */
   const remoteMap = new Map(remoteItems.map((item) => [String(item.id || '').trim(), item]));
+  /**
+   * 常量：ids。
+   */
   const ids = Array.from(new Set([...localMap.keys(), ...remoteMap.keys()])).filter((id) => id !== '');
 
   const statusWeight: Record<TUnattendedScenesSyncStatus, number> = {
@@ -127,7 +160,13 @@ export const unattendedScenesSyncEntriesBuild = (args: IUnattendedScenesSyncEntr
 
   return ids
     .map((id) => {
+      /**
+       * 常量：local。
+       */
       const local = localMap.get(id);
+      /**
+       * 常量：remote。
+       */
       const remote = remoteMap.get(id);
 
       let status: TUnattendedScenesSyncStatus = 'conflict';
@@ -150,6 +189,9 @@ export const unattendedScenesSyncEntriesBuild = (args: IUnattendedScenesSyncEntr
       } satisfies IUnattendedScenesSyncEntry;
     })
     .sort((left, right) => {
+      /**
+       * 常量：weight。
+       */
       const weight = statusWeight[left.status] - statusWeight[right.status];
       if (weight !== 0) {
         return weight;
@@ -169,7 +211,13 @@ let resolveCurrent: ((choice: IUnattendedScenesSyncChoice) => void) | null = nul
  * 返回弹窗状态与控制方法。
  */
 export const useUnattendedScenesSyncDialog = () => {
+  /**
+   * 状态：stateOpen。
+   */
   const stateOpen = useState<boolean>('unattended-scenes-sync-open', () => false);
+  /**
+   * 状态：statePayload。
+   */
   const statePayload = useState<IUnattendedScenesSyncPayload | null>('unattended-scenes-sync-payload', () => null);
 
   /**
@@ -202,6 +250,9 @@ export const useUnattendedScenesSyncDialog = () => {
   const settle = (choice: IUnattendedScenesSyncChoice): void => {
     stateOpen.value = false;
 
+    /**
+     * 常量：current。
+     */
     const current = resolveCurrent;
     resolveCurrent = null;
     current?.(choice);
