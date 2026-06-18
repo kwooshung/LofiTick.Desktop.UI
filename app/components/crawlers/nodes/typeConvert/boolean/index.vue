@@ -19,15 +19,39 @@ import { useNode } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
+/**
+ * Hook：国际化。
+ */
 const { t } = useI18n();
 
+/**
+ * Hook：当前节点上下文。
+ */
 const stateNode = useNode();
+
+/**
+ * 状态：是否已完成首次初始化。
+ */
 const stateInitialized = ref(false);
+
+/**
+ * 状态：真值列表文本。
+ */
 const stateTruthyValuesText = ref('true,1,"yes","on"');
+
+/**
+ * 常量：预置真值选项。
+ */
 const truthyValueOptions: string[] = ['true', '1', '"yes"', '"on"', 'y', 'ok'];
 
+/**
+ * 状态：当前选中的真值项。
+ */
 const stateSelectedTruthyValues = ref<string[]>(['true', '1', '"yes"', '"on"']);
 
+/**
+ * 常量：输入端引脚。
+ */
 const leftPins: IBasicSidePin[] = [
   {
     id: 'input-any',
@@ -39,6 +63,9 @@ const leftPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 常量：输出端引脚。
+ */
 const rightPins: IBasicSidePin[] = [
   {
     id: 'result-boolean',
@@ -50,6 +77,11 @@ const rightPins: IBasicSidePin[] = [
   }
 ];
 
+/**
+ * 函数：解析逗号分隔的真值文本。
+ * @param {string} text 原始文本。
+ * @returns {string[]} 解析后的值数组。
+ */
 const parseTruthyValues = (text: string): string[] => {
   return String(text ?? '')
     .split(',')
@@ -57,22 +89,40 @@ const parseTruthyValues = (text: string): string[] => {
     .filter((value) => value !== '');
 };
 
+/**
+ * 函数：根据文本反向同步下拉选中值。
+ */
 const updateSelectedValuesFromText = (): void => {
   const allValues = parseTruthyValues(stateTruthyValuesText.value);
   stateSelectedTruthyValues.value = allValues.filter((value) => truthyValueOptions.includes(value));
 };
 
+/**
+ * 函数：处理下拉多选变更并归一化为字符串数组。
+ * @param {unknown} val 组件回传值。
+ */
 const handleTruthySelectChange = (val: unknown): void => {
   stateSelectedTruthyValues.value = Array.isArray(val) ? val.map((v) => (typeof v === 'string' ? v : String((v as Record<string, unknown>)?.value ?? v))).filter((v) => truthyValueOptions.includes(v)) : [];
 };
+
+/**
+ * 函数：将下拉选中值与自定义文本合并回文本框。
+ * @param {string[]} selected 当前下拉选中值。
+ */
 const mergeSelectedValuesToText = (selected: string[]): void => {
   const customValues = parseTruthyValues(stateTruthyValuesText.value).filter((value) => !truthyValueOptions.includes(value));
   const merged = [...new Set([...selected, ...customValues])];
   stateTruthyValuesText.value = merged.join(',');
 };
 
+/**
+ * 状态：避免双向同步时的循环更新。
+ */
 const skipSync = ref(false);
 
+/**
+ * 生命周期：首次挂载时从节点数据回填表单状态。
+ */
 watchEffect(() => {
   if (stateInitialized.value) {
     return;
@@ -84,6 +134,9 @@ watchEffect(() => {
   stateInitialized.value = true;
 });
 
+/**
+ * 监听：下拉选项变化时回写文本框。
+ */
 watch(
   stateSelectedTruthyValues,
   (selected) => {
@@ -98,6 +151,9 @@ watch(
   { deep: true }
 );
 
+/**
+ * 监听：文本框变化时同步下拉选项并更新节点数据。
+ */
 watch(stateTruthyValuesText, () => {
   if (!stateInitialized.value || skipSync.value) {
     return;
