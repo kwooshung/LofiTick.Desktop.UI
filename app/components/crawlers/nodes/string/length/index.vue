@@ -15,18 +15,35 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { IStringLengthNodeData } from '@/components/crawlers/nodes/string/length/index.types';
 
-interface IStringLengthNodeData {
-  text?: string;
-}
-
+/**
+ * Hook：国际化工具。
+ */
 const { t } = useI18n();
+/**
+ * Hook：当前节点上下文。
+ */
 const stateNode = useNode();
+/**
+ * 常量：当前节点 ID。
+ */
 const stateNodeId = useNodeId();
+/**
+ * Hook：Vue Flow 边集合。
+ */
 const { edges } = useVueFlow();
+/**
+ * 状态：是否完成首次数据回填。
+ */
 const stateInitialized = ref(false);
 const stateText = ref('');
 
+/**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
   if (nodeId === '') {

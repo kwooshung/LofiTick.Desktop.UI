@@ -19,18 +19,27 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { IMathRoundNodeData, TRoundMode } from '@/components/crawlers/nodes/math/round/index.types';
 
-type TRoundMode = 'round' | 'ceil' | 'floor';
-
-interface IMathRoundNodeData {
-  roundMode?: TRoundMode;
-  value?: number;
-}
-
+/**
+ * Hook：国际化工具。
+ */
 const { t } = useI18n();
+/**
+ * Hook：当前节点上下文。
+ */
 const stateNode = useNode();
+/**
+ * 常量：当前节点 ID。
+ */
 const stateNodeId = useNodeId();
+/**
+ * Hook：Vue Flow 边集合。
+ */
 const { edges } = useVueFlow();
+/**
+ * 状态：是否完成首次数据回填。
+ */
 const stateInitialized = ref(false);
 const stateRoundMode = ref<TRoundMode>('round');
 const stateValue = ref(0);
@@ -64,6 +73,11 @@ const rightPins: IBasicSidePin[] = [
   { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
+/**
+ * 函数：判断目标引脚是否已连接。
+ * @param {string} handleId 引脚 ID。
+ * @returns {boolean} 是否已连接。
+ */
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
 

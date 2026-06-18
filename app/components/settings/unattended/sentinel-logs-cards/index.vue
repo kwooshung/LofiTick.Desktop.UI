@@ -70,21 +70,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：哨兵日志卡片 Props
- */
-interface ISettingsUnattendedSentinelLogsCardsProps {
-  /**
-   * 机器日志列表
-   */
-  machines: IPageSettingsUnattendedSentinelLogsMachineCard[];
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedSentinelLogsCardsProps } from '@/components/settings/unattended/sentinel-logs-cards/index.types';
 /**
  * Hook：i18n
  */

@@ -70,21 +70,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：场景守护详情 Props
- */
-interface ISettingsUnattendedScenesMachineDetailsProps {
-  /**
-   * 当前机器场景信息
-   */
-  machine: IPageSettingsUnattendedScenesMachineRedisConfig;
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedScenesMachineDetailsProps } from '@/components/settings/unattended/scenes-machine-details/index.types';
 /**
  * Hook：i18n
  */

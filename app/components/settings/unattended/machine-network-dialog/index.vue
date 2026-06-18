@@ -83,21 +83,7 @@
 
 <script setup lang="ts">
 import type { TabsItem } from '@nuxt/ui';
-
-/**
- * 类型：网卡 Tab
- */
-type TSettingsUnattendedMachineNetworkDialogTab = 'ipv4' | 'ipv6';
-
-/**
- * 接口：机器网卡弹窗 Props
- */
-interface ISettingsUnattendedMachineNetworkDialogProps {
-  /**
-   * 当前机器
-   */
-  machine: IPageSettingsUnattendedMachineCardInfo | null;
-}
+import type { ISettingsUnattendedMachineNetworkDialogProps, TSettingsUnattendedMachineNetworkDialogTab } from '@/components/settings/unattended/machine-network-dialog/index.types';
 
 /**
  * 常量：网卡 Tabs 选项

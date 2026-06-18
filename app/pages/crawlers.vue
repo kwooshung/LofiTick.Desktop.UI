@@ -275,7 +275,6 @@ const schema = z.object({
 /**
  * 类型：编辑器表单提交值。
  */
-type TCrawlerTargetEditorSubmit = z.output<typeof schema>;
 
 /**
  * API：获取站点详情
@@ -564,7 +563,7 @@ const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/ta
 /**
  * 事件：提交表单
  */
-const handleEditorSubmit = async (event: FormSubmitEvent<TCrawlerTargetEditorSubmit>) => {
+const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
   await refreshSave({
     datas: {
       id: event.data.id,

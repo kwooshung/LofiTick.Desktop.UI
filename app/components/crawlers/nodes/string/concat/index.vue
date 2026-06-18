@@ -32,11 +32,7 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-
-interface IStringConcatNodeData {
-  segmentIds?: string[];
-  segmentValues?: Record<string, string>;
-}
+import type { IStringConcatNodeData } from '@/components/crawlers/nodes/string/concat/index.types';
 
 const { t } = useI18n();
 const stateNode = useNode();

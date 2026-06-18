@@ -436,3 +436,26 @@ export interface IHotsearchPodcastViewModel {
   /** 完整媒体资产 */
   assets: IHotsearchPodcastMediaAsset[];
 }
+
+/**
+ * 接口：日历日期值。
+ */
+export interface ICalendarDateValue {
+  /** 年。 */
+  year: number;
+
+  /** 月。 */
+  month: number;
+
+  /** 日。 */
+  day: number;
+}
+
+/**
+ * 类型：媒体播放器组件暴露能力。
+ */
+export type TMediaPlyrExposed = {
+  player: {
+    play: () => Promise<void>;
+  } | null;
+};

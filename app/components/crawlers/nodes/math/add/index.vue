@@ -33,11 +33,7 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-
-interface IMathAddNodeData {
-  operandIds?: string[];
-  operandValues?: Record<string, number>;
-}
+import type { IMathAddNodeData } from '@/components/crawlers/nodes/math/add/index.types';
 
 const { t } = useI18n();
 const stateNode = useNode();

@@ -163,18 +163,7 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-
-interface IHttpRequestFormPair {
-  id: string;
-  key: string;
-  value: string;
-}
-
-interface IHttpRequestKeyValuePair {
-  id: string;
-  key: string;
-  value: string;
-}
+import type { IHttpRequestFormPair, IHttpRequestKeyValuePair } from '@/components/crawlers/nodes/http/request/index.types';
 
 const { t } = useI18n();
 

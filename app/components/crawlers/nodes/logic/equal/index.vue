@@ -12,14 +12,20 @@
 import { useNode } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { ILogicEqualNodeData } from '@/components/crawlers/nodes/logic/equal/index.types';
 
-interface ILogicEqualNodeData {
-  compareOperandIds?: string[];
-}
-
+/**
+ * Hook：国际化工具。
+ */
 const { t } = useI18n();
 
+/**
+ * Hook：当前节点上下文。
+ */
 const stateNode = useNode();
+/**
+ * 状态：是否完成首次数据回填。
+ */
 const stateInitialized = ref(false);
 const stateOperandIds = ref<string[]>([]);
 

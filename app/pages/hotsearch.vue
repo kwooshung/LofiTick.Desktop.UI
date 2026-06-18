@@ -173,26 +173,8 @@
 <script setup lang="ts">
 import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
+import type { ICalendarDateValue, TMediaPlyrExposed } from '@@/shared/types/pages/hotsearch/index.types';
 
-/**
- * 类型：日历日期值。
- */
-interface ICalendarDateValue {
-  /** 年。 */
-  year: number;
-
-  /** 月。 */
-  month: number;
-
-  /** 日。 */
-  day: number;
-}
-
-type TMediaPlyrExposed = {
-  player: {
-    play: () => Promise<void>;
-  } | null;
-};
 
 /**
  * Hook：国际化。

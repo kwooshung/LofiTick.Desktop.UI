@@ -33,11 +33,7 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-
-interface IMathMultiplyNodeData {
-  operandIds?: string[];
-  operandValues?: Record<string, number>;
-}
+import type { IMathMultiplyNodeData } from '@/components/crawlers/nodes/math/multiply/index.types';
 
 const { t } = useI18n();
 const stateNode = useNode();

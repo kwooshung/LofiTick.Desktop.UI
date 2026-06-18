@@ -75,16 +75,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：机器日志弹窗 Props
- */
-interface ISettingsUnattendedMachineLogsDialogProps {
-  /**
-   * 当前机器日志信息
-   */
-  machine: IPageSettingsUnattendedSentinelLogsMachineCard | null;
-}
-
+import type { ISettingsUnattendedMachineLogsDialogProps } from '@/components/settings/unattended/machine-logs-dialog/index.types';
 /**
  * Hook：i18n
  */

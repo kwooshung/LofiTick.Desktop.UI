@@ -423,7 +423,6 @@ import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
-type TAdInputTimeValue = InputTimeProps['modelValue'];
 
 /**
  * 属性：页面刷新标记。
@@ -482,6 +481,9 @@ const stateTableUi = {
 
 /**
  * Hook：国际化。
+ */
+/**
+ * Hook：国际化工具。
  */
 const { t } = useI18n();
 
@@ -1245,25 +1247,25 @@ const { refresh: refreshCreate } = await useApi<IHotsearchAdMaterialSaveResult>(
  * 函数：将时间文本转换为 UInputTime 可用值。
  * @param {string} value 时间文本。
  * @param {string} fallback 回退时间。
- * @returns {TAdInputTimeValue} 时间值。
+ * @returns {InputTimeProps['modelValue']} 时间值。
  */
-const timeValueFromText = (value: string, fallback: string): TAdInputTimeValue => {
+const timeValueFromText = (value: string, fallback: string): InputTimeProps['modelValue'] => {
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   try {
-    return parseTime(normalized) as unknown as TAdInputTimeValue;
+    return parseTime(normalized) as unknown as InputTimeProps['modelValue'];
   } catch {
-    return parseTime(fallback) as unknown as TAdInputTimeValue;
+    return parseTime(fallback) as unknown as InputTimeProps['modelValue'];
   }
 };
 
 /**
  * 函数：将 UInputTime 值格式化为 HH:mm。
- * @param {TAdInputTimeValue} value 时间值。
+ * @param {InputTimeProps['modelValue']} value 时间值。
  * @param {string} fallback 回退时间。
  * @returns {string} 时间文本。
  */
-const textFromTimeValue = (value: TAdInputTimeValue, fallback: string): string => {
+const textFromTimeValue = (value: InputTimeProps['modelValue'], fallback: string): string => {
   if (!value) {
     return fallback;
   }
@@ -2892,17 +2894,17 @@ const handleEndDateUpdate = (value: unknown): void => {
 
 /**
  * 事件：开始时间变更。
- * @param {TAdInputTimeValue} value 时间值。
+ * @param {InputTimeProps['modelValue']} value 时间值。
  */
-const handleStartTimeUpdate = (value: TAdInputTimeValue): void => {
+const handleStartTimeUpdate = (value: InputTimeProps['modelValue']): void => {
   stateEditor.value.startAt = localDateTimeMerge(datePartGet(stateEditor.value.startAt), textFromTimeValue(value, '00:00'));
 };
 
 /**
  * 事件：结束时间变更。
- * @param {TAdInputTimeValue} value 时间值。
+ * @param {InputTimeProps['modelValue']} value 时间值。
  */
-const handleEndTimeUpdate = (value: TAdInputTimeValue): void => {
+const handleEndTimeUpdate = (value: InputTimeProps['modelValue']): void => {
   stateEditor.value.endAt = localDateTimeMerge(datePartGet(stateEditor.value.endAt), textFromTimeValue(value, '23:59'));
 };
 

@@ -3,14 +3,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：启用状态选择器参数。
- */
-interface ISelectsEnabledProps {
-  /** 占位文案。 */
-  placeholder?: string;
-}
-
+import type { ISelectsEnabledProps } from '@/components/selects/enabled/index.types';
 const { placeholder = undefined } = defineProps<ISelectsEnabledProps>();
 
 /**

@@ -37,6 +37,8 @@ export type {
   IHotsearchPodcastViewModel,
   IHotsearchTagSummaryPage,
   IHotsearchTagSummaryRow,
+  ICalendarDateValue,
+  TMediaPlyrExposed,
   IQueryResultHotSearchCronAllResponse,
   IQueryResultHotSearchCronPlatformResponse,
   IQueryResultHotSearchDateRecountRequest,

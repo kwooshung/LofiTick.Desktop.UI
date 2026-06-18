@@ -64,24 +64,13 @@
 
 <script setup lang="ts">
 import { useClipboard } from '@vueuse/core';
-
-/**
- * 接口：机器基础卡片 Props
- */
-interface ISettingsUnattendedMachineCardBaseProps {
-  /**
-   * 机器基础信息
-   */
-  machine: IPageSettingsUnattendedMachineCardInfo;
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
+import type { ISettingsUnattendedMachineCardBaseProps } from '@/components/settings/unattended/machine-card-base/index.types';
 
 /**
  * Hook：i18n
+ */
+/**
+ * Hook：国际化工具。
  */
 const { t } = useI18n();
 

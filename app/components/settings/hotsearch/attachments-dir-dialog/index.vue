@@ -14,40 +14,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：附件目录确认弹窗属性。
- */
-interface ISettingsHotsearchAttachmentsDirDialogProps {
-  /**
-   * 弹窗开关。
-   */
-  open: boolean;
-
-  /**
-   * 当前附件目录。
-   */
-  currentPath?: string;
-}
-
-/**
- * 接口：附件目录确认弹窗事件。
- */
-interface ISettingsHotsearchAttachmentsDirDialogEmits {
-  /**
-   * 事件：更新弹窗开关。
-   * @param {'update:open'} event 事件名称
-   * @param {boolean} value 最新开关
-   */
-  (event: 'update:open', value: boolean): void;
-
-  /**
-   * 事件：附件目录已保存。
-   * @param {'selected'} event 事件名称
-   * @param {string} value 最新目录
-   */
-  (event: 'selected', value: string): void;
-}
-
+import type { ISettingsHotsearchAttachmentsDirDialogEmits, ISettingsHotsearchAttachmentsDirDialogProps } from '@/components/settings/hotsearch/attachments-dir-dialog/index.types';
 /**
  * Hook：国际化。
  */

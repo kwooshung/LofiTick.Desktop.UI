@@ -350,7 +350,6 @@ import { parseTime } from '@internationalized/date';
 import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
-type THotsearchInputTimeValue = InputTimeProps['modelValue'];
 
 /**
  * Hook：i18n
@@ -1011,25 +1010,25 @@ const computedBudgetStatusYearDescription = computed(() => {
  * 函数：将时间文本转换为 UInputTime 可用值
  * @param {string} value 时间文本
  * @param {string} fallback 回退时间
- * @returns {THotsearchInputTimeValue} 时间值
+ * @returns {InputTimeProps['modelValue']} 时间值
  */
-const hotsearchTimeValueFromText = (value: string, fallback: string): THotsearchInputTimeValue => {
+const hotsearchTimeValueFromText = (value: string, fallback: string): InputTimeProps['modelValue'] => {
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
   try {
-    return parseTime(normalized) as unknown as THotsearchInputTimeValue;
+    return parseTime(normalized) as unknown as InputTimeProps['modelValue'];
   } catch {
-    return parseTime(fallback) as unknown as THotsearchInputTimeValue;
+    return parseTime(fallback) as unknown as InputTimeProps['modelValue'];
   }
 };
 
 /**
  * 函数：将 UInputTime 值格式化为 HH:mm
- * @param {THotsearchInputTimeValue} value 时间值
+ * @param {InputTimeProps['modelValue']} value 时间值
  * @param {string} fallback 回退时间
  * @returns {string} 时间文本
  */
-const hotsearchTextFromTimeValue = (value: THotsearchInputTimeValue, fallback: string): string => {
+const hotsearchTextFromTimeValue = (value: InputTimeProps['modelValue'], fallback: string): string => {
   if (!value) {
     return fallback;
   }
@@ -2138,7 +2137,7 @@ const handleMonthlyBudgetUpdate = (value: number | undefined): void => {
  * 函数：更新早间时间
  * @param {string} value 最新值
  */
-const handleMorningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
+const handleMorningStartAtUpdate = (value: InputTimeProps['modelValue']): void => {
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     morningStartAt: hotsearchTextFromTimeValue(value, '06:00')
@@ -2150,7 +2149,7 @@ const handleMorningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
  * 函数：更新晚间时间
  * @param {string} value 最新值
  */
-const handleEveningStartAtUpdate = (value: THotsearchInputTimeValue): void => {
+const handleEveningStartAtUpdate = (value: InputTimeProps['modelValue']): void => {
   stateHotsearchConfig.value = hotsearchLocalSettingsNormalize({
     ...stateHotsearchConfig.value,
     eveningStartAt: hotsearchTextFromTimeValue(value, '18:00')

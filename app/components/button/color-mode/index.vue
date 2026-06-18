@@ -25,11 +25,6 @@ const themeModeIconMap = {
 } as const;
 
 /**
- * 类型：主题模式偏好
- */
-type TThemeModePreference = keyof typeof themeModeIconMap;
-
-/**
  * 计算属性：图标名称
  */
 const iconName = computed(() => {
@@ -37,7 +32,7 @@ const iconName = computed(() => {
 
   // 仅接受已显式声明的模式；其它值一律回退 system
   if (pref in themeModeIconMap) {
-    return themeModeIconMap[pref as TThemeModePreference];
+    return themeModeIconMap[pref as keyof typeof themeModeIconMap];
   }
 
   return themeModeIconMap.system;

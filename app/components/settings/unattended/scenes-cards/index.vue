@@ -103,28 +103,12 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：无人值守-场景守护-卡片组件 Props
- */
-interface ISettingsUnattendedScenesCardsProps {
-  /**
-   * 机器场景配置列表
-   */
-  machines: IPageSettingsUnattendedScenesMachineRedisConfig[];
-
-  /**
-   * 机器日志列表
-   */
-  logsMachines: IPageSettingsUnattendedSentinelLogsMachineCard[];
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedScenesCardsProps } from '@/components/settings/unattended/scenes-cards/index.types';
 /**
  * Hook：i18n
+ */
+/**
+ * Hook：国际化工具。
  */
 const { t } = useI18n();
 

@@ -21,15 +21,11 @@
 </template>
 
 <script setup lang="ts">
-interface ICrawlersNodesCommonNumberInputProps {
-  id: string;
-  modelValue: number;
-  min: number;
-  step: number;
-  prefix: string;
-  unit: string;
-}
+import type { ICrawlersNodesCommonNumberInputProps } from '@/components/crawlers/nodes/common/number-input/index.types';
 
+/**
+ * 属性：通用数值输入组件属性。
+ */
 const props = defineProps<ICrawlersNodesCommonNumberInputProps>();
 
 const computedShowPrefix = computed(() => {
@@ -46,10 +42,17 @@ const computedInputWrapClass = computed(() => {
   return computedShowPrefix.value ? 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300' : 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
 });
 
+/**
+ * 事件：组件更新事件。
+ */
 const emit = defineEmits<{
   'update:modelValue': [value: number];
 }>();
 
+/**
+ * 函数：处理数值更新事件。
+ * @param {number | null | undefined} value 最新值。
+ */
 const handleModelValueUpdate = (value: number | null | undefined): void => {
   emit('update:modelValue', Number.isFinite(Number(value)) ? Number(value) : props.min);
 };

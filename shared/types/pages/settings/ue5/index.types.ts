@@ -6,4 +6,4 @@
  * 因此先收敛到 `display` 子入口，并保留当前文件作为总入口。
  */
 
-export * from './display/index.types';
+export * from '@@/shared/types/pages/settings/ue5/display/index.types';

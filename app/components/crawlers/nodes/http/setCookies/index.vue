@@ -134,23 +134,9 @@ import { CalendarDate, parseTime } from '@internationalized/date';
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { ICookiePair, TCookieInputTimeValue } from '@/components/crawlers/nodes/http/setCookies/index.types';
 
 const { t } = useI18n();
-
-interface ICookiePair {
-  id: string;
-  name: string;
-  value: string;
-  domain: string;
-  path: string;
-  sameSite: string;
-  expiresAt: string;
-  httpOnly: boolean;
-  secure: boolean;
-  persistent: boolean;
-}
-
-type TCookieInputTimeValue = ReturnType<typeof parseTime>;
 
 const COOKIE_EXPIRES_TIME_FALLBACK = '00:00';
 

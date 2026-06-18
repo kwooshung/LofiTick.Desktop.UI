@@ -1,4 +1,4 @@
-import type { IUnattendedScenesSyncChoice, IUnattendedScenesSyncEntriesBuildArgs, IUnattendedScenesSyncEntry, IUnattendedScenesSyncPayload, TUnattendedScenesSyncStatus } from './index.types';
+import type { IUnattendedScenesSyncChoice, IUnattendedScenesSyncEntriesBuildArgs, IUnattendedScenesSyncEntry, IUnattendedScenesSyncPayload, TUnattendedScenesSyncStatus } from '@/composables/hooks/useUnattendedScenesSync/index.types';
 
 /**
  * 函数：创建空本地场景副本。
