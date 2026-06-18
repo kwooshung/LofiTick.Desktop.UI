@@ -16,7 +16,7 @@
         @update:model-value="handleModelValueUpdate"
       />
     </div>
-    <label :for="id" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ unit }}</label>
+    <label v-if="computedShowUnit" :for="id" class="bg-elevated/50 border-accented text-muted flex h-8 items-center justify-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ unit }}</label>
   </div>
 </template>
 
@@ -41,17 +41,53 @@ const computedShowPrefix = computed(() => {
 });
 
 /**
+ * 计算属性：是否显示单位标签。
+ */
+const computedShowUnit = computed(() => {
+  /**
+   * 常量：unit。
+   */
+  const unit = String(props.unit ?? '').trim();
+
+  return unit !== '';
+});
+
+/**
  * 计算属性：根容器样式类。
  */
 const computedRootClass = computed(() => {
-  return computedShowPrefix.value ? 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center' : 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
+  if (computedShowPrefix.value && computedShowUnit.value) {
+    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center';
+  }
+
+  if (computedShowPrefix.value) {
+    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)] items-center self-center';
+  }
+
+  if (computedShowUnit.value) {
+    return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
+  }
+
+  return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)] items-center self-center';
 });
 
 /**
  * 计算属性：输入包裹容器样式类。
  */
 const computedInputWrapClass = computed(() => {
-  return computedShowPrefix.value ? 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300' : 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
+  if (computedShowPrefix.value && computedShowUnit.value) {
+    return 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center border transition-colors duration-300';
+  }
+
+  if (computedShowPrefix.value) {
+    return 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-r-sm border transition-colors duration-300';
+  }
+
+  if (computedShowUnit.value) {
+    return 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-l-sm border transition-colors duration-300';
+  }
+
+  return 'border-accented focus-within:border-primary relative flex h-8 min-w-0 items-center rounded-sm border transition-colors duration-300';
 });
 
 /**
