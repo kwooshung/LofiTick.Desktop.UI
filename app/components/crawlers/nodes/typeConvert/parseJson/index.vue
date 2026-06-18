@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-braces" :title="t('components.crawler.blueprint.nodes.typeConvert.parseJson.title')" :description="t('components.crawler.blueprint.nodes.typeConvert.parseJson.description')" header-bg="bg-yellow-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.typeConvert.parseJson.fields.fallbackValue.label')">
-        <UTextarea v-model="stateFallbackValue" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.parseJson.fields.fallbackValue.placeholder')" rows="2" class="w-full" />
+        <UTextarea v-model="stateFallbackValue" :placeholder="t('components.crawler.blueprint.nodes.typeConvert.parseJson.fields.fallbackValue.placeholder')" :rows="2" class="w-full" />
       </UFormField>
       <div class="flex items-center justify-between rounded-sm border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-500">
         <span>{{ t('components.crawler.blueprint.nodes.typeConvert.parseJson.hint') }}</span>

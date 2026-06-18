@@ -2195,29 +2195,180 @@ export const crawler = {
       controlFlow: {
         loop: {
           title: 'Loop',
-          description: 'ForEach / While loop'
+          description: 'ForEach / While loop',
+          pinDescriptions: {
+            array: 'Array input for ForEach mode',
+            condition: 'Continue condition input for While mode'
+          },
+          outputs: {
+            item: {
+              description: 'Current loop item'
+            },
+            index: {
+              label: 'Index',
+              description: 'Current loop index'
+            }
+          },
+          fields: {
+            mode: {
+              label: 'Loop mode',
+              options: {
+                forEach: 'ForEach (iterate array items)',
+                while: 'While (iterate by condition)'
+              }
+            },
+            maxIterations: {
+              label: 'Max iterations'
+            },
+            breakOnError: {
+              label: 'Break on error'
+            }
+          }
         },
         condition: {
           title: 'Condition',
-          description: 'If / Else branch'
+          description: 'If / Else branch',
+          pinDescriptions: {
+            condition: 'Boolean condition input (boolean mode)',
+            valueA: 'Compare value A (compare mode)',
+            valueB: 'Compare value B (compare mode)'
+          },
+          outputs: {
+            true: {
+              label: 'True branch',
+              description: 'Output when condition is true'
+            },
+            false: {
+              label: 'False branch',
+              description: 'Output when condition is false'
+            }
+          },
+          fields: {
+            mode: {
+              label: 'Condition mode',
+              options: {
+                boolean: 'Boolean mode (use boolean input directly)',
+                compare: 'Compare mode (compare A and B)'
+              }
+            },
+            strictCompare: {
+              label: 'Strict compare (===)'
+            }
+          }
         },
         switch: {
           title: 'Multi-Branch',
-          description: 'Switch multi-branch control'
+          description: 'Switch multi-branch control',
+          pinDescriptions: {
+            value: 'Input value to match'
+          },
+          outputs: {
+            case: {
+              description: 'Output when branch {label} is matched'
+            },
+            default: {
+              label: 'Default branch',
+              description: 'Output when no branch is matched'
+            }
+          },
+          fields: {
+            matchMode: {
+              label: 'Match mode',
+              options: {
+                strict: 'Strict match (===)',
+                loose: 'Loose match (==)'
+              }
+            },
+            cases: {
+              label: 'Branches (one per line)',
+              placeholder: 'case_1\ncase_2'
+            },
+            useDefaultBranch: {
+              label: 'Enable default branch'
+            }
+          }
         }
       },
       output: {
         sendToApi: {
           title: 'Send to API',
-          description: 'Send data to your dedicated API'
+          description: 'Send data to your dedicated API',
+          pinDescriptions: {
+            payload: 'Payload data to send',
+            context: 'Additional context object'
+          },
+          outputs: {
+            response: {
+              label: 'Response',
+              description: 'API response object'
+            }
+          },
+          fields: {
+            endpoint: {
+              label: 'Endpoint',
+              placeholder: 'e.g. https://api.example.com/crawler/receive'
+            },
+            method: {
+              label: 'Method'
+            },
+            payload: {
+              label: 'Payload',
+              placeholder: 'Enter JSON text or template string'
+            }
+          }
         },
         printLog: {
           title: 'Print Log',
-          description: 'Output debug information'
+          description: 'Output debug information',
+          pinDescriptions: {
+            value: 'Log value to output',
+            context: 'Additional context object'
+          },
+          fields: {
+            level: {
+              label: 'Log level',
+              options: {
+                debug: 'Debug',
+                info: 'Info',
+                warn: 'Warn',
+                error: 'Error'
+              }
+            },
+            template: {
+              label: 'Log template',
+              placeholder: 'e.g. [crawler] current value: ${value}'
+            }
+          }
         },
         screenshot: {
           title: 'Screenshot',
-          description: 'Capture a page or element'
+          description: 'Capture a page or element',
+          pinDescriptions: {
+            element: 'Target element (element mode)',
+            context: 'Screenshot context object'
+          },
+          outputs: {
+            path: {
+              label: 'Screenshot path',
+              description: 'Screenshot file path or URL'
+            }
+          },
+          fields: {
+            targetMode: {
+              label: 'Capture target',
+              options: {
+                page: 'Page screenshot',
+                element: 'Element screenshot'
+              }
+            },
+            path: {
+              label: 'Save path',
+              placeholder: 'e.g. /screenshots/news-item.png'
+            },
+            fullPage: {
+              label: 'Full-page screenshot'
+            }
+          }
         }
       }
     }

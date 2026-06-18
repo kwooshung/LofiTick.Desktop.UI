@@ -2258,29 +2258,180 @@ export const crawler = {
       controlFlow: {
         loop: {
           title: 'ループ',
-          description: 'ForEach / While ループです'
+          description: 'ForEach / While ループです',
+          pinDescriptions: {
+            array: 'ForEach モードの配列入力',
+            condition: 'While モードの継続条件入力'
+          },
+          outputs: {
+            item: {
+              description: '現在のループ項目'
+            },
+            index: {
+              label: 'インデックス',
+              description: '現在のループインデックス'
+            }
+          },
+          fields: {
+            mode: {
+              label: 'ループモード',
+              options: {
+                forEach: 'ForEach（配列を順番に処理）',
+                while: 'While（条件で繰り返し）'
+              }
+            },
+            maxIterations: {
+              label: '最大ループ回数'
+            },
+            breakOnError: {
+              label: 'エラー時に中断する'
+            }
+          }
         },
         condition: {
           title: '条件分岐',
-          description: 'If / Else 分岐です'
+          description: 'If / Else 分岐です',
+          pinDescriptions: {
+            condition: '真偽条件入力（boolean モード）',
+            valueA: '比較値 A（compare モード）',
+            valueB: '比較値 B（compare モード）'
+          },
+          outputs: {
+            true: {
+              label: 'True 分岐',
+              description: '条件が true のとき出力'
+            },
+            false: {
+              label: 'False 分岐',
+              description: '条件が false のとき出力'
+            }
+          },
+          fields: {
+            mode: {
+              label: '条件モード',
+              options: {
+                boolean: 'boolean モード（真偽入力を直接使用）',
+                compare: 'compare モード（A と B を比較）'
+              }
+            },
+            strictCompare: {
+              label: '厳密比較（===）'
+            }
+          }
         },
         switch: {
           title: '多分岐',
-          description: 'Switch の多分岐制御です'
+          description: 'Switch の多分岐制御です',
+          pinDescriptions: {
+            value: '一致判定する入力値'
+          },
+          outputs: {
+            case: {
+              description: '分岐 {label} が一致したとき出力'
+            },
+            default: {
+              label: 'デフォルト分岐',
+              description: 'どの分岐にも一致しないとき出力'
+            }
+          },
+          fields: {
+            matchMode: {
+              label: '一致モード',
+              options: {
+                strict: '厳密一致（===）',
+                loose: '緩い一致（==）'
+              }
+            },
+            cases: {
+              label: '分岐リスト（1 行 1 件）',
+              placeholder: 'case_1\ncase_2'
+            },
+            useDefaultBranch: {
+              label: 'デフォルト分岐を有効化'
+            }
+          }
         }
       },
       output: {
         sendToApi: {
           title: 'API へ送信',
-          description: 'データを専用 API に送信します'
+          description: 'データを専用 API に送信します',
+          pinDescriptions: {
+            payload: '送信するペイロードデータ',
+            context: '付加するコンテキストオブジェクト'
+          },
+          outputs: {
+            response: {
+              label: 'レスポンス',
+              description: 'API からのレスポンスオブジェクト'
+            }
+          },
+          fields: {
+            endpoint: {
+              label: 'エンドポイント',
+              placeholder: '例：https://api.example.com/crawler/receive'
+            },
+            method: {
+              label: 'HTTP メソッド'
+            },
+            payload: {
+              label: 'ペイロード',
+              placeholder: 'JSON 文字列またはテンプレート文字列を入力'
+            }
+          }
         },
         printLog: {
           title: 'ログ出力',
-          description: 'デバッグ情報を出力します'
+          description: 'デバッグ情報を出力します',
+          pinDescriptions: {
+            value: '出力するログ値',
+            context: '付加コンテキストオブジェクト'
+          },
+          fields: {
+            level: {
+              label: 'ログレベル',
+              options: {
+                debug: 'デバッグ',
+                info: '情報',
+                warn: '警告',
+                error: 'エラー'
+              }
+            },
+            template: {
+              label: 'ログテンプレート',
+              placeholder: '例：[crawler] 現在値：${value}'
+            }
+          }
         },
         screenshot: {
           title: 'スクリーンショット',
-          description: 'ページや要素をキャプチャします'
+          description: 'ページや要素をキャプチャします',
+          pinDescriptions: {
+            element: '対象要素（element モード）',
+            context: 'スクリーンショット用コンテキスト'
+          },
+          outputs: {
+            path: {
+              label: '保存パス',
+              description: 'スクリーンショットの保存パスまたは URL'
+            }
+          },
+          fields: {
+            targetMode: {
+              label: '撮影対象',
+              options: {
+                page: 'ページ全体',
+                element: '要素'
+              }
+            },
+            path: {
+              label: '保存先パス',
+              placeholder: '例：/screenshots/news-item.png'
+            },
+            fullPage: {
+              label: 'フルページ撮影'
+            }
+          }
         }
       }
     }

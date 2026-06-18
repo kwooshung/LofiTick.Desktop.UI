@@ -2234,29 +2234,180 @@ export const crawler = {
       controlFlow: {
         loop: {
           title: '迴圈',
-          description: 'ForEach / While 迴圈'
+          description: 'ForEach / While 迴圈',
+          pinDescriptions: {
+            array: 'ForEach 模式的迴圈陣列輸入',
+            condition: 'While 模式的持續條件輸入'
+          },
+          outputs: {
+            item: {
+              description: '目前迴圈項目'
+            },
+            index: {
+              label: '索引',
+              description: '目前迴圈索引'
+            }
+          },
+          fields: {
+            mode: {
+              label: '迴圈模式',
+              options: {
+                forEach: 'ForEach（逐項遍歷陣列）',
+                while: 'While（依條件迴圈）'
+              }
+            },
+            maxIterations: {
+              label: '最大迴圈次數'
+            },
+            breakOnError: {
+              label: '發生錯誤時中斷'
+            }
+          }
         },
         condition: {
           title: '條件判斷',
-          description: 'If / Else 分支'
+          description: 'If / Else 分支',
+          pinDescriptions: {
+            condition: '布林條件輸入（boolean 模式）',
+            valueA: '比較值 A（compare 模式）',
+            valueB: '比較值 B（compare 模式）'
+          },
+          outputs: {
+            true: {
+              label: 'True 分支',
+              description: '條件命中 true 時輸出'
+            },
+            false: {
+              label: 'False 分支',
+              description: '條件命中 false 時輸出'
+            }
+          },
+          fields: {
+            mode: {
+              label: '條件模式',
+              options: {
+                boolean: '布林模式（直接讀取布林輸入）',
+                compare: '比較模式（比較 A 與 B）'
+              }
+            },
+            strictCompare: {
+              label: '嚴格比較（===）'
+            }
+          }
         },
         switch: {
           title: '多路分支',
-          description: 'Switch 多分支'
+          description: 'Switch 多分支',
+          pinDescriptions: {
+            value: '待比對的輸入值'
+          },
+          outputs: {
+            case: {
+              description: '命中分支 {label} 時輸出'
+            },
+            default: {
+              label: '預設分支',
+              description: '所有分支皆未命中時輸出'
+            }
+          },
+          fields: {
+            matchMode: {
+              label: '比對模式',
+              options: {
+                strict: '嚴格比對（===）',
+                loose: '寬鬆比對（==）'
+              }
+            },
+            cases: {
+              label: '分支清單（每行一個）',
+              placeholder: 'case_1\ncase_2'
+            },
+            useDefaultBranch: {
+              label: '啟用預設分支'
+            }
+          }
         }
       },
       output: {
         sendToApi: {
           title: '傳送到 API',
-          description: '將資料傳送到你的專用 API'
+          description: '將資料傳送到你的專用 API',
+          pinDescriptions: {
+            payload: '待傳送的負載資料',
+            context: '附帶的上下文物件'
+          },
+          outputs: {
+            response: {
+              label: '回應',
+              description: 'API 回傳結果物件'
+            }
+          },
+          fields: {
+            endpoint: {
+              label: '介面位址',
+              placeholder: '例如：https://api.example.com/crawler/receive'
+            },
+            method: {
+              label: '請求方法'
+            },
+            payload: {
+              label: '請求負載',
+              placeholder: '請輸入 JSON 文字或模板字串'
+            }
+          }
         },
         printLog: {
           title: '列印日誌',
-          description: '輸出除錯資訊'
+          description: '輸出除錯資訊',
+          pinDescriptions: {
+            value: '要輸出的日誌值',
+            context: '附加上下文物件'
+          },
+          fields: {
+            level: {
+              label: '日誌等級',
+              options: {
+                debug: '偵錯',
+                info: '資訊',
+                warn: '警告',
+                error: '錯誤'
+              }
+            },
+            template: {
+              label: '日誌模板',
+              placeholder: '例如：[crawler] 目前值：${value}'
+            }
+          }
         },
         screenshot: {
           title: '截圖',
-          description: '擷取頁面或元素'
+          description: '擷取頁面或元素',
+          pinDescriptions: {
+            element: '目標元素（element 模式）',
+            context: '截圖上下文物件'
+          },
+          outputs: {
+            path: {
+              label: '截圖路徑',
+              description: '截圖檔案路徑或 URL'
+            }
+          },
+          fields: {
+            targetMode: {
+              label: '截圖目標',
+              options: {
+                page: '頁面截圖',
+                element: '元素截圖'
+              }
+            },
+            path: {
+              label: '儲存路徑',
+              placeholder: '例如：/screenshots/news-item.png'
+            },
+            fullPage: {
+              label: '整頁截圖'
+            }
+          }
         }
       }
     }

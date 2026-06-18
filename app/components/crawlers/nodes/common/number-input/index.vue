@@ -7,6 +7,7 @@
         :model-value="modelValue"
         orientation="vertical"
         :min="min"
+        :max="max"
         :step="step"
         color="primary"
         variant="none"
@@ -26,7 +27,12 @@ import type { ICrawlersNodesCommonNumberInputProps } from '@/components/crawlers
 /**
  * 属性：通用数值输入组件属性。
  */
-const props = defineProps<ICrawlersNodesCommonNumberInputProps>();
+const props = withDefaults(defineProps<ICrawlersNodesCommonNumberInputProps>(), {
+  min: 0,
+  step: 1,
+  prefix: '',
+  unit: ''
+});
 
 /**
  * 计算属性：是否显示前缀标签。

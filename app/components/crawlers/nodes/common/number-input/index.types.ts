@@ -15,20 +15,25 @@ export interface ICrawlersNodesCommonNumberInputProps {
   /**
    * 属性：最小值。
    */
-  min: number;
+  min?: number;
+
+  /**
+   * 属性：最大值。
+   */
+  max?: number;
 
   /**
    * 属性：步长。
    */
-  step: number;
+  step?: number;
 
   /**
    * 属性：前缀文本。
    */
-  prefix: string;
+  prefix?: string;
 
   /**
    * 属性：单位文本。
    */
-  unit: string;
+  unit?: string;
 }
