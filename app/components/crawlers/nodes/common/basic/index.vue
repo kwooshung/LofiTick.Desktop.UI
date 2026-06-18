@@ -17,7 +17,9 @@
       <div v-if="computedHasLeftPins" class="nodrag flex shrink-0 cursor-auto flex-col gap-1 py-3 pl-4">
         <template v-for="pin in computedLeftPins" :key="pin.id">
           <div class="relative flex min-h-5 cursor-default items-center justify-start gap-1.5 pl-3.25">
-            <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
+            <UTooltip :text="resolvePinDataTypeTooltipText(pin.dataType)" :content="{ side: 'top' }">
+              <Handle :id="pin.id" type="target" :position="Position.Left" :is-valid-connection="isValidSidePinTarget" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType), resolvePinShapeClass(pin.dataType)]" />
+            </UTooltip>
             <div class="grow text-left">
               <UTooltip :text="pin.description || ''" :content="{ side: 'top' }" :disabled="!pin.description">
                 <span class="block truncate text-left text-sm leading-5 font-medium">{{ pin.label }}</span>
@@ -41,7 +43,9 @@
                 <span class="block truncate text-right text-sm leading-5 font-medium">{{ pin.label }}</span>
               </UTooltip>
             </div>
-            <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType)]" />
+            <UTooltip :text="resolvePinDataTypeTooltipText(pin.dataType)" :content="{ side: 'top' }">
+              <Handle :id="pin.id" type="source" :position="Position.Right" :is-valid-connection="isValidSidePinSource" :class="['h-3! w-3!', resolvePinColorClass(pin.dataType), resolvePinShapeClass(pin.dataType)]" />
+            </UTooltip>
           </div>
         </template>
       </div>
@@ -63,6 +67,11 @@ import type { IBasicSidePin, ICrawlersNodesCommonBasicProps, TBasicSidePinDataTy
  * 属性：基础节点配置。
  */
 const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true, leftPins = [], rightPins = [] } = defineProps<ICrawlersNodesCommonBasicProps>();
+
+/**
+ * Hook：国际化翻译函数。
+ */
+const { t } = useI18n();
 
 /**
  * 常量：当前组件使用的引脚类型颜色类名映射。
@@ -134,6 +143,68 @@ const computedIsSelected = computed(() => Boolean(stateNode.node.selected));
  */
 const resolvePinColorClass = (dataType: TBasicSidePinDataType): string => {
   return BASIC_SIDE_PIN_COLOR_CLASS_MAP[dataType] ?? BASIC_SIDE_PIN_COLOR_CLASS_MAP.any;
+};
+
+/**
+ * 函数：解析引脚形状类名。
+ *
+ * # Arguments
+ *
+ * * `dataType` - 引脚数据类型。
+ *
+ * # Returns
+ *
+ * 返回对应的数据引脚形状类名：数组为正方形，对象为菱形，其余为圆形。
+ */
+const resolvePinShapeClass = (dataType: TBasicSidePinDataType): string => {
+  if (dataType === 'array') {
+    return 'rounded-none!';
+  }
+
+  if (dataType === 'object') {
+    return 'rounded-none! [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]';
+  }
+
+  return 'rounded-full!';
+};
+
+/**
+ * 函数：解析引脚数据类型悬浮提示文案。
+ *
+ * # Arguments
+ *
+ * * `dataType` - 引脚数据类型。
+ *
+ * # Returns
+ *
+ * 返回引脚图形 icon 悬浮提示的类型名称。
+ */
+const resolvePinDataTypeTooltipText = (dataType: TBasicSidePinDataType): string => {
+  if (dataType === 'string') {
+    return t('components.crawler.blueprint.nodes.variable.common.dataTypes.string');
+  }
+
+  if (dataType === 'number') {
+    return t('components.crawler.blueprint.nodes.variable.common.dataTypes.number');
+  }
+
+  if (dataType === 'boolean') {
+    return t('components.crawler.blueprint.nodes.variable.common.dataTypes.boolean');
+  }
+
+  if (dataType === 'array') {
+    return t('components.crawler.blueprint.nodes.variable.common.dataTypes.array');
+  }
+
+  if (dataType === 'object') {
+    return t('components.crawler.blueprint.nodes.variable.common.dataTypes.object');
+  }
+
+  if (dataType === 'exec') {
+    return 'Exec';
+  }
+
+  return 'Any';
 };
 
 /**
