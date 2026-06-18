@@ -78,14 +78,16 @@ export const crawler = {
           description: 'Terminal node that ends crawler execution'
         },
         units: {
-          millisecond: '毫秒',
+          millisecond: 'ms',
           count: 'Times',
           item: 'item',
           char: 'char',
           pixel: 'px',
-          percent: '%'
+          percent: '%',
+          indent: 'spaces'
         },
         pinLabels: {
+          input: 'Input',
           element: 'Element',
           elements: 'Elements',
           exists: 'Exists',
@@ -2134,7 +2136,8 @@ export const crawler = {
           },
           fields: {
             truthyValues: {
-              label: 'Truthy values (comma-separated)'
+              label: 'Truthy values (comma-separated)',
+              placeholder: 'true,1,"yes","on"'
             }
           }
         },
@@ -2150,6 +2153,9 @@ export const crawler = {
           outputs: {
             result: {
               description: 'Serialized JSON string'
+            },
+            message: {
+              description: 'Error message when conversion fails'
             }
           },
           fields: {
@@ -2173,11 +2179,15 @@ export const crawler = {
           outputs: {
             result: {
               description: 'Parsed data object'
+            },
+            message: {
+              description: 'Error message when parsing fails'
             }
           },
           fields: {
             fallbackValue: {
-              label: 'Fallback value (on parse failure)'
+              label: 'Fallback value (on parse failure)',
+              placeholder: 'null'
             }
           }
         }

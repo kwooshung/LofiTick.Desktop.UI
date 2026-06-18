@@ -55,6 +55,100 @@
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
+/**
+ * Props
+ */
+const { createNonce = 0, keyword = '' } = defineProps<IPageCrawlersTargetsProps>();
+
+/**
+ * Hook：国际化
+ */
+const { t } = useI18n();
+
+/**
+ * 状态：蓝图抽屉开关。
+ */
+const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', () => false);
+
+/**
+ * 状态：蓝图抽屉目标站点。
+ */
+const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 函数：本地化路由
+ */
+const localePath = useLocalePath();
+
+/**
+ * Hook：爬虫站点动作。
+ */
+const { buildCrawlerTargetContextMenuItems } = useCrawlerTargetMenuActions();
+
+/**
+ * 路由：当前页面路由。
+ */
+const route = useRoute();
+
+/**
+ * 状态：分页大小 cookie。
+ */
+const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
+  default: () => ({}),
+  watch: 'shallow'
+});
+
+/**
+ * 函数：从完整 URL 提取纯域名
+ * @param {string} url 完整 URL
+ * @returns {string} 纯域名
+ */
+const extractDomainFromUrl = (url: string): string => {
+  const raw = String(url || '').trim();
+  if (!raw) {
+    return '';
+  }
+  const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  const matchResult = withoutProtocol.match(/^[^/?#]+/);
+  return matchResult ? matchResult[0] : withoutProtocol;
+};
+
+/**
+ * 函数：归一化用于查重比较的域名。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 归一化域名。
+ */
+const normalizeDomainForUniqueCompare = (value: string): string => extractDomainFromUrl(value).trim().toLowerCase();
+
+/**
+ * 常量：表单验证规则
+ */
+const schema = z.object({
+  id: z.number().optional(),
+  name: z
+    .string({ message: t('pages.crawlers.targets.form.name.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.name.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.name.verify.length')),
+  baseUrl: z
+    .string({ message: t('pages.crawlers.targets.form.baseUrl.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.baseUrl.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.baseUrl.verify.length')),
+  domain: z
+    .string({ message: t('pages.crawlers.targets.form.domain.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.domain.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.domain.verify.length'))
+    .regex(/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/, t('pages.crawlers.targets.form.domain.verify.pattern')),
+  description: z.string().optional(),
+  isEnabled: z.boolean().optional()
+});
+
+/**
+ * 类型：表单数据
+ */
+type Schema = z.output<typeof schema>;
 
 /**
  * 状态：编辑器开关
@@ -439,7 +533,7 @@ const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/ta
 /**
  * 事件：提交表单
  */
-const onSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   await refreshSave({
     datas: {
       id: event.data.id,

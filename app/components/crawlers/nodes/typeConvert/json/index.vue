@@ -2,7 +2,7 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-file-braces" :title="t('components.crawler.blueprint.nodes.typeConvert.json.title')" :description="t('components.crawler.blueprint.nodes.typeConvert.json.description')" header-bg="bg-yellow-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.typeConvert.json.fields.indent.label')">
-        <CrawlersNodesCommonNumberInput id="crawlerTypeConvertJsonIndent" v-model="stateIndent" :min="0" :max="10" :step="1" />
+        <CrawlersNodesCommonNumberInput id="crawlerTypeConvertJsonIndent" v-model="stateIndent" :min="0" :max="10" :step="1" :unit="t('components.crawler.blueprint.nodes.common.units.indent')" />
       </UFormField>
       <UFormField :label="t('components.crawler.blueprint.nodes.typeConvert.json.fields.handleCircular.label')">
         <USwitch v-model="stateHandleCircular" />
@@ -52,7 +52,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'string',
     topPercent: 65,
-    description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription')
+    description: t('components.crawler.blueprint.nodes.typeConvert.json.outputs.message.description')
   }
 ];
 

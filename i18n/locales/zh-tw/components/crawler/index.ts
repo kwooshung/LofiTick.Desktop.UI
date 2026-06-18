@@ -83,9 +83,11 @@ export const crawler = {
           item: '項',
           char: '字元',
           pixel: '像素',
-          percent: '%'
+          percent: '%',
+          indent: '格'
         },
         pinLabels: {
+          input: '輸入',
           element: '元素',
           elements: '元素列表',
           exists: '存在',
@@ -2173,7 +2175,8 @@ export const crawler = {
           },
           fields: {
             truthyValues: {
-              label: '真值列表（逗號分隔）'
+              label: '真值列表（逗號分隔）',
+              placeholder: 'true,1,"yes","on"'
             }
           }
         },
@@ -2189,6 +2192,9 @@ export const crawler = {
           outputs: {
             result: {
               description: '序列化後的 JSON 字串'
+            },
+            message: {
+              description: '轉換失敗時的錯誤訊息'
             }
           },
           fields: {
@@ -2212,11 +2218,15 @@ export const crawler = {
           outputs: {
             result: {
               description: '解析後的資料物件'
+            },
+            message: {
+              description: '解析失敗時的錯誤訊息'
             }
           },
           fields: {
             fallbackValue: {
-              label: '備選值（解析失敗時）'
+              label: '備選值（解析失敗時）',
+              placeholder: 'null'
             }
           }
         }

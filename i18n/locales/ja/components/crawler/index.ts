@@ -83,9 +83,11 @@ export const crawler = {
           item: '項',
           char: '文字',
           pixel: 'px',
-          percent: '%'
+          percent: '%',
+          indent: 'スペース'
         },
         pinLabels: {
+          input: '入力',
           element: '要素',
           elements: '要素一覧',
           exists: '存在',
@@ -2197,7 +2199,8 @@ export const crawler = {
           },
           fields: {
             truthyValues: {
-              label: '真値リスト（カンマ区切り）'
+              label: '真値リスト（カンマ区切り）',
+              placeholder: 'true,1,"yes","on"'
             }
           }
         },
@@ -2213,6 +2216,9 @@ export const crawler = {
           outputs: {
             result: {
               description: 'シリアライズされた JSON 文字列'
+            },
+            message: {
+              description: '変換に失敗したときのエラーメッセージ'
             }
           },
           fields: {
@@ -2236,11 +2242,15 @@ export const crawler = {
           outputs: {
             result: {
               description: '解析後のデータオブジェクト'
+            },
+            message: {
+              description: '解析に失敗したときのエラーメッセージ'
             }
           },
           fields: {
             fallbackValue: {
-              label: 'フォールバック値（解析失敗時）'
+              label: 'フォールバック値（解析失敗時）',
+              placeholder: 'null'
             }
           }
         }
