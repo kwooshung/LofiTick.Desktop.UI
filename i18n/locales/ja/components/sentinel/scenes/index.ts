@@ -38,6 +38,15 @@ export const scenes = {
       remote: 'リモートシーン',
       conflict: '競合数'
     },
+    shortFields: {
+      state: '状態',
+      path: 'パス',
+      command: 'コマンド'
+    },
+    shortSources: {
+      local: 'ローカル',
+      remote: 'リモート'
+    },
     values: {
       enabled: '有効',
       disabled: '無効',

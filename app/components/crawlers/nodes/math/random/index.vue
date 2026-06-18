@@ -16,7 +16,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.math.random.fields.min.label')">
         <div v-if="hasTargetPinConnection('input-min-number')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInputNumber v-else id="crawlerMathRandomMin" v-model="stateMin" class="w-full" orientation="vertical" :step="computedNumberStep" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
@@ -25,7 +25,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.math.random.fields.max.label')">
         <div v-if="hasTargetPinConnection('input-max-number')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInputNumber v-else id="crawlerMathRandomMax" v-model="stateMax" class="w-full" orientation="vertical" :step="computedNumberStep" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
@@ -105,13 +105,34 @@ const hasTargetPinConnection = (handleId: string): boolean => {
 };
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-min-number', label: 'min', direction: 'in', dataType: 'number', topPercent: 35, description: '随机下限' },
-  { id: 'input-max-number', label: 'max', direction: 'in', dataType: 'number', topPercent: 75, description: '随机上限' }
+  {
+    id: 'input-min-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.min'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.math.random.pinDescriptions.min')
+  },
+  {
+    id: 'input-max-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.max'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.math.random.pinDescriptions.max')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-number', label: 'result', direction: 'out', dataType: 'number', topPercent: 35, description: '随机数结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'number',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.math.random.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {

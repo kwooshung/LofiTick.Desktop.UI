@@ -3,7 +3,7 @@
     <UFormField :label="t('components.crawler.blueprint.nodes.string.uppercase.fields.text.label')">
       <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
         <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-        <span class="truncate">已连接输入，使用连线值</span>
+        <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
       </div>
 
       <UTextarea v-else v-model="stateText" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.uppercase.fields.text.placeholder')" />
@@ -35,11 +35,27 @@ const hasTargetPinConnection = (handleId: string): boolean => {
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
-const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待转大写的文本' }];
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 50,
+    description: t('components.crawler.blueprint.nodes.string.uppercase.pinDescriptions.text')
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '大写结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.uppercase.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {

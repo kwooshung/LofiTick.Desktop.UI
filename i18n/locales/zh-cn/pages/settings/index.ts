@@ -674,10 +674,23 @@
       description: '服务器任务改为直达 1Panel，桌面端这里只保留跳转和提醒。',
       heroTitle: '去 1Panel 里管理真实的服务器计划任务',
       heroDescription: '桌面端不再镜像 1Panel 计划任务列表，也不再要求你在这里维护 API Key。你只需要配置 1Panel 根域名，然后从这里一键跳到计划任务或脚本库。',
+      fields: {
+        serverTaskLabel: '服务器任务',
+        realCronLabel: '真实计划任务',
+        realCronDescription: '去 1Panel 里管理真实的服务器计划任务。',
+        panelBaseLabel: '当前 1Panel 地址',
+        panelBaseDescription: '如果入口地址不对，去服务连接里修改 1Panel 根域名。'
+      },
       actions: {
         openCronjobs: '打开 1Panel 计划任务',
         openScriptLibrary: '打开 1Panel 脚本库',
         openConnections: '前往服务连接'
+      },
+      quickEntriesTitle: '常用入口',
+      atlas: {
+        title: '导航入口',
+        description: '按 1Panel 一级栏目直接展开常用入口。',
+        total: '{count} 个入口'
       },
       quickLinks: {
         overview: '打开 1Panel 概览',
@@ -743,6 +756,7 @@
     },
     table: {
       name: '任务',
+      detail: '详情',
       group: '分组',
       path: '路径',
       method: '方法',

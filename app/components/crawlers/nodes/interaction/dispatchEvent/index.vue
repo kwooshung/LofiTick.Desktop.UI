@@ -40,7 +40,7 @@ const leftPins: IBasicSidePin[] = [
     direction: 'in',
     dataType: 'object',
     topPercent: 50,
-    description: '由元素查询节点输出的目标元素'
+    description: t('components.crawler.blueprint.nodes.interaction.common.pinDescriptions.elementInput')
   }
 ];
 

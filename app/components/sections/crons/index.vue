@@ -287,7 +287,7 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
         td: 'w-[58%] xl:hidden'
       }
     },
-    header: '详情',
+    header: t('pages.settings.cron.table.detail'),
     cell: ({ row }) => {
       return h('div', { class: 'min-w-0 space-y-2' }, [
         h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.table.schedule')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.original.schedulePrimary)]),

@@ -26,7 +26,7 @@ const leftPins: IBasicSidePin[] = [
     direction: 'in',
     dataType: 'array',
     topPercent: 35,
-    description: '输入数组'
+    description: t('components.crawler.blueprint.nodes.arrayObject.item.pinDescriptions.array')
   },
   {
     id: 'index-input',
@@ -34,7 +34,7 @@ const leftPins: IBasicSidePin[] = [
     direction: 'in',
     dataType: 'number',
     topPercent: 70,
-    description: '输入索引（可覆盖面板中的默认索引）'
+    description: t('components.crawler.blueprint.nodes.arrayObject.item.pinDescriptions.index')
   }
 ];
 
@@ -45,7 +45,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'any',
     topPercent: 30,
-    description: '索引对应的数据项'
+    description: t('components.crawler.blueprint.nodes.arrayObject.item.pinDescriptions.item')
   },
   {
     id: 'exists-boolean',
@@ -53,7 +53,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'boolean',
     topPercent: 55,
-    description: '该索引是否存在'
+    description: t('components.crawler.blueprint.nodes.arrayObject.item.pinDescriptions.exists')
   },
   {
     id: 'result-message',

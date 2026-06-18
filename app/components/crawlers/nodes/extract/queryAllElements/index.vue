@@ -27,7 +27,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'array',
     topPercent: 30,
-    description: '匹配到的元素数组'
+    description: t('components.crawler.blueprint.nodes.extract.queryAllElements.pinDescriptions.elements')
   },
   {
     id: 'elements-length',
@@ -35,7 +35,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'number',
     topPercent: 55,
-    description: '匹配到的元素数量'
+    description: t('components.crawler.blueprint.nodes.extract.queryAllElements.pinDescriptions.length')
   },
   {
     id: 'result-message',

@@ -8,12 +8,33 @@ import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/ind
 const { t } = useI18n();
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-a-boolean', label: 'a', direction: 'in', dataType: 'boolean', topPercent: 35, description: '布尔值 A' },
-  { id: 'input-b-boolean', label: 'b', direction: 'in', dataType: 'boolean', topPercent: 75, description: '布尔值 B' }
+  {
+    id: 'input-a-boolean',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.a'),
+    direction: 'in',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.logic.or.pinDescriptions.valueA')
+  },
+  {
+    id: 'input-b-boolean',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.b'),
+    direction: 'in',
+    dataType: 'boolean',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.logic.or.pinDescriptions.valueB')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-boolean', label: 'result', direction: 'out', dataType: 'boolean', topPercent: 35, description: '逻辑运算结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.logic.or.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 </script>

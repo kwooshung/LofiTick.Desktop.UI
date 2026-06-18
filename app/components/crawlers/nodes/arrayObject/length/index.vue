@@ -22,7 +22,7 @@ const leftPins: IBasicSidePin[] = [
     direction: 'in',
     dataType: 'array',
     topPercent: 50,
-    description: '输入数组并输出长度'
+    description: t('components.crawler.blueprint.nodes.arrayObject.length.pinDescriptions.array')
   }
 ];
 
@@ -33,7 +33,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'number',
     topPercent: 35,
-    description: '数组长度'
+    description: t('components.crawler.blueprint.nodes.arrayObject.length.pinDescriptions.length')
   },
   {
     id: 'result-message',

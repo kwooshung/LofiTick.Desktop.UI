@@ -4,7 +4,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.substring.fields.text.label')">
         <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UTextarea v-else v-model="stateText" :rows="2" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.substring.fields.text.placeholder')" />
@@ -13,7 +13,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.substring.fields.start.label')">
         <div v-if="hasTargetPinConnection('input-start')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringStart" v-model="stateStart" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
@@ -22,7 +22,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.substring.fields.length.label')">
         <div v-if="hasTargetPinConnection('input-length')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringLength" v-model="stateLength" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
@@ -53,23 +53,55 @@ const stateLength = ref(10);
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 25, description: '待截取的文本' },
-  { id: 'input-start', label: 'start', direction: 'in', dataType: 'number', topPercent: 50, description: '起始位置（0开始）' },
-  { id: 'input-length', label: 'length', direction: 'in', dataType: 'number', topPercent: 75, description: '截取长度' }
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 25,
+    description: t('components.crawler.blueprint.nodes.string.substring.pinDescriptions.text')
+  },
+  {
+    id: 'input-start',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.start'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 50,
+    description: t('components.crawler.blueprint.nodes.string.substring.pinDescriptions.start')
+  },
+  {
+    id: 'input-length',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.length'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.string.substring.pinDescriptions.length')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '截取结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.substring.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringSubstringNodeData;
   stateText.value = String(data.text ?? '');
   stateStart.value = Number.isFinite(Number(data.start)) ? Math.max(0, Number(data.start)) : 0;
@@ -78,7 +110,9 @@ watchEffect(() => {
 });
 
 watch([stateText, stateStart, stateLength], () => {
-  if (!stateInitialized.value) return;
+  if (!stateInitialized.value) {
+    return;
+  }
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     text: stateText.value,

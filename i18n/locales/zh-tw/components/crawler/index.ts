@@ -88,12 +88,31 @@ export const crawler = {
           elements: '元素列表',
           exists: '存在',
           context: '上下文',
+          text: '文字',
+          pattern: '模式',
+          replacement: '替換',
+          search: '查找',
+          flags: '標誌',
+          value: '值',
+          a: 'A',
+          b: 'B',
+          min: '最小值',
+          max: '最大值',
+          base: '底數',
+          exp: '指數',
+          start: '起始',
+          separator: '分隔符',
           result: '結果',
+          matches: '匹配',
+          message: '訊息',
           array: '陣列',
           length: '長度',
           index: '索引',
           item: '資料項'
         },
+        connectedInputHint: '已連接輸入，使用連線值',
+        operandInputLabel: '輸入 {label}',
+        operandCount: '{count}項',
         selectorInput: {
           mode: {
             options: {
@@ -375,6 +394,9 @@ export const crawler = {
             booleanDescription: '表示互動執行是否成功',
             message: '資訊',
             messageDescription: '失敗時的錯誤訊息或例外說明'
+          },
+          pinDescriptions: {
+            elementInput: '由元素查詢節點輸出的目標元素'
           },
           fields: {
             selector: {
@@ -942,15 +964,29 @@ export const crawler = {
         },
         queryElement: {
           title: '元素選擇器（單個）',
-          description: '透過選擇器定位並輸出單一元素'
+          description: '透過選擇器定位並輸出單一元素',
+          pinDescriptions: {
+            element: '查詢到的單一元素物件',
+            exists: '是否查詢到元素'
+          }
         },
         queryAllElements: {
           title: '元素選擇器（多個）',
-          description: '透過選擇器定位並輸出元素列表'
+          description: '透過選擇器定位並輸出元素列表',
+          pinDescriptions: {
+            elements: '匹配到的元素陣列',
+            length: '匹配到的元素數量'
+          }
         },
         executeScript: {
           title: '執行腳本',
           description: '執行自訂 JS 並回傳結果',
+          pinDescriptions: {
+            context: '上游傳入的上下文物件，可在腳本中讀取',
+            result: '腳本回傳結果',
+            resultArray: '當結果是陣列時可直接接入迴圈/長度節點',
+            resultLength: '當結果是陣列或字串時的長度'
+          },
           fields: {
             script: {
               label: 'JavaScript 腳本',
@@ -1558,69 +1594,139 @@ export const crawler = {
       logic: {
         equal: {
           title: '等於',
-          description: '判斷兩個值是否相等'
+          description: '判斷兩個值是否相等',
+          pinDescriptions: {
+            operand: '比較值 {label}',
+            result: '比較結果'
+          }
         },
         notEqual: {
           title: '不等於',
-          description: '判斷兩個值是否不相等'
+          description: '判斷兩個值是否不相等',
+          pinDescriptions: {
+            operand: '比較值 {label}',
+            result: '比較結果'
+          }
         },
         greaterThan: {
           title: '大於',
-          description: '判斷 a > b'
+          description: '判斷 a > b',
+          pinDescriptions: {
+            valueA: '數值 A',
+            valueB: '數值 B',
+            result: '比較結果'
+          }
         },
         lessThan: {
           title: '小於',
-          description: '判斷 a < b'
+          description: '判斷 a < b',
+          pinDescriptions: {
+            valueA: '數值 A',
+            valueB: '數值 B',
+            result: '比較結果'
+          }
         },
         greaterThanOrEqual: {
           title: '大於等於',
-          description: '判斷 a ≥ b'
+          description: '判斷 a ≥ b',
+          pinDescriptions: {
+            valueA: '數值 A',
+            valueB: '數值 B',
+            result: '比較結果'
+          }
         },
         lessThanOrEqual: {
           title: '小於等於',
-          description: '判斷 a ≤ b'
+          description: '判斷 a ≤ b',
+          pinDescriptions: {
+            valueA: '數值 A',
+            valueB: '數值 B',
+            result: '比較結果'
+          }
         },
         and: {
           title: 'AND',
-          description: '邏輯與（兩個布林值）'
+          description: '邏輯與（兩個布林值）',
+          pinDescriptions: {
+            valueA: '布林值 A',
+            valueB: '布林值 B',
+            result: '邏輯運算結果'
+          }
         },
         or: {
           title: 'OR',
-          description: '邏輯或（兩個布林值）'
+          description: '邏輯或（兩個布林值）',
+          pinDescriptions: {
+            valueA: '布林值 A',
+            valueB: '布林值 B',
+            result: '邏輯運算結果'
+          }
         },
         not: {
           title: 'NOT',
-          description: '邏輯非（取反）'
+          description: '邏輯非（取反）',
+          pinDescriptions: {
+            value: '布林值輸入',
+            result: '邏輯運算結果'
+          }
         },
         isEmpty: {
           title: '是否為空',
-          description: '判斷值是否為空（null/undefined/空字串/空陣列）'
+          description: '判斷值是否為空（null/undefined/空字串/空陣列）',
+          pinDescriptions: {
+            value: '待檢測值',
+            result: '檢測結果'
+          }
         },
         exists: {
           title: '是否存在',
-          description: '判斷值是否存在（非 null/undefined）'
+          description: '判斷值是否存在（非 null/undefined）',
+          pinDescriptions: {
+            value: '待檢測值',
+            result: '檢測結果'
+          }
         }
       },
       math: {
         add: {
           title: '加法',
-          description: '兩個數值相加'
+          description: '兩個數值相加',
+          pinDescriptions: {
+            operand: '加數 {label}',
+            result: '加法結果'
+          }
         },
         subtract: {
           title: '減法',
-          description: '兩個數值相減'
+          description: '兩個數值相減',
+          pinDescriptions: {
+            operand: '減數 {label}',
+            result: '減法結果'
+          }
         },
         multiply: {
           title: '乘法',
-          description: '兩個數值相乘'
+          description: '兩個數值相乘',
+          pinDescriptions: {
+            operand: '乘數 {label}',
+            result: '乘法結果'
+          }
         },
         divide: {
           title: '除法',
-          description: '兩個數值相除'
+          description: '兩個數值相除',
+          pinDescriptions: {
+            operand: '除數 {label}',
+            result: '除法結果'
+          }
         },
         round: {
           title: '取整',
           description: '向下、向上或四捨五入取整',
+          pinDescriptions: {
+            input: '待取整數值',
+            result: '取整結果'
+          },
           fields: {
             mode: {
               label: '取整模式',
@@ -1635,6 +1741,11 @@ export const crawler = {
         random: {
           title: '隨機數',
           description: '產生指定範圍隨機數',
+          pinDescriptions: {
+            min: '隨機下限',
+            max: '隨機上限',
+            result: '隨機數結果'
+          },
           fields: {
             numberType: {
               label: '隨機類型',
@@ -1668,21 +1779,44 @@ export const crawler = {
         },
         absolute: {
           title: '絕對值',
-          description: '取得數值的絕對值'
+          description: '取得數值的絕對值',
+          pinDescriptions: {
+            input: '待求絕對值數值',
+            result: '絕對值結果'
+          }
         },
         modulo: {
           title: '求餘',
-          description: '執行取模運算'
+          description: '執行取模運算',
+          pinDescriptions: {
+            valueA: '被取模數 A',
+            valueB: '模數 B',
+            result: '取模結果'
+          }
         },
         power: {
           title: '冪運算',
-          description: '計算 a 的 b 次方'
+          description: '計算 a 的 b 次方',
+          pinDescriptions: {
+            base: '底數',
+            exp: '指數',
+            result: '冪運算結果'
+          }
         }
       },
       string: {
+        common: {
+          connectedInputHint: '已連接輸入，使用連線值'
+        },
         substring: {
           title: '截取子字符串',
           description: '從文字中截取指定位置的子字符串',
+          pinDescriptions: {
+            text: '待截取的文字',
+            start: '起始位置（0開始）',
+            length: '截取長度',
+            result: '截取結果'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1699,6 +1833,12 @@ export const crawler = {
         replace: {
           title: '替換文字',
           description: '在文字中查找並替換指定內容（全部替換）',
+          pinDescriptions: {
+            text: '源文字',
+            search: '查找字符串（全部替換）',
+            replacement: '替換為',
+            result: '替換結果'
+          },
           fields: {
             text: {
               label: '源文字',
@@ -1716,11 +1856,28 @@ export const crawler = {
         },
         concat: {
           title: '拼接文字',
-          description: '將多個文字段拼接為一個'
+          description: '將多個文字段拼接為一個',
+          pinDescriptions: {
+            segment: '文字段 {label}',
+            result: '拼接結果'
+          },
+          fields: {
+            segment: {
+              label: '文字 {label}',
+              placeholder: '文字段 {label}',
+              count: '{count}段'
+            }
+          }
         },
         regexMatch: {
           title: '正則匹配',
           description: '使用正則表達式從文字中提取匹配內容',
+          pinDescriptions: {
+            text: '待匹配的文字',
+            pattern: '正則表達式模式',
+            flags: '標誌(g/i/m等)',
+            result: '匹配結果陣列'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1739,6 +1896,13 @@ export const crawler = {
         regexReplace: {
           title: '正則替換',
           description: '使用正則表達式查找並替換文字內容',
+          pinDescriptions: {
+            text: '源文字',
+            pattern: '正則表達式模式',
+            replacement: '替換為（可用捕獲組）',
+            flags: '標誌(g/i/m等)',
+            result: '替換結果'
+          },
           fields: {
             text: {
               label: '源文字',
@@ -1761,6 +1925,11 @@ export const crawler = {
         split: {
           title: '分割文字',
           description: '按分割符將文字分割為陣列',
+          pinDescriptions: {
+            text: '待分割的文字',
+            separator: '分割符',
+            result: '分割結果陣列'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1775,6 +1944,10 @@ export const crawler = {
         length: {
           title: '計算長度',
           description: '獲取文字的字符長度',
+          pinDescriptions: {
+            text: '待計算長度的文字',
+            result: '文字長度（字符數）'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1785,6 +1958,10 @@ export const crawler = {
         uppercase: {
           title: '大寫轉換',
           description: '將文字轉換為大寫',
+          pinDescriptions: {
+            text: '待轉大寫的文字',
+            result: '大寫結果'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1795,6 +1972,10 @@ export const crawler = {
         lowercase: {
           title: '小寫轉換',
           description: '將文字轉換為小寫',
+          pinDescriptions: {
+            text: '待轉小寫的文字',
+            result: '小寫結果'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1805,6 +1986,10 @@ export const crawler = {
         trim: {
           title: '去空白',
           description: '從文字中移除空白字符',
+          pinDescriptions: {
+            text: '待去空白的文字',
+            result: '去空白結果'
+          },
           fields: {
             text: {
               label: '文字',
@@ -1846,11 +2031,21 @@ export const crawler = {
         },
         length: {
           title: '陣列長度',
-          description: '取得陣列長度'
+          description: '取得陣列長度',
+          pinDescriptions: {
+            array: '輸入陣列並輸出長度',
+            length: '陣列長度'
+          }
         },
         item: {
           title: '陣列索引',
           description: '取得陣列指定索引的值',
+          pinDescriptions: {
+            array: '輸入陣列',
+            index: '輸入索引（可覆蓋面板中的預設索引）',
+            item: '索引對應的資料項',
+            exists: '該索引是否存在'
+          },
           fields: {
             index: {
               label: '索引'

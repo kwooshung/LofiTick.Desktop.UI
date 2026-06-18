@@ -146,7 +146,7 @@ const handleMachineCodeCopy = async (): Promise<void> => {
   }
 
   toast.add({
-    description: h('span', { class: 'break-all' }, [h('span', { class: 'text-muted' }, '已复制：'), h('span', { class: 'text-highlighted' }, value)]),
+    description: h('span', { class: 'break-all' }, [h('span', { class: 'text-muted' }, t('components.sentinel.scenes.card.toast.copiedPrefix')), h('span', { class: 'text-highlighted' }, value)]),
     color: 'success',
     icon: 'i-lucide-copy-check',
     duration: 1200,

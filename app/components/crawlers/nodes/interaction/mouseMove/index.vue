@@ -5,7 +5,7 @@
         <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.startX.label')">
           <div v-if="computedHasStartXInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
             <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-            <span class="truncate">已连接输入，使用连线值</span>
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
           </div>
 
           <CrawlersNodesCommonNumberInput v-else id="crawlerMouseMoveStartX" v-model="stateStartX" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
@@ -13,7 +13,7 @@
         <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.startY.label')">
           <div v-if="computedHasStartYInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
             <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-            <span class="truncate">已连接输入，使用连线值</span>
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
           </div>
 
           <CrawlersNodesCommonNumberInput v-else id="crawlerMouseMoveStartY" v-model="stateStartY" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
@@ -21,7 +21,7 @@
         <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.endX.label')">
           <div v-if="computedHasEndXInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
             <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-            <span class="truncate">已连接输入，使用连线值</span>
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
           </div>
 
           <CrawlersNodesCommonNumberInput v-else id="crawlerMouseMoveEndX" v-model="stateEndX" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
@@ -29,7 +29,7 @@
         <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.endY.label')">
           <div v-if="computedHasEndYInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
             <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-            <span class="truncate">已连接输入，使用连线值</span>
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
           </div>
 
           <CrawlersNodesCommonNumberInput v-else id="crawlerMouseMoveEndY" v-model="stateEndY" :min="0" :step="0.1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.pixel')" />
@@ -43,7 +43,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomCurveStrength.label')">
         <div v-if="computedHasCurveStrengthInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <USwitch v-else v-model="stateRandomCurveStrength" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomCurveStrength.label')" />
@@ -70,7 +70,7 @@
       <UFormField v-if="computedHasDurationInput" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.durationMs.label')">
         <div class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
       </UFormField>
 
@@ -91,7 +91,7 @@
       <UFormField v-if="stateEnableJitter" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomJitterAmplitude.label')">
         <div v-if="computedHasJitterAmplitudeInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <USwitch v-else v-model="stateRandomJitterAmplitude" :label="t('components.crawler.blueprint.nodes.mouse.move.fields.randomJitterAmplitude.label')" />

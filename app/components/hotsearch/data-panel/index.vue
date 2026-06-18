@@ -717,7 +717,7 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
   },
   {
     accessorKey: 'isPodcast',
-    header: '播客化',
+    header: t('pages.hotsearch.sections.podcast.title'),
     cell: ({ row }) => hotsearchPodcastStatusCellRender(row.original),
     meta: {
       class: {

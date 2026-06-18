@@ -29,6 +29,7 @@ export const card = {
     saveRemark: '保存备注'
   },
   toast: {
+    copiedPrefix: '已复制：',
     machineRemarkSaved: '机器备注保存成功',
     machineDeleted: '主机删除成功'
   },
@@ -46,6 +47,7 @@ export const card = {
     disabled: '未启用'
   },
   dialogs: {
+    guardTitle: '场景守护',
     deleteSceneTitle: '确认删除该场景？',
     deleteMachineTitle: '确认删除该主机？'
   },

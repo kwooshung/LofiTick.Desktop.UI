@@ -1,19 +1,19 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide-superscript" :title="t('components.crawler.blueprint.nodes.math.power.title')" :description="t('components.crawler.blueprint.nodes.math.power.description')" header-color="" header-bg="bg-lime-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField label="底数 (base)">
+      <UFormField :label="t('components.crawler.blueprint.nodes.math.power.fields.base.label')">
         <div v-if="hasTargetPinConnection('input-base-number')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInputNumber v-else id="crawlerMathPowerBase" v-model="stateBase" class="w-full" orientation="vertical" :step="0.1" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
       </UFormField>
 
-      <UFormField label="指数 (exp)">
+      <UFormField :label="t('components.crawler.blueprint.nodes.math.power.fields.exp.label')">
         <div v-if="hasTargetPinConnection('input-exponent-number')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInputNumber v-else id="crawlerMathPowerExp" v-model="stateExp" class="w-full" orientation="vertical" :step="0.1" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
@@ -41,13 +41,34 @@ const stateBase = ref(2);
 const stateExp = ref(2);
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-base-number', label: 'base', direction: 'in', dataType: 'number', topPercent: 35, description: '底数' },
-  { id: 'input-exponent-number', label: 'exp', direction: 'in', dataType: 'number', topPercent: 75, description: '指数' }
+  {
+    id: 'input-base-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.base'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.math.power.pinDescriptions.base')
+  },
+  {
+    id: 'input-exponent-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.exp'),
+    direction: 'in',
+    dataType: 'number',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.math.power.pinDescriptions.exp')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-number', label: 'result', direction: 'out', dataType: 'number', topPercent: 35, description: '幂运算结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'number',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.math.power.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 const hasTargetPinConnection = (handleId: string): boolean => {

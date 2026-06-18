@@ -88,12 +88,31 @@ export const crawler = {
           elements: '元素列表',
           exists: '存在',
           context: '上下文',
+          text: '文本',
+          pattern: '模式',
+          replacement: '替换',
+          search: '查找',
+          flags: '标志',
+          value: '值',
+          a: 'A',
+          b: 'B',
+          min: '最小值',
+          max: '最大值',
+          base: '底数',
+          exp: '指数',
+          start: '起始',
+          separator: '分隔符',
           result: '结果',
+          matches: '匹配',
+          message: '信息',
           array: '数组',
           length: '长度',
           index: '索引',
           item: '数据项'
         },
+        connectedInputHint: '已连接输入，使用连线值',
+        operandInputLabel: '输入 {label}',
+        operandCount: '{count}项',
         selectorInput: {
           mode: {
             options: {
@@ -375,6 +394,9 @@ export const crawler = {
             booleanDescription: '表示交互执行是否成功',
             message: '信息',
             messageDescription: '失败时的错误信息或异常说明'
+          },
+          pinDescriptions: {
+            elementInput: '由元素查询节点输出的目标元素'
           },
           fields: {
             selector: {
@@ -942,15 +964,29 @@ export const crawler = {
         },
         queryElement: {
           title: '元素选择器（单个）',
-          description: '通过选择器定位并输出单个元素'
+          description: '通过选择器定位并输出单个元素',
+          pinDescriptions: {
+            element: '查询到的单个元素对象',
+            exists: '是否查询到元素'
+          }
         },
         queryAllElements: {
           title: '元素选择器（多个）',
-          description: '通过选择器定位并输出元素列表'
+          description: '通过选择器定位并输出元素列表',
+          pinDescriptions: {
+            elements: '匹配到的元素数组',
+            length: '匹配到的元素数量'
+          }
         },
         executeScript: {
           title: '执行脚本',
           description: '执行自定义 JS 并返回结果',
+          pinDescriptions: {
+            context: '上游传入的上下文对象，可在脚本中读取',
+            result: '脚本返回结果',
+            resultArray: '当结果是数组时可直接接入循环/长度节点',
+            resultLength: '当结果是数组或字符串时的长度'
+          },
           fields: {
             script: {
               label: 'JavaScript 脚本',
@@ -1558,70 +1594,143 @@ export const crawler = {
       logic: {
         equal: {
           title: '等于',
-          description: '判断两个值是否相等'
+          description: '判断两个值是否相等',
+          pinDescriptions: {
+            operand: '比较值 {label}',
+            result: '比较结果'
+          }
         },
         notEqual: {
           title: '不等于',
-          description: '判断两个值是否不相等'
+          description: '判断两个值是否不相等',
+          pinDescriptions: {
+            operand: '比较值 {label}',
+            result: '比较结果'
+          }
         },
         greaterThan: {
           title: '大于',
-          description: '判断 a > b'
+          description: '判断 a > b',
+          pinDescriptions: {
+            valueA: '数值 A',
+            valueB: '数值 B',
+            result: '比较结果'
+          }
         },
         lessThan: {
           title: '小于',
-          description: '判断 a < b'
+          description: '判断 a < b',
+          pinDescriptions: {
+            valueA: '数值 A',
+            valueB: '数值 B',
+            result: '比较结果'
+          }
         },
         greaterThanOrEqual: {
           title: '大于等于',
-          description: '判断 a ≥ b'
+          description: '判断 a ≥ b',
+          pinDescriptions: {
+            valueA: '数值 A',
+            valueB: '数值 B',
+            result: '比较结果'
+          }
         },
         lessThanOrEqual: {
           title: '小于等于',
-          description: '判断 a ≤ b'
+          description: '判断 a ≤ b',
+          pinDescriptions: {
+            valueA: '数值 A',
+            valueB: '数值 B',
+            result: '比较结果'
+          }
         },
         and: {
           title: 'AND',
-          description: '逻辑与（两个布尔值）'
+          description: '逻辑与（两个布尔值）',
+          pinDescriptions: {
+            valueA: '布尔值 A',
+            valueB: '布尔值 B',
+            result: '逻辑运算结果'
+          }
         },
         or: {
           title: 'OR',
-          description: '逻辑或（两个布尔值）'
+          description: '逻辑或（两个布尔值）',
+          pinDescriptions: {
+            valueA: '布尔值 A',
+            valueB: '布尔值 B',
+            result: '逻辑运算结果'
+          }
         },
         not: {
           title: 'NOT',
-          description: '逻辑非（取反）'
+          description: '逻辑非（取反）',
+          pinDescriptions: {
+            value: '布尔值输入',
+            result: '逻辑运算结果'
+          }
         },
         isEmpty: {
           title: '是否为空',
-          description: '判断值是否为空（null/undefined/空字符串/空数组）'
+          description: '判断值是否为空（null/undefined/空字符串/空数组）',
+          pinDescriptions: {
+            value: '待检测值',
+            result: '检测结果'
+          }
         },
         exists: {
           title: '是否存在',
-          description: '判断值是否存在（非 null/undefined）'
+          description: '判断值是否存在（非 null/undefined）',
+          pinDescriptions: {
+            value: '待检测值',
+            result: '检测结果'
+          }
         }
       },
       math: {
         add: {
           title: '加法',
-          description: '两个数值相加'
+          description: '两个数值相加',
+          pinDescriptions: {
+            operand: '加数 {label}',
+            result: '加法结果'
+          }
         },
         subtract: {
           title: '减法',
-          description: '两个数值相减'
+          description: '两个数值相减',
+          pinDescriptions: {
+            operand: '减数 {label}',
+            result: '减法结果'
+          }
         },
         multiply: {
           title: '乘法',
-          description: '两个数值相乘'
+          description: '两个数值相乘',
+          pinDescriptions: {
+            operand: '乘数 {label}',
+            result: '乘法结果'
+          }
         },
         divide: {
           title: '除法',
-          description: '两个数值相除'
+          description: '两个数值相除',
+          pinDescriptions: {
+            operand: '除数 {label}',
+            result: '除法结果'
+          }
         },
         round: {
           title: '取整',
           description: '向下、向上或四舍五入取整',
+          pinDescriptions: {
+            input: '待取整数值',
+            result: '取整结果'
+          },
           fields: {
+            value: {
+              label: '输入值'
+            },
             mode: {
               label: '取整模式',
               options: {
@@ -1635,6 +1744,11 @@ export const crawler = {
         random: {
           title: '随机数',
           description: '生成指定范围随机数',
+          pinDescriptions: {
+            min: '随机下限',
+            max: '随机上限',
+            result: '随机数结果'
+          },
           fields: {
             numberType: {
               label: '随机类型',
@@ -1668,21 +1782,65 @@ export const crawler = {
         },
         absolute: {
           title: '绝对值',
-          description: '获取数值的绝对值'
+          description: '获取数值的绝对值',
+          pinDescriptions: {
+            input: '待求绝对值数值',
+            result: '绝对值结果'
+          },
+          fields: {
+            value: {
+              label: '输入值'
+            }
+          }
         },
         modulo: {
           title: '求余',
-          description: '执行取模运算'
+          description: '执行取模运算',
+          pinDescriptions: {
+            valueA: '被取模数 A',
+            valueB: '模数 B',
+            result: '取模结果'
+          },
+          fields: {
+            valueA: {
+              label: '输入 A'
+            },
+            valueB: {
+              label: '输入 B'
+            }
+          }
         },
         power: {
           title: '幂运算',
-          description: '计算 a 的 b 次方'
+          description: '计算 a 的 b 次方',
+          pinDescriptions: {
+            base: '底数',
+            exp: '指数',
+            result: '幂运算结果'
+          },
+          fields: {
+            base: {
+              label: '底数 (base)'
+            },
+            exp: {
+              label: '指数 (exp)'
+            }
+          }
         }
       },
       string: {
+        common: {
+          connectedInputHint: '已连接输入，使用连线值'
+        },
         substring: {
           title: '截取子串',
           description: '从文本中截取指定位置的子字符串',
+          pinDescriptions: {
+            text: '待截取的文本',
+            start: '起始位置（0开始）',
+            length: '截取长度',
+            result: '截取结果'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1699,6 +1857,12 @@ export const crawler = {
         replace: {
           title: '替换文本',
           description: '在文本中查找并替换指定内容（全部替换）',
+          pinDescriptions: {
+            text: '源文本',
+            search: '查找字符串（全部替换）',
+            replacement: '替换为',
+            result: '替换结果'
+          },
           fields: {
             text: {
               label: '源文本',
@@ -1716,11 +1880,28 @@ export const crawler = {
         },
         concat: {
           title: '拼接文本',
-          description: '将多个文本段拼接为一个'
+          description: '将多个文本段拼接为一个',
+          pinDescriptions: {
+            segment: '文本段 {label}',
+            result: '拼接结果'
+          },
+          fields: {
+            segment: {
+              label: '文本 {label}',
+              placeholder: '文本段 {label}',
+              count: '{count}段'
+            }
+          }
         },
         regexMatch: {
           title: '正则匹配',
           description: '使用正则表达式从文本中提取匹配内容',
+          pinDescriptions: {
+            text: '待匹配的文本',
+            pattern: '正则表达式模式',
+            flags: '标志(g/i/m等)',
+            result: '匹配结果数组'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1739,6 +1920,13 @@ export const crawler = {
         regexReplace: {
           title: '正则替换',
           description: '使用正则表达式查找并替换文本内容',
+          pinDescriptions: {
+            text: '源文本',
+            pattern: '正则表达式模式',
+            replacement: '替换为（可用捕获组）',
+            flags: '标志(g/i/m等)',
+            result: '替换结果'
+          },
           fields: {
             text: {
               label: '源文本',
@@ -1761,6 +1949,11 @@ export const crawler = {
         split: {
           title: '分割文本',
           description: '按分割符将文本分割为数组',
+          pinDescriptions: {
+            text: '待分割的文本',
+            separator: '分隔符',
+            result: '分割结果数组'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1775,6 +1968,10 @@ export const crawler = {
         length: {
           title: '计算长度',
           description: '获取文本的字符长度',
+          pinDescriptions: {
+            text: '待计算长度的文本',
+            result: '文本长度（字符数）'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1785,6 +1982,10 @@ export const crawler = {
         uppercase: {
           title: '大写转换',
           description: '将文本转换为大写',
+          pinDescriptions: {
+            text: '待转大写的文本',
+            result: '大写结果'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1795,6 +1996,10 @@ export const crawler = {
         lowercase: {
           title: '小写转换',
           description: '将文本转换为小写',
+          pinDescriptions: {
+            text: '待转小写的文本',
+            result: '小写结果'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1805,6 +2010,10 @@ export const crawler = {
         trim: {
           title: '去空白',
           description: '从文本中移除空白字符',
+          pinDescriptions: {
+            text: '待去空白的文本',
+            result: '去空白结果'
+          },
           fields: {
             text: {
               label: '文本',
@@ -1846,11 +2055,21 @@ export const crawler = {
         },
         length: {
           title: '数组长度',
-          description: '获取数组长度'
+          description: '获取数组长度',
+          pinDescriptions: {
+            array: '输入数组并输出长度',
+            length: '数组长度'
+          }
         },
         item: {
           title: '数组索引',
           description: '获取数组指定索引的值',
+          pinDescriptions: {
+            array: '输入数组',
+            index: '输入索引（可覆盖面板中的默认索引）',
+            item: '索引对应的数据项',
+            exists: '该索引是否存在'
+          },
           fields: {
             index: {
               label: '索引'

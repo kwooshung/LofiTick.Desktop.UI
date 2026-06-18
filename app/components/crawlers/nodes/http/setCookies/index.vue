@@ -4,7 +4,7 @@
       <UFormField v-if="computedHasCookieInput" :label="t('components.crawler.blueprint.nodes.http.setCookies.fields.cookie.label')">
         <div class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
       </UFormField>
 

@@ -12,7 +12,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.regexReplace.fields.text.label')">
         <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UTextarea v-else v-model="stateText" :rows="2" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.regexReplace.fields.text.placeholder')" />
@@ -21,7 +21,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.regexReplace.fields.pattern.label')">
         <div v-if="hasTargetPinConnection('input-pattern')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="statePattern" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.regexReplace.fields.pattern.placeholder')" />
@@ -30,7 +30,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.regexReplace.fields.replacement.label')">
         <div v-if="hasTargetPinConnection('input-replacement')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateReplacement" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.regexReplace.fields.replacement.placeholder')" />
@@ -39,7 +39,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.regexReplace.fields.flags.label')">
         <div v-if="hasTargetPinConnection('input-flags')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateFlags" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.regexReplace.fields.flags.placeholder')" />
@@ -72,24 +72,63 @@ const stateFlags = ref('g');
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 15, description: '源文本' },
-  { id: 'input-pattern', label: 'pattern', direction: 'in', dataType: 'string', topPercent: 40, description: '正则表达式模式' },
-  { id: 'input-replacement', label: 'replacement', direction: 'in', dataType: 'string', topPercent: 65, description: '替换为（可用捕获组）' },
-  { id: 'input-flags', label: 'flags', direction: 'in', dataType: 'string', topPercent: 90, description: '标志(g/i/m等)' }
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 15,
+    description: t('components.crawler.blueprint.nodes.string.regexReplace.pinDescriptions.text')
+  },
+  {
+    id: 'input-pattern',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.pattern'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 40,
+    description: t('components.crawler.blueprint.nodes.string.regexReplace.pinDescriptions.pattern')
+  },
+  {
+    id: 'input-replacement',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.replacement'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 65,
+    description: t('components.crawler.blueprint.nodes.string.regexReplace.pinDescriptions.replacement')
+  },
+  {
+    id: 'input-flags',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.flags'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 90,
+    description: t('components.crawler.blueprint.nodes.string.regexReplace.pinDescriptions.flags')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '替换结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.regexReplace.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringRegexReplaceNodeData;
   stateText.value = String(data.text ?? '');
   statePattern.value = String(data.pattern ?? '');
@@ -99,7 +138,9 @@ watchEffect(() => {
 });
 
 watch([stateText, statePattern, stateReplacement, stateFlags], () => {
-  if (!stateInitialized.value) return;
+  if (!stateInitialized.value) {
+    return;
+  }
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     text: stateText.value,

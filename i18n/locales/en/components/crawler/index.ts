@@ -88,12 +88,31 @@ export const crawler = {
           elements: 'Elements',
           exists: 'Exists',
           context: 'Context',
+          text: 'Text',
+          pattern: 'Pattern',
+          replacement: 'Replacement',
+          search: 'Search',
+          flags: 'Flags',
+          value: 'Value',
+          a: 'A',
+          b: 'B',
+          min: 'Min',
+          max: 'Max',
+          base: 'Base',
+          exp: 'Exp',
+          start: 'Start',
+          separator: 'Separator',
           result: 'Result',
+          matches: 'Matches',
+          message: 'Message',
           array: 'Array',
           length: 'Length',
           index: 'Index',
           item: 'Item'
         },
+        connectedInputHint: 'Input connected, using linked value',
+        operandInputLabel: 'Input {label}',
+        operandCount: '{count} items',
         selectorInput: {
           mode: {
             options: {
@@ -375,6 +394,9 @@ export const crawler = {
             booleanDescription: 'Whether interaction execution succeeded',
             message: 'Info',
             messageDescription: 'Error or exception details when interaction fails'
+          },
+          pinDescriptions: {
+            elementInput: 'Target element output by an element query node'
           },
           fields: {
             selector: {
@@ -942,15 +964,29 @@ export const crawler = {
         },
         queryElement: {
           title: 'Element Selector (Single)',
-          description: 'Locate and output a single element by selector'
+          description: 'Locate and output a single element by selector',
+          pinDescriptions: {
+            element: 'Queried single element object',
+            exists: 'Whether an element was found'
+          }
         },
         queryAllElements: {
           title: 'Element Selector (Multiple)',
-          description: 'Locate and output an element list by selector'
+          description: 'Locate and output an element list by selector',
+          pinDescriptions: {
+            elements: 'Matched element array',
+            length: 'Matched element count'
+          }
         },
         executeScript: {
           title: 'Execute Script',
           description: 'Run custom JS and return the result',
+          pinDescriptions: {
+            context: 'Context object passed from upstream and readable in script',
+            result: 'Script execution result',
+            resultArray: 'When result is an array, can connect to loop/length nodes',
+            resultLength: 'Length when result is an array or string'
+          },
           fields: {
             script: {
               label: 'JavaScript Script',
@@ -1558,47 +1594,97 @@ export const crawler = {
       logic: {
         equal: {
           title: 'Equal',
-          description: 'Check whether two values are equal'
+          description: 'Check whether two values are equal',
+          pinDescriptions: {
+            operand: 'Compare value {label}',
+            result: 'Comparison result'
+          }
         },
         notEqual: {
           title: 'Not Equal',
-          description: 'Check whether two values are not equal'
+          description: 'Check whether two values are not equal',
+          pinDescriptions: {
+            operand: 'Compare value {label}',
+            result: 'Comparison result'
+          }
         },
         greaterThan: {
           title: 'Greater Than',
-          description: 'Check whether a > b'
+          description: 'Check whether a > b',
+          pinDescriptions: {
+            valueA: 'Numeric value A',
+            valueB: 'Numeric value B',
+            result: 'Comparison result'
+          }
         },
         lessThan: {
           title: 'Less Than',
-          description: 'Check whether a < b'
+          description: 'Check whether a < b',
+          pinDescriptions: {
+            valueA: 'Numeric value A',
+            valueB: 'Numeric value B',
+            result: 'Comparison result'
+          }
         },
         greaterThanOrEqual: {
           title: 'Greater Than or Equal',
-          description: 'Check whether a ≥ b'
+          description: 'Check whether a ≥ b',
+          pinDescriptions: {
+            valueA: 'Numeric value A',
+            valueB: 'Numeric value B',
+            result: 'Comparison result'
+          }
         },
         lessThanOrEqual: {
           title: 'Less Than or Equal',
-          description: 'Check whether a ≤ b'
+          description: 'Check whether a ≤ b',
+          pinDescriptions: {
+            valueA: 'Numeric value A',
+            valueB: 'Numeric value B',
+            result: 'Comparison result'
+          }
         },
         and: {
           title: 'AND',
-          description: 'Logical AND between two boolean values'
+          description: 'Logical AND between two boolean values',
+          pinDescriptions: {
+            valueA: 'Boolean value A',
+            valueB: 'Boolean value B',
+            result: 'Logical operation result'
+          }
         },
         or: {
           title: 'OR',
-          description: 'Logical OR between two boolean values'
+          description: 'Logical OR between two boolean values',
+          pinDescriptions: {
+            valueA: 'Boolean value A',
+            valueB: 'Boolean value B',
+            result: 'Logical operation result'
+          }
         },
         not: {
           title: 'NOT',
-          description: 'Logical NOT, or inversion'
+          description: 'Logical NOT, or inversion',
+          pinDescriptions: {
+            value: 'Boolean input value',
+            result: 'Logical operation result'
+          }
         },
         isEmpty: {
           title: 'Is Empty',
-          description: 'Check whether a value is empty (null/undefined/empty string/empty array)'
+          description: 'Check whether a value is empty (null/undefined/empty string/empty array)',
+          pinDescriptions: {
+            value: 'Value to check',
+            result: 'Check result'
+          }
         },
         exists: {
           title: 'Exists',
-          description: 'Check whether a value exists (not null/undefined)'
+          description: 'Check whether a value exists (not null/undefined)',
+          pinDescriptions: {
+            value: 'Value to check',
+            result: 'Check result'
+          }
         }
       },
       math: {
@@ -1680,9 +1766,18 @@ export const crawler = {
         }
       },
       string: {
+        common: {
+          connectedInputHint: 'Input connected, using linked value'
+        },
         substring: {
           title: 'Substring',
           description: 'Extract substring from specified position',
+          pinDescriptions: {
+            text: 'Source text to extract from',
+            start: 'Start index (0-based)',
+            length: 'Extraction length',
+            result: 'Substring result'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1699,6 +1794,12 @@ export const crawler = {
         replace: {
           title: 'Replace',
           description: 'Find and replace text content (replace all)',
+          pinDescriptions: {
+            text: 'Source text',
+            search: 'Search string (replace all)',
+            replacement: 'Replacement text',
+            result: 'Replacement result'
+          },
           fields: {
             text: {
               label: 'Source Text',
@@ -1716,11 +1817,28 @@ export const crawler = {
         },
         concat: {
           title: 'Concatenate',
-          description: 'Concatenate multiple text segments'
+          description: 'Concatenate multiple text segments',
+          pinDescriptions: {
+            segment: 'Text segment {label}',
+            result: 'Concatenation result'
+          },
+          fields: {
+            segment: {
+              label: 'Text {label}',
+              placeholder: 'Text segment {label}',
+              count: '{count} segments'
+            }
+          }
         },
         regexMatch: {
           title: 'Regex Match',
           description: 'Extract matches using regex pattern',
+          pinDescriptions: {
+            text: 'Text to match',
+            pattern: 'Regex pattern',
+            flags: 'Flags (g/i/m, etc.)',
+            result: 'Match results array'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1739,6 +1857,13 @@ export const crawler = {
         regexReplace: {
           title: 'Regex Replace',
           description: 'Find and replace using regex pattern',
+          pinDescriptions: {
+            text: 'Source text',
+            pattern: 'Regex pattern',
+            replacement: 'Replacement text (capture groups supported)',
+            flags: 'Flags (g/i/m, etc.)',
+            result: 'Replacement result'
+          },
           fields: {
             text: {
               label: 'Source Text',
@@ -1761,6 +1886,11 @@ export const crawler = {
         split: {
           title: 'Split',
           description: 'Split text by separator into array',
+          pinDescriptions: {
+            text: 'Text to split',
+            separator: 'Separator',
+            result: 'Split result array'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1775,6 +1905,10 @@ export const crawler = {
         length: {
           title: 'String Length',
           description: 'Get the character count of text',
+          pinDescriptions: {
+            text: 'Text to calculate length',
+            result: 'Character length of text'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1785,6 +1919,10 @@ export const crawler = {
         uppercase: {
           title: 'Uppercase',
           description: 'Convert text to uppercase',
+          pinDescriptions: {
+            text: 'Text to convert to uppercase',
+            result: 'Uppercase result'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1795,6 +1933,10 @@ export const crawler = {
         lowercase: {
           title: 'Lowercase',
           description: 'Convert text to lowercase',
+          pinDescriptions: {
+            text: 'Text to convert to lowercase',
+            result: 'Lowercase result'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1805,6 +1947,10 @@ export const crawler = {
         trim: {
           title: 'Trim Whitespace',
           description: 'Remove whitespace characters from text',
+          pinDescriptions: {
+            text: 'Text to trim whitespace',
+            result: 'Trimmed text result'
+          },
           fields: {
             text: {
               label: 'Text',
@@ -1846,11 +1992,21 @@ export const crawler = {
         },
         length: {
           title: 'Array Length',
-          description: 'Read the array length'
+          description: 'Read the array length',
+          pinDescriptions: {
+            array: 'Input array and output its length',
+            length: 'Array length'
+          }
         },
         item: {
           title: 'Array Index',
           description: 'Read a value at a given array index',
+          pinDescriptions: {
+            array: 'Input array',
+            index: 'Input index (overrides panel default index)',
+            item: 'Item value at the index',
+            exists: 'Whether this index exists'
+          },
           fields: {
             index: {
               label: 'Index'

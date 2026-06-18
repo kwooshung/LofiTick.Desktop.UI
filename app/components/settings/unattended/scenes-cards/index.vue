@@ -270,7 +270,7 @@ const computedActiveRemarkEditingWrap = computed(() => {
 const computedDialogTitle = computed(() => {
   const machine = computedActiveMachine.value;
   if (!machine) {
-    return '场景守护';
+    return t('components.sentinel.scenes.card.dialogs.guardTitle');
   }
 
   const name = String(machine.machineName || '').trim() || t('components.sentinel.scenes.card.machine.unnamed');

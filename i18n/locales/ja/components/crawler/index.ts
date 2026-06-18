@@ -88,12 +88,31 @@ export const crawler = {
           elements: '要素一覧',
           exists: '存在',
           context: 'コンテキスト',
+          text: 'テキスト',
+          pattern: 'パターン',
+          replacement: '置換',
+          search: '検索',
+          flags: 'フラグ',
+          value: '値',
+          a: 'A',
+          b: 'B',
+          min: '最小',
+          max: '最大',
+          base: '底数',
+          exp: '指数',
+          start: '開始',
+          separator: '区切り',
           result: '結果',
+          matches: '一致',
+          message: 'メッセージ',
           array: '配列',
           length: '長さ',
           index: 'インデックス',
           item: '項目'
         },
+        connectedInputHint: '入力が接続されています。接続値を使用します',
+        operandInputLabel: '入力 {label}',
+        operandCount: '{count}項',
         selectorInput: {
           mode: {
             options: {
@@ -375,6 +394,9 @@ export const crawler = {
             booleanDescription: '操作実行が成功したかどうかを示します',
             message: '情報',
             messageDescription: '失敗時のエラー情報または例外内容'
+          },
+          pinDescriptions: {
+            elementInput: '要素クエリノードが出力した対象要素'
           },
           fields: {
             selector: {
@@ -942,15 +964,29 @@ export const crawler = {
         },
         queryElement: {
           title: '要素セレクター（単体）',
-          description: 'セレクターで単一要素を特定して出力します'
+          description: 'セレクターで単一要素を特定して出力します',
+          pinDescriptions: {
+            element: '取得した単一要素オブジェクト',
+            exists: '要素を取得できたか'
+          }
         },
         queryAllElements: {
           title: '要素セレクター（複数）',
-          description: 'セレクターで要素一覧を特定して出力します'
+          description: 'セレクターで要素一覧を特定して出力します',
+          pinDescriptions: {
+            elements: '一致した要素配列',
+            length: '一致した要素数'
+          }
         },
         executeScript: {
           title: 'スクリプト実行',
           description: 'カスタム JS を実行して結果を返します',
+          pinDescriptions: {
+            context: '上流から渡されたコンテキストオブジェクト（スクリプトで参照可能）',
+            result: 'スクリプトの実行結果',
+            resultArray: '結果が配列ならループ/長さノードへ直接接続可能',
+            resultLength: '結果が配列または文字列のときの長さ'
+          },
           fields: {
             script: {
               label: 'JavaScript スクリプト',
@@ -1558,70 +1594,143 @@ export const crawler = {
       logic: {
         equal: {
           title: '等しい',
-          description: '2 つの値が等しいかを判定します'
+          description: '2 つの値が等しいかを判定します',
+          pinDescriptions: {
+            operand: '比較値 {label}',
+            result: '比較結果'
+          }
         },
         notEqual: {
           title: '等しくない',
-          description: '2 つの値が等しくないかを判定します'
+          description: '2 つの値が等しくないかを判定します',
+          pinDescriptions: {
+            operand: '比較値 {label}',
+            result: '比較結果'
+          }
         },
         greaterThan: {
           title: 'より大きい',
-          description: 'a > b を判定します'
+          description: 'a > b を判定します',
+          pinDescriptions: {
+            valueA: '数値 A',
+            valueB: '数値 B',
+            result: '比較結果'
+          }
         },
         lessThan: {
           title: 'より小さい',
-          description: 'a < b を判定します'
+          description: 'a < b を判定します',
+          pinDescriptions: {
+            valueA: '数値 A',
+            valueB: '数値 B',
+            result: '比較結果'
+          }
         },
         greaterThanOrEqual: {
           title: '以上',
-          description: 'a ≥ b を判定します'
+          description: 'a ≥ b を判定します',
+          pinDescriptions: {
+            valueA: '数値 A',
+            valueB: '数値 B',
+            result: '比較結果'
+          }
         },
         lessThanOrEqual: {
           title: '以下',
-          description: 'a ≤ b を判定します'
+          description: 'a ≤ b を判定します',
+          pinDescriptions: {
+            valueA: '数値 A',
+            valueB: '数値 B',
+            result: '比較結果'
+          }
         },
         and: {
           title: 'AND',
-          description: '2 つの真偽値の論理積です'
+          description: '2 つの真偽値の論理積です',
+          pinDescriptions: {
+            valueA: '真偽値 A',
+            valueB: '真偽値 B',
+            result: '論理演算結果'
+          }
         },
         or: {
           title: 'OR',
-          description: '2 つの真偽値の論理和です'
+          description: '2 つの真偽値の論理和です',
+          pinDescriptions: {
+            valueA: '真偽値 A',
+            valueB: '真偽値 B',
+            result: '論理演算結果'
+          }
         },
         not: {
           title: 'NOT',
-          description: '論理否定（反転）です'
+          description: '論理否定（反転）です',
+          pinDescriptions: {
+            value: '真偽値入力',
+            result: '論理演算結果'
+          }
         },
         isEmpty: {
           title: '空かどうか',
-          description: '値が空かどうかを判定します（null/undefined/空文字/空配列）'
+          description: '値が空かどうかを判定します（null/undefined/空文字/空配列）',
+          pinDescriptions: {
+            value: '判定対象の値',
+            result: '判定結果'
+          }
         },
         exists: {
           title: '存在するか',
-          description: '値が存在するかを判定します（null/undefined ではない）'
+          description: '値が存在するかを判定します（null/undefined ではない）',
+          pinDescriptions: {
+            value: '判定対象の値',
+            result: '判定結果'
+          }
         }
       },
       math: {
         add: {
           title: '加算',
-          description: '2 つの数値を足します'
+          description: '2 つの数値を足します',
+          pinDescriptions: {
+            operand: '加数 {label}',
+            result: '加算結果'
+          }
         },
         subtract: {
           title: '減算',
-          description: '2 つの数値を引きます'
+          description: '2 つの数値を引きます',
+          pinDescriptions: {
+            operand: '減数 {label}',
+            result: '減算結果'
+          }
         },
         multiply: {
           title: '乗算',
-          description: '2 つの数値を掛けます'
+          description: '2 つの数値を掛けます',
+          pinDescriptions: {
+            operand: '乗数 {label}',
+            result: '乗算結果'
+          }
         },
         divide: {
           title: '除算',
-          description: '2 つの数値を割ります'
+          description: '2 つの数値を割ります',
+          pinDescriptions: {
+            operand: '除数 {label}',
+            result: '除算結果'
+          }
         },
         round: {
           title: '丸め',
           description: '切り下げ、切り上げ、四捨五入を行います',
+          pinDescriptions: {
+            input: '丸め対象の値',
+            result: '丸め結果'
+          },
           fields: {
+            value: {
+              label: '入力値'
+            },
             mode: {
               label: '丸めモード',
               options: {
@@ -1635,6 +1744,11 @@ export const crawler = {
         random: {
           title: '乱数',
           description: '指定範囲の乱数を生成します',
+          pinDescriptions: {
+            min: '乱数の下限',
+            max: '乱数の上限',
+            result: '乱数結果'
+          },
           fields: {
             numberType: {
               label: '乱数タイプ',
@@ -1668,21 +1782,65 @@ export const crawler = {
         },
         absolute: {
           title: '絶対値',
-          description: '数値の絶対値を取得します'
+          description: '数値の絶対値を取得します',
+          pinDescriptions: {
+            input: '絶対値を求める入力値',
+            result: '絶対値結果'
+          },
+          fields: {
+            value: {
+              label: '入力値'
+            }
+          }
         },
         modulo: {
           title: '剰余',
-          description: 'a % b の余りを計算します'
+          description: 'a % b の余りを計算します',
+          pinDescriptions: {
+            valueA: '被除数 A',
+            valueB: '除数 B',
+            result: '剰余結果'
+          },
+          fields: {
+            valueA: {
+              label: '入力 A'
+            },
+            valueB: {
+              label: '入力 B'
+            }
+          }
         },
         power: {
           title: '累乗',
-          description: 'a の b 乗を計算します'
+          description: 'a の b 乗を計算します',
+          pinDescriptions: {
+            base: '底数',
+            exp: '指数',
+            result: '累乗結果'
+          },
+          fields: {
+            base: {
+              label: '底数 (base)'
+            },
+            exp: {
+              label: '指数 (exp)'
+            }
+          }
         }
       },
       string: {
+        common: {
+          connectedInputHint: '入力が接続されています。接続値を使用します'
+        },
         substring: {
           title: '部分文字列',
           description: '指定した位置からテキストを抽出する',
+          pinDescriptions: {
+            text: '抽出対象のテキスト',
+            start: '開始位置（0始まり）',
+            length: '抽出長',
+            result: '抽出結果'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1699,6 +1857,12 @@ export const crawler = {
         replace: {
           title: '置換',
           description: 'テキスト内の指定内容を検索して置換する（すべて置換）',
+          pinDescriptions: {
+            text: '元テキスト',
+            search: '検索文字列（すべて置換）',
+            replacement: '置換先',
+            result: '置換結果'
+          },
           fields: {
             text: {
               label: 'ソーステキスト',
@@ -1716,11 +1880,28 @@ export const crawler = {
         },
         concat: {
           title: '結合',
-          description: '複数のテキストセグメントを結合する'
+          description: '複数のテキストセグメントを結合する',
+          pinDescriptions: {
+            segment: 'テキストセグメント {label}',
+            result: '結合結果'
+          },
+          fields: {
+            segment: {
+              label: 'テキスト {label}',
+              placeholder: 'テキストセグメント {label}',
+              count: '{count}段'
+            }
+          }
         },
         regexMatch: {
           title: '正規表現マッチ',
           description: '正規表現パターンを使用してテキストから一致を抽出する',
+          pinDescriptions: {
+            text: 'マッチ対象のテキスト',
+            pattern: '正規表現パターン',
+            flags: 'フラグ（g/i/m など）',
+            result: 'マッチ結果配列'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1739,6 +1920,13 @@ export const crawler = {
         regexReplace: {
           title: '正規表現置換',
           description: '正規表現パターンを使用してテキストを検索して置換する',
+          pinDescriptions: {
+            text: '元テキスト',
+            pattern: '正規表現パターン',
+            replacement: '置換先（キャプチャグループ利用可）',
+            flags: 'フラグ（g/i/m など）',
+            result: '置換結果'
+          },
           fields: {
             text: {
               label: 'ソーステキスト',
@@ -1761,6 +1949,11 @@ export const crawler = {
         split: {
           title: '分割',
           description: 'テキストを区切り文字で分割して配列にする',
+          pinDescriptions: {
+            text: '分割対象のテキスト',
+            separator: '区切り文字',
+            result: '分割結果配列'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1775,6 +1968,10 @@ export const crawler = {
         length: {
           title: '文字列の長さ',
           description: 'テキストの文字数を取得する',
+          pinDescriptions: {
+            text: '長さを計算するテキスト',
+            result: 'テキストの文字数'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1785,6 +1982,10 @@ export const crawler = {
         uppercase: {
           title: '大文字に変換',
           description: 'テキストを大文字に変換する',
+          pinDescriptions: {
+            text: '大文字に変換するテキスト',
+            result: '大文字変換結果'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1795,6 +1996,10 @@ export const crawler = {
         lowercase: {
           title: '小文字に変換',
           description: 'テキストを小文字に変換する',
+          pinDescriptions: {
+            text: '小文字に変換するテキスト',
+            result: '小文字変換結果'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1805,6 +2010,10 @@ export const crawler = {
         trim: {
           title: '空白を削除',
           description: 'テキストから空白文字を削除する',
+          pinDescriptions: {
+            text: '空白を削除するテキスト',
+            result: '空白削除結果'
+          },
           fields: {
             text: {
               label: 'テキスト',
@@ -1846,11 +2055,21 @@ export const crawler = {
         },
         length: {
           title: '配列長',
-          description: '配列の長さを取得します'
+          description: '配列の長さを取得します',
+          pinDescriptions: {
+            array: '配列を入力して長さを出力',
+            length: '配列の長さ'
+          }
         },
         item: {
           title: '配列インデックス',
           description: '指定インデックスの値を取得します',
+          pinDescriptions: {
+            array: '配列を入力',
+            index: 'インデックスを入力（パネル既定値を上書き）',
+            item: 'インデックスに対応する値',
+            exists: 'そのインデックスが存在するか'
+          },
           fields: {
             index: {
               label: 'インデックス'

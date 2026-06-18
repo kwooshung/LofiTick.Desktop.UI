@@ -1,10 +1,14 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide-divide" :title="t('components.crawler.blueprint.nodes.math.divide.title')" :description="t('components.crawler.blueprint.nodes.math.divide.description')" header-color="" header-bg="bg-lime-500" :left-pins="computedLeftPins" :right-pins="rightPins">
     <div class="space-y-3">
-      <UFormField v-for="(operandId, index) in stateOperandIds" :key="operandId" :label="`输入 ${labelFromIndex(index).toUpperCase()}`">
+      <UFormField
+        v-for="(operandId, index) in stateOperandIds"
+        :key="operandId"
+        :label="t('components.crawler.blueprint.nodes.common.operandInputLabel', { label: labelFromIndex(index).toUpperCase() })"
+      >
         <div v-if="hasTargetPinConnection(inputHandleIdFromOperandId(operandId))" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInputNumber
@@ -21,7 +25,7 @@
       </UFormField>
 
       <div class="flex items-center justify-end gap-2">
-        <span class="text-muted text-xs">{{ stateOperandIds.length }}项</span>
+        <span class="text-muted text-xs">{{ t('components.crawler.blueprint.nodes.common.operandCount', { count: stateOperandIds.length }) }}</span>
         <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-minus" class="rounded-sm" :disabled="stateOperandIds.length <= 2" @click="handleOperandRemove" />
         <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" class="rounded-sm" @click="handleOperandAdd" />
       </div>
@@ -85,11 +89,11 @@ const topPercentFromIndex = (index: number, total: number): number => {
 const computedLeftPins = computed<IBasicSidePin[]>(() => {
   return stateOperandIds.value.map((operandId, index) => ({
     id: inputHandleIdFromOperandId(operandId),
-    label: labelFromIndex(index),
+    label: labelFromIndex(index).toUpperCase(),
     direction: 'in',
     dataType: 'number',
     topPercent: topPercentFromIndex(index, stateOperandIds.value.length),
-    description: `除数 ${labelFromIndex(index).toUpperCase()}`
+    description: t('components.crawler.blueprint.nodes.math.divide.pinDescriptions.operand', { label: labelFromIndex(index).toUpperCase() })
   }));
 });
 
@@ -152,8 +156,15 @@ const syncOperandValuesByIds = (): void => {
 };
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-number', label: 'result', direction: 'out', dataType: 'number', topPercent: 35, description: '除法结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-number',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'number',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.math.divide.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {

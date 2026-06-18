@@ -29,6 +29,7 @@ export const card = {
     saveRemark: '儲存備註'
   },
   toast: {
+    copiedPrefix: '已複製：',
     machineRemarkSaved: '機器備註已儲存',
     machineDeleted: '主機已刪除'
   },
@@ -46,6 +47,7 @@ export const card = {
     disabled: '未啟用'
   },
   dialogs: {
+    guardTitle: '場景守護',
     deleteSceneTitle: '確認刪除此場景？',
     deleteMachineTitle: '確認刪除此主機？'
   },

@@ -27,7 +27,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'object',
     topPercent: 30,
-    description: '查询到的单个元素对象'
+    description: t('components.crawler.blueprint.nodes.extract.queryElement.pinDescriptions.element')
   },
   {
     id: 'element-exists',
@@ -35,7 +35,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'boolean',
     topPercent: 55,
-    description: '是否查询到元素'
+    description: t('components.crawler.blueprint.nodes.extract.queryElement.pinDescriptions.exists')
   },
   {
     id: 'result-message',

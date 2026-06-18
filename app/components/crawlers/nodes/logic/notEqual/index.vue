@@ -1,7 +1,7 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-lucide-equal-not" :title="t('components.crawler.blueprint.nodes.logic.notEqual.title')" :description="t('components.crawler.blueprint.nodes.logic.notEqual.description')" header-bg="bg-rose-500" :left-pins="computedLeftPins" :right-pins="rightPins">
     <div class="flex items-center justify-end gap-2">
-      <span class="text-muted text-xs">{{ stateOperandIds.length }}项</span>
+      <span class="text-muted text-xs">{{ t('components.crawler.blueprint.nodes.common.operandCount', { count: stateOperandIds.length }) }}</span>
       <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-minus" :disabled="stateOperandIds.length <= 2" @click="handleOperandRemove" />
       <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" @click="handleOperandAdd" />
     </div>
@@ -65,7 +65,7 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
     direction: 'in',
     dataType: 'any',
     topPercent: topPercentFromIndex(index, stateOperandIds.value.length),
-    description: `比较值 ${labelFromIndex(index).toUpperCase()}`
+    description: t('components.crawler.blueprint.nodes.logic.notEqual.pinDescriptions.operand', { label: labelFromIndex(index).toUpperCase() })
   }));
 });
 
@@ -82,8 +82,15 @@ const handleOperandRemove = (): void => {
 };
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-boolean', label: 'result', direction: 'out', dataType: 'boolean', topPercent: 35, description: '比较结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.logic.notEqual.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {

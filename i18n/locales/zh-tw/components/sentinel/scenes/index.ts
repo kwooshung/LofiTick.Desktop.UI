@@ -38,6 +38,15 @@ export const scenes = {
       remote: '遠端場景',
       conflict: '衝突數量'
     },
+    shortFields: {
+      state: '狀態',
+      path: '路徑',
+      command: '命令'
+    },
+    shortSources: {
+      local: '本地',
+      remote: '遠端'
+    },
     values: {
       enabled: '已啟用',
       disabled: '未啟用',

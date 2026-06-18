@@ -26,7 +26,7 @@ const leftPins: IBasicSidePin[] = [
     direction: 'in',
     dataType: 'any',
     topPercent: 50,
-    description: '上游传入的上下文对象，可在脚本中读取'
+    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.context')
   }
 ];
 
@@ -37,7 +37,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'any',
     topPercent: 20,
-    description: '脚本返回结果'
+    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.result')
   },
   {
     id: 'result-array',
@@ -45,7 +45,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'array',
     topPercent: 40,
-    description: '当结果是数组时可直接接入循环/长度节点'
+    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.resultArray')
   },
   {
     id: 'result-length',
@@ -53,7 +53,7 @@ const rightPins: IBasicSidePin[] = [
     direction: 'out',
     dataType: 'number',
     topPercent: 60,
-    description: '当结果是数组或字符串时的长度'
+    description: t('components.crawler.blueprint.nodes.extract.executeScript.pinDescriptions.resultLength')
   },
   {
     id: 'result-message',

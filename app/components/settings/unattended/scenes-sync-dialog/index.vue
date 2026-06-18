@@ -104,7 +104,7 @@
 /**
  * Hook：i18n
  */
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 /**
  * Hook：全局场景同步弹窗
@@ -152,47 +152,7 @@ const computedDescription = computed(() => {
  * 返回适合当前语言环境的短标签。
  */
 const shortFieldLabelGet = (field: 'state' | 'path' | 'command'): string => {
-  if (locale.value === 'en') {
-    if (field === 'state') {
-      return 'State';
-    }
-    if (field === 'path') {
-      return 'Path';
-    }
-
-    return 'Command';
-  }
-
-  if (locale.value === 'ja') {
-    if (field === 'state') {
-      return '状態';
-    }
-    if (field === 'path') {
-      return 'パス';
-    }
-
-    return 'コマンド';
-  }
-
-  if (locale.value === 'zh_tw') {
-    if (field === 'state') {
-      return '狀態';
-    }
-    if (field === 'path') {
-      return '路徑';
-    }
-
-    return '命令';
-  }
-
-  if (field === 'state') {
-    return '状态';
-  }
-  if (field === 'path') {
-    return '路径';
-  }
-
-  return '命令';
+  return t(`components.sentinel.scenes.sync.shortFields.${field}`);
 };
 
 /**
@@ -209,19 +169,7 @@ const shortFieldLabelGet = (field: 'state' | 'path' | 'command'): string => {
  * 返回适合当前语言环境的短来源标签。
  */
 const shortSourceLabelGet = (source: 'local' | 'remote'): string => {
-  if (locale.value === 'en') {
-    return source === 'local' ? 'Local' : 'Remote';
-  }
-
-  if (locale.value === 'ja') {
-    return source === 'local' ? 'ローカル' : 'リモート';
-  }
-
-  if (locale.value === 'zh_tw') {
-    return source === 'local' ? '本地' : '遠端';
-  }
-
-  return source === 'local' ? '本地' : '远端';
+  return t(`components.sentinel.scenes.sync.shortSources.${source}`);
 };
 
 /**

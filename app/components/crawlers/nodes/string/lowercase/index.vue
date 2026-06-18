@@ -3,7 +3,7 @@
     <UFormField :label="t('components.crawler.blueprint.nodes.string.lowercase.fields.text.label')">
       <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
         <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-        <span class="truncate">已连接输入，使用连线值</span>
+        <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
       </div>
 
       <UTextarea v-else v-model="stateText" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.lowercase.fields.text.placeholder')" />
@@ -29,26 +29,48 @@ const stateText = ref('');
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
-const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待转小写的文本' }];
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 50,
+    description: t('components.crawler.blueprint.nodes.string.lowercase.pinDescriptions.text')
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '小写结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.lowercase.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringLowercaseNodeData;
   stateText.value = String(data.text ?? '');
   stateInitialized.value = true;
 });
 
 watch(stateText, () => {
-  if (!stateInitialized.value) return;
+  if (!stateInitialized.value) {
+    return;
+  }
   stateNode.node.data = { ...(stateNode.node.data as Record<string, unknown> | undefined), text: stateText.value };
 });
 </script>

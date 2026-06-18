@@ -668,10 +668,23 @@ export const settings = {
       description: 'Server tasks now open directly in 1Panel. This page only keeps the jump entry and reminders.',
       heroTitle: 'Manage real server cronjobs inside 1Panel',
       heroDescription: 'The desktop app no longer mirrors the 1Panel cron list and no longer asks you to maintain an API key here. Configure one 1Panel root URL, then jump straight to cronjobs or the script library from this page.',
+      fields: {
+        serverTaskLabel: 'Server tasks',
+        realCronLabel: 'Real cronjobs',
+        realCronDescription: 'Manage real server cronjobs directly in 1Panel.',
+        panelBaseLabel: 'Current 1Panel URL',
+        panelBaseDescription: 'If this entry URL is wrong, update the 1Panel base domain in Service Connections.'
+      },
       actions: {
         openCronjobs: 'Open 1Panel cronjobs',
         openScriptLibrary: 'Open 1Panel script library',
         openConnections: 'Open service connections'
+      },
+      quickEntriesTitle: 'Quick entries',
+      atlas: {
+        title: 'Navigation entries',
+        description: 'Expand quick links directly by 1Panel top-level sections.',
+        total: '{count} entries'
       },
       quickLinks: {
         overview: 'Open 1Panel overview',
@@ -737,6 +750,7 @@ export const settings = {
     },
     table: {
       name: 'Job',
+      detail: 'Details',
       group: 'Group',
       path: 'Path',
       method: 'Method',

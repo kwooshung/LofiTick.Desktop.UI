@@ -4,7 +4,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.replace.fields.text.label')">
         <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UTextarea v-else v-model="stateText" :rows="2" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.replace.fields.text.placeholder')" />
@@ -13,7 +13,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.replace.fields.search.label')">
         <div v-if="hasTargetPinConnection('input-search')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateSearch" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.replace.fields.search.placeholder')" />
@@ -22,7 +22,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.replace.fields.replacement.label')">
         <div v-if="hasTargetPinConnection('input-replacement')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateReplacement" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.replace.fields.replacement.placeholder')" />
@@ -53,23 +53,55 @@ const stateReplacement = ref('');
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
 const leftPins: IBasicSidePin[] = [
-  { id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 20, description: '源文本' },
-  { id: 'input-search', label: 'search', direction: 'in', dataType: 'string', topPercent: 50, description: '查找字符串（全部替换）' },
-  { id: 'input-replacement', label: 'replacement', direction: 'in', dataType: 'string', topPercent: 80, description: '替换为' }
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 20,
+    description: t('components.crawler.blueprint.nodes.string.replace.pinDescriptions.text')
+  },
+  {
+    id: 'input-search',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.search'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 50,
+    description: t('components.crawler.blueprint.nodes.string.replace.pinDescriptions.search')
+  },
+  {
+    id: 'input-replacement',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.replacement'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 80,
+    description: t('components.crawler.blueprint.nodes.string.replace.pinDescriptions.replacement')
+  }
 ];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '替换结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.replace.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringReplaceNodeData;
   stateText.value = String(data.text ?? '');
   stateSearch.value = String(data.search ?? '');
@@ -78,7 +110,9 @@ watchEffect(() => {
 });
 
 watch([stateText, stateSearch, stateReplacement], () => {
-  if (!stateInitialized.value) return;
+  if (!stateInitialized.value) {
+    return;
+  }
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     text: stateText.value,

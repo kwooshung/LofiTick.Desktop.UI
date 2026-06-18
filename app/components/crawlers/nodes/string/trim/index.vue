@@ -4,14 +4,14 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.string.trim.fields.text.label')">
         <div v-if="hasTargetPinConnection('input-text')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
         <UTextarea v-else v-model="stateText" :rows="2" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.string.trim.fields.text.placeholder')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.string.trim.fields.direction.label')">
-        <USelect v-model="stateDirection" :options="directionOptions" option-attribute="value" />
+        <USelect v-model="stateDirection" class="w-full" :items="directionOptions" value-attribute="value" option-attribute="label" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.string.trim.fields.whitespaceTypes.label')" help="">
@@ -44,11 +44,14 @@ const { edges } = useVueFlow();
 const stateInitialized = ref(false);
 const stateText = ref('');
 const stateDirection = ref<'both' | 'start' | 'end' | 'all'>('both');
-const stateWhitespaceTypes = ref<string[]>(['space', 'tab', 'newline', 'carriage-return']);
+const DEFAULT_WHITESPACE_TYPES = ['space', 'tab', 'newline', 'carriage-return', 'vertical-tab', 'form-feed'] as const;
+const stateWhitespaceTypes = ref<string[]>([...DEFAULT_WHITESPACE_TYPES]);
 
 const hasTargetPinConnection = (handleId: string): boolean => {
   const nodeId = String(stateNodeId ?? '').trim();
-  if (nodeId === '') return false;
+  if (nodeId === '') {
+    return false;
+  }
   return edges.value.some((edge) => edge.target === nodeId && edge.targetHandle === handleId);
 };
 
@@ -76,26 +79,46 @@ const handleWhitespaceTypeToggle = (type: string, checked: boolean): void => {
   }
 };
 
-const leftPins: IBasicSidePin[] = [{ id: 'input-text', label: 'text', direction: 'in', dataType: 'string', topPercent: 50, description: '待去空白的文本' }];
+const leftPins: IBasicSidePin[] = [
+  {
+    id: 'input-text',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.text'),
+    direction: 'in',
+    dataType: 'string',
+    topPercent: 50,
+    description: t('components.crawler.blueprint.nodes.string.trim.pinDescriptions.text')
+  }
+];
 
 const rightPins: IBasicSidePin[] = [
-  { id: 'result-string', label: 'result', direction: 'out', dataType: 'string', topPercent: 35, description: '去空白结果' },
-  { id: 'result-message', label: 'message', direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
+  {
+    id: 'result-string',
+    label: t('components.crawler.blueprint.nodes.common.pinLabels.result'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.string.trim.pinDescriptions.result')
+  },
+  { id: 'result-message', label: t('components.crawler.blueprint.nodes.common.pinLabels.message'), direction: 'out', dataType: 'string', topPercent: 75, description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription') }
 ];
 
 watchEffect(() => {
-  if (stateInitialized.value) return;
+  if (stateInitialized.value) {
+    return;
+  }
   const data = (stateNode.node.data ?? {}) as IStringTrimNodeData;
   stateText.value = String(data.text ?? '');
   stateDirection.value = (data.direction ?? 'both') as 'both' | 'start' | 'end' | 'all';
-  stateWhitespaceTypes.value = Array.isArray(data.whitespaceTypes) && data.whitespaceTypes.length > 0 ? [...data.whitespaceTypes] : ['space', 'tab', 'newline', 'carriage-return'];
+  stateWhitespaceTypes.value = Array.isArray(data.whitespaceTypes) && data.whitespaceTypes.length > 0 ? [...data.whitespaceTypes] : [...DEFAULT_WHITESPACE_TYPES];
   stateInitialized.value = true;
 });
 
 watch(
   [stateText, stateDirection, stateWhitespaceTypes],
   () => {
-    if (!stateInitialized.value) return;
+    if (!stateInitialized.value) {
+      return;
+    }
     stateNode.node.data = {
       ...(stateNode.node.data as Record<string, unknown> | undefined),
       text: stateText.value,

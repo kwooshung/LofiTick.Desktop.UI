@@ -12,7 +12,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.method.label')">
         <div v-if="computedHasMethodInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <USelect v-else v-model="stateMethod" class="w-full" :items="stateMethodOptions" value-attribute="value" option-attribute="label" />
@@ -21,7 +21,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.url.label')">
         <div v-if="computedHasUrlInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateUrl" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.url.placeholder')" />
@@ -30,7 +30,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.query.label')">
         <div v-if="computedHasQueryInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <div v-else class="space-y-2">
@@ -47,7 +47,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.headers.label')">
         <div v-if="computedHasHeadersInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <div v-else class="space-y-2">
@@ -74,7 +74,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.referer.label')">
         <div v-if="computedHasRefererInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UInput v-else v-model="stateReferer" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.referer.placeholder')" />
@@ -83,7 +83,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.cookie.label')">
         <div v-if="computedHasCookieInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <UTextarea v-else v-model="stateCookie" :rows="3" autoresize class="w-full" :placeholder="t('components.crawler.blueprint.nodes.http.request.fields.cookie.placeholder')" />
@@ -96,7 +96,7 @@
       <UFormField v-if="computedHasBodyInput" :label="t('components.crawler.blueprint.nodes.http.request.fields.body.label')">
         <div class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
       </UFormField>
 
@@ -132,7 +132,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.timeoutMs.label')">
         <div v-if="computedHasTimeoutInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <CrawlersNodesCommonNumberInput v-else id="crawlerHttpRequestTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
@@ -141,7 +141,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.retryCount.label')">
         <div v-if="computedHasRetryInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <CrawlersNodesCommonNumberInput v-else id="crawlerHttpRequestRetryCount" v-model="stateRetryCount" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
@@ -150,7 +150,7 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.http.request.fields.followRedirect.label')">
         <div v-if="computedHasFollowRedirectInput" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
           <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">已连接输入，使用连线值</span>
+          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
         </div>
 
         <USwitch v-else v-model="stateFollowRedirect" :label="t('components.crawler.blueprint.nodes.http.request.fields.followRedirect.label')" />
