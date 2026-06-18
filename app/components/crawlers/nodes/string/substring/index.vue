@@ -16,7 +16,7 @@
           <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
-        <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringStart" v-model="stateStart" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
+        <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringStart" v-model="stateStart" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.char')" />
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.string.substring.fields.length.label')">
@@ -25,7 +25,7 @@
           <span class="truncate">{{ t('components.crawler.blueprint.nodes.string.common.connectedInputHint') }}</span>
         </div>
 
-        <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringLength" v-model="stateLength" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.count')" />
+        <CrawlersNodesCommonNumberInput v-else id="crawlerStringSubstringLength" v-model="stateLength" :min="0" :step="1" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.char')" />
       </UFormField>
     </div>
   </CrawlersNodesCommonBasic>

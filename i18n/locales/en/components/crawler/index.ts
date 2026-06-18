@@ -80,6 +80,8 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: 'Times',
+          item: 'item',
+          char: 'char',
           pixel: 'px',
           percent: '%'
         },
@@ -1980,15 +1982,75 @@ export const crawler = {
       arrayObject: {
         filter: {
           title: 'Filter Data',
-          description: 'Filter an array'
+          description: 'Filter an array',
+          pinLabels: {
+            removed: 'Removed'
+          },
+          pinDescriptions: {
+            array: 'Input array to filter',
+            path: 'Optional: object field path used during filtering',
+            result: 'Filtered array result',
+            removed: 'Number of items removed'
+          },
+          fields: {
+            mode: {
+              label: 'Filter Mode'
+            },
+            path: {
+              label: 'Filter Path',
+              placeholder: 'Optional: object field path, e.g. data.value'
+            }
+          },
+          options: {
+            modeTruthy: 'Keep truthy items',
+            modeNonEmpty: 'Remove empty items',
+            modeDistinct: 'Distinct (stable order)'
+          }
         },
         merge: {
           title: 'Merge Data',
-          description: 'Merge multiple data sources'
+          description: 'Merge multiple data sources',
+          pinDescriptions: {
+            source: 'Input source {label}',
+            result: 'Merged result (array or object)'
+          },
+          fields: {
+            mode: {
+              label: 'Merge Mode'
+            },
+            source: {
+              label: 'Source {label}',
+              placeholder: 'Optional: JSON source input (array or object)',
+              count: '{count} sources'
+            }
+          },
+          options: {
+            modeSmart: 'Smart merge (auto detect)',
+            modeArrayConcat: 'Array concat',
+            modeObjectAssign: 'Object assign (later wins)'
+          }
         },
         split: {
           title: 'Split Data',
-          description: 'Split data into multiple branches'
+          description: 'Split data into multiple branches',
+          pinLabels: {
+            size: 'Chunk',
+            chunks: 'Chunks',
+            first: 'First',
+            rest: 'Rest'
+          },
+          pinDescriptions: {
+            array: 'Input array to split',
+            size: 'Chunk size input (overrides panel setting)',
+            chunks: 'Array of chunks after split',
+            first: 'First item of the array',
+            rest: 'Remaining array without the first item'
+          },
+          fields: {
+            size: {
+              label: 'Chunk Size'
+            }
+          }
         },
         length: {
           title: 'Array Length',
@@ -2009,7 +2071,8 @@ export const crawler = {
           },
           fields: {
             index: {
-              label: 'Index'
+              label: 'Index',
+              placeholder: 'Enter the array index to read'
             }
           }
         }

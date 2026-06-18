@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-variable" :title="t('components.crawler.blueprint.nodes.variable.set.title')" :description="t('components.crawler.blueprint.nodes.variable.set.description')" header-bg="bg-fuchsia-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
+  <CrawlersNodesCommonBasic v-bind="stateNodeAttrs" icon-name="i-lucide-variable" :title="t('components.crawler.blueprint.nodes.variable.set.title')" :description="t('components.crawler.blueprint.nodes.variable.set.description')" header-bg="bg-fuchsia-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
     <div class="space-y-2">
       <template v-if="stateVariables.length > 0">
         <div v-for="(item, index) in stateVariables" :key="item.id" class="space-y-1">
@@ -119,6 +119,25 @@ import {
   variableValueDataTypesGet
 } from '@/components/crawlers/nodes/variable/shared/index';
 
+/**
+ * 配置：关闭 fragment 下的自动 attrs 继承，改为手动透传。
+ */
+defineOptions({
+  inheritAttrs: false
+});
+
+/**
+ * 属性：Vue Flow 注入的节点上下文 attrs。
+ */
+const stateNodeAttrs = useAttrs();
+
+/**
+ * 事件：声明 Vue Flow 注入的节点内部刷新事件。
+ */
+const emit = defineEmits<{
+  updateNodeInternals: [];
+}>();
+
 const { t } = useI18n();
 
 const stateNode = useNode();
@@ -166,6 +185,16 @@ const computedRightPins = computed<IBasicSidePin[]>(() => {
       description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription')
     }
   ];
+});
+
+/**
+ * 计算属性：当前引脚结构签名。
+ */
+const computedPinSignature = computed(() => {
+  const leftSignature = computedLeftPins.value.map((pin) => `${pin.id}:${pin.dataType}`).join('|');
+  const rightSignature = computedRightPins.value.map((pin) => `${pin.id}:${pin.dataType}`).join('|');
+
+  return `${leftSignature}#${rightSignature}`;
 });
 
 const computedTypeChangeDialogDescription = computed(() => {
@@ -382,5 +411,17 @@ watch(
     };
   },
   { deep: true }
+);
+
+/**
+ * 监听：引脚结构变化时通知 Vue Flow 更新节点内部布局。
+ */
+watch(
+  computedPinSignature,
+  async () => {
+    await nextTick();
+    emit('updateNodeInternals');
+  },
+  { immediate: true }
 );
 </script>

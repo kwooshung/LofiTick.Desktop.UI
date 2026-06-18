@@ -80,6 +80,8 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: '次',
+          item: '项',
+          char: '字符',
           pixel: '像素',
           percent: '%'
         },
@@ -2043,15 +2045,75 @@ export const crawler = {
       arrayObject: {
         filter: {
           title: '数据过滤',
-          description: '过滤数组'
+          description: '过滤数组',
+          pinLabels: {
+            removed: '移除数'
+          },
+          pinDescriptions: {
+            array: '输入待过滤的数组数据',
+            path: '可选：输入对象字段路径（用于按字段过滤）',
+            result: '过滤后的数组结果',
+            removed: '被移除的数据项数量'
+          },
+          fields: {
+            mode: {
+              label: '过滤模式'
+            },
+            path: {
+              label: '过滤路径',
+              placeholder: '可选：输入对象字段路径，例如 data.value'
+            }
+          },
+          options: {
+            modeTruthy: '保留真值项',
+            modeNonEmpty: '移除空值项',
+            modeDistinct: '去重（按序）'
+          }
         },
         merge: {
           title: '数据合并',
-          description: '合并多个数据源'
+          description: '合并多个数据源',
+          pinDescriptions: {
+            source: '输入数据源 {label}',
+            result: '合并后的结果（数组或对象）'
+          },
+          fields: {
+            mode: {
+              label: '合并模式'
+            },
+            source: {
+              label: '数据源 {label}',
+              placeholder: '可选：输入 JSON 数据源（如数组或对象）',
+              count: '{count} 个数据源'
+            }
+          },
+          options: {
+            modeSmart: '智能合并（自动判断）',
+            modeArrayConcat: '数组拼接',
+            modeObjectAssign: '对象覆盖（后者优先）'
+          }
         },
         split: {
           title: '数据拆分',
-          description: '将数据拆分成多路'
+          description: '将数据拆分成多路',
+          pinLabels: {
+            size: '分块',
+            chunks: '分块数组',
+            first: '首项',
+            rest: '剩余项'
+          },
+          pinDescriptions: {
+            array: '输入待拆分的数组数据',
+            size: '输入每块大小（可覆盖面板设置）',
+            chunks: '按分块大小切分后的数组结果',
+            first: '数组首项数据',
+            rest: '除首项外的剩余数组'
+          },
+          fields: {
+            size: {
+              label: '分块大小'
+            }
+          }
         },
         length: {
           title: '数组长度',
@@ -2072,7 +2134,8 @@ export const crawler = {
           },
           fields: {
             index: {
-              label: '索引'
+              label: '索引',
+              placeholder: '输入要读取的数组索引'
             }
           }
         }

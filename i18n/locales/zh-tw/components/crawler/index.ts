@@ -80,6 +80,8 @@ export const crawler = {
         units: {
           millisecond: '毫秒',
           count: '次',
+          item: '項',
+          char: '字元',
           pixel: '像素',
           percent: '%'
         },
@@ -2019,15 +2021,75 @@ export const crawler = {
       arrayObject: {
         filter: {
           title: '資料過濾',
-          description: '過濾陣列'
+          description: '過濾陣列',
+          pinLabels: {
+            removed: '移除數'
+          },
+          pinDescriptions: {
+            array: '輸入待過濾的陣列資料',
+            path: '可選：輸入物件欄位路徑（用於按欄位過濾）',
+            result: '過濾後的陣列結果',
+            removed: '被移除的資料項數量'
+          },
+          fields: {
+            mode: {
+              label: '過濾模式'
+            },
+            path: {
+              label: '過濾路徑',
+              placeholder: '可選：輸入物件欄位路徑，例如 data.value'
+            }
+          },
+          options: {
+            modeTruthy: '保留真值項',
+            modeNonEmpty: '移除空值項',
+            modeDistinct: '去重（按序）'
+          }
         },
         merge: {
           title: '資料合併',
-          description: '合併多個資料來源'
+          description: '合併多個資料來源',
+          pinDescriptions: {
+            source: '輸入資料來源 {label}',
+            result: '合併後的結果（陣列或物件）'
+          },
+          fields: {
+            mode: {
+              label: '合併模式'
+            },
+            source: {
+              label: '資料來源 {label}',
+              placeholder: '可選：輸入 JSON 資料來源（如陣列或物件）',
+              count: '{count} 個資料來源'
+            }
+          },
+          options: {
+            modeSmart: '智慧合併（自動判斷）',
+            modeArrayConcat: '陣列串接',
+            modeObjectAssign: '物件覆蓋（後者優先）'
+          }
         },
         split: {
           title: '資料拆分',
-          description: '將資料拆分成多路'
+          description: '將資料拆分成多路',
+          pinLabels: {
+            size: '分塊',
+            chunks: '分塊陣列',
+            first: '首項',
+            rest: '剩餘項'
+          },
+          pinDescriptions: {
+            array: '輸入待拆分的陣列資料',
+            size: '輸入每塊大小（可覆蓋面板設定）',
+            chunks: '依分塊大小切分後的陣列結果',
+            first: '陣列首項資料',
+            rest: '除首項外的剩餘陣列'
+          },
+          fields: {
+            size: {
+              label: '分塊大小'
+            }
+          }
         },
         length: {
           title: '陣列長度',
@@ -2048,7 +2110,8 @@ export const crawler = {
           },
           fields: {
             index: {
-              label: '索引'
+              label: '索引',
+              placeholder: '輸入要讀取的陣列索引'
             }
           }
         }

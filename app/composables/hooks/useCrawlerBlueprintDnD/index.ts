@@ -14,6 +14,28 @@ const getId = (): string => {
 };
 
 /**
+ * 函数：规范化拖拽节点类型。
+ *
+ * 兼容 snake_case / camelCase / 点分隔等写法，统一收敛为 kebab-case。
+ *
+ * @param {string} type 原始节点类型。
+ * @returns {string} 规范化后的节点类型。
+ */
+const normalizeNodeType = (type: string): string => {
+  const trimmed = String(type ?? '').trim();
+
+  if (trimmed === '') {
+    return '';
+  }
+
+  return trimmed
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/[._\s]+/g, '-')
+    .replace(/-+/g, '-')
+    .toLowerCase();
+};
+
+/**
  * 常量：组合式拖拽状态。
  *
  * 实际项目中应尽量避免在全局作用域创建这类响应式状态，这里保留现有结构以便复用。
@@ -81,7 +103,7 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @param {string} type 节点类型标识。
    */
   const onDragStart = (event: DragEvent, type: string): void => {
-    const normalizedType = String(type ?? '').trim();
+    const normalizedType = normalizeNodeType(type);
 
     if (normalizedType === '') {
       return;
@@ -143,8 +165,8 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
     event.preventDefault();
     event.stopPropagation();
 
-    const typeFromTransfer = String(event.dataTransfer?.getData('application/vueflow') ?? event.dataTransfer?.getData('text/plain') ?? '').trim();
-    const resolvedType = typeFromTransfer !== '' ? typeFromTransfer : String(draggedType.value ?? '').trim();
+    const typeFromTransfer = normalizeNodeType(String(event.dataTransfer?.getData('application/vueflow') ?? event.dataTransfer?.getData('text/plain') ?? ''));
+    const resolvedType = typeFromTransfer !== '' ? typeFromTransfer : normalizeNodeType(String(draggedType.value ?? ''));
 
     if (resolvedType === '') {
       return;

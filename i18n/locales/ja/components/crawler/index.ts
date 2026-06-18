@@ -80,6 +80,8 @@ export const crawler = {
         units: {
           millisecond: 'ミリ秒',
           count: '回',
+          item: '項',
+          char: '文字',
           pixel: 'px',
           percent: '%'
         },
@@ -2043,15 +2045,75 @@ export const crawler = {
       arrayObject: {
         filter: {
           title: 'データフィルタ',
-          description: '配列をフィルタします'
+          description: '配列をフィルタします',
+          pinLabels: {
+            removed: '除外数'
+          },
+          pinDescriptions: {
+            array: 'フィルタ対象の配列を入力',
+            path: '任意：フィルタに使うオブジェクトのフィールドパス',
+            result: 'フィルタ後の配列結果',
+            removed: '除外された項目数'
+          },
+          fields: {
+            mode: {
+              label: 'フィルタモード'
+            },
+            path: {
+              label: 'フィルタパス',
+              placeholder: '任意：フィールドパスを入力（例: data.value）'
+            }
+          },
+          options: {
+            modeTruthy: '真値のみ保持',
+            modeNonEmpty: '空値を除外',
+            modeDistinct: '重複除去（順序維持）'
+          }
         },
         merge: {
           title: 'データマージ',
-          description: '複数のデータソースを結合します'
+          description: '複数のデータソースを結合します',
+          pinDescriptions: {
+            source: 'データソース {label} を入力',
+            result: '結合後の結果（配列またはオブジェクト）'
+          },
+          fields: {
+            mode: {
+              label: 'マージモード'
+            },
+            source: {
+              label: 'データソース {label}',
+              placeholder: '任意：JSON データを入力（配列またはオブジェクト）',
+              count: '{count} 件のデータソース'
+            }
+          },
+          options: {
+            modeSmart: 'スマートマージ（自動判定）',
+            modeArrayConcat: '配列連結',
+            modeObjectAssign: 'オブジェクト上書き（後勝ち）'
+          }
         },
         split: {
           title: 'データ分割',
-          description: 'データを複数の枝に分けます'
+          description: 'データを複数の枝に分けます',
+          pinLabels: {
+            size: 'チャンク',
+            chunks: 'チャンク配列',
+            first: '先頭項目',
+            rest: '残り項目'
+          },
+          pinDescriptions: {
+            array: '分割対象の配列を入力',
+            size: 'チャンクサイズ入力（パネル設定を上書き）',
+            chunks: 'チャンク単位に分割した配列結果',
+            first: '配列の先頭項目',
+            rest: '先頭を除いた残りの配列'
+          },
+          fields: {
+            size: {
+              label: 'チャンクサイズ'
+            }
+          }
         },
         length: {
           title: '配列長',
@@ -2072,7 +2134,8 @@ export const crawler = {
           },
           fields: {
             index: {
-              label: 'インデックス'
+              label: 'インデックス',
+              placeholder: '取得する配列インデックスを入力してください'
             }
           }
         }
