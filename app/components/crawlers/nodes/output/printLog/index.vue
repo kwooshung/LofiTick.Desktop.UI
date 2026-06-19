@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-print" :title="t('components.crawler.blueprint.nodes.output.printLog.title')" :description="t('components.crawler.blueprint.nodes.output.printLog.description')" header-color="" header-bg="bg-red-500" :left-pins="leftPins" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-printer" :title="t('components.crawler.blueprint.nodes.output.printLog.title')" :description="t('components.crawler.blueprint.nodes.output.printLog.description')" header-color="" header-bg="bg-red-500" :left-pins="leftPins" :right-pins="rightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.output.printLog.fields.level.label')">
         <div v-if="hasTargetPinConnection('input-level-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">

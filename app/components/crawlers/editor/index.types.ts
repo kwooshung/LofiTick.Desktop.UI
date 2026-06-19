@@ -1,4 +1,66 @@
+import type { Edge, Node } from '@vue-flow/core';
+
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
+
+/**
+ * 接口：编辑器剪贴板边界盒。
+ */
+export interface ICrawlersEditorClipboardBounds {
+  /**
+   * 属性：左侧坐标。
+   */
+  left: number;
+
+  /**
+   * 属性：顶部坐标。
+   */
+  top: number;
+
+  /**
+   * 属性：宽度。
+   */
+  width: number;
+
+  /**
+   * 属性：高度。
+   */
+  height: number;
+}
+
+/**
+ * 接口：编辑器节点剪贴板数据。
+ */
+export interface ICrawlersEditorClipboardData {
+  /**
+   * 属性：剪贴板版本。
+   */
+  version: number;
+
+  /**
+   * 属性：来源草稿键。
+   */
+  sourceDraftKey: string;
+
+  /**
+   * 属性：复制时间戳。
+   */
+  copiedAt: number;
+
+  /**
+   * 属性：复制节点集合。
+   */
+  nodes: Node[];
+
+  /**
+   * 属性：复制边集合。
+   */
+  edges: Edge[];
+
+  /**
+   * 属性：原始边界盒。
+   */
+  bounds: ICrawlersEditorClipboardBounds;
+}
 
 /**
  * 接口：编辑器保存载荷。

@@ -1,5 +1,5 @@
 <template>
-  <div class="editor bg-default flex h-full min-h-0 overflow-hidden" :aria-label="computedDescription" @drop="onDrop">
+  <div ref="refEditorRoot" tabindex="0" class="editor bg-default flex h-full min-h-0 overflow-hidden focus:outline-none" :aria-label="computedDescription" @drop="onDrop" @pointerdown.capture="handleEditorPointerDown" @pointermove.capture="handleEditorPointerMove" @pointerleave.capture="handleEditorPointerLeave" @keydown.capture="handleEditorKeydown">
     <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -62,7 +62,9 @@
 import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
 
-import type { ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
+import type { Edge, Node, XYPosition } from '@vue-flow/core';
+
+import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
@@ -92,9 +94,54 @@ const stateHelperLineVertical = ref<number | undefined>(undefined);
 const { t } = useI18n();
 
 /**
+ * 引用：编辑器根元素。
+ */
+const refEditorRoot = ref<HTMLElement | null>(null);
+
+/**
  * Hook：Vue Flow 实例方法。
  */
-const { nodes, edges, toObject, fromObject, fitView, zoomIn, zoomOut, addEdges, addNodes, applyNodeChanges } = useVueFlow();
+const { nodes, edges, toObject, fromObject, fitView, zoomIn, zoomOut, addEdges, addNodes, applyNodeChanges, screenToFlowCoordinate } = useVueFlow();
+
+/**
+ * 常量：编辑器剪贴板状态键。
+ */
+const CRAWLERS_EDITOR_CLIPBOARD_STATE_KEY = 'crawlers-editor-node-clipboard';
+
+/**
+ * 常量：编辑器剪贴板文本前缀。
+ */
+const CRAWLERS_EDITOR_CLIPBOARD_TEXT_PREFIX = '__LOFITICK_CRAWLERS_EDITOR_CLIPBOARD__:';
+
+/**
+ * 常量：编辑器剪贴板版本。
+ */
+const CRAWLERS_EDITOR_CLIPBOARD_VERSION = 1;
+
+/**
+ * 常量：同面板连续粘贴偏移。
+ */
+const CRAWLERS_EDITOR_PASTE_OFFSET = 48;
+
+/**
+ * 状态：跨面板共享的编辑器剪贴板。
+ */
+const stateClipboard = useState<ICrawlersEditorClipboardData | null>(CRAWLERS_EDITOR_CLIPBOARD_STATE_KEY, () => null);
+
+/**
+ * 状态：上次粘贴签名。
+ */
+const stateLastPasteSignature = ref('');
+
+/**
+ * 状态：连续粘贴次数。
+ */
+const statePasteCount = ref(0);
+
+/**
+ * 状态：编辑器内最近一次鼠标客户端坐标。
+ */
+const stateLastPointerClientPosition = ref<XYPosition | null>(null);
 
 /**
  * Hook：爬虫蓝图拖放。
@@ -192,6 +239,584 @@ const computedDraftKey = computed(() => {
 
   return `${DRAFT_ENTRY_PREFIX}${domain}`;
 });
+
+/**
+ * 函数：判断事件目标是否为可编辑元素。
+ * @param {EventTarget | null} target 事件目标。
+ * @returns {boolean} 是否为可编辑元素。
+ */
+const isEditableEventTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (target.isContentEditable) {
+    return true;
+  }
+
+  const tagName = target.tagName.toLowerCase();
+
+  return tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+};
+
+/**
+ * 函数：生成复制粘贴节点唯一 ID。
+ * @returns {string} 唯一节点 ID。
+ */
+const createClipboardNodeId = (): string => {
+  const randomPart = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+
+  return `copynode_${randomPart}`;
+};
+
+/**
+ * 函数：生成复制粘贴边唯一 ID。
+ * @returns {string} 唯一边 ID。
+ */
+const createClipboardEdgeId = (): string => {
+  const randomPart = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+
+  return `copyedge_${randomPart}`;
+};
+
+/**
+ * 函数：获取节点宽度。
+ * @param {Node} node 节点。
+ * @returns {number} 节点宽度。
+ */
+const getNodeWidth = (node: Node): number => Number(node.dimensions?.width ?? node.width ?? 0);
+
+/**
+ * 函数：获取节点高度。
+ * @param {Node} node 节点。
+ * @returns {number} 节点高度。
+ */
+const getNodeHeight = (node: Node): number => Number(node.dimensions?.height ?? node.height ?? 0);
+
+/**
+ * 函数：根据节点集合计算边界盒。
+ * @param {Node[]} selectionNodes 选中节点集合。
+ * @returns {ICrawlersEditorClipboardBounds | null} 边界盒。
+ */
+const getSelectionBounds = (selectionNodes: Node[]): ICrawlersEditorClipboardBounds | null => {
+  if (selectionNodes.length === 0) {
+    return null;
+  }
+
+  const [firstNode, ...restNodes] = selectionNodes;
+
+  if (!firstNode) {
+    return null;
+  }
+
+  const firstLeft = Number(firstNode.position.x ?? 0);
+  const firstTop = Number(firstNode.position.y ?? 0);
+  const firstRight = firstLeft + getNodeWidth(firstNode);
+  const firstBottom = firstTop + getNodeHeight(firstNode);
+
+  const reduced = restNodes.reduce(
+    (result, node) => {
+      const left = Number(node.position.x ?? 0);
+      const top = Number(node.position.y ?? 0);
+      const right = left + getNodeWidth(node);
+      const bottom = top + getNodeHeight(node);
+
+      return {
+        left: Math.min(result.left, left),
+        top: Math.min(result.top, top),
+        right: Math.max(result.right, right),
+        bottom: Math.max(result.bottom, bottom)
+      };
+    },
+    {
+      left: firstLeft,
+      top: firstTop,
+      right: firstRight,
+      bottom: firstBottom
+    }
+  );
+
+  return {
+    left: reduced.left,
+    top: reduced.top,
+    width: reduced.right - reduced.left,
+    height: reduced.bottom - reduced.top
+  };
+};
+
+/**
+ * 函数：清洗复制节点，移除运行态字段。
+ * @param {Node} node 原始节点。
+ * @returns {Node} 可复制节点。
+ */
+const createClipboardNode = (node: Node): Node => {
+  const nextNode = {
+    ...node,
+    position: {
+      x: Number(node.position.x ?? 0),
+      y: Number(node.position.y ?? 0)
+    },
+    selected: false,
+    dragging: false
+  } as Node & {
+    positionAbsolute?: unknown;
+    dimensions?: unknown;
+    measured?: unknown;
+    resizing?: unknown;
+    events?: unknown;
+  };
+
+  delete nextNode.positionAbsolute;
+  delete nextNode.dimensions;
+  delete nextNode.measured;
+  delete nextNode.resizing;
+  delete nextNode.events;
+
+  return nextNode;
+};
+
+/**
+ * 函数：清洗复制边，移除运行态选中状态。
+ * @param {Edge} edge 原始边。
+ * @returns {Edge} 可复制边。
+ */
+const createClipboardEdge = (edge: Edge): Edge => {
+  return {
+    ...edge,
+    selected: false
+  };
+};
+
+/**
+ * 函数：构建当前选中节点的剪贴板数据。
+ * @returns {ICrawlersEditorClipboardData | null} 剪贴板数据。
+ */
+const createClipboardDataFromSelection = (): ICrawlersEditorClipboardData | null => {
+  const selectedNodes = nodes.value.filter((node) => node.selected && node.type !== 'start' && node.type !== 'end' && node.id !== 'start' && node.id !== 'end');
+
+  if (selectedNodes.length === 0) {
+    return null;
+  }
+
+  const bounds = getSelectionBounds(selectedNodes);
+
+  if (!bounds) {
+    return null;
+  }
+
+  const selectedNodeIds = new Set(selectedNodes.map((node) => String(node.id ?? '')));
+  const selectedEdges = edges.value.filter((edge) => selectedNodeIds.has(String(edge.source ?? '')) && selectedNodeIds.has(String(edge.target ?? '')));
+
+  return {
+    version: CRAWLERS_EDITOR_CLIPBOARD_VERSION,
+    sourceDraftKey: computedDraftKey.value,
+    copiedAt: Date.now(),
+    nodes: selectedNodes.map((node) => createClipboardNode(node)),
+    edges: selectedEdges.map((edge) => createClipboardEdge(edge)),
+    bounds
+  };
+};
+
+/**
+ * 函数：序列化剪贴板数据为文本。
+ * @param {ICrawlersEditorClipboardData} data 剪贴板数据。
+ * @returns {string} 序列化文本。
+ */
+const serializeClipboardText = (data: ICrawlersEditorClipboardData): string => `${CRAWLERS_EDITOR_CLIPBOARD_TEXT_PREFIX}${JSON.stringify(data)}`;
+
+/**
+ * 函数：解析剪贴板文本。
+ * @param {string} text 剪贴板文本。
+ * @returns {ICrawlersEditorClipboardData | null} 解析结果。
+ */
+const parseClipboardText = (text: string): ICrawlersEditorClipboardData | null => {
+  const normalized = String(text ?? '').trim();
+
+  if (!normalized.startsWith(CRAWLERS_EDITOR_CLIPBOARD_TEXT_PREFIX)) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(normalized.slice(CRAWLERS_EDITOR_CLIPBOARD_TEXT_PREFIX.length)) as ICrawlersEditorClipboardData;
+
+    if (parsed?.version !== CRAWLERS_EDITOR_CLIPBOARD_VERSION || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges) || !parsed.bounds) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * 函数：写入编辑器剪贴板。
+ * @param {ICrawlersEditorClipboardData} data 剪贴板数据。
+ * @returns {Promise<void>} 无返回值。
+ */
+const writeEditorClipboard = async (data: ICrawlersEditorClipboardData): Promise<void> => {
+  stateClipboard.value = data;
+
+  if (!import.meta.client || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(serializeClipboardText(data));
+  } catch {
+    return;
+  }
+};
+
+/**
+ * 函数：读取编辑器剪贴板。
+ * @returns {Promise<ICrawlersEditorClipboardData | null>} 剪贴板数据。
+ */
+const readEditorClipboard = async (): Promise<ICrawlersEditorClipboardData | null> => {
+  if (stateClipboard.value) {
+    return stateClipboard.value;
+  }
+
+  if (!import.meta.client || !navigator.clipboard || typeof navigator.clipboard.readText !== 'function') {
+    return null;
+  }
+
+  try {
+    const parsed = parseClipboardText(await navigator.clipboard.readText());
+
+    if (parsed) {
+      stateClipboard.value = parsed;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * 函数：获取当前视口中心对应的流程坐标。
+ * @returns {XYPosition} 视口中心坐标。
+ */
+const getViewportCenterFlowPosition = (): XYPosition => {
+  const rect = refEditorRoot.value?.getBoundingClientRect();
+
+  if (!rect) {
+    return { x: 0, y: 0 };
+  }
+
+  return screenToFlowCoordinate({
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
+  });
+};
+
+/**
+ * 函数：获取编辑器内最近一次鼠标对应的流程坐标。
+ * @returns {XYPosition | null} 鼠标流程坐标。
+ */
+const getLastPointerFlowPosition = (): XYPosition | null => {
+  const rect = refEditorRoot.value?.getBoundingClientRect();
+  const pointer = stateLastPointerClientPosition.value;
+
+  if (!rect || !pointer) {
+    return null;
+  }
+
+  if (pointer.x < rect.left || pointer.x > rect.right || pointer.y < rect.top || pointer.y > rect.bottom) {
+    return null;
+  }
+
+  return screenToFlowCoordinate({
+    x: pointer.x,
+    y: pointer.y
+  });
+};
+
+/**
+ * 函数：计算两个边界盒的重叠面积。
+ * @param {ICrawlersEditorClipboardBounds} a 边界盒 A。
+ * @param {ICrawlersEditorClipboardBounds} b 边界盒 B。
+ * @returns {number} 重叠面积。
+ */
+const getBoundsOverlapArea = (a: ICrawlersEditorClipboardBounds, b: ICrawlersEditorClipboardBounds): number => {
+  const overlapWidth = Math.max(0, Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left));
+  const overlapHeight = Math.max(0, Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top));
+
+  return overlapWidth * overlapHeight;
+};
+
+/**
+ * 函数：获取指定原点下的粘贴边界盒。
+ * @param {ICrawlersEditorClipboardBounds} bounds 原始边界盒。
+ * @param {XYPosition} origin 粘贴原点。
+ * @returns {ICrawlersEditorClipboardBounds} 新边界盒。
+ */
+const createShiftedBounds = (bounds: ICrawlersEditorClipboardBounds, origin: XYPosition): ICrawlersEditorClipboardBounds => {
+  return {
+    left: origin.x,
+    top: origin.y,
+    width: bounds.width,
+    height: bounds.height
+  };
+};
+
+/**
+ * 函数：为粘贴内容选择尽量不重叠的原点。
+ * @param {ICrawlersEditorClipboardBounds} bounds 原始边界盒。
+ * @param {XYPosition} preferredOrigin 首选原点。
+ * @returns {XYPosition} 实际原点。
+ */
+const resolvePasteOrigin = (bounds: ICrawlersEditorClipboardBounds, preferredOrigin: XYPosition): XYPosition => {
+  const existingBounds = nodes.value
+    .filter((node) => node.id !== 'start' && node.id !== 'end' && node.type !== 'start' && node.type !== 'end')
+    .map((node) => ({
+      left: Number(node.position.x ?? 0),
+      top: Number(node.position.y ?? 0),
+      width: getNodeWidth(node),
+      height: getNodeHeight(node)
+    } satisfies ICrawlersEditorClipboardBounds))
+    .filter((nodeBounds) => nodeBounds.width > 0 && nodeBounds.height > 0);
+
+  if (existingBounds.length === 0) {
+    return preferredOrigin;
+  }
+
+  const candidateOffsets: XYPosition[] = [
+    { x: 0, y: 0 },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET, y: 0 },
+    { x: 0, y: CRAWLERS_EDITOR_PASTE_OFFSET },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET, y: CRAWLERS_EDITOR_PASTE_OFFSET },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET * 2, y: 0 },
+    { x: 0, y: CRAWLERS_EDITOR_PASTE_OFFSET * 2 },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET * 2, y: CRAWLERS_EDITOR_PASTE_OFFSET * 2 },
+    { x: -CRAWLERS_EDITOR_PASTE_OFFSET, y: 0 },
+    { x: 0, y: -CRAWLERS_EDITOR_PASTE_OFFSET },
+    { x: -CRAWLERS_EDITOR_PASTE_OFFSET, y: -CRAWLERS_EDITOR_PASTE_OFFSET },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET * 3, y: CRAWLERS_EDITOR_PASTE_OFFSET },
+    { x: CRAWLERS_EDITOR_PASTE_OFFSET, y: CRAWLERS_EDITOR_PASTE_OFFSET * 3 }
+  ];
+
+  let bestOrigin = preferredOrigin;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (const offset of candidateOffsets) {
+    const nextOrigin = {
+      x: preferredOrigin.x + offset.x,
+      y: preferredOrigin.y + offset.y
+    } satisfies XYPosition;
+    const nextBounds = createShiftedBounds(bounds, nextOrigin);
+    const overlapScore = existingBounds.reduce((sum, existing) => sum + getBoundsOverlapArea(nextBounds, existing), 0);
+
+    if (overlapScore === 0) {
+      return nextOrigin;
+    }
+
+    if (overlapScore < bestScore) {
+      bestScore = overlapScore;
+      bestOrigin = nextOrigin;
+    }
+  }
+
+  return bestOrigin;
+};
+
+/**
+ * 函数：复制当前选中节点。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleSelectionCopy = async (): Promise<void> => {
+  const clipboardData = createClipboardDataFromSelection();
+
+  if (!clipboardData) {
+    return;
+  }
+
+  await writeEditorClipboard(clipboardData);
+};
+
+/**
+ * 函数：将剪贴板数据粘贴到当前画布。
+ * @param {ICrawlersEditorClipboardData} clipboardData 剪贴板数据。
+ * @returns {void} 无返回值。
+ */
+const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void => {
+  if (clipboardData.nodes.length === 0) {
+    return;
+  }
+
+  const clipboardSignature = JSON.stringify({
+    sourceDraftKey: clipboardData.sourceDraftKey,
+    copiedAt: clipboardData.copiedAt,
+    nodeCount: clipboardData.nodes.length,
+    edgeCount: clipboardData.edges.length
+  });
+  const isSamePayload = stateLastPasteSignature.value === clipboardSignature;
+
+  statePasteCount.value = isSamePayload ? statePasteCount.value + 1 : 1;
+  stateLastPasteSignature.value = clipboardSignature;
+
+  const pointerFlowPosition = getLastPointerFlowPosition();
+  const fallbackCenterPosition = getViewportCenterFlowPosition();
+  const preferredOrigin = pointerFlowPosition
+    ? {
+        x: pointerFlowPosition.x,
+        y: pointerFlowPosition.y
+      }
+    : {
+        x: fallbackCenterPosition.x - clipboardData.bounds.width / 2,
+        y: fallbackCenterPosition.y - clipboardData.bounds.height / 2
+      };
+  const samePanelBaseOrigin = clipboardData.sourceDraftKey === computedDraftKey.value && !pointerFlowPosition
+    ? {
+        x: preferredOrigin.x + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value,
+        y: preferredOrigin.y + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value
+      }
+    : preferredOrigin;
+  const resolvedOrigin = resolvePasteOrigin(clipboardData.bounds, samePanelBaseOrigin);
+  const offsetX = resolvedOrigin.x - clipboardData.bounds.left;
+  const offsetY = resolvedOrigin.y - clipboardData.bounds.top;
+
+  const nodeIdMap = new Map<string, string>();
+  const pastedNodes = clipboardData.nodes.map((node) => {
+    const nextId = createClipboardNodeId();
+    nodeIdMap.set(String(node.id ?? ''), nextId);
+
+    return {
+      ...node,
+      id: nextId,
+      selected: true,
+      dragging: false,
+      position: {
+        x: Number(node.position.x ?? 0) + offsetX,
+        y: Number(node.position.y ?? 0) + offsetY
+      }
+    } satisfies Node;
+  });
+
+  const pastedEdges = clipboardData.edges
+    .map((edge) => {
+      const nextSource = nodeIdMap.get(String(edge.source ?? ''));
+      const nextTarget = nodeIdMap.get(String(edge.target ?? ''));
+
+      if (!nextSource || !nextTarget) {
+        return undefined;
+      }
+
+      return {
+        ...edge,
+        id: createClipboardEdgeId(),
+        source: nextSource,
+        target: nextTarget,
+        selected: false
+      } satisfies Edge;
+    })
+    .filter((edge): edge is Edge => Boolean(edge));
+
+  const deselectNodeChanges = nodes.value
+    .filter((node) => node.selected)
+    .map((node) => ({
+      id: String(node.id ?? ''),
+      type: 'select' as const,
+      selected: false
+    }));
+
+  if (deselectNodeChanges.length > 0) {
+    nodes.value = applyNodeChanges(deselectNodeChanges);
+  }
+
+  addNodes(pastedNodes);
+
+  for (const edge of pastedEdges) {
+    addEdges(edge);
+  }
+
+  const selectPastedNodeChanges = pastedNodes.map((node) => ({
+    id: String(node.id ?? ''),
+    type: 'select' as const,
+    selected: true
+  }));
+
+  if (selectPastedNodeChanges.length > 0) {
+    nodes.value = applyNodeChanges(selectPastedNodeChanges);
+  }
+};
+
+/**
+ * 函数：读取并粘贴当前剪贴板。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleClipboardPaste = async (): Promise<void> => {
+  const clipboardData = await readEditorClipboard();
+
+  if (!clipboardData) {
+    return;
+  }
+
+  pasteClipboardData(clipboardData);
+};
+
+/**
+ * 函数：处理编辑器根区域按下，确保快捷键有焦点承载。
+ * @param {PointerEvent} event 指针事件。
+ * @returns {void} 无返回值。
+ */
+const handleEditorPointerDown = (event: PointerEvent): void => {
+  stateLastPointerClientPosition.value = {
+    x: event.clientX,
+    y: event.clientY
+  };
+
+  if (isEditableEventTarget(event.target)) {
+    return;
+  }
+
+  refEditorRoot.value?.focus({ preventScroll: true });
+};
+
+/**
+ * 函数：记录编辑器内最近一次鼠标位置。
+ * @param {PointerEvent} event 指针事件。
+ * @returns {void} 无返回值。
+ */
+const handleEditorPointerMove = (event: PointerEvent): void => {
+  stateLastPointerClientPosition.value = {
+    x: event.clientX,
+    y: event.clientY
+  };
+};
+
+/**
+ * 函数：鼠标离开编辑器时清理缓存位置。
+ * @returns {void} 无返回值。
+ */
+const handleEditorPointerLeave = (): void => {
+  stateLastPointerClientPosition.value = null;
+};
+
+/**
+ * 函数：处理编辑器快捷键。
+ * @param {KeyboardEvent} event 键盘事件。
+ * @returns {void} 无返回值。
+ */
+const handleEditorKeydown = (event: KeyboardEvent): void => {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey || isEditableEventTarget(event.target)) {
+    return;
+  }
+
+  const key = String(event.key ?? '').toLowerCase();
+
+  if (key === 'c') {
+    event.preventDefault();
+    void handleSelectionCopy();
+    return;
+  }
+
+  if (key === 'v') {
+    event.preventDefault();
+    void handleClipboardPaste();
+  }
+};
 
 /**
  * 函数：同步开始节点域名到节点数据。
