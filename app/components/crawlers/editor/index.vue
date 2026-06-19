@@ -270,6 +270,23 @@ const isEditableEventTarget = (target: EventTarget | null): boolean => {
 };
 
 /**
+ * 函数：判断事件目标是否应保留自身焦点。
+ * @param {EventTarget | null} target 事件目标。
+ * @returns {boolean} 是否应保留自身焦点。
+ */
+const shouldKeepTargetFocus = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (isEditableEventTarget(target)) {
+    return true;
+  }
+
+  return target.closest('button, a[href], [role="button"], [tabindex]:not([tabindex="-1"])') !== null;
+};
+
+/**
  * 函数：生成复制粘贴节点唯一 ID。
  * @returns {string} 唯一节点 ID。
  */
@@ -781,7 +798,7 @@ const handleEditorPointerDown = (event: PointerEvent): void => {
     y: event.clientY
   };
 
-  if (isEditableEventTarget(event.target)) {
+  if (shouldKeepTargetFocus(event.target)) {
     return;
   }
 
