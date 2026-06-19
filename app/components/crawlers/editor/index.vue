@@ -820,6 +820,24 @@ const handleEditorKeydown = (event: KeyboardEvent): void => {
 
   const key = String(event.key ?? '').toLowerCase();
 
+  if (key === 'z') {
+    event.preventDefault();
+
+    if (event.shiftKey) {
+      handleRedo();
+      return;
+    }
+
+    handleUndo();
+    return;
+  }
+
+  if (key === 'y') {
+    event.preventDefault();
+    handleRedo();
+    return;
+  }
+
   if (key === 'c') {
     event.preventDefault();
     void handleSelectionCopy();
@@ -937,6 +955,11 @@ const stateAutoSaveStatus = ref<'idle' | 'success' | 'error'>('idle');
 const stateAutoSaveTimerId = ref<number | null>(null);
 
 /**
+ * 状态：窗口级快捷键解绑函数。
+ */
+let offEditorWindowKeydown: null | (() => void) = null;
+
+/**
  * 计算属性：自动保存状态文案。
  */
 const computedAutoSaveStatusText = computed(() => {
@@ -992,6 +1015,19 @@ const pushHistorySnapshot = (): void => {
 };
 
 /**
+ * 函数：在撤销前刷新待入栈快照，避免因防抖延迟导致当前改动尚未进入历史。
+ * @returns {void} 无返回值。
+ */
+const flushPendingHistorySnapshot = (): void => {
+  if (stateRestoringSnapshot.value || stateInitializingDefault.value || stateHistory.value.length === 0) {
+    return;
+  }
+
+  pushHistorySnapshotDebounced.cancel();
+  pushHistorySnapshot();
+};
+
+/**
  * 函数：恢复历史快照。
  * @param {number} index 快照索引。
  * @returns {void} 无返回值。
@@ -1020,6 +1056,8 @@ const restoreSnapshot = async (index: number): Promise<void> => {
  * @returns {void} 无返回值。
  */
 const handleUndo = (): void => {
+  flushPendingHistorySnapshot();
+
   if (stateHistoryIndex.value <= 0) {
     return;
   }
@@ -1032,6 +1070,8 @@ const handleUndo = (): void => {
  * @returns {void} 无返回值。
  */
 const handleRedo = (): void => {
+  pushHistorySnapshotDebounced.cancel();
+
   if (stateHistoryIndex.value >= stateHistory.value.length - 1) {
     return;
   }
@@ -1331,6 +1371,25 @@ onMounted(async () => {
       runAutoSave();
     }
   }, 1000);
+
+  const handleWindowKeydown = (event: KeyboardEvent): void => {
+    if (!refEditorRoot.value) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (target instanceof Node && !refEditorRoot.value.contains(target)) {
+      return;
+    }
+
+    handleEditorKeydown(event);
+  };
+
+  window.addEventListener('keydown', handleWindowKeydown, { capture: true });
+  offEditorWindowKeydown = () => {
+    window.removeEventListener('keydown', handleWindowKeydown, { capture: true });
+  };
 });
 
 /**
@@ -1415,6 +1474,8 @@ const handelModalCancel = () => {
  */
 onBeforeUnmount(() => {
   pushHistorySnapshotDebounced.cancel();
+  offEditorWindowKeydown?.();
+  offEditorWindowKeydown = null;
   if (stateAutoSaveTimerId.value !== null) {
     window.clearInterval(stateAutoSaveTimerId.value);
     stateAutoSaveTimerId.value = null;
