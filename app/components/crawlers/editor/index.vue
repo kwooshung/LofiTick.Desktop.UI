@@ -1,5 +1,15 @@
 <template>
-  <div ref="refEditorRoot" tabindex="0" class="editor bg-default flex h-full min-h-0 overflow-hidden focus:outline-none" :aria-label="computedDescription" @drop="onDrop" @pointerdown.capture="handleEditorPointerDown" @pointermove.capture="handleEditorPointerMove" @pointerleave.capture="handleEditorPointerLeave" @keydown.capture="handleEditorKeydown">
+  <div
+    ref="refEditorRoot"
+    tabindex="0"
+    class="editor bg-default flex h-full min-h-0 overflow-hidden focus:outline-none"
+    :aria-label="computedDescription"
+    @drop="onDrop"
+    @pointerdown.capture="handleEditorPointerDown"
+    @pointermove.capture="handleEditorPointerMove"
+    @pointerleave.capture="handleEditorPointerLeave"
+    @keydown.capture="handleEditorKeydown"
+  >
     <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" @click="handleListClick" />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -570,12 +580,15 @@ const createShiftedBounds = (bounds: ICrawlersEditorClipboardBounds, origin: XYP
 const resolvePasteOrigin = (bounds: ICrawlersEditorClipboardBounds, preferredOrigin: XYPosition): XYPosition => {
   const existingBounds = nodes.value
     .filter((node) => node.id !== 'start' && node.id !== 'end' && node.type !== 'start' && node.type !== 'end')
-    .map((node) => ({
-      left: Number(node.position.x ?? 0),
-      top: Number(node.position.y ?? 0),
-      width: getNodeWidth(node),
-      height: getNodeHeight(node)
-    } satisfies ICrawlersEditorClipboardBounds))
+    .map(
+      (node) =>
+        ({
+          left: Number(node.position.x ?? 0),
+          top: Number(node.position.y ?? 0),
+          width: getNodeWidth(node),
+          height: getNodeHeight(node)
+        }) satisfies ICrawlersEditorClipboardBounds
+    )
     .filter((nodeBounds) => nodeBounds.width > 0 && nodeBounds.height > 0);
 
   if (existingBounds.length === 0) {
@@ -667,12 +680,13 @@ const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void =
         x: fallbackCenterPosition.x - clipboardData.bounds.width / 2,
         y: fallbackCenterPosition.y - clipboardData.bounds.height / 2
       };
-  const samePanelBaseOrigin = clipboardData.sourceDraftKey === computedDraftKey.value && !pointerFlowPosition
-    ? {
-        x: preferredOrigin.x + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value,
-        y: preferredOrigin.y + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value
-      }
-    : preferredOrigin;
+  const samePanelBaseOrigin =
+    clipboardData.sourceDraftKey === computedDraftKey.value && !pointerFlowPosition
+      ? {
+          x: preferredOrigin.x + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value,
+          y: preferredOrigin.y + CRAWLERS_EDITOR_PASTE_OFFSET * statePasteCount.value
+        }
+      : preferredOrigin;
   const resolvedOrigin = resolvePasteOrigin(clipboardData.bounds, samePanelBaseOrigin);
   const offsetX = resolvedOrigin.x - clipboardData.bounds.left;
   const offsetY = resolvedOrigin.y - clipboardData.bounds.top;
