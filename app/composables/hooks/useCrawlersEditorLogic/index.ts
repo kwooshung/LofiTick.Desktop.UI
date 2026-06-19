@@ -12,6 +12,18 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const { nodes, edges, stateHelperLineHorizontal, stateHelperLineVertical, addEdges, applyNodeChanges, addNodes } = options;
 
   /**
+   * 类型：节点矩形边界。
+   */
+  type TNodeBounds = {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+  };
+
+  /**
    * 函数：从 handle id 推断引脚数据类型。
    * @param {string | null | undefined} handleId 引脚 handle 标识。
    * @returns {TBasicSidePinDataType | 'unknown'} 推断结果。
@@ -226,37 +238,55 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   };
 
   /**
-   * 函数：计算节点拖拽时的辅助线与吸附位置。
-   * @param {NodePositionChange} change 节点位置变更。
+   * 函数：获取节点边界。
+   * @param {GraphNode} node 节点。
+   * @param {{ x: number; y: number } | undefined} position 可选覆盖位置。
+   * @returns {TNodeBounds} 节点边界。
+   */
+  const getNodeBounds = (node: GraphNode, position?: { x: number; y: number }): TNodeBounds => {
+    /**
+     * 常量：width。
+     */
+    const width = Number(node.dimensions.width ?? node.width ?? 0);
+    /**
+     * 常量：height。
+     */
+    const height = Number(node.dimensions.height ?? node.height ?? 0);
+    /**
+     * 常量：left。
+     */
+    const left = Number(position?.x ?? node.position.x ?? 0);
+    /**
+     * 常量：top。
+     */
+    const top = Number(position?.y ?? node.position.y ?? 0);
+
+    return {
+      left,
+      right: left + width,
+      top,
+      bottom: top + height,
+      width,
+      height
+    };
+  };
+
+  /**
+   * 函数：基于边界盒计算辅助线与吸附位置。
+   * @param {TNodeBounds} nodeABounds 当前拖拽边界盒。
+   * @param {Set<string>} ignoredNodeIds 需要忽略的节点 ID 集合。
    * @param {GraphNode[]} nodes 当前节点集合。
    * @param {number} distance 吸附阈值。
    * @returns {IGetHelperLinesResult} 辅助线结果。
    */
-  const getHelperLines = (change: NodePositionChange, nodes: GraphNode[], distance: number = 5): IGetHelperLinesResult => {
+  const getHelperLinesByBounds = (nodeABounds: TNodeBounds, ignoredNodeIds: Set<string>, nodes: GraphNode[], distance: number = 5): IGetHelperLinesResult => {
+    /**
+     * 常量：defaultResult。
+     */
     const defaultResult: IGetHelperLinesResult = {
       horizontal: undefined,
       vertical: undefined,
       snapPosition: { x: undefined, y: undefined }
-    };
-    /**
-     * 常量：nodeA。
-     */
-    const nodeA = nodes.find((node) => node.id === change.id);
-
-    if (!nodeA || !change.position) {
-      return defaultResult;
-    }
-
-    /**
-     * 常量：nodeABounds。
-     */
-    const nodeABounds = {
-      left: change.position.x,
-      right: change.position.x + ((nodeA.dimensions.width as number) ?? 0),
-      top: change.position.y,
-      bottom: change.position.y + ((nodeA.dimensions.height as number) ?? 0),
-      width: (nodeA.dimensions.width as number) ?? 0,
-      height: (nodeA.dimensions.height as number) ?? 0
     };
 
     /**
@@ -269,19 +299,12 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     let verticalDistance = distance;
 
     return nodes
-      .filter((node) => node.id !== nodeA.id)
+      .filter((node) => !ignoredNodeIds.has(node.id))
       .reduce<IGetHelperLinesResult>((result, nodeB) => {
         /**
          * 常量：nodeBBounds。
          */
-        const nodeBBounds = {
-          left: nodeB.position.x,
-          right: nodeB.position.x + ((nodeB.dimensions.width as number) ?? 0),
-          top: nodeB.position.y,
-          bottom: nodeB.position.y + ((nodeB.dimensions.height as number) ?? 0),
-          width: nodeB.width ?? 0,
-          height: nodeB.height ?? 0
-        };
+        const nodeBBounds = getNodeBounds(nodeB);
 
         /**
          * 常量：distanceLeftLeft。
@@ -376,6 +399,34 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   };
 
   /**
+   * 函数：计算节点拖拽时的辅助线与吸附位置。
+   * @param {NodePositionChange} change 节点位置变更。
+   * @param {GraphNode[]} nodes 当前节点集合。
+   * @param {number} distance 吸附阈值。
+   * @returns {IGetHelperLinesResult} 辅助线结果。
+   */
+  const getHelperLines = (change: NodePositionChange, nodes: GraphNode[], distance: number = 5): IGetHelperLinesResult => {
+    /**
+     * 常量：defaultResult。
+     */
+    const defaultResult: IGetHelperLinesResult = {
+      horizontal: undefined,
+      vertical: undefined,
+      snapPosition: { x: undefined, y: undefined }
+    };
+    /**
+     * 常量：nodeA。
+     */
+    const nodeA = nodes.find((node) => node.id === change.id);
+
+    if (!nodeA || !change.position) {
+      return defaultResult;
+    }
+
+    return getHelperLinesByBounds(getNodeBounds(nodeA, change.position), new Set([nodeA.id]), nodes, distance);
+  };
+
+  /**
    * 函数：根据节点位移更新辅助线并计算吸附位置。
    * @param {NodeChange[]} changes 节点变更集合。
    * @param {GraphNode[]} nodes 当前画布节点集合。
@@ -386,9 +437,18 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     stateHelperLineVertical.value = undefined;
 
     /**
+     * 常量：positionChanges。
+     */
+    const positionChanges = changes.filter((change): change is NodePositionChange => change.type === 'position' && Boolean(change.dragging) && Boolean(change.position));
+
+    if (positionChanges.length === 0) {
+      return changes;
+    }
+
+    /**
      * 状态：statePositionChange。
      */
-    const statePositionChange = changes.length === 1 ? changes[0] : undefined;
+    const statePositionChange = positionChanges.length === 1 ? positionChanges[0] : undefined;
 
     if (statePositionChange?.type === 'position' && statePositionChange.dragging && statePositionChange.position) {
       /**
@@ -401,7 +461,82 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
 
       stateHelperLineHorizontal.value = helperLines.horizontal;
       stateHelperLineVertical.value = helperLines.vertical;
+
+      return changes;
     }
+
+    /**
+     * 常量：draggingNodeIds。
+     */
+    const draggingNodeIds = new Set(positionChanges.map((change) => change.id));
+    /**
+     * 常量：draggingBounds。
+     */
+    const draggingBounds = positionChanges
+      .map((change) => {
+        /**
+         * 常量：node。
+         */
+        const node = nodes.find((item) => item.id === change.id);
+
+        if (!node || !change.position) {
+          return undefined;
+        }
+
+        return getNodeBounds(node, change.position);
+      })
+      .filter((item): item is TNodeBounds => Boolean(item));
+
+    if (draggingBounds.length === 0) {
+      return changes;
+    }
+
+    /**
+     * 常量：groupBounds。
+     */
+    const [firstDraggingBounds, ...restDraggingBounds] = draggingBounds;
+
+    if (!firstDraggingBounds) {
+      return changes;
+    }
+
+    const groupBounds = restDraggingBounds.reduce<TNodeBounds>((result, bounds) => {
+      return {
+        left: Math.min(result.left, bounds.left),
+        right: Math.max(result.right, bounds.right),
+        top: Math.min(result.top, bounds.top),
+        bottom: Math.max(result.bottom, bounds.bottom),
+        width: Math.max(result.right, bounds.right) - Math.min(result.left, bounds.left),
+        height: Math.max(result.bottom, bounds.bottom) - Math.min(result.top, bounds.top)
+      };
+    }, firstDraggingBounds);
+
+    /**
+     * 常量：helperLines。
+     */
+    const helperLines = getHelperLinesByBounds(groupBounds, draggingNodeIds, nodes);
+    /**
+     * 常量：deltaX。
+     */
+    const deltaX = helperLines.snapPosition.x === undefined ? 0 : helperLines.snapPosition.x - groupBounds.left;
+    /**
+     * 常量：deltaY。
+     */
+    const deltaY = helperLines.snapPosition.y === undefined ? 0 : helperLines.snapPosition.y - groupBounds.top;
+
+    if (deltaX !== 0 || deltaY !== 0) {
+      positionChanges.forEach((change) => {
+        if (!change.position) {
+          return;
+        }
+
+        change.position.x += deltaX;
+        change.position.y += deltaY;
+      });
+    }
+
+    stateHelperLineHorizontal.value = helperLines.horizontal;
+    stateHelperLineVertical.value = helperLines.vertical;
 
     return changes;
   };
@@ -469,7 +604,6 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
    * @returns {void} 无返回值。
    */
   const handleConnect = (params: Connection): void => {
-    console.log('on connect', params);
     if (isValidConnection(params)) {
       const { isExecConnection, edgeDataType } = getEdgeVisualMeta(params.sourceHandle, params.targetHandle);
 

@@ -308,7 +308,6 @@ const isExecConnection = (connection: Connection): boolean => {
  * 函数：验证连接目标是否合法（仅允许其他节点的 exec-out 连接到当前节点 exec-in）。
  */
 const isValidConnectionTarget = (connection: Connection): boolean => {
-  console.log('validate connection target', connection);
   return isExecConnection(connection) && connection.source !== stateNodeId;
 };
 
@@ -316,7 +315,6 @@ const isValidConnectionTarget = (connection: Connection): boolean => {
  * 函数：验证连接源是否合法（仅允许当前节点 exec-out 连接到其他节点 exec-in）。
  */
 const isValidConnectionSource = (connection: Connection): boolean => {
-  console.log('validate connection source', connection);
   return isExecConnection(connection) && connection.target !== stateNodeId;
 };
 
