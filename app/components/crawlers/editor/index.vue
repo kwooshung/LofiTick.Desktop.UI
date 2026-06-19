@@ -831,6 +831,10 @@ const handleEditorPointerLeave = (): void => {
  * @returns {void} 无返回值。
  */
 const handleEditorKeydown = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented) {
+    return;
+  }
+
   if (!(event.ctrlKey || event.metaKey) || event.altKey || isEditableEventTarget(event.target)) {
     return;
   }
@@ -1009,6 +1013,24 @@ const computedAutoSaveStatusType = computed<'idle' | 'success' | 'error'>(() => 
 const createSnapshot = (): string => JSON.stringify(toObject());
 
 /**
+ * 函数：生成撤销历史快照。
+ * @returns {string} 仅包含节点与边的历史快照。
+ */
+const createHistorySnapshot = (): string => {
+  /**
+   * 常量：snapshot。
+   */
+  const snapshot = toObject() as Record<string, unknown>;
+  const { viewport, position, zoom, ...rest } = snapshot;
+
+  void viewport;
+  void position;
+  void zoom;
+
+  return JSON.stringify(rest);
+};
+
+/**
  * 函数：同步历史快照。
  * @returns {void} 无返回值。
  */
@@ -1016,7 +1038,7 @@ const pushHistorySnapshot = (): void => {
   /**
    * 常量：snapshot。
    */
-  const snapshot = createSnapshot();
+  const snapshot = createHistorySnapshot();
   /**
    * 常量：current。
    */
