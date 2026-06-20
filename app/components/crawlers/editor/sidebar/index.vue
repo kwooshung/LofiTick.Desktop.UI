@@ -1,7 +1,7 @@
 <template>
   <aside class="border-default bg-default flex h-full min-h-0 w-100 shrink-0 flex-col overflow-hidden border-r">
     <div class="border-default bg-default shrink-0 border-b px-3 pt-2">
-      <UNavigationMenu :items="computedSidebarTabLinks" highlight class="[&_asor-pointer -mb-px -translate-x-2.5 [&_buttobutton]:cursor-pointer">
+      <UNavigationMenu :items="computedSidebarTabLinks" highlight class="-mb-px -translate-x-2.5 [&_a]:cursor-pointer [&_button]:cursor-pointer">
         <template #item-trailing="{ item }">
           <UBadge color="neutral" variant="soft" size="sm">{{ getTabCountByTabValue(String(item?.value ?? '')) }}</UBadge>
         </template>
