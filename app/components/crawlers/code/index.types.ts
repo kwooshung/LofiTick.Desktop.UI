@@ -16,6 +16,11 @@ export interface ICrawlersCodeProps {
   baseUrl?: string;
 
   /**
+   * 属性：站点 ID。
+   */
+  targetId?: number;
+
+  /**
    * 属性：左侧栏分组数据。
    */
   groups?: ICrawlersListGroup[];

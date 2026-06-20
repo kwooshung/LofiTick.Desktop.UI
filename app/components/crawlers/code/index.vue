@@ -12,7 +12,7 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="computedDrawerBaseUrl" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
+      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="computedDrawerBaseUrl" :target-id="computedDrawerTargetId" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
     </template>
   </USlideover>
 </template>
@@ -24,7 +24,7 @@ import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', groups = [], selectedKey = '' } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '' } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -153,6 +153,18 @@ const computedDrawerBaseUrl = computed(() => {
   }
 
   return String(baseUrl ?? '').trim();
+});
+
+/**
+ * 计算属性：抽屉站点 ID。
+ */
+const computedDrawerTargetId = computed<number>(() => {
+  /**
+   * 常量：targetIdValue。
+   */
+  const targetIdValue = Number(stateDrawerTarget.value?.id ?? targetId ?? 0);
+
+  return Number.isFinite(targetIdValue) && targetIdValue > 0 ? targetIdValue : 0;
 });
 
 /**

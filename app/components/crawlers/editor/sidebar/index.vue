@@ -1,7 +1,11 @@
 <template>
   <aside class="border-default bg-default flex h-full min-h-0 w-100 shrink-0 flex-col overflow-hidden border-r">
     <div class="border-default bg-default shrink-0 border-b px-3 pt-2">
-      <UNavigationMenu :items="computedSidebarTabLinks" highlight class="-mb-px -translate-x-2.5" />
+      <UNavigationMenu :items="computedSidebarTabLinks" highlight class="-mb-px -translate-x-2.5">
+        <template #item-trailing="{ item }">
+          <UBadge color="neutral" variant="soft" size="sm">{{ getTabCountByTabValue(String(item?.value ?? '')) }}</UBadge>
+        </template>
+      </UNavigationMenu>
     </div>
 
     <div class="scrollbar min-h-0 flex-1 overflow-y-auto px-3 py-4">
@@ -9,18 +13,47 @@
         <CrawlersList v-if="stateActiveTab === 'nodes'" :groups="groups" :selected-key="selectedKey" @click="handleClick" />
 
         <div v-else class="space-y-4">
-          <div class="border-default border-b pb-3">
-            <div class="flex items-center justify-between gap-3">
-              <div class="bg-elevated text-muted flex size-8 shrink-0 items-center justify-center rounded-md">
-                <UIcon :name="computedActiveTabIcon" class="size-4" />
-              </div>
-              <div class="min-w-0 flex-1 text-sm font-medium">{{ computedActiveTabLabel }}</div>
-              <UBadge color="neutral" variant="soft" class="shrink-0">0</UBadge>
-            </div>
-          </div>
+          <div class="border-default overflow-hidden rounded-lg border">
+            <template v-if="computedActiveFunctionLoading">
+              <Spin
+                :loading="true"
+                :tip="t('pages.crawlers.editor.sidebar.loading')"
+                icon="i-lucide:loader-circle"
+                icon-class="size-4 text-primary"
+                content-class="rounded-md border border-default bg-default/90 px-3 py-2"
+                tip-class="text-xs text-muted"
+                mask-class="bg-default/65"
+                :size="16"
+                :delay="0"
+                overlay
+              >
+                <div class="h-24" />
+              </Spin>
+            </template>
 
-          <div class="border-default divide-default divide-y overflow-hidden rounded-lg border">
-            <div class="text-muted px-3 py-2 text-sm">暂无条目</div>
+            <template v-else-if="computedActiveFunctionRows.length === 0">
+              <UEmpty :icon="computedActiveTabIcon" :title="computedActiveFunctionEmptyTitle" :description="computedActiveFunctionEmptyText" class="px-4 py-6">
+                <template #actions>
+                  <UButton color="primary" variant="solid" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
+                </template>
+              </UEmpty>
+            </template>
+
+            <template v-else>
+              <ul class="divide-default divide-y">
+                <li v-for="row in computedActiveFunctionRows" :key="row.id" class="flex items-center justify-between gap-3 px-3 py-2">
+                  <div class="min-w-0 flex-1">
+                    <div class="truncate text-sm">{{ row.name }}</div>
+                    <div class="text-muted mt-1 text-xs">{{ t('pages.crawlers.editor.sidebar.row.id', { id: row.id }) }}</div>
+                  </div>
+                  <UBadge color="neutral" variant="soft" size="sm" class="shrink-0">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
+                </li>
+
+                <li class="px-3 py-2">
+                  <UButton class="w-full" color="primary" variant="soft" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
+                </li>
+              </ul>
+            </template>
           </div>
         </div>
       </div>
@@ -31,21 +64,26 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-import type { ICrawlersEditorSidebarClickRow, ICrawlersEditorSidebarEmits, ICrawlersEditorSidebarProps, ICrawlersEditorSidebarTabItem, TCrawlersEditorSidebarTab } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ICrawlersEditorSidebarClickRow, ICrawlersEditorSidebarEmits, ICrawlersEditorSidebarFunctionRow, ICrawlersEditorSidebarProps, ICrawlersEditorSidebarTabItem, TCrawlersEditorSidebarTab } from '@/components/crawlers/editor/sidebar/index.types';
 
 /**
  * 常量：左侧三栏标签页配置。
  */
-const EDITOR_SIDEBAR_TABS: ICrawlersEditorSidebarTabItem[] = [
-  { value: 'nodes', label: '节点', icon: 'i-lucide:workflow' },
-  { value: 'site-functions', label: '站点函数', icon: 'i-lucide:folder-code' },
-  { value: 'global-functions', label: '全局函数', icon: 'i-lucide:globe-2' }
+const EDITOR_SIDEBAR_TABS: Pick<ICrawlersEditorSidebarTabItem, 'value' | 'icon'>[] = [
+  { value: 'nodes', icon: 'i-lucide:workflow' },
+  { value: 'site-functions', icon: 'i-lucide:folder-code' },
+  { value: 'global-functions', icon: 'i-lucide:globe-2' }
 ];
+
+/**
+ * Hook：国际化。
+ */
+const { t } = useI18n();
 
 /**
  * 属性：左侧栏显示数据。
  */
-const { groups, selectedKey } = defineProps<ICrawlersEditorSidebarProps>();
+const { groups, selectedKey, targetId = 0 } = defineProps<ICrawlersEditorSidebarProps>();
 
 /**
  * 事件：左侧栏操作。
@@ -58,14 +96,163 @@ const emit = defineEmits<ICrawlersEditorSidebarEmits>();
 const stateActiveTab = ref<TCrawlersEditorSidebarTab>('nodes');
 
 /**
- * 计算属性：当前标签页标题。
+ * API：站点函数列表。
  */
-const computedActiveTabLabel = computed(() => EDITOR_SIDEBAR_TABS.find((item) => item.value === stateActiveTab.value)?.label ?? '节点');
+const {
+  datas: stateSiteFunctionRows,
+  loading: stateSiteFunctionLoading,
+  refresh: refreshSiteFunctionRows
+} = await useApi<ICrawlersEditorSidebarFunctionRow[]>('crawlers/functions', {
+  immediate: false,
+  datas: {
+    scope: 'site',
+    targetId: String(Number(targetId ?? 0))
+  }
+});
 
 /**
- * 计算属性：当前标签页图标。
+ * API：全局函数列表。
+ */
+const {
+  datas: stateGlobalFunctionRows,
+  loading: stateGlobalFunctionLoading,
+  refresh: refreshGlobalFunctionRows
+} = await useApi<ICrawlersEditorSidebarFunctionRow[]>('crawlers/functions', {
+  immediate: true,
+  datas: {
+    scope: 'global'
+  }
+});
+
+/**
+ * 计算属性：当前标签页标题。
  */
 const computedActiveTabIcon = computed(() => EDITOR_SIDEBAR_TABS.find((item) => item.value === stateActiveTab.value)?.icon ?? 'i-lucide:workflow');
+
+/**
+ * 计算属性：站点函数列表。
+ */
+const computedSiteFunctionRows = computed<ICrawlersEditorSidebarFunctionRow[]>(() => {
+  return Array.isArray(stateSiteFunctionRows.value) ? stateSiteFunctionRows.value : [];
+});
+
+/**
+ * 计算属性：全局函数列表。
+ */
+const computedGlobalFunctionRows = computed<ICrawlersEditorSidebarFunctionRow[]>(() => {
+  return Array.isArray(stateGlobalFunctionRows.value) ? stateGlobalFunctionRows.value : [];
+});
+
+/**
+ * 计算属性：当前标签页函数列表。
+ */
+const computedActiveFunctionRows = computed<ICrawlersEditorSidebarFunctionRow[]>(() => {
+  if (stateActiveTab.value === 'site-functions') {
+    return computedSiteFunctionRows.value;
+  }
+
+  if (stateActiveTab.value === 'global-functions') {
+    return computedGlobalFunctionRows.value;
+  }
+
+  return [];
+});
+
+/**
+ * 计算属性：节点数量。
+ */
+const computedNodeCount = computed<number>(() => groups.reduce((total, group) => total + group.crawlers.length, 0));
+
+/**
+ * 计算属性：站点函数数量。
+ */
+const computedSiteFunctionCount = computed<number>(() => computedSiteFunctionRows.value.length);
+
+/**
+ * 计算属性：全局函数数量。
+ */
+const computedGlobalFunctionCount = computed<number>(() => computedGlobalFunctionRows.value.length);
+
+/**
+ * 计算属性：当前标签页函数加载状态。
+ */
+const computedActiveFunctionLoading = computed<boolean>(() => {
+  if (stateActiveTab.value === 'site-functions') {
+    return stateSiteFunctionLoading.value;
+  }
+
+  if (stateActiveTab.value === 'global-functions') {
+    return stateGlobalFunctionLoading.value;
+  }
+
+  return false;
+});
+
+/**
+ * 计算属性：函数列表空态文案。
+ */
+const computedActiveFunctionEmptyText = computed(() => {
+  if (stateActiveTab.value === 'site-functions') {
+    if (Number(targetId ?? 0) <= 0) {
+      return t('pages.crawlers.editor.sidebar.empty.siteMissingTarget');
+    }
+
+    return t('pages.crawlers.editor.sidebar.empty.siteNoData');
+  }
+
+  if (stateActiveTab.value === 'global-functions') {
+    return t('pages.crawlers.editor.sidebar.empty.globalNoData');
+  }
+
+  return t('pages.crawlers.editor.sidebar.empty.defaultDescription');
+});
+
+/**
+ * 计算属性：函数列表空态标题。
+ */
+const computedActiveFunctionEmptyTitle = computed(() => {
+  if (stateActiveTab.value === 'site-functions') {
+    return t('pages.crawlers.editor.sidebar.empty.siteTitle');
+  }
+
+  if (stateActiveTab.value === 'global-functions') {
+    return t('pages.crawlers.editor.sidebar.empty.globalTitle');
+  }
+
+  return t('pages.crawlers.editor.sidebar.empty.defaultTitle');
+});
+
+/**
+ * 计算属性：创建函数按钮文案。
+ */
+const computedCreateFunctionButtonLabel = computed(() => {
+  if (stateActiveTab.value === 'site-functions') {
+    return t('pages.crawlers.editor.sidebar.actions.createSiteFunction');
+  }
+
+  return t('pages.crawlers.editor.sidebar.actions.createGlobalFunction');
+});
+
+/**
+ * 函数：根据标签值返回标题。
+ * @param {TCrawlersEditorSidebarTab} tab 标签值。
+ * @returns {string} 标签标题。
+ */
+const getTabLabelByValue = (tab: TCrawlersEditorSidebarTab): string => {
+  if (tab === 'nodes') {
+    return t('pages.crawlers.editor.sidebar.tabs.nodes');
+  }
+
+  if (tab === 'site-functions') {
+    return t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
+  }
+
+  if (tab === 'global-functions') {
+    return t('pages.crawlers.editor.sidebar.tabs.globalFunctions');
+  }
+
+  return '';
+};
 
 /**
  * 事件：切换侧栏标签页。
@@ -83,12 +270,73 @@ const handleSidebarTabSelect = (tab: TCrawlersEditorSidebarTab, event: Event): v
  */
 const computedSidebarTabLinks = computed<NavigationMenuItem[][]>(() => [
   EDITOR_SIDEBAR_TABS.map((tab) => ({
-    label: tab.label,
+    value: tab.value,
+    label: getTabLabelByValue(tab.value),
     icon: tab.icon,
     active: stateActiveTab.value === tab.value,
     onSelect: (event: Event) => handleSidebarTabSelect(tab.value, event)
   }))
 ]);
+
+/**
+ * 函数：根据标签值返回数量。
+ * @param {string} value 标签值。
+ * @returns {number} 对应数量。
+ */
+const getTabCountByTabValue = (value: string): number => {
+  if (value === 'nodes') {
+    return computedNodeCount.value;
+  }
+
+  if (value === 'site-functions') {
+    return computedSiteFunctionCount.value;
+  }
+
+  if (value === 'global-functions') {
+    return computedGlobalFunctionCount.value;
+  }
+
+  return 0;
+};
+
+watch(
+  () => targetId,
+  () => {
+    /**
+     * 常量：id。
+     */
+    const id = Number(targetId ?? 0);
+
+    if (Number.isFinite(id) && id > 0) {
+      refreshSiteFunctionRows({
+        datas: {
+          scope: 'site',
+          targetId: String(id)
+        },
+        replace: true
+      });
+      return;
+    }
+
+    refreshSiteFunctionRows({
+      datas: {
+        scope: 'site',
+        targetId: '0'
+      },
+      replace: true
+    });
+  },
+  { immediate: true }
+);
+
+watch(
+  () => stateActiveTab.value,
+  (tab) => {
+    if (tab === 'global-functions') {
+      refreshGlobalFunctionRows();
+    }
+  }
+);
 
 /**
  * 函数：转发列表点击事件。
@@ -98,5 +346,13 @@ const computedSidebarTabLinks = computed<NavigationMenuItem[][]>(() => [
  */
 const handleClick = (row: ICrawlersEditorSidebarClickRow, event: MouseEvent): void => {
   emit('click', row, event);
+};
+
+/**
+ * 函数：创建函数。
+ * @returns {void} 无返回值。
+ */
+const handleCreateFunction = (): void => {
+  emit('createFunction', stateActiveTab.value === 'site-functions' ? 'site' : 'global');
 };
 </script>

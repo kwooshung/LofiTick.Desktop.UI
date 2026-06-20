@@ -73,6 +73,31 @@ export const crawlers = {
   },
   editor: {
     title: 'Crawler Logic',
+    sidebar: {
+      tabs: {
+        nodes: 'Nodes',
+        siteFunctions: 'Site Functions',
+        globalFunctions: 'Global Functions'
+      },
+      loading: 'Loading functions',
+      row: {
+        id: 'ID: {id}',
+        reference: 'Refs {count}'
+      },
+      empty: {
+        siteMissingTarget: 'Current site information is missing, unable to load site functions.',
+        siteNoData: 'No site functions for the current site.',
+        globalNoData: 'No global functions yet.',
+        defaultDescription: 'No items',
+        siteTitle: 'No Site Functions',
+        globalTitle: 'No Global Functions',
+        defaultTitle: 'No Items'
+      },
+      actions: {
+        createSiteFunction: 'Create Site Function',
+        createGlobalFunction: 'Create Global Function'
+      }
+    },
     empty: {
       title: 'The canvas is still empty',
       description: 'Drag a blueprint node from the left into the canvas to start building the crawler flow.'

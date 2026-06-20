@@ -73,7 +73,7 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" @save="handleBlueprintSave" />
+    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" :target-id="Number(stateDetail?.id ?? 0)" @save="handleBlueprintSave" />
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>

@@ -73,6 +73,31 @@ export const crawlers = {
   },
   editor: {
     title: '爬蟲邏輯',
+    sidebar: {
+      tabs: {
+        nodes: '節點',
+        siteFunctions: '站點函數',
+        globalFunctions: '全域函數'
+      },
+      loading: '函數列表載入中',
+      row: {
+        id: 'ID: {id}',
+        reference: '引用 {count}'
+      },
+      empty: {
+        siteMissingTarget: '目前站點資訊缺失，無法載入站點函數。',
+        siteNoData: '目前站點暫無函數。',
+        globalNoData: '目前暫無全域函數。',
+        defaultDescription: '暫無條目',
+        siteTitle: '暫無站點函數',
+        globalTitle: '暫無全域函數',
+        defaultTitle: '暫無條目'
+      },
+      actions: {
+        createSiteFunction: '建立站點函數',
+        createGlobalFunction: '建立全域函數'
+      }
+    },
     empty: {
       title: '畫布還沒有節點',
       description: '從左側拖拽一個藍圖節點到畫布中，開始搭建爬蟲流程。'

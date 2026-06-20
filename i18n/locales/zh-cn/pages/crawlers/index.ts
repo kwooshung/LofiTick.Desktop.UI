@@ -73,6 +73,31 @@ export const crawlers = {
   },
   editor: {
     title: '爬虫逻辑',
+    sidebar: {
+      tabs: {
+        nodes: '节点',
+        siteFunctions: '站点函数',
+        globalFunctions: '全局函数'
+      },
+      loading: '函数列表加载中',
+      row: {
+        id: 'ID: {id}',
+        reference: '引用 {count}'
+      },
+      empty: {
+        siteMissingTarget: '当前站点信息缺失，无法加载站点函数。',
+        siteNoData: '当前站点暂无函数。',
+        globalNoData: '当前暂无全局函数。',
+        defaultDescription: '暂无条目',
+        siteTitle: '暂无站点函数',
+        globalTitle: '暂无全局函数',
+        defaultTitle: '暂无条目'
+      },
+      actions: {
+        createSiteFunction: '创建站点函数',
+        createGlobalFunction: '创建全局函数'
+      }
+    },
     empty: {
       title: '画布还没有节点',
       description: '从左侧拖拽一个蓝图节点到画布中，开始搭建爬虫流程。'

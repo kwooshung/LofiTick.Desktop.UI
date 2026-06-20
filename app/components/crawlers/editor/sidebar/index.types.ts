@@ -18,6 +18,11 @@ export interface ICrawlersEditorSidebarProps {
    * 属性：当前选中 key。
    */
   selectedKey: string;
+
+  /**
+   * 属性：当前站点 ID。
+   */
+  targetId?: number;
 }
 
 /**
@@ -66,6 +71,26 @@ export interface ICrawlersEditorSidebarClickRow {
 }
 
 /**
+ * 接口：侧栏函数列表行。
+ */
+export interface ICrawlersEditorSidebarFunctionRow {
+  /**
+   * 属性：函数 ID。
+   */
+  id: number;
+
+  /**
+   * 属性：函数名称。
+   */
+  name: string;
+
+  /**
+   * 属性：引用数量。
+   */
+  referenceCount: number;
+}
+
+/**
  * 接口：编辑器左侧栏事件。
  */
 export interface ICrawlersEditorSidebarEmits {
@@ -75,4 +100,10 @@ export interface ICrawlersEditorSidebarEmits {
    * @param {MouseEvent} event 鼠标事件。
    */
   click: [row: ICrawlersEditorSidebarClickRow, event: MouseEvent];
+
+  /**
+   * 事件：点击创建函数。
+   * @param {'site' | 'global'} scope 函数作用域。
+   */
+  createFunction: [scope: 'site' | 'global'];
 }

@@ -73,6 +73,31 @@ export const crawlers = {
   },
   editor: {
     title: 'クローラーロジック',
+    sidebar: {
+      tabs: {
+        nodes: 'ノード',
+        siteFunctions: 'サイト関数',
+        globalFunctions: 'グローバル関数'
+      },
+      loading: '関数リストを読み込み中',
+      row: {
+        id: 'ID: {id}',
+        reference: '参照 {count}'
+      },
+      empty: {
+        siteMissingTarget: '現在のサイト情報が不足しているため、サイト関数を読み込めません。',
+        siteNoData: '現在のサイトには関数がありません。',
+        globalNoData: 'グローバル関数はまだありません。',
+        defaultDescription: '項目がありません',
+        siteTitle: 'サイト関数がありません',
+        globalTitle: 'グローバル関数がありません',
+        defaultTitle: '項目がありません'
+      },
+      actions: {
+        createSiteFunction: 'サイト関数を作成',
+        createGlobalFunction: 'グローバル関数を作成'
+      }
+    },
     empty: {
       title: 'キャンバスにまだノードがありません',
       description: '左側からブループリントノードをキャンバスへドラッグして、クローラーフローを作成してください。'
