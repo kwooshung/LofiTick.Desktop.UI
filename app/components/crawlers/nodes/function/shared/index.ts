@@ -27,6 +27,31 @@ export interface IFunctionNodeMetaData {
 }
 
 /**
+ * 接口：函数节点标准化元数据。
+ */
+export interface IFunctionNodeNormalizedMetaData {
+  /**
+   * 属性：函数名称。
+   */
+  functionName: string;
+
+  /**
+   * 属性：函数描述。
+   */
+  functionDescription: string;
+
+  /**
+   * 属性：函数参数定义列表。
+   */
+  functionParameters: IFunctionNodePinDefinition[];
+
+  /**
+   * 属性：函数返回值定义列表。
+   */
+  functionReturns: IFunctionNodePinDefinition[];
+}
+
+/**
  * 类型：函数节点参数定义。
  */
 export interface IFunctionNodePinDefinition extends IVariableDefinitionData {}
@@ -101,7 +126,7 @@ export const functionNodePinSignatureGet = (pinDefinitions: IFunctionNodePinDefi
  *
  * 返回标准化后的函数节点元数据。
  */
-export const functionNodeMetaParse = (value: unknown): IFunctionNodeMetaData & { functionParameters: IFunctionNodePinDefinition[]; functionReturns: IFunctionNodePinDefinition[] } => {
+export const functionNodeMetaParse = (value: unknown): IFunctionNodeNormalizedMetaData => {
   /**
    * 常量：data。
    */

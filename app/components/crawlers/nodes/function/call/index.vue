@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic :icon-name="computedIconName" :title="computedFunctionName" :description="computedDescription" :header-bg="computedHeaderBg" :right-pins="rightPins">
+  <CrawlersNodesCommonBasic :icon-name="computedIconName" :title="computedFunctionName" :description="computedDescription" :header-bg="computedHeaderBg" :left-pins="computedLeftPins" :right-pins="computedRightPins">
     <div class="space-y-2">
       <div class="flex flex-wrap items-center gap-2">
         <UBadge color="neutral" variant="soft" size="sm">{{ computedScopeLabel }}</UBadge>
@@ -14,6 +14,53 @@
 import { useNode } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import { functionNodeMetaParse } from '@/components/crawlers/nodes/function/shared/index';
+import type { IVariableDefinitionData } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableInputHandleIdGet, variableOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
+
+/**
+ * 接口：函数图最小节点结构。
+ */
+interface IFunctionGraphNodeLike {
+  type?: string;
+  data?: unknown;
+}
+
+/**
+ * 接口：函数详情最小结构。
+ */
+interface IFunctionDetailLike {
+  graph?: unknown;
+}
+
+/**
+ * 函数：从函数图中提取参数与返回值定义。
+ * @param {unknown} graph 函数图。
+ * @returns {{ parameters: IVariableDefinitionData[]; returns: IVariableDefinitionData[] }} 提取结果。
+ */
+const functionPinsExtractFromGraph = (graph: unknown): { parameters: IVariableDefinitionData[]; returns: IVariableDefinitionData[] } => {
+  if (!graph || typeof graph !== 'object') {
+    return { parameters: [], returns: [] };
+  }
+
+  const nodesValue = (graph as { nodes?: unknown }).nodes;
+
+  if (!Array.isArray(nodesValue)) {
+    return { parameters: [], returns: [] };
+  }
+
+  const graphNodes = nodesValue as IFunctionGraphNodeLike[];
+  const startNode = graphNodes.find((node) => ['function-start', 'start'].includes(String(node.type ?? '').trim()));
+  const returnNode = graphNodes.find((node) => ['function-return', 'end'].includes(String(node.type ?? '').trim()));
+
+  const startMeta = functionNodeMetaParse(startNode?.data);
+  const returnMeta = functionNodeMetaParse(returnNode?.data);
+
+  return {
+    parameters: startMeta.functionParameters,
+    returns: returnMeta.functionReturns
+  };
+};
 
 /**
  * Hook：国际化。
@@ -24,6 +71,37 @@ const { t } = useI18n();
  * Hook：当前节点。
  */
 const stateNode = useNode();
+
+/**
+ * 计算属性：函数 ID。
+ */
+const computedFunctionId = computed(() => {
+  const value = Number((stateNode.node.data as Record<string, unknown> | undefined)?.functionId ?? 0);
+
+  return Number.isFinite(value) && value > 0 ? value : 0;
+});
+
+/**
+ * API：函数详情。
+ */
+const { datas: stateFunctionDetail, refresh: refreshFunctionDetail } = await useApi<IFunctionDetailLike>('crawlers/functions/detail', {
+  immediate: false
+});
+
+watch(
+  computedFunctionId,
+  (functionId) => {
+    if (functionId <= 0) {
+      return;
+    }
+
+    refreshFunctionDetail({
+      datas: { id: functionId },
+      replace: true
+    });
+  },
+  { immediate: true }
+);
 
 /**
  * 计算属性：函数作用域。
@@ -112,14 +190,37 @@ const computedTargetText = computed(() => {
  */
 const computedHasTargetText = computed(() => computedTargetText.value !== '');
 
-const rightPins: IBasicSidePin[] = [
-  {
-    id: 'result-message',
-    label: t('components.crawler.blueprint.nodes.interaction.common.outputs.message'),
+/**
+ * 计算属性：函数调用节点输入引脚。
+ */
+const computedLeftPins = computed<IBasicSidePin[]>(() => {
+  const extracted = functionPinsExtractFromGraph(stateFunctionDetail.value?.graph);
+  const fallbackMeta = functionNodeMetaParse((stateNode.node.data as Record<string, unknown> | undefined) ?? {});
+  const sourcePins = extracted.parameters.length > 0 ? extracted.parameters : fallbackMeta.functionParameters;
+
+  return sourcePins.map((item) => ({
+    id: variableInputHandleIdGet(item.id, item.dataType),
+    label: item.name.trim() !== '' ? item.name.trim() : t('components.crawler.blueprint.nodes.common.function.start.fields.parameterLabel'),
+    direction: 'in',
+    dataType: item.dataType,
+    description: t('components.crawler.blueprint.nodes.common.function.start.fields.parameterDescription')
+  }));
+});
+
+/**
+ * 计算属性：函数调用节点输出引脚。
+ */
+const computedRightPins = computed<IBasicSidePin[]>(() => {
+  const extracted = functionPinsExtractFromGraph(stateFunctionDetail.value?.graph);
+  const fallbackMeta = functionNodeMetaParse((stateNode.node.data as Record<string, unknown> | undefined) ?? {});
+  const sourcePins = extracted.returns.length > 0 ? extracted.returns : fallbackMeta.functionReturns;
+
+  return sourcePins.map((item) => ({
+    id: variableOutputHandleIdGet(item.id, item.dataType),
+    label: item.name.trim() !== '' ? item.name.trim() : t('components.crawler.blueprint.nodes.common.function.return.fields.returnLabel'),
     direction: 'out',
-    dataType: 'string',
-    topPercent: 86,
-    description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription')
-  }
-];
+    dataType: item.dataType,
+    description: t('components.crawler.blueprint.nodes.common.function.return.fields.returnDescription')
+  }));
+});
 </script>

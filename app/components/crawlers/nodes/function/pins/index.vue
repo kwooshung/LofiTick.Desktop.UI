@@ -65,7 +65,7 @@ import { useVueFlow } from '@vue-flow/core';
 import type { ICrawlersNodesFunctionPinsEditorItem, ICrawlersNodesFunctionPinsProps } from '@/components/crawlers/nodes/function/pins/index.types';
 import { functionNodePinSignatureGet } from '@/components/crawlers/nodes/function/shared/index';
 import type { IVariableDefinitionData, TVariableValueDataType } from '@/components/crawlers/nodes/variable/shared/index';
-import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableJsonTextGet, variableJsonTextParse, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableInputHandleIdGet, variableJsonTextGet, variableJsonTextParse, variableOutputHandleIdGet, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * 属性：函数节点引脚编辑器参数。
@@ -138,7 +138,7 @@ const serializePins = (items: ICrawlersNodesFunctionPinsEditorItem[]): IVariable
  */
 const hasConnectedPin = (item: ICrawlersNodesFunctionPinsEditorItem): boolean => {
   const currentNodeId = String(nodeId ?? '').trim();
-  const handleId = `${item.id}:${item.dataType}`;
+  const handleId = direction === 'output' ? variableOutputHandleIdGet(item.id, item.dataType) : variableInputHandleIdGet(item.id, item.dataType);
 
   if (currentNodeId === '') {
     return false;
