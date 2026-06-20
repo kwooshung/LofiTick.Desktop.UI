@@ -1,4 +1,5 @@
 import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
@@ -57,4 +58,10 @@ export interface ICrawlersCodeEmits {
    * @param {'site' | 'global'} scope 作用域。
    */
   createFunction: [scope: 'site' | 'global'];
+
+  /**
+   * 事件：编辑函数逻辑。
+   * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+   */
+  editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
 }

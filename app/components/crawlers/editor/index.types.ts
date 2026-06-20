@@ -1,6 +1,7 @@
 import type { Edge, Node } from '@vue-flow/core';
 
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 
 /**
  * 接口：编辑器剪贴板边界盒。
@@ -110,6 +111,16 @@ export interface ICrawlersEditorProps {
    * 属性：函数列表刷新 nonce。
    */
   functionRefreshNonce?: number;
+
+  /**
+   * 属性：初始导出图。
+   */
+  initialFlowData?: unknown;
+
+  /**
+   * 属性：草稿缓存键。
+   */
+  draftStorageKey?: string;
 }
 
 /**
@@ -138,4 +149,10 @@ export interface ICrawlersEditorEmits {
    * @param {'site' | 'global'} scope 作用域。
    */
   createFunction: [scope: 'site' | 'global'];
+
+  /**
+   * 事件：编辑函数逻辑。
+   * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+   */
+  editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
 }

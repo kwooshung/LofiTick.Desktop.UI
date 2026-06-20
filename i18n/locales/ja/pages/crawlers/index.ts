@@ -97,11 +97,12 @@ export const crawlers = {
       actions: {
         createSiteFunction: 'サイト関数を作成',
         createGlobalFunction: 'グローバル関数を作成',
+        editLogic: 'ロジックを編集',
         edit: '編集',
         delete: '削除'
       },
       editModal: {
-        title: '関数を編集',
+        title: '関数情報を編集',
         nameLabel: '関数名',
         namePlaceholder: '関数名を入力してください',
         descriptionLabel: '説明',

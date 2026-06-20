@@ -43,7 +43,7 @@
               <li
                 v-for="row in computedActiveFunctionRows"
                 :key="row.id"
-                class="border-default bg-muted/15 hover:bg-muted/30 group flex cursor-grab items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors"
+                class="group/function-row border-default bg-muted/15 hover:bg-muted/30 flex cursor-grab items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors"
                 draggable="true"
                 @dragstart="handleFunctionRowDragStart($event, row)"
               >
@@ -59,10 +59,10 @@
                   </div>
                 </div>
 
-                <div class="flex shrink-0 items-center gap-1.5">
-                  <UBadge color="neutral" variant="soft" size="sm">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
+                <div class="relative flex shrink-0 items-center justify-end gap-1.5 pr-0 pl-1 transition-[padding] duration-200 group-hover/function-row:pr-7">
+                  <UBadge color="neutral" variant="soft" size="sm" class="transition-transform duration-200 group-hover/function-row:-translate-x-1">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
                   <UDropdownMenu :items="resolveFunctionRowMenuItems(row)" :content="{ side: 'bottom', align: 'end' }">
-                    <UButton icon="i-lucide:ellipsis-vertical" color="neutral" variant="ghost" size="xs" class="nodrag cursor-pointer opacity-0 transition-opacity group-hover:opacity-100" @click.stop @dragstart.stop />
+                    <UButton icon="i-mdi-more-vert" color="neutral" variant="ghost" size="xs" class="nodrag absolute top-1/2 right-0 -translate-y-1/2 cursor-pointer opacity-0 transition-[opacity,transform] duration-200 group-hover/function-row:opacity-100" @click.stop @dragstart.stop />
                   </UDropdownMenu>
                 </div>
               </li>
@@ -535,6 +535,11 @@ const resolveFunctionRowMenuItems = (row: ICrawlersEditorSidebarFunctionRow) => 
   return [
     [
       {
+        label: t('pages.crawlers.editor.sidebar.actions.editLogic'),
+        icon: 'i-lucide:workflow',
+        onSelect: () => handleEditLogicClick(row)
+      },
+      {
         label: t('pages.crawlers.editor.sidebar.actions.edit'),
         icon: 'i-lucide:pencil',
         onSelect: () => handleEditClick(row)
@@ -561,6 +566,15 @@ const handleEditClick = (row: ICrawlersEditorSidebarFunctionRow): void => {
   stateEditName.value = String(row.name ?? '').trim();
   stateEditDescription.value = String(row.description ?? '').trim();
   stateEditOpen.value = true;
+};
+
+/**
+ * 函数：编辑函数逻辑。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {void} 无返回值。
+ */
+const handleEditLogicClick = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  emit('editFunctionLogic', row);
 };
 
 /**

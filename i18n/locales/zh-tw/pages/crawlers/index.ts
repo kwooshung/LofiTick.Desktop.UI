@@ -97,11 +97,12 @@ export const crawlers = {
       actions: {
         createSiteFunction: '建立站點函數',
         createGlobalFunction: '建立全域函數',
+        editLogic: '編輯邏輯',
         edit: '編輯',
         delete: '刪除'
       },
       editModal: {
-        title: '編輯函數',
+        title: '編輯函數資訊',
         nameLabel: '函數名稱',
         namePlaceholder: '請輸入函數名稱',
         descriptionLabel: '描述',

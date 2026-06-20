@@ -10,7 +10,7 @@
     @pointerleave.capture="handleEditorPointerLeave"
     @keydown.capture="handleEditorKeydown"
   >
-    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" :target-id="targetId" :function-refresh-nonce="functionRefreshNonce" @click="handleListClick" @create-function="handleSidebarCreateFunction" />
+    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" :target-id="targetId" :function-refresh-nonce="functionRefreshNonce" @click="handleListClick" @create-function="handleSidebarCreateFunction" @edit-function-logic="handleSidebarEditFunctionLogic" />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="absolute top-2 right-3 z-20">
@@ -74,13 +74,14 @@ import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
 
 import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
 /**
  * 属性：站点展示名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0 } = defineProps<ICrawlersEditorProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
 
 /**
  * 事件：编辑器操作。
@@ -237,6 +238,12 @@ const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
  * 计算属性：草稿缓存键。
  */
 const computedDraftKey = computed(() => {
+  const customDraftKey = String(draftStorageKey ?? '').trim();
+
+  if (customDraftKey !== '') {
+    return customDraftKey;
+  }
+
   /**
    * 常量：domain。
    */
@@ -248,6 +255,23 @@ const computedDraftKey = computed(() => {
 
   return `${DRAFT_ENTRY_PREFIX}${domain}`;
 });
+
+/**
+ * 函数：恢复初始导出图。
+ * @returns {Promise<boolean>} 是否已恢复。
+ */
+const restoreInitialFlowData = async (): Promise<boolean> => {
+  if (!initialFlowData || typeof initialFlowData !== 'object') {
+    return false;
+  }
+
+  try {
+    await fromObject(initialFlowData as Parameters<typeof fromObject>[0]);
+    return nodes.value.length > 0;
+  } catch {
+    return false;
+  }
+};
 
 /**
  * 函数：判断事件目标是否为可编辑元素。
@@ -1365,10 +1389,16 @@ onMounted(async () => {
      */
     const restored = await restoreDraft();
     if (!restored) {
-      stateInitializingDefault.value = true;
-      initializeDefaultNodes();
-      syncStartNodeDomain();
-      stateInitializingDefault.value = false;
+      const restoredInitialFlow = await restoreInitialFlowData();
+
+      if (restoredInitialFlow) {
+        syncStartNodeDomain();
+      } else {
+        stateInitializingDefault.value = true;
+        initializeDefaultNodes();
+        syncStartNodeDomain();
+        stateInitializingDefault.value = false;
+      }
     } else {
       syncStartNodeDomain();
     }
@@ -1504,6 +1534,15 @@ const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
  */
 const handleSidebarCreateFunction = (scope: 'site' | 'global'): void => {
   emit('createFunction', scope);
+};
+
+/**
+ * 函数：处理侧栏编辑函数逻辑事件。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {void} 无返回值。
+ */
+const handleSidebarEditFunctionLogic = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  emit('editFunctionLogic', row);
 };
 
 /**
@@ -1980,6 +2019,19 @@ $breakpoint-xs-max: 639px;
         max-height: 12px;
       }
     }
+  }
+
+  :deep(.vue-flow__node button .iconify),
+  :deep(.vue-flow__node button svg) {
+    opacity: 0.72;
+    transition: opacity 160ms ease;
+  }
+
+  :deep(.vue-flow__node button:hover .iconify),
+  :deep(.vue-flow__node button:hover svg),
+  :deep(.vue-flow__node button:focus-visible .iconify),
+  :deep(.vue-flow__node button:focus-visible svg) {
+    opacity: 0.9;
   }
 
   :deep(.vue-flow__minimap) {

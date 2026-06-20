@@ -97,11 +97,12 @@ export const crawlers = {
       actions: {
         createSiteFunction: 'Create Site Function',
         createGlobalFunction: 'Create Global Function',
+        editLogic: 'Edit Logic',
         edit: 'Edit',
         delete: 'Delete'
       },
       editModal: {
-        title: 'Edit Function',
+        title: 'Edit Function Info',
         nameLabel: 'Function Name',
         namePlaceholder: 'Enter function name',
         descriptionLabel: 'Description',

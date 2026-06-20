@@ -81,7 +81,36 @@
       :function-refresh-nonce="stateFunctionRefreshNonce"
       @save="handleBlueprintSave"
       @create-function="handleCreateFunctionFromSidebar"
+      @edit-function-logic="handleEditFunctionLogicFromSidebar"
     />
+
+    <USlideover
+      v-model:open="stateFunctionLogicOpen"
+      :title="computedFunctionLogicTitle"
+      :description="computedFunctionLogicDescription"
+      side="bottom"
+      :overlay="false"
+      :ui="{
+        header: 'px-4 py-3 sm:px-4 sm:py-3',
+        content: 'bg-default h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] rounded-none shadow-t-3xl shadow-black',
+        body: 'h-full w-full overflow-hidden p-0 sm:p-0'
+      }"
+    >
+      <template #body>
+        <CrawlersEditor
+          v-if="stateFunctionLogicDetail"
+          :key="computedFunctionLogicEditorKey"
+          :site-name="stateFunctionLogicDetail.name"
+          :base-url="computedFunctionLogicEditorBaseUrl"
+          :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"
+          :function-refresh-nonce="stateFunctionRefreshNonce"
+          :initial-flow-data="stateFunctionLogicDetail.graph"
+          :draft-storage-key="computedFunctionLogicDraftKey"
+          @cancel="stateFunctionLogicOpen = false"
+          @save="handleFunctionLogicSave"
+        />
+      </template>
+    </USlideover>
 
     <UModal v-model:open="stateFunctionEditorOpen" :dismissible="false" :title="computedFunctionEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -147,6 +176,8 @@
 <script setup lang="ts">
 import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
 import { z } from 'zod';
+
+import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。
@@ -301,6 +332,16 @@ const stateFunctionEditorName = ref('');
  * 状态：函数创建描述。
  */
 const stateFunctionEditorDescription = ref('');
+
+/**
+ * 状态：函数逻辑抽屉开关。
+ */
+const stateFunctionLogicOpen = ref(false);
+
+/**
+ * 状态：函数逻辑详情。
+ */
+const stateFunctionLogicDetail = ref<ICrawlersEditorSidebarFunctionDetail | null>(null);
 
 /**
  * 状态：蓝图抽屉目标站点。
@@ -736,6 +777,62 @@ const { refresh: refreshFunctionCreate } = await useApi<{ id: number }>('crawler
 });
 
 /**
+ * API：函数详情。
+ */
+const { datas: stateFunctionDetailRemote, refresh: refreshFunctionDetail } = await useApi<ICrawlersEditorSidebarFunctionDetail>('crawlers/functions/detail', {
+  immediate: false
+});
+
+/**
+ * API：保存函数图。
+ */
+const { refresh: refreshFunctionGraphSave } = await useApi<{ affected: number; referenceCount: number }>('crawlers/functions/graph', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
+ * 计算属性：函数逻辑抽屉标题。
+ */
+const computedFunctionLogicTitle = computed(() => {
+  const name = String(stateFunctionLogicDetail.value?.name ?? '').trim();
+  return name !== '' ? `${t('pages.crawlers.editor.title')} / ${name}` : t('pages.crawlers.editor.title');
+});
+
+/**
+ * 计算属性：函数逻辑抽屉描述。
+ */
+const computedFunctionLogicDescription = computed(() => {
+  return String(stateFunctionLogicDetail.value?.description ?? '').trim();
+});
+
+/**
+ * 计算属性：函数逻辑编辑器基础 URL。
+ */
+const computedFunctionLogicEditorBaseUrl = computed(() => {
+  if (stateFunctionLogicDetail.value?.scope === 'site') {
+    return String(stateDetail.value?.baseUrl ?? '').trim();
+  }
+
+  return '';
+});
+
+/**
+ * 计算属性：函数逻辑草稿键。
+ */
+const computedFunctionLogicDraftKey = computed(() => {
+  const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
+  return Number.isFinite(id) && id > 0 ? `crawler:blueprint:draft:function:${id}` : '';
+});
+
+/**
+ * 计算属性：函数逻辑编辑器 key。
+ */
+const computedFunctionLogicEditorKey = computed(() => {
+  return String(stateFunctionLogicDetail.value?.id ?? 'function-logic');
+});
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -825,6 +922,62 @@ const handleCreateFunctionSubmit = async (): Promise<void> => {
   });
 
   stateFunctionEditorOpen.value = false;
+  stateFunctionRefreshNonce.value += 1;
+};
+
+/**
+ * 事件：侧栏触发编辑函数逻辑。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {Promise<void>} Promise。
+ */
+const handleEditFunctionLogicFromSidebar = async (row: ICrawlersEditorSidebarFunctionRow): Promise<void> => {
+  const id = Number(row.id ?? 0);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    return;
+  }
+
+  await refreshFunctionDetail({
+    datas: { id },
+    replace: true
+  });
+
+  if (!stateFunctionDetailRemote.value) {
+    return;
+  }
+
+  stateFunctionLogicDetail.value = stateFunctionDetailRemote.value;
+  stateFunctionLogicOpen.value = true;
+};
+
+/**
+ * 事件：保存函数逻辑。
+ * @param {{ flowData?: unknown; draftKey?: string }} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
+  const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    return;
+  }
+
+  await refreshFunctionGraphSave({
+    datas: {
+      id,
+      graph: payload?.flowData ?? {}
+    },
+    replace: true
+  });
+
+  if (import.meta.client) {
+    const draftKey = String(payload?.draftKey ?? '').trim();
+    if (draftKey !== '') {
+      localStorage.removeItem(draftKey);
+    }
+  }
+
+  stateFunctionLogicOpen.value = false;
   stateFunctionRefreshNonce.value += 1;
 };
 

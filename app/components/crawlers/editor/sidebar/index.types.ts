@@ -111,6 +111,16 @@ export interface ICrawlersEditorSidebarFunctionRow {
 }
 
 /**
+ * 接口：函数详情。
+ */
+export interface ICrawlersEditorSidebarFunctionDetail extends ICrawlersEditorSidebarFunctionRow {
+  /**
+   * 属性：图定义。
+   */
+  graph: unknown;
+}
+
+/**
  * 接口：编辑器左侧栏事件。
  */
 export interface ICrawlersEditorSidebarEmits {
@@ -126,4 +136,10 @@ export interface ICrawlersEditorSidebarEmits {
    * @param {'site' | 'global'} scope 函数作用域。
    */
   createFunction: [scope: 'site' | 'global'];
+
+  /**
+   * 事件：编辑函数逻辑。
+   * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+   */
+  editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
 }

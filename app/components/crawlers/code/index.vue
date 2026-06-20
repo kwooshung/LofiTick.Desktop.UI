@@ -23,6 +23,7 @@
         @click="handleEditorClick"
         @save="handleSave"
         @create-function="handleEditorCreateFunction"
+        @edit-function-logic="handleEditorEditFunctionLogic"
       />
     </template>
   </USlideover>
@@ -31,6 +32,7 @@
 <script setup lang="ts">
 import type { ICrawlersCodeEmits, ICrawlersCodeProps } from '@/components/crawlers/code/index.types';
 import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
@@ -228,5 +230,14 @@ const handleEditorClick = (row: ICrawlersListRow, event: MouseEvent): void => {
  */
 const handleEditorCreateFunction = (scope: 'site' | 'global'): void => {
   emit('createFunction', scope);
+};
+
+/**
+ * 函数：处理编辑器编辑函数逻辑事件。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {void} 无返回值。
+ */
+const handleEditorEditFunctionLogic = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  emit('editFunctionLogic', row);
 };
 </script>
