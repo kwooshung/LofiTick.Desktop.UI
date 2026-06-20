@@ -471,18 +471,14 @@ const computedRouteDetailTitle = computed<string>(() => {
  * 计算属性：函数创建弹窗标题。
  */
 const computedFunctionEditorTitle = computed(() => {
-  return stateFunctionEditorScope.value === 'site'
-    ? t('pages.crawlers.editor.sidebar.createModal.titleSite')
-    : t('pages.crawlers.editor.sidebar.createModal.titleGlobal');
+  return stateFunctionEditorScope.value === 'site' ? t('pages.crawlers.editor.sidebar.createModal.titleSite') : t('pages.crawlers.editor.sidebar.createModal.titleGlobal');
 });
 
 /**
  * 计算属性：函数创建作用域文案。
  */
 const computedFunctionEditorScopeLabel = computed(() => {
-  return stateFunctionEditorScope.value === 'site'
-    ? t('pages.crawlers.editor.sidebar.createModal.scopeSite')
-    : t('pages.crawlers.editor.sidebar.createModal.scopeGlobal');
+  return stateFunctionEditorScope.value === 'site' ? t('pages.crawlers.editor.sidebar.createModal.scopeSite') : t('pages.crawlers.editor.sidebar.createModal.scopeGlobal');
 });
 
 /**

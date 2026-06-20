@@ -1,11 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic
-    :icon-name="computedIconName"
-    :title="computedFunctionName"
-    :description="computedDescription"
-    :header-bg="computedHeaderBg"
-    :right-pins="rightPins"
-  >
+  <CrawlersNodesCommonBasic :icon-name="computedIconName" :title="computedFunctionName" :description="computedDescription" :header-bg="computedHeaderBg" :right-pins="rightPins">
     <div class="space-y-2">
       <div class="flex flex-wrap items-center gap-2">
         <UBadge color="neutral" variant="soft" size="sm">{{ computedScopeLabel }}</UBadge>
@@ -50,9 +44,7 @@ const computedFunctionName = computed(() => {
     return nameValue;
   }
 
-  return computedScope.value === 'global'
-    ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions')
-    : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
+  return computedScope.value === 'global' ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions') : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
 });
 
 /**
@@ -86,9 +78,7 @@ const computedIconName = computed(() => {
  * 计算属性：作用域文案。
  */
 const computedScopeLabel = computed(() => {
-  return computedScope.value === 'global'
-    ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions')
-    : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
+  return computedScope.value === 'global' ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions') : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
 });
 
 /**

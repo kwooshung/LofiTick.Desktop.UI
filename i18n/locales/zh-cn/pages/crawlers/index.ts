@@ -82,8 +82,8 @@ export const crawlers = {
       loading: '函数列表加载中',
       row: {
         id: 'ID: {id}',
-          reference: '引用 {count}',
-          target: '站点 #{id}'
+        reference: '引用 {count}',
+        target: '站点 #{id}'
       },
       empty: {
         siteMissingTarget: '当前站点信息缺失，无法加载站点函数。',

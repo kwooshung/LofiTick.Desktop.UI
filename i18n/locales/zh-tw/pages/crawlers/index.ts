@@ -82,8 +82,8 @@ export const crawlers = {
       loading: '函數列表載入中',
       row: {
         id: 'ID: {id}',
-         reference: '引用 {count}',
-         target: '站點 #{id}'
+        reference: '引用 {count}',
+        target: '站點 #{id}'
       },
       empty: {
         siteMissingTarget: '目前站點資訊缺失，無法載入站點函數。',

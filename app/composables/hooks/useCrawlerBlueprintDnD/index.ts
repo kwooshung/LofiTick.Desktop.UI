@@ -214,7 +214,6 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
       }
     }
 
-
     if (resolvedType === '') {
       return;
     }

@@ -10,14 +10,7 @@
     @pointerleave.capture="handleEditorPointerLeave"
     @keydown.capture="handleEditorKeydown"
   >
-    <CrawlersEditorSidebar
-      :groups="computedGroups"
-      :selected-key="selectedKey"
-      :target-id="targetId"
-      :function-refresh-nonce="functionRefreshNonce"
-      @click="handleListClick"
-      @create-function="handleSidebarCreateFunction"
-    />
+    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" :target-id="targetId" :function-refresh-nonce="functionRefreshNonce" @click="handleListClick" @create-function="handleSidebarCreateFunction" />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="absolute top-2 right-3 z-20">

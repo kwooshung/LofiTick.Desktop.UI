@@ -82,8 +82,8 @@ export const crawlers = {
       loading: '関数リストを読み込み中',
       row: {
         id: 'ID: {id}',
-          reference: '参照 {count}',
-          target: 'サイト #{id}'
+        reference: '参照 {count}',
+        target: 'サイト #{id}'
       },
       empty: {
         siteMissingTarget: '現在のサイト情報が不足しているため、サイト関数を読み込めません。',

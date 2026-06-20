@@ -82,8 +82,8 @@ export const crawlers = {
       loading: 'Loading functions',
       row: {
         id: 'ID: {id}',
-         reference: 'References {count}',
-         target: 'Site #{id}'
+        reference: 'References {count}',
+        target: 'Site #{id}'
       },
       empty: {
         siteMissingTarget: 'Current site information is missing, unable to load site functions.',
