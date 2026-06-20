@@ -1,25 +1,28 @@
 <template>
-  <UAccordion
-    type="multiple"
-    :items="items"
-    :default-value="defaultValue"
-    :ui="{
-      item: 'border-default/80 rounded-lg border bg-default/70 px-3 mb-3 overflow-hidden last:border-b last:mb-0',
-      header: 'px-0',
-      trigger: 'py-3',
-      content: 'overflow-hidden',
-      body: 'pb-0'
-    }"
-  >
-    <template #body="{ item }">
-      <div class="space-y-3 px-2 pb-4">
-        <div class="text-muted border-default mb-4 border-b pb-4 text-xs font-medium tracking-wide uppercase">{{ item.description }}</div>
-        <div class="grid grid-cols-2 gap-3">
-          <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :name="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="crawler.iconName" :selected="crawler.key === selectedKey" />
+  <div class="space-y-5">
+    <section v-for="item in items" :key="item.label" class="space-y-3">
+      <div class="border-default border-b pb-3">
+        <div class="flex items-start gap-3">
+          <div class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-md">
+            <UIcon :name="item.icon" class="size-4" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="text-sm font-medium tracking-wide">{{ item.label }}</div>
+                <div class="text-muted mt-1 text-xs leading-5">{{ item.description }}</div>
+              </div>
+              <UBadge color="neutral" variant="soft" class="shrink-0">{{ item.crawlers.length }}</UBadge>
+            </div>
+          </div>
         </div>
       </div>
-    </template>
-  </UAccordion>
+
+      <div class="grid grid-cols-2 gap-3">
+        <CrawlersListItem v-for="crawler in item.crawlers" :key="crawler.key" :name="crawler.key" :label="crawler.name" :description="crawler.description" :icon-name="crawler.iconName" :selected="crawler.key === selectedKey" />
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -31,12 +34,7 @@ import type { ICrawlersListProps } from '@/components/crawlers/list/index.types'
 const { groups = [], selectedKey = '' } = defineProps<ICrawlersListProps>();
 
 /**
- * 计算属性：默认展开分组。
- */
-const defaultValue = computed(() => groups.map((group) => group.label));
-
-/**
- * 计算属性：Accordion 项目。
+ * 计算属性：分组项目。
  */
 const items = computed(() =>
   groups.map((group) => ({

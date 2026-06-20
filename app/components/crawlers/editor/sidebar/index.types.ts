@@ -1,6 +1,11 @@
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
+ * 类型：编辑器左侧栏标签页。
+ */
+export type TCrawlersEditorSidebarTab = 'nodes' | 'site-functions' | 'global-functions';
+
+/**
  * 接口：编辑器左侧栏属性。
  */
 export interface ICrawlersEditorSidebarProps {
@@ -16,13 +21,58 @@ export interface ICrawlersEditorSidebarProps {
 }
 
 /**
+ * 接口：编辑器左侧栏标签页配置。
+ */
+export interface ICrawlersEditorSidebarTabItem {
+  /**
+   * 属性：标签页值。
+   */
+  value: TCrawlersEditorSidebarTab;
+
+  /**
+   * 属性：标签页标题。
+   */
+  label: string;
+
+  /**
+   * 属性：标签页图标。
+   */
+  icon: string;
+}
+
+/**
+ * 接口：编辑器左侧栏点击条目。
+ */
+export interface ICrawlersEditorSidebarClickRow {
+  /**
+   * 属性：条目 key。
+   */
+  key: string;
+
+  /**
+   * 属性：条目名称。
+   */
+  name: string;
+
+  /**
+   * 属性：条目描述。
+   */
+  description: string;
+
+  /**
+   * 属性：条目图标名称。
+   */
+  iconName: string;
+}
+
+/**
  * 接口：编辑器左侧栏事件。
  */
 export interface ICrawlersEditorSidebarEmits {
   /**
    * 事件：点击列表项。
-   * @param {ICrawlersListRow} row 条目数据。
+   * @param {ICrawlersEditorSidebarClickRow} row 条目数据。
    * @param {MouseEvent} event 鼠标事件。
    */
-  click: [row: ICrawlersListRow, event: MouseEvent];
+  click: [row: ICrawlersEditorSidebarClickRow, event: MouseEvent];
 }
