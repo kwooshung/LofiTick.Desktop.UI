@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+import type { ISystemTaskRow } from '@/components/sections/crons/system/index.types';
 
 /**
  * 组件：徽标
@@ -38,15 +39,6 @@ const UBadge = resolveComponent('UBadge');
  * Hook：国际化
  */
 const { t } = useI18n();
-
-interface ISystemTaskRow {
-  key: string;
-  title: string;
-  description: string;
-  schedulePrimary: string;
-  scheduleSecondary?: string | null;
-  groupLabel: string;
-}
 
 /**
  * 计算属性：系统任务清单

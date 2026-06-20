@@ -62,6 +62,9 @@ export const useTauriPodcast = () => {
       throw new Error('tauri only');
     }
 
+    /**
+     * 常量：unlistens。
+     */
     const unlistens = await Promise.all(
       PODCAST_TASK_EVENTS.map(async (eventName) => {
         return listen<ITauriPodcastTaskEvent>(eventName, (event) => {

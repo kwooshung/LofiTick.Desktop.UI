@@ -1,1 +1,1 @@
-export { chineseCount, ensureChineseSentence, isChinese, normalizeChineseText, toChinesePunctuation } from './utils';
+export { chineseCount, ensureChineseSentence, isChinese, normalizeChineseText, toChinesePunctuation } from '@@/shared/utils';

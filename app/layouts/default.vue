@@ -71,7 +71,13 @@ let unsubscribeStartupSyncFailed: UnlistenFn | null = null;
  * @returns {string} 标题
  */
 const toastTitleBuild = (code: string): string => {
+  /**
+   * 常量：key。
+   */
   const key = `errorcodes.${code}`;
+  /**
+   * 常量：translated。
+   */
   const translated = t(key);
 
   if (translated === key) {
@@ -95,6 +101,9 @@ watch(
       return;
     }
 
+    /**
+     * 常量：code。
+     */
     const code = String(storeToastApi.states.code || '').trim();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -141,8 +150,17 @@ onMounted(async () => {
   }
 
   unsubscribeStartupSyncFailed = await listen<unknown>(EVENT_STARTUP_SYNC_FAILED, (event) => {
+    /**
+     * 常量：payload。
+     */
     const payload = event.payload;
+    /**
+     * 常量：src。
+     */
     const src = payload && typeof payload === 'object' && !Array.isArray(payload) ? (payload as Record<string, unknown>) : {};
+    /**
+     * 常量：message。
+     */
     const message = String(src.message ?? '').trim();
 
     toast.add({

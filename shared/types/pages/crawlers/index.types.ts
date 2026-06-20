@@ -123,3 +123,48 @@ export interface IPageCrawlersTargetsProps {
    */
   keyword?: string;
 }
+
+/**
+ * 类型：爬虫函数作用域。
+ */
+export type TCrawlerFunctionScope = 'site' | 'global';
+
+/**
+ * 接口：爬虫函数列表行。
+ */
+export interface IQueryResultCrawlerFunctionRow {
+  /**
+   * 函数 ID。
+   */
+  id: number;
+
+  /**
+   * 函数名称。
+   */
+  name: string;
+
+  /**
+   * 作用域。
+   */
+  scope: TCrawlerFunctionScope;
+
+  /**
+   * 站点 ID。
+   */
+  targetId: number;
+
+  /**
+   * 引用数量。
+   */
+  referenceCount: number;
+
+  /**
+   * 创建时间。
+   */
+  createdAt: string;
+
+  /**
+   * 更新时间。
+   */
+  updatedAt: string;
+}

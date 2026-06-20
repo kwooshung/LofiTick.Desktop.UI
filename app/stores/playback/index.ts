@@ -34,6 +34,9 @@ export const useStorePlayback = defineStore('playback', () => {
         return;
       }
 
+      /**
+       * 常量：playback。
+       */
       const playback = { fade: { start: n.fade.start, end: n.fade.end }, lufs: n.lufs };
       void tauriSettings.update({ playback });
     },
@@ -44,18 +47,45 @@ export const useStorePlayback = defineStore('playback', () => {
    * 生命周期钩子：挂载完成
    */
   onMounted(async () => {
+    /**
+     * 函数：settings。
+     */
     const settings = await tauriSettings.get();
+    /**
+     * 常量：playback。
+     */
     const playback = settings.playback;
 
     if (playback && typeof playback === 'object' && !Array.isArray(playback)) {
+      /**
+       * 常量：p。
+       */
       const p = playback as Record<string, unknown>;
+      /**
+       * 常量：fade。
+       */
       const fade = p.fade && typeof p.fade === 'object' && !Array.isArray(p.fade) ? (p.fade as Record<string, unknown>) : null;
 
+      /**
+       * 常量：startRaw。
+       */
       const startRaw = fade?.start ?? fade?.in;
+      /**
+       * 常量：endRaw。
+       */
       const endRaw = fade?.end ?? fade?.out;
 
+      /**
+       * 常量：start。
+       */
       const start = typeof startRaw === 'number' && Number.isFinite(startRaw) ? startRaw : states.value.fade.start;
+      /**
+       * 常量：end。
+       */
       const end = typeof endRaw === 'number' && Number.isFinite(endRaw) ? endRaw : states.value.fade.end;
+      /**
+       * 常量：lufs。
+       */
       const lufs = typeof p.lufs === 'number' && Number.isFinite(p.lufs) ? p.lufs : states.value.lufs;
 
       states.value = { fade: { start, end }, lufs };

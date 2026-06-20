@@ -334,7 +334,13 @@ export const onepanelLinkSections: IOnepanelLinkSection[] = [
  * @return {string} 归一化后的 1Panel 根域名
  */
 export const onepanelPanelBaseNormalize = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(value || '').trim();
+  /**
+   * 常量：fallback。
+   */
   const fallback = new URL(ONEPANEL_PANEL_BASE_DEFAULT).toString();
 
   if (!raw) {
@@ -342,6 +348,9 @@ export const onepanelPanelBaseNormalize = (value: string): string => {
   }
 
   try {
+    /**
+     * 函数：normalized。
+     */
     const normalized = new URL(raw).toString();
     return normalized.endsWith('/') ? normalized : `${normalized}/`;
   } catch {
@@ -357,6 +366,9 @@ export const onepanelPanelBaseNormalize = (value: string): string => {
  * @return {string} 完整地址
  */
 export const onepanelLinkBuild = (panelBase: string, path: string): string => {
+  /**
+   * 常量：base。
+   */
   const base = onepanelPanelBaseNormalize(panelBase);
   return new URL(path.replace(/^\//, ''), base).toString();
 };

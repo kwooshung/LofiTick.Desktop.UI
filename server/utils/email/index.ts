@@ -82,6 +82,9 @@ const formatEmailString = (template: string, params: Record<string, string>): st
 const flattenEmailsMessages = (messages: TEmailsMessages): Record<string, string> => {
   const result: Record<string, string> = {};
 
+  /**
+   * 常量：walk。
+   */
   const walk = (value: unknown, path: string[]) => {
     if (typeof value === 'string') {
       result[path.join('.')] = value;
@@ -108,17 +111,32 @@ const flattenEmailsMessages = (messages: TEmailsMessages): Record<string, string
  * @returns {string} 替换后的 HTML
  */
 const applyEmailsLocaleToHtml = (html: string, messages: TEmailsMessages, params: Record<string, string>): string => {
+  /**
+   * 常量：flat。
+   */
   const flat = flattenEmailsMessages(messages);
+  /**
+   * 常量：output。
+   */
   let output = html;
 
+  /**
+   * 常量：entries。
+   */
   const entries = Object.entries(flat).sort((a, b) => b[0].length - a[0].length);
 
   for (const [key, template] of entries) {
+    /**
+     * 常量：value。
+     */
     const value = formatEmailString(template, params);
     if (!value) {
       continue;
     }
 
+    /**
+     * 常量：escapedKey。
+     */
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     output = output.replace(new RegExp(escapedKey, 'g'), value);
   }
@@ -163,16 +181,34 @@ const buildWelcomeSocials = (): IEmailWelcomeSocials => ({
  * @returns {Promise<IWelcomeEmailBuildResult>} 生成结果
  */
 export const welcomeEmailBuild = async (locale: string): Promise<IWelcomeEmailBuildResult> => {
+  /**
+   * 常量：messages。
+   */
   const messages = getEmailsLocale(locale);
+  /**
+   * 常量：socials。
+   */
   const socials = buildWelcomeSocials();
+  /**
+   * 常量：params。
+   */
   const params = {
     nameEn: SITE_NAME_EN,
     nameCn: SITE_NAME_CN,
     username: 'KwooShung'
   };
 
+  /**
+   * 常量：subject。
+   */
   const subject = formatEmailString(messages.welcome.title, params);
+  /**
+   * 常量：text。
+   */
   const text = formatEmailString(messages.welcome.text, params);
+  /**
+   * 常量：rawHtml。
+   */
   const rawHtml = await renderEmailComponent(
     'welcome',
     {

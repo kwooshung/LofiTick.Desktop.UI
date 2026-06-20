@@ -193,10 +193,22 @@ const computedFullItems = computed<SelectItem[]>(() => [
  * 计算属性：是否已设置搜索条件
  */
 const computedHasSearchConditions = computed(() => {
+  /**
+   * 常量：q。
+   */
   const q = route.query;
+  /**
+   * 函数：hasText。
+   */
   const hasText = (typeof q.name !== 'undefined' && String(q.name ?? '').trim().length > 0) || (typeof q.number !== 'undefined' && String(q.number ?? '').trim().length > 0);
 
+  /**
+   * 常量：v。
+   */
   const v = q.size;
+  /**
+   * 函数：hasSize。
+   */
   const hasSize = Array.isArray(v) ? v.length > 0 : typeof v !== 'undefined' && String(v).trim().length > 0;
 
   return hasText || hasSize || typeof q.enabled !== 'undefined' || typeof q.full !== 'undefined';
@@ -212,6 +224,9 @@ const computedSearchTriggerLabel = computed(() => (computedHasSearchConditions.v
  * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
  */
 const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  /**
+   * 常量：value。
+   */
   const value = String(route.query.enabled ?? '').trim();
 
   if (value === '1') {
@@ -230,6 +245,9 @@ const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
  * @returns {'all' | 'full' | 'not_full'} 满员状态。
  */
 const readFullStateFromRoute = (): 'all' | 'full' | 'not_full' => {
+  /**
+   * 常量：value。
+   */
   const value = String(route.query.full ?? '').trim();
 
   if (value === '1') {
@@ -262,10 +280,22 @@ const applyDefaultsFromRoute = (): void => {
   stateEnabled.value = readEnabledStateFromRoute();
   stateFull.value = readFullStateFromRoute();
 
+  /**
+   * 常量：v。
+   */
   const v = route.query.size;
+  /**
+   * 常量：arr。
+   */
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
+  /**
+   * 常量：ids。
+   */
   const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
 
+  /**
+   * 函数：map。
+   */
   const map = new Map<number, string>([
     [20, getSizeLabel(200)],
     [50, getSizeLabel(500)],

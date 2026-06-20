@@ -83,21 +83,7 @@
 
 <script setup lang="ts">
 import type { TabsItem } from '@nuxt/ui';
-
-/**
- * 类型：网卡 Tab
- */
-type TSettingsUnattendedMachineNetworkDialogTab = 'ipv4' | 'ipv6';
-
-/**
- * 接口：机器网卡弹窗 Props
- */
-interface ISettingsUnattendedMachineNetworkDialogProps {
-  /**
-   * 当前机器
-   */
-  machine: IPageSettingsUnattendedMachineCardInfo | null;
-}
+import type { ISettingsUnattendedMachineNetworkDialogProps, TSettingsUnattendedMachineNetworkDialogTab } from '@/components/settings/unattended/machine-network-dialog/index.types';
 
 /**
  * 常量：网卡 Tabs 选项
@@ -133,17 +119,29 @@ const stateNetworkTab = ref<TSettingsUnattendedMachineNetworkDialogTab>('ipv4');
  * @returns {IPageSettingsUnattendedMachineNetworkGroup[]} 分组列表
  */
 const networkGroupsGet = (machine: IPageSettingsUnattendedMachineCardInfo | null): IPageSettingsUnattendedMachineNetworkGroup[] => {
+  /**
+   * 常量：network。
+   */
   const network = machine?.network;
   if (!network || typeof network !== 'object' || Array.isArray(network)) {
     return [];
   }
 
+  /**
+   * 常量：src。
+   */
   const src = network as unknown as Record<string, unknown>;
+  /**
+   * 常量：groups。
+   */
   const groups = src.groups;
   if (Array.isArray(groups)) {
     return groups as IPageSettingsUnattendedMachineNetworkGroups['groups'];
   }
 
+  /**
+   * 常量：interfaces。
+   */
   const interfaces = src.interfaces;
   if (!Array.isArray(interfaces)) {
     return [];
@@ -155,10 +153,25 @@ const networkGroupsGet = (machine: IPageSettingsUnattendedMachineCardInfo | null
 
   return (Array.isArray(snapshot.interfaces) ? snapshot.interfaces : [])
     .map((iface) => {
+      /**
+       * 常量：name。
+       */
       const name = String(iface?.name ?? '').trim() || '-';
+      /**
+       * 常量：ips。
+       */
       const ips = Array.isArray(iface?.ips) ? iface.ips : [];
+      /**
+       * 常量：cleaned。
+       */
       const cleaned = ips.map((i) => String(i ?? '').trim()).filter((i) => i !== '');
+      /**
+       * 常量：ipv4。
+       */
       const ipv4 = Array.from(new Set(cleaned.filter((i) => i.includes('.') && !i.includes(':'))));
+      /**
+       * 常量：ipv6。
+       */
       const ipv6 = Array.from(new Set(cleaned.filter((i) => i.includes(':'))));
       return { name, ipv4, ipv6 };
     })
@@ -171,6 +184,9 @@ const networkGroupsGet = (machine: IPageSettingsUnattendedMachineCardInfo | null
  * @returns {string} 展示文本
  */
 const ipJoin = (ips: string[]): string => {
+  /**
+   * 常量：list。
+   */
   const list = Array.isArray(ips) ? ips.map((i) => String(i || '').trim()).filter((i) => i !== '') : [];
   return Array.from(new Set(list)).join(', ');
 };
@@ -190,6 +206,9 @@ const computedIpv6Groups = computed(() => networkGroupsGet(machine).filter((grou
  * @param {string | number} value 选中值
  */
 const handleNetworkTabUpdate = (value: string | number): void => {
+  /**
+   * 常量：safeValue。
+   */
   const safeValue = String(value || '').trim();
   if (safeValue !== 'ipv4' && safeValue !== 'ipv6') {
     return;

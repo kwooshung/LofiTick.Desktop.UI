@@ -31,10 +31,25 @@ export default defineEventHandler((event): IApiSecurityCsrfResponse => {
     throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' });
   }
 
+  /**
+   * 常量：runtimeConfig。
+   */
   const runtimeConfig = useRuntimeConfig(event);
+  /**
+   * 函数：token。
+   */
   const token = String((event.context as Record<string, unknown>).csrfToken ?? '').trim();
+  /**
+   * 常量：publicConfig。
+   */
   const publicConfig = runtimeConfig.public as { csurf?: { headerName?: unknown } } | undefined;
+  /**
+   * 常量：csurf。
+   */
   const csurf = publicConfig?.csurf;
+  /**
+   * 常量：header。
+   */
   const header = String(csurf?.headerName ?? '').trim();
 
   if (token === '' || header === '') {

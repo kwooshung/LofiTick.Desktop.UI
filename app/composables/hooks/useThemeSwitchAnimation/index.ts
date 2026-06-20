@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/**
+ * 函数：isBrowser。
+ */
 const isBrowser = typeof window !== 'undefined';
 
 /**
@@ -67,6 +70,9 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
       if (!isBrowser) {
         return false;
       }
+      /**
+       * 常量：v。
+       */
       const v = colorMode.value;
       if (v === 'dark') {
         return true;
@@ -82,15 +88,24 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
   });
 
   /*====================【基础样式注入】====================*/
+  /**
+   * 常量：injectBaseStyles。
+   */
   const injectBaseStyles = () => {
     if (!isBrowser) {
       return;
     }
+    /**
+     * 常量：styleIdBase。
+     */
     const styleIdBase = 'theme-switch-base-style';
     if (document.getElementById(styleIdBase)) {
       return;
     }
 
+    /**
+     * 常量：style。
+     */
     const style = document.createElement('style');
     style.id = styleIdBase;
 
@@ -132,10 +147,22 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
   const triggerElRef = ref<HTMLElement | null>(null);
 
   /*====================【模糊圆 Mask 生成】====================*/
+  /**
+   * 函数：createBlurCircleMask。
+   */
   const createBlurCircleMask = (blur: number) => {
+    /**
+     * 常量：hr。
+     */
     const hr = typeof window !== 'undefined' && (window.innerWidth >= 3000 || window.innerHeight >= 2000);
 
+    /**
+     * 常量：blurFilter。
+     */
     const blurFilter = `<filter id="blur"><feGaussianBlur stdDeviation="${blur}" /></filter>`;
+    /**
+     * 常量：circleRadius。
+     */
     const circleRadius = hr ? 20 : 25;
 
     // 注意 %23 = '#'
@@ -143,13 +170,22 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
   };
 
   /*====================【核心：切换 + 动画】====================*/
+  /**
+   * 函数：toggleSwitchTheme。
+   */
   const toggleSwitchTheme = async () => {
     if (!isBrowser) {
       isDarkMode.value = !isDarkMode.value;
       return;
     }
 
+    /**
+     * 常量：supportsViewTransition。
+     */
     const supportsViewTransition = (document as any).startViewTransition;
+    /**
+     * 常量：reduceMotion。
+     */
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     if (!triggerElRef.value || !supportsViewTransition || reduceMotion) {
@@ -164,7 +200,13 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
       existingStyle.remove();
     }
 
+    /**
+     * 常量：rawTrigger。
+     */
     const rawTrigger = triggerElRef.value as any;
+    /**
+     * 常量：triggerEl。
+     */
     const triggerEl = (rawTrigger?.$el ?? rawTrigger) as HTMLElement;
 
     if (!triggerEl || typeof triggerEl.getBoundingClientRect !== 'function') {
@@ -172,29 +214,74 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
       return;
     }
 
+    /**
+     * 常量：rect。
+     */
     const rect = triggerEl.getBoundingClientRect();
+    /**
+     * 常量：x。
+     */
     const x = rect.left + rect.width / 2;
+    /**
+     * 常量：y。
+     */
     const y = rect.top + rect.height / 2;
 
     // 距离四个角的最大半径
     const topLeft = Math.hypot(x, y);
+    /**
+     * 函数：topRight。
+     */
     const topRight = Math.hypot(window.innerWidth - x, y);
+    /**
+     * 常量：bottomLeft。
+     */
     const bottomLeft = Math.hypot(x, window.innerHeight - y);
+    /**
+     * 常量：bottomRight。
+     */
     const bottomRight = Math.hypot(window.innerWidth - x, window.innerHeight - y);
+    /**
+     * 常量：maxRadius。
+     */
     const maxRadius = Math.max(topLeft, topRight, bottomLeft, bottomRight);
 
+    /**
+     * 常量：viewportSize。
+     */
     const viewportSize = Math.max(window.innerWidth, window.innerHeight) + 200;
+    /**
+     * 常量：hr。
+     */
     const hr = window.innerWidth >= 3000 || window.innerHeight >= 2000;
+    /**
+     * 常量：scaleFactor。
+     */
     const scaleFactor = hr ? 2.5 : 4;
+    /**
+     * 常量：optimalMaskSize。
+     */
     const optimalMaskSize = hr ? Math.min(viewportSize * scaleFactor, 5000) : viewportSize * scaleFactor;
 
+    /**
+     * 常量：blurAnimationDuration。
+     */
     let blurAnimationDuration = duration;
 
     if (animationType === EThemeAnimationType.BLUR_CIRCLE) {
+      /**
+       * 常量：styleElement。
+       */
       const styleElement = document.createElement('style');
       styleElement.id = styleId;
 
+      /**
+       * 常量：blurFactor。
+       */
       const blurFactor = hr ? 1.5 : 1.2;
+      /**
+       * 常量：finalMaskSize。
+       */
       const finalMaskSize = Math.max(optimalMaskSize, maxRadius * 8);
       blurAnimationDuration = hr ? Math.max(duration + 120, 700) : duration;
 
@@ -262,6 +349,9 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
 
     // === QR_SCAN ===
     if (animationType === EThemeAnimationType.QR_SCAN) {
+      /**
+       * 常量：scanLineWidth。
+       */
       const scanLineWidth = hr ? 8 : 4;
       document.documentElement.animate(
         {
@@ -281,6 +371,9 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
       void vt.finished.finally(() => {
         window.setTimeout(
           () => {
+            /**
+             * 常量：styleElement。
+             */
             const styleElement = document.getElementById(styleId);
 
             if (styleElement) {

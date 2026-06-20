@@ -237,17 +237,17 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，UUID
  */
-const refUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefUuidMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，出处
  */
-const refSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefSourceMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -373,8 +373,14 @@ const stateCacheAuthorLabelMap = ref(new Map<number, { label: string; count: num
  * 计算属性：是否设置了搜索条件
  */
 const computedHasSearchConditions = computed(() => {
+  /**
+   * 常量：q。
+   */
   const q = route.query;
 
+  /**
+   * 函数：hasText。
+   */
   const hasText = (typeof q.uuid !== 'undefined' && String(q.uuid ?? '').trim().length > 0) || (typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0) || (typeof q.translate !== 'undefined' && String(q.translate ?? '').trim().length > 0);
 
   return hasText || hasQueryParamIds('type_ids') || hasQueryParamIds('source_ids') || hasQueryParamIds('author_ids') || typeof q.enabled !== 'undefined';
@@ -449,6 +455,9 @@ const { datas: stateAuthorData, refreshDebounced: refreshAuthorDebounced } = awa
  * @return {boolean} 是否存在有效参数
  */
 const hasQueryParamIds = (key: 'type_ids' | 'source_ids' | 'author_ids'): boolean => {
+  /**
+   * 常量：v。
+   */
   const v = route.query[key];
 
   if (typeof v === 'undefined' || v === null) {
@@ -464,7 +473,13 @@ const hasQueryParamIds = (key: 'type_ids' | 'source_ids' | 'author_ids'): boolea
  * 辅助：从路由查询提取 ID 数组
  */
 const getQueryIds = (key: 'type_ids' | 'source_ids' | 'author_ids'): number[] => {
+  /**
+   * 常量：v。
+   */
   const v = route.query[key];
+  /**
+   * 常量：arr。
+   */
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
   return arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
 };
@@ -474,7 +489,13 @@ const getQueryIds = (key: 'type_ids' | 'source_ids' | 'author_ids'): number[] =>
  */
 const mapIdsToSelected = (ids: number[], current: IComponentPropsQuotesSelectMenuItem[], cache: Map<number, { label: string; count: number }>): IComponentPropsQuotesSelectMenuItem[] => {
   return ids.map((id) => {
+    /**
+     * 常量：hitSel。
+     */
     const hitSel = current.find((s) => s.value === id);
+    /**
+     * 常量：hitCache。
+     */
     const hitCache = cache.get(id);
     return {
       label: hitSel?.label ?? hitCache?.label ?? String(id),
@@ -489,6 +510,9 @@ const mapIdsToSelected = (ids: number[], current: IComponentPropsQuotesSelectMen
  * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
  */
 const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  /**
+   * 常量：value。
+   */
   const value = String(route.query.enabled ?? '').trim();
 
   if (value === '1') {
@@ -506,6 +530,9 @@ const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
  * 函数：列表页——从路由查询参数应用默认值（在模态打开时执行）
  */
 const applyListDefaultsFromRoute = (): void => {
+  /**
+   * 常量：q。
+   */
   const q = route.query;
 
   // UUID
@@ -533,6 +560,9 @@ const applyListDefaultsFromRoute = (): void => {
 
   // 根据路由中是否存在 translate/content 决定当前搜索类型（互斥）
   const hasContent = typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0;
+  /**
+   * 函数：hasTranslate。
+   */
   const hasTranslate = typeof q.translate !== 'undefined' && String(q.translate ?? '').trim().length > 0;
   if (hasTranslate && !hasContent) {
     stateQuoteSearchType.value = 'translate';
@@ -549,7 +579,13 @@ const applyListDefaultsFromRoute = (): void => {
 
   // 选择项：根据 ID 设置默认值（使用缓存或当前选择补全 label）
   const typeIds = getQueryIds('type_ids');
+  /**
+   * 常量：sourceIds。
+   */
   const sourceIds = getQueryIds('source_ids');
+  /**
+   * 常量：authorIds。
+   */
   const authorIds = getQueryIds('author_ids');
 
   stateSelectedTypes.value = mapIdsToSelected(typeIds, stateSelectedTypes.value, stateCacheTypeLabelMap.value);
@@ -561,12 +597,30 @@ const applyListDefaultsFromRoute = (): void => {
  * 函数：作者页——从路由查询参数应用默认值（authorId）
  */
 const applyAuthorsDefaultsFromRoute = (): void => {
+  /**
+   * 常量：v。
+   */
   const v = route.query.author_ids;
+  /**
+   * 常量：arr。
+   */
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
+  /**
+   * 常量：ids。
+   */
   const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
+  /**
+   * 常量：current。
+   */
   const current = stateAuthorsSelected.value;
   stateAuthorsSelected.value = ids.map((id) => {
+    /**
+     * 常量：hitSel。
+     */
     const hitSel = current.find((s) => s.value === id);
+    /**
+     * 常量：hitCache。
+     */
     const hitCache = stateCacheAuthorLabelMap.value.get(id);
     return {
       label: hitSel?.label ?? hitCache?.label ?? String(id),
@@ -580,12 +634,30 @@ const applyAuthorsDefaultsFromRoute = (): void => {
  * 函数：出处页——从路由查询参数应用默认值（sourceId）
  */
 const applySourcesDefaultsFromRoute = (): void => {
+  /**
+   * 常量：v。
+   */
   const v = route.query.source_ids;
+  /**
+   * 常量：arr。
+   */
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
+  /**
+   * 常量：ids。
+   */
   const ids = arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
+  /**
+   * 常量：current。
+   */
   const current = stateSourcesSelected.value;
   stateSourcesSelected.value = ids.map((id) => {
+    /**
+     * 常量：hitSel。
+     */
     const hitSel = current.find((s) => s.value === id);
+    /**
+     * 常量：hitCache。
+     */
     const hitCache = stateCacheSourceLabelMap.value.get(id);
     return {
       label: hitSel?.label ?? hitCache?.label ?? String(id),
@@ -599,7 +671,13 @@ const applySourcesDefaultsFromRoute = (): void => {
  * 监听：Uuid联想数据变化
  */
 watch(stateUuidData, (val) => {
+  /**
+   * 常量：rows。
+   */
   const rows = val ?? [];
+  /**
+   * 常量：newItems。
+   */
   const newItems = rows.map((r) => ({ label: r.uuid, value: r.id }));
   setUuidOrigin(newItems);
   stateLoadingUuids.value = false;
@@ -611,6 +689,9 @@ watch(stateUuidData, (val) => {
    * 同步：用返回数据补全已选项标签
    */
   stateSelectedUuid.value = stateSelectedUuid.value.map((s) => {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.id === s.value);
     return hit ? { label: hit.uuid, value: hit.id } : s;
   });
@@ -620,6 +701,9 @@ watch(stateUuidData, (val) => {
    */
   const routeUuid = typeof route.query.uuid !== 'undefined' ? String(route.query.uuid ?? '').trim() : '';
   if (routeUuid && stateSelectedUuid.value.length === 0) {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.uuid === routeUuid);
     if (hit) {
       stateSelectedUuid.value = [{ label: hit.uuid, value: hit.id }];
@@ -631,7 +715,13 @@ watch(stateUuidData, (val) => {
  * 监听：出处联想数据变化
  */
 watch(stateSourcesData, (val) => {
+  /**
+   * 常量：rows。
+   */
   const rows = val?.rows ?? [];
+  /**
+   * 常量：newItems。
+   */
   const newItems = rows.map((r) => ({ label: r.name, value: r.id, count: r.count }));
   setSourcesOrigin(newItems);
   stateLoadingSources.value = false;
@@ -642,6 +732,9 @@ watch(stateSourcesData, (val) => {
    * 同步：用返回数据补全已选项标签
    */
   stateSourcesSelected.value = stateSourcesSelected.value.map((s) => {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.id === s.value);
     return hit ? { label: hit.name, value: hit.id, count: hit.count } : s;
   });
@@ -651,7 +744,13 @@ watch(stateSourcesData, (val) => {
  * 监听：作者联想数据变化
  */
 watch(stateAuthorData, (val) => {
+  /**
+   * 常量：rows。
+   */
   const rows = val?.rows ?? [];
+  /**
+   * 常量：newItems。
+   */
   const newItems = rows.map((r) => ({ label: r.name, value: r.id, count: r.count }));
   setAuthorOrigin(newItems);
   stateLoadingAuthor.value = false;
@@ -663,6 +762,9 @@ watch(stateAuthorData, (val) => {
    * 同步：用返回数据补全已选项标签
    */
   stateAuthorsSelected.value = stateAuthorsSelected.value.map((s) => {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.id === s.value);
     return hit ? { label: hit.name, value: hit.id, count: hit.count } : s;
   });
@@ -775,14 +877,14 @@ const syncSearchPanelViewportMode = (): void => {
  */
 const triggerQuickFocus = () => {
   if (routeIsList) {
-    refUuidMenu.value?.triggerRef.click();
+    stateRefUuidMenu.value?.triggerRef.click();
     return;
   }
 
   if (routeIsAuthors) {
-    refAuthorMenu.value?.triggerRef.click();
+    stateRefAuthorMenu.value?.triggerRef.click();
   } else if (routeIsSources) {
-    refSourceMenu.value?.triggerRef.click();
+    stateRefSourceMenu.value?.triggerRef.click();
   }
 };
 
@@ -811,8 +913,17 @@ const updateRouteQueryForSearch = (): void => {
 
   // 不同页面仅提交对应的查询参数
   if (routeIsList) {
+    /**
+     * 常量：uuid。
+     */
     const uuid = stateUuid.value.trim();
+    /**
+     * 常量：content。
+     */
     const content = stateContent.value.trim();
+    /**
+     * 常量：translate。
+     */
     const translate = stateTranslate.value.trim();
 
     // uuid
@@ -935,6 +1046,9 @@ onMounted(() => {
   const typeItems: IComponentPropsQuotesSelectMenuItem[] = [];
 
   quoteTypes.forEach((id) => {
+    /**
+     * 常量：label。
+     */
     const label = t(`components.quotes.search.types.${id}`);
     stateCacheTypeLabelMap.value.set(id, { label, count: 0 });
     typeItems.push({ label, value: id, count: 0 });

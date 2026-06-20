@@ -103,28 +103,12 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：无人值守-场景守护-卡片组件 Props
- */
-interface ISettingsUnattendedScenesCardsProps {
-  /**
-   * 机器场景配置列表
-   */
-  machines: IPageSettingsUnattendedScenesMachineRedisConfig[];
-
-  /**
-   * 机器日志列表
-   */
-  logsMachines: IPageSettingsUnattendedSentinelLogsMachineCard[];
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedScenesCardsProps } from '@/components/settings/unattended/scenes-cards/index.types';
 /**
  * Hook：i18n
+ */
+/**
+ * Hook：国际化工具。
  */
 const { t } = useI18n();
 
@@ -188,21 +172,45 @@ const stateActiveMachineCode = ref<string>('');
  * 计算属性：机器列表
  */
 const computedMachines = computed(() => {
+  /**
+   * 常量：machineList。
+   */
   const machineList = Array.isArray(machines) ? [...machines] : [];
 
   return machineList.sort((left, right) => {
+    /**
+     * 常量：leftCode。
+     */
     const leftCode = String(left?.machineCode || '').trim();
+    /**
+     * 常量：rightCode。
+     */
     const rightCode = String(right?.machineCode || '').trim();
+    /**
+     * 常量：localCode。
+     */
     const localCode = String(localMachineCode || '').trim();
 
+    /**
+     * 常量：leftIsLocal。
+     */
     const leftIsLocal = leftCode !== '' && leftCode === localCode;
+    /**
+     * 常量：rightIsLocal。
+     */
     const rightIsLocal = rightCode !== '' && rightCode === localCode;
 
     if (leftIsLocal !== rightIsLocal) {
       return leftIsLocal ? -1 : 1;
     }
 
+    /**
+     * 常量：leftLabel。
+     */
     const leftLabel = String(left?.machineName || '').trim() || leftCode;
+    /**
+     * 常量：rightLabel。
+     */
     const rightLabel = String(right?.machineName || '').trim() || rightCode;
 
     return leftLabel.localeCompare(rightLabel, 'zh-CN');
@@ -220,6 +228,9 @@ const computedLogsMachineMap = computed(() => {
  * 计算属性：当前激活机器
  */
 const computedActiveMachine = computed(() => {
+  /**
+   * 常量：code。
+   */
   const code = String(stateActiveMachineCode.value || '').trim();
   if (!code) {
     return null;
@@ -232,6 +243,9 @@ const computedActiveMachine = computed(() => {
  * 计算属性：当前激活日志机器
  */
 const computedActiveLogsMachine = computed(() => {
+  /**
+   * 常量：code。
+   */
   const code = String(stateActiveMachineCode.value || '').trim();
   if (!code) {
     return null;
@@ -244,6 +258,9 @@ const computedActiveLogsMachine = computed(() => {
  * 计算属性：当前正在编辑备注的机器
  */
 const computedActiveRemarkEditingMachine = computed(() => {
+  /**
+   * 常量：code。
+   */
   const code = String(stateActiveRemarkEditingMachineCode.value || '').trim();
   if (!code) {
     return null;
@@ -256,6 +273,9 @@ const computedActiveRemarkEditingMachine = computed(() => {
  * 计算属性：当前正在编辑备注的容器
  */
 const computedActiveRemarkEditingWrap = computed(() => {
+  /**
+   * 常量：code。
+   */
   const code = String(stateActiveRemarkEditingMachineCode.value || '').trim();
   if (!code) {
     return null;
@@ -268,12 +288,21 @@ const computedActiveRemarkEditingWrap = computed(() => {
  * 计算属性：Slideover 标题
  */
 const computedDialogTitle = computed(() => {
+  /**
+   * 常量：machine。
+   */
   const machine = computedActiveMachine.value;
   if (!machine) {
-    return '场景守护';
+    return t('components.sentinel.scenes.card.dialogs.guardTitle');
   }
 
+  /**
+   * 常量：name。
+   */
   const name = String(machine.machineName || '').trim() || t('components.sentinel.scenes.card.machine.unnamed');
+  /**
+   * 常量：code。
+   */
   const code = String(machine.machineCode || '').trim();
   return code ? `${name} · ${code}` : name;
 });
@@ -291,6 +320,9 @@ const remarkEditingGet = (machineCode: string): boolean => Boolean(stateRemarkEd
  * @returns {string} 备注草稿
  */
 const remarkDraftGet = (machineCode: string): string => {
+  /**
+   * 常量：code。
+   */
   const code = String(machineCode || '').trim();
   return code ? String(stateRemarkDraftByMachineCode.value[code] ?? '') : '';
 };
@@ -302,6 +334,9 @@ const remarkDraftGet = (machineCode: string): string => {
  */
 const remarkInputWrapRef = (machineCode: string) => {
   return (el: unknown): void => {
+    /**
+     * 常量：code。
+     */
     const code = String(machineCode || '').trim();
     if (!code) {
       return;
@@ -317,11 +352,17 @@ const remarkInputWrapRef = (machineCode: string) => {
  * @returns {HTMLInputElement | null} 输入框元素
  */
 const getRemarkInputEl = (machineCode: string): HTMLInputElement | null => {
+  /**
+   * 常量：code。
+   */
   const code = String(machineCode || '').trim();
   if (!code) {
     return null;
   }
 
+  /**
+   * 常量：wrap。
+   */
   const wrap = stateRemarkInputWrapByMachineCode.value[code];
   if (!wrap) {
     return null;
@@ -369,6 +410,9 @@ const handleMachineLogsOpen = (machineCode: string): void => {
  * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
  */
 const handleRemarkEditStart = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  /**
+   * 常量：code。
+   */
   const code = String(machine?.machineCode || '').trim();
   if (!code) {
     return;
@@ -379,6 +423,9 @@ const handleRemarkEditStart = (machine: IPageSettingsUnattendedScenesMachineRedi
   stateActiveRemarkEditingMachineCode.value = code;
 
   nextTick(() => {
+    /**
+     * 常量：input。
+     */
     const input = getRemarkInputEl(code);
     if (!input) {
       return;
@@ -394,6 +441,9 @@ const handleRemarkEditStart = (machine: IPageSettingsUnattendedScenesMachineRedi
  * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
  */
 const handleRemarkEditCancel = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  /**
+   * 常量：code。
+   */
   const code = String(machine?.machineCode || '').trim();
   if (!code) {
     return;
@@ -412,6 +462,9 @@ const handleRemarkEditCancel = (machine: IPageSettingsUnattendedScenesMachineRed
  * @param {string | number} value 输入值
  */
 const handleRemarkDraftUpdate = (machineCode: string, value: string | number): void => {
+  /**
+   * 常量：code。
+   */
   const code = String(machineCode || '').trim();
   if (!code) {
     return;
@@ -425,6 +478,9 @@ const handleRemarkDraftUpdate = (machineCode: string, value: string | number): v
  * @param {IPageSettingsUnattendedScenesMachineRedisConfig} machine 机器配置
  */
 const handleRemarkSave = (machine: IPageSettingsUnattendedScenesMachineRedisConfig): void => {
+  /**
+   * 常量：machineCode。
+   */
   const machineCode = String(machine?.machineCode || '').trim();
   if (!machineCode) {
     return;
@@ -446,6 +502,9 @@ const handleRemarkSave = (machine: IPageSettingsUnattendedScenesMachineRedisConf
  * 事件：点击备注编辑区外部时取消编辑
  */
 onClickOutside(computedActiveRemarkEditingWrap, () => {
+  /**
+   * 常量：machine。
+   */
   const machine = computedActiveRemarkEditingMachine.value;
   if (!machine) {
     return;
@@ -481,6 +540,9 @@ const scenesCountDisabledGet = (machine: IPageSettingsUnattendedScenesMachineRed
  * @returns {boolean} 是否有日志
  */
 const machineLogsExists = (machineCode: string): boolean => {
+  /**
+   * 常量：code。
+   */
   const code = String(machineCode || '').trim();
   if (!code) {
     return false;

@@ -25,19 +25,17 @@ const themeModeIconMap = {
 } as const;
 
 /**
- * 类型：主题模式偏好
- */
-type TThemeModePreference = keyof typeof themeModeIconMap;
-
-/**
  * 计算属性：图标名称
  */
 const iconName = computed(() => {
+  /**
+   * 常量：pref。
+   */
   const pref = (colorMode.preference ?? 'system') as string;
 
   // 仅接受已显式声明的模式；其它值一律回退 system
   if (pref in themeModeIconMap) {
-    return themeModeIconMap[pref as TThemeModePreference];
+    return themeModeIconMap[pref as keyof typeof themeModeIconMap];
   }
 
   return themeModeIconMap.system;
@@ -48,6 +46,9 @@ const iconName = computed(() => {
  * @param {MouseEvent} event 鼠标事件
  */
 const handleClick = async (event: MouseEvent) => {
+  /**
+   * 常量：el。
+   */
   const el = event.currentTarget as HTMLElement | null;
   await themeModeCycle(el);
 };

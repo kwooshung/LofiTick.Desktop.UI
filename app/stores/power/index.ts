@@ -45,6 +45,9 @@ export const useStorePower = defineStore('power', () => {
       if (hydrating) {
         return;
       }
+      /**
+       * 常量：power。
+       */
       const power = { system: n.policy.system, display: n.policy.display };
       void tauriPower.setPolicy(power);
     },

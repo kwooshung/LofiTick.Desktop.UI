@@ -19,11 +19,6 @@
 
     <UPageCard :title="t('pages.settings.ui.primary.label')" :description="t('pages.settings.ui.primary.description')" variant="naked">
       <div v-if="stateIsMounted" class="mb-5 grid grid-cols-6 gap-3">
-        <!-- <ButtonSettingColors size="lg" :label="t('pages.settings.ui.primary.colors.black')" :selected="appConfig.theme.blackAsPrimary" @click="handleSetBlackAsPrimary(true)">
-          <template #leading>
-            <span class="inline-block size-2 rounded-full bg-black dark:bg-white" />
-          </template>
-        </ButtonSettingColors> -->
         <ButtonSettingColors v-for="color in primaryColors" :key="color" size="lg" :label="t(`pages.settings.ui.primary.colors.${color}`)" :chip="color" :selected="!appConfig.theme.blackAsPrimary && computedPrimary === color" @click="handleSetPrimaryColor(color)" />
       </div>
     </UPageCard>
@@ -116,6 +111,9 @@ const { themeModeSet } = useSettingsThemeMode();
  * @param {MouseEvent} event 鼠标事件
  */
 const onClickColorModeButton = async (mode: string, event: MouseEvent) => {
+  /**
+   * 常量：el。
+   */
   const el = event.currentTarget as HTMLElement | null;
   await themeModeSet(mode as TSettingsThemeMode, el);
 };

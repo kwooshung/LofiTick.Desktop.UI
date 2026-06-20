@@ -1,0 +1,103 @@
+<template>
+  <CrawlersNodesCommonBasic icon-name="i-lucide-text-search" :title="t('components.crawler.blueprint.nodes.wait.text.title')" :description="t('components.crawler.blueprint.nodes.wait.text.description')" header-bg="bg-amber-500" :right-pins="rightPins">
+    <div class="space-y-3">
+      <UFormField :label="t('components.crawler.blueprint.nodes.wait.text.fields.text.label')">
+        <UInput v-model="stateText" class="w-full" :placeholder="t('components.crawler.blueprint.nodes.wait.text.fields.text.placeholder')" />
+      </UFormField>
+
+      <UFormField :label="t('components.crawler.blueprint.nodes.wait.text.fields.timeoutMs.label')">
+        <CrawlersNodesCommonNumberInput id="crawlerWaitTextTimeoutMs" v-model="stateTimeoutMs" :min="100" :step="100" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
+      </UFormField>
+    </div>
+  </CrawlersNodesCommonBasic>
+</template>
+
+<script setup lang="ts">
+import { useNode } from '@vue-flow/core';
+
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+
+/**
+ * 常量：等待文本默认超时时间（毫秒）。
+ */
+const DEFAULT_TIMEOUT_MS = 5000;
+
+/**
+ * Hook：国际化工具。
+ */
+const { t } = useI18n();
+
+/**
+ * Hook：当前节点上下文。
+ */
+const stateNode = useNode();
+
+/**
+ * 状态：是否已完成 node.data 的首次回填。
+ */
+const stateInitialized = ref(false);
+
+/**
+ * 状态：目标文本。
+ */
+const stateText = ref('');
+
+/**
+ * 状态：超时时间（毫秒）。
+ */
+const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
+
+/**
+ * 常量：右侧数据输出引脚配置。
+ */
+const rightPins: IBasicSidePin[] = [
+  {
+    id: 'result-boolean',
+    label: t('components.crawler.blueprint.nodes.wait.text.outputs.boolean'),
+    direction: 'out',
+    dataType: 'boolean',
+    topPercent: 35,
+    description: t('components.crawler.blueprint.nodes.wait.text.outputs.booleanDescription')
+  },
+  {
+    id: 'result-message',
+    label: t('components.crawler.blueprint.nodes.wait.text.outputs.message'),
+    direction: 'out',
+    dataType: 'string',
+    topPercent: 75,
+    description: t('components.crawler.blueprint.nodes.wait.text.outputs.messageDescription')
+  }
+];
+
+/**
+ * 监听：初始化阶段将 node.data 回填到本地状态。
+ */
+watchEffect(() => {
+  if (stateInitialized.value) {
+    return;
+  }
+
+  /**
+   * 常量：data。
+   */
+  const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
+  stateText.value = String(data.text ?? '');
+  stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(100, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;
+  stateInitialized.value = true;
+});
+
+/**
+ * 监听：本地状态变化时回写到 node.data。
+ */
+watch([stateText, stateTimeoutMs], () => {
+  if (!stateInitialized.value) {
+    return;
+  }
+
+  stateNode.node.data = {
+    ...(stateNode.node.data as Record<string, unknown> | undefined),
+    text: stateText.value,
+    timeoutMs: stateTimeoutMs.value
+  };
+});
+</script>

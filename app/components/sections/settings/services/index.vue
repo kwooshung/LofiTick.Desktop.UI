@@ -122,7 +122,13 @@
  * 常量：豆包语音默认资源标识。
  */
 const DEFAULT_VOLC_SPEECH_RESOURCE_ID = 'volc.service_type.10050';
+/**
+ * 常量：DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE。
+ */
 const DEFAULT_VOLC_SPEECH_MALE_SPEAKER_CODE = 'zh_male_dayixiansheng_v2_saturn_bigtts';
+/**
+ * 常量：DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE。
+ */
 const DEFAULT_VOLC_SPEECH_FEMALE_SPEAKER_CODE = 'zh_female_mizaitongxue_v2_saturn_bigtts';
 
 /**
@@ -251,13 +257,22 @@ const defaultServicesSettingsGet = (): ISettingsServices => ({
  * @returns {ISettingsServices} 规范化后的服务凭证设置
  */
 const servicesSettingsResolve = (settings: Record<string, unknown>): ISettingsServices => {
+  /**
+   * 常量：defaults。
+   */
   const defaults = defaultServicesSettingsGet();
+  /**
+   * 常量：servicesRaw。
+   */
   const servicesRaw = settings.services;
 
   if (!servicesRaw || typeof servicesRaw !== 'object' || Array.isArray(servicesRaw)) {
     return defaults;
   }
 
+  /**
+   * 常量：volcSpeechRaw。
+   */
   const volcSpeechRaw = (servicesRaw as Record<string, unknown>).volcSpeech;
 
   if (!volcSpeechRaw || typeof volcSpeechRaw !== 'object' || Array.isArray(volcSpeechRaw)) {
@@ -370,6 +385,9 @@ const handleResetVolcSpeechFemaleSpeakerCode = (): void => {
  * @returns {Promise<void>} 无返回值
  */
 const handleVolcSpeechDocsOpen = async (): Promise<void> => {
+  /**
+   * 常量：href。
+   */
   const href = 'https://www.volcengine.com/docs/6561/1257544';
 
   if (isTauriRuntime.value) {
@@ -405,6 +423,9 @@ const persistServicesRemoteDebounced = (): void => {
  */
 const loadSettings = async (): Promise<void> => {
   if (isTauriRuntime.value) {
+    /**
+     * 函数：settings。
+     */
     const settings = await tauriSettings.get();
     applyServicesSettings(settings);
   }

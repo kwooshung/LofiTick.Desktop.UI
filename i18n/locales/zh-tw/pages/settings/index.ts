@@ -564,6 +564,7 @@ export const settings = {
     description: '集中管理本地任務、伺服器任務與系統任務。',
     tabs: {
       local: '本地任務',
+      detail: '詳情',
       server: '伺服器任務',
       system: '系統任務'
     },
@@ -668,10 +669,23 @@ export const settings = {
       description: '伺服器任務改為直接跳到 1Panel，桌面端這裡只保留入口與提醒。',
       heroTitle: '真正的伺服器排程請直接到 1Panel 管理',
       heroDescription: '桌面端不再鏡像 1Panel 排程列表，也不再要求你在這裡維護 API Key。你只需要設定 1Panel 根網址，之後從這裡一鍵打開排程任務或腳本庫。',
+      fields: {
+        serverTaskLabel: '伺服器任務',
+        realCronLabel: '真實排程任務',
+        realCronDescription: '請到 1Panel 管理真實的伺服器排程任務。',
+        panelBaseLabel: '目前 1Panel 位址',
+        panelBaseDescription: '如果入口位址不正確，請到服務連線調整 1Panel 根網址。'
+      },
       actions: {
         openCronjobs: '開啟 1Panel 排程任務',
         openScriptLibrary: '開啟 1Panel 腳本庫',
         openConnections: '前往服務連線'
+      },
+      quickEntriesTitle: '常用入口',
+      atlas: {
+        title: '導覽入口',
+        description: '依 1Panel 一級欄目直接展開常用入口。',
+        total: '{count} 個入口'
       },
       quickLinks: {
         overview: '開啟 1Panel 概覽',

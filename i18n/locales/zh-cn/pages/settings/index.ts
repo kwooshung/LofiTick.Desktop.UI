@@ -442,6 +442,7 @@
       remoteReady: '云端已就绪',
       remoteMissing: '云端缺失',
       attachmentsDirUnset: '当前还没有配置附件目录。',
+      attachmentsDirUnsetShort: '未设置附件目录',
       podcastGenerateOwnedByCurrentMachine: '当前机器已占用',
       podcastGenerateOwnedByOtherMachine: '其他机器已占用',
       podcastGenerateOwnerIdle: '当前无人占用',
@@ -452,6 +453,7 @@
       headMusicWaitingTitle: '开头音乐还没准备好',
       headMusicNeedAttachmentsDir: '当前还没有配置附件目录。',
       headMusicNeedUpload: '云端还没有这份开头音乐，请先选择音乐并上传。',
+      headMusicCloudMissingAfterLocalReady: '本地已经准备好了，但云端副本还缺失。',
       headMusicNeedSync: '当前机器本地还没有这份开头音乐。开启生成播客时会优先尝试从云端补齐。',
       headMusicNeedPreview: '当前音乐已经存在，但暂时还没有可用的预览地址。'
     },
@@ -465,6 +467,7 @@
         description: '支持拖放和点击选择。上传会直接从前端直传到又拍云，并同步写入当前机器的固定路径。',
         dropLabel: '把 MP3 文件拖到这里',
         dropDescription: '或者点击下面按钮选择文件。建议保持文件简短、响度稳定。',
+        dropActive: '松开即可上传',
         selectFile: '选择文件',
         clearFile: '清空选择',
         confirmUpload: '开始上传',
@@ -474,7 +477,10 @@
       },
       headMusicPreview: {
         title: '{title} 试听',
-        description: '这里可以先试听云端可用的开头音乐。'
+        description: '这里可以先试听云端可用的开头音乐。',
+        loadingTitle: '正在加载试听地址',
+        loadingDescription: '正在从云端获取可播放的预览地址，请稍候。',
+        remoteAddress: '云端地址'
       }
     },
     messages: {
@@ -668,10 +674,23 @@
       description: '服务器任务改为直达 1Panel，桌面端这里只保留跳转和提醒。',
       heroTitle: '去 1Panel 里管理真实的服务器计划任务',
       heroDescription: '桌面端不再镜像 1Panel 计划任务列表，也不再要求你在这里维护 API Key。你只需要配置 1Panel 根域名，然后从这里一键跳到计划任务或脚本库。',
+      fields: {
+        serverTaskLabel: '服务器任务',
+        realCronLabel: '真实计划任务',
+        realCronDescription: '去 1Panel 里管理真实的服务器计划任务。',
+        panelBaseLabel: '当前 1Panel 地址',
+        panelBaseDescription: '如果入口地址不对，去服务连接里修改 1Panel 根域名。'
+      },
       actions: {
         openCronjobs: '打开 1Panel 计划任务',
         openScriptLibrary: '打开 1Panel 脚本库',
         openConnections: '前往服务连接'
+      },
+      quickEntriesTitle: '常用入口',
+      atlas: {
+        title: '导航入口',
+        description: '按 1Panel 一级栏目直接展开常用入口。',
+        total: '{count} 个入口'
       },
       quickLinks: {
         overview: '打开 1Panel 概览',
@@ -737,6 +756,7 @@
     },
     table: {
       name: '任务',
+      detail: '详情',
       group: '分组',
       path: '路径',
       method: '方法',

@@ -1,8 +1,8 @@
 <template>
   <UFieldGroup class="w-full">
-    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" :disabled="readonly || disabled" :class="protocolSelectClass" />
+    <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" :disabled="props.readonly || props.disabled" :class="props.protocolSelectClass" />
 
-    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="readonly" :disabled="disabled" @update:model-value="handleValueInput" @blur="handleInputBlur" />
+    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" @blur="handleInputBlur" />
 
     <slot v-if="slots.actions" name="actions" />
   </UFieldGroup>
@@ -15,7 +15,13 @@ import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSpli
  * 属性：URL 输入组件。
  * @type {IFormUrlInputProps}
  */
-const { placeholder = '', readonly = false, disabled = false, protocolSelectClass = 'w-[118px]', baseUrlOnly = false } = defineProps<IFormUrlInputProps>();
+const props = withDefaults(defineProps<IFormUrlInputProps>(), {
+  placeholder: '',
+  readonly: false,
+  disabled: false,
+  protocolSelectClass: 'w-[118px]',
+  baseUrlOnly: false
+});
 
 /**
  * 数据：组件双向绑定 URL。
@@ -49,17 +55,20 @@ const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
  * 计算属性：输入框占位文本。
  */
 const computedInputPlaceholder = computed(() => {
-  const placeholderValue = String(placeholder || '').trim();
+  /**
+   * 常量：placeholder。
+   */
+  const placeholder = String(props.placeholder || '').trim();
 
-  if (!placeholderValue) {
+  if (!placeholder) {
     return '';
   }
 
-  if (/^https?:\/\//i.test(placeholderValue)) {
-    return splitUrl(placeholderValue).value;
+  if (/^https?:\/\//i.test(placeholder)) {
+    return splitUrl(placeholder).value;
   }
 
-  return placeholderValue;
+  return placeholder;
 });
 
 /**
@@ -68,6 +77,9 @@ const computedInputPlaceholder = computed(() => {
  * @returns {IFormUrlInputSplitResult} 协议与主体内容。
  */
 const splitUrl = (url: string): IFormUrlInputSplitResult => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(url || '').trim();
   if (!raw) {
     return { protocol: 'https', value: '' };
@@ -84,7 +96,10 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
     body = raw.replace(/^https:\/\//i, '');
   }
 
-  if (baseUrlOnly) {
+  if (props.baseUrlOnly) {
+    /**
+     * 常量：matchResult。
+     */
     const matchResult = body.match(/^[^/?#]+/);
     body = matchResult ? matchResult[0] : body;
   }
@@ -99,6 +114,9 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
  * @returns {string} 完整 URL。
  */
 const joinUrl = (protocol: 'http' | 'https', value: string): string => {
+  /**
+   * 函数：normalizedValue。
+   */
   const normalizedValue = String(value || '')
     .trim()
     .replace(/^https?:\/\//i, '');
@@ -106,7 +124,10 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
     return '';
   }
 
-  if (baseUrlOnly) {
+  if (props.baseUrlOnly) {
+    /**
+     * 常量：matchResult。
+     */
     const matchResult = normalizedValue.match(/^[^/?#]+/);
     return matchResult ? matchResult[0] : normalizedValue;
   }
@@ -120,6 +141,9 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
  * @returns {void} 无返回值。
  */
 const syncFromModel = (value: string): void => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(value);
   stateProtocol.value = parsed.protocol;
   stateValue.value = parsed.value;
@@ -131,10 +155,16 @@ const syncFromModel = (value: string): void => {
  * @returns {void} 无返回值。
  */
 const handleValueInput = (value: string | number): void => {
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(String(value ?? ''));
   stateProtocol.value = parsed.protocol;
 
-  if (baseUrlOnly && parsed.value === stateValue.value) {
+  if (props.baseUrlOnly && parsed.value === stateValue.value) {
+    /**
+     * 常量：temp。
+     */
     const temp = stateValue.value;
     stateValue.value = '';
     nextTick(() => {
@@ -145,10 +175,16 @@ const handleValueInput = (value: string | number): void => {
   }
 };
 
+/**
+ * 事件：handleInputBlur。
+ */
 const handleInputBlur = (): void => {
-  if (!baseUrlOnly) {
+  if (!props.baseUrlOnly) {
     return;
   }
+  /**
+   * 函数：parsed。
+   */
   const parsed = splitUrl(joinUrl(stateProtocol.value, stateValue.value));
   if (parsed.value !== stateValue.value) {
     stateValue.value = parsed.value;
@@ -164,6 +200,9 @@ watch(
 );
 
 watch([stateProtocol, stateValue], () => {
+  /**
+   * 常量：nextValue。
+   */
   const nextValue = joinUrl(stateProtocol.value, stateValue.value);
   if (nextValue !== String(model.value || '')) {
     model.value = nextValue;

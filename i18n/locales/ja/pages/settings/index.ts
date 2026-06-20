@@ -564,6 +564,7 @@ export const settings = {
     description: 'ローカルタスク、サーバータスク、システムタスクをまとめて管理します。',
     tabs: {
       local: 'ローカルタスク',
+      detail: '詳細',
       server: 'サーバータスク',
       system: 'システムタスク'
     },
@@ -668,10 +669,23 @@ export const settings = {
       description: 'サーバータスクは 1Panel へ直接移動する方式に変更しました。このページには入口と注意事項だけを残します。',
       heroTitle: '本物のサーバー cron は 1Panel で管理する',
       heroDescription: 'デスクトップ側では 1Panel の cron 一覧をミラーしません。また、この画面で API Key を管理する必要もありません。1Panel のルート URL を 1 つ設定し、ここから計画タスクやスクリプトライブラリへ直接移動してください。',
+      fields: {
+        serverTaskLabel: 'サーバータスク',
+        realCronLabel: '実際の計画タスク',
+        realCronDescription: '実際のサーバー計画タスクは 1Panel で管理してください。',
+        panelBaseLabel: '現在の 1Panel アドレス',
+        panelBaseDescription: '入口 URL が正しくない場合は、サービス接続で 1Panel のルートドメインを修正してください。'
+      },
       actions: {
         openCronjobs: '1Panel 計画タスクを開く',
         openScriptLibrary: '1Panel スクリプトライブラリを開く',
         openConnections: 'サービス接続を開く'
+      },
+      quickEntriesTitle: 'よく使う入口',
+      atlas: {
+        title: 'ナビゲーション入口',
+        description: '1Panel の第 1 階層メニューごとに、よく使う入口を直接展開します。',
+        total: '{count} 件の入口'
       },
       quickLinks: {
         overview: '1Panel 概要を開く',

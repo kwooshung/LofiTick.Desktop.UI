@@ -31,369 +31,19 @@ import type {
 } from '@/components/media/player/plyr/index.types';
 
 /**
- * Props：组件属性
- */
-const { id, autoplay, poster, sources, tracks, options: propsOptions = {}, waveformPath, waveformHeight = 40, waveformViewBoxWidth = 370, waveformViewBoxHeight = 32, type = 'auto' } = defineProps<IMediaPlyrProps>();
-
-/**
- * 常量：实例 id 自增计数
- */
-let mediaPlyrIdCount = 0;
-
-/**
- * 常量：Plyr 实例集合（用于同页互斥播放）
- * - 仅在客户端生命周期内使用
- */
-const MEDIA_PLYR_INSTANCE_SET = (() => {
-  /**
-   * 常量：全局注册表 key（用于 HMR/重复模块加载下保持单例）
-   */
-  const key = '__LOFI_TICK_MEDIA_PLYR_INSTANCE_SET__';
-
-  const globalStore = globalThis as unknown as Record<string, unknown>;
-  const existing = globalStore[key];
-
-  if (existing instanceof Set) {
-    return existing as Set<Plyr>;
-  }
-
-  const created = new Set<Plyr>();
-  globalStore[key] = created;
-
-  return created;
-})();
-
-/**
- * 函数：暂停其它 Plyr 实例（用于同页互斥播放）
- * @param {Plyr} self 当前实例
- * @returns {void} 无返回值
- */
-const mediaPlyrPauseOthers = (self: Plyr): void => {
-  MEDIA_PLYR_INSTANCE_SET.forEach((player) => {
-    if (player === self) {
-      return;
-    }
-
-    try {
-      player.pause();
-    } catch {
-      // ignore
-    }
-  });
-};
-
-/**
- * 函数：生成播放器 id
- * @returns {string} 播放器 id
- */
-const mediaPlyrIdGet = (): string => {
-  mediaPlyrIdCount += 1;
-
-  return `media-plyr-${Date.now()}-${mediaPlyrIdCount}`;
-};
-
-/**
- * 函数：微任务调度（用于把焦点恢复放到事件链之后执行）
- * @param {() => void} fn 回调
- * @returns {void} 无返回值
- */
-const mediaPlyrQueueMicrotask = (fn: () => void): void => {
-  if (typeof queueMicrotask === 'function') {
-    queueMicrotask(fn);
-    return;
-  }
-
-  Promise.resolve().then(fn);
-};
-
-/**
- * 函数：将数值限制在 0~1
- * @param {number} val 数值
- * @returns {number} 结果
- */
-const mediaPlyrClamp01 = (val: number): number => {
-  if (!Number.isFinite(val)) {
-    return 0;
-  }
-
-  if (val < 0) {
-    return 0;
-  }
-  if (val > 1) {
-    return 1;
-  }
-
-  return val;
-};
-
-/**
- * 函数：获取 Plyr container 元素
- * @param {Plyr} player Plyr 实例
- * @returns {HTMLElement | null} container 元素
- */
-const mediaPlyrContainerGet = (player: Plyr): HTMLElement | null => {
-  const container = (player.elements as unknown as { container?: unknown } | undefined)?.container;
-
-  if (container instanceof HTMLElement) {
-    return container;
-  }
-
-  return null;
-};
-
-/**
- * 函数：确保 Plyr container 可被脚本聚焦
- * @param {HTMLElement} container container
- * @returns {void} 无返回值
- */
-const mediaPlyrContainerFocusableEnsure = (container: HTMLElement): void => {
-  // 仅允许脚本聚焦，避免影响 Tab 顺序
-  if (!container.hasAttribute('tabindex')) {
-    container.setAttribute('tabindex', '-1');
-  }
-};
-
-/**
- * 函数：是否需要把焦点恢复到 container（避免打断输入控件交互）
- * @param {HTMLElement} container container
- * @returns {boolean} 是否需要恢复
- */
-const mediaPlyrFocusRestoreNeed = (container: HTMLElement): boolean => {
-  const active = document.activeElement;
-
-  if (!(active instanceof HTMLElement)) {
-    return true;
-  }
-
-  // 焦点不在播放器内部：恢复到 container 以启用快捷键
-  if (!container.contains(active)) {
-    return true;
-  }
-
-  // 焦点在可编辑/输入控件上：避免抢焦点
-  if (active.matches('input, textarea, select, [contenteditable]')) {
-    return false;
-  }
-
-  return true;
-};
-
-/**
- * 函数：将焦点恢复到 container（用于启用 keyboard.focused 模式快捷键）
- * @param {Plyr} player Plyr 实例
- * @returns {void} 无返回值
- */
-const mediaPlyrFocusRestoreToContainer = (player: Plyr): void => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  const container = mediaPlyrContainerGet(player);
-  if (!container) {
-    return;
-  }
-
-  if (!mediaPlyrFocusRestoreNeed(container)) {
-    return;
-  }
-
-  mediaPlyrContainerFocusableEnsure(container);
-
-  // 放到事件链之后：确保不会停留在播放按钮（space 会被 Plyr 特判跳过）
-  mediaPlyrQueueMicrotask(() => {
-    try {
-      container.focus({ preventScroll: true });
-    } catch {
-      container.focus();
-    }
-  });
-};
-
-/**
- * 函数：是否启用互斥播放（基于 Plyr config.autopause）
- * @param {Plyr} player Plyr 实例
- * @returns {boolean} 是否启用
- */
-const mediaPlyrAutopauseEnabledGet = (player: Plyr): boolean => {
-  const config = (player as unknown as { config?: IMediaPlyrInstanceConfigMinimum }).config;
-
-  // 默认启用；显式设置为 false 才禁用
-  return config?.autopause !== false;
-};
-
-/**
- * 状态：seekToPlay 事件清理控制器
- */
-const stateSeekToPlayAbortController = shallowRef<AbortController | null>(null);
-
-/**
- * 函数：是否启用 seekToPlay（基于 Plyr config.seekToPlay）
- * @param {Plyr} player Plyr 实例
- * @returns {boolean} 是否启用
- */
-const mediaPlyrSeekToPlayEnabledGet = (player: Plyr): boolean => {
-  const config = (player as unknown as { config?: IMediaPlyrConfig }).config;
-
-  // 默认启用；显式设置为 false 才禁用
-  return config?.seekToPlay !== false;
-};
-
-/**
- * 函数：清理 seekToPlay 监听
- * @returns {void} 无返回值
- */
-const mediaPlyrSeekToPlayCleanup = (): void => {
-  if (!stateSeekToPlayAbortController.value) {
-    return;
-  }
-
-  try {
-    stateSeekToPlayAbortController.value.abort();
-  } catch {
-    // ignore
-  }
-
-  stateSeekToPlayAbortController.value = null;
-};
-
-/**
- * 状态：波形相关事件清理控制器
- */
-const stateWaveformAbortController = shallowRef<AbortController | null>(null);
-
-/**
- * 函数：清理波形相关事件监听
- * @returns {void} 无返回值
- */
-const mediaPlyrWaveformCleanup = (): void => {
-  // 先清理自定义 DOM（避免多次整合导致混乱）
-  mediaPlyrWaveformCustomProgressCleanup();
-  stateWaveformTeleportTarget.value = null;
-
-  if (stateWaveformAbortController.value) {
-    try {
-      stateWaveformAbortController.value.abort();
-    } catch {
-      // ignore
-    }
-
-    stateWaveformAbortController.value = null;
-  }
-};
-
-/**
- * Hook：i18n
- */
-const { locale, tm } = useI18n();
-
-/**
- * 常量：Plyr settings 默认值（按官方 README 文档口径）
- */
-const MEDIA_PLYR_SETTINGS_DEFAULT: NonNullable<IMediaPlyrConfig['settings']> = ['captions', 'quality', 'speed', 'loop'];
-
-/**
- * 常量：Plyr controls 默认值（包含 duration，总时长）
- */
-const MEDIA_PLYR_CONTROLS_DEFAULT: TMediaPlyrConfigControls[] = ['play-large', 'play', 'current-time', 'progress', 'duration', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'];
-
-/**
- * 引用：播放器 DOM 元素
- */
-const refElement = ref<HTMLVideoElement | HTMLAudioElement | HTMLDivElement | null>(null);
-
-/**
- * 状态：播放器 id
- */
-const stateIdGenerated = ref(mediaPlyrIdGet());
-
-/**
- * 状态：播放器 id
- */
-const stateId = computed(() => id || stateIdGenerated.value);
-
-/**
- * 状态：Plyr 实例
- */
-const statePlayer = shallowRef<Plyr | null>(null);
-
-/**
- * 状态：Plyr 构造器（缓存）
- */
-const statePlyrCtor = shallowRef<TPlyrCtor | null>(null);
-
-/**
- * 函数：获取 Plyr 构造器（动态导入 + 兼容 default 包装）
- * @returns {Promise<TPlyrCtor>} Plyr 构造器
- */
-const mediaPlyrCtorGet = async (): Promise<TPlyrCtor> => {
-  if (!import.meta.client) {
-    throw new Error('Plyr 仅支持在客户端初始化');
-  }
-
-  if (statePlyrCtor.value) {
-    return statePlyrCtor.value;
-  }
-
-  const mod = await import('plyr');
-  let candidate: unknown = (mod as unknown as { default?: unknown }).default ?? (mod as unknown);
-
-  // 某些打包/互操作场景会出现多层 default
-  while (candidate && typeof candidate === 'object' && 'default' in (candidate as Record<string, unknown>)) {
-    candidate = (candidate as { default?: unknown }).default ?? candidate;
-  }
-
-  if (typeof candidate !== 'function') {
-    throw new TypeError('PlyrCtor is not a constructor');
-  }
-
-  statePlyrCtor.value = candidate as TPlyrCtor;
-  return statePlyrCtor.value;
-};
-
-/**
- * 函数：规范化媒体源数组
- * @param {string | IMediaPlyrSource | IMediaPlyrSource[]} sources 媒体源
- * @returns {IMediaPlyrSource[]} 规范化后的媒体源数组
- */
-const mediaPlyrSourcesNormalize = (sources: string | IMediaPlyrSource | IMediaPlyrSource[]): IMediaPlyrSource[] => {
-  if (typeof sources === 'string') {
-    const provider = mediaPlyrSourceProviderFromUrlSrcGet(sources) ?? 'html5';
-
-    return [{ src: sources, provider }];
-  }
-
-  if (Array.isArray(sources)) {
-    return sources;
-  }
-
-  return [sources];
-};
-
-/**
- * 接口：媒体源 URL Provider 识别规则
- */
-interface IMediaPlyrSourceUrlProviderRule {
-  /**
-   * 提供者
-   */
-  provider: Exclude<TMediaPlyrSourceProvider, 'html5'>;
-
-  /**
-   * 函数：判断是否匹配
-   * @param {URL} url URL
-   * @returns {boolean} 是否匹配
-   */
-  match: (url: URL) => boolean;
-}
-
-/**
  * 常量：媒体源 URL Provider 识别规则（便于扩展其他平台）
  */
 const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = [
   {
     provider: 'youtube',
     match: (url) => {
+      /**
+       * 常量：host。
+       */
       const host = url.hostname.toLowerCase();
+      /**
+       * 常量：path。
+       */
       const path = url.pathname.toLowerCase();
 
       if (host === 'youtu.be' || host.endsWith('.youtu.be')) {
@@ -410,7 +60,13 @@ const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = 
   {
     provider: 'vimeo',
     match: (url) => {
+      /**
+       * 常量：host。
+       */
       const host = url.hostname.toLowerCase();
+      /**
+       * 常量：path。
+       */
       const path = url.pathname.toLowerCase();
 
       if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
@@ -432,6 +88,9 @@ const MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES: IMediaPlyrSourceUrlProviderRule[] = 
  * @returns {Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined} 推断结果
  */
 const mediaPlyrSourceProviderFromUrlGet = (url: URL): Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined => {
+  /**
+   * 常量：hit。
+   */
   const hit = MEDIA_PLYR_SOURCE_URL_PROVIDER_RULES.find((rule) => rule.match(url));
   return hit?.provider;
 };
@@ -442,6 +101,9 @@ const mediaPlyrSourceProviderFromUrlGet = (url: URL): Exclude<TMediaPlyrSourcePr
  * @returns {Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined} 推断结果
  */
 const mediaPlyrSourceProviderFromUrlSrcGet = (src: string): Exclude<TMediaPlyrSourceProvider, 'html5'> | undefined => {
+  /**
+   * 常量：raw。
+   */
   const raw = src.trim();
 
   // 非 URL（相对路径、EmbedId 等）不做解析
@@ -465,6 +127,9 @@ const mediaPlyrSourceProviderFromUrlSrcGet = (src: string): Exclude<TMediaPlyrSo
  * @returns {boolean} 是否为音频
  */
 const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
+  /**
+   * 常量：raw。
+   */
   const raw = src.trim();
 
   if (!raw) {
@@ -476,14 +141,26 @@ const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
     return false;
   }
 
+  /**
+   * 常量：cleaned。
+   */
   const cleaned = raw.split('#')[0]?.split('?')[0] ?? raw;
+  /**
+   * 常量：dotIndex。
+   */
   const dotIndex = cleaned.lastIndexOf('.');
 
   if (dotIndex === -1) {
     return false;
   }
 
+  /**
+   * 常量：ext。
+   */
   const ext = cleaned.slice(dotIndex + 1).toLowerCase();
+  /**
+   * 常量：audioExts。
+   */
   const audioExts = new Set(['mp3', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'flac', 'opus']);
 
   return audioExts.has(ext);
@@ -495,6 +172,9 @@ const mediaPlyrSrcIsAudioInfer = (src: string): boolean => {
  * @returns {string} BCP 47 语言标签
  */
 const mediaPlyrLocaleToBcp47 = (val: string): string => {
+  /**
+   * 常量：lower。
+   */
   const lower = val.trim().toLowerCase();
 
   if (lower === 'zh-cn') {
@@ -536,7 +216,13 @@ const stateRenderMode = computed<'video' | 'audio' | 'embed'>(() => {
     return 'embed';
   }
 
+  /**
+   * 常量：firstSource。
+   */
   const firstSource = stateSources.value[0];
+  /**
+   * 常量：firstType。
+   */
   const firstType = firstSource?.type;
 
   if (firstType && firstType.startsWith('audio/')) {
@@ -592,6 +278,9 @@ const stateRootStyle = computed(() => {
     return undefined;
   }
 
+  /**
+   * 常量：height。
+   */
   const height = typeof waveformHeight === 'number' && Number.isFinite(waveformHeight) && waveformHeight > 0 ? waveformHeight : 40;
 
   return {
@@ -640,11 +329,17 @@ const stateWaveformTooltipPinned = shallowRef(false);
  * @returns {void} 无返回值
  */
 const mediaPlyrWaveformSeekHandle = (payload: IMediaAudioWavesSeekPayload): void => {
+  /**
+   * 常量：player。
+   */
   const player = statePlayer.value;
   if (!player) {
     return;
   }
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof stateWaveformDuration.value === 'number' && Number.isFinite(stateWaveformDuration.value) && stateWaveformDuration.value > 0 ? stateWaveformDuration.value : undefined;
   if (!duration) {
     return;
@@ -733,6 +428,9 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
  * @returns {Record<string, unknown>} Plyr source
  */
 const mediaPlyrSourceGet = (): IMediaPlyrPlayerSource => {
+  /**
+   * 常量：type。
+   */
   const type = stateRenderMode.value === 'audio' ? 'audio' : 'video';
 
   /**
@@ -795,11 +493,26 @@ const mediaPlyrWaveformTimeFormatMmSs = (seconds: number): string => {
     return '00:00';
   }
 
+  /**
+   * 函数：totalSeconds。
+   */
   const totalSeconds = Math.floor(seconds);
+  /**
+   * 常量：minutes。
+   */
   const minutes = Math.floor(totalSeconds / 60);
+  /**
+   * 常量：sec。
+   */
   const sec = totalSeconds % 60;
 
+  /**
+   * 常量：mm。
+   */
   const mm = String(minutes).padStart(2, '0');
+  /**
+   * 常量：ss。
+   */
   const ss = String(sec).padStart(2, '0');
 
   return `${mm}:${ss}`;
@@ -852,12 +565,21 @@ const mediaPlyrWaveformTooltipUpdateByPercent = (percent: number): void => {
     return;
   }
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof stateWaveformDuration.value === 'number' && Number.isFinite(stateWaveformDuration.value) && stateWaveformDuration.value > 0 ? stateWaveformDuration.value : undefined;
   if (!duration) {
     return;
   }
 
+  /**
+   * 函数：normalized。
+   */
   const normalized = mediaPlyrClamp01(percent);
+  /**
+   * 常量：time。
+   */
   const time = duration * normalized;
 
   stateWaveformTooltip.value.textContent = mediaPlyrWaveformTimeFormatMmSs(time);
@@ -878,17 +600,26 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
     return;
   }
 
+  /**
+   * 常量：abortController。
+   */
   const abortController = stateWaveformAbortController.value;
   if (!abortController) {
     return;
   }
 
+  /**
+   * 常量：container。
+   */
   const container = mediaPlyrContainerGet(player);
   if (!container) {
     stateWaveformTeleportTarget.value = null;
     return;
   }
 
+  /**
+   * 常量：progressContainer。
+   */
   const progressContainer = container.querySelector('.plyr__controls__item.plyr__progress__container');
   if (!(progressContainer instanceof HTMLElement)) {
     // 找不到 progress container：按约定不做任何操作
@@ -905,6 +636,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   // 防御：避免混乱（先清理再创建）
   mediaPlyrWaveformCustomProgressCleanup();
 
+  /**
+   * 常量：nativeProgress。
+   */
   const nativeProgress = progressContainer.querySelector('.plyr__progress');
   if (!(nativeProgress instanceof HTMLElement)) {
     stateWaveformTeleportTarget.value = null;
@@ -914,9 +648,15 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   nativeProgress.classList.add('media-plyr__progress-native--hidden');
   stateWaveformProgressNative.value = nativeProgress;
 
+  /**
+   * 常量：customProgress。
+   */
   const customProgress = document.createElement('div');
   customProgress.className = 'plyr__progress media-plyr__progress-custom';
 
+  /**
+   * 函数：tooltip。
+   */
   const tooltip = document.createElement('span');
   tooltip.className = 'plyr__tooltip';
   tooltip.textContent = '00:00';
@@ -941,6 +681,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
    * @returns {number | null} 百分比（0~1），无法计算时返回 null
    */
   const percentFromPointerEventGet = (event: PointerEvent): number | null => {
+    /**
+     * 常量：rect。
+     */
     const rect = customProgress.getBoundingClientRect();
     if (!Number.isFinite(rect.width) || rect.width <= 0) {
       return null;
@@ -961,6 +704,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
   customProgress.addEventListener(
     'pointermove',
     (event) => {
+      /**
+       * 常量：percent。
+       */
       const percent = percentFromPointerEventGet(event);
       if (percent === null) {
         return;
@@ -988,6 +734,9 @@ const mediaPlyrWaveformCustomProgressEnsure = (player: Plyr | null): void => {
     (event) => {
       stateWaveformTooltipPinned.value = true;
 
+      /**
+       * 常量：percent。
+       */
       const percent = percentFromPointerEventGet(event);
       if (percent !== null) {
         mediaPlyrWaveformTooltipUpdateByPercent(percent);
@@ -1037,13 +786,31 @@ const mediaPlyrWaveformSync = (player: Plyr | null): void => {
     return;
   }
 
+  /**
+   * 常量：candidate。
+   */
   const candidate = player as unknown as { media?: unknown; currentTime?: unknown; duration?: unknown };
+  /**
+   * 常量：media。
+   */
   const media = candidate.media instanceof HTMLMediaElement ? candidate.media : null;
 
+  /**
+   * 常量：durationRaw。
+   */
   const durationRaw = (typeof candidate.duration === 'number' ? candidate.duration : undefined) ?? (media ? media.duration : undefined);
+  /**
+   * 常量：currentTimeRaw。
+   */
   const currentTimeRaw = (typeof candidate.currentTime === 'number' ? candidate.currentTime : undefined) ?? (media ? media.currentTime : undefined);
 
+  /**
+   * 常量：duration。
+   */
   const duration = typeof durationRaw === 'number' && Number.isFinite(durationRaw) && durationRaw > 0 ? durationRaw : undefined;
+  /**
+   * 常量：currentTime。
+   */
   const currentTime = typeof currentTimeRaw === 'number' && Number.isFinite(currentTimeRaw) && currentTimeRaw >= 0 ? currentTimeRaw : 0;
 
   stateWaveformDuration.value = duration;
@@ -1055,14 +822,17 @@ const mediaPlyrWaveformSync = (player: Plyr | null): void => {
  * @returns {void} 无返回值
  */
 const mediaPlyrCreate = async (): Promise<void> => {
-  if (!refElement.value) {
+  if (!stateRefElement.value) {
     return;
   }
 
   mediaPlyrDestroy();
 
+  /**
+   * 常量：PlyrCtor。
+   */
   const PlyrCtor = await mediaPlyrCtorGet();
-  statePlayer.value = new PlyrCtor(refElement.value, mediaPlyrOptionsGet());
+  statePlayer.value = new PlyrCtor(stateRefElement.value, mediaPlyrOptionsGet());
 
   /**
    * 常量：当前 Plyr 实例
@@ -1083,7 +853,13 @@ const mediaPlyrCreate = async (): Promise<void> => {
     mediaPlyrWaveformSync(player);
   });
   {
+    /**
+     * 常量：abortController。
+     */
     const abortController = stateWaveformAbortController.value;
+    /**
+     * 常量：media。
+     */
     const media = (player as unknown as { media?: unknown }).media;
 
     if (abortController && media instanceof HTMLMediaElement) {
@@ -1112,6 +888,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
    */
   const playerPlaySafe = (): void => {
     try {
+      /**
+       * 常量：result。
+       */
       const result = player.play() as unknown;
       if (result && typeof (result as Promise<unknown>).catch === 'function') {
         (result as Promise<unknown>).catch(() => {
@@ -1157,6 +936,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
   if (mediaPlyrSeekToPlayEnabledGet(player)) {
     mediaPlyrSeekToPlayCleanup();
 
+    /**
+     * 常量：abortController。
+     */
     const abortController = new AbortController();
     stateSeekToPlayAbortController.value = abortController;
 
@@ -1180,6 +962,9 @@ const mediaPlyrCreate = async (): Promise<void> => {
      */
     let stateSeekInteractEndAt = 0;
 
+    /**
+     * 常量：container。
+     */
     const container = mediaPlyrContainerGet(player);
 
     /**

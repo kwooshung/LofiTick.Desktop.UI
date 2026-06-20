@@ -1,42 +1,4 @@
-export type TUnattendedScenesSyncChoice = 'local' | 'remote' | 'merge';
-
-export type TUnattendedScenesSyncStatus = 'local-only' | 'remote-only' | 'same' | 'conflict';
-
-/**
- * 接口：场景同步对比条目
- */
-export interface IUnattendedScenesSyncEntry {
-  /** 场景 ID */
-  sceneId: string;
-  /** 展示名称 */
-  sceneName: string;
-  /** 差异状态 */
-  status: TUnattendedScenesSyncStatus;
-  /** 本地版本 */
-  local?: IPageSettingsUnattendedScenesItem;
-  /** 远程版本 */
-  remote?: IPageSettingsUnattendedScenesItem;
-  /** 本地路径是否存在 */
-  localExecExists?: boolean;
-  /** 远程路径是否存在 */
-  remoteExecExists?: boolean;
-}
-
-/**
- * 接口：场景同步弹窗载荷
- */
-export interface IUnattendedScenesSyncPayload {
-  /** 机器码 */
-  machineCode: string;
-  /** 机器名称 */
-  machineName: string;
-  /** 本地场景副本 */
-  local: ISettingsUnattendedScenesLocal;
-  /** 远程场景配置 */
-  remote: IPageSettingsUnattendedScenesMachineRedisConfig | null;
-  /** 对比条目 */
-  entries: IUnattendedScenesSyncEntry[];
-}
+import type { IUnattendedScenesSyncChoice, IUnattendedScenesSyncEntriesBuildArgs, IUnattendedScenesSyncEntry, IUnattendedScenesSyncPayload, TUnattendedScenesSyncStatus } from '@/composables/hooks/useUnattendedScenesSync/index.types';
 
 /**
  * 函数：创建空本地场景副本。
@@ -67,7 +29,13 @@ export const unattendedScenesItemsNormalize = (items: unknown): IPageSettingsUna
   }
 
   return items.map((item) => {
+    /**
+     * 常量：src。
+     */
     const src = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
+    /**
+     * 常量：args。
+     */
     const args = Array.isArray(src.args) ? src.args.map((value) => String(value ?? '')) : [];
 
     return {
@@ -93,6 +61,9 @@ export const unattendedScenesItemsNormalize = (items: unknown): IPageSettingsUna
  * 返回规范化后的本地场景副本。
  */
 export const unattendedScenesLocalNormalize = (input: unknown): ISettingsUnattendedScenesLocal => {
+  /**
+   * 常量：src。
+   */
   const src = input && typeof input === 'object' && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
 
   return {
@@ -114,9 +85,15 @@ export const unattendedScenesLocalNormalize = (input: unknown): ISettingsUnatten
  * 返回合并结果。
  */
 export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnattendedScenesItem[], remoteItems: IPageSettingsUnattendedScenesItem[]): IPageSettingsUnattendedScenesItem[] => {
+  /**
+   * 函数：merged。
+   */
   const merged = new Map<string, IPageSettingsUnattendedScenesItem>();
 
   for (const item of remoteItems) {
+    /**
+     * 常量：id。
+     */
     const id = String(item?.id ?? '').trim();
     if (!id) {
       continue;
@@ -125,6 +102,9 @@ export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnatte
   }
 
   for (const item of localItems) {
+    /**
+     * 常量：id。
+     */
     const id = String(item?.id ?? '').trim();
     if (!id) {
       continue;
@@ -148,12 +128,27 @@ export const unattendedScenesMergePreferLocal = (localItems: IPageSettingsUnatte
  *
  * 返回按重要性排序的对比条目。
  */
-export const unattendedScenesSyncEntriesBuild = (args: { local: ISettingsUnattendedScenesLocal; remote: IPageSettingsUnattendedScenesMachineRedisConfig | null; execExistsByPath: Record<string, boolean> }): IUnattendedScenesSyncEntry[] => {
+export const unattendedScenesSyncEntriesBuild = (args: IUnattendedScenesSyncEntriesBuildArgs): IUnattendedScenesSyncEntry[] => {
+  /**
+   * 常量：localItems。
+   */
   const localItems = unattendedScenesItemsNormalize(args.local.items);
+  /**
+   * 常量：remoteItems。
+   */
   const remoteItems = unattendedScenesItemsNormalize(args.remote?.items);
 
+  /**
+   * 常量：localMap。
+   */
   const localMap = new Map(localItems.map((item) => [String(item.id || '').trim(), item]));
+  /**
+   * 常量：remoteMap。
+   */
   const remoteMap = new Map(remoteItems.map((item) => [String(item.id || '').trim(), item]));
+  /**
+   * 常量：ids。
+   */
   const ids = Array.from(new Set([...localMap.keys(), ...remoteMap.keys()])).filter((id) => id !== '');
 
   const statusWeight: Record<TUnattendedScenesSyncStatus, number> = {
@@ -165,7 +160,13 @@ export const unattendedScenesSyncEntriesBuild = (args: { local: ISettingsUnatten
 
   return ids
     .map((id) => {
+      /**
+       * 常量：local。
+       */
       const local = localMap.get(id);
+      /**
+       * 常量：remote。
+       */
       const remote = remoteMap.get(id);
 
       let status: TUnattendedScenesSyncStatus = 'conflict';
@@ -188,6 +189,9 @@ export const unattendedScenesSyncEntriesBuild = (args: { local: ISettingsUnatten
       } satisfies IUnattendedScenesSyncEntry;
     })
     .sort((left, right) => {
+      /**
+       * 常量：weight。
+       */
       const weight = statusWeight[left.status] - statusWeight[right.status];
       if (weight !== 0) {
         return weight;
@@ -197,7 +201,7 @@ export const unattendedScenesSyncEntriesBuild = (args: { local: ISettingsUnatten
     });
 };
 
-let resolveCurrent: ((choice: TUnattendedScenesSyncChoice) => void) | null = null;
+let resolveCurrent: ((choice: IUnattendedScenesSyncChoice) => void) | null = null;
 
 /**
  * Hook：无人值守场景同步弹窗。
@@ -207,7 +211,13 @@ let resolveCurrent: ((choice: TUnattendedScenesSyncChoice) => void) | null = nul
  * 返回弹窗状态与控制方法。
  */
 export const useUnattendedScenesSyncDialog = () => {
+  /**
+   * 状态：stateOpen。
+   */
   const stateOpen = useState<boolean>('unattended-scenes-sync-open', () => false);
+  /**
+   * 状态：statePayload。
+   */
   const statePayload = useState<IUnattendedScenesSyncPayload | null>('unattended-scenes-sync-payload', () => null);
 
   /**
@@ -221,11 +231,11 @@ export const useUnattendedScenesSyncDialog = () => {
    *
    * 返回用户最终选择。
    */
-  const request = async (payload: IUnattendedScenesSyncPayload): Promise<TUnattendedScenesSyncChoice> => {
+  const request = async (payload: IUnattendedScenesSyncPayload): Promise<IUnattendedScenesSyncChoice> => {
     statePayload.value = payload;
     stateOpen.value = true;
 
-    return await new Promise<TUnattendedScenesSyncChoice>((resolve) => {
+    return await new Promise<IUnattendedScenesSyncChoice>((resolve) => {
       resolveCurrent = resolve;
     });
   };
@@ -237,9 +247,12 @@ export const useUnattendedScenesSyncDialog = () => {
    *
    * * `choice` - 用户选择。
    */
-  const settle = (choice: TUnattendedScenesSyncChoice): void => {
+  const settle = (choice: IUnattendedScenesSyncChoice): void => {
     stateOpen.value = false;
 
+    /**
+     * 常量：current。
+     */
     const current = resolveCurrent;
     resolveCurrent = null;
     current?.(choice);

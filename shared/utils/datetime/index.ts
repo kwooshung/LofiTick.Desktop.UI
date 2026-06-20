@@ -133,9 +133,18 @@ export class DateTime {
     if (!text) {
       throw new Error('Invalid date string');
     }
+    /**
+     * 常量：looksIsoOrHasTz。
+     */
     const looksIsoOrHasTz = /[Tt]|[zZ]|[+-]\d{2}:\d{2}$/.test(text);
     if (looksIsoOrHasTz) {
+      /**
+       * 常量：d。
+       */
       const d = dayjs(text);
+      /**
+       * 函数：isUtcLike。
+       */
       const isUtcLike = /[zZ]$|[+-]\d{2}:\d{2}$/.test(text);
       // 若含 Z 或显式偏移，标记为 Utc，否则 Unspecified
       return new DateTime(dayjs(text).utc ? dayjs(text).utc() : d, isUtcLike ? EDateTimeKind.Utc : EDateTimeKind.Unspecified);
@@ -154,6 +163,9 @@ export class DateTime {
       return null;
     }
     try {
+      /**
+       * 常量：dt。
+       */
       const dt = DateTime.parse(text);
       if (!dt.isValid()) {
         return null;
@@ -177,6 +189,9 @@ export class DateTime {
       throw new Error('Invalid date string');
     }
 
+    /**
+     * 函数：hasTz。
+     */
     const hasTz = /[zZ]|[+-]\d{2}:\d{2}$/.test(text) || text.includes('T');
 
     if (hasTz) {

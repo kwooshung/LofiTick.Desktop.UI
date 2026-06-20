@@ -234,17 +234,17 @@ const { t } = useI18n();
 /**
  * 状态：当前聚焦的模板片段索引。
  */
-const activeTemplateItemIndex = ref<number | null>(null);
+const stateActiveTemplateItemIndex = ref<number | null>(null);
 
 /**
  * 状态：当前文案光标起点。
  */
-const activeTemplateItemSelectionStart = ref<number | null>(null);
+const stateActiveTemplateItemSelectionStart = ref<number | null>(null);
 
 /**
  * 状态：当前文案光标终点。
  */
-const activeTemplateItemSelectionEnd = ref<number | null>(null);
+const stateActiveTemplateItemSelectionEnd = ref<number | null>(null);
 
 /**
  * 状态：本地模板片段列表。
@@ -254,12 +254,12 @@ const stateTemplateItems = ref<ISettingsHotsearchPodcastTemplateItem[]>([]);
 /**
  * 状态：模板片段稳定渲染键列表。
  */
-const templateItemRenderKeys = ref<string[]>([]);
+const stateTemplateItemRenderKeys = ref<string[]>([]);
 
 /**
  * 变量：片段输入框 DOM 引用。
  */
-const templateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
+const stateTemplateItemInputElements = ref<Array<HTMLInputElement | null>>([]);
 
 /**
  * 状态：当前是否处于模板拖拽中。
@@ -278,6 +278,9 @@ const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right
   }
 
   return left.every((item, index) => {
+    /**
+     * 常量：target。
+     */
     const target = right[index];
 
     if (!target) {
@@ -299,7 +302,7 @@ watch(
     }
 
     stateTemplateItems.value = [...value];
-    templateItemRenderKeys.value = value.map((_, index) => templateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
+    stateTemplateItemRenderKeys.value = value.map((_, index) => stateTemplateItemRenderKeys.value[index] ?? templateItemRenderKeyCreate());
   },
   {
     deep: true,
@@ -392,13 +395,16 @@ const templateItemStateIndexGet = (item: ISettingsHotsearchPodcastTemplateItem):
  * @returns {string} 渲染键。
  */
 const templateItemRenderKeyGet = (item: ISettingsHotsearchPodcastTemplateItem): string => {
+  /**
+   * 常量：index。
+   */
   const index = templateItemStateIndexGet(item);
 
   if (index < 0) {
     return templateItemRenderKeyCreate();
   }
 
-  return templateItemRenderKeys.value[index] ?? `template-item-${index}`;
+  return stateTemplateItemRenderKeys.value[index] ?? `template-item-${index}`;
 };
 
 /**
@@ -424,6 +430,9 @@ const handleTemplateDragEnd = async (): Promise<void> => {
  * @returns {string} 中文日期。
  */
 const numberToChineseDateText = (value: number): string => {
+  /**
+   * 常量：numerals。
+   */
   const numerals = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
   if (value <= 0) {
@@ -463,11 +472,17 @@ const lunarDateTextNormalize = (value: string): string => {
  * @returns {string} 归一化后的农历年月日。
  */
 const lunarDateTimeTextGet = (value: Date): string => {
+  /**
+   * 常量：lunarRawDateTime。
+   */
   const lunarRawDateTime = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   }).format(value);
+  /**
+   * 函数：normalized。
+   */
   const normalized = lunarDateTextNormalize(lunarRawDateTime.replace(/^\d+/, ''));
 
   return normalized.startsWith('农历') ? normalized : `农历${normalized}`;
@@ -479,6 +494,9 @@ const lunarDateTimeTextGet = (value: Date): string => {
  * @returns {string} 带中文书名号的节目名称。
  */
 const programNameRender = (value: string): string => {
+  /**
+   * 函数：normalized。
+   */
   const normalized = String(value || '')
     .trim()
     .replace(/^《/, '')
@@ -494,29 +512,80 @@ const programNameRender = (value: string): string => {
  * @returns {string} 示例值。
  */
 const hotsearchPodcastVariableExampleGet = (token: string): string => {
+  /**
+   * 常量：now。
+   */
   const now = new Date();
+  /**
+   * 常量：solarYear。
+   */
   const solarYear = now.getFullYear();
+  /**
+   * 常量：solarMonth。
+   */
   const solarMonth = now.getMonth() + 1;
+  /**
+   * 常量：solarDay。
+   */
   const solarDay = now.getDate();
+  /**
+   * 常量：solarDateTime。
+   */
   const solarDateTime = `${solarYear}年${solarMonth}月${solarDay}日`;
+  /**
+   * 常量：solarDate。
+   */
   const solarDate = `${solarMonth}月${solarDay}日`;
+  /**
+   * 常量：solarTime。
+   */
   const solarTime = new Intl.DateTimeFormat('zh-CN', {
     timeStyle: 'short'
   }).format(now);
+  /**
+   * 常量：lunarRawDate。
+   */
   const lunarRawDate = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
     month: 'long',
     day: 'numeric'
   }).format(now);
+  /**
+   * 常量：lunarDate。
+   */
   const lunarDate = `农历${lunarDateTextNormalize(lunarRawDate)}`;
+  /**
+   * 常量：lunarDateTime。
+   */
   const lunarDateTime = lunarDateTimeTextGet(now);
+  /**
+   * 常量：weekday。
+   */
   const weekday = new Intl.DateTimeFormat('zh-CN', {
     weekday: 'long'
   }).format(now);
+  /**
+   * 常量：maleSpeaker。
+   */
   const maleSpeaker = maleSpeakerName.value || '男声主播';
+  /**
+   * 常量：femaleSpeaker。
+   */
   const femaleSpeaker = femaleSpeakerName.value || '女声主播';
+  /**
+   * 常量：morningProgram。
+   */
   const morningProgram = programNameRender(morningProgramName.value || '洛菲热点早报');
+  /**
+   * 常量：eveningProgram。
+   */
   const eveningProgram = programNameRender(eveningProgramName.value || '洛菲热点晚报');
+  /**
+   * 常量：vipMorningProgram。
+   */
   const vipMorningProgram = programNameRender(vipMorningProgramName.value || '洛菲热点早报 尊享版');
+  /**
+   * 常量：vipEveningProgram。
+   */
   const vipEveningProgram = programNameRender(vipEveningProgramName.value || '洛菲热点晚报 尊享版');
 
   switch (token) {
@@ -569,9 +638,9 @@ const hotsearchPodcastVariableExampleGet = (token: string): string => {
  * @param {string[]} renderKeys 最新渲染键列表。
  * @returns {void} 无返回值。
  */
-const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = templateItemRenderKeys.value): void => {
+const emitTemplateItemsUpdate = (value: ISettingsHotsearchPodcastTemplateItem[], renderKeys: string[] = stateTemplateItemRenderKeys.value): void => {
   stateTemplateItems.value = [...value];
-  templateItemRenderKeys.value = [...renderKeys];
+  stateTemplateItemRenderKeys.value = [...renderKeys];
   emit('update:template-items', value);
 };
 
@@ -636,7 +705,13 @@ const handleVipEveningProgramNameUpdate = (value: string | number): void => {
  * @returns {void} 无返回值。
  */
 const handleTemplateItemVoiceUpdate = (index: number, value: string | number): void => {
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = [...stateTemplateItems.value];
+  /**
+   * 常量：currentItem。
+   */
   const currentItem = nextItems[index];
 
   if (!currentItem) {
@@ -657,7 +732,13 @@ const handleTemplateItemVoiceUpdate = (index: number, value: string | number): v
  * @returns {void} 无返回值。
  */
 const handleTemplateItemContentUpdate = (index: number, value: string | number): void => {
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = [...stateTemplateItems.value];
+  /**
+   * 常量：currentItem。
+   */
   const currentItem = nextItems[index];
 
   if (!currentItem) {
@@ -678,19 +759,34 @@ const handleTemplateItemContentUpdate = (index: number, value: string | number):
  * @returns {void} 无返回值。
  */
 const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | number): void => {
+  /**
+   * 常量：nextSegmentType。
+   */
   const nextSegmentType = String(value || 'normal') as THotsearchPodcastSegmentType;
   if (nextSegmentType === 'adContent') {
     return;
   }
 
+  /**
+   * 常量：templateSegmentType。
+   */
   const templateSegmentType = nextSegmentType as THotsearchPodcastTemplateSegmentType;
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = [...stateTemplateItems.value];
+  /**
+   * 常量：currentItem。
+   */
   const currentItem = nextItems[index];
 
   if (!currentItem) {
     return;
   }
 
+  /**
+   * 函数：isAdPlaceholder。
+   */
   const isAdPlaceholder = nextSegmentType === 'adPlaceholder';
 
   nextItems[index] = {
@@ -699,11 +795,11 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
     segmentType: templateSegmentType
   };
 
-  if (isAdPlaceholder && activeTemplateItemIndex.value === index) {
-    activeTemplateItemIndex.value = null;
-    activeTemplateItemSelectionStart.value = null;
-    activeTemplateItemSelectionEnd.value = null;
-    templateItemInputElements.value[index]?.blur();
+  if (isAdPlaceholder && stateActiveTemplateItemIndex.value === index) {
+    stateActiveTemplateItemIndex.value = null;
+    stateActiveTemplateItemSelectionStart.value = null;
+    stateActiveTemplateItemSelectionEnd.value = null;
+    stateTemplateItemInputElements.value[index]?.blur();
   }
 
   emitTemplateItemsUpdate(nextItems);
@@ -716,16 +812,19 @@ const handleTemplateItemSegmentTypeUpdate = (index: number, value: string | numb
  * @returns {void} 无返回值。
  */
 const handleTemplateItemContentFocus = (index: number, event: Event): void => {
+  /**
+   * 常量：target。
+   */
   const target = event.target;
   if (!(target instanceof HTMLInputElement)) {
-    activeTemplateItemIndex.value = index;
+    stateActiveTemplateItemIndex.value = index;
     return;
   }
 
-  activeTemplateItemIndex.value = index;
-  activeTemplateItemSelectionStart.value = target.selectionStart;
-  activeTemplateItemSelectionEnd.value = target.selectionEnd;
-  templateItemInputElements.value[index] = target;
+  stateActiveTemplateItemIndex.value = index;
+  stateActiveTemplateItemSelectionStart.value = target.selectionStart;
+  stateActiveTemplateItemSelectionEnd.value = target.selectionEnd;
+  stateTemplateItemInputElements.value[index] = target;
 };
 
 /**
@@ -734,20 +833,32 @@ const handleTemplateItemContentFocus = (index: number, event: Event): void => {
  * @returns {void} 无返回值。
  */
 const handleTemplateItemAppend = (templateType: THotsearchPodcastTemplateType): void => {
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = stateTemplateItems.value.slice();
-  const nextRenderKeys = [...templateItemRenderKeys.value, templateItemRenderKeyCreate()];
+  /**
+   * 常量：nextRenderKeys。
+   */
+  const nextRenderKeys = [...stateTemplateItemRenderKeys.value, templateItemRenderKeyCreate()];
   nextItems.push(hotsearchPodcastTemplateItemDefaultCreate(templateType));
+  /**
+   * 常量：nextIndex。
+   */
   const nextIndex = nextItems.length - 1;
 
   stateTemplateItems.value = nextItems;
-  templateItemRenderKeys.value = nextRenderKeys;
+  stateTemplateItemRenderKeys.value = nextRenderKeys;
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
-  activeTemplateItemIndex.value = nextIndex;
-  activeTemplateItemSelectionStart.value = 0;
-  activeTemplateItemSelectionEnd.value = 0;
+  stateActiveTemplateItemIndex.value = nextIndex;
+  stateActiveTemplateItemSelectionStart.value = 0;
+  stateActiveTemplateItemSelectionEnd.value = 0;
 
   void nextTick().then(() => {
-    const inputElement = templateItemInputElements.value[nextIndex];
+    /**
+     * 常量：inputElement。
+     */
+    const inputElement = stateTemplateItemInputElements.value[nextIndex];
     inputElement?.focus();
     inputElement?.setSelectionRange(0, 0);
   });
@@ -759,18 +870,24 @@ const handleTemplateItemAppend = (templateType: THotsearchPodcastTemplateType): 
  * @returns {void} 无返回值。
  */
 const handleTemplateItemRemove = (index: number): void => {
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = stateTemplateItems.value.filter((_, itemIndex) => itemIndex !== index);
-  const nextRenderKeys = templateItemRenderKeys.value.filter((_, itemIndex) => itemIndex !== index);
+  /**
+   * 常量：nextRenderKeys。
+   */
+  const nextRenderKeys = stateTemplateItemRenderKeys.value.filter((_, itemIndex) => itemIndex !== index);
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);
-  templateItemInputElements.value = templateItemInputElements.value.filter((_, itemIndex) => itemIndex !== index);
+  stateTemplateItemInputElements.value = stateTemplateItemInputElements.value.filter((_, itemIndex) => itemIndex !== index);
 
-  if (activeTemplateItemIndex.value === index) {
-    activeTemplateItemIndex.value = null;
-    activeTemplateItemSelectionStart.value = null;
-    activeTemplateItemSelectionEnd.value = null;
-  } else if (activeTemplateItemIndex.value !== null && activeTemplateItemIndex.value > index) {
-    activeTemplateItemIndex.value -= 1;
+  if (stateActiveTemplateItemIndex.value === index) {
+    stateActiveTemplateItemIndex.value = null;
+    stateActiveTemplateItemSelectionStart.value = null;
+    stateActiveTemplateItemSelectionEnd.value = null;
+  } else if (stateActiveTemplateItemIndex.value !== null && stateActiveTemplateItemIndex.value > index) {
+    stateActiveTemplateItemIndex.value -= 1;
   }
 };
 
@@ -780,12 +897,18 @@ const handleTemplateItemRemove = (index: number): void => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleVariableInsert = async (token: string): Promise<void> => {
-  const index = activeTemplateItemIndex.value;
+  /**
+   * 常量：index。
+   */
+  const index = stateActiveTemplateItemIndex.value;
 
   if (index === null) {
     return;
   }
 
+  /**
+   * 常量：currentItem。
+   */
   const currentItem = stateTemplateItems.value[index];
 
   if (!currentItem) {
@@ -796,10 +919,25 @@ const handleVariableInsert = async (token: string): Promise<void> => {
     return;
   }
 
-  const selectionStart = activeTemplateItemSelectionStart.value ?? currentItem.content.length;
-  const selectionEnd = activeTemplateItemSelectionEnd.value ?? selectionStart;
+  /**
+   * 常量：selectionStart。
+   */
+  const selectionStart = stateActiveTemplateItemSelectionStart.value ?? currentItem.content.length;
+  /**
+   * 常量：selectionEnd。
+   */
+  const selectionEnd = stateActiveTemplateItemSelectionEnd.value ?? selectionStart;
+  /**
+   * 常量：nextContent。
+   */
   const nextContent = `${currentItem.content.slice(0, selectionStart)}${token}${currentItem.content.slice(selectionEnd)}`;
+  /**
+   * 常量：nextCursor。
+   */
   const nextCursor = selectionStart + token.length;
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = [...stateTemplateItems.value];
 
   nextItems[index] = {
@@ -808,12 +946,15 @@ const handleVariableInsert = async (token: string): Promise<void> => {
   };
 
   emitTemplateItemsUpdate(nextItems);
-  activeTemplateItemSelectionStart.value = nextCursor;
-  activeTemplateItemSelectionEnd.value = nextCursor;
+  stateActiveTemplateItemSelectionStart.value = nextCursor;
+  stateActiveTemplateItemSelectionEnd.value = nextCursor;
 
   await nextTick();
 
-  const inputElement = templateItemInputElements.value[index];
+  /**
+   * 常量：inputElement。
+   */
+  const inputElement = stateTemplateItemInputElements.value[index];
   inputElement?.focus();
   inputElement?.setSelectionRange(nextCursor, nextCursor);
 };
@@ -829,6 +970,9 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
     return;
   }
 
+  /**
+   * 常量：targetIndexes。
+   */
   const targetIndexes = stateTemplateItems.value.reduce<number[]>((result, item, index) => {
     if (item.templateType === templateType) {
       result.push(index);
@@ -841,33 +985,54 @@ const handleTemplateItemsReorder = (templateType: THotsearchPodcastTemplateType,
     return;
   }
 
+  /**
+   * 常量：nextItems。
+   */
   const nextItems = [...stateTemplateItems.value];
-  const nextInputElements = [...templateItemInputElements.value];
-  const nextRenderKeys = [...templateItemRenderKeys.value];
+  /**
+   * 常量：nextInputElements。
+   */
+  const nextInputElements = [...stateTemplateItemInputElements.value];
+  /**
+   * 常量：nextRenderKeys。
+   */
+  const nextRenderKeys = [...stateTemplateItemRenderKeys.value];
+  /**
+   * 常量：movedIndexMap。
+   */
   const movedIndexMap = new Map<number, number>();
 
   items.forEach((item, orderIndex) => {
+    /**
+     * 常量：targetIndex。
+     */
     const targetIndex = targetIndexes[orderIndex];
     if (targetIndex === undefined) {
       return;
     }
 
+    /**
+     * 常量：sourceIndex。
+     */
     const sourceIndex = stateTemplateItems.value.indexOf(item);
 
     nextItems[targetIndex] = item;
-    nextInputElements[targetIndex] = sourceIndex >= 0 ? (templateItemInputElements.value[sourceIndex] ?? null) : null;
-    nextRenderKeys[targetIndex] = sourceIndex >= 0 ? (templateItemRenderKeys.value[sourceIndex] ?? templateItemRenderKeyCreate()) : templateItemRenderKeyCreate();
+    nextInputElements[targetIndex] = sourceIndex >= 0 ? (stateTemplateItemInputElements.value[sourceIndex] ?? null) : null;
+    nextRenderKeys[targetIndex] = sourceIndex >= 0 ? (stateTemplateItemRenderKeys.value[sourceIndex] ?? templateItemRenderKeyCreate()) : templateItemRenderKeyCreate();
 
     if (sourceIndex >= 0) {
       movedIndexMap.set(sourceIndex, targetIndex);
     }
   });
 
-  templateItemInputElements.value = nextInputElements;
+  stateTemplateItemInputElements.value = nextInputElements;
 
-  const activeIndex = activeTemplateItemIndex.value;
+  /**
+   * 常量：activeIndex。
+   */
+  const activeIndex = stateActiveTemplateItemIndex.value;
   if (activeIndex !== null && movedIndexMap.has(activeIndex)) {
-    activeTemplateItemIndex.value = movedIndexMap.get(activeIndex) ?? activeIndex;
+    stateActiveTemplateItemIndex.value = movedIndexMap.get(activeIndex) ?? activeIndex;
   }
 
   emitTemplateItemsUpdate(nextItems, nextRenderKeys);

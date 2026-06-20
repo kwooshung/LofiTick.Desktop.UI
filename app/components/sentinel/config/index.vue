@@ -218,12 +218,18 @@ const ids = {
  * 常量：重启爆发静态边界（次数）
  */
 const RESTART_BURST_WINDOW_MIN = 0;
+/**
+ * 常量：RESTART_BURST_WINDOW_MAX。
+ */
 const RESTART_BURST_WINDOW_MAX = 10;
 
 /**
  * 常量：爆发冷却静态边界（毫秒）
  */
 const RESTART_BURST_COOLDOWN_MIN = 0;
+/**
+ * 常量：RESTART_BURST_COOLDOWN_MAX。
+ */
 const RESTART_BURST_COOLDOWN_MAX = 3600000;
 
 /**
@@ -281,6 +287,9 @@ const durationHmsGet = (ms: number): string => {
    */
   const seconds = totalSeconds % 60;
 
+  /**
+   * 常量：pad2。
+   */
   const pad2 = (n: number): string => String(n).padStart(2, '0');
   return `${String(hours).padStart(2, '0')}:${pad2(minutes)}:${pad2(seconds)}`;
 };
@@ -330,6 +339,9 @@ const configGet = (): ISentinelConfig => {
  * @param {ISentinelConfigOverrides} overrides 覆盖值
  */
 const overridesSet = (overrides: ISentinelConfigOverrides): void => {
+  /**
+   * 函数：merged。
+   */
   const merged = configMerge(overrides);
 
   Object.assign(stateConfig, merged);
@@ -358,7 +370,13 @@ const computedAnalysis = computed<ISentinelConfigAnalysis>(() => {
    * 变量：判定崩溃耗时（ms）
    */
   const heartbeatInterval = Number.isFinite(stateConfig.heartbeatInterval) ? Math.max(0, Math.trunc(stateConfig.heartbeatInterval)) : 0;
+  /**
+   * 常量：heartbeatTimeoutCount。
+   */
   const heartbeatTimeoutCount = Number.isFinite(stateConfig.heartbeatTimeoutCount) ? Math.max(0, Math.trunc(stateConfig.heartbeatTimeoutCount)) : 0;
+  /**
+   * 常量：crashDecisionMs。
+   */
   const crashDecisionMs = heartbeatInterval * heartbeatTimeoutCount;
 
   /**

@@ -122,15 +122,24 @@ let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
  * @returns {string} 基地址
  */
 const urlBaseGet = (url: string): string => {
+  /**
+   * 常量：value。
+   */
   const value = String(url || '').trim();
   if (!value) {
     return '';
   }
 
   try {
+    /**
+     * 函数：parsed。
+     */
     const parsed = new URL(value);
     return `${parsed.protocol}//${parsed.host}`;
   } catch {
+    /**
+     * 常量：matched。
+     */
     const matched = value.match(/^(https?:\/\/[^/]+)/i);
     return matched?.[1] ? String(matched[1]).trim() : value.replace(/\/+$/, '');
   }
@@ -142,6 +151,9 @@ const urlBaseGet = (url: string): string => {
  * @returns {string} 末尾带 / 的基地址
  */
 const urlBaseDirectoryGet = (url: string): string => {
+  /**
+   * 常量：value。
+   */
   const value = urlBaseGet(url);
   if (!value) {
     return '';
@@ -156,6 +168,9 @@ const urlBaseDirectoryGet = (url: string): string => {
  * @returns {IPageSettingsUe5RequestParamItem[]} 参数列表
  */
 const urlParamsGet = (url: string): IPageSettingsUe5RequestParamItem[] => {
+  /**
+   * 常量：value。
+   */
   const value = String(url || '').trim();
   if (!value) {
     return [];
@@ -167,6 +182,9 @@ const urlParamsGet = (url: string): IPageSettingsUe5RequestParamItem[] => {
       value: String(paramValue || '').trim()
     }));
   } catch {
+    /**
+     * 常量：query。
+     */
     const query = value.split('?')[1] || '';
     if (!query) {
       return [];
@@ -196,7 +214,13 @@ const computedBaseUrl = computed((): string => urlBaseDirectoryGet(stateAccessUr
  * 计算属性：当前请求列表
  */
 const computedRequests = computed<IPageSettingsUe5RequestItem[]>(() => {
+  /**
+   * 常量：accessUrl。
+   */
   const accessUrl = String(stateAccessUrl.value || '').trim();
+  /**
+   * 常量：heartbeatUrl。
+   */
   const heartbeatUrl = computedBaseUrl.value ? `${computedBaseUrl.value}ue5/heartbeat` : '';
 
   if (!accessUrl || !heartbeatUrl) {
@@ -237,7 +261,13 @@ const copiedGet = (key: string): boolean => stateCopiedKey.value === String(key 
  * @returns {Promise<void>} 无返回值
  */
 const handleCopy = async (key: string, value: string): Promise<void> => {
+  /**
+   * 常量：copiedKey。
+   */
   const copiedKey = String(key || '').trim();
+  /**
+   * 常量：text。
+   */
   const text = String(value || '').trim();
 
   if (!copiedKey || !text || !import.meta.client) {
@@ -267,6 +297,9 @@ const handleCopy = async (key: string, value: string): Promise<void> => {
  * @returns {void} 无返回值
  */
 const handleLinkOpen = (url: string): void => {
+  /**
+   * 常量：value。
+   */
   const value = String(url || '').trim();
   if (!value || !import.meta.client) {
     return;
@@ -293,6 +326,9 @@ const handleDetailRefresh = async (): Promise<void> => {
   stateDetailError.value = '';
 
   try {
+    /**
+     * 常量：detail。
+     */
     const detail = await ue5BridgeAccessDetailGet();
     stateAccessUrl.value = String(detail.accessUrl || '').trim() || stateAccessUrl.value;
   } catch (error) {

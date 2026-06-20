@@ -12,18 +12,37 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="baseUrl" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
+      <CrawlersEditor
+        v-if="open"
+        :key="computedEditorKey"
+        :site-name="computedDrawerSiteName"
+        :base-url="computedDrawerBaseUrl"
+        :target-id="computedDrawerTargetId"
+        :groups="computedBlueprintGroups"
+        :selected-key="computedSelectedKey"
+        :function-refresh-nonce="functionRefreshNonce"
+        :initial-flow-data="initialFlowData"
+        :initial-load-source="initialLoadSource"
+        @cancel="open = false"
+        @click="handleEditorClick"
+        @save="handleSave"
+        @create-function="handleEditorCreateFunction"
+        @edit-function-logic="handleEditorEditFunctionLogic"
+        @functions-changed="handleEditorFunctionsChanged"
+      />
     </template>
   </USlideover>
 </template>
 
 <script setup lang="ts">
 import type { ICrawlersCodeEmits, ICrawlersCodeProps } from '@/components/crawlers/code/index.types';
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', groups = [], selectedKey = '' } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -48,7 +67,7 @@ const { t } = useI18n();
 /**
  * Hook：爬虫蓝图。
  */
-const { groups: blueprintGroups } = useCrawlerBlueprint();
+const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 
 /**
  * 函数：将站点域名转成展示名称。
@@ -56,12 +75,18 @@ const { groups: blueprintGroups } = useCrawlerBlueprint();
  * @returns {string} 展示名称。
  */
 const domainDisplayNameGet = (domain: string): string => {
+  /**
+   * 常量：trimmed。
+   */
   const trimmed = String(domain ?? '').trim();
 
   if (trimmed === '') {
     return '';
   }
 
+  /**
+   * 常量：host。
+   */
   const host = trimmed.split('/')[0]?.split('.')?.[0]?.trim() ?? '';
 
   if (host === '') {
@@ -75,6 +100,9 @@ const domainDisplayNameGet = (domain: string): string => {
  * 计算属性：当前站点域名。
  */
 const computedCurrentDomain = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = route.params.domain;
 
   if (typeof value === 'string') {
@@ -97,11 +125,17 @@ const computedCurrentSiteName = computed(() => domainDisplayNameGet(computedCurr
  * 计算属性：抽屉站点名称。
  */
 const computedDrawerSiteName = computed(() => {
+  /**
+   * 常量：targetName。
+   */
   const targetName = String(stateDrawerTarget.value?.name ?? '').trim();
   if (targetName !== '') {
     return targetName;
   }
 
+  /**
+   * 常量：siteNameText。
+   */
   const siteNameText = String(siteName ?? '').trim();
 
   return siteNameText !== '' ? siteNameText : computedCurrentSiteName.value;
@@ -116,21 +150,46 @@ const editorDrawerTitle = t('pages.crawlers.editor.title');
  * 计算属性：抽屉标题。
  */
 const computedDrawerTitle = computed(() => {
+  /**
+   * 常量：siteName。
+   */
   const siteName = computedDrawerSiteName.value;
 
   return siteName !== '' ? `${editorDrawerTitle} / ${siteName}` : editorDrawerTitle;
 });
 
 /**
- * 计算属性：抽屉描述。
+ * 计算属性：抽屉基础 URL。
  */
-const computedDrawerDescription = computed(() => {
+const computedDrawerBaseUrl = computed(() => {
+  /**
+   * 常量：targetBaseUrl。
+   */
   const targetBaseUrl = String(stateDrawerTarget.value?.baseUrl ?? '').trim();
   if (targetBaseUrl !== '') {
     return targetBaseUrl;
   }
 
   return String(baseUrl ?? '').trim();
+});
+
+/**
+ * 计算属性：抽屉站点 ID。
+ */
+const computedDrawerTargetId = computed<number>(() => {
+  /**
+   * 常量：targetIdValue。
+   */
+  const targetIdValue = Number(stateDrawerTarget.value?.id ?? targetId ?? 0);
+
+  return Number.isFinite(targetIdValue) && targetIdValue > 0 ? targetIdValue : 0;
+});
+
+/**
+ * 计算属性：抽屉描述。
+ */
+const computedDrawerDescription = computed(() => {
+  return computedDrawerBaseUrl.value;
 });
 
 /**
@@ -144,6 +203,13 @@ const computedBlueprintGroups = computed(() => (groups.length > 0 ? groups : blu
 const computedSelectedKey = computed(() => (selectedKey !== '' ? selectedKey : (computedBlueprintGroups.value[0]?.crawlers[0]?.key ?? '')));
 
 /**
+ * 计算属性：编辑器重建 key。
+ */
+const computedEditorKey = computed(() => {
+  return [computedDrawerTargetId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
+});
+
+/**
  * 双向绑定：抽屉开关。
  */
 const open = defineModel<boolean>('open', {
@@ -152,8 +218,10 @@ const open = defineModel<boolean>('open', {
 
 /**
  * 事件：保存蓝图。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
  */
-const handleSave = () => {
+const handleSave = (payload: ICrawlersEditorSavePayload) => {
+  emit('save', payload);
   open.value = false;
 };
 
@@ -165,5 +233,31 @@ const handleSave = () => {
  */
 const handleEditorClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
+};
+
+/**
+ * 函数：处理编辑器创建函数事件。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {void} 无返回值。
+ */
+const handleEditorCreateFunction = (scope: 'site' | 'global'): void => {
+  emit('createFunction', scope);
+};
+
+/**
+ * 函数：处理编辑器编辑函数逻辑事件。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {void} 无返回值。
+ */
+const handleEditorEditFunctionLogic = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  emit('editFunctionLogic', row);
+};
+
+/**
+ * 函数：转发函数元数据变更。
+ * @returns {void} 无返回值。
+ */
+const handleEditorFunctionsChanged = (): void => {
+  emit('functionsChanged');
 };
 </script>

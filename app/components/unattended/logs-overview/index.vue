@@ -103,16 +103,31 @@ const { datas: stateSentinelLogsMachinesRemote, refresh: refreshSentinelLogsMach
  * 描述：将日志聚合结果和机器基础信息合并，供日志总览页面复用。
  */
 const computedSentinelLogsMachines = computed<IPageSettingsUnattendedSentinelLogsMachineCard[]>(() => {
+  /**
+   * 常量：machineMap。
+   */
   const machineMap = new Map((Array.isArray(stateScenesMachinesRemote.value) ? stateScenesMachinesRemote.value : []).map((machine) => [String(machine.machineCode || '').trim(), machine] satisfies [string, IPageSettingsUnattendedScenesMachineRedisConfig]));
 
+  /**
+   * 常量：groups。
+   */
   const groups = Array.isArray(stateSentinelLogsMachinesRemote.value) ? stateSentinelLogsMachinesRemote.value : [];
   return groups.reduce<IPageSettingsUnattendedSentinelLogsMachineCard[]>((list, group) => {
+    /**
+     * 常量：machineCode。
+     */
     const machineCode = String(group?.machineCode || '').trim();
     if (!machineCode) {
       return list;
     }
 
+    /**
+     * 常量：current。
+     */
     const current = machineMap.get(machineCode);
+    /**
+     * 常量：logs。
+     */
     const logs = Array.isArray(group?.logs) ? group.logs : [];
     if (logs.length === 0) {
       return list;
@@ -138,13 +153,28 @@ const computedSentinelLogsMachines = computed<IPageSettingsUnattendedSentinelLog
  * 描述：为总览页顶部提供机器数、在线数、日志数与场景数摘要。
  */
 const computedOverviewStats = computed(() => {
+  /**
+   * 常量：machines。
+   */
   const machines = computedSentinelLogsMachines.value;
+  /**
+   * 常量：sceneIds。
+   */
   const sceneIds = new Set<string>();
 
+  /**
+   * 常量：logs。
+   */
   const logs = machines.reduce((count, machine) => {
+    /**
+     * 常量：entries。
+     */
     const entries = Array.isArray(machine.logs) ? machine.logs : [];
 
     for (const entry of entries) {
+      /**
+       * 常量：sceneId。
+       */
       const sceneId = String(entry?.sceneId || '').trim();
       if (sceneId) {
         sceneIds.add(sceneId);
@@ -167,11 +197,17 @@ const computedOverviewStats = computed(() => {
  * 描述：总览页在标题区显示最近一次成功拉取日志的时间。
  */
 const computedLastRefreshText = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = String(stateLastRefreshedAt.value || '').trim();
   if (!value) {
     return t('pages.sentinel.logs.lastRefreshEmpty');
   }
 
+  /**
+   * 函数：parsed。
+   */
   const parsed = dayjs(value);
   if (!parsed.isValid()) {
     return t('pages.sentinel.logs.lastRefreshEmpty');
@@ -229,7 +265,13 @@ onMounted(async () => {
   }
 
   try {
+    /**
+     * 函数：settings。
+     */
     const settings = await settingsGet();
+    /**
+     * 常量：machine。
+     */
     const machine = settings && typeof settings === 'object' && !Array.isArray(settings) && settings.machine && typeof settings.machine === 'object' && !Array.isArray(settings.machine) ? (settings.machine as Record<string, unknown>) : {};
     stateMachineCode.value = String(machine.code || '').trim();
   } catch {

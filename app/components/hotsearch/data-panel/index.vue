@@ -100,7 +100,7 @@ const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, 
 /**
  * 引用：热搜数据面板顶部锚点。
  */
-const refHotsearchDataPanelTop = ref<HTMLElement | null>(null);
+const stateRefHotsearchDataPanelTop = ref<HTMLElement | null>(null);
 
 /**
  * Hook：Tauri 运行环境。
@@ -117,6 +117,9 @@ const { openExternalUrl } = useTauriWindow();
  * @returns {string} YYYY-MM-DD。
  */
 const currentDateGet = (): string => {
+  /**
+   * 常量：value。
+   */
   const value = today(getLocalTimeZone());
 
   return `${String(value.year).padStart(4, '0')}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
@@ -139,6 +142,9 @@ const currentTimezoneGet = (): string => hotsearchLocalTimezoneGet();
  * @returns {string} 分页大小文本。
  */
 const currentPageSizeGet = (): string => {
+  /**
+   * 常量：pagesize。
+   */
   const pagesize = hotsearchQueryStringGet(route.query.pagesize);
 
   if (pagesize !== '') {
@@ -157,21 +163,33 @@ const buildRowsQueryFromRoute = (): Record<string, string> => {
   query.date = selectedDateGet();
   query.timezone = currentTimezoneGet();
 
+  /**
+   * 常量：keyword。
+   */
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
     query.keyword = keyword;
   }
 
+  /**
+   * 常量：platform。
+   */
   const platform = hotsearchQueryStringGet(route.query.platform);
   if (platform !== '') {
     query.platform = platform;
   }
 
+  /**
+   * 常量：categoryKey。
+   */
   const categoryKey = hotsearchQueryStringGet(route.query.category_key);
   if (categoryKey !== '') {
     query.category_key = categoryKey;
   }
 
+  /**
+   * 常量：page。
+   */
   const page = hotsearchQueryStringGet(route.query.page);
   if (page !== '') {
     query.page = page;
@@ -179,11 +197,17 @@ const buildRowsQueryFromRoute = (): Record<string, string> => {
 
   query.pagesize = currentPageSizeGet();
 
+  /**
+   * 常量：orderBy。
+   */
   const orderBy = hotsearchQueryStringGet(route.query.order_by);
   if (orderBy !== '') {
     query.order_by = orderBy;
   }
 
+  /**
+   * 常量：orderDir。
+   */
   const orderDir = hotsearchQueryStringGet(route.query.order_dir);
   if (orderDir !== '') {
     query.order_dir = orderDir;
@@ -201,11 +225,17 @@ const buildPlatformsQueryFromRoute = (): Record<string, string> => {
   query.date = selectedDateGet();
   query.timezone = currentTimezoneGet();
 
+  /**
+   * 常量：keyword。
+   */
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
     query.keyword = keyword;
   }
 
+  /**
+   * 常量：categoryKey。
+   */
   const categoryKey = hotsearchQueryStringGet(route.query.category_key);
   if (categoryKey !== '') {
     query.category_key = categoryKey;
@@ -226,11 +256,17 @@ const buildTagsQueryFromRoute = (): Record<string, string> => {
   query.date = selectedDateGet();
   query.timezone = currentTimezoneGet();
 
+  /**
+   * 常量：keyword。
+   */
   const keyword = hotsearchQueryStringGet(route.query.keyword);
   if (keyword !== '') {
     query.keyword = keyword;
   }
 
+  /**
+   * 常量：platform。
+   */
   const platform = hotsearchQueryStringGet(route.query.platform);
   if (platform !== '') {
     query.platform = platform;
@@ -292,6 +328,9 @@ const computedSelectedCategoryKey = computed(() => hotsearchQueryStringGet(route
  * 计算属性：当前排序字段。
  */
 const computedSortBy = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = hotsearchQueryStringGet(route.query.order_by);
 
   return value === 'popularity' || value === 'published_at' ? value : 'rank';
@@ -301,6 +340,9 @@ const computedSortBy = computed(() => {
  * 计算属性：当前排序方向。
  */
 const computedSortDirection = computed(() => {
+  /**
+   * 常量：value。
+   */
   const value = hotsearchQueryStringGet(route.query.order_dir).toLowerCase();
 
   return value === 'asc' ? 'asc' : 'desc';
@@ -351,7 +393,13 @@ const computedHasPagination = computed(() => Number(stateHotsearchRowsRemote.val
  */
 const computedPage = computed<number>({
   get: () => {
+    /**
+     * 常量：str。
+     */
     const str = route.query.page as string | undefined;
+    /**
+     * 函数：parsed。
+     */
     const parsed = parseInt(str ?? '', 10);
 
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
@@ -371,18 +419,30 @@ const computedPage = computed<number>({
  * 计算属性：每页数量。
  */
 const computedItemsPerPage = computed<number>(() => {
+  /**
+   * 常量：str。
+   */
   const str = route.query.pagesize as string | undefined;
+  /**
+   * 函数：parsed。
+   */
   const parsed = parseInt(str ?? '', 10);
 
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;
   }
 
+  /**
+   * 常量：cookieSize。
+   */
   const cookieSize = getPageSizeByCookieParsed(pagesizesCookie.value, 'hotsearch');
   if (Number.isFinite(cookieSize) && cookieSize > 0) {
     return cookieSize;
   }
 
+  /**
+   * 常量：apiSize。
+   */
   const apiSize = Number(stateHotsearchRowsRemote.value?.pageSize ?? 20);
 
   return Number.isFinite(apiSize) && apiSize > 0 ? apiSize : 20;
@@ -402,7 +462,7 @@ watch(
   () => route.query,
   async () => {
     await nextTick();
-    refHotsearchDataPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    stateRefHotsearchDataPanelTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     refreshCurrentPanels();
   }
 );
@@ -535,6 +595,9 @@ const hotsearchPodcastStatusCellRender = (item: IHotsearchDataRow) =>
  * @returns {ReturnType<typeof h> | null} 合并元信息内容。
  */
 const hotsearchMergedMetaCellRender = (item: IHotsearchDataRow, options: { showTag: boolean; showPlatform: boolean; showPodcast: boolean }) => {
+  /**
+   * 常量：children。
+   */
   const children = [options.showTag ? hotsearchTagCellRender(item) : null, options.showPlatform ? hotsearchPlatformCellRender(item) : null, options.showPodcast ? hotsearchPodcastStatusCellRender(item) : null].filter(Boolean);
 
   if (children.length === 0) {
@@ -606,6 +669,9 @@ const buildDataLocation = (categoryKey: string) => ({
  * @returns {void}
  */
 const toggleSort = (field: 'rank' | 'popularity' | 'published_at'): void => {
+  /**
+   * 常量：nextDirection。
+   */
   const nextDirection = computedSortBy.value === field && computedSortDirection.value === 'asc' ? 'desc' : 'asc';
 
   navigateTo({
@@ -640,7 +706,13 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
   {
     accessorKey: 'rank',
     header: () => {
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = computedSortBy.value === 'rank' ? computedSortDirection.value : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
 
       return h(UButton, {
@@ -717,7 +789,7 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
   },
   {
     accessorKey: 'isPodcast',
-    header: '播客化',
+    header: t('pages.hotsearch.sections.podcast.title'),
     cell: ({ row }) => hotsearchPodcastStatusCellRender(row.original),
     meta: {
       class: {
@@ -740,7 +812,13 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
   {
     accessorKey: 'popularity',
     header: () => {
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = computedSortBy.value === 'popularity' ? computedSortDirection.value : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
 
       return h(UButton, {
@@ -763,7 +841,13 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
   {
     accessorKey: 'publishedAt',
     header: () => {
+      /**
+       * 函数：isSorted。
+       */
       const isSorted = computedSortBy.value === 'published_at' ? computedSortDirection.value : false;
+      /**
+       * 常量：icon。
+       */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
 
       return h(UButton, {

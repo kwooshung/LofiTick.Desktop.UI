@@ -11,8 +11,6 @@
     <template #toolbar-right>
       <div v-if="!computedRouteIsDetail" class="flex items-center gap-2">
         <div class="hidden shrink-0 items-center gap-2 md:flex">
-          <SelectsPagesizes cache-key="crawlers" />
-
           <UPopover v-model:open="stateSearchPopoverOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] p-0 overflow-hidden' }">
             <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }" @click="stateSearchPopoverOpen = true">
               <template #trailing>
@@ -73,7 +71,88 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" />
+    <CrawlersCode
+      v-model:open="stateCodeSlideoverOpen"
+      :site-name="computedRouteDetailTitle"
+      :base-url="String(stateDetail?.baseUrl ?? '').trim()"
+      :target-id="Number(stateDetail?.id ?? 0)"
+      :function-refresh-nonce="stateFunctionRefreshNonce"
+      :initial-flow-data="computedCrawlerInitialFlowData"
+      @save="handleBlueprintSave"
+      @create-function="handleCreateFunctionFromSidebar"
+      @edit-function-logic="handleEditFunctionLogicFromSidebar"
+      @functions-changed="stateFunctionRefreshNonce += 1"
+    />
+
+    <USlideover
+      v-model:open="stateFunctionLogicOpen"
+      :title="computedFunctionLogicTitle"
+      :description="computedFunctionLogicDescription"
+      side="bottom"
+      :overlay="false"
+      :ui="{
+        header: 'px-4 py-3 sm:px-4 sm:py-3',
+        content: 'bg-default h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] rounded-none shadow-t-3xl shadow-black',
+        body: 'h-full w-full overflow-hidden p-0 sm:p-0'
+      }"
+    >
+      <template #body>
+        <div class="relative h-full w-full">
+          <div v-if="stateFunctionLogicLoading" class="bg-default/70 absolute inset-0 z-20 flex items-center justify-center backdrop-blur-sm">
+            <div class="bg-default/90 border-default flex flex-col items-center justify-center gap-3 rounded-md border px-3 py-2">
+              <UIcon name="i-lucide:loader-circle" class="text-primary size-5 animate-spin" />
+              <span class="text-muted text-xs">{{ t('pages.crawlers.editor.loadSource.loading') }}</span>
+            </div>
+          </div>
+
+          <CrawlersEditor
+            v-if="stateFunctionLogicDetail"
+            :key="computedFunctionLogicEditorKey"
+            flow-kind="function"
+            :site-name="stateFunctionLogicDetail.name"
+            :base-url="computedFunctionLogicEditorBaseUrl"
+            :flow-description="computedFunctionLogicDescription"
+            :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"
+            :function-refresh-nonce="stateFunctionRefreshNonce"
+            :initial-flow-data="stateFunctionLogicDetail.graph"
+            :initial-load-source="stateFunctionLogicLoadSource"
+            :draft-storage-key="computedFunctionLogicDraftKey"
+            @cancel="stateFunctionLogicOpen = false"
+            @save="handleFunctionLogicSave"
+            @functions-changed="stateFunctionRefreshNonce += 1"
+          />
+        </div>
+      </template>
+    </USlideover>
+
+    <UModal v-model:open="stateFunctionEditorOpen" :dismissible="false" :title="computedFunctionEditorTitle" :ui="{ footer: 'justify-end' }">
+      <template #body>
+        <div class="w-full max-w-none space-y-4">
+          <UFormField :label="t('pages.crawlers.editor.sidebar.createModal.scopeLabel')">
+            <UBadge color="neutral" variant="soft">{{ computedFunctionEditorScopeLabel }}</UBadge>
+          </UFormField>
+
+          <UFormField required :label="t('pages.crawlers.editor.sidebar.createModal.nameLabel')">
+            <UInput v-model="stateFunctionEditorName" class="w-full" :placeholder="t('pages.crawlers.editor.sidebar.createModal.namePlaceholder')" />
+          </UFormField>
+
+          <UFormField :label="t('pages.crawlers.editor.sidebar.createModal.descriptionLabel')">
+            <UTextarea v-model="stateFunctionEditorDescription" class="w-full" :rows="3" autoresize :placeholder="t('pages.crawlers.editor.sidebar.createModal.descriptionPlaceholder')" />
+          </UFormField>
+
+          <p v-if="!computedFunctionEditorHasTarget" class="text-warning text-xs">
+            {{ t('pages.crawlers.editor.sidebar.createModal.siteTargetRequired') }}
+          </p>
+        </div>
+      </template>
+
+      <template #footer="{ close }">
+        <UButton type="button" color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
+        <UButton type="button" icon="i-lucide:plus" color="primary" :disabled="!computedFunctionEditorCanSubmit" @click="handleCreateFunctionSubmit">
+          {{ t('common.actions.add') }}
+        </UButton>
+      </template>
+    </UModal>
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -111,11 +190,16 @@
 import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
 import { z } from 'zod';
 
+import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
+
 /**
  * 页面：按爬虫路由层级刷新父页实例。
  */
 definePageMeta({
   key: (route) => {
+    /**
+     * 常量：domain。
+     */
     const domain = route.params.domain;
     if (typeof domain === 'string' && domain.trim() !== '') {
       return `crawlers-detail-${domain}`;
@@ -131,19 +215,24 @@ definePageMeta({
 const { t } = useI18n();
 
 /**
+ * Hook：提示。
+ */
+const toast = useToast();
+
+/**
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
 
 /**
- * 路由
+ * 路由。
  */
 const route = useRoute();
 
 /**
  * 引用：工具栏搜索框
  */
-const refToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
+const stateRefToolbarSearchInput = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 /**
  * 计算属性：是否设置了搜索条件。
@@ -176,6 +265,9 @@ const computedRouteIsDetail = computed<boolean>(() => typeof route.params.domain
  * 计算属性：站点域名
  */
 const computedDomain = computed<string>(() => {
+  /**
+   * 常量：value。
+   */
   const value = route.params.domain;
   return typeof value === 'string' ? value : Array.isArray(value) ? (value[0] ?? '') : '';
 });
@@ -186,12 +278,21 @@ const computedDomain = computed<string>(() => {
  * @returns {string} 站点显示名
  */
 const domainDisplayNameGet = (domain: string): string => {
+  /**
+   * 常量：trimmed。
+   */
   const trimmed = domain.trim();
   if (trimmed === '') {
     return t('pages.crawlers.targets.title');
   }
 
+  /**
+   * 常量：domainPart。
+   */
   const domainPart = trimmed.split('/')[0] ?? trimmed;
+  /**
+   * 常量：host。
+   */
   const host = domainPart.split('.')[0] ?? trimmed;
   if (host === '') {
     return trimmed;
@@ -224,6 +325,56 @@ const stateEditorOpen = ref(false);
  * 状态：蓝图抽屉开关。
  */
 const stateCodeSlideoverOpen = useState<boolean>('crawlers-blueprint-open', () => false);
+
+/**
+ * 状态：函数列表刷新 nonce。
+ */
+const stateFunctionRefreshNonce = ref(0);
+
+/**
+ * 状态：函数创建弹窗开关。
+ */
+const stateFunctionEditorOpen = ref(false);
+
+/**
+ * 状态：函数创建作用域。
+ */
+const stateFunctionEditorScope = ref<'site' | 'global'>('site');
+
+/**
+ * 状态：函数创建名称。
+ */
+const stateFunctionEditorName = ref('');
+
+/**
+ * 状态：函数创建描述。
+ */
+const stateFunctionEditorDescription = ref('');
+
+/**
+ * 状态：函数逻辑抽屉开关。
+ */
+const stateFunctionLogicOpen = ref(false);
+
+/**
+ * 状态：函数逻辑加载中。
+ */
+const stateFunctionLogicLoading = ref(false);
+
+/**
+ * 状态：函数逻辑初始数据来源。
+ */
+const stateFunctionLogicLoadSource = ref<'server' | 'draft' | 'default'>('server');
+
+/**
+ * 常量：函数图调试前缀。
+ */
+const FUNCTION_GRAPH_DEBUG_PREFIX = '[crawler:function-graph]';
+
+/**
+ * 状态：函数逻辑详情。
+ */
+const stateFunctionLogicDetail = ref<ICrawlersEditorSidebarFunctionDetail | null>(null);
 
 /**
  * 状态：蓝图抽屉目标站点。
@@ -275,7 +426,6 @@ const schema = z.object({
 /**
  * 类型：编辑器表单提交值。
  */
-type TCrawlerTargetEditorSubmit = z.output<typeof schema>;
 
 /**
  * API：获取站点详情
@@ -321,11 +471,17 @@ const computedUniqueDomainHelp = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
   }
 
+  /**
+   * 常量：valid。
+   */
   const valid = schema.pick({ domain: true }).safeParse({ domain }).success;
   if (!valid) {
     return undefined;
@@ -345,6 +501,9 @@ const computedUniqueDomainError = computed<string | undefined>(() => {
     return undefined;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
   if (!domain) {
     return undefined;
@@ -367,13 +526,64 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * 计算属性：详情页标题
  */
 const computedRouteDetailTitle = computed<string>(() => {
+  /**
+   * 常量：detailName。
+   */
   const detailName = String(stateDetail.value?.name ?? '').trim();
   if (detailName !== '') {
     return detailName;
   }
 
+  /**
+   * 常量：domain。
+   */
   const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
+});
+
+/**
+ * 计算属性：函数创建弹窗标题。
+ */
+const computedFunctionEditorTitle = computed(() => {
+  return stateFunctionEditorScope.value === 'site' ? t('pages.crawlers.editor.sidebar.createModal.titleSite') : t('pages.crawlers.editor.sidebar.createModal.titleGlobal');
+});
+
+/**
+ * 计算属性：函数创建作用域文案。
+ */
+const computedFunctionEditorScopeLabel = computed(() => {
+  return stateFunctionEditorScope.value === 'site' ? t('pages.crawlers.editor.sidebar.createModal.scopeSite') : t('pages.crawlers.editor.sidebar.createModal.scopeGlobal');
+});
+
+/**
+ * 计算属性：函数创建目标站点 ID。
+ */
+const computedFunctionEditorTargetId = computed(() => {
+  const detailTargetId = Number(stateDetail.value?.id ?? 0);
+  if (Number.isFinite(detailTargetId) && detailTargetId > 0) {
+    return detailTargetId;
+  }
+
+  const drawerTargetId = Number(stateBlueprintDrawerTarget.value?.id ?? 0);
+  return Number.isFinite(drawerTargetId) && drawerTargetId > 0 ? drawerTargetId : 0;
+});
+
+/**
+ * 计算属性：函数创建是否存在可用站点。
+ */
+const computedFunctionEditorHasTarget = computed(() => {
+  if (stateFunctionEditorScope.value === 'global') {
+    return true;
+  }
+
+  return computedFunctionEditorTargetId.value > 0;
+});
+
+/**
+ * 计算属性：函数创建是否可提交。
+ */
+const computedFunctionEditorCanSubmit = computed(() => {
+  return stateFunctionEditorName.value.trim() !== '' && computedFunctionEditorHasTarget.value;
 });
 
 /**
@@ -458,12 +668,21 @@ const handleEditTarget = () => {
  * @returns {string} 归一化域名。
  */
 const normalizeDomainForUniqueCompare = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
   const raw = String(value ?? '').trim();
   if (raw === '') {
     return '';
   }
 
+  /**
+   * 常量：withoutProtocol。
+   */
   const withoutProtocol = raw.replace(/^https?:\/\//i, '');
+  /**
+   * 常量：matchResult。
+   */
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return (matchResult ? matchResult[0] : withoutProtocol).trim().toLowerCase();
 };
@@ -473,8 +692,17 @@ const normalizeDomainForUniqueCompare = (value: string): string => {
  * @returns {boolean} 未变化时返回 true。
  */
 const isEditorDomainUnchanged = (): boolean => {
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = normalizeDomainForUniqueCompare(String(stateEditor.value.domain ?? ''));
+  /**
+   * 常量：originalDomain。
+   */
   const originalDomain = normalizeDomainForUniqueCompare(String(stateEditorOriginalDomain.value ?? ''));
   return id > 0 && domain !== '' && domain === originalDomain;
 };
@@ -498,6 +726,9 @@ watch(
       return;
     }
 
+    /**
+     * 常量：domain。
+     */
     const domain = String(stateEditor.value.domain ?? '').trim();
     if (domain === '' || domain !== stateUniqueCheckingDomainValue.value) {
       return;
@@ -525,7 +756,13 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：id。
+   */
   const id = Number(stateEditor.value.id ?? 0);
+  /**
+   * 常量：domain。
+   */
   const domain = String(stateEditor.value.domain ?? '').trim();
 
   if (!domain) {
@@ -542,6 +779,9 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
     return;
   }
 
+  /**
+   * 常量：shouldCheckDomain。
+   */
   const shouldCheckDomain = !!domain && schema.pick({ domain: true }).safeParse({ domain }).success;
 
   if (!shouldCheckDomain) {
@@ -562,9 +802,237 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
 const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
 
 /**
+ * API：创建函数。
+ */
+const { refresh: refreshFunctionCreate } = await useApi<{ id: number }>('crawlers/functions/add', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
+ * API：函数详情。
+ */
+const {
+  datas: stateFunctionDetailRemote,
+  status: stateFunctionDetailStatus,
+  error: stateFunctionDetailError,
+  refresh: refreshFunctionDetail
+} = await useApi<ICrawlersEditorSidebarFunctionDetail>('crawlers/functions/detail', {
+  immediate: false
+});
+
+/**
+ * API：保存函数图。
+ */
+const {
+  datas: stateFunctionGraphSaveResult,
+  status: stateFunctionGraphSaveStatus,
+  error: stateFunctionGraphSaveError,
+  refresh: refreshFunctionGraphSave
+} = await useApi<{ affected: number; referenceCount: number }>('crawlers/functions/graph', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
+ * 计算属性：函数逻辑抽屉标题。
+ */
+const computedFunctionLogicTitle = computed(() => {
+  const name = String(stateFunctionLogicDetail.value?.name ?? '').trim();
+  return name !== '' ? `${t('pages.crawlers.editor.title')} / ${name}` : t('pages.crawlers.editor.title');
+});
+
+/**
+ * 计算属性：函数逻辑抽屉描述。
+ */
+const computedFunctionLogicDescription = computed(() => {
+  return String(stateFunctionLogicDetail.value?.description ?? '').trim();
+});
+
+/**
+ * 计算属性：函数逻辑编辑器基础 URL。
+ */
+const computedFunctionLogicEditorBaseUrl = computed(() => {
+  if (stateFunctionLogicDetail.value?.scope === 'site') {
+    return String(stateDetail.value?.baseUrl ?? '').trim();
+  }
+
+  return '';
+});
+
+/**
+ * 计算属性：函数逻辑草稿键。
+ */
+const computedFunctionLogicDraftKey = computed(() => {
+  const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
+  return Number.isFinite(id) && id > 0 ? `crawler:blueprint:draft:function:${id}` : '';
+});
+
+/**
+ * 计算属性：函数逻辑编辑器 key。
+ */
+const computedFunctionLogicEditorKey = computed(() => {
+  return String(stateFunctionLogicDetail.value?.id ?? 'function-logic');
+});
+
+/**
+ * 类型：函数图统计。
+ */
+type TFunctionGraphStats = {
+  parameters: number;
+  returns: number;
+};
+
+/**
+ * 函数：安全解析函数图对象。
+ * @param {unknown} graph 函数图。
+ * @returns {{ nodes?: Array<Record<string, unknown>> } | null} 解析结果。
+ */
+const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>> } | null => {
+  const normalizedGraph = (() => {
+    if (typeof graph === 'string') {
+      try {
+        return JSON.parse(graph) as unknown;
+      } catch {
+        return null;
+      }
+    }
+
+    return graph;
+  })();
+
+  if (!normalizedGraph || typeof normalizedGraph !== 'object') {
+    return null;
+  }
+
+  return normalizedGraph as { nodes?: Array<Record<string, unknown>> };
+};
+
+/**
+ * 函数：统计函数图中的参数与返回值数量。
+ * @param {unknown} graph 函数图。
+ * @returns {TFunctionGraphStats} 统计结果。
+ */
+const functionGraphStatsGet = (graph: unknown): TFunctionGraphStats => {
+  const normalizedGraph = (() => {
+    if (typeof graph === 'string') {
+      try {
+        return JSON.parse(graph) as unknown;
+      } catch {
+        return null;
+      }
+    }
+
+    return graph;
+  })();
+
+  if (!normalizedGraph || typeof normalizedGraph !== 'object') {
+    return { parameters: 0, returns: 0 };
+  }
+
+  const nodes = ((normalizedGraph as { nodes?: unknown }).nodes ?? []) as Array<Record<string, unknown>>;
+
+  if (!Array.isArray(nodes) || nodes.length === 0) {
+    return { parameters: 0, returns: 0 };
+  }
+
+  const startNode = nodes.find((item) => ['function-start', 'start'].includes(String(item.type ?? '').trim()));
+  const returnNode = nodes.find((item) => ['function-return', 'end'].includes(String(item.type ?? '').trim()));
+
+  const parametersRaw = (startNode?.data as Record<string, unknown> | undefined)?.functionParameters;
+  const returnsRaw = (returnNode?.data as Record<string, unknown> | undefined)?.functionReturns;
+
+  return {
+    parameters: Array.isArray(parametersRaw) ? parametersRaw.length : 0,
+    returns: Array.isArray(returnsRaw) ? returnsRaw.length : 0
+  };
+};
+
+/**
+ * 函数：提取函数起止节点调试快照。
+ * @param {unknown} graph 图数据。
+ * @returns {Array<Record<string, unknown>>} 调试快照。
+ */
+const functionGraphDebugSnapshotGet = (graph: unknown): Array<Record<string, unknown>> => {
+  const parsed = graphParseSafe(graph);
+
+  if (!parsed || !Array.isArray(parsed.nodes)) {
+    return [];
+  }
+
+  return parsed.nodes
+    .filter((node: Record<string, unknown>) => {
+      const type = String(node.type ?? '').trim();
+      return type === 'function-start' || type === 'function-return';
+    })
+    .map((node: Record<string, unknown>) => {
+      const data = typeof node.data === 'object' && node.data !== null ? (node.data as Record<string, unknown>) : {};
+      const parameters = Array.isArray(data.functionParameters) ? data.functionParameters : Array.isArray(data.parameters) ? data.parameters : [];
+      const returns = Array.isArray(data.functionReturns) ? data.functionReturns : Array.isArray(data.returns) ? data.returns : [];
+
+      return {
+        id: node.id,
+        type: node.type,
+        functionName: data.functionName,
+        functionParametersLength: parameters.length,
+        functionReturnsLength: returns.length,
+        keys: Object.keys(data)
+      };
+    });
+};
+
+/**
+ * 计算属性：页面逻辑初始图。
+ */
+const computedCrawlerInitialFlowData = computed<unknown>(() => {
+  const detail = (stateDetail.value ?? {}) as Record<string, unknown>;
+
+  if (detail.code !== undefined) {
+    return detail.code;
+  }
+
+  if (detail.graph !== undefined) {
+    return detail.graph;
+  }
+
+  return null;
+});
+
+/**
+ * 函数：解析函数草稿图数据。
+ * @param {number} id 函数 ID。
+ * @returns {unknown | null} 草稿图。
+ */
+const functionDraftGraphGet = (id: number): unknown | null => {
+  if (!import.meta.client || !(Number.isFinite(id) && id > 0)) {
+    return null;
+  }
+
+  const draftKey = `crawler:blueprint:draft:function:${id}`;
+  const raw = localStorage.getItem(draftKey);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as { ts?: number; data?: string };
+    const snapshot = String(parsed.data ?? '').trim();
+
+    if (snapshot === '') {
+      return null;
+    }
+
+    return JSON.parse(snapshot) as unknown;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * 事件：提交表单
  */
-const handleEditorSubmit = async (event: FormSubmitEvent<TCrawlerTargetEditorSubmit>) => {
+const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
   await refreshSave({
     datas: {
       id: event.data.id,
@@ -578,6 +1046,341 @@ const handleEditorSubmit = async (event: FormSubmitEvent<TCrawlerTargetEditorSub
 
   stateEditorOpen.value = false;
   await refreshDetail({ replace: true });
+};
+
+/**
+ * 事件：保存蓝图。
+ */
+const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: string }) => {
+  /**
+   * 常量：target。
+   */
+  const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
+  if (!target) {
+    return;
+  }
+
+  await refreshSave({
+    datas: {
+      id: Number(target.id ?? 0),
+      name: String(target.name ?? '').trim(),
+      domain: String(target.domain ?? '').trim(),
+      description: String(target.description ?? ''),
+      isEnabled: Boolean(target.isEnabled ?? true)
+    },
+    replace: true
+  });
+
+  if (import.meta.client) {
+    /**
+     * 常量：draftKey。
+     */
+    const draftKey = String(payload?.draftKey ?? '').trim();
+    if (draftKey !== '') {
+      localStorage.removeItem(draftKey);
+    }
+  }
+};
+
+/**
+ * 事件：侧栏触发创建函数。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {void} 无返回值。
+ */
+const handleCreateFunctionFromSidebar = (scope: 'site' | 'global'): void => {
+  stateFunctionEditorScope.value = scope;
+  stateFunctionEditorName.value = '';
+  stateFunctionEditorDescription.value = '';
+  stateFunctionEditorOpen.value = true;
+};
+
+/**
+ * 事件：提交创建函数。
+ * @returns {Promise<void>} Promise。
+ */
+const handleCreateFunctionSubmit = async (): Promise<void> => {
+  const name = stateFunctionEditorName.value.trim();
+  const description = stateFunctionEditorDescription.value.trim();
+
+  if (name === '' || !computedFunctionEditorCanSubmit.value) {
+    return;
+  }
+
+  const scope = stateFunctionEditorScope.value;
+
+  await refreshFunctionCreate({
+    datas: {
+      name,
+      scope,
+      targetId: scope === 'site' ? computedFunctionEditorTargetId.value : undefined,
+      description
+    },
+    replace: true
+  });
+
+  stateFunctionEditorOpen.value = false;
+  stateFunctionRefreshNonce.value += 1;
+};
+
+/**
+ * 事件：侧栏触发编辑函数逻辑。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {Promise<void>} Promise。
+ */
+const handleEditFunctionLogicFromSidebar = async (row: ICrawlersEditorSidebarFunctionRow): Promise<void> => {
+  const id = Number(row.id ?? 0);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    return;
+  }
+
+  stateFunctionLogicOpen.value = true;
+  stateFunctionLogicLoading.value = true;
+  stateFunctionLogicDetail.value = null;
+
+  try {
+    await refreshFunctionDetail({
+      datas: { id },
+      replace: true
+    });
+
+    const requestFailed = Boolean(stateFunctionDetailError.value) || Number(stateFunctionDetailStatus.value?.http ?? 200) >= 400;
+    const remoteDetail = stateFunctionDetailRemote.value;
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-detail`, {
+      id,
+      requestFailed,
+      status: stateFunctionDetailStatus.value,
+      error: stateFunctionDetailError.value,
+      remoteDetailId: Number(remoteDetail?.id ?? 0)
+    });
+
+    if (!requestFailed && remoteDetail && Number(remoteDetail.id ?? 0) === id) {
+      stateFunctionLogicDetail.value = remoteDetail;
+      stateFunctionLogicLoadSource.value = 'server';
+      console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-success`, {
+        id,
+        source: 'server',
+        stats: functionGraphStatsGet(remoteDetail.graph),
+        snapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+      });
+      return;
+    }
+
+    const draftGraph = functionDraftGraphGet(id);
+
+    stateFunctionLogicDetail.value = {
+      ...row,
+      graph: draftGraph ?? {}
+    };
+
+    stateFunctionLogicLoadSource.value = draftGraph ? 'draft' : 'default';
+    console.warn(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-fallback`, {
+      id,
+      source: stateFunctionLogicLoadSource.value,
+      reason: requestFailed ? 'request-failed' : 'remote-detail-not-matched',
+      status: stateFunctionDetailStatus.value,
+      error: stateFunctionDetailError.value,
+      stats: functionGraphStatsGet(draftGraph ?? {}),
+      snapshot: functionGraphDebugSnapshotGet(draftGraph ?? {})
+    });
+  } catch (error) {
+    const draftGraph = functionDraftGraphGet(id);
+
+    stateFunctionLogicDetail.value = {
+      ...row,
+      graph: draftGraph ?? {}
+    };
+
+    stateFunctionLogicLoadSource.value = draftGraph ? 'draft' : 'default';
+    console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-exception`, {
+      id,
+      source: stateFunctionLogicLoadSource.value,
+      error,
+      stats: functionGraphStatsGet(draftGraph ?? {}),
+      snapshot: functionGraphDebugSnapshotGet(draftGraph ?? {})
+    });
+  } finally {
+    stateFunctionLogicLoading.value = false;
+  }
+};
+
+/**
+ * 事件：保存函数逻辑。
+ * @param {{ flowData?: unknown; draftKey?: string }} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
+  const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+
+    return;
+  }
+
+  try {
+    const localStats = functionGraphStatsGet(payload?.flowData ?? {});
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-request`, {
+      id,
+      localStats,
+      localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+    });
+
+    await refreshFunctionGraphSave({
+      datas: {
+        id,
+        graph: payload?.flowData ?? {}
+      },
+      replace: true
+    });
+
+    const saveHttp = Number(stateFunctionGraphSaveStatus.value?.http ?? 0);
+    const saveFailed = Boolean(stateFunctionGraphSaveError.value) || (saveHttp >= 400 && saveHttp !== 0);
+    const saveAffected = Number(stateFunctionGraphSaveResult.value?.affected ?? 0);
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-http`, {
+      id,
+      status: stateFunctionGraphSaveStatus.value,
+      error: stateFunctionGraphSaveError.value,
+      result: stateFunctionGraphSaveResult.value
+    });
+
+    if (saveFailed) {
+      const code = `${String(stateFunctionGraphSaveStatus.value?.http ?? '000')}-${String(stateFunctionGraphSaveStatus.value?.biz ?? '000')}-${String(stateFunctionGraphSaveStatus.value?.aim ?? '000')}`;
+
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveFailedWithCode', { code }),
+        color: 'error',
+        icon: 'i-lucide:triangle-alert',
+        duration: 4200
+      });
+
+      console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-http-failed`, {
+        id,
+        status: stateFunctionGraphSaveStatus.value,
+        error: stateFunctionGraphSaveError.value,
+        localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+      });
+      return;
+    }
+
+    if (!Number.isFinite(saveAffected) || saveAffected <= 0) {
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveFailed'),
+        color: 'error',
+        icon: 'i-lucide:triangle-alert',
+        duration: 4200
+      });
+
+      console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-affected-invalid`, {
+        id,
+        status: stateFunctionGraphSaveStatus.value,
+        error: stateFunctionGraphSaveError.value,
+        result: stateFunctionGraphSaveResult.value,
+        localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+      });
+      return;
+    }
+
+    await refreshFunctionDetail({
+      datas: { id },
+      replace: true
+    });
+
+    const remoteDetail = stateFunctionDetailRemote.value;
+
+    if (remoteDetail && Number(remoteDetail.id ?? 0) === id) {
+      stateFunctionLogicDetail.value = remoteDetail;
+
+      const remoteStats = functionGraphStatsGet(remoteDetail.graph);
+      console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-echo`, {
+        id,
+        localStats,
+        remoteStats,
+        remoteSnapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+      });
+
+      if (remoteStats.parameters < localStats.parameters || remoteStats.returns < localStats.returns) {
+        toast.add({
+          title: t('pages.crawlers.editor.saveFeedback.title'),
+          description: t('pages.crawlers.editor.loadSource.persistMismatch'),
+          color: 'error',
+          icon: 'i-lucide:triangle-alert',
+          duration: 4200
+        });
+
+        console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} persist-mismatch`, {
+          id,
+          localStats,
+          remoteStats,
+          localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {}),
+          remoteSnapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+        });
+      }
+    } else if (stateFunctionLogicDetail.value) {
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveEchoMissing'),
+        color: 'warning',
+        icon: 'i-lucide:triangle-alert',
+        duration: 3800
+      });
+
+      console.warn(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-echo-missing`, {
+        id,
+        status: stateFunctionDetailStatus.value,
+        error: stateFunctionDetailError.value
+      });
+
+      stateFunctionLogicDetail.value = {
+        ...stateFunctionLogicDetail.value,
+        graph: payload?.flowData ?? {}
+      };
+    }
+
+    if (import.meta.client) {
+      const draftKey = String(payload?.draftKey ?? '').trim();
+      if (draftKey !== '') {
+        localStorage.setItem(draftKey, JSON.stringify({ ts: Date.now(), data: JSON.stringify(payload?.flowData ?? {}) }));
+      }
+    }
+
+    stateFunctionRefreshNonce.value += 1;
+
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveSuccess'),
+      color: 'success',
+      icon: 'i-lucide:check-check',
+      duration: 2600
+    });
+
+    stateFunctionLogicOpen.value = false;
+  } catch (error) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+
+    console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-exception`, {
+      id,
+      error,
+      localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+    });
+  }
 };
 
 /**
@@ -611,7 +1414,13 @@ const handleToolbarCreate = () => {
  * 事件：关键词应用
  */
 const handleKeywordApply = () => {
+  /**
+   * 常量：keyword。
+   */
   const keyword = stateToolbarKeyword.value.trim();
+  /**
+   * 常量：query。
+   */
   const query = { ...route.query };
 
   query.page = '1';
@@ -631,6 +1440,9 @@ const handleKeywordApply = () => {
  */
 const handleFilterReset = () => {
   stateToolbarKeyword.value = '';
+  /**
+   * 常量：query。
+   */
   const query = { ...route.query };
 
   delete query.keyword;
@@ -667,7 +1479,7 @@ watch(stateSearchPopoverOpen, async (isOpen) => {
   }
 
   await nextTick();
-  refToolbarSearchInput.value?.inputRef?.focus();
+  stateRefToolbarSearchInput.value?.inputRef?.focus();
 });
 
 /**

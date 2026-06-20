@@ -70,6 +70,9 @@ const pagesize = computed<number>({
    * Setter：更新路由 query（保持可分享）并同步写入 cookie
    */
   set: (value: number) => {
+    /**
+     * 常量：query。
+     */
     const query = { ...route.query };
 
     // 修改每页数量后统一回到第一页，避免当前页越界导致看起来像“没生效”。
@@ -94,6 +97,9 @@ const pagesize = computed<number>({
 watch(
   () => route.query.pagesize,
   (val) => {
+    /**
+     * 常量：num。
+     */
     const num = parseInt(String(val ?? ''), 10);
     if (Number.isFinite(num) && num > 0) {
       pagesizesCookie.value = {

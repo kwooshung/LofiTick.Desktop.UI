@@ -4,14 +4,24 @@
 
     <div class="space-y-6 pb-6">
       <UPageCard variant="outline" :ui="{ root: 'rounded-lg', container: 'divide-y divide-default' }">
-        <UFormField label="服务器任务" :description="t('pages.settings.cron.serverShortcut.heroDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.serverTaskLabel')"
+          :description="t('pages.settings.cron.serverShortcut.heroDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
             <UBadge color="primary" variant="soft">{{ t('pages.settings.cron.tabs.server') }}</UBadge>
             <UBadge color="neutral" variant="outline">1Panel</UBadge>
           </div>
         </UFormField>
 
-        <UFormField label="真实计划任务" description="去 1Panel 里管理真实的服务器计划任务。" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.realCronLabel')"
+          :description="t('pages.settings.cron.serverShortcut.fields.realCronDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
             <ULink raw :href="computedCronjobsUrl" class="bg-primary text-inverted hover:bg-primary/90 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors" @click.prevent="handleOpenExternal(computedCronjobsUrl)">
               <UIcon name="i-lucide:arrow-up-right" class="size-4 shrink-0" />
@@ -24,7 +34,12 @@
           </div>
         </UFormField>
 
-        <UFormField label="当前 1Panel 地址" description="如果入口地址不对，去服务连接里修改 1Panel 根域名。" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center">
+        <UFormField
+          :label="t('pages.settings.cron.serverShortcut.fields.panelBaseLabel')"
+          :description="t('pages.settings.cron.serverShortcut.fields.panelBaseDescription')"
+          :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+          class="grid gap-3 xl:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)] xl:items-center"
+        >
           <div class="flex w-full min-w-0 flex-col items-stretch gap-2 justify-self-end xl:items-end">
             <div class="text-highlighted w-full text-sm leading-6 break-all xl:max-w-4xl xl:text-right">{{ computedPanelBase }}</div>
 
@@ -41,7 +56,7 @@
       <section class="grid items-start gap-8 pt-8 xl:grid-cols-[14rem_minmax(0,1fr)] xl:pt-10">
         <aside class="space-y-8 pb-8 xl:sticky xl:top-6 xl:pb-10">
           <div class="space-y-3">
-            <div class="text-muted text-[11px] tracking-[0.18em] uppercase">常用入口</div>
+            <div class="text-muted text-[11px] tracking-[0.18em] uppercase">{{ t('pages.settings.cron.serverShortcut.quickEntriesTitle') }}</div>
 
             <div class="space-y-2">
               <ULink
@@ -67,11 +82,11 @@
           <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-end gap-3 px-0 py-0' }">
             <template #header>
               <div class="min-w-0 flex-1">
-                <div class="text-highlighted text-base font-semibold text-pretty">导航入口</div>
-                <div class="text-muted mt-1 text-[15px] text-pretty">按 1Panel 一级栏目直接展开常用入口。</div>
+                <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.cron.serverShortcut.atlas.title') }}</div>
+                <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.cron.serverShortcut.atlas.description') }}</div>
               </div>
 
-              <div class="text-muted hidden text-xs tracking-[0.16em] uppercase sm:block">{{ computedLinkTotal }} 个入口</div>
+              <div class="text-muted hidden text-xs tracking-[0.16em] uppercase sm:block">{{ t('pages.settings.cron.serverShortcut.atlas.total', { count: computedLinkTotal }) }}</div>
             </template>
           </UPageCard>
 

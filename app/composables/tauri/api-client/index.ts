@@ -30,11 +30,20 @@ export const useTauriApiClient = () => {
       throw new Error('tauri only');
     }
 
+    /**
+     * 常量：method。
+     */
     const method = String(input?.method ?? '')
       .trim()
       .toUpperCase();
+    /**
+     * 常量：path。
+     */
     const path = String(input?.path ?? '').trim();
 
+    /**
+     * 常量：keyHash。
+     */
     const keyHash = JSON.stringify({
       method,
       path,
@@ -43,8 +52,14 @@ export const useTauriApiClient = () => {
       datas: input?.datas ?? null
     });
 
+    /**
+     * 常量：out。
+     */
     const out = await invoke<IApiClientRequestOutput>('api_client_request', { input });
 
+    /**
+     * 常量：http。
+     */
     const http = Number(out?.http ?? 0);
     if (Number.isFinite(http) && http >= 400) {
       apiToastTryEmit({

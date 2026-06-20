@@ -70,21 +70,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：场景守护详情 Props
- */
-interface ISettingsUnattendedScenesMachineDetailsProps {
-  /**
-   * 当前机器场景信息
-   */
-  machine: IPageSettingsUnattendedScenesMachineRedisConfig;
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedScenesMachineDetailsProps } from '@/components/settings/unattended/scenes-machine-details/index.types';
 /**
  * Hook：i18n
  */
@@ -118,7 +104,13 @@ const isLocalMachine = (machineCode: string): boolean => String(machineCode || '
  * @returns {string} 展示文本
  */
 const scenesCommandTextGet = (execPath: string, args: string[]): string => {
+  /**
+   * 常量：safeExecPath。
+   */
   const safeExecPath = String(execPath || '').trim();
+  /**
+   * 常量：safeArgs。
+   */
   const safeArgs = Array.isArray(args) ? args.map((item) => String(item)) : [];
 
   return [safeExecPath, ...safeArgs].filter((item) => String(item).trim() !== '').join(' ');

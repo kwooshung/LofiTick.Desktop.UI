@@ -123,17 +123,17 @@ let blurCloseTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 /**
  * 引用：根元素与重命名输入框元素引用
  */
-const refRootEl = ref<HTMLElement | null>(null);
+const stateRefRootEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：重命名输入框外层元素引用
  */
-const refRelabelWrapEl = ref<HTMLElement | null>(null);
+const stateRefRelabelWrapEl = ref<HTMLElement | null>(null);
 
 /**
  * 引用：名称元素引用
  */
-const refLabelEl = ref<HTMLElement | null>(null);
+const stateRefLabelEl = ref<HTMLElement | null>(null);
 
 /**
  * 状态：内部选中状态（受控/非受控）
@@ -153,7 +153,7 @@ const stateDraftLabel = ref<string>('');
 /**
  * 状态：重命名延迟计时器句柄
  */
-const relabelTimer = ref<ReturnType<typeof setTimeout> | undefined>(undefined);
+const stateRelabelTimer = ref<ReturnType<typeof setTimeout> | undefined>(undefined);
 
 /**
  * 计算属性：是否无右键菜单
@@ -174,9 +174,9 @@ const computedIsSelected = computed({
       stateInnerSelected.value = v;
     }
 
-    if (!v && relabelTimer.value !== undefined) {
-      clearTimeout(relabelTimer.value);
-      relabelTimer.value = undefined;
+    if (!v && stateRelabelTimer.value !== undefined) {
+      clearTimeout(stateRelabelTimer.value);
+      stateRelabelTimer.value = undefined;
     }
 
     emit('update:selected', v);
@@ -191,7 +191,13 @@ const defaultFolderLabel = computed<string>(() => {
     return defaultLabel;
   }
 
+  /**
+   * 常量：key。
+   */
   const key = 'components.folder.newFolder';
+  /**
+   * 常量：translated。
+   */
   const translated = t(key) as unknown as string;
   return translated === key ? 'new folder' : translated;
 });
@@ -206,7 +212,10 @@ const displayLabel = computed<string>(() => label ?? defaultFolderLabel.value);
  * @return {HTMLInputElement | null} 输入框元素
  */
 const getRelabelInputEl = (): HTMLInputElement | null => {
-  const wrap = refRelabelWrapEl.value;
+  /**
+   * 常量：wrap。
+   */
+  const wrap = stateRefRelabelWrapEl.value;
   if (!wrap) {
     return null;
   }
@@ -226,6 +235,9 @@ const startRelabel = () => {
   emit('relabel-start');
 
   nextTick(() => {
+    /**
+     * 常量：input。
+     */
     const input = getRelabelInputEl();
     if (input) {
       input.focus();
@@ -239,12 +251,12 @@ const startRelabel = () => {
  * 函数：延迟进入重命名
  */
 const delayedStartRelabel = () => {
-  if (relabelTimer.value !== undefined) {
-    clearTimeout(relabelTimer.value);
+  if (stateRelabelTimer.value !== undefined) {
+    clearTimeout(stateRelabelTimer.value);
   }
-  relabelTimer.value = setTimeout(() => {
+  stateRelabelTimer.value = setTimeout(() => {
     startRelabel();
-    relabelTimer.value = undefined;
+    stateRelabelTimer.value = undefined;
   }, relabelDelay);
 };
 
@@ -252,6 +264,9 @@ const delayedStartRelabel = () => {
  * 函数：确认重命名
  */
 const confirmRelabel = () => {
+  /**
+   * 常量：draftLabel。
+   */
   const draftLabel = stateDraftLabel.value?.trim() ?? '';
 
   if (draftLabel && draftLabel !== displayLabel.value) {
@@ -269,9 +284,9 @@ const confirmRelabel = () => {
 const cancelRelabel = () => {
   stateDraftLabel.value = displayLabel.value;
   stateIsRenaming.value = false;
-  if (relabelTimer.value !== undefined) {
-    clearTimeout(relabelTimer.value);
-    relabelTimer.value = undefined;
+  if (stateRelabelTimer.value !== undefined) {
+    clearTimeout(stateRelabelTimer.value);
+    stateRelabelTimer.value = undefined;
   }
   emit('relabel-cancel');
 };
@@ -388,8 +403,17 @@ const onPointerDown = (e: PointerEvent) => {
  * @param {PointerEvent} e 指针事件
  */
 const onPointerMove = (e: PointerEvent) => {
+  /**
+   * 常量：dx。
+   */
   const dx = Math.abs(e.clientX - pointerDownPos.x);
+  /**
+   * 常量：dy。
+   */
   const dy = Math.abs(e.clientY - pointerDownPos.y);
+  /**
+   * 常量：moved。
+   */
   const moved = Math.hypot(dx, dy);
   // 移动超过容差即判定为拖拽，后续的 click（若产生）将被抑制进入重命名
   if (moved > clickMoveTolerance) {
@@ -427,15 +451,36 @@ const onClick = (e: MouseEvent) => {
     return;
   }
 
+  /**
+   * 常量：now。
+   */
   const now = Date.now();
+  /**
+   * 常量：timeDiff。
+   */
   const timeDiff = now - lastClickTime;
+  /**
+   * 常量：dx。
+   */
   const dx = Math.abs(e.clientX - lastClickPos.x);
+  /**
+   * 常量：dy。
+   */
   const dy = Math.abs(e.clientY - lastClickPos.y);
+  /**
+   * 常量：moved。
+   */
   const moved = Math.hypot(dx, dy);
 
   // 若当前处于重命名态：点击输入框之外但仍在组件内部 -> 退出重命名但保持选中
   if (stateIsRenaming.value) {
+    /**
+     * 常量：input。
+     */
     const input = getRelabelInputEl();
+    /**
+     * 常量：target。
+     */
     const target = e.target as Node | null;
 
     if (!input || (target && !input.contains(target))) {
@@ -474,8 +519,14 @@ const onClick = (e: MouseEvent) => {
       // 已选中：第二次单击（非双击）直接进入重命名
       if (relabel && relabelOnSecondClick) {
         if (relabelOnly) {
+          /**
+           * 常量：target。
+           */
           const target = e.target as Node | null;
-          const nameEl = refLabelEl.value;
+          /**
+           * 常量：nameEl。
+           */
+          const nameEl = stateRefLabelEl.value;
           if (nameEl && target && nameEl.contains(target)) {
             delayedStartRelabel();
           }
@@ -499,7 +550,7 @@ const handleMenuSelect = (item: ContextMenuItem) => emit('menu-select', item);
 /**
  * 事件：组件外点击 -> 取消选中与重命名就绪
  */
-onClickOutside(refRootEl, () => {
+onClickOutside(stateRefRootEl, () => {
   if (!unselectOnOutside) {
     return;
   }

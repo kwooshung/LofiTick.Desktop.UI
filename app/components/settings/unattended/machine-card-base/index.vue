@@ -64,24 +64,13 @@
 
 <script setup lang="ts">
 import { useClipboard } from '@vueuse/core';
-
-/**
- * 接口：机器基础卡片 Props
- */
-interface ISettingsUnattendedMachineCardBaseProps {
-  /**
-   * 机器基础信息
-   */
-  machine: IPageSettingsUnattendedMachineCardInfo;
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
+import type { ISettingsUnattendedMachineCardBaseProps } from '@/components/settings/unattended/machine-card-base/index.types';
 
 /**
  * Hook：i18n
+ */
+/**
+ * Hook：国际化工具。
  */
 const { t } = useI18n();
 
@@ -134,6 +123,9 @@ const machineOnlineGet = (currentMachine: IPageSettingsUnattendedMachineCardInfo
  * 函数：复制机器码
  */
 const handleMachineCodeCopy = async (): Promise<void> => {
+  /**
+   * 常量：value。
+   */
   const value = String(machine.machineCode || '').trim();
   if (!value) {
     return;
@@ -146,7 +138,7 @@ const handleMachineCodeCopy = async (): Promise<void> => {
   }
 
   toast.add({
-    description: h('span', { class: 'break-all' }, [h('span', { class: 'text-muted' }, '已复制：'), h('span', { class: 'text-highlighted' }, value)]),
+    description: h('span', { class: 'break-all' }, [h('span', { class: 'text-muted' }, t('components.sentinel.scenes.card.toast.copiedPrefix')), h('span', { class: 'text-highlighted' }, value)]),
     color: 'success',
     icon: 'i-lucide-copy-check',
     duration: 1200,

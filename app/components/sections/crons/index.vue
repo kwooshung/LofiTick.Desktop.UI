@@ -83,6 +83,9 @@ const stateSentinelStatus = ref<ISentinelStatusPayload | null>(null);
  * @return {string} 返回状态文案
  */
 const localSentinelStatusLabelGet = (): string => {
+  /**
+   * 常量：state。
+   */
   const state = stateSentinelStatus.value?.status.state;
 
   if (state === 'online') {
@@ -110,6 +113,9 @@ const localSentinelStatusLabelGet = (): string => {
  * @return {IPageSettingsLocalCronRow['statusColor']} 返回状态颜色
  */
 const localSentinelStatusColorGet = (): IPageSettingsLocalCronRow['statusColor'] => {
+  /**
+   * 常量：state。
+   */
   const state = stateSentinelStatus.value?.status.state;
 
   if (state === 'online') {
@@ -209,7 +215,13 @@ const computedLocalTasks = computed<IPageSettingsLocalCronRow[]>(() => {
     return [];
   }
 
+  /**
+   * 常量：enabledSceneCount。
+   */
   const enabledSceneCount = stateSentinelStatus.value?.attach.enabledSceneCount ?? 0;
+  /**
+   * 常量：recoveryState。
+   */
   const recoveryState = stateSentinelStatus.value?.attach.recoveryState ?? t('common.labels.none');
 
   return [
@@ -287,7 +299,7 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
         td: 'w-[58%] xl:hidden'
       }
     },
-    header: '详情',
+    header: t('pages.settings.cron.table.detail'),
     cell: ({ row }) => {
       return h('div', { class: 'min-w-0 space-y-2' }, [
         h('div', { class: 'min-w-0' }, [h('div', { class: 'text-muted text-[11px] leading-4' }, t('pages.settings.cron.table.schedule')), h('div', { class: 'text-highlighted mt-1 text-sm leading-6 wrap-break-word' }, row.original.schedulePrimary)]),

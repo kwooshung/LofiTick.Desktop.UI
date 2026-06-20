@@ -10,12 +10,24 @@ import type { ISqlOptionsPagination, ISqlResultPagination } from '@@/shared/util
 export const calcPagination = (page?: number | string | null, size?: number | string | null, options?: ISqlOptionsPagination): ISqlResultPagination => {
   // 默认值（全写死在这里，清晰）
   const DEFAULT_PAGE = 1;
+  /**
+   * 常量：DEFAULT_SIZE。
+   */
   const DEFAULT_SIZE = 20;
+  /**
+   * 常量：MIN_SIZE。
+   */
   const MIN_SIZE = 1;
+  /**
+   * 常量：MAX_SIZE。
+   */
   const MAX_SIZE = 100;
 
   // 合并配置（不传就用默认）
   const pageConfig = options?.page ?? {};
+  /**
+   * 常量：sizeConfig。
+   */
   const sizeConfig = options?.size ?? {};
 
   // page 计算（最小 1，无上限除非指定）
@@ -26,6 +38,9 @@ export const calcPagination = (page?: number | string | null, size?: number | st
 
   // size 计算（每页条数）
   const rawSize = Number(size);
+  /**
+   * 常量：s。
+   */
   let s = sizeConfig.default ?? DEFAULT_SIZE;
   if (!Number.isNaN(rawSize)) {
     s = Math.max(sizeConfig.min ?? MIN_SIZE, Math.min(sizeConfig.max ?? MAX_SIZE, rawSize));

@@ -899,3 +899,18 @@ export interface IMediaPlyrProps {
    */
   waveformViewBoxHeight?: number;
 }
+
+/**
+ * 接口：媒体源 URL Provider 识别规则。
+ */
+export interface IMediaPlyrSourceUrlProviderRule {
+  /**
+   * 属性：提供者。
+   */
+  provider: Exclude<TMediaPlyrSourceProvider, 'html5'>;
+
+  /**
+   * 属性：匹配函数。
+   */
+  match: (url: URL) => boolean;
+}

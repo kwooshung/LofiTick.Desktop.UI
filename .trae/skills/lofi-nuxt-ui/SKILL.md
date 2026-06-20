@@ -256,6 +256,20 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 对象结构（需要写属性注释的那种）一律优先使用 `interface`，禁止用 `type` 定义对象字面量结构。
 - `type` 仅允许用于：联合类型/字面量类型/函数类型/交叉类型等不适合逐属性注释的场景。
 
+#### 5.2.1 组件状态命名（强制）
+
+- 在 `app/**/*.vue` 中，凡是由 `ref`、`reactive`、`shallowRef`、`shallowReactive` 创建且不属于 `props` 的组件状态变量，命名必须使用 `state` 前缀。
+- 命名格式强制：`stateXxx`（例如 `stateLoading`、`stateRows`、`stateForm`）。
+- 禁止继续使用无 `state` 前缀的状态命名（例如 `loading`、`canvasRef`、`formState`）。
+- `props` 解构字段、`computed`、普通函数、事件处理函数不适用本条，不要求改为 `state` 前缀。
+
+#### 5.2.2 元素引用命名（强制）
+
+- 只要模板里使用静态元素引用 `ref="xxx"`，变量名必须使用 `ref` 前缀，命名格式固定为 `refXxx`。
+- 此类元素引用变量禁止使用 `state` 前缀（例如禁止 `stateCanvasRef`、`statePreviewStageElement`）。
+- 推荐写法：模板 `ref="refCanvas"` 对应脚本 `const refCanvas = ref<HTMLCanvasElement | null>(null)`。
+- 动态引用 `:ref="fn"` 不受本条前缀约束，但其返回的实际键名同样建议遵循 `refXxx`。
+
 ### 5.3 避免内联类型（强制：说清楚）
 
 - 禁止内联对象字面量类型（例如 `{ a: string }`）到变量/函数签名中；应提取为 `interface/type` 以便注释与维护。
@@ -267,6 +281,7 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 函数/类型/接口/类：必须有完整注释（描述、参数、返回值等）。
 - 逻辑步骤/操作说明：允许使用 `//`，但必须放在代码上方，禁止行尾注释。
 - 对于 `类型/接口/变量/常量/函数/类/Hook/状态/计算属性/生命周期（组件挂载）` 的注释，必须以对应的中文前缀开头，接口属性除外。
+- Vue 模板（`<template>`）中禁止出现 HTML 注释（`<!-- ... -->`），包括临时注释、整段注释代码与 TODO 注释；需要说明时必须改写到脚本区或文档中。
 
 #### 5.4.1 特征式注释（强制：禁止）
 

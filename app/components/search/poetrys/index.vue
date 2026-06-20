@@ -227,12 +227,12 @@ const route = useRoute();
 /**
  * 引用：选择菜单，作者
  */
-const refAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefAuthorMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 引用：选择菜单，朝代
  */
-const refDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
+const stateRefDynastyMenu = ref<{ triggerRef: { click: () => void } } | null>(null);
 
 /**
  * 状态：模态框开关
@@ -318,8 +318,14 @@ const SEARCH_SUGGESTION_LIMIT = 10;
  * 计算属性：是否设置了搜索条件
  */
 const computedHasSearchConditions = computed(() => {
+  /**
+   * 常量：q。
+   */
   const q = route.query;
 
+  /**
+   * 函数：hasText。
+   */
   const hasText = (typeof q.title !== 'undefined' && String(q.title ?? '').trim().length > 0) || (typeof q.content !== 'undefined' && String(q.content ?? '').trim().length > 0);
 
   return hasText || hasQueryParamIds('dynasty_ids') || hasQueryParamIds('author_ids') || typeof q.enabled !== 'undefined';
@@ -404,6 +410,9 @@ const buildHydrateQueryDatas = (key: 'author_ids' | 'dynasty_ids', ids: number[]
  * @returns {'all' | 'enabled' | 'disabled'} 启用状态。
  */
 const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
+  /**
+   * 常量：value。
+   */
   const value = String(route.query.enabled ?? '').trim();
 
   if (value === '1') {
@@ -423,6 +432,9 @@ const readEnabledStateFromRoute = (): 'all' | 'enabled' | 'disabled' => {
  * @return {boolean} 是否存在有效参数
  */
 const hasQueryParamIds = (key: 'dynasty_ids' | 'author_ids'): boolean => {
+  /**
+   * 常量：v。
+   */
   const v = route.query[key];
 
   if (typeof v === 'undefined' || v === null) {
@@ -438,7 +450,13 @@ const hasQueryParamIds = (key: 'dynasty_ids' | 'author_ids'): boolean => {
  * 辅助：从路由查询提取 ID 数组
  */
 const getQueryIds = (key: 'dynasty_ids' | 'author_ids'): number[] => {
+  /**
+   * 常量：v。
+   */
   const v = route.query[key];
+  /**
+   * 常量：arr。
+   */
   const arr = v ? (Array.isArray(v) ? v : [v]) : [];
   return arr.map((s) => parseInt(String(s), 10)).filter((n) => Number.isFinite(n) && n > 0);
 };
@@ -448,7 +466,13 @@ const getQueryIds = (key: 'dynasty_ids' | 'author_ids'): number[] => {
  */
 const mapIdsToSelected = (ids: number[], current: IComponentPropsPoetrysSelectMenuItem[], cache: Map<number, { label: string; count: number }>): IComponentPropsPoetrysSelectMenuItem[] => {
   return ids.map((id) => {
+    /**
+     * 常量：hitSel。
+     */
     const hitSel = current.find((s) => s.value === id);
+    /**
+     * 常量：hitCache。
+     */
     const hitCache = cache.get(id);
     return {
       label: hitSel?.label ?? hitCache?.label ?? String(id),
@@ -479,6 +503,9 @@ const applyListDefaultsFromRoute = async (): Promise<void> => {
 
   // 选择项：根据 ID 设置默认值（使用缓存或当前选择补全 label）
   const dynasty_ids = getQueryIds('dynasty_ids');
+  /**
+   * 常量：author_ids。
+   */
   const author_ids = getQueryIds('author_ids');
 
   stateSelectedDynasties.value = mapIdsToSelected(dynasty_ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
@@ -491,6 +518,9 @@ const applyListDefaultsFromRoute = async (): Promise<void> => {
  * 函数：作者页——从路由查询参数应用默认值（authorId）
  */
 const applyAuthorsDefaultsFromRoute = async (): Promise<void> => {
+  /**
+   * 常量：ids。
+   */
   const ids = getQueryIds('author_ids');
 
   stateSelectedAuthor.value = mapIdsToSelected(ids, stateSelectedAuthor.value, stateCacheAuthorLabelMap.value);
@@ -501,6 +531,9 @@ const applyAuthorsDefaultsFromRoute = async (): Promise<void> => {
  * 函数：朝代页——从路由查询参数应用默认值（dynastyId）
  */
 const applyDynastiesDefaultsFromRoute = async (): Promise<void> => {
+  /**
+   * 常量：ids。
+   */
   const ids = getQueryIds('dynasty_ids');
 
   stateSelectedDynasties.value = mapIdsToSelected(ids, stateSelectedDynasties.value, stateCacheDynastyLabelMap.value);
@@ -513,6 +546,9 @@ const applyDynastiesDefaultsFromRoute = async (): Promise<void> => {
  * @returns {Promise<void>} 回填完成
  */
 const hydrateSelectedAuthorsByIds = async (ids: number[]): Promise<void> => {
+  /**
+   * 常量：missingIds。
+   */
   const missingIds = ids.filter((id) => !stateCacheAuthorLabelMap.value.has(id));
 
   if (missingIds.length === 0) {
@@ -522,6 +558,9 @@ const hydrateSelectedAuthorsByIds = async (ids: number[]): Promise<void> => {
 
   await refreshAuthorSummary({ datas: buildHydrateQueryDatas('author_ids', missingIds), replace: true });
 
+  /**
+   * 常量：rows。
+   */
   const rows = stateAuthorSummaryData.value?.rows ?? [];
   rows.forEach((row) => {
     stateCacheAuthorLabelMap.value.set(row.id, { label: row.name, count: row.count });
@@ -536,6 +575,9 @@ const hydrateSelectedAuthorsByIds = async (ids: number[]): Promise<void> => {
  * @returns {Promise<void>} 回填完成
  */
 const hydrateSelectedDynastiesByIds = async (ids: number[]): Promise<void> => {
+  /**
+   * 常量：missingIds。
+   */
   const missingIds = ids.filter((id) => !stateCacheDynastyLabelMap.value.has(id));
 
   if (missingIds.length === 0) {
@@ -545,6 +587,9 @@ const hydrateSelectedDynastiesByIds = async (ids: number[]): Promise<void> => {
 
   await refreshDynastySummary({ datas: buildHydrateQueryDatas('dynasty_ids', missingIds), replace: true });
 
+  /**
+   * 常量：rows。
+   */
   const rows = stateDynastySummaryData.value?.rows ?? [];
   rows.forEach((row) => {
     stateCacheDynastyLabelMap.value.set(row.id, { label: row.name, count: row.count });
@@ -557,7 +602,13 @@ const hydrateSelectedDynastiesByIds = async (ids: number[]): Promise<void> => {
  * 监听：朝代联想数据变化
  */
 watch(stateDynastyData, (val) => {
+  /**
+   * 常量：rows。
+   */
   const rows = val?.rows ?? [];
+  /**
+   * 常量：newItems。
+   */
   const newItems = rows.map((r) => ({ label: r.name, value: r.id, count: r.count }));
   setOriginDynasties(newItems);
   stateLoadingDynasties.value = false;
@@ -569,6 +620,9 @@ watch(stateDynastyData, (val) => {
    * 同步：用返回数据补全已选项标签
    */
   stateSelectedDynasties.value = stateSelectedDynasties.value.map((s) => {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.id === s.value);
     return hit ? { label: hit.name, value: hit.id, count: hit.count } : s;
   });
@@ -578,7 +632,13 @@ watch(stateDynastyData, (val) => {
  * 监听：作者联想数据变化
  */
 watch(stateAuthorData, (val) => {
+  /**
+   * 常量：rows。
+   */
   const rows = val?.rows ?? [];
+  /**
+   * 常量：newItems。
+   */
   const newItems = rows.map((r) => ({ label: r.name, value: r.id, count: r.count }));
   setOriginAuthors(newItems);
   stateLoadingAuthors.value = false;
@@ -590,6 +650,9 @@ watch(stateAuthorData, (val) => {
    * 同步：用返回数据补全已选项标签
    */
   stateSelectedAuthor.value = stateSelectedAuthor.value.map((s) => {
+    /**
+     * 常量：hit。
+     */
     const hit = rows.find((r) => r.id === s.value);
     return hit ? { label: hit.name, value: hit.id, count: hit.count } : s;
   });
@@ -704,14 +767,14 @@ const syncSearchPanelViewportMode = (): void => {
 const triggerQuickFocus = () => {
   if (routeIsAuthors) {
     if (statePageAuthorSearchType.value === 'author') {
-      refAuthorMenu.value?.triggerRef.click();
+      stateRefAuthorMenu.value?.triggerRef.click();
     } else {
-      refDynastyMenu.value?.triggerRef.click();
+      stateRefDynastyMenu.value?.triggerRef.click();
     }
   }
 
   if (routeIsDynasties) {
-    refDynastyMenu.value?.triggerRef.click();
+    stateRefDynastyMenu.value?.triggerRef.click();
   }
 };
 

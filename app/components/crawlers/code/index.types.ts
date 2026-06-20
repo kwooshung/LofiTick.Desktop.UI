@@ -1,3 +1,5 @@
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 
 /**
@@ -15,6 +17,11 @@ export interface ICrawlersCodeProps {
   baseUrl?: string;
 
   /**
+   * 属性：站点 ID。
+   */
+  targetId?: number;
+
+  /**
    * 属性：左侧栏分组数据。
    */
   groups?: ICrawlersListGroup[];
@@ -23,6 +30,21 @@ export interface ICrawlersCodeProps {
    * 属性：当前选中条目 key。
    */
   selectedKey?: string;
+
+  /**
+   * 属性：函数列表刷新 nonce。
+   */
+  functionRefreshNonce?: number;
+
+  /**
+   * 属性：编辑器初始图数据。
+   */
+  initialFlowData?: unknown;
+
+  /**
+   * 属性：编辑器初始数据来源提示。
+   */
+  initialLoadSource?: 'server' | 'draft' | 'default';
 }
 
 /**
@@ -32,7 +54,7 @@ export interface ICrawlersCodeEmits {
   /**
    * 事件：保存。
    */
-  save: [];
+  save: [payload: ICrawlersEditorSavePayload];
 
   /**
    * 事件：点击左侧列表条目。
@@ -40,4 +62,21 @@ export interface ICrawlersCodeEmits {
    * @param {MouseEvent} event 鼠标事件。
    */
   click: [row: ICrawlersListRow, event: MouseEvent];
+
+  /**
+   * 事件：创建函数。
+   * @param {'site' | 'global'} scope 作用域。
+   */
+  createFunction: [scope: 'site' | 'global'];
+
+  /**
+   * 事件：编辑函数逻辑。
+   * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+   */
+  editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
+
+  /**
+   * 事件：函数元数据变更。
+   */
+  functionsChanged: [];
 }

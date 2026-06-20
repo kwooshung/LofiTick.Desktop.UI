@@ -18,9 +18,15 @@ interface IApiEmailWelcomeBody {
  * 该接口只负责在本地渲染欢迎邮件模板，真正发送仍由前端继续调用 Rust `/email/send`。
  */
 export default defineEventHandler(async (event) => {
+  /**
+   * 常量：body。
+   */
   const body = (await readBody<IApiEmailWelcomeBody>(event).catch(() => null)) ?? {};
 
   try {
+    /**
+     * 常量：datas。
+     */
     const datas = await welcomeEmailBuild(String(body.locale ?? 'zh_cn'));
 
     return {

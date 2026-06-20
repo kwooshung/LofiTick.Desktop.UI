@@ -36,7 +36,13 @@ export const useTauriEnv = () => {
       return false;
     }
 
+    /**
+     * 常量：nav。
+     */
     const nav = window.navigator as Navigator & { userAgentData?: { platform?: string } };
+    /**
+     * 常量：platform。
+     */
     const platform = String(nav.userAgentData?.platform || nav.platform || '').toLowerCase();
     return platform.includes('win');
   });

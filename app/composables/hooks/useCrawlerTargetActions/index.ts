@@ -11,7 +11,7 @@ import type { IBuildCrawlerTargetContextMenuItemsOptions } from '@/composables/h
  *
  * 返回站点动作构建器与通用辅助函数。
  */
-export const useCrawlerTargetActions = () => {
+export const useCrawlerTargetMenuActions = () => {
   /**
    * Hook：国际化。
    */
@@ -33,8 +33,15 @@ export const useCrawlerTargetActions = () => {
       return false;
     }
 
+    /**
+     * 函数：normalized。
+     */
     const normalized = String(text ?? '').trim();
     if (normalized === '') {
+      return false;
+    }
+
+    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
       return false;
     }
 
@@ -42,21 +49,7 @@ export const useCrawlerTargetActions = () => {
       await navigator.clipboard.writeText(normalized);
       return true;
     } catch {
-      try {
-        const el = document.createElement('textarea');
-        el.value = normalized;
-        el.style.position = 'fixed';
-        el.style.left = '-9999px';
-        el.style.top = '-9999px';
-        document.body.appendChild(el);
-        el.focus();
-        el.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(el);
-        return ok;
-      } catch {
-        return false;
-      }
+      return false;
     }
   };
 
@@ -73,7 +66,13 @@ export const useCrawlerTargetActions = () => {
    * 右键菜单分组。
    */
   const buildCrawlerTargetContextMenuItems = (row: IQueryResultCrawlerTargetRow, options: IBuildCrawlerTargetContextMenuItemsOptions = {}): ContextMenuItem[][] => {
+    /**
+     * 常量：domain。
+     */
     const domain = String(row.domain ?? '').trim();
+    /**
+     * 常量：baseUrl。
+     */
     const baseUrl = String(row.baseUrl ?? '').trim();
 
     const groups: ContextMenuItem[][] = [];

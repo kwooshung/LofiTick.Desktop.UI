@@ -70,21 +70,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 接口：哨兵日志卡片 Props
- */
-interface ISettingsUnattendedSentinelLogsCardsProps {
-  /**
-   * 机器日志列表
-   */
-  machines: IPageSettingsUnattendedSentinelLogsMachineCard[];
-
-  /**
-   * 本机机器码
-   */
-  localMachineCode: string;
-}
-
+import type { ISettingsUnattendedSentinelLogsCardsProps } from '@/components/settings/unattended/sentinel-logs-cards/index.types';
 /**
  * Hook：i18n
  */
@@ -114,21 +100,45 @@ const stateActiveMachineCode = ref<string>('');
  * 计算属性：机器列表
  */
 const computedMachines = computed(() => {
+  /**
+   * 常量：machineList。
+   */
   const machineList = Array.isArray(machines) ? [...machines] : [];
 
   return machineList.sort((left, right) => {
+    /**
+     * 常量：leftCode。
+     */
     const leftCode = String(left?.machineCode || '').trim();
+    /**
+     * 常量：rightCode。
+     */
     const rightCode = String(right?.machineCode || '').trim();
+    /**
+     * 常量：localCode。
+     */
     const localCode = String(localMachineCode || '').trim();
 
+    /**
+     * 常量：leftIsLocal。
+     */
     const leftIsLocal = leftCode !== '' && leftCode === localCode;
+    /**
+     * 常量：rightIsLocal。
+     */
     const rightIsLocal = rightCode !== '' && rightCode === localCode;
 
     if (leftIsLocal !== rightIsLocal) {
       return leftIsLocal ? -1 : 1;
     }
 
+    /**
+     * 常量：leftLabel。
+     */
     const leftLabel = String(left?.machineName || '').trim() || leftCode;
+    /**
+     * 常量：rightLabel。
+     */
     const rightLabel = String(right?.machineName || '').trim() || rightCode;
 
     return leftLabel.localeCompare(rightLabel, 'zh-CN');
@@ -139,6 +149,9 @@ const computedMachines = computed(() => {
  * 计算属性：当前激活机器
  */
 const computedActiveMachine = computed(() => {
+  /**
+   * 常量：code。
+   */
   const code = String(stateActiveMachineCode.value || '').trim();
   if (!code) {
     return null;
@@ -178,12 +191,18 @@ const previewLogsGet = (machine: IPageSettingsUnattendedSentinelLogsMachineCard)
  * @returns {string} 预览文本
  */
 const previewLogMessageGet = (item: IPageSettingsUnattendedSentinelLogItem): string => {
+  /**
+   * 常量：safeMessage。
+   */
   const safeMessage = String(item.message || '').trim();
   if (!safeMessage) {
     return '-';
   }
 
   if (safeMessage.startsWith('components.sentinel.scenes.card.logsMeta.')) {
+    /**
+     * 常量：translated。
+     */
     const translated = String(t(safeMessage) || '');
     return translated && translated !== safeMessage ? translated : safeMessage;
   }
@@ -211,6 +230,9 @@ const sceneLogsCountGet = (machine: IPageSettingsUnattendedSentinelLogsMachineCa
  * @returns {'error' | 'warning' | 'success' | 'primary' | 'neutral'} 颜色
  */
 const levelColorGet = (level: string): 'error' | 'warning' | 'success' | 'primary' | 'neutral' => {
+  /**
+   * 常量：safeLevel。
+   */
   const safeLevel = String(level || '')
     .trim()
     .toLowerCase();

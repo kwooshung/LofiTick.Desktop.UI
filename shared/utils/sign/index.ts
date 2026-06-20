@@ -29,6 +29,9 @@ export const SIGN_REFRESH_BLOB_PREFIX = 'v1.';
  * @returns {string} AES seed
  */
 export const getPublicSignAesSeedFromConfig = (publicConfig: unknown): string => {
+  /**
+   * 常量：value。
+   */
   const value = (publicConfig ?? {}) as Record<string, unknown>;
   return String(value.signAesSeed ?? value.apiSignAesSeed ?? '').trim();
 };
@@ -39,8 +42,17 @@ export const getPublicSignAesSeedFromConfig = (publicConfig: unknown): string =>
  * @returns {string} sign_refresh blob，不存在则为空字符串
  */
 export const pickSignRefreshBlob = (raw: unknown): string => {
+  /**
+   * 常量：source。
+   */
   const source = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  /**
+   * 常量：attach。
+   */
   const attach = source?.attach && typeof source.attach === 'object' && !Array.isArray(source.attach) ? (source.attach as Record<string, unknown>) : null;
+  /**
+   * 常量：blob。
+   */
   const blob = String(attach?.sign_refresh ?? '').trim();
 
   if (!blob.startsWith(SIGN_REFRESH_BLOB_PREFIX)) {
@@ -60,13 +72,22 @@ export const stripSignRefreshAttach = (raw: unknown): unknown => {
     return raw;
   }
 
+  /**
+   * 常量：output。
+   */
   const output = { ...(raw as Record<string, unknown>) };
+  /**
+   * 常量：attach。
+   */
   const attach = output.attach;
 
   if (!attach || typeof attach !== 'object' || Array.isArray(attach)) {
     return output;
   }
 
+  /**
+   * 常量：attachObject。
+   */
   const attachObject = { ...(attach as Record<string, unknown>) };
   delete attachObject.sign_refresh;
 
@@ -102,12 +123,21 @@ export interface IResolveSignBlobCookieNameArgs {
 export const resolveSignBlobCookieName = (args: IResolveSignBlobCookieNameArgs): string => {
   const { datas, hintHeader } = args;
 
+  /**
+   * 常量：hinted。
+   */
   const hinted = String(hintHeader ?? '').trim();
   if (hinted !== '') {
     return hinted;
   }
 
+  /**
+   * 常量：payload。
+   */
   const payload = datas && typeof datas === 'object' && !Array.isArray(datas) ? (datas as Record<string, unknown>) : {};
+  /**
+   * 常量：cookieName。
+   */
   const cookieName = String(payload.sign_blob_cookie_name ?? '').trim();
   if (cookieName !== '') {
     return cookieName;
