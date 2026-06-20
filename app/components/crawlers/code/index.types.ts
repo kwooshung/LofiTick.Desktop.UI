@@ -29,6 +29,11 @@ export interface ICrawlersCodeProps {
    * 属性：当前选中条目 key。
    */
   selectedKey?: string;
+
+  /**
+   * 属性：函数列表刷新 nonce。
+   */
+  functionRefreshNonce?: number;
 }
 
 /**
@@ -46,4 +51,10 @@ export interface ICrawlersCodeEmits {
    * @param {MouseEvent} event 鼠标事件。
    */
   click: [row: ICrawlersListRow, event: MouseEvent];
+
+  /**
+   * 事件：创建函数。
+   * @param {'site' | 'global'} scope 作用域。
+   */
+  createFunction: [scope: 'site' | 'global'];
 }

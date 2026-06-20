@@ -105,6 +105,8 @@
       <template #node-array-object-split="props"><CrawlersNodesArrayObjectSplit v-bind="props" /></template>
       <template #node-array-object-length="props"><CrawlersNodesArrayObjectLength v-bind="props" /></template>
       <template #node-array-object-item="props"><CrawlersNodesArrayObjectItem v-bind="props" /></template>
+      <template #node-function-site="props"><CrawlersNodesFunctionCall v-bind="props" /></template>
+      <template #node-function-global="props"><CrawlersNodesFunctionCall v-bind="props" /></template>
       <template #node-type-convert-string="props"><CrawlersNodesTypeConvertString v-bind="props" /></template>
       <template #node-type-convert-number="props"><CrawlersNodesTypeConvertNumber v-bind="props" /></template>
       <template #node-type-convert-boolean="props"><CrawlersNodesTypeConvertBoolean v-bind="props" /></template>
@@ -157,6 +159,7 @@ import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersC
 import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
 import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
 import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
+import CrawlersNodesFunctionCall from '@/components/crawlers/nodes/function/call/index.vue';
 import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
 
 /**

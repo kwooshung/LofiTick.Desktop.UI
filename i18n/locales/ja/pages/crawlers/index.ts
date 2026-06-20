@@ -82,7 +82,8 @@ export const crawlers = {
       loading: '関数リストを読み込み中',
       row: {
         id: 'ID: {id}',
-        reference: '参照 {count}'
+          reference: '参照 {count}',
+          target: 'サイト #{id}'
       },
       empty: {
         siteMissingTarget: '現在のサイト情報が不足しているため、サイト関数を読み込めません。',
@@ -96,6 +97,18 @@ export const crawlers = {
       actions: {
         createSiteFunction: 'サイト関数を作成',
         createGlobalFunction: 'グローバル関数を作成'
+      },
+      createModal: {
+        titleSite: 'サイト関数を作成',
+        titleGlobal: 'グローバル関数を作成',
+        scopeLabel: 'スコープ',
+        scopeSite: 'サイト関数',
+        scopeGlobal: 'グローバル関数',
+        nameLabel: '関数名',
+        namePlaceholder: '関数名を入力してください',
+        descriptionLabel: '説明',
+        descriptionPlaceholder: '関数の説明を入力してください（任意）',
+        siteTargetRequired: '現在のサイトコンテキストが不足しているため、サイト関数を作成できません。'
       }
     },
     empty: {

@@ -13,48 +13,54 @@
         <CrawlersList v-if="stateActiveTab === 'nodes'" :groups="groups" :selected-key="selectedKey" @click="handleClick" />
 
         <div v-else class="space-y-4">
-          <div class="border-default overflow-hidden rounded-lg border">
-            <template v-if="computedActiveFunctionLoading">
-              <Spin
-                :loading="true"
-                :tip="t('pages.crawlers.editor.sidebar.loading')"
-                icon="i-lucide:loader-circle"
-                icon-class="size-4 text-primary"
-                content-class="rounded-md border border-default bg-default/90 px-3 py-2"
-                tip-class="text-xs text-muted"
-                mask-class="bg-default/65"
-                :size="16"
-                :delay="0"
-                overlay
-              >
-                <div class="h-24" />
-              </Spin>
-            </template>
+          <template v-if="computedActiveFunctionLoading">
+            <Spin
+              :loading="true"
+              :tip="t('pages.crawlers.editor.sidebar.loading')"
+              icon="i-lucide:loader-circle"
+              icon-class="size-4 text-primary"
+              content-class="rounded-md border border-default bg-default/90 px-3 py-2"
+              tip-class="text-xs text-muted"
+              mask-class="bg-default/65"
+              :size="16"
+              :delay="0"
+              overlay
+            >
+              <div class="h-24" />
+            </Spin>
+          </template>
 
-            <template v-else-if="computedActiveFunctionRows.length === 0">
-              <UEmpty :icon="computedActiveTabIcon" :title="computedActiveFunctionEmptyTitle" :description="computedActiveFunctionEmptyText" class="px-4 py-6">
-                <template #actions>
-                  <UButton color="primary" variant="solid" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
-                </template>
-              </UEmpty>
-            </template>
+          <template v-else-if="computedActiveFunctionRows.length === 0">
+            <UEmpty :icon="computedActiveTabIcon" :title="computedActiveFunctionEmptyTitle" :description="computedActiveFunctionEmptyText" class="px-4 py-6">
+              <template #actions>
+                <UButton color="primary" variant="solid" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
+              </template>
+            </UEmpty>
+          </template>
 
-            <template v-else>
-              <ul class="divide-default divide-y">
-                <li v-for="row in computedActiveFunctionRows" :key="row.id" class="flex items-center justify-between gap-3 px-3 py-2">
-                  <div class="min-w-0 flex-1">
-                    <div class="truncate text-sm">{{ row.name }}</div>
-                    <div class="text-muted mt-1 text-xs">{{ t('pages.crawlers.editor.sidebar.row.id', { id: row.id }) }}</div>
+          <template v-else>
+            <ul class="space-y-2">
+              <li v-for="row in computedActiveFunctionRows" :key="row.id" class="border-default bg-muted/15 hover:bg-muted/30 flex cursor-grab items-center justify-between gap-3 rounded-md border px-3 py-2 transition-colors" draggable="true" @dragstart="handleFunctionRowDragStart($event, row)">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <UIcon :name="resolveFunctionRowIcon(row.scope)" class="text-muted size-4 shrink-0" />
+                    <div class="truncate text-sm font-medium">{{ row.name }}</div>
                   </div>
-                  <UBadge color="neutral" variant="soft" size="sm" class="shrink-0">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
-                </li>
+                  <div class="text-muted mt-1 flex items-center gap-2 text-xs">
+                    <span>{{ t('pages.crawlers.editor.sidebar.row.id', { id: row.id }) }}</span>
+                    <span class="text-default/20">•</span>
+                    <span>{{ resolveFunctionRowScopeLabel(row.scope) }}</span>
+                  </div>
+                </div>
 
-                <li class="px-3 py-2">
-                  <UButton class="w-full" color="primary" variant="soft" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
-                </li>
-              </ul>
-            </template>
-          </div>
+                <UBadge color="neutral" variant="soft" size="sm" class="shrink-0">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
+              </li>
+
+              <li class="pt-1">
+                <UButton class="w-full" color="primary" variant="soft" :label="computedCreateFunctionButtonLabel" icon="i-lucide:plus" @click="handleCreateFunction" />
+              </li>
+            </ul>
+          </template>
         </div>
       </div>
     </div>
@@ -65,6 +71,7 @@
 import type { NavigationMenuItem } from '@nuxt/ui';
 
 import type { ICrawlersEditorSidebarClickRow, ICrawlersEditorSidebarEmits, ICrawlersEditorSidebarFunctionRow, ICrawlersEditorSidebarProps, ICrawlersEditorSidebarTabItem, TCrawlersEditorSidebarTab } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ICrawlerBlueprintDnDPayload } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
 
 /**
  * 常量：左侧三栏标签页配置。
@@ -81,9 +88,14 @@ const EDITOR_SIDEBAR_TABS: Pick<ICrawlersEditorSidebarTabItem, 'value' | 'icon'>
 const { t } = useI18n();
 
 /**
+ * Hook：蓝图拖拽。
+ */
+const { onDragStart } = useCrawlerBlueprintDnD();
+
+/**
  * 属性：左侧栏显示数据。
  */
-const { groups, selectedKey, targetId = 0 } = defineProps<ICrawlersEditorSidebarProps>();
+const { groups, selectedKey, targetId = 0, functionRefreshNonce = 0 } = defineProps<ICrawlersEditorSidebarProps>();
 
 /**
  * 事件：左侧栏操作。
@@ -338,6 +350,28 @@ watch(
   }
 );
 
+watch(
+  () => functionRefreshNonce,
+  () => {
+    const currentTargetId = Number(targetId ?? 0);
+
+    refreshGlobalFunctionRows({
+      datas: {
+        scope: 'global'
+      },
+      replace: true
+    });
+
+    refreshSiteFunctionRows({
+      datas: {
+        scope: 'site',
+        targetId: String(Number.isFinite(currentTargetId) && currentTargetId > 0 ? currentTargetId : 0)
+      },
+      replace: true
+    });
+  }
+);
+
 /**
  * 函数：转发列表点击事件。
  * @param {ICrawlersEditorSidebarClickRow} row 条目数据。
@@ -354,5 +388,43 @@ const handleClick = (row: ICrawlersEditorSidebarClickRow, event: MouseEvent): vo
  */
 const handleCreateFunction = (): void => {
   emit('createFunction', stateActiveTab.value === 'site-functions' ? 'site' : 'global');
+};
+
+/**
+ * 函数：解析函数行图标。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {string} 图标名称。
+ */
+const resolveFunctionRowIcon = (scope: 'site' | 'global'): string => {
+  return scope === 'global' ? 'i-lucide:globe-2' : 'i-lucide:folder-code';
+};
+
+/**
+ * 函数：解析函数行作用域文案。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {string} 作用域文案。
+ */
+const resolveFunctionRowScopeLabel = (scope: 'site' | 'global'): string => {
+  return scope === 'global' ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions') : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
+};
+
+/**
+ * 函数：处理函数列表项拖拽开始。
+ * @param {DragEvent} event 拖拽事件。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {void} 无返回值。
+ */
+const handleFunctionRowDragStart = (event: DragEvent, row: ICrawlersEditorSidebarFunctionRow): void => {
+  const nodeType = row.scope === 'global' ? 'function-global' : 'function-site';
+
+  const payload: ICrawlerBlueprintDnDPayload = {
+    functionId: Number(row.id ?? 0),
+    functionName: String(row.name ?? '').trim(),
+    functionScope: row.scope,
+    targetId: Number(row.targetId ?? 0),
+    referenceCount: Number(row.referenceCount ?? 0)
+  };
+
+  onDragStart(event, nodeType, payload);
 };
 </script>

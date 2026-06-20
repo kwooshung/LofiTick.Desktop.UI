@@ -82,7 +82,8 @@ export const crawlers = {
       loading: '函数列表加载中',
       row: {
         id: 'ID: {id}',
-        reference: '引用 {count}'
+          reference: '引用 {count}',
+          target: '站点 #{id}'
       },
       empty: {
         siteMissingTarget: '当前站点信息缺失，无法加载站点函数。',
@@ -96,6 +97,18 @@ export const crawlers = {
       actions: {
         createSiteFunction: '创建站点函数',
         createGlobalFunction: '创建全局函数'
+      },
+      createModal: {
+        titleSite: '创建站点函数',
+        titleGlobal: '创建全局函数',
+        scopeLabel: '作用域',
+        scopeSite: '站点函数',
+        scopeGlobal: '全局函数',
+        nameLabel: '函数名称',
+        namePlaceholder: '请输入函数名称',
+        descriptionLabel: '描述',
+        descriptionPlaceholder: '请输入函数描述（可选）',
+        siteTargetRequired: '当前缺少站点上下文，无法创建站点函数。'
       }
     },
     empty: {

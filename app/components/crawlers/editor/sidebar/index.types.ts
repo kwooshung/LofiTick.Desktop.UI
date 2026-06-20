@@ -23,6 +23,11 @@ export interface ICrawlersEditorSidebarProps {
    * 属性：当前站点 ID。
    */
   targetId?: number;
+
+  /**
+   * 属性：函数列表刷新 nonce。
+   */
+  functionRefreshNonce?: number;
 }
 
 /**
@@ -83,6 +88,16 @@ export interface ICrawlersEditorSidebarFunctionRow {
    * 属性：函数名称。
    */
   name: string;
+
+  /**
+   * 属性：函数作用域。
+   */
+  scope: 'site' | 'global';
+
+  /**
+   * 属性：站点 ID。
+   */
+  targetId: number;
 
   /**
    * 属性：引用数量。

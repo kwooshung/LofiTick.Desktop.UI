@@ -12,7 +12,18 @@
     }"
   >
     <template #body>
-      <CrawlersEditor :site-name="computedDrawerSiteName" :base-url="computedDrawerBaseUrl" :target-id="computedDrawerTargetId" :groups="computedBlueprintGroups" :selected-key="computedSelectedKey" @cancel="open = false" @click="handleEditorClick" @save="handleSave" />
+      <CrawlersEditor
+        :site-name="computedDrawerSiteName"
+        :base-url="computedDrawerBaseUrl"
+        :target-id="computedDrawerTargetId"
+        :groups="computedBlueprintGroups"
+        :selected-key="computedSelectedKey"
+        :function-refresh-nonce="functionRefreshNonce"
+        @cancel="open = false"
+        @click="handleEditorClick"
+        @save="handleSave"
+        @create-function="handleEditorCreateFunction"
+      />
     </template>
   </USlideover>
 </template>
@@ -24,7 +35,7 @@ import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '' } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0 } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -208,5 +219,14 @@ const handleSave = (payload: ICrawlersEditorSavePayload) => {
  */
 const handleEditorClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
+};
+
+/**
+ * 函数：处理编辑器创建函数事件。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {void} 无返回值。
+ */
+const handleEditorCreateFunction = (scope: 'site' | 'global'): void => {
+  emit('createFunction', scope);
 };
 </script>

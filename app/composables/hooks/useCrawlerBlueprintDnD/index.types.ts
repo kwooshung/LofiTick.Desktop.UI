@@ -1,6 +1,36 @@
 import type { Ref } from 'vue';
 
 /**
+ * 接口：拖拽节点附加数据。
+ */
+export interface ICrawlerBlueprintDnDPayload {
+  /**
+   * 属性：函数 ID。
+   */
+  functionId?: number;
+
+  /**
+   * 属性：函数名称。
+   */
+  functionName?: string;
+
+  /**
+   * 属性：函数作用域。
+   */
+  functionScope?: 'site' | 'global';
+
+  /**
+   * 属性：站点 ID。
+   */
+  targetId?: number;
+
+  /**
+   * 属性：引用次数。
+   */
+  referenceCount?: number;
+}
+
+/**
  * 接口：拖拽与放置交互能力。
  *
  * 统一描述蓝图拖拽时对外暴露的响应式状态与事件处理器。
@@ -24,7 +54,7 @@ export interface IUseCrawlerBlueprintDnD {
   /**
    * 属性：开始拖拽的处理器。
    */
-  onDragStart: (event: DragEvent, type: string) => void;
+  onDragStart: (event: DragEvent, type: string, payload?: ICrawlerBlueprintDnDPayload) => void;
 
   /**
    * 属性：拖拽离开的处理器。

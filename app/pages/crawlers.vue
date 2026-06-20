@@ -73,7 +73,44 @@
 
     <NuxtPage :create-nonce="stateCreateNonce" :keyword="stateToolbarKeyword" />
 
-    <CrawlersCode v-model:open="stateCodeSlideoverOpen" :site-name="computedRouteDetailTitle" :base-url="String(stateDetail?.baseUrl ?? '').trim()" :target-id="Number(stateDetail?.id ?? 0)" @save="handleBlueprintSave" />
+    <CrawlersCode
+      v-model:open="stateCodeSlideoverOpen"
+      :site-name="computedRouteDetailTitle"
+      :base-url="String(stateDetail?.baseUrl ?? '').trim()"
+      :target-id="Number(stateDetail?.id ?? 0)"
+      :function-refresh-nonce="stateFunctionRefreshNonce"
+      @save="handleBlueprintSave"
+      @create-function="handleCreateFunctionFromSidebar"
+    />
+
+    <UModal v-model:open="stateFunctionEditorOpen" :dismissible="false" :title="computedFunctionEditorTitle" :ui="{ footer: 'justify-end' }">
+      <template #body>
+        <div class="w-full max-w-none space-y-4">
+          <UFormField :label="t('pages.crawlers.editor.sidebar.createModal.scopeLabel')">
+            <UBadge color="neutral" variant="soft">{{ computedFunctionEditorScopeLabel }}</UBadge>
+          </UFormField>
+
+          <UFormField required :label="t('pages.crawlers.editor.sidebar.createModal.nameLabel')">
+            <UInput v-model="stateFunctionEditorName" class="w-full" :placeholder="t('pages.crawlers.editor.sidebar.createModal.namePlaceholder')" />
+          </UFormField>
+
+          <UFormField :label="t('pages.crawlers.editor.sidebar.createModal.descriptionLabel')">
+            <UTextarea v-model="stateFunctionEditorDescription" class="w-full" :rows="3" autoresize :placeholder="t('pages.crawlers.editor.sidebar.createModal.descriptionPlaceholder')" />
+          </UFormField>
+
+          <p v-if="!computedFunctionEditorHasTarget" class="text-warning text-xs">
+            {{ t('pages.crawlers.editor.sidebar.createModal.siteTargetRequired') }}
+          </p>
+        </div>
+      </template>
+
+      <template #footer="{ close }">
+        <UButton type="button" color="neutral" variant="outline" @click="close">{{ t('common.actions.cancel') }}</UButton>
+        <UButton type="button" icon="i-lucide:plus" color="primary" :disabled="!computedFunctionEditorCanSubmit" @click="handleCreateFunctionSubmit">
+          {{ t('common.actions.add') }}
+        </UButton>
+      </template>
+    </UModal>
 
     <UModal v-model:open="stateEditorOpen" :dismissible="false" :title="computedEditorTitle" :ui="{ footer: 'justify-end' }">
       <template #body>
@@ -241,6 +278,31 @@ const stateEditorOpen = ref(false);
 const stateCodeSlideoverOpen = useState<boolean>('crawlers-blueprint-open', () => false);
 
 /**
+ * 状态：函数列表刷新 nonce。
+ */
+const stateFunctionRefreshNonce = ref(0);
+
+/**
+ * 状态：函数创建弹窗开关。
+ */
+const stateFunctionEditorOpen = ref(false);
+
+/**
+ * 状态：函数创建作用域。
+ */
+const stateFunctionEditorScope = ref<'site' | 'global'>('site');
+
+/**
+ * 状态：函数创建名称。
+ */
+const stateFunctionEditorName = ref('');
+
+/**
+ * 状态：函数创建描述。
+ */
+const stateFunctionEditorDescription = ref('');
+
+/**
  * 状态：蓝图抽屉目标站点。
  */
 const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
@@ -403,6 +465,55 @@ const computedRouteDetailTitle = computed<string>(() => {
    */
   const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
+});
+
+/**
+ * 计算属性：函数创建弹窗标题。
+ */
+const computedFunctionEditorTitle = computed(() => {
+  return stateFunctionEditorScope.value === 'site'
+    ? t('pages.crawlers.editor.sidebar.createModal.titleSite')
+    : t('pages.crawlers.editor.sidebar.createModal.titleGlobal');
+});
+
+/**
+ * 计算属性：函数创建作用域文案。
+ */
+const computedFunctionEditorScopeLabel = computed(() => {
+  return stateFunctionEditorScope.value === 'site'
+    ? t('pages.crawlers.editor.sidebar.createModal.scopeSite')
+    : t('pages.crawlers.editor.sidebar.createModal.scopeGlobal');
+});
+
+/**
+ * 计算属性：函数创建目标站点 ID。
+ */
+const computedFunctionEditorTargetId = computed(() => {
+  const detailTargetId = Number(stateDetail.value?.id ?? 0);
+  if (Number.isFinite(detailTargetId) && detailTargetId > 0) {
+    return detailTargetId;
+  }
+
+  const drawerTargetId = Number(stateBlueprintDrawerTarget.value?.id ?? 0);
+  return Number.isFinite(drawerTargetId) && drawerTargetId > 0 ? drawerTargetId : 0;
+});
+
+/**
+ * 计算属性：函数创建是否存在可用站点。
+ */
+const computedFunctionEditorHasTarget = computed(() => {
+  if (stateFunctionEditorScope.value === 'global') {
+    return true;
+  }
+
+  return computedFunctionEditorTargetId.value > 0;
+});
+
+/**
+ * 计算属性：函数创建是否可提交。
+ */
+const computedFunctionEditorCanSubmit = computed(() => {
+  return stateFunctionEditorName.value.trim() !== '' && computedFunctionEditorHasTarget.value;
 });
 
 /**
@@ -621,6 +732,14 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
 const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
 
 /**
+ * API：创建函数。
+ */
+const { refresh: refreshFunctionCreate } = await useApi<{ id: number }>('crawlers/functions/add', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -671,6 +790,46 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       localStorage.removeItem(draftKey);
     }
   }
+};
+
+/**
+ * 事件：侧栏触发创建函数。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {void} 无返回值。
+ */
+const handleCreateFunctionFromSidebar = (scope: 'site' | 'global'): void => {
+  stateFunctionEditorScope.value = scope;
+  stateFunctionEditorName.value = '';
+  stateFunctionEditorDescription.value = '';
+  stateFunctionEditorOpen.value = true;
+};
+
+/**
+ * 事件：提交创建函数。
+ * @returns {Promise<void>} Promise。
+ */
+const handleCreateFunctionSubmit = async (): Promise<void> => {
+  const name = stateFunctionEditorName.value.trim();
+  const description = stateFunctionEditorDescription.value.trim();
+
+  if (name === '' || !computedFunctionEditorCanSubmit.value) {
+    return;
+  }
+
+  const scope = stateFunctionEditorScope.value;
+
+  await refreshFunctionCreate({
+    datas: {
+      name,
+      scope,
+      targetId: scope === 'site' ? computedFunctionEditorTargetId.value : undefined,
+      description
+    },
+    replace: true
+  });
+
+  stateFunctionEditorOpen.value = false;
+  stateFunctionRefreshNonce.value += 1;
 };
 
 /**

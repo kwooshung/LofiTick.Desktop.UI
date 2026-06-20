@@ -10,7 +10,14 @@
     @pointerleave.capture="handleEditorPointerLeave"
     @keydown.capture="handleEditorKeydown"
   >
-    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" :target-id="targetId" @click="handleListClick" />
+    <CrawlersEditorSidebar
+      :groups="computedGroups"
+      :selected-key="selectedKey"
+      :target-id="targetId"
+      :function-refresh-nonce="functionRefreshNonce"
+      @click="handleListClick"
+      @create-function="handleSidebarCreateFunction"
+    />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="absolute top-2 right-3 z-20">
@@ -81,7 +88,7 @@ import { useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLog
 /**
  * 属性：站点展示名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '' } = defineProps<ICrawlersEditorProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0 } = defineProps<ICrawlersEditorProps>();
 
 /**
  * 事件：编辑器操作。
@@ -1499,6 +1506,15 @@ const handelModalSave = () => {
  */
 const handleListClick = (row: ICrawlersListRow, event: MouseEvent): void => {
   emit('click', row, event);
+};
+
+/**
+ * 函数：处理侧栏创建函数事件。
+ * @param {'site' | 'global'} scope 作用域。
+ * @returns {void} 无返回值。
+ */
+const handleSidebarCreateFunction = (scope: 'site' | 'global'): void => {
+  emit('createFunction', scope);
 };
 
 /**

@@ -82,7 +82,8 @@ export const crawlers = {
       loading: 'Loading functions',
       row: {
         id: 'ID: {id}',
-        reference: 'Refs {count}'
+         reference: 'References {count}',
+         target: 'Site #{id}'
       },
       empty: {
         siteMissingTarget: 'Current site information is missing, unable to load site functions.',
@@ -96,6 +97,18 @@ export const crawlers = {
       actions: {
         createSiteFunction: 'Create Site Function',
         createGlobalFunction: 'Create Global Function'
+      },
+      createModal: {
+        titleSite: 'Create Site Function',
+        titleGlobal: 'Create Global Function',
+        scopeLabel: 'Scope',
+        scopeSite: 'Site Function',
+        scopeGlobal: 'Global Function',
+        nameLabel: 'Function Name',
+        namePlaceholder: 'Enter function name',
+        descriptionLabel: 'Description',
+        descriptionPlaceholder: 'Enter function description (optional)',
+        siteTargetRequired: 'Current site context is missing. Cannot create a site function.'
       }
     },
     empty: {

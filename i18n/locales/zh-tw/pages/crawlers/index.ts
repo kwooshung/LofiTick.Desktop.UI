@@ -82,7 +82,8 @@ export const crawlers = {
       loading: '函數列表載入中',
       row: {
         id: 'ID: {id}',
-        reference: '引用 {count}'
+         reference: '引用 {count}',
+         target: '站點 #{id}'
       },
       empty: {
         siteMissingTarget: '目前站點資訊缺失，無法載入站點函數。',
@@ -96,6 +97,18 @@ export const crawlers = {
       actions: {
         createSiteFunction: '建立站點函數',
         createGlobalFunction: '建立全域函數'
+      },
+      createModal: {
+        titleSite: '建立站點函數',
+        titleGlobal: '建立全域函數',
+        scopeLabel: '作用域',
+        scopeSite: '站點函數',
+        scopeGlobal: '全域函數',
+        nameLabel: '函數名稱',
+        namePlaceholder: '請輸入函數名稱',
+        descriptionLabel: '描述',
+        descriptionPlaceholder: '請輸入函數描述（選填）',
+        siteTargetRequired: '目前缺少站點上下文，無法建立站點函數。'
       }
     },
     empty: {

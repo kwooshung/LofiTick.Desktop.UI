@@ -1,6 +1,6 @@
 import { useVueFlow } from '@vue-flow/core';
 
-import type { IUseCrawlerBlueprintDnD } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
+import type { ICrawlerBlueprintDnDPayload, IUseCrawlerBlueprintDnD } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
 
 /**
  * 函数：生成唯一节点 ID。
@@ -114,7 +114,7 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
    * @param {DragEvent} event 拖拽事件对象。
    * @param {string} type 节点类型标识。
    */
-  const onDragStart = (event: DragEvent, type: string): void => {
+  const onDragStart = (event: DragEvent, type: string, payload?: ICrawlerBlueprintDnDPayload): void => {
     /**
      * 函数：normalizedType。
      */
@@ -128,6 +128,11 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
       event.dataTransfer.setData('application/vueflow', normalizedType);
       // 部分运行环境对自定义 MIME 支持不稳定，补一份 text/plain 兜底。
       event.dataTransfer.setData('text/plain', normalizedType);
+
+      if (payload && Object.keys(payload).length > 0) {
+        event.dataTransfer.setData('application/vueflow-node', JSON.stringify(payload));
+      }
+
       event.dataTransfer.effectAllowed = 'move';
     }
 
@@ -188,6 +193,27 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
      * 常量：resolvedType。
      */
     const resolvedType = typeFromTransfer !== '' ? typeFromTransfer : normalizeNodeType(String(draggedType.value ?? ''));
+    /**
+     * 常量：payloadRaw。
+     */
+    const payloadRaw = String(event.dataTransfer?.getData('application/vueflow-node') ?? '').trim();
+
+    /**
+     * 变量：payload。
+     */
+    let payload: ICrawlerBlueprintDnDPayload = {};
+
+    if (payloadRaw !== '') {
+      try {
+        const payloadValue = JSON.parse(payloadRaw) as unknown;
+        if (payloadValue && typeof payloadValue === 'object' && !Array.isArray(payloadValue)) {
+          payload = payloadValue as ICrawlerBlueprintDnDPayload;
+        }
+      } catch {
+        payload = {};
+      }
+    }
+
 
     if (resolvedType === '') {
       return;
@@ -213,7 +239,10 @@ const useCrawlerBlueprintDnD = (): IUseCrawlerBlueprintDnD => {
       id: nodeId,
       type: resolvedType,
       position,
-      data: { label: nodeId }
+      data: {
+        label: nodeId,
+        ...payload
+      }
     };
 
     /**
