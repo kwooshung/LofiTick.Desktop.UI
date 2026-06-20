@@ -88,11 +88,43 @@ export const crawler = {
         function: {
           start: {
             title: '関数開始',
-            description: '関数ロジックの入口ノードで、実行フローを受け取ります'
+            suffix: '開始',
+            description: '関数ロジックの入口ノードで、実行フローを受け取ります',
+            fields: {
+              parameterLabel: 'パラメータ',
+              parameterDescription: '関数開始ノードが出力するパラメータ値'
+            },
+            actions: {
+              add: 'パラメータを追加'
+            },
+            empty: {
+              title: 'まだパラメータがありません',
+              description: 'パラメータを追加すると、関数が外部から値を受け取れます。',
+              action: 'パラメータを追加'
+            }
           },
           return: {
             title: '関数戻り',
-            description: '関数ロジックの戻りノードで、実行を終了して結果を返します'
+            suffix: '戻り値',
+            description: '関数ロジックの戻りノードで、実行を終了して結果を返します',
+            fields: {
+              returnLabel: '戻り値',
+              returnDescription: '関数戻りノードが受け取り出力する結果値'
+            },
+            actions: {
+              add: '戻り値を追加'
+            },
+            empty: {
+              title: 'まだ戻り値がありません',
+              description: '戻り値を追加すると、関数の結果を呼び出し元へ渡せます。',
+              action: '戻り値を追加'
+            }
+          },
+          pins: {
+            connectedHint: '接続済み、リンク値を使用',
+            namePlaceholder: 'ピン名',
+            stringPlaceholder: '既定値を入力',
+            jsonPlaceholder: 'JSON 既定値を入力'
           }
         },
         units: {

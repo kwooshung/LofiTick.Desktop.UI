@@ -88,11 +88,43 @@ export const crawler = {
         function: {
           start: {
             title: '函式開始',
-            description: '函式邏輯的入口節點，負責接收執行流'
+            suffix: '開始',
+            description: '函式邏輯的入口節點，負責接收執行流',
+            fields: {
+              parameterLabel: '參數',
+              parameterDescription: '函式開始節點輸出的參數值'
+            },
+            actions: {
+              add: '新增參數'
+            },
+            empty: {
+              title: '還沒有參數',
+              description: '新增參數後，函式就能從外部接收值。',
+              action: '新增參數'
+            }
           },
           return: {
             title: '函式返回',
-            description: '函式邏輯的返回節點，負責結束執行並回傳結果'
+            suffix: '回傳值',
+            description: '函式邏輯的返回節點，負責結束執行並回傳結果',
+            fields: {
+              returnLabel: '回傳值',
+              returnDescription: '函式返回節點接收並輸出的結果值'
+            },
+            actions: {
+              add: '新增回傳值'
+            },
+            empty: {
+              title: '還沒有回傳值',
+              description: '新增回傳值後，函式就能把結果傳遞給呼叫方。',
+              action: '新增回傳值'
+            }
+          },
+          pins: {
+            connectedHint: '已連接，使用連線值',
+            namePlaceholder: '引腳名稱',
+            stringPlaceholder: '請輸入預設值',
+            jsonPlaceholder: '請輸入 JSON 預設值'
           }
         },
         units: {

@@ -103,6 +103,7 @@
           flow-kind="function"
           :site-name="stateFunctionLogicDetail.name"
           :base-url="computedFunctionLogicEditorBaseUrl"
+          :flow-description="computedFunctionLogicDescription"
           :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"
           :function-refresh-nonce="stateFunctionRefreshNonce"
           :initial-flow-data="stateFunctionLogicDetail.graph"

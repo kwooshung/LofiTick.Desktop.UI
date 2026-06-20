@@ -99,6 +99,11 @@ export interface ICrawlersEditorProps {
   baseUrl?: string;
 
   /**
+   * 属性：流描述。
+   */
+  flowDescription?: string;
+
+  /**
    * 属性：站点 ID。
    */
   targetId?: number;

@@ -88,11 +88,43 @@ export const crawler = {
         function: {
           start: {
             title: 'Function Start',
-            description: 'Entry node for function logic and execution flow'
+            suffix: 'Start',
+            description: 'Entry node for function logic and execution flow',
+            fields: {
+              parameterLabel: 'Parameter',
+              parameterDescription: 'Parameter value output by the function start node'
+            },
+            actions: {
+              add: 'Add parameter'
+            },
+            empty: {
+              title: 'No parameters yet',
+              description: 'Add parameters to let the function receive values from the outside.',
+              action: 'Add parameter'
+            }
           },
           return: {
             title: 'Function Return',
-            description: 'Return node that ends execution and yields the result'
+            suffix: 'Return Value',
+            description: 'Return node that ends execution and yields the result',
+            fields: {
+              returnLabel: 'Return value',
+              returnDescription: 'Result value received and output by the function return node'
+            },
+            actions: {
+              add: 'Add return value'
+            },
+            empty: {
+              title: 'No return value yet',
+              description: 'Add a return value so the function can pass results back to callers.',
+              action: 'Add return value'
+            }
+          },
+          pins: {
+            connectedHint: 'Connected, using linked value',
+            namePlaceholder: 'Pin name',
+            stringPlaceholder: 'Enter a default value',
+            jsonPlaceholder: 'Enter a JSON default value'
           }
         },
         units: {

@@ -88,11 +88,43 @@ export const crawler = {
         function: {
           start: {
             title: '函数开始',
-            description: '函数逻辑的入口节点，负责接收执行流'
+            suffix: '开始',
+            description: '函数逻辑的入口节点，负责接收执行流',
+            fields: {
+              parameterLabel: '参数',
+              parameterDescription: '函数开始节点输出的参数值'
+            },
+            actions: {
+              add: '添加参数'
+            },
+            empty: {
+              title: '还没有参数',
+              description: '添加参数后，函数就能从外部接收值。',
+              action: '添加参数'
+            }
           },
           return: {
             title: '函数返回',
-            description: '函数逻辑的返回节点，负责结束执行并返回结果'
+            suffix: '返回值',
+            description: '函数逻辑的返回节点，负责结束执行并返回结果',
+            fields: {
+              returnLabel: '返回值',
+              returnDescription: '函数返回节点接收并输出的结果值'
+            },
+            actions: {
+              add: '添加返回值'
+            },
+            empty: {
+              title: '还没有返回值',
+              description: '添加返回值后，函数就能把结果传递给调用方。',
+              action: '添加返回值'
+            }
+          },
+          pins: {
+            connectedHint: '已连接，使用连线值',
+            namePlaceholder: '引脚名称',
+            stringPlaceholder: '请输入默认值',
+            jsonPlaceholder: '请输入 JSON 默认值'
           }
         },
         units: {

@@ -81,8 +81,105 @@ import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hoo
 /**
  * 属性：站点展示名称与基础 URL。
  */
-const { flowKind = 'crawler', siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
+const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
 const systemNodeMeta = resolveSystemNodeMeta(flowKind);
+
+/**
+ * 类型：导入图数据中的节点摘要。
+ */
+type TFlowDataNodeLike = {
+  id?: string;
+  type?: string;
+  data?: unknown;
+};
+
+/**
+ * 类型：导入图数据中的边摘要。
+ */
+type TFlowDataEdgeLike = {
+  id?: string;
+  source?: string | null;
+  target?: string | null;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
+};
+
+/**
+ * 类型：导入图数据中的快照摘要。
+ */
+type TFlowDataLike = {
+  nodes?: TFlowDataNodeLike[];
+  edges?: TFlowDataEdgeLike[];
+};
+
+/**
+ * 函数：克隆并标准化函数流数据。
+ * @param {unknown} flowData 原始图数据。
+ * @returns {unknown} 规范化后的图数据。
+ */
+const normalizeFunctionFlowData = (flowData: unknown): unknown => {
+  if (flowKind !== 'function' || !flowData || typeof flowData !== 'object') {
+    return flowData;
+  }
+
+  /**
+   * 常量：snapshot。
+   */
+  const snapshot = typeof structuredClone === 'function' ? structuredClone(flowData) : JSON.parse(JSON.stringify(flowData));
+  /**
+   * 常量：data。
+   */
+  const data = snapshot as TFlowDataLike;
+
+  if (!Array.isArray(data.nodes) || data.nodes.length === 0) {
+    return snapshot;
+  }
+
+  /**
+   * 常量：nodeIdMap。
+   */
+  const nodeIdMap = new Map<string, string>([
+    ['start', systemNodeMeta.startNodeId],
+    ['end', systemNodeMeta.endNodeId]
+  ]);
+
+  data.nodes = data.nodes.map((node) => {
+    const currentId = String(node.id ?? '').trim();
+    const currentType = String(node.type ?? '').trim();
+    const nextId = nodeIdMap.get(currentId) ?? currentId;
+
+    if (currentId === nextId && currentType !== 'start' && currentType !== 'end') {
+      return node;
+    }
+
+    const nextType = currentType === 'start' ? systemNodeMeta.startNodeType : currentType === 'end' ? systemNodeMeta.endNodeType : currentType;
+
+    return {
+      ...node,
+      id: nextId,
+      type: nextType
+    };
+  });
+
+  if (Array.isArray(data.edges) && data.edges.length > 0) {
+    data.edges = data.edges.map((edge) => {
+      const nextSource = nodeIdMap.get(String(edge.source ?? '').trim()) ?? edge.source ?? null;
+      const nextTarget = nodeIdMap.get(String(edge.target ?? '').trim()) ?? edge.target ?? null;
+
+      if (nextSource === edge.source && nextTarget === edge.target) {
+        return edge;
+      }
+
+      return {
+        ...edge,
+        source: nextSource,
+        target: nextTarget
+      };
+    });
+  }
+
+  return snapshot;
+};
 
 /**
  * 事件：编辑器操作。
@@ -267,7 +364,7 @@ const restoreInitialFlowData = async (): Promise<boolean> => {
   }
 
   try {
-    await fromObject(initialFlowData as Parameters<typeof fromObject>[0]);
+    await fromObject(normalizeFunctionFlowData(initialFlowData) as Parameters<typeof fromObject>[0]);
     return nodes.value.length > 0;
   } catch {
     return false;
@@ -938,6 +1035,81 @@ const syncStartNodeDomain = (): void => {
 };
 
 /**
+ * 函数：同步函数开始与返回节点的元信息。
+ * @returns {void} 无返回值。
+ */
+const syncFunctionNodeMeta = (): void => {
+  if (flowKind !== 'function') {
+    return;
+  }
+
+  /**
+   * 常量：functionName。
+   */
+  const functionName = String(siteName ?? '').trim();
+  /**
+   * 常量：functionDescription。
+   */
+  const functionDescriptionText = String(flowDescription ?? '').trim();
+
+  if (functionName === '' && functionDescriptionText === '') {
+    return;
+  }
+
+  nodes.value = nodes.value.map((node) => {
+    if (node.type !== systemNodeMeta.startNodeType && node.type !== systemNodeMeta.endNodeType) {
+      return node;
+    }
+
+    /**
+     * 常量：currentData。
+     */
+    const currentData = (node.data as Record<string, unknown> | undefined) ?? {};
+    /**
+     * 常量：nextData。
+     */
+    const nextData = { ...currentData };
+    /**
+     * 状态：stateChanged。
+     */
+    let stateChanged = false;
+
+    if (node.type === systemNodeMeta.startNodeType) {
+      if (String(nextData.functionName ?? '') !== functionName) {
+        nextData.functionName = functionName;
+        stateChanged = true;
+      }
+
+      if (String(nextData.functionDescription ?? '') !== functionDescriptionText) {
+        nextData.functionDescription = functionDescriptionText;
+        stateChanged = true;
+      }
+    }
+
+    if (node.type === systemNodeMeta.endNodeType) {
+      if (String(nextData.functionName ?? '') !== functionName) {
+        nextData.functionName = functionName;
+        stateChanged = true;
+      }
+
+      if (String(nextData.functionDescription ?? '') !== functionDescriptionText) {
+        nextData.functionDescription = functionDescriptionText;
+        stateChanged = true;
+      }
+    }
+
+    if (!stateChanged) {
+      return node;
+    }
+
+    return {
+      ...node,
+      data: nextData
+    };
+  });
+};
+
+/**
  * Hook：编辑器画布交互逻辑。
  */
 const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd, isValidConnection } = useCrawlersEditorLogic({
@@ -1109,7 +1281,7 @@ const restoreSnapshot = async (index: number): Promise<void> => {
 
   stateRestoringSnapshot.value = true;
   try {
-    await fromObject(JSON.parse(snapshot) as Parameters<typeof fromObject>[0]);
+    await fromObject(normalizeFunctionFlowData(JSON.parse(snapshot)) as Parameters<typeof fromObject>[0]);
     stateHistoryIndex.value = index;
   } finally {
     stateRestoringSnapshot.value = false;
@@ -1273,7 +1445,7 @@ const restoreDraft = async (): Promise<boolean> => {
       return false;
     }
 
-    await fromObject(JSON.parse(data) as Parameters<typeof fromObject>[0]);
+    await fromObject(normalizeFunctionFlowData(JSON.parse(data)) as Parameters<typeof fromObject>[0]);
 
     // 恢复后若节点为空，视为无效草稿，回退默认初始化流程。
     if (nodes.value.length === 0) {
@@ -1399,14 +1571,17 @@ onMounted(async () => {
 
       if (restoredInitialFlow) {
         syncStartNodeDomain();
+        syncFunctionNodeMeta();
       } else {
         stateInitializingDefault.value = true;
         initializeDefaultNodes();
         syncStartNodeDomain();
+        syncFunctionNodeMeta();
         stateInitializingDefault.value = false;
       }
     } else {
       syncStartNodeDomain();
+      syncFunctionNodeMeta();
     }
   }
 
