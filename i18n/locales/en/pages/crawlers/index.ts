@@ -96,7 +96,20 @@ export const crawlers = {
       },
       actions: {
         createSiteFunction: 'Create Site Function',
-        createGlobalFunction: 'Create Global Function'
+        createGlobalFunction: 'Create Global Function',
+        edit: 'Edit',
+        delete: 'Delete'
+      },
+      editModal: {
+        title: 'Edit Function',
+        nameLabel: 'Function Name',
+        namePlaceholder: 'Enter function name',
+        descriptionLabel: 'Description',
+        descriptionPlaceholder: 'Enter function description (optional)'
+      },
+      deleteModal: {
+        title: 'Delete Function',
+        description: 'Are you sure you want to delete function "{name}"? This action cannot be undone.'
       },
       createModal: {
         titleSite: 'Create Site Function',

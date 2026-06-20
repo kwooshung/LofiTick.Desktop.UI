@@ -96,7 +96,20 @@ export const crawlers = {
       },
       actions: {
         createSiteFunction: '创建站点函数',
-        createGlobalFunction: '创建全局函数'
+        createGlobalFunction: '创建全局函数',
+        edit: '编辑',
+        delete: '删除'
+      },
+      editModal: {
+        title: '编辑函数',
+        nameLabel: '函数名称',
+        namePlaceholder: '请输入函数名称',
+        descriptionLabel: '描述',
+        descriptionPlaceholder: '请输入函数描述（可选）'
+      },
+      deleteModal: {
+        title: '删除函数',
+        description: '确定要删除函数「{name}」吗？此操作不可撤销。'
       },
       createModal: {
         titleSite: '创建站点函数',

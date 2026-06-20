@@ -40,7 +40,13 @@
 
           <template v-else>
             <ul class="space-y-2">
-              <li v-for="row in computedActiveFunctionRows" :key="row.id" class="border-default bg-muted/15 hover:bg-muted/30 flex cursor-grab items-center justify-between gap-3 rounded-md border px-3 py-2 transition-colors" draggable="true" @dragstart="handleFunctionRowDragStart($event, row)">
+              <li
+                v-for="row in computedActiveFunctionRows"
+                :key="row.id"
+                class="border-default bg-muted/15 hover:bg-muted/30 group flex cursor-grab items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors"
+                draggable="true"
+                @dragstart="handleFunctionRowDragStart($event, row)"
+              >
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
                     <UIcon :name="resolveFunctionRowIcon(row.scope)" class="text-muted size-4 shrink-0" />
@@ -53,7 +59,12 @@
                   </div>
                 </div>
 
-                <UBadge color="neutral" variant="soft" size="sm" class="shrink-0">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
+                <div class="flex shrink-0 items-center gap-1.5">
+                  <UBadge color="neutral" variant="soft" size="sm">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: row.referenceCount }) }}</UBadge>
+                  <UDropdownMenu :items="resolveFunctionRowMenuItems(row)" :content="{ side: 'bottom', align: 'end' }">
+                    <UButton icon="i-lucide:ellipsis-vertical" color="neutral" variant="ghost" size="xs" class="nodrag cursor-pointer opacity-0 transition-opacity group-hover:opacity-100" @click.stop @dragstart.stop />
+                  </UDropdownMenu>
+                </div>
               </li>
 
               <li class="pt-1">
@@ -65,6 +76,34 @@
       </div>
     </div>
   </aside>
+
+  <UModal v-model:open="stateEditOpen" :dismissible="false" :title="t('pages.crawlers.editor.sidebar.editModal.title')" :ui="{ footer: 'justify-end' }">
+    <template #body>
+      <div class="space-y-4">
+        <UFormField required :label="t('pages.crawlers.editor.sidebar.editModal.nameLabel')">
+          <UInput v-model="stateEditName" class="w-full" :placeholder="t('pages.crawlers.editor.sidebar.editModal.namePlaceholder')" @keyup.enter="handleEditSubmit" />
+        </UFormField>
+
+        <UFormField :label="t('pages.crawlers.editor.sidebar.editModal.descriptionLabel')">
+          <UTextarea v-model="stateEditDescription" class="w-full" :rows="3" autoresize :placeholder="t('pages.crawlers.editor.sidebar.editModal.descriptionPlaceholder')" />
+        </UFormField>
+      </div>
+    </template>
+    <template #footer="{ close }">
+      <UButton type="button" color="neutral" variant="outline" :disabled="stateEditLoading" @click="close">{{ t('common.actions.cancel') }}</UButton>
+      <UButton type="button" icon="i-lucide:save" color="primary" :loading="stateEditLoading" :disabled="!computedEditCanSubmit" @click="handleEditSubmit">{{ t('common.actions.save') }}</UButton>
+    </template>
+  </UModal>
+
+  <UModal v-model:open="stateDeleteOpen" :dismissible="false" :title="t('pages.crawlers.editor.sidebar.deleteModal.title')" :ui="{ footer: 'justify-end' }">
+    <template #body>
+      <p class="text-sm">{{ t('pages.crawlers.editor.sidebar.deleteModal.description', { name: stateDeleteTarget?.name ?? '' }) }}</p>
+    </template>
+    <template #footer="{ close }">
+      <UButton type="button" color="neutral" variant="outline" :disabled="stateDeleteLoading" @click="close">{{ t('common.actions.cancel') }}</UButton>
+      <UButton type="button" icon="i-lucide:trash-2" color="error" :loading="stateDeleteLoading" @click="handleDeleteConfirm">{{ t('common.actions.delete') }}</UButton>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -137,8 +176,68 @@ const {
 });
 
 /**
+ * API：编辑函数。
+ */
+const { loading: stateEditLoading, refresh: refreshFunctionUpdate } = await useApi('crawlers/functions/update', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
+ * API：删除函数。
+ */
+const { loading: stateDeleteLoading, refresh: refreshFunctionDelete } = await useApi('crawlers/functions/delete', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
+ * 状态：编辑弹窗是否打开。
+ */
+const stateEditOpen = ref(false);
+
+/**
+ * 状态：编辑目标行。
+ */
+const stateEditTarget = ref<ICrawlersEditorSidebarFunctionRow | null>(null);
+
+/**
+ * 状态：编辑名称。
+ */
+const stateEditName = ref('');
+
+/**
+ * 状态：编辑描述。
+ */
+const stateEditDescription = ref('');
+
+/**
+ * 状态：删除弹窗是否打开。
+ */
+const stateDeleteOpen = ref(false);
+
+/**
+ * 状态：删除目标行。
+ */
+const stateDeleteTarget = ref<ICrawlersEditorSidebarFunctionRow | null>(null);
+
+/**
  * 计算属性：当前标签页标题。
  */
+/**
+ * 计算属性：编辑是否可提交。
+ */
+const computedEditCanSubmit = computed(() => {
+  const name = stateEditName.value.trim();
+  const description = stateEditDescription.value.trim();
+
+  if (name === '') {
+    return false;
+  }
+
+  return name !== String(stateEditTarget.value?.name ?? '').trim() || description !== String(stateEditTarget.value?.description ?? '').trim();
+});
+
 const computedActiveTabIcon = computed(() => EDITOR_SIDEBAR_TABS.find((item) => item.value === stateActiveTab.value)?.icon ?? 'i-lucide:workflow');
 
 /**
@@ -426,5 +525,101 @@ const handleFunctionRowDragStart = (event: DragEvent, row: ICrawlersEditorSideba
   };
 
   onDragStart(event, nodeType, payload);
+};
+/**
+ * 函数：解析函数行下拉菜单项。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
+ * @returns {object[][]} 菜单项分组。
+ */
+const resolveFunctionRowMenuItems = (row: ICrawlersEditorSidebarFunctionRow) => {
+  return [
+    [
+      {
+        label: t('pages.crawlers.editor.sidebar.actions.edit'),
+        icon: 'i-lucide:pencil',
+        onSelect: () => handleEditClick(row)
+      }
+    ],
+    [
+      {
+        label: t('pages.crawlers.editor.sidebar.actions.delete'),
+        icon: 'i-lucide:trash-2',
+        color: 'error' as const,
+        onSelect: () => handleDeleteClick(row)
+      }
+    ]
+  ];
+};
+
+/**
+ * 函数：打开编辑弹窗。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 目标行。
+ * @returns {void} 无返回值。
+ */
+const handleEditClick = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  stateEditTarget.value = row;
+  stateEditName.value = String(row.name ?? '').trim();
+  stateEditDescription.value = String(row.description ?? '').trim();
+  stateEditOpen.value = true;
+};
+
+/**
+ * 函数：提交编辑。
+ * @returns {Promise<void>} Promise。
+ */
+const handleEditSubmit = async (): Promise<void> => {
+  const name = stateEditName.value.trim();
+  const description = stateEditDescription.value.trim();
+  const id = Number(stateEditTarget.value?.id ?? 0);
+
+  if (!computedEditCanSubmit.value || !Number.isFinite(id) || id <= 0) {
+    return;
+  }
+
+  await refreshFunctionUpdate({
+    datas: { id, name, description },
+    replace: true
+  });
+
+  stateEditOpen.value = false;
+
+  const currentTargetId = Number(targetId ?? 0);
+
+  refreshGlobalFunctionRows({ datas: { scope: 'global' }, replace: true });
+  refreshSiteFunctionRows({ datas: { scope: 'site', targetId: String(Number.isFinite(currentTargetId) && currentTargetId > 0 ? currentTargetId : 0) }, replace: true });
+};
+
+/**
+ * 函数：打开删除确认弹窗。
+ * @param {ICrawlersEditorSidebarFunctionRow} row 目标行。
+ * @returns {void} 无返回值。
+ */
+const handleDeleteClick = (row: ICrawlersEditorSidebarFunctionRow): void => {
+  stateDeleteTarget.value = row;
+  stateDeleteOpen.value = true;
+};
+
+/**
+ * 函数：确认删除函数。
+ * @returns {Promise<void>} Promise。
+ */
+const handleDeleteConfirm = async (): Promise<void> => {
+  const id = Number(stateDeleteTarget.value?.id ?? 0);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    return;
+  }
+
+  await refreshFunctionDelete({
+    datas: { id },
+    replace: true
+  });
+
+  stateDeleteOpen.value = false;
+
+  const currentTargetId = Number(targetId ?? 0);
+
+  refreshGlobalFunctionRows({ datas: { scope: 'global' }, replace: true });
+  refreshSiteFunctionRows({ datas: { scope: 'site', targetId: String(Number.isFinite(currentTargetId) && currentTargetId > 0 ? currentTargetId : 0) }, replace: true });
 };
 </script>

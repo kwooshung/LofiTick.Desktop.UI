@@ -100,6 +100,11 @@ export interface ICrawlersEditorSidebarFunctionRow {
   targetId: number;
 
   /**
+   * 属性：函数描述。
+   */
+  description: string;
+
+  /**
    * 属性：引用数量。
    */
   referenceCount: number;

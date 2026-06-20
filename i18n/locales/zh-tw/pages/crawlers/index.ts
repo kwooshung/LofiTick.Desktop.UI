@@ -96,7 +96,20 @@ export const crawlers = {
       },
       actions: {
         createSiteFunction: '建立站點函數',
-        createGlobalFunction: '建立全域函數'
+        createGlobalFunction: '建立全域函數',
+        edit: '編輯',
+        delete: '刪除'
+      },
+      editModal: {
+        title: '編輯函數',
+        nameLabel: '函數名稱',
+        namePlaceholder: '請輸入函數名稱',
+        descriptionLabel: '描述',
+        descriptionPlaceholder: '請輸入函數描述（可選）'
+      },
+      deleteModal: {
+        title: '刪除函數',
+        description: '確定要刪除函數「{name}」嗎？此操作無法復原。'
       },
       createModal: {
         titleSite: '建立站點函數',

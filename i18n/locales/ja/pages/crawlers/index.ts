@@ -96,7 +96,20 @@ export const crawlers = {
       },
       actions: {
         createSiteFunction: 'サイト関数を作成',
-        createGlobalFunction: 'グローバル関数を作成'
+        createGlobalFunction: 'グローバル関数を作成',
+        edit: '編集',
+        delete: '削除'
+      },
+      editModal: {
+        title: '関数を編集',
+        nameLabel: '関数名',
+        namePlaceholder: '関数名を入力してください',
+        descriptionLabel: '説明',
+        descriptionPlaceholder: '関数の説明を入力してください（任意）'
+      },
+      deleteModal: {
+        title: '関数を削除',
+        description: '関数「{name}」を削除してもよろしいですか？この操作は元に戻せません。'
       },
       createModal: {
         titleSite: 'サイト関数を作成',
