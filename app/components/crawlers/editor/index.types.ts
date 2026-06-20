@@ -2,6 +2,7 @@ import type { Edge, Node } from '@vue-flow/core';
 
 import type { ICrawlersListGroup, ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
+import type { TCrawlersEditorFlowKind } from '@/composables/hooks/useCrawlersEditorLogic/index.types';
 
 /**
  * 接口：编辑器剪贴板边界盒。
@@ -82,6 +83,11 @@ export interface ICrawlersEditorSavePayload {
  * 接口：爬虫编辑器属性。
  */
 export interface ICrawlersEditorProps {
+  /**
+   * 属性：流类型。
+   */
+  flowKind?: TCrawlersEditorFlowKind;
+
   /**
    * 属性：站点展示名称。
    */

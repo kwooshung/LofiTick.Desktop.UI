@@ -85,6 +85,16 @@ export const crawler = {
           title: 'End',
           description: 'Terminal node that ends crawler execution'
         },
+        function: {
+          start: {
+            title: 'Function Start',
+            description: 'Entry node for function logic and execution flow'
+          },
+          return: {
+            title: 'Function Return',
+            description: 'Return node that ends execution and yields the result'
+          }
+        },
         units: {
           millisecond: 'ms',
           count: 'Times',

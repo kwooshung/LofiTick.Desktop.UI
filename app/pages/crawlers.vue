@@ -100,6 +100,7 @@
         <CrawlersEditor
           v-if="stateFunctionLogicDetail"
           :key="computedFunctionLogicEditorKey"
+          flow-kind="function"
           :site-name="stateFunctionLogicDetail.name"
           :base-url="computedFunctionLogicEditorBaseUrl"
           :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"

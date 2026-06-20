@@ -85,6 +85,16 @@ export const crawler = {
           title: '終了',
           description: 'クローラーの実行を終了する終端ノード'
         },
+        function: {
+          start: {
+            title: '関数開始',
+            description: '関数ロジックの入口ノードで、実行フローを受け取ります'
+          },
+          return: {
+            title: '関数戻り',
+            description: '関数ロジックの戻りノードで、実行を終了して結果を返します'
+          }
+        },
         units: {
           millisecond: 'ミリ秒',
           count: '回',

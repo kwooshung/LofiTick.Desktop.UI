@@ -85,6 +85,16 @@ export const crawler = {
           title: '结束',
           description: '爬虫的结束节点，负责终止爬虫的执行'
         },
+        function: {
+          start: {
+            title: '函数开始',
+            description: '函数逻辑的入口节点，负责接收执行流'
+          },
+          return: {
+            title: '函数返回',
+            description: '函数逻辑的返回节点，负责结束执行并返回结果'
+          }
+        },
         units: {
           millisecond: '毫秒',
           count: '次',

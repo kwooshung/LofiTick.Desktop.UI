@@ -76,12 +76,13 @@ import { debounce } from 'es-toolkit';
 import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
-import { useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
+import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
 /**
  * 属性：站点展示名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
+const { flowKind = 'crawler', siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
+const systemNodeMeta = resolveSystemNodeMeta(flowKind);
 
 /**
  * 事件：编辑器操作。
@@ -439,7 +440,7 @@ const createClipboardEdge = (edge: Edge): Edge => {
  * @returns {ICrawlersEditorClipboardData | null} 剪贴板数据。
  */
 const createClipboardDataFromSelection = (): ICrawlersEditorClipboardData | null => {
-  const selectedNodes = nodes.value.filter((node) => node.selected && node.type !== 'start' && node.type !== 'end' && node.id !== 'start' && node.id !== 'end');
+  const selectedNodes = nodes.value.filter((node) => node.selected && node.type !== systemNodeMeta.startNodeType && node.type !== systemNodeMeta.endNodeType && node.id !== systemNodeMeta.startNodeId && node.id !== systemNodeMeta.endNodeId);
 
   if (selectedNodes.length === 0) {
     return null;
@@ -616,7 +617,7 @@ const createShiftedBounds = (bounds: ICrawlersEditorClipboardBounds, origin: XYP
  */
 const resolvePasteOrigin = (bounds: ICrawlersEditorClipboardBounds, preferredOrigin: XYPosition): XYPosition => {
   const existingBounds = nodes.value
-    .filter((node) => node.id !== 'start' && node.id !== 'end' && node.type !== 'start' && node.type !== 'end')
+    .filter((node) => node.id !== systemNodeMeta.startNodeId && node.id !== systemNodeMeta.endNodeId && node.type !== systemNodeMeta.startNodeType && node.type !== systemNodeMeta.endNodeType)
     .map(
       (node) =>
         ({
@@ -896,6 +897,10 @@ const handleEditorKeydown = (event: KeyboardEvent): void => {
  * @returns {void} 无返回值。
  */
 const syncStartNodeDomain = (): void => {
+  if (flowKind === 'function') {
+    return;
+  }
+
   /**
    * 常量：domain。
    */
@@ -903,7 +908,7 @@ const syncStartNodeDomain = (): void => {
   /**
    * 常量：startNode。
    */
-  const startNode = nodes.value.find((node) => node.id === 'start');
+  const startNode = nodes.value.find((node) => node.id === systemNodeMeta.startNodeId);
 
   if (!startNode) {
     return;
@@ -918,7 +923,7 @@ const syncStartNodeDomain = (): void => {
   }
 
   nodes.value = nodes.value.map((node) => {
-    if (node.id !== 'start') {
+    if (node.id !== systemNodeMeta.startNodeId) {
       return node;
     }
 
@@ -936,6 +941,7 @@ const syncStartNodeDomain = (): void => {
  * Hook：编辑器画布交互逻辑。
  */
 const { initializeDefaultNodes, handleNodesChange, handleConnectStart, handleConnect, handleConnectEnd, isValidConnection } = useCrawlersEditorLogic({
+  flowKind,
   nodes,
   edges,
   stateHelperLineHorizontal,
@@ -1468,7 +1474,7 @@ watch(computedNormalizedDomain, () => {
  * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。
  */
 watch(
-  () => nodes.value.some((node) => node.id === 'start'),
+  () => nodes.value.some((node) => node.id === systemNodeMeta.startNodeId),
   (hasStartNode) => {
     if (!hasStartNode) {
       return;

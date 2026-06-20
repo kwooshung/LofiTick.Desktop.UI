@@ -85,6 +85,16 @@ export const crawler = {
           title: '結束',
           description: '爬蟲的結束節點，負責終止爬蟲執行'
         },
+        function: {
+          start: {
+            title: '函式開始',
+            description: '函式邏輯的入口節點，負責接收執行流'
+          },
+          return: {
+            title: '函式返回',
+            description: '函式邏輯的返回節點，負責結束執行並回傳結果'
+          }
+        },
         units: {
           millisecond: '毫秒',
           count: '次',

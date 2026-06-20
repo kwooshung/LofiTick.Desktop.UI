@@ -2,6 +2,11 @@ import type { Connection, Edge, GraphNode, Node, NodeChange, OnConnectStartParam
 import type { Ref } from 'vue';
 
 /**
+ * 类型：编辑器流类型。
+ */
+export type TCrawlersEditorFlowKind = 'crawler' | 'function';
+
+/**
  * 接口：节点吸附辅助线计算结果。
  */
 export interface IGetHelperLinesResult {
@@ -14,6 +19,11 @@ export interface IGetHelperLinesResult {
  * 接口：编辑器画布逻辑参数。
  */
 export interface ICrawlersEditorLogicOptions {
+  /**
+   * 属性：流类型。
+   */
+  flowKind?: TCrawlersEditorFlowKind;
+
   /**
    * 属性：节点数据引用。
    */

@@ -1,7 +1,30 @@
 import type { Connection, GraphNode, NodeChange, NodePositionChange, OnConnectStartParams } from '@vue-flow/core';
 
 import type { TBasicSidePinDataType } from '@/components/crawlers/nodes/common/basic/index.types';
-import type { ICrawlersEditorLogicOptions, ICrawlersEditorLogicResult, IGetHelperLinesResult } from '@/composables/hooks/useCrawlersEditorLogic/index.types';
+import type { ICrawlersEditorLogicOptions, ICrawlersEditorLogicResult, IGetHelperLinesResult, TCrawlersEditorFlowKind } from '@/composables/hooks/useCrawlersEditorLogic/index.types';
+
+/**
+ * 函数：解析系统节点元数据。
+ * @param {TCrawlersEditorFlowKind} flowKind 流类型。
+ * @returns {{ startNodeId: string; endNodeId: string; startNodeType: string; endNodeType: string }} 系统节点配置。
+ */
+export const resolveSystemNodeMeta = (flowKind: TCrawlersEditorFlowKind = 'crawler'): { startNodeId: string; endNodeId: string; startNodeType: string; endNodeType: string } => {
+  if (flowKind === 'function') {
+    return {
+      startNodeId: 'function-start',
+      endNodeId: 'function-return',
+      startNodeType: 'function-start',
+      endNodeType: 'function-return'
+    };
+  }
+
+  return {
+    startNodeId: 'start',
+    endNodeId: 'end',
+    startNodeType: 'start',
+    endNodeType: 'end'
+  };
+};
 
 /**
  * 组合式：编辑器画布交互逻辑。
@@ -9,7 +32,8 @@ import type { ICrawlersEditorLogicOptions, ICrawlersEditorLogicResult, IGetHelpe
  * @returns {ICrawlersEditorLogicResult} 画布事件处理函数。
  */
 export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): ICrawlersEditorLogicResult => {
-  const { nodes, edges, stateHelperLineHorizontal, stateHelperLineVertical, addEdges, applyNodeChanges, addNodes } = options;
+  const { flowKind = 'crawler', nodes, edges, stateHelperLineHorizontal, stateHelperLineVertical, addEdges, applyNodeChanges, addNodes } = options;
+  const systemNodeMeta = resolveSystemNodeMeta(flowKind);
 
   /**
    * 类型：节点矩形边界。
@@ -220,16 +244,16 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const initializeDefaultNodes = (): void => {
     if (nodes.value.length === 0) {
       addNodes({
-        type: 'start',
-        id: 'start',
+        type: systemNodeMeta.startNodeType,
+        id: systemNodeMeta.startNodeId,
         position: { x: 0, y: 0 },
         selectable: true,
         deletable: false
       });
 
       addNodes({
-        type: 'end',
-        id: 'end',
+        type: systemNodeMeta.endNodeType,
+        id: systemNodeMeta.endNodeId,
         position: { x: 1000, y: 0 },
         selectable: true,
         deletable: false
@@ -660,3 +684,27 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     handleConnectEnd
   };
 };
+
+if (import.meta.vitest) {
+  const { describe, expect, it } = import.meta.vitest;
+
+  describe('resolveSystemNodeMeta', () => {
+    it('returns crawler system nodes by default', () => {
+      expect(resolveSystemNodeMeta()).toEqual({
+        startNodeId: 'start',
+        endNodeId: 'end',
+        startNodeType: 'start',
+        endNodeType: 'end'
+      });
+    });
+
+    it('returns function system nodes for function flow', () => {
+      expect(resolveSystemNodeMeta('function')).toEqual({
+        startNodeId: 'function-start',
+        endNodeId: 'function-return',
+        startNodeType: 'function-start',
+        endNodeType: 'function-return'
+      });
+    });
+  });
+}

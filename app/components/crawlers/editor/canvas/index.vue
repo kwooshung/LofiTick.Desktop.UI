@@ -21,6 +21,8 @@
       <CrawlersEditorLinesHelper :horizontal="helperLineHorizontal" :vertical="helperLineVertical" />
       <template #node-start="props"><CrawlersNodesCommonStart v-bind="props" /></template>
       <template #node-end="props"><CrawlersNodesCommonEnd v-bind="props" /></template>
+      <template #node-function-start="props"><CrawlersNodesFunctionStart v-bind="props" /></template>
+      <template #node-function-return="props"><CrawlersNodesFunctionReturn v-bind="props" /></template>
       <template #node-navigation-goto="props"><CrawlersNodesNavigationGoto v-bind="props" /></template>
       <template #node-navigation-refresh="props"><CrawlersNodesNavigationRefresh v-bind="props" /></template>
       <template #node-navigation-back="props"><CrawlersNodesNavigationBack v-bind="props" /></template>
@@ -160,6 +162,8 @@ import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/i
 import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
 import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
 import CrawlersNodesFunctionCall from '@/components/crawlers/nodes/function/call/index.vue';
+import CrawlersNodesFunctionReturn from '@/components/crawlers/nodes/function/return/index.vue';
+import CrawlersNodesFunctionStart from '@/components/crawlers/nodes/function/start/index.vue';
 import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
 
 /**
