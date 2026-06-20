@@ -153,12 +153,11 @@
 import { ConnectionMode, SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
-import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
-import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
-import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
-import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
-
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';
+import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
+import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
+import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
+import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
 
 /**
  * 属性：画布渲染与状态数据。
