@@ -69,10 +69,9 @@
 </template>
 
 <script setup lang="ts">
+import type { Edge, Node, XYPosition } from '@vue-flow/core';
 import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
-
-import type { Edge, Node, XYPosition } from '@vue-flow/core';
 
 import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
@@ -311,14 +310,14 @@ const createClipboardEdgeId = (): string => {
  * @param {Node} node 节点。
  * @returns {number} 节点宽度。
  */
-const getNodeWidth = (node: Node): number => Number(node.dimensions?.width ?? node.width ?? 0);
+const getNodeWidth = (node: Node): number => Number((node as Node & { dimensions?: { width?: number } }).dimensions?.width ?? node.width ?? 0);
 
 /**
  * 函数：获取节点高度。
  * @param {Node} node 节点。
  * @returns {number} 节点高度。
  */
-const getNodeHeight = (node: Node): number => Number(node.dimensions?.height ?? node.height ?? 0);
+const getNodeHeight = (node: Node): number => Number((node as Node & { dimensions?: { height?: number } }).dimensions?.height ?? node.height ?? 0);
 
 /**
  * 函数：根据节点集合计算边界盒。
@@ -408,10 +407,7 @@ const createClipboardNode = (node: Node): Node => {
  * @returns {Edge} 可复制边。
  */
 const createClipboardEdge = (edge: Edge): Edge => {
-  return {
-    ...edge,
-    selected: false
-  };
+  return { ...edge, selected: false } as unknown as Edge;
 };
 
 /**
@@ -722,7 +718,7 @@ const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void =
         x: Number(node.position.x ?? 0) + offsetX,
         y: Number(node.position.y ?? 0) + offsetY
       }
-    } satisfies Node;
+    } as Node;
   });
 
   const pastedEdges = clipboardData.edges
@@ -740,7 +736,7 @@ const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void =
         source: nextSource,
         target: nextTarget,
         selected: false
-      } satisfies Edge;
+      } as unknown as Edge;
     })
     .filter((edge): edge is Edge => Boolean(edge));
 
@@ -1020,7 +1016,7 @@ const createHistorySnapshot = (): string => {
   /**
    * 常量：snapshot。
    */
-  const snapshot = toObject() as Record<string, unknown>;
+  const snapshot = toObject() as unknown as Record<string, unknown>;
   const { viewport, position, zoom, ...rest } = snapshot;
 
   void viewport;
