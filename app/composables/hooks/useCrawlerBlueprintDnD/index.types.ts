@@ -15,6 +15,11 @@ export interface ICrawlerBlueprintDnDPayload {
   functionName?: string;
 
   /**
+   * 属性：函数描述。
+   */
+  functionDescription?: string;
+
+  /**
    * 属性：函数作用域。
    */
   functionScope?: 'site' | 'global';

@@ -52,6 +52,9 @@
                     <UIcon :name="resolveFunctionRowIcon(row.scope)" class="text-muted size-4 shrink-0" />
                     <div class="truncate text-sm font-medium">{{ row.name }}</div>
                   </div>
+                  <div v-if="String(row.description ?? '').trim() !== ''" class="text-muted mt-1 line-clamp-2 text-xs leading-5">
+                    {{ String(row.description ?? '').trim() }}
+                  </div>
                   <div class="text-muted mt-1 flex items-center gap-2 text-xs">
                     <span>{{ t('pages.crawlers.editor.sidebar.row.id', { id: row.id }) }}</span>
                     <span class="text-default/20">•</span>
@@ -495,7 +498,8 @@ const handleCreateFunction = (): void => {
  * @returns {string} 图标名称。
  */
 const resolveFunctionRowIcon = (scope: 'site' | 'global'): string => {
-  return scope === 'global' ? 'i-lucide:globe-2' : 'i-lucide:folder-code';
+  void scope;
+  return 'i-mdi-function-variant';
 };
 
 /**
@@ -519,6 +523,7 @@ const handleFunctionRowDragStart = (event: DragEvent, row: ICrawlersEditorSideba
   const payload: ICrawlerBlueprintDnDPayload = {
     functionId: Number(row.id ?? 0),
     functionName: String(row.name ?? '').trim(),
+    functionDescription: String(row.description ?? '').trim(),
     functionScope: row.scope,
     targetId: Number(row.targetId ?? 0),
     referenceCount: Number(row.referenceCount ?? 0)

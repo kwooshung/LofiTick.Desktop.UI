@@ -1,16 +1,22 @@
 <template>
   <div :class="['border-default bg-default/65 relative overflow-hidden rounded-lg border shadow-xs transition-all duration-200 ease-out', computedIsSelected ? 'ring-primary/45 border-primary shadow-lg ring-2' : 'hover:shadow-sm']">
-    <div :class="['relative flex items-start p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '', showExecIn ? 'pl-8' : '', showExecOut ? 'pr-8' : '']">
+    <div :class="['relative flex items-start gap-1.5 p-4 transition-[filter] duration-200 ease-out', headerBg, computedIsSelected ? 'brightness-110 saturate-125' : '', showExecIn ? 'pl-8' : '', showExecOut ? 'pr-8' : '']">
       <div v-if="hasNodeContext && (showExecIn || showExecOut)" class="absolute inset-0">
         <Handle v-if="showExecIn" id="exec-in" type="target" :position="Position.Left" :is-valid-connection="isValidConnectionTarget" class="absolute left-4! h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-white [clip-path:polygon(0_0,100%_50%,0_100%)]" />
         <Handle v-if="showExecOut" id="exec-out" type="source" :position="Position.Right" :is-valid-connection="isValidConnectionSource" class="absolute right-4! h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-white [clip-path:polygon(0_0,100%_50%,0_100%)]" />
       </div>
       <slot name="icon">
-        <UIcon :name="iconName" :class="['mt-0.5 mr-3 shrink-0 text-xl', iconClass]" />
+        <UIcon :name="iconName" :class="['mt-0.5 shrink-0 text-xl', iconClass]" />
       </slot>
-      <div class="flex flex-col">
-        <h3 :class="['text-md m-0 truncate leading-snug font-bold', titleClass]">{{ title }}</h3>
+      <div class="min-w-0 flex-1">
+        <div class="flex min-w-0 items-center gap-2">
+          <slot name="title-prefix" />
+          <h3 :class="['text-md m-0 min-w-0 truncate leading-snug font-bold', titleClass]">{{ title }}</h3>
+        </div>
         <p v-if="description" :class="['m-0 mt-0.5 truncate text-sm', descriptionClass]">{{ description }}</p>
+      </div>
+      <div v-if="$slots['header-extra']" class="nodrag min-w-0 shrink-0 cursor-auto self-center">
+        <slot name="header-extra" />
       </div>
     </div>
     <div v-if="$slots.default || computedHasLeftPins || computedHasRightPins" class="flex items-stretch">

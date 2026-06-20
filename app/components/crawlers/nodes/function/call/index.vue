@@ -1,12 +1,17 @@
 <template>
   <CrawlersNodesCommonBasic :icon-name="computedIconName" :title="computedFunctionName" :description="computedDescription" :header-bg="computedHeaderBg" :left-pins="computedLeftPins" :right-pins="computedRightPins">
-    <div class="space-y-2">
-      <div class="flex flex-wrap items-center gap-2">
-        <UBadge color="neutral" variant="soft" size="sm">{{ computedScopeLabel }}</UBadge>
-        <UBadge v-if="computedReferenceCount > 0" color="neutral" variant="subtle" size="sm">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: computedReferenceCount }) }}</UBadge>
+    <template #title-prefix>
+      <UBadge v-if="computedHasTitlePrefix" color="neutral" variant="soft" size="sm" class="shrink-0">
+        {{ computedTitlePrefix }}
+      </UBadge>
+    </template>
+    <template #header-extra>
+      <div class="flex max-w-48 items-center justify-end text-right">
+        <div class="flex flex-wrap justify-end gap-1.5">
+          <UBadge v-if="computedReferenceCount > 0" color="neutral" variant="subtle" size="sm">{{ t('pages.crawlers.editor.sidebar.row.reference', { count: computedReferenceCount }) }}</UBadge>
+        </div>
       </div>
-      <p v-if="computedHasTargetText" class="text-muted text-xs">{{ computedTargetText }}</p>
-    </div>
+    </template>
   </CrawlersNodesCommonBasic>
 </template>
 
@@ -137,13 +142,9 @@ const computedFunctionName = computed(() => {
  * 计算属性：函数描述。
  */
 const computedDescription = computed(() => {
-  const functionIdValue = Number((stateNode.node.data as Record<string, unknown> | undefined)?.functionId ?? 0);
-
-  if (Number.isFinite(functionIdValue) && functionIdValue > 0) {
-    return t('pages.crawlers.editor.sidebar.row.id', { id: functionIdValue });
-  }
-
-  return '';
+  const remoteDescription = String(stateFunctionDetail.value?.description ?? '').trim();
+  const localDescription = String((stateNode.node.data as Record<string, unknown> | undefined)?.functionDescription ?? '').trim();
+  return remoteDescription !== '' ? remoteDescription : localDescription;
 });
 
 /**
@@ -157,15 +158,30 @@ const computedHeaderBg = computed(() => {
  * 计算属性：节点图标。
  */
 const computedIconName = computed(() => {
-  return computedScope.value === 'global' ? 'i-lucide:globe-2' : 'i-lucide:folder-code';
+  return 'i-mdi-function-variant';
 });
 
 /**
  * 计算属性：作用域文案。
  */
-const computedScopeLabel = computed(() => {
-  return computedScope.value === 'global' ? t('pages.crawlers.editor.sidebar.tabs.globalFunctions') : t('pages.crawlers.editor.sidebar.tabs.siteFunctions');
+const computedTitlePrefix = computed(() => {
+  if (computedScope.value === 'global') {
+    return '全局';
+  }
+
+  const targetIdValue = Number((stateNode.node.data as Record<string, unknown> | undefined)?.targetId ?? 0);
+
+  if (Number.isFinite(targetIdValue) && targetIdValue > 0) {
+    return `站点 #${targetIdValue}`;
+  }
+
+  return '站点';
 });
+
+/**
+ * 计算属性：是否显示标题前缀。
+ */
+const computedHasTitlePrefix = computed(() => computedTitlePrefix.value !== '');
 
 /**
  * 计算属性：引用次数。
@@ -179,24 +195,6 @@ const computedReferenceCount = computed<number>(() => {
 
   return 0;
 });
-
-/**
- * 计算属性：站点 ID 文案。
- */
-const computedTargetText = computed(() => {
-  const targetIdValue = Number((stateNode.node.data as Record<string, unknown> | undefined)?.targetId ?? 0);
-
-  if (!(Number.isFinite(targetIdValue) && targetIdValue > 0)) {
-    return '';
-  }
-
-  return t('pages.crawlers.editor.sidebar.row.target', { id: targetIdValue });
-});
-
-/**
- * 计算属性：是否显示站点文案。
- */
-const computedHasTargetText = computed(() => computedTargetText.value !== '');
 
 /**
  * 计算属性：函数调用节点输入引脚。
