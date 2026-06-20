@@ -14,53 +14,14 @@
 import { useNode } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-import { functionNodeMetaParse } from '@/components/crawlers/nodes/function/shared/index';
-import type { IVariableDefinitionData } from '@/components/crawlers/nodes/variable/shared/index';
+import { functionNodeMetaParse } from '@/components/crawlers/nodes/common/function/index';
+import type { IFunctionDetailLike, IFunctionGraphNodeLike, IFunctionPinsExtractResult } from '@/components/crawlers/nodes/function/call/index.types';
 import { variableInputHandleIdGet, variableOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
- * 接口：函数图最小节点结构。
+ * Hook：国际化。
  */
-interface IFunctionGraphNodeLike {
-  type?: string;
-  data?: unknown;
-}
-
-/**
- * 接口：函数详情最小结构。
- */
-interface IFunctionDetailLike {
-  graph?: unknown;
-}
-
-/**
- * 函数：从函数图中提取参数与返回值定义。
- * @param {unknown} graph 函数图。
- * @returns {{ parameters: IVariableDefinitionData[]; returns: IVariableDefinitionData[] }} 提取结果。
- */
-const functionPinsExtractFromGraph = (graph: unknown): { parameters: IVariableDefinitionData[]; returns: IVariableDefinitionData[] } => {
-  if (!graph || typeof graph !== 'object') {
-    return { parameters: [], returns: [] };
-  }
-
-  const nodesValue = (graph as { nodes?: unknown }).nodes;
-
-  if (!Array.isArray(nodesValue)) {
-    return { parameters: [], returns: [] };
-  }
-
-  const graphNodes = nodesValue as IFunctionGraphNodeLike[];
-  const startNode = graphNodes.find((node) => ['function-start', 'start'].includes(String(node.type ?? '').trim()));
-  const returnNode = graphNodes.find((node) => ['function-return', 'end'].includes(String(node.type ?? '').trim()));
-
-  const startMeta = functionNodeMetaParse(startNode?.data);
-  const returnMeta = functionNodeMetaParse(returnNode?.data);
-
-  return {
-    parameters: startMeta.functionParameters,
-    returns: returnMeta.functionReturns
-  };
-};
+const { functionRefreshNonce = 0 } = defineProps<{ functionRefreshNonce?: number }>();
 
 /**
  * Hook：国际化。
@@ -88,9 +49,50 @@ const { datas: stateFunctionDetail, refresh: refreshFunctionDetail } = await use
   immediate: false
 });
 
+/**
+ * 函数：从函数图中提取参数与返回值定义。
+ * @param {unknown} graph 函数图。
+ * @returns {{ parameters: IVariableDefinitionData[]; returns: IVariableDefinitionData[] }} 提取结果。
+ */
+const functionPinsExtractFromGraph = (graph: unknown): IFunctionPinsExtractResult => {
+  const normalizedGraph = (() => {
+    if (typeof graph === 'string') {
+      try {
+        return JSON.parse(graph) as unknown;
+      } catch {
+        return null;
+      }
+    }
+
+    return graph;
+  })();
+
+  if (!normalizedGraph || typeof normalizedGraph !== 'object') {
+    return { parameters: [], returns: [] };
+  }
+
+  const nodesValue = (normalizedGraph as { nodes?: unknown }).nodes;
+
+  if (!Array.isArray(nodesValue)) {
+    return { parameters: [], returns: [] };
+  }
+
+  const graphNodes = nodesValue as IFunctionGraphNodeLike[];
+  const startNode = graphNodes.find((node) => ['function-start', 'start'].includes(String(node.type ?? '').trim()));
+  const returnNode = graphNodes.find((node) => ['function-return', 'end'].includes(String(node.type ?? '').trim()));
+
+  const startMeta = functionNodeMetaParse(startNode?.data);
+  const returnMeta = functionNodeMetaParse(returnNode?.data);
+
+  return {
+    parameters: startMeta.functionParameters,
+    returns: returnMeta.functionReturns
+  };
+};
+
 watch(
-  computedFunctionId,
-  (functionId) => {
+  [computedFunctionId, () => functionRefreshNonce],
+  ([functionId]) => {
     if (functionId <= 0) {
       return;
     }
@@ -116,6 +118,12 @@ const computedScope = computed<'site' | 'global'>(() => {
  * 计算属性：函数名称。
  */
 const computedFunctionName = computed(() => {
+  const remoteName = String(stateFunctionDetail.value?.name ?? '').trim();
+
+  if (remoteName !== '') {
+    return remoteName;
+  }
+
   const nameValue = String((stateNode.node.data as Record<string, unknown> | undefined)?.functionName ?? '').trim();
 
   if (nameValue !== '') {

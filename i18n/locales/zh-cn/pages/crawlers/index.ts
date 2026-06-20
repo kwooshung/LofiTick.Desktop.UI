@@ -143,6 +143,23 @@ export const crawlers = {
     },
     draft: {
       saved: '草稿已自动保存'
+    },
+    saveFeedback: {
+      title: '函数逻辑保存'
+    },
+    loadSource: {
+      title: '逻辑面板加载完成',
+      loading: '正在从服务端加载逻辑…',
+      server: '已从服务端加载最新逻辑',
+      draft: '服务端暂无可用数据，已从本地草稿恢复',
+      default: '未找到可用逻辑，已加载默认空面板',
+      fallbackRequestFailed: '服务端请求失败，已执行本地兜底。',
+      fallbackNoMatchedData: '服务端响应未命中当前函数，已执行本地兜底。',
+      persistMismatch: '已提交保存，但服务端回读结果与本地参数不一致，请重试或检查后端日志',
+      saveSuccess: '函数逻辑已保存到服务器',
+      saveFailed: '函数逻辑保存失败',
+      saveFailedWithCode: '函数逻辑保存失败（{code}）',
+      saveEchoMissing: '保存已提交，但未读取到最新函数详情'
     }
   },
   executions: {

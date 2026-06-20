@@ -35,6 +35,16 @@ export interface ICrawlersCodeProps {
    * 属性：函数列表刷新 nonce。
    */
   functionRefreshNonce?: number;
+
+  /**
+   * 属性：编辑器初始图数据。
+   */
+  initialFlowData?: unknown;
+
+  /**
+   * 属性：编辑器初始数据来源提示。
+   */
+  initialLoadSource?: 'server' | 'draft' | 'default';
 }
 
 /**
@@ -64,4 +74,9 @@ export interface ICrawlersCodeEmits {
    * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
    */
   editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
+
+  /**
+   * 事件：函数元数据变更。
+   */
+  functionsChanged: [];
 }

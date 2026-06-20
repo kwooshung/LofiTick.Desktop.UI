@@ -21,8 +21,8 @@
       <CrawlersEditorLinesHelper :horizontal="helperLineHorizontal" :vertical="helperLineVertical" />
       <template #node-start="props"><CrawlersNodesCommonStart v-bind="props" /></template>
       <template #node-end="props"><CrawlersNodesCommonEnd v-bind="props" /></template>
-      <template #node-function-start="props"><CrawlersNodesFunctionStart v-bind="props" /></template>
-      <template #node-function-return="props"><CrawlersNodesFunctionReturn v-bind="props" /></template>
+      <template #node-function-start="props"><CrawlersNodesFunctionStart v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
+      <template #node-function-return="props"><CrawlersNodesFunctionReturn v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
       <template #node-navigation-goto="props"><CrawlersNodesNavigationGoto v-bind="props" /></template>
       <template #node-navigation-refresh="props"><CrawlersNodesNavigationRefresh v-bind="props" /></template>
       <template #node-navigation-back="props"><CrawlersNodesNavigationBack v-bind="props" /></template>
@@ -107,8 +107,8 @@
       <template #node-array-object-split="props"><CrawlersNodesArrayObjectSplit v-bind="props" /></template>
       <template #node-array-object-length="props"><CrawlersNodesArrayObjectLength v-bind="props" /></template>
       <template #node-array-object-item="props"><CrawlersNodesArrayObjectItem v-bind="props" /></template>
-      <template #node-function-site="props"><CrawlersNodesFunctionCall v-bind="props" /></template>
-      <template #node-function-global="props"><CrawlersNodesFunctionCall v-bind="props" /></template>
+      <template #node-function-site="props"><CrawlersNodesFunctionCall v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
+      <template #node-function-global="props"><CrawlersNodesFunctionCall v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
       <template #node-type-convert-string="props"><CrawlersNodesTypeConvertString v-bind="props" /></template>
       <template #node-type-convert-number="props"><CrawlersNodesTypeConvertNumber v-bind="props" /></template>
       <template #node-type-convert-boolean="props"><CrawlersNodesTypeConvertBoolean v-bind="props" /></template>
@@ -169,7 +169,7 @@ import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/save
 /**
  * 属性：画布渲染与状态数据。
  */
-const { nodes, edges, isValidConnection, helperLineHorizontal, helperLineVertical, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
+const { nodes, edges, isValidConnection, helperLineHorizontal, helperLineVertical, functionRefreshNonce = 0, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
 
 /**
  * 事件：画布交互事件。

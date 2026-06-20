@@ -63,7 +63,7 @@
 import { useVueFlow } from '@vue-flow/core';
 
 import type { ICrawlersNodesFunctionPinsEditorItem, ICrawlersNodesFunctionPinsProps } from '@/components/crawlers/nodes/function/pins/index.types';
-import { functionNodePinSignatureGet } from '@/components/crawlers/nodes/function/shared/index';
+import { functionNodePinSignatureGet } from '@/components/crawlers/nodes/common/function/index';
 import type { IVariableDefinitionData, TVariableValueDataType } from '@/components/crawlers/nodes/variable/shared/index';
 import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableInputHandleIdGet, variableJsonTextGet, variableJsonTextParse, variableOutputHandleIdGet, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
 
@@ -134,6 +134,15 @@ const serializePins = (items: ICrawlersNodesFunctionPinsEditorItem[]): IVariable
 };
 
 /**
+ * 函数：立即同步当前引脚到父层。
+ *
+ * 说明：避免“新增后立刻保存”时仅依赖 watch 调度导致父层拿到旧值。
+ */
+const emitPinsNow = (): void => {
+  emit('update:modelValue', serializePins(statePins.value));
+};
+
+/**
  * 函数：判断引脚是否已连接。
  */
 const hasConnectedPin = (item: ICrawlersNodesFunctionPinsEditorItem): boolean => {
@@ -156,6 +165,7 @@ const hasConnectedPin = (item: ICrawlersNodesFunctionPinsEditorItem): boolean =>
  */
 const handleAdd = (): void => {
   statePins.value.push(createEditorItem());
+  emitPinsNow();
 };
 
 /**
@@ -163,6 +173,7 @@ const handleAdd = (): void => {
  */
 const handleRemove = (pinId: string): void => {
   statePins.value = statePins.value.filter((item) => item.id !== pinId);
+  emitPinsNow();
 };
 
 /**
@@ -176,6 +187,7 @@ const handleStringValueUpdate = (pinId: string, value: string | number): void =>
   }
 
   targetItem.defaultValue = String(value ?? '');
+  emitPinsNow();
 };
 
 /**
@@ -189,6 +201,7 @@ const handleNumberValueUpdate = (pinId: string, value: number): void => {
   }
 
   targetItem.defaultValue = Number.isFinite(Number(value)) ? Number(value) : 0;
+  emitPinsNow();
 };
 
 /**
@@ -202,6 +215,7 @@ const handleBooleanValueUpdate = (pinId: string, value: boolean): void => {
   }
 
   targetItem.defaultValue = Boolean(value);
+  emitPinsNow();
 };
 
 /**
@@ -220,6 +234,7 @@ const handleJsonValueUpdate = (pinId: string, value: string | number): void => {
 
   if (parsedValue !== null) {
     targetItem.defaultValue = parsedValue;
+    emitPinsNow();
   }
 };
 
@@ -237,6 +252,7 @@ const handleTypeUpdate = (pinId: string, value: string | number): void => {
   targetItem.dataType = nextType;
   targetItem.defaultValue = variableDefaultValueCreate(nextType);
   targetItem.jsonText = variableJsonTextGet(nextType, targetItem.defaultValue);
+  emitPinsNow();
 };
 
 /**

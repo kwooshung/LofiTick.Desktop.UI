@@ -143,6 +143,23 @@ export const crawlers = {
     },
     draft: {
       saved: '草稿已自動儲存'
+    },
+    saveFeedback: {
+      title: '函數邏輯儲存'
+    },
+    loadSource: {
+      title: '邏輯面板載入完成',
+      loading: '正在從伺服器載入邏輯…',
+      server: '已從伺服器載入最新邏輯',
+      draft: '伺服器暫無可用資料，已從本地草稿復原',
+      default: '未找到可用邏輯，已載入預設空白面板',
+      fallbackRequestFailed: '伺服器請求失敗，已執行本地兜底。',
+      fallbackNoMatchedData: '伺服器回應未命中目前函數，已執行本地兜底。',
+      persistMismatch: '已提交保存，但伺服器回讀結果與本地參數不一致，請重試或檢查後端日誌',
+      saveSuccess: '函數邏輯已儲存到伺服器',
+      saveFailed: '函數邏輯儲存失敗',
+      saveFailedWithCode: '函數邏輯儲存失敗（{code}）',
+      saveEchoMissing: '保存已提交，但未讀取到最新函數詳情'
     }
   },
   executions: {

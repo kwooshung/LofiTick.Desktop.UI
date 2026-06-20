@@ -601,6 +601,7 @@ const handleEditSubmit = async (): Promise<void> => {
 
   refreshGlobalFunctionRows({ datas: { scope: 'global' }, replace: true });
   refreshSiteFunctionRows({ datas: { scope: 'site', targetId: String(Number.isFinite(currentTargetId) && currentTargetId > 0 ? currentTargetId : 0) }, replace: true });
+  emit('functionsChanged');
 };
 
 /**
@@ -635,5 +636,6 @@ const handleDeleteConfirm = async (): Promise<void> => {
 
   refreshGlobalFunctionRows({ datas: { scope: 'global' }, replace: true });
   refreshSiteFunctionRows({ datas: { scope: 'site', targetId: String(Number.isFinite(currentTargetId) && currentTargetId > 0 ? currentTargetId : 0) }, replace: true });
+  emit('functionsChanged');
 };
 </script>

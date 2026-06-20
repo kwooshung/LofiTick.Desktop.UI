@@ -143,6 +143,23 @@ export const crawlers = {
     },
     draft: {
       saved: '下書きを自動保存しました'
+    },
+    saveFeedback: {
+      title: '関数ロジック保存'
+    },
+    loadSource: {
+      title: 'ロジックパネルの読み込み完了',
+      loading: 'サーバーからロジックを読み込み中…',
+      server: '最新ロジックをサーバーから読み込みました',
+      draft: 'サーバーデータが利用できないため、ローカル下書きを復元しました',
+      default: '利用可能なロジックが見つからないため、既定の空パネルを読み込みました',
+      fallbackRequestFailed: 'サーバーリクエストに失敗したため、ローカルフォールバックを使用しました。',
+      fallbackNoMatchedData: 'サーバー応答が現在の関数に一致しないため、ローカルフォールバックを使用しました。',
+      persistMismatch: '保存は送信されましたが、サーバー再取得結果がローカルのピンデータと一致しません。再試行またはバックエンドログを確認してください。',
+      saveSuccess: '関数ロジックをサーバーに保存しました',
+      saveFailed: '関数ロジックの保存に失敗しました',
+      saveFailedWithCode: '関数ロジックの保存に失敗しました（{code}）',
+      saveEchoMissing: '保存は送信されましたが、最新の関数詳細を再読み込みできませんでした'
     }
   },
   executions: {

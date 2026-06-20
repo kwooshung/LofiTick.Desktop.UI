@@ -11,8 +11,6 @@
     <template #toolbar-right>
       <div v-if="!computedRouteIsDetail" class="flex items-center gap-2">
         <div class="hidden shrink-0 items-center gap-2 md:flex">
-          <SelectsPagesizes cache-key="crawlers" />
-
           <UPopover v-model:open="stateSearchPopoverOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 10 }" :ui="{ content: 'w-[min(92vw,34rem)] p-0 overflow-hidden' }">
             <UButton icon="i-lucide-search" :label="computedSearchTriggerLabel" color="neutral" variant="subtle" class="w-52" :ui="{ leadingIcon: 'text-muted' }" @click="stateSearchPopoverOpen = true">
               <template #trailing>
@@ -79,9 +77,11 @@
       :base-url="String(stateDetail?.baseUrl ?? '').trim()"
       :target-id="Number(stateDetail?.id ?? 0)"
       :function-refresh-nonce="stateFunctionRefreshNonce"
+      :initial-flow-data="computedCrawlerInitialFlowData"
       @save="handleBlueprintSave"
       @create-function="handleCreateFunctionFromSidebar"
       @edit-function-logic="handleEditFunctionLogicFromSidebar"
+      @functions-changed="stateFunctionRefreshNonce += 1"
     />
 
     <USlideover
@@ -97,20 +97,31 @@
       }"
     >
       <template #body>
-        <CrawlersEditor
-          v-if="stateFunctionLogicDetail"
-          :key="computedFunctionLogicEditorKey"
-          flow-kind="function"
-          :site-name="stateFunctionLogicDetail.name"
-          :base-url="computedFunctionLogicEditorBaseUrl"
-          :flow-description="computedFunctionLogicDescription"
-          :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"
-          :function-refresh-nonce="stateFunctionRefreshNonce"
-          :initial-flow-data="stateFunctionLogicDetail.graph"
-          :draft-storage-key="computedFunctionLogicDraftKey"
-          @cancel="stateFunctionLogicOpen = false"
-          @save="handleFunctionLogicSave"
-        />
+        <div class="relative h-full w-full">
+          <div v-if="stateFunctionLogicLoading" class="bg-default/70 absolute inset-0 z-20 flex items-center justify-center backdrop-blur-sm">
+            <div class="bg-default/90 border-default flex flex-col items-center justify-center gap-3 rounded-md border px-3 py-2">
+              <UIcon name="i-lucide:loader-circle" class="text-primary size-5 animate-spin" />
+              <span class="text-muted text-xs">{{ t('pages.crawlers.editor.loadSource.loading') }}</span>
+            </div>
+          </div>
+
+          <CrawlersEditor
+            v-if="stateFunctionLogicDetail"
+            :key="computedFunctionLogicEditorKey"
+            flow-kind="function"
+            :site-name="stateFunctionLogicDetail.name"
+            :base-url="computedFunctionLogicEditorBaseUrl"
+            :flow-description="computedFunctionLogicDescription"
+            :target-id="Number(stateFunctionLogicDetail.targetId ?? 0)"
+            :function-refresh-nonce="stateFunctionRefreshNonce"
+            :initial-flow-data="stateFunctionLogicDetail.graph"
+            :initial-load-source="stateFunctionLogicLoadSource"
+            :draft-storage-key="computedFunctionLogicDraftKey"
+            @cancel="stateFunctionLogicOpen = false"
+            @save="handleFunctionLogicSave"
+            @functions-changed="stateFunctionRefreshNonce += 1"
+          />
+        </div>
       </template>
     </USlideover>
 
@@ -204,12 +215,17 @@ definePageMeta({
 const { t } = useI18n();
 
 /**
+ * Hook：提示。
+ */
+const toast = useToast();
+
+/**
  * 函数：本地化路由
  */
 const localePath = useLocalePath();
 
 /**
- * 路由
+ * 路由。
  */
 const route = useRoute();
 
@@ -339,6 +355,21 @@ const stateFunctionEditorDescription = ref('');
  * 状态：函数逻辑抽屉开关。
  */
 const stateFunctionLogicOpen = ref(false);
+
+/**
+ * 状态：函数逻辑加载中。
+ */
+const stateFunctionLogicLoading = ref(false);
+
+/**
+ * 状态：函数逻辑初始数据来源。
+ */
+const stateFunctionLogicLoadSource = ref<'server' | 'draft' | 'default'>('server');
+
+/**
+ * 常量：函数图调试前缀。
+ */
+const FUNCTION_GRAPH_DEBUG_PREFIX = '[crawler:function-graph]';
 
 /**
  * 状态：函数逻辑详情。
@@ -781,14 +812,24 @@ const { refresh: refreshFunctionCreate } = await useApi<{ id: number }>('crawler
 /**
  * API：函数详情。
  */
-const { datas: stateFunctionDetailRemote, refresh: refreshFunctionDetail } = await useApi<ICrawlersEditorSidebarFunctionDetail>('crawlers/functions/detail', {
+const {
+  datas: stateFunctionDetailRemote,
+  status: stateFunctionDetailStatus,
+  error: stateFunctionDetailError,
+  refresh: refreshFunctionDetail
+} = await useApi<ICrawlersEditorSidebarFunctionDetail>('crawlers/functions/detail', {
   immediate: false
 });
 
 /**
  * API：保存函数图。
  */
-const { refresh: refreshFunctionGraphSave } = await useApi<{ affected: number; referenceCount: number }>('crawlers/functions/graph', {
+const {
+  datas: stateFunctionGraphSaveResult,
+  status: stateFunctionGraphSaveStatus,
+  error: stateFunctionGraphSaveError,
+  refresh: refreshFunctionGraphSave
+} = await useApi<{ affected: number; referenceCount: number }>('crawlers/functions/graph', {
   method: 'POST',
   immediate: false
 });
@@ -833,6 +874,160 @@ const computedFunctionLogicDraftKey = computed(() => {
 const computedFunctionLogicEditorKey = computed(() => {
   return String(stateFunctionLogicDetail.value?.id ?? 'function-logic');
 });
+
+/**
+ * 类型：函数图统计。
+ */
+type TFunctionGraphStats = {
+  parameters: number;
+  returns: number;
+};
+
+/**
+ * 函数：安全解析函数图对象。
+ * @param {unknown} graph 函数图。
+ * @returns {{ nodes?: Array<Record<string, unknown>> } | null} 解析结果。
+ */
+const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>> } | null => {
+  const normalizedGraph = (() => {
+    if (typeof graph === 'string') {
+      try {
+        return JSON.parse(graph) as unknown;
+      } catch {
+        return null;
+      }
+    }
+
+    return graph;
+  })();
+
+  if (!normalizedGraph || typeof normalizedGraph !== 'object') {
+    return null;
+  }
+
+  return normalizedGraph as { nodes?: Array<Record<string, unknown>> };
+};
+
+/**
+ * 函数：统计函数图中的参数与返回值数量。
+ * @param {unknown} graph 函数图。
+ * @returns {TFunctionGraphStats} 统计结果。
+ */
+const functionGraphStatsGet = (graph: unknown): TFunctionGraphStats => {
+  const normalizedGraph = (() => {
+    if (typeof graph === 'string') {
+      try {
+        return JSON.parse(graph) as unknown;
+      } catch {
+        return null;
+      }
+    }
+
+    return graph;
+  })();
+
+  if (!normalizedGraph || typeof normalizedGraph !== 'object') {
+    return { parameters: 0, returns: 0 };
+  }
+
+  const nodes = ((normalizedGraph as { nodes?: unknown }).nodes ?? []) as Array<Record<string, unknown>>;
+
+  if (!Array.isArray(nodes) || nodes.length === 0) {
+    return { parameters: 0, returns: 0 };
+  }
+
+  const startNode = nodes.find((item) => ['function-start', 'start'].includes(String(item.type ?? '').trim()));
+  const returnNode = nodes.find((item) => ['function-return', 'end'].includes(String(item.type ?? '').trim()));
+
+  const parametersRaw = (startNode?.data as Record<string, unknown> | undefined)?.functionParameters;
+  const returnsRaw = (returnNode?.data as Record<string, unknown> | undefined)?.functionReturns;
+
+  return {
+    parameters: Array.isArray(parametersRaw) ? parametersRaw.length : 0,
+    returns: Array.isArray(returnsRaw) ? returnsRaw.length : 0
+  };
+};
+
+/**
+ * 函数：提取函数起止节点调试快照。
+ * @param {unknown} graph 图数据。
+ * @returns {Array<Record<string, unknown>>} 调试快照。
+ */
+const functionGraphDebugSnapshotGet = (graph: unknown): Array<Record<string, unknown>> => {
+  const parsed = graphParseSafe(graph);
+
+  if (!parsed || !Array.isArray(parsed.nodes)) {
+    return [];
+  }
+
+  return parsed.nodes
+    .filter((node: Record<string, unknown>) => {
+      const type = String(node.type ?? '').trim();
+      return type === 'function-start' || type === 'function-return';
+    })
+    .map((node: Record<string, unknown>) => {
+      const data = typeof node.data === 'object' && node.data !== null ? (node.data as Record<string, unknown>) : {};
+      const parameters = Array.isArray(data.functionParameters) ? data.functionParameters : Array.isArray(data.parameters) ? data.parameters : [];
+      const returns = Array.isArray(data.functionReturns) ? data.functionReturns : Array.isArray(data.returns) ? data.returns : [];
+
+      return {
+        id: node.id,
+        type: node.type,
+        functionName: data.functionName,
+        functionParametersLength: parameters.length,
+        functionReturnsLength: returns.length,
+        keys: Object.keys(data)
+      };
+    });
+};
+
+/**
+ * 计算属性：页面逻辑初始图。
+ */
+const computedCrawlerInitialFlowData = computed<unknown>(() => {
+  const detail = (stateDetail.value ?? {}) as Record<string, unknown>;
+
+  if (detail.code !== undefined) {
+    return detail.code;
+  }
+
+  if (detail.graph !== undefined) {
+    return detail.graph;
+  }
+
+  return null;
+});
+
+/**
+ * 函数：解析函数草稿图数据。
+ * @param {number} id 函数 ID。
+ * @returns {unknown | null} 草稿图。
+ */
+const functionDraftGraphGet = (id: number): unknown | null => {
+  if (!import.meta.client || !(Number.isFinite(id) && id > 0)) {
+    return null;
+  }
+
+  const draftKey = `crawler:blueprint:draft:function:${id}`;
+  const raw = localStorage.getItem(draftKey);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as { ts?: number; data?: string };
+    const snapshot = String(parsed.data ?? '').trim();
+
+    if (snapshot === '') {
+      return null;
+    }
+
+    return JSON.parse(snapshot) as unknown;
+  } catch {
+    return null;
+  }
+};
 
 /**
  * 事件：提交表单
@@ -939,17 +1134,75 @@ const handleEditFunctionLogicFromSidebar = async (row: ICrawlersEditorSidebarFun
     return;
   }
 
-  await refreshFunctionDetail({
-    datas: { id },
-    replace: true
-  });
-
-  if (!stateFunctionDetailRemote.value) {
-    return;
-  }
-
-  stateFunctionLogicDetail.value = stateFunctionDetailRemote.value;
   stateFunctionLogicOpen.value = true;
+  stateFunctionLogicLoading.value = true;
+  stateFunctionLogicDetail.value = null;
+
+  try {
+    await refreshFunctionDetail({
+      datas: { id },
+      replace: true
+    });
+
+    const requestFailed = Boolean(stateFunctionDetailError.value) || Number(stateFunctionDetailStatus.value?.http ?? 200) >= 400;
+    const remoteDetail = stateFunctionDetailRemote.value;
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-detail`, {
+      id,
+      requestFailed,
+      status: stateFunctionDetailStatus.value,
+      error: stateFunctionDetailError.value,
+      remoteDetailId: Number(remoteDetail?.id ?? 0)
+    });
+
+    if (!requestFailed && remoteDetail && Number(remoteDetail.id ?? 0) === id) {
+      stateFunctionLogicDetail.value = remoteDetail;
+      stateFunctionLogicLoadSource.value = 'server';
+      console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-success`, {
+        id,
+        source: 'server',
+        stats: functionGraphStatsGet(remoteDetail.graph),
+        snapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+      });
+      return;
+    }
+
+    const draftGraph = functionDraftGraphGet(id);
+
+    stateFunctionLogicDetail.value = {
+      ...row,
+      graph: draftGraph ?? {}
+    };
+
+    stateFunctionLogicLoadSource.value = draftGraph ? 'draft' : 'default';
+    console.warn(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-fallback`, {
+      id,
+      source: stateFunctionLogicLoadSource.value,
+      reason: requestFailed ? 'request-failed' : 'remote-detail-not-matched',
+      status: stateFunctionDetailStatus.value,
+      error: stateFunctionDetailError.value,
+      stats: functionGraphStatsGet(draftGraph ?? {}),
+      snapshot: functionGraphDebugSnapshotGet(draftGraph ?? {})
+    });
+  } catch (error) {
+    const draftGraph = functionDraftGraphGet(id);
+
+    stateFunctionLogicDetail.value = {
+      ...row,
+      graph: draftGraph ?? {}
+    };
+
+    stateFunctionLogicLoadSource.value = draftGraph ? 'draft' : 'default';
+    console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} load-exception`, {
+      id,
+      source: stateFunctionLogicLoadSource.value,
+      error,
+      stats: functionGraphStatsGet(draftGraph ?? {}),
+      snapshot: functionGraphDebugSnapshotGet(draftGraph ?? {})
+    });
+  } finally {
+    stateFunctionLogicLoading.value = false;
+  }
 };
 
 /**
@@ -961,26 +1214,173 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
   const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
 
   if (!Number.isFinite(id) || id <= 0) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+
     return;
   }
 
-  await refreshFunctionGraphSave({
-    datas: {
+  try {
+    const localStats = functionGraphStatsGet(payload?.flowData ?? {});
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-request`, {
       id,
-      graph: payload?.flowData ?? {}
-    },
-    replace: true
-  });
+      localStats,
+      localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+    });
 
-  if (import.meta.client) {
-    const draftKey = String(payload?.draftKey ?? '').trim();
-    if (draftKey !== '') {
-      localStorage.removeItem(draftKey);
+    await refreshFunctionGraphSave({
+      datas: {
+        id,
+        graph: payload?.flowData ?? {}
+      },
+      replace: true
+    });
+
+    const saveHttp = Number(stateFunctionGraphSaveStatus.value?.http ?? 0);
+    const saveFailed = Boolean(stateFunctionGraphSaveError.value) || (saveHttp >= 400 && saveHttp !== 0);
+    const saveAffected = Number(stateFunctionGraphSaveResult.value?.affected ?? 0);
+
+    console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-http`, {
+      id,
+      status: stateFunctionGraphSaveStatus.value,
+      error: stateFunctionGraphSaveError.value,
+      result: stateFunctionGraphSaveResult.value
+    });
+
+    if (saveFailed) {
+      const code = `${String(stateFunctionGraphSaveStatus.value?.http ?? '000')}-${String(stateFunctionGraphSaveStatus.value?.biz ?? '000')}-${String(stateFunctionGraphSaveStatus.value?.aim ?? '000')}`;
+
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveFailedWithCode', { code }),
+        color: 'error',
+        icon: 'i-lucide:triangle-alert',
+        duration: 4200
+      });
+
+      console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-http-failed`, {
+        id,
+        status: stateFunctionGraphSaveStatus.value,
+        error: stateFunctionGraphSaveError.value,
+        localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+      });
+      return;
     }
-  }
 
-  stateFunctionLogicOpen.value = false;
-  stateFunctionRefreshNonce.value += 1;
+    if (!Number.isFinite(saveAffected) || saveAffected <= 0) {
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveFailed'),
+        color: 'error',
+        icon: 'i-lucide:triangle-alert',
+        duration: 4200
+      });
+
+      console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-affected-invalid`, {
+        id,
+        status: stateFunctionGraphSaveStatus.value,
+        error: stateFunctionGraphSaveError.value,
+        result: stateFunctionGraphSaveResult.value,
+        localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+      });
+      return;
+    }
+
+    await refreshFunctionDetail({
+      datas: { id },
+      replace: true
+    });
+
+    const remoteDetail = stateFunctionDetailRemote.value;
+
+    if (remoteDetail && Number(remoteDetail.id ?? 0) === id) {
+      stateFunctionLogicDetail.value = remoteDetail;
+
+      const remoteStats = functionGraphStatsGet(remoteDetail.graph);
+      console.info(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-echo`, {
+        id,
+        localStats,
+        remoteStats,
+        remoteSnapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+      });
+
+      if (remoteStats.parameters < localStats.parameters || remoteStats.returns < localStats.returns) {
+        toast.add({
+          title: t('pages.crawlers.editor.saveFeedback.title'),
+          description: t('pages.crawlers.editor.loadSource.persistMismatch'),
+          color: 'error',
+          icon: 'i-lucide:triangle-alert',
+          duration: 4200
+        });
+
+        console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} persist-mismatch`, {
+          id,
+          localStats,
+          remoteStats,
+          localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {}),
+          remoteSnapshot: functionGraphDebugSnapshotGet(remoteDetail.graph)
+        });
+      }
+    } else if (stateFunctionLogicDetail.value) {
+      toast.add({
+        title: t('pages.crawlers.editor.saveFeedback.title'),
+        description: t('pages.crawlers.editor.loadSource.saveEchoMissing'),
+        color: 'warning',
+        icon: 'i-lucide:triangle-alert',
+        duration: 3800
+      });
+
+      console.warn(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-echo-missing`, {
+        id,
+        status: stateFunctionDetailStatus.value,
+        error: stateFunctionDetailError.value
+      });
+
+      stateFunctionLogicDetail.value = {
+        ...stateFunctionLogicDetail.value,
+        graph: payload?.flowData ?? {}
+      };
+    }
+
+    if (import.meta.client) {
+      const draftKey = String(payload?.draftKey ?? '').trim();
+      if (draftKey !== '') {
+        localStorage.setItem(draftKey, JSON.stringify({ ts: Date.now(), data: JSON.stringify(payload?.flowData ?? {}) }));
+      }
+    }
+
+    stateFunctionRefreshNonce.value += 1;
+
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveSuccess'),
+      color: 'success',
+      icon: 'i-lucide:check-check',
+      duration: 2600
+    });
+
+    stateFunctionLogicOpen.value = false;
+  } catch (error) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+
+    console.error(`${FUNCTION_GRAPH_DEBUG_PREFIX} save-exception`, {
+      id,
+      error,
+      localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
+    });
+  }
 };
 
 /**

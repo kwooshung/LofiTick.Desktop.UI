@@ -143,6 +143,23 @@ export const crawlers = {
     },
     draft: {
       saved: 'Draft auto-saved'
+    },
+    saveFeedback: {
+      title: 'Function logic save'
+    },
+    loadSource: {
+      title: 'Logic panel loaded',
+      loading: 'Loading logic from server...',
+      server: 'Loaded the latest logic from server',
+      draft: 'Server data is unavailable, restored from local draft',
+      default: 'No available logic found, loaded an empty default panel',
+      fallbackRequestFailed: 'Server request failed. Local fallback was used.',
+      fallbackNoMatchedData: 'Server response did not match current function. Local fallback was used.',
+      persistMismatch: 'Save submitted, but server roundtrip does not match local pin data. Please retry or check backend logs.',
+      saveSuccess: 'Function logic has been saved to server',
+      saveFailed: 'Failed to save function logic',
+      saveFailedWithCode: 'Failed to save function logic ({code})',
+      saveEchoMissing: 'Save submitted, but latest function detail could not be reloaded'
     }
   },
   executions: {

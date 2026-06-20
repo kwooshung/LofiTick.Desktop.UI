@@ -25,6 +25,11 @@ export interface ICrawlersEditorCanvasProps {
   helperLineVertical?: number;
 
   /**
+   * 属性：函数图刷新 nonce。
+   */
+  functionRefreshNonce?: number;
+
+  /**
    * 属性：连接合法性校验函数。
    */
   isValidConnection: (connection: Connection) => boolean;

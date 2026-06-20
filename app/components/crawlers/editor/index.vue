@@ -2,7 +2,7 @@
   <div
     ref="refEditorRoot"
     tabindex="0"
-    class="editor bg-default flex h-full min-h-0 overflow-hidden focus:outline-none"
+    class="editor bg-default relative flex h-full min-h-0 overflow-hidden focus:outline-none"
     :aria-label="computedDescription"
     @drop="onDrop"
     @pointerdown.capture="handleEditorPointerDown"
@@ -10,7 +10,16 @@
     @pointerleave.capture="handleEditorPointerLeave"
     @keydown.capture="handleEditorKeydown"
   >
-    <CrawlersEditorSidebar :groups="computedGroups" :selected-key="selectedKey" :target-id="targetId" :function-refresh-nonce="functionRefreshNonce" @click="handleListClick" @create-function="handleSidebarCreateFunction" @edit-function-logic="handleSidebarEditFunctionLogic" />
+    <CrawlersEditorSidebar
+      :groups="computedGroups"
+      :selected-key="selectedKey"
+      :target-id="targetId"
+      :function-refresh-nonce="functionRefreshNonce"
+      @click="handleListClick"
+      @create-function="handleSidebarCreateFunction"
+      @edit-function-logic="handleSidebarEditFunctionLogic"
+      @functions-changed="handleSidebarFunctionsChanged"
+    />
 
     <div class="bg-default relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div class="absolute top-2 right-3 z-20">
@@ -31,6 +40,7 @@
         :edges="edges"
         :helper-line-horizontal="stateHelperLineHorizontal"
         :helper-line-vertical="stateHelperLineVertical"
+        :function-refresh-nonce="functionRefreshNonce"
         :is-valid-connection="isValidConnection"
         :is-drag-over="isDragOver"
         :is-canvas-empty="isCanvasEmpty"
@@ -64,6 +74,13 @@
         @cancel="handelModalCancel"
         @save="handelModalSave"
       />
+
+      <div v-if="stateEditorInitializing" class="bg-default/70 absolute inset-0 z-40 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-default/90 border-default flex flex-col items-center justify-center gap-3 rounded-md border px-3 py-2">
+          <UIcon name="i-lucide:loader-circle" class="text-primary size-5 animate-spin" />
+          <span class="text-muted text-xs">{{ t('pages.crawlers.editor.loadSource.loading') }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -113,6 +130,62 @@ type TFlowDataLike = {
 };
 
 /**
+ * 函数：创建图数据 JSON 净化 replacer。
+ * @returns {(key: string, value: unknown) => unknown} JSON replacer。
+ */
+const createFlowDataJsonReplacer = (): ((key: string, value: unknown) => unknown) => {
+  const seen = new WeakSet<object>();
+
+  return (_key: string, value: unknown): unknown => {
+    if (typeof value === 'function' || typeof value === 'symbol' || typeof value === 'bigint') {
+      return undefined;
+    }
+
+    if (!value || typeof value !== 'object') {
+      return value;
+    }
+
+    if (typeof Window !== 'undefined' && value instanceof Window) {
+      return undefined;
+    }
+
+    if (typeof Node !== 'undefined' && value instanceof Node) {
+      return undefined;
+    }
+
+    if (seen.has(value)) {
+      return undefined;
+    }
+
+    seen.add(value);
+    return value;
+  };
+};
+
+/**
+ * 函数：安全克隆图数据。
+ * @param {unknown} flowData 原始图数据。
+ * @returns {unknown} 可安全恢复的图数据副本。
+ */
+const cloneFlowDataSafely = (flowData: unknown): unknown => {
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(flowData);
+    } catch {
+      // 回退到 JSON 语义净化，兼容代理对象与不可克隆引用。
+    }
+  }
+
+  try {
+    const snapshot = JSON.stringify(flowData, createFlowDataJsonReplacer());
+
+    return typeof snapshot === 'string' ? (JSON.parse(snapshot) as unknown) : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * 函数：克隆并标准化函数流数据。
  * @param {unknown} flowData 原始图数据。
  * @returns {unknown} 规范化后的图数据。
@@ -125,7 +198,12 @@ const normalizeFunctionFlowData = (flowData: unknown): unknown => {
   /**
    * 常量：snapshot。
    */
-  const snapshot = typeof structuredClone === 'function' ? structuredClone(flowData) : JSON.parse(JSON.stringify(flowData));
+  const snapshot = cloneFlowDataSafely(flowData);
+
+  if (!snapshot || typeof snapshot !== 'object') {
+    return snapshot;
+  }
+
   /**
    * 常量：data。
    */
@@ -182,6 +260,23 @@ const normalizeFunctionFlowData = (flowData: unknown): unknown => {
 };
 
 /**
+ * 函数：解析图数据输入。
+ * @param {unknown} flowData 原始图数据。
+ * @returns {unknown} 解析后的图数据。
+ */
+const parseFlowDataInput = (flowData: unknown): unknown => {
+  if (typeof flowData !== 'string') {
+    return flowData;
+  }
+
+  try {
+    return JSON.parse(flowData) as unknown;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * 事件：编辑器操作。
  */
 const emit = defineEmits<ICrawlersEditorEmits>();
@@ -200,6 +295,11 @@ const stateHelperLineVertical = ref<number | undefined>(undefined);
  * Hook：国际化。
  */
 const { t } = useI18n();
+
+/**
+ * Hook：提示。
+ */
+const toast = useToast();
 
 /**
  * 引用：编辑器根元素。
@@ -230,6 +330,11 @@ const CRAWLERS_EDITOR_CLIPBOARD_VERSION = 1;
  * 常量：同面板连续粘贴偏移。
  */
 const CRAWLERS_EDITOR_PASTE_OFFSET = 48;
+
+/**
+ * 常量：初始化最短加载时长（毫秒）。
+ */
+const EDITOR_INIT_MIN_LOADING_MS = 260;
 
 /**
  * 状态：跨面板共享的编辑器剪贴板。
@@ -355,20 +460,94 @@ const computedDraftKey = computed(() => {
 });
 
 /**
+ * 函数：等待下一帧，确保 Vue Flow 画布完成一次渲染批处理。
+ * @returns {Promise<void>} Promise。
+ */
+const waitVueFlowFrame = async (): Promise<void> => {
+  await nextTick();
+
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+};
+
+/**
+ * 函数：判断图数据是否包含节点。
+ * @param {unknown} flowData 图数据。
+ * @returns {boolean} 是否包含节点。
+ */
+const flowDataHasNodes = (flowData: unknown): boolean => {
+  return Array.isArray((flowData as TFlowDataLike | null | undefined)?.nodes) && ((flowData as TFlowDataLike).nodes?.length ?? 0) > 0;
+};
+
+/**
+ * 函数：恢复图数据，并在画布未就绪时自动重试一次。
+ * @param {unknown} flowData 图数据。
+ * @returns {Promise<boolean>} 是否恢复成功。
+ */
+const restoreFlowData = async (flowData: unknown): Promise<boolean> => {
+  const normalized = normalizeFunctionFlowData(flowData) as Parameters<typeof fromObject>[0];
+  const expectedNodes = flowDataHasNodes(normalized);
+
+  if (!expectedNodes) {
+    return false;
+  }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      if (attempt > 0) {
+        await waitVueFlowFrame();
+      }
+
+      await fromObject(normalized);
+      await waitVueFlowFrame();
+
+      if (!expectedNodes || nodes.value.length > 0) {
+        return true;
+      }
+    } catch {
+      if (attempt === 1) {
+        return false;
+      }
+    }
+  }
+
+  return nodes.value.length > 0;
+};
+
+/**
+ * 函数：确保默认系统节点已初始化。
+ * @returns {Promise<boolean>} 是否成功生成默认节点。
+ */
+const ensureDefaultNodesInitialized = async (): Promise<boolean> => {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (attempt > 0) {
+      await waitVueFlowFrame();
+    }
+
+    initializeDefaultNodes();
+    await waitVueFlowFrame();
+
+    if (nodes.value.length > 0) {
+      return true;
+    }
+  }
+
+  return nodes.value.length > 0;
+};
+
+/**
  * 函数：恢复初始导出图。
  * @returns {Promise<boolean>} 是否已恢复。
  */
 const restoreInitialFlowData = async (): Promise<boolean> => {
-  if (!initialFlowData || typeof initialFlowData !== 'object') {
+  const parsedInitialFlowData = parseFlowDataInput(initialFlowData);
+
+  if (!parsedInitialFlowData || typeof parsedInitialFlowData !== 'object') {
     return false;
   }
 
-  try {
-    await fromObject(normalizeFunctionFlowData(initialFlowData) as Parameters<typeof fromObject>[0]);
-    return nodes.value.length > 0;
-  } catch {
-    return false;
-  }
+  return restoreFlowData(parsedInitialFlowData);
 };
 
 /**
@@ -1174,6 +1353,11 @@ const stateAutoSaveStatus = ref<'idle' | 'success' | 'error'>('idle');
 const stateAutoSaveTimerId = ref<number | null>(null);
 
 /**
+ * 状态：编辑器初始化加载中。
+ */
+const stateEditorInitializing = ref<boolean>(true);
+
+/**
  * 状态：窗口级快捷键解绑函数。
  */
 let offEditorWindowKeydown: null | (() => void) = null;
@@ -1281,7 +1465,7 @@ const restoreSnapshot = async (index: number): Promise<void> => {
 
   stateRestoringSnapshot.value = true;
   try {
-    await fromObject(normalizeFunctionFlowData(JSON.parse(snapshot)) as Parameters<typeof fromObject>[0]);
+    await restoreFlowData(JSON.parse(snapshot));
     stateHistoryIndex.value = index;
   } finally {
     stateRestoringSnapshot.value = false;
@@ -1445,7 +1629,12 @@ const restoreDraft = async (): Promise<boolean> => {
       return false;
     }
 
-    await fromObject(normalizeFunctionFlowData(JSON.parse(data)) as Parameters<typeof fromObject>[0]);
+    const restored = await restoreFlowData(JSON.parse(data));
+
+    if (!restored) {
+      localStorage.removeItem(key);
+      return false;
+    }
 
     // 恢复后若节点为空，视为无效草稿，回退默认初始化流程。
     if (nodes.value.length === 0) {
@@ -1558,34 +1747,114 @@ const pushHistorySnapshotDebounced = debounce(() => {
  * 生命周期：组件挂载后，初始化默认节点数据。
  */
 onMounted(async () => {
-  clearExpiredDrafts();
+  const loadingStartedAt = Date.now();
 
-  if (!stateDraftRestored.value) {
-    stateDraftRestored.value = true;
+  try {
+    clearExpiredDrafts();
+
     /**
-     * 常量：restored。
+     * 状态：初始数据来源。
      */
-    const restored = await restoreDraft();
-    if (!restored) {
-      const restoredInitialFlow = await restoreInitialFlowData();
+    let stateInitialLoadSource: 'server' | 'draft' | 'default' = 'default';
 
-      if (restoredInitialFlow) {
-        syncStartNodeDomain();
-        syncFunctionNodeMeta();
+    if (!stateDraftRestored.value) {
+      stateDraftRestored.value = true;
+      if (flowKind === 'function') {
+        const restoredInitialFlow = await restoreInitialFlowData();
+
+        if (restoredInitialFlow) {
+          stateInitialLoadSource = 'server';
+          syncStartNodeDomain();
+          syncFunctionNodeMeta();
+          stateLastDraftSnapshot.value = createSnapshot();
+
+          if (saveDraft()) {
+            stateLastDraftSnapshot.value = createSnapshot();
+          }
+        } else {
+          const restored = await restoreDraft();
+
+          if (restored) {
+            stateInitialLoadSource = 'draft';
+            syncStartNodeDomain();
+            syncFunctionNodeMeta();
+          } else {
+            stateInitialLoadSource = 'default';
+            stateInitializingDefault.value = true;
+            await ensureDefaultNodesInitialized();
+            syncStartNodeDomain();
+            syncFunctionNodeMeta();
+            stateInitializingDefault.value = false;
+          }
+        }
       } else {
-        stateInitializingDefault.value = true;
-        initializeDefaultNodes();
-        syncStartNodeDomain();
-        syncFunctionNodeMeta();
-        stateInitializingDefault.value = false;
-      }
-    } else {
-      syncStartNodeDomain();
-      syncFunctionNodeMeta();
-    }
-  }
+        const restoredInitialFlow = await restoreInitialFlowData();
 
-  stateLastDraftSnapshot.value = createSnapshot();
+        if (restoredInitialFlow) {
+          stateInitialLoadSource = 'server';
+          syncStartNodeDomain();
+          syncFunctionNodeMeta();
+        } else {
+          /**
+           * 常量：restored。
+           */
+          const restored = await restoreDraft();
+
+          if (restored) {
+            stateInitialLoadSource = 'draft';
+            syncStartNodeDomain();
+            syncFunctionNodeMeta();
+          } else {
+            stateInitialLoadSource = 'default';
+            stateInitializingDefault.value = true;
+            await ensureDefaultNodesInitialized();
+            syncStartNodeDomain();
+            syncFunctionNodeMeta();
+            stateInitializingDefault.value = false;
+          }
+        }
+      }
+    }
+
+    const sourceHint = stateInitialLoadSource;
+
+    if (sourceHint === 'server' || sourceHint === 'draft') {
+      toast.add({
+        title: t('pages.crawlers.editor.loadSource.title'),
+        description: t(`pages.crawlers.editor.loadSource.${sourceHint}`),
+        color: 'success',
+        icon: sourceHint === 'server' ? 'i-lucide:cloud-check' : 'i-lucide:hard-drive-download',
+        duration: 2600
+      });
+    }
+
+    console.info('[crawler:editor:init]', {
+      flowKind,
+      sourceHint,
+      draftKey: computedDraftKey.value,
+      nodes: nodes.value.length,
+      edges: edges.value.length
+    });
+
+    stateLastDraftSnapshot.value = createSnapshot();
+  } catch (error) {
+    console.error('[crawler:editor:init-failed]', {
+      flowKind,
+      draftKey: computedDraftKey.value,
+      error
+    });
+  } finally {
+    const loadingElapsed = Date.now() - loadingStartedAt;
+
+    if (loadingElapsed < EDITOR_INIT_MIN_LOADING_MS) {
+      await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), EDITOR_INIT_MIN_LOADING_MS - loadingElapsed);
+      });
+    }
+
+    stateInitializingDefault.value = false;
+    stateEditorInitializing.value = false;
+  }
 
   /**
    * 延迟调用 fitView，确保 DOM 和节点尺寸完全渲染后再适应视图。
@@ -1687,11 +1956,33 @@ watch(
 /**
  * 事件：处理模态框保存
  */
-const handelModalSave = () => {
+const handelModalSave = async () => {
+  console.info('[crawler:editor:save-click]', {
+    flowKind,
+    draftKey: computedDraftKey.value,
+    nodes: nodes.value.length,
+    edges: edges.value.length
+  });
+
+  await nextTick();
+
+  // Vue Flow 的 updateNodeData 存在批处理，这里等一帧确保节点数据已落到快照。
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+
   /**
    * 常量：flowData。
    */
   const flowData = toObject();
+
+  console.info('[crawler:editor:save-emit]', {
+    flowKind,
+    draftKey: computedDraftKey.value,
+    nodeCount: Array.isArray(flowData.nodes) ? flowData.nodes.length : 0,
+    edgeCount: Array.isArray(flowData.edges) ? flowData.edges.length : 0
+  });
+
   emit('save', {
     flowData,
     draftKey: computedDraftKey.value
@@ -1724,6 +2015,14 @@ const handleSidebarCreateFunction = (scope: 'site' | 'global'): void => {
  */
 const handleSidebarEditFunctionLogic = (row: ICrawlersEditorSidebarFunctionRow): void => {
   emit('editFunctionLogic', row);
+};
+
+/**
+ * 函数：转发侧栏函数变更事件。
+ * @returns {void} 无返回值。
+ */
+const handleSidebarFunctionsChanged = (): void => {
+  emit('functionsChanged');
 };
 
 /**

@@ -124,9 +124,19 @@ export interface ICrawlersEditorProps {
   functionRefreshNonce?: number;
 
   /**
+   * 属性：函数图刷新 nonce。
+   */
+  functionGraphRefreshNonce?: number;
+
+  /**
    * 属性：初始导出图。
    */
   initialFlowData?: unknown;
+
+  /**
+   * 属性：初始数据来源提示。
+   */
+  initialLoadSource?: 'server' | 'draft' | 'default';
 
   /**
    * 属性：草稿缓存键。
@@ -166,4 +176,9 @@ export interface ICrawlersEditorEmits {
    * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
    */
   editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
+
+  /**
+   * 事件：函数元数据变更。
+   */
+  functionsChanged: [];
 }

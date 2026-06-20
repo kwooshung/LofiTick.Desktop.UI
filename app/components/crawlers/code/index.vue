@@ -13,17 +13,22 @@
   >
     <template #body>
       <CrawlersEditor
+        v-if="open"
+        :key="computedEditorKey"
         :site-name="computedDrawerSiteName"
         :base-url="computedDrawerBaseUrl"
         :target-id="computedDrawerTargetId"
         :groups="computedBlueprintGroups"
         :selected-key="computedSelectedKey"
         :function-refresh-nonce="functionRefreshNonce"
+        :initial-flow-data="initialFlowData"
+        :initial-load-source="initialLoadSource"
         @cancel="open = false"
         @click="handleEditorClick"
         @save="handleSave"
         @create-function="handleEditorCreateFunction"
         @edit-function-logic="handleEditorEditFunctionLogic"
+        @functions-changed="handleEditorFunctionsChanged"
       />
     </template>
   </USlideover>
@@ -37,7 +42,7 @@ import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * 属性：站点名称与基础 URL。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0 } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -198,6 +203,13 @@ const computedBlueprintGroups = computed(() => (groups.length > 0 ? groups : blu
 const computedSelectedKey = computed(() => (selectedKey !== '' ? selectedKey : (computedBlueprintGroups.value[0]?.crawlers[0]?.key ?? '')));
 
 /**
+ * 计算属性：编辑器重建 key。
+ */
+const computedEditorKey = computed(() => {
+  return [computedDrawerTargetId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
+});
+
+/**
  * 双向绑定：抽屉开关。
  */
 const open = defineModel<boolean>('open', {
@@ -239,5 +251,13 @@ const handleEditorCreateFunction = (scope: 'site' | 'global'): void => {
  */
 const handleEditorEditFunctionLogic = (row: ICrawlersEditorSidebarFunctionRow): void => {
   emit('editFunctionLogic', row);
+};
+
+/**
+ * 函数：转发函数元数据变更。
+ * @returns {void} 无返回值。
+ */
+const handleEditorFunctionsChanged = (): void => {
+  emit('functionsChanged');
 };
 </script>

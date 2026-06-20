@@ -142,4 +142,9 @@ export interface ICrawlersEditorSidebarEmits {
    * @param {ICrawlersEditorSidebarFunctionRow} row 函数行。
    */
   editFunctionLogic: [row: ICrawlersEditorSidebarFunctionRow];
+
+  /**
+   * 事件：函数元数据变更。
+   */
+  functionsChanged: [];
 }

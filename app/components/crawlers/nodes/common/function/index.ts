@@ -1,5 +1,5 @@
 import type { IVariableDefinitionData, TVariableValueDataType } from '@/components/crawlers/nodes/variable/shared/index';
-import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableDefinitionsParse, variableJsonTextGet, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableDefinitionsParse, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * 类型：函数节点数据负载。
@@ -21,10 +21,49 @@ export interface IFunctionNodeMetaData {
   functionParameters?: unknown;
 
   /**
+   * 属性：函数参数定义列表（兼容旧字段）。
+   */
+  parameters?: unknown;
+
+  /**
    * 属性：函数返回值定义列表。
    */
   functionReturns?: unknown;
+
+  /**
+   * 属性：函数返回值定义列表（兼容旧字段）。
+   */
+  returns?: unknown;
 }
+
+/**
+ * 函数：将字符串 JSON 转为可解析值。
+ *
+ * # Arguments
+ *
+ * * `value` - 任意来源值。
+ *
+ * # Returns
+ *
+ * 若为 JSON 字符串则返回解析结果，否则返回原值。
+ */
+const parseMaybeJson = (value: unknown): unknown => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const raw = value.trim();
+
+  if (raw === '') {
+    return value;
+  }
+
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return value;
+  }
+};
 
 /**
  * 接口：函数节点标准化元数据。
@@ -130,13 +169,16 @@ export const functionNodeMetaParse = (value: unknown): IFunctionNodeNormalizedMe
   /**
    * 常量：data。
    */
-  const data = value as Record<string, unknown> | undefined;
+  const data = parseMaybeJson(value) as Record<string, unknown> | undefined;
+
+  const parametersSource = parseMaybeJson(data?.functionParameters ?? data?.parameters);
+  const returnsSource = parseMaybeJson(data?.functionReturns ?? data?.returns);
 
   return {
     functionName: String(data?.functionName ?? '').trim(),
     functionDescription: String(data?.functionDescription ?? '').trim(),
-    functionParameters: functionNodePinDefinitionsParse(data?.functionParameters),
-    functionReturns: functionNodePinDefinitionsParse(data?.functionReturns)
+    functionParameters: functionNodePinDefinitionsParse(parametersSource),
+    functionReturns: functionNodePinDefinitionsParse(returnsSource)
   };
 };
 

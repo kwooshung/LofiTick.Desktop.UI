@@ -1,16 +1,6 @@
 <template>
   <UTooltip :text="description" :content="{ side: 'top' }">
-    <UButton
-      class="w-full cursor-grab justify-start"
-      color="neutral"
-      variant="outline"
-      :disabled="disabled"
-      :icon="iconName"
-      :label="label"
-      :draggable="true"
-      :ui="{ leadingIcon: 'text-muted/70' }"
-      @dragstart="onDragStart($event, name)"
-    />
+    <UButton class="w-full cursor-grab justify-start" color="neutral" variant="outline" :disabled="disabled" :icon="iconName" :label="label" :draggable="true" :ui="{ leadingIcon: 'text-muted/70' }" @dragstart="onDragStart($event, name)" />
   </UTooltip>
 </template>
 
