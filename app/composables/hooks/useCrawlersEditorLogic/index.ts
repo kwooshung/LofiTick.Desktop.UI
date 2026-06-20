@@ -623,6 +623,22 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   };
 
   /**
+   * 函数：判断目标引脚是否已存在连接。
+   * @param {Connection} connection 连接参数。
+   * @returns {boolean} 目标引脚是否已被占用。
+   */
+  const hasExistingTargetHandleConnection = (connection: Connection): boolean => {
+    const targetNodeId = String(connection.target ?? '').trim();
+    const targetHandleId = String(connection.targetHandle ?? '').trim();
+
+    if (targetNodeId === '' || targetHandleId === '') {
+      return false;
+    }
+
+    return edges.value.some((edge) => String(edge.target ?? '').trim() === targetNodeId && String(edge.targetHandle ?? '').trim() === targetHandleId);
+  };
+
+  /**
    * 函数：处理连接完成。
    * @param {Connection} params 连接参数。
    * @returns {void} 无返回值。
@@ -630,6 +646,12 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
   const handleConnect = (params: Connection): void => {
     if (isValidConnection(params)) {
       const { isExecConnection, edgeDataType } = getEdgeVisualMeta(params.sourceHandle, params.targetHandle);
+
+      if (!isExecConnection && hasExistingTargetHandleConnection(params)) {
+        edges.value = edges.value.filter((edge) => {
+          return !(edge.target === params.target && edge.targetHandle === params.targetHandle);
+        });
+      }
 
       if (isExecConnection) {
         // UE 蓝图风格：同一个执行输出引脚和执行输入引脚都只允许保留一条线。

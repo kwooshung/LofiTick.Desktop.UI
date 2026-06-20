@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import type { Connection } from '@vue-flow/core';
-import { Handle, Position, useNode, useNodeId } from '@vue-flow/core';
+import { Handle, Position, useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin, ICrawlersNodesCommonBasicProps, TBasicSidePinDataType } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -101,6 +101,11 @@ const stateNodeId = useNodeId();
  * Hook：当前节点实例。
  */
 const stateNode = useNode();
+
+/**
+ * Hook：Vue Flow。
+ */
+const { edges } = useVueFlow();
 
 /**
  * 计算属性：左侧引脚配置。
@@ -311,10 +316,34 @@ const isExecConnection = (connection: Connection): boolean => {
 };
 
 /**
+ * 函数：判断目标引脚是否已存在连接。
+ *
+ * # Arguments
+ *
+ * * `connection` - 当前连接信息。
+ *
+ * # Returns
+ *
+ * 目标引脚已占用返回 true，否则返回 false。
+ */
+const hasExistingTargetConnection = (connection: Connection): boolean => {
+  const targetNodeId = String(connection.target ?? stateNodeId ?? '').trim();
+  const targetHandleId = String(connection.targetHandle ?? '').trim();
+
+  if (targetNodeId === '' || targetHandleId === '') {
+    return false;
+  }
+
+  return edges.value.some((edge) => {
+    return String(edge.target ?? '').trim() === targetNodeId && String(edge.targetHandle ?? '').trim() === targetHandleId;
+  });
+};
+
+/**
  * 函数：验证连接目标是否合法（仅允许其他节点的 exec-out 连接到当前节点 exec-in）。
  */
 const isValidConnectionTarget = (connection: Connection): boolean => {
-  return isExecConnection(connection) && connection.source !== stateNodeId;
+  return isExecConnection(connection) && connection.source !== stateNodeId && !hasExistingTargetConnection(connection);
 };
 
 /**
@@ -341,6 +370,10 @@ const isValidSidePinTarget = (connection: Connection): boolean => {
   }
 
   if (connection.source === stateNodeId) {
+    return false;
+  }
+
+  if (hasExistingTargetConnection(connection)) {
     return false;
   }
 
