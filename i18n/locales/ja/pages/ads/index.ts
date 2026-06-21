@@ -9,8 +9,6 @@ export const ads = {
     triggerDefault: '広告を検索',
     triggerFiltered: '{count} 件の条件で絞り込み中',
     keywordPlaceholder: '広告タイトルを検索',
-    enabled: '有効',
-    disabled: '無効'
   },
   actions: {
     create: '広告を追加'
@@ -37,8 +35,6 @@ export const ads = {
       auditTime: '更新 / 作成',
       startAt: '開始時刻',
       endAt: '終了時刻',
-      updatedAt: '更新時刻',
-      createdAt: '作成時刻',
       enabled: '有効',
       actions: '操作',
       untitled: '名称未設定の広告'
@@ -118,8 +114,6 @@ export const ads = {
       materialType: '素材タイプ',
       startAt: '開始時刻',
       endAt: '終了時刻',
-      updatedAt: '更新時刻',
-      createdAt: '作成時刻'
     },
     form: {
       title: '広告タイトル',

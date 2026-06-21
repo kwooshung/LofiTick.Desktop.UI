@@ -8,6 +8,10 @@ export const common = {
   actions,
   content,
   dialogs,
+  datetimes: {
+    updatedAt: '更新日時',
+    createdAt: '作成日時'
+  },
   labels,
   site,
   toasts: {

@@ -335,7 +335,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
   },
   {
     accessorKey: 'isEnabled',
-    header: t('pages.crawlers.blueprints.table.enabled'),
+    header: t('common.labels.enabled'),
     cell: ({ row }) => h(USwitch, { modelValue: row.original.isEnabled, disabled: true })
   },
   {

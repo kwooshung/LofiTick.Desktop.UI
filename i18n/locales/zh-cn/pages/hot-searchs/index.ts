@@ -2,7 +2,6 @@ export const hotsearch = {
   title: '热搜',
   description: '按日期归档查看热搜数据、播客脚本与完整媒体文件。',
   layout: {
-    updatedAt: '更新于',
     dates: {
       title: '日期归档',
       description: '左侧像邮箱列表一样按日期查看热搜批次。',
@@ -91,8 +90,6 @@ export const hotsearch = {
       no: '编号',
       tag: '标签',
       count: '数量',
-      updatedAt: '更新时间',
-      createdAt: '创建时间'
     }
   },
   platforms: {
@@ -100,8 +97,6 @@ export const hotsearch = {
       no: '编号',
       platform: '平台',
       count: '数量',
-      updatedAt: '更新时间',
-      createdAt: '创建时间'
     }
   },
   podcast: {

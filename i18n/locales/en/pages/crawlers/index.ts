@@ -187,7 +187,6 @@ export const crawlers = {
       name: 'Blueprint',
       status: 'Execution Status',
       lastRunAt: 'Last Run',
-      enabled: 'Enabled'
     }
   },
   spider: {

@@ -187,7 +187,6 @@ export const crawlers = {
       name: 'ブループリント',
       status: '実行状態',
       lastRunAt: '最終実行',
-      enabled: '有効'
     }
   },
   spider: {

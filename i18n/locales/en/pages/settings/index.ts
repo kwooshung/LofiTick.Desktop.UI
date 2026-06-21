@@ -757,11 +757,8 @@ export const settings = {
       schedule: 'Schedule',
       retainCopies: 'Retained copies',
       lastExecutedAt: 'Last execution',
-      createdAt: 'Created at',
       status: 'Status',
       actions: 'Actions',
-      enabled: 'Enabled',
-      disabled: 'Disabled',
       executing: 'Running'
     },
     records: {

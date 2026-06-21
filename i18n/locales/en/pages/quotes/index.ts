@@ -13,8 +13,6 @@ export const quotes = {
       author: 'Author',
       sourceAuthor: 'Source / Author',
       typeSourceAuthor: 'Type / Source / Author',
-      updatedAt: 'Updated at',
-      createdAt: 'Created at',
       enabled: 'Enabled'
     }
   },

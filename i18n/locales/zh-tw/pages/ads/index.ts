@@ -9,8 +9,6 @@ export const ads = {
     triggerDefault: '搜尋廣告',
     triggerFiltered: '已篩選 {count} 項',
     keywordPlaceholder: '搜尋廣告標題',
-    enabled: '啟用',
-    disabled: '停用'
   },
   actions: {
     create: '新增廣告'
@@ -37,8 +35,6 @@ export const ads = {
       auditTime: '更新/建立',
       startAt: '生效時間',
       endAt: '失效時間',
-      updatedAt: '更新時間',
-      createdAt: '建立時間',
       enabled: '啟用',
       actions: '操作',
       untitled: '未命名廣告'
@@ -118,8 +114,6 @@ export const ads = {
       materialType: '素材類型',
       startAt: '生效時間',
       endAt: '失效時間',
-      updatedAt: '更新時間',
-      createdAt: '建立時間'
     },
     form: {
       title: '廣告標題',

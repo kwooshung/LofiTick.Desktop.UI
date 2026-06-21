@@ -8,8 +8,6 @@ export const socials = {
       size: '人数',
       full: '满员',
       enabled: '启用',
-      updatedAt: '更新时间',
-      createdAt: '创建时间',
       actions: '操作'
     },
     footer: {
@@ -43,8 +41,6 @@ export const socials = {
           size: '人数',
           full: '满员',
           enabled: '启用',
-          updatedAt: '更新时间',
-          createdAt: '创建时间',
           actions: '操作'
         },
         footer: {

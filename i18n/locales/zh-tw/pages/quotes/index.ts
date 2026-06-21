@@ -13,8 +13,6 @@ export const quotes = {
       author: '作者',
       sourceAuthor: '出處 / 作者',
       typeSourceAuthor: '類型 / 出處 / 作者',
-      updatedAt: '更新時間',
-      createdAt: '建立時間',
       enabled: '啟用'
     }
   },

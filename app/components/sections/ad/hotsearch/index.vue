@@ -401,11 +401,11 @@
               <Datetime :datetime="stateDetailRow.endAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.updatedAt') }}</span>
+              <span class="text-muted shrink-0">{{ t('common.datetimes.updatedAt') }}</span>
               <Datetime :datetime="stateDetailRow.updatedAt" mode="datetime" />
             </div>
             <div class="flex items-start justify-between gap-3">
-              <span class="text-muted shrink-0">{{ t('pages.ads.hotsearch.detail.createdAt') }}</span>
+              <span class="text-muted shrink-0">{{ t('common.datetimes.createdAt') }}</span>
               <Datetime :datetime="stateDetailRow.createdAt" mode="datetime" />
             </div>
           </div>
@@ -3908,8 +3908,8 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
       return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
         h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.startAt')}：`), h(Datetime, { datetime: item.startAt, mode: 'datetime' })]),
         h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.endAt')}：`), h(Datetime, { datetime: item.endAt, mode: 'datetime' })]),
-        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.updatedAt')}：`), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
-        h('div', { class: 'text-muted' }, [h('span', `${t('pages.ads.hotsearch.table.createdAt')}：`), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
+        h('div', { class: 'text-muted' }, [h('span', `${t('common.datetimes.updatedAt')}：`), h(Datetime, { datetime: item.updatedAt, mode: 'datetime' })]),
+        h('div', { class: 'text-muted' }, [h('span', `${t('common.datetimes.createdAt')}：`), h(Datetime, { datetime: item.createdAt, mode: 'datetime' })])
       ]);
     }
   },
@@ -3939,25 +3939,25 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
   },
   {
     accessorKey: 'updatedAt',
-    header: t('pages.ads.hotsearch.table.updatedAt'),
+    header: t('common.datetimes.updatedAt'),
     meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.updatedAt, mode: 'datetime' })
   },
   {
     accessorKey: 'createdAt',
-    header: t('pages.ads.hotsearch.table.createdAt'),
+    header: t('common.datetimes.createdAt'),
     meta: { class: { th: 'hidden 5xl:table-cell w-24 text-right text-sm', td: 'hidden 5xl:table-cell w-24 text-right align-middle' } },
     cell: ({ row }) => h(Datetime, { datetime: row.original.createdAt, mode: 'datetime' })
   },
   {
     accessorKey: 'isEnabled',
-    header: t('pages.ads.hotsearch.table.enabled'),
+    header: t('common.labels.enabled'),
     meta: { class: { th: 'w-16 text-center text-sm', td: 'w-16 text-center align-middle' } },
     cell: ({ row }) => h(USwitch, { modelValue: row.original.isEnabled, 'onUpdate:modelValue': (value: boolean) => handleToggleEnabled(row.original, value) })
   },
   {
     id: 'actions',
-    header: () => h('div', { class: 'w-full text-right' }, t('pages.ads.hotsearch.table.actions')),
+    header: () => h('div', { class: 'w-full text-right' }, t('common.labels.actions')),
     meta: { class: { th: 'w-34 text-right text-sm', td: 'w-34 text-right align-middle' } },
     cell: ({ row }) =>
       h('div', { class: 'flex items-center justify-end gap-2 text-sm' }, [

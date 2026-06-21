@@ -19,8 +19,6 @@ export const poetrys = {
       sentence: 'キーフレーズ',
       count: '件数',
       authorCount: '作者数',
-      updatedAt: '更新日時',
-      createdAt: '作成日時',
       enabled: '有効',
       actions: '操作',
       detail: '詳細'

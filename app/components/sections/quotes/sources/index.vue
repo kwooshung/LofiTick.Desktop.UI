@@ -302,7 +302,7 @@ const columns: TableColumn<IPageTableColumnQuoteSources>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.quotes.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
     cell: ({ row }) =>
       h(Datetime, {
@@ -341,7 +341,7 @@ const columns: TableColumn<IPageTableColumnQuoteSources>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.quotes.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },
     cell: ({ row }) =>
       h(Datetime, {

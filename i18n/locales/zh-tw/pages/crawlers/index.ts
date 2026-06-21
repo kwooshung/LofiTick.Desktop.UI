@@ -187,7 +187,6 @@ export const crawlers = {
       name: '藍圖',
       status: '執行狀態',
       lastRunAt: '最後執行',
-      enabled: '啟用'
     }
   },
   spider: {

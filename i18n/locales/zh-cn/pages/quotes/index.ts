@@ -11,8 +11,6 @@ export const quotes = {
       sourceAuthor: '出处 / 作者',
       typeSourceAuthor: '类型 / 出处 / 作者',
       enabled: '启用',
-      updatedAt: '更新时间',
-      createdAt: '创建时间'
     },
     footer: {
       total: '共 {total} 条结果'

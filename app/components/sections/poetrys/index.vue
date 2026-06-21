@@ -967,7 +967,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     cell: ({ row }) =>
       h('div', { class: 'flex flex-col gap-1.5' }, [
         h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.poetrys.result.table.updatedAt')}：`),
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`),
           h(Datetime, {
             class: 'w-auto max-w-full',
             datetime: row.original.times.updated,
@@ -980,7 +980,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
           })
         ]),
         h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.poetrys.result.table.createdAt')}：`),
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`),
           h(Datetime, {
             class: 'w-auto max-w-full',
             datetime: row.original.times.created,
@@ -1019,7 +1019,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
     cell: ({ row }) =>
       h(Datetime, {
@@ -1058,7 +1058,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },
     cell: ({ row }) =>
       h(Datetime, {
@@ -1079,7 +1079,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
         td: 'w-20'
       }
     },
-    header: t('pages.poetrys.result.table.enabled'),
+    header: t('common.labels.enabled'),
     cell: ({ row }) =>
       h(USwitch, {
         modelValue: row.original.enabled,
@@ -1095,7 +1095,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
       }
     },
     enableHiding: false,
-    header: () => h('div', { class: 'w-full text-center' }, t('pages.poetrys.result.table.actions')),
+    header: () => h('div', { class: 'w-full text-center' }, t('common.labels.actions')),
     cell: ({ row }) =>
       h(UButton, {
         color: 'neutral',

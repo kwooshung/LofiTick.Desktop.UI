@@ -8,8 +8,6 @@ export const socials = {
       size: '人数',
       full: '満員',
       enabled: '有効',
-      updatedAt: '更新日時',
-      createdAt: '作成日時',
       actions: '操作'
     },
     footer: {
@@ -43,8 +41,6 @@ export const socials = {
           size: '人数',
           full: '満員',
           enabled: '有効',
-          updatedAt: '更新日時',
-          createdAt: '作成日時',
           actions: '操作'
         },
         footer: {

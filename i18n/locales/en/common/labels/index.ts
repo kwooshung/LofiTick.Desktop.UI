@@ -1,4 +1,7 @@
 export const labels = {
   time: 'Time',
-  none: 'None'
+  none: 'None',
+  enabled: 'Enabled',
+  disabled: 'Disabled',
+  actions: 'Actions'
 };
