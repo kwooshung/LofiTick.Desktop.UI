@@ -89,12 +89,9 @@ const computedDomain = computed<string>(() => currentDomainGet());
 /**
  * API：读取当前站点详情。
  */
-const { datas: stateDetailDatas } = await useApi<IQueryResultCrawlerTargetRow>(
-  `crawlers/targets/${encodeURIComponent(computedDomain.value)}`,
-  {
-    immediate: true
-  }
-);
+const { datas: stateDetailDatas } = await useApi<IQueryResultCrawlerTargetRow>(`crawlers/targets/${encodeURIComponent(computedDomain.value)}`, {
+  immediate: true
+});
 
 /**
  * 计算属性：站点 ID。
@@ -129,7 +126,9 @@ const currentOrderByGet = (): 'id' | 'updated' | 'created' => {
  * 函数：从路由读取排序方向。
  */
 const currentOrderDirGet = (): 'asc' | 'desc' => {
-  const orderDir = String(route.query.order_dir ?? '').trim().toLowerCase();
+  const orderDir = String(route.query.order_dir ?? '')
+    .trim()
+    .toLowerCase();
   return orderDir === 'asc' ? 'asc' : 'desc';
 };
 
@@ -138,7 +137,7 @@ const currentOrderDirGet = (): 'asc' | 'desc' => {
  */
 const buildBlueprintQueryFromRoute = (): Record<string, string> => {
   const query: Record<string, string> = {
-    targetId: String(computedTargetId.value),
+    target_id: String(computedTargetId.value),
     pagesize: currentPageSizeGet()
   };
 
@@ -166,7 +165,11 @@ const buildBlueprintQueryFromRoute = (): Record<string, string> => {
 /**
  * API：蓝图列表。
  */
-const { datas: stateDatas, loading: stateLoading, refreshDebounced: refreshListDebounced } = await useApi<IQueryResultCrawlerBlueprintSummaryPage>('crawlers/blueprints', {
+const {
+  datas: stateDatas,
+  loading: stateLoading,
+  refreshDebounced: refreshListDebounced
+} = await useApi<IQueryResultCrawlerBlueprintSummaryPage>('crawlers/blueprints', {
   immediate: false,
   datas: buildBlueprintQueryFromRoute()
 });
@@ -307,11 +310,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
   {
     accessorKey: 'name',
     header: t('pages.crawlers.blueprints.table.name'),
-    cell: ({ row }) =>
-      h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [
-        h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'),
-        h('div', { class: 'truncate text-xs text-muted' }, row.original.description || t('common.labels.none'))
-      ])
+    cell: ({ row }) => h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'), h('div', { class: 'truncate text-xs text-muted' }, row.original.description || t('common.labels.none'))])
   },
   {
     accessorKey: 'lastRunStatus',
