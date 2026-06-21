@@ -757,11 +757,8 @@ export const settings = {
       schedule: 'スケジュール',
       retainCopies: '保持世代',
       lastExecutedAt: '最終実行時刻',
-      createdAt: '作成日時',
       status: '状態',
       actions: '操作',
-      enabled: '有効',
-      disabled: '無効',
       executing: '実行中'
     },
     records: {

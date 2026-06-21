@@ -2,7 +2,6 @@ export const hotsearch = {
   title: 'Trending',
   description: 'Browse hot topics by date, podcast scripts, and generated media assets.',
   layout: {
-    updatedAt: 'Updated',
     dates: {
       title: 'Date archive',
       description: 'Review hotsearch batches by date like an email sidebar.',
@@ -91,8 +90,6 @@ export const hotsearch = {
       no: 'No.',
       tag: 'Tag',
       count: 'Count',
-      updatedAt: 'Updated at',
-      createdAt: 'Created at'
     }
   },
   platforms: {
@@ -100,8 +97,6 @@ export const hotsearch = {
       no: 'No.',
       platform: 'Platform',
       count: 'Count',
-      updatedAt: 'Updated at',
-      createdAt: 'Created at'
     }
   },
   podcast: {

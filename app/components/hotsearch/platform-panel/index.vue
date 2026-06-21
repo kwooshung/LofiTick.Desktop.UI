@@ -385,7 +385,7 @@ const columns: TableColumn<IHotsearchPlatformSummaryRow>[] = [
       return h(UButton, {
         color: 'neutral',
         variant: 'ghost',
-        label: t('pages.hotsearch.platforms.table.updatedAt'),
+        label: t('common.datetimes.updatedAt'),
         icon,
         class: '-mx-2.5 font-semibold',
         onClick: () => toggleSort('updated_at')
@@ -418,7 +418,7 @@ const columns: TableColumn<IHotsearchPlatformSummaryRow>[] = [
       return h(UButton, {
         color: 'neutral',
         variant: 'ghost',
-        label: t('pages.hotsearch.platforms.table.createdAt'),
+        label: t('common.datetimes.createdAt'),
         icon,
         class: '-mx-2.5 font-semibold',
         onClick: () => toggleSort('created_at')

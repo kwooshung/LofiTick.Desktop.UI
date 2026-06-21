@@ -9,8 +9,6 @@ export const ads = {
     triggerDefault: '搜索广告',
     triggerFiltered: '已筛选 {count} 项',
     keywordPlaceholder: '搜索广告标题',
-    enabled: '启用',
-    disabled: '停用'
   },
   actions: {
     create: '添加广告'
@@ -37,8 +35,6 @@ export const ads = {
       auditTime: '更新/创建',
       startAt: '生效时间',
       endAt: '失效时间',
-      updatedAt: '更新时间',
-      createdAt: '创建时间',
       enabled: '启用',
       actions: '操作',
       untitled: '未命名广告'
@@ -118,8 +114,6 @@ export const ads = {
       materialType: '素材类型',
       startAt: '生效时间',
       endAt: '失效时间',
-      updatedAt: '更新时间',
-      createdAt: '创建时间'
     },
     form: {
       title: '广告标题',

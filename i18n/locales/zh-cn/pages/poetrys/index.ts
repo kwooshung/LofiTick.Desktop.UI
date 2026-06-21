@@ -17,8 +17,6 @@ export const poetrys = {
       count: '数量',
       authorCount: '作者数',
       enabled: '启用',
-      updatedAt: '更新时间',
-      createdAt: '创建时间',
       actions: '操作',
       detail: '详情'
     },

@@ -757,11 +757,8 @@ export const settings = {
       schedule: '排程',
       retainCopies: '保留份數',
       lastExecutedAt: '上次執行時間',
-      createdAt: '建立時間',
       status: '狀態',
       actions: '操作',
-      enabled: '啟用',
-      disabled: '停用',
       executing: '執行中'
     },
     records: {

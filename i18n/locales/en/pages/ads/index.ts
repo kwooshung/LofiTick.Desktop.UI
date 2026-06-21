@@ -9,8 +9,6 @@ export const ads = {
     triggerDefault: 'Search Ads',
     triggerFiltered: '{count} Filters Applied',
     keywordPlaceholder: 'Search ad title',
-    enabled: 'Enabled',
-    disabled: 'Disabled'
   },
   actions: {
     create: 'Add Ad'
@@ -37,8 +35,6 @@ export const ads = {
       auditTime: 'Updated / Created',
       startAt: 'Start Time',
       endAt: 'End Time',
-      updatedAt: 'Updated At',
-      createdAt: 'Created At',
       enabled: 'Enabled',
       actions: 'Actions',
       untitled: 'Untitled Ad'
@@ -118,8 +114,6 @@ export const ads = {
       materialType: 'Material Type',
       startAt: 'Start Time',
       endAt: 'End Time',
-      updatedAt: 'Updated At',
-      createdAt: 'Created At'
     },
     form: {
       title: 'Ad Title',

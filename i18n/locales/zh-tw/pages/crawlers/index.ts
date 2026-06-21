@@ -178,6 +178,17 @@ export const crawlers = {
       description: '還沒有執行記錄'
     }
   },
+  blueprints: {
+    empty: {
+      title: '暫無藍圖',
+      description: '目前站點還沒有建立爬蟲藍圖，請點擊右上角「添加任務」開始建立。'
+    },
+    table: {
+      name: '藍圖',
+      status: '執行狀態',
+      lastRunAt: '最後執行',
+    }
+  },
   spider: {
     title: '蜘蛛',
     websites: {

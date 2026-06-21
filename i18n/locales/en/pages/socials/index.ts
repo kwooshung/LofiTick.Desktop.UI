@@ -8,8 +8,6 @@ export const socials = {
       size: 'Members',
       full: 'Full',
       enabled: 'Enabled',
-      updatedAt: 'Updated',
-      createdAt: 'Created',
       actions: 'Actions'
     },
     footer: {
@@ -43,8 +41,6 @@ export const socials = {
           size: 'Members',
           full: 'Full',
           enabled: 'Enabled',
-          updatedAt: 'Updated',
-          createdAt: 'Created',
           actions: 'Actions'
         },
         footer: {

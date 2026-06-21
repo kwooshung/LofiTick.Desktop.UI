@@ -2,7 +2,6 @@ export const hotsearch = {
   title: 'トレンド',
   description: '日付ごとに急上昇データ、Podcast 台本、完成メディアを確認します。',
   layout: {
-    updatedAt: '更新',
     dates: {
       title: '日付アーカイブ',
       description: 'メール一覧のように日付ごとのバッチを確認できます。',
@@ -91,8 +90,6 @@ export const hotsearch = {
       no: '番号',
       tag: 'タグ',
       count: '件数',
-      updatedAt: '更新日時',
-      createdAt: '作成日時'
     }
   },
   platforms: {
@@ -100,8 +97,6 @@ export const hotsearch = {
       no: '番号',
       platform: 'プラットフォーム',
       count: '件数',
-      updatedAt: '更新日時',
-      createdAt: '作成日時'
     }
   },
   podcast: {

@@ -222,7 +222,6 @@ const open = defineModel<boolean>('open', {
  */
 const handleSave = (payload: ICrawlersEditorSavePayload) => {
   emit('save', payload);
-  open.value = false;
 };
 
 /**

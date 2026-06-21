@@ -178,6 +178,17 @@ export const crawlers = {
       description: 'No execution records yet.'
     }
   },
+  blueprints: {
+    empty: {
+      title: 'No Blueprints',
+      description: 'No crawler blueprint has been created for this site yet. Click "Add Task" in the top-right to start.'
+    },
+    table: {
+      name: 'Blueprint',
+      status: 'Execution Status',
+      lastRunAt: 'Last Run',
+    }
+  },
   spider: {
     title: 'Spider',
     websites: {

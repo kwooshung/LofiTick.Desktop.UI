@@ -79,7 +79,14 @@ export const crawler = {
       common: {
         start: {
           title: '开始',
-          description: '爬虫的入口节点，负责触发爬虫的执行'
+          description: '爬虫的入口节点，负责触发爬虫的执行',
+          form: {
+            crawlerTitle: '爬虫标题（必填）',
+            crawlerTitlePlaceholder: '请输入爬虫标题',
+            crawlerTitleRequired: '爬虫标题不能为空，请先填写后再保存蓝图。',
+            crawlerDescription: '爬虫描述',
+            crawlerDescriptionPlaceholder: '请输入爬虫描述（可选）'
+          }
         },
         end: {
           title: '结束',

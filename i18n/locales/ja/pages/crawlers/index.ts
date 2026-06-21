@@ -178,6 +178,17 @@ export const crawlers = {
       description: 'まだ実行記録がありません'
     }
   },
+  blueprints: {
+    empty: {
+      title: 'ブループリントがありません',
+      description: 'このサイトにはまだクローラーブループリントがありません。右上の「タスクを追加」から作成してください。'
+    },
+    table: {
+      name: 'ブループリント',
+      status: '実行状態',
+      lastRunAt: '最終実行',
+    }
+  },
   spider: {
     title: 'スパイダー',
     websites: {

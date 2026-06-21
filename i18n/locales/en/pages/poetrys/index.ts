@@ -19,8 +19,6 @@ export const poetrys = {
       sentence: 'Key line',
       count: 'Count',
       authorCount: 'Authors',
-      updatedAt: 'Updated at',
-      createdAt: 'Created at',
       enabled: 'Enabled',
       actions: 'Actions',
       detail: 'Details'

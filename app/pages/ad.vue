@@ -127,8 +127,8 @@ const platformOptions = computed(() => [{ label: t('pages.ads.filters.allPlatfor
  */
 const enabledOptions = computed(() => [
   { label: t('pages.ads.filters.allStatuses'), value: ENABLED_ALL_VALUE },
-  { label: t('pages.ads.filters.enabled'), value: 'true' },
-  { label: t('pages.ads.filters.disabled'), value: 'false' }
+  { label: t('common.labels.enabled'), value: 'true' },
+  { label: t('common.labels.disabled'), value: 'false' }
 ]);
 
 /**

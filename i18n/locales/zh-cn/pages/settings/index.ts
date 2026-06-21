@@ -763,11 +763,8 @@
       schedule: '计划',
       retainCopies: '保留份数',
       lastExecutedAt: '上次执行时间',
-      createdAt: '创建时间',
       status: '状态',
       actions: '操作',
-      enabled: '启用',
-      disabled: '停用',
       executing: '执行中'
     },
     records: {

@@ -51,7 +51,7 @@
           <UFormField name="full" :label="t('pages.socials.qq.groups.result.table.full')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
             <USwitch v-model="stateEditor.full" />
           </UFormField>
-          <UFormField name="enabled" :label="t('pages.socials.qq.groups.result.table.enabled')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
+          <UFormField name="enabled" :label="t('common.labels.enabled')" :ui="{ error: 'empty:mt-0 empty:-translate-y-full transition-[margin,transform] duration-300 z-0' }">
             <USwitch v-model="stateEditor.enabled" />
           </UFormField>
         </UForm>
@@ -1016,7 +1016,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
         td: 'w-20'
       }
     },
-    header: t('pages.socials.qq.groups.result.table.enabled'),
+    header: t('common.labels.enabled'),
     cell: ({ row }) =>
       h(USwitch, {
         modelValue: row.original.enabled,
@@ -1036,7 +1036,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
     cell: ({ row }) =>
       h('div', { class: 'flex flex-col gap-1.5' }, [
         h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.socials.qq.groups.result.table.updatedAt')}：`),
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`),
           h(Datetime, {
             class: 'w-auto max-w-full',
             datetime: row.original.times.updated,
@@ -1049,7 +1049,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
           })
         ]),
         h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.socials.qq.groups.result.table.createdAt')}：`),
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`),
           h(Datetime, {
             class: 'w-auto max-w-full',
             datetime: row.original.times.created,
@@ -1088,7 +1088,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.updatedAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('updated') });
     },
     cell: ({ row }) =>
       h(Datetime, {
@@ -1127,7 +1127,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
        * 常量：icon。
        */
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
-      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.socials.qq.groups.result.table.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
+      return h(UButton, { color: 'neutral', variant: 'ghost', label: t('common.datetimes.createdAt'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('created') });
     },
     cell: ({ row }) =>
       h(Datetime, {
@@ -1150,7 +1150,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
       }
     },
     enableHiding: false,
-    header: () => h('div', { class: 'w-full text-center' }, t('pages.socials.qq.groups.result.table.actions')),
+    header: () => h('div', { class: 'w-full text-center' }, t('common.labels.actions')),
     cell: ({ row }) =>
       h(
         UButton,

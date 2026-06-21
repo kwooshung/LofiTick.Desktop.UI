@@ -799,7 +799,19 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
 /**
  * API：保存（新增/编辑）
  */
-const { refresh: refreshSave } = await useApi<{ affected: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
+const { status: stateCrawlerTargetSaveStatus, error: stateCrawlerTargetSaveError, refresh: refreshSave } = await useApi<{ affected: number; id: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
+
+/**
+ * API：保存站点主逻辑蓝图。
+ */
+const {
+  status: stateCrawlerTaskGraphSaveStatus,
+  error: stateCrawlerTaskGraphSaveError,
+  refresh: refreshCrawlerTaskGraphSave
+} = await useApi<{ affected: number; id: number; referenceCount: number }>('crawlers/blueprints/add', {
+  method: 'POST',
+  immediate: false
+});
 
 /**
  * API：创建函数。
@@ -906,6 +918,28 @@ const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>
   }
 
   return normalizedGraph as { nodes?: Array<Record<string, unknown>> };
+};
+
+/**
+ * 函数：校验开始节点爬虫标题是否有效。
+ * @param {unknown} flowData 图数据。
+ * @returns {boolean} 是否通过校验。
+ */
+const startNodeCrawlerTitleValidate = (flowData: unknown): boolean => {
+  const parsed = graphParseSafe(flowData);
+
+  if (!parsed || !Array.isArray(parsed.nodes)) {
+    return false;
+  }
+
+  const startNode = parsed.nodes.find((node) => ['start'].includes(String(node.type ?? '').trim()));
+
+  if (!startNode) {
+    return false;
+  }
+
+  const data = (startNode.data ?? {}) as Record<string, unknown>;
+  return String(data.crawlerTitle ?? '').trim() !== '';
 };
 
 /**
@@ -1060,16 +1094,68 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     return;
   }
 
-  await refreshSave({
+  /**
+   * 常量：targetId。
+   */
+  const targetId = Number(target.id ?? 0);
+
+  if (!Number.isFinite(targetId) || targetId <= 0) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+    return;
+  }
+
+  if (!startNodeCrawlerTitleValidate(payload?.flowData)) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+    return;
+  }
+
+  await refreshCrawlerTaskGraphSave({
     datas: {
-      id: Number(target.id ?? 0),
+      targetId,
       name: String(target.name ?? '').trim(),
-      domain: String(target.domain ?? '').trim(),
-      description: String(target.description ?? ''),
+      description: String(target.description ?? '').trim(),
+      nodes: payload?.flowData ?? {},
+      code: payload?.flowData ?? {},
       isEnabled: Boolean(target.isEnabled ?? true)
     },
     replace: true
   });
+
+  const saveHttp = Number(stateCrawlerTaskGraphSaveStatus.value?.http ?? 0);
+  const saveFailed = Boolean(stateCrawlerTaskGraphSaveError.value) || (saveHttp >= 400 && saveHttp !== 0);
+
+  if (saveFailed) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+    return;
+  }
+
+  toast.add({
+    title: t('pages.crawlers.editor.saveFeedback.title'),
+    description: t('pages.crawlers.editor.loadSource.saveSuccess'),
+    color: 'success',
+    icon: 'i-lucide:check-check',
+    duration: 2600
+  });
+
+  stateCodeSlideoverOpen.value = false;
 
   if (import.meta.client) {
     /**
