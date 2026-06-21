@@ -79,7 +79,14 @@ export const crawler = {
       common: {
         start: {
           title: '開始',
-          description: 'クローラーの実行を開始する入口ノード'
+          description: 'クローラーの実行を開始する入口ノード',
+          form: {
+            crawlerTitle: 'クローラータイトル（必須）',
+            crawlerTitlePlaceholder: 'クローラータイトルを入力してください',
+            crawlerTitleRequired: '保存前にクローラータイトルを入力してください。',
+            crawlerDescription: 'クローラー説明',
+            crawlerDescriptionPlaceholder: 'クローラー説明を入力してください（任意）'
+          }
         },
         end: {
           title: '終了',

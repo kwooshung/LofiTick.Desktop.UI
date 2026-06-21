@@ -921,6 +921,28 @@ const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>
 };
 
 /**
+ * 函数：校验开始节点爬虫标题是否有效。
+ * @param {unknown} flowData 图数据。
+ * @returns {boolean} 是否通过校验。
+ */
+const startNodeCrawlerTitleValidate = (flowData: unknown): boolean => {
+  const parsed = graphParseSafe(flowData);
+
+  if (!parsed || !Array.isArray(parsed.nodes)) {
+    return false;
+  }
+
+  const startNode = parsed.nodes.find((node) => ['start'].includes(String(node.type ?? '').trim()));
+
+  if (!startNode) {
+    return false;
+  }
+
+  const data = (startNode.data ?? {}) as Record<string, unknown>;
+  return String(data.crawlerTitle ?? '').trim() !== '';
+};
+
+/**
  * 函数：统计函数图中的参数与返回值数量。
  * @param {unknown} graph 函数图。
  * @returns {TFunctionGraphStats} 统计结果。
@@ -1088,6 +1110,17 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     return;
   }
 
+  if (!startNodeCrawlerTitleValidate(payload?.flowData)) {
+    toast.add({
+      title: t('pages.crawlers.editor.saveFeedback.title'),
+      description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 4200
+    });
+    return;
+  }
+
   await refreshCrawlerTaskGraphSave({
     datas: {
       targetId,
@@ -1121,6 +1154,8 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     icon: 'i-lucide:check-check',
     duration: 2600
   });
+
+  stateCodeSlideoverOpen.value = false;
 
   if (import.meta.client) {
     /**

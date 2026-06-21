@@ -79,7 +79,14 @@ export const crawler = {
       common: {
         start: {
           title: 'Start',
-          description: 'Entry node that triggers crawler execution'
+          description: 'Entry node that triggers crawler execution',
+          form: {
+            crawlerTitle: 'Crawler title (required)',
+            crawlerTitlePlaceholder: 'Enter crawler title',
+            crawlerTitleRequired: 'Crawler title is required before saving the blueprint.',
+            crawlerDescription: 'Crawler description',
+            crawlerDescriptionPlaceholder: 'Enter crawler description (optional)'
+          }
         },
         end: {
           title: 'End',
