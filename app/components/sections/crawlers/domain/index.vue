@@ -20,10 +20,6 @@
       </div>
     </div>
 
-    <div v-if="computedBlueprintRows.length === 0 && !stateLoading" class="flex flex-1 items-center justify-center py-10">
-      <UEmpty icon="i-lucide:workflow" :title="t('pages.crawlers.blueprints.empty.title')" :description="t('pages.crawlers.blueprints.empty.description')" />
-    </div>
-
     <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
       <div class="muted text-sm">{{ t('components.pagination.total', { total: computedTotal }) }}</div>
       <div class="flex items-center gap-1.5">
