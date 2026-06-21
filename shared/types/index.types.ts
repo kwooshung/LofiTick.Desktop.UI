@@ -12,7 +12,17 @@ export type {
   IPageAdHotsearchProps,
   IPageTableColumnHotsearchAdMaterial
 } from '@@/shared/types/pages/ad/hotsearch/index.types';
-export type { IPageCrawlersTargetsProps, IPageCrawlerTargetForm, IQueryResultCrawlerFunctionRow, IQueryResultCrawlerTargetRow, IQueryResultCrawlerTargetSummaryPage, TCrawlerFunctionScope } from '@@/shared/types/pages/crawlers/index.types';
+export type {
+  IPageCrawlersTargetsProps,
+  IPageCrawlerTargetForm,
+  IQueryResultCrawlerBlueprintRow,
+  IQueryResultCrawlerBlueprintSummaryPage,
+  IQueryResultCrawlerFunctionRow,
+  IQueryResultCrawlerTargetRow,
+  IQueryResultCrawlerTargetSummaryPage,
+  TCrawlerBlueprintLastRunStatus,
+  TCrawlerFunctionScope
+} from '@@/shared/types/pages/crawlers/index.types';
 export type {
   IPageHomePodcastScriptBodyItem,
   IPageHomePodcastScriptGenerateRequest,

@@ -168,3 +168,83 @@ export interface IQueryResultCrawlerFunctionRow {
    */
   updatedAt: string;
 }
+
+/**
+ * 类型：爬虫蓝图执行状态。
+ */
+export type TCrawlerBlueprintLastRunStatus = 'pending' | 'running' | 'success' | 'failed' | 'stopped' | string;
+
+/**
+ * 接口：爬虫蓝图列表行。
+ */
+export interface IQueryResultCrawlerBlueprintRow {
+  /**
+   * 蓝图 ID。
+   */
+  id: number;
+
+  /**
+   * 站点 ID。
+   */
+  targetId: number;
+
+  /**
+   * 蓝图名称。
+   */
+  name: string;
+
+  /**
+   * 蓝图描述。
+   */
+  description: string;
+
+  /**
+   * 是否启用。
+   */
+  isEnabled: boolean;
+
+  /**
+   * 最后执行状态。
+   */
+  lastRunStatus: TCrawlerBlueprintLastRunStatus;
+
+  /**
+   * 最后执行时间。
+   */
+  lastRunAt: string;
+
+  /**
+   * 创建时间。
+   */
+  createdAt: string;
+
+  /**
+   * 更新时间。
+   */
+  updatedAt: string;
+}
+
+/**
+ * 接口：爬虫蓝图列表分页响应。
+ */
+export interface IQueryResultCrawlerBlueprintSummaryPage {
+  /**
+   * 列表行。
+   */
+  rows: IQueryResultCrawlerBlueprintRow[];
+
+  /**
+   * 当前页。
+   */
+  page: number;
+
+  /**
+   * 每页数量。
+   */
+  pageSize: number;
+
+  /**
+   * 总数。
+   */
+  total: number;
+}
