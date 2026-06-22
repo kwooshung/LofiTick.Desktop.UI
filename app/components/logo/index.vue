@@ -48,5 +48,8 @@ import type { ILogoProps } from '@/components/logo/index.types';
 /**
  * 变量：Logo 组件 Props
  */
+/**
+ * Props：组件入参。
+ */
 const { classIconArea, classTextArea, classTexts, classText1, classText2, classText3, classText4 } = defineProps<ILogoProps>();
 </script>

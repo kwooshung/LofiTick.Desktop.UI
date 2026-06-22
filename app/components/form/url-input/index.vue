@@ -15,6 +15,9 @@ import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSpli
  * 属性：URL 输入组件。
  * @type {IFormUrlInputProps}
  */
+/**
+ * Props：组件入参。
+ */
 const props = withDefaults(defineProps<IFormUrlInputProps>(), {
   placeholder: '',
   readonly: false,

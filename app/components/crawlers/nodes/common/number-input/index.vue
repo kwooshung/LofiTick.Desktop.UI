@@ -25,7 +25,7 @@
 import type { ICrawlersNodesCommonNumberInputProps } from '@/components/crawlers/nodes/common/number-input/index.types';
 
 /**
- * 属性：通用数值输入组件属性。
+ * Props：组件入参。
  */
 const props = withDefaults(defineProps<ICrawlersNodesCommonNumberInputProps>(), {
   min: 0,

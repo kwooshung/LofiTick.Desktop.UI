@@ -71,6 +71,9 @@ import { z } from 'zod';
 /**
  * 属性：页面刷新标记。
  */
+/**
+ * Props：组件入参。
+ */
 const { createNonce = 0 } = defineProps<IPageQqGroupsProps>();
 
 /**

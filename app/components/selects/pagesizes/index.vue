@@ -18,6 +18,9 @@ const route = useRoute();
 /**
  * 属性：缓存键（命名空间），默认 'common'
  */
+/**
+ * Props：组件入参。
+ */
 const { sizes = [5, 10, 20, 30, 50, 100], cacheKey = 'common' } = defineProps<ISelectPagesizesProps>();
 
 /**

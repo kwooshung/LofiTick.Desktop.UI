@@ -73,6 +73,9 @@ const {
   contextMenuProps,
   disabled = false,
   iconName
+/**
+ * Props：组件入参。
+ */
 } = defineProps<IFolderProps>();
 
 /**

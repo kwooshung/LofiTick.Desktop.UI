@@ -21,6 +21,9 @@ import type { ISpinProps, TSpinSizePreset } from '@/components/spin/index.types'
 /**
  * 组件：属性
  */
+/**
+ * Props：组件入参。
+ */
 const { loading = false, icon = 'i-gg:spinner', overlay = false, tip = '', size = 'default', delay = 300, iconClass = 'text-primary', contentClass = '', tipClass = 'text-sm text-gray-600 dark:text-gray-400', maskClass = 'bg-white/80 dark:bg-gray-900/80' } = defineProps<ISpinProps>();
 
 /**

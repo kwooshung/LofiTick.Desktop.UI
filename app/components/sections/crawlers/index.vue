@@ -56,7 +56,7 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
- * Props
+ * Props：组件入参。
  */
 const { createNonce = 0, keyword = '' } = defineProps<IPageCrawlersTargetsProps>();
 

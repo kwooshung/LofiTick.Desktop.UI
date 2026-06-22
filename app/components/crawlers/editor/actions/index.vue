@@ -33,6 +33,9 @@ import type { ICrawlersEditorActionsEmits, ICrawlersEditorActionsProps } from '@
 /**
  * 属性：底部操作栏文案。
  */
+/**
+ * Props：组件入参。
+ */
 const { cancelText, saveText } = defineProps<ICrawlersEditorActionsProps>();
 
 /**

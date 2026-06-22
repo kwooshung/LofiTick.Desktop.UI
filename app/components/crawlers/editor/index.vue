@@ -96,7 +96,7 @@ import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
 /**
- * 属性：站点展示名称与基础 URL。
+ * Props：组件入参。
  */
 const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
 const systemNodeMeta = resolveSystemNodeMeta(flowKind);

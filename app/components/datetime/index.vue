@@ -19,6 +19,9 @@ import type { IDatetimeProps } from '@/components/datetime/index.types';
 /**
  * 属性
  */
+/**
+ * Props：组件入参。
+ */
 const { locale, datetime, value, tooltipPrefix = '', relative = true, noRelativeAfter = 7 * 24 * 60 * 60, ...computedNuxtTimeRest } = defineProps<IDatetimeProps>();
 /**
  * Hook：i18n

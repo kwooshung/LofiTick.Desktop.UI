@@ -424,7 +424,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 /**
- * 属性：页面刷新标记。
+ * Props：组件入参。
  */
 const { createNonce = 0 } = defineProps<IPageAdHotsearchProps>();
 
@@ -478,9 +478,6 @@ const stateTableUi = {
   separator: 'h-0'
 } as const;
 
-/**
- * Hook：国际化。
- */
 /**
  * Hook：国际化工具。
  */

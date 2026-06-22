@@ -73,6 +73,9 @@ import type { IEmailWelcomeProps } from '@/emails/index.types';
 /**
  * 属性：欢迎邮件属性
  */
+/**
+ * Props：组件入参。
+ */
 const { type = 'primary' } = defineProps<IEmailWelcomeProps>();
 
 /**

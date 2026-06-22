@@ -10,6 +10,9 @@ import type { IHelperLinesProps } from '@/components/crawlers/editor/lines/helpe
 /**
  * 属性：辅助线坐标。
  */
+/**
+ * Props：组件入参。
+ */
 const props = defineProps<IHelperLinesProps>();
 
 /**

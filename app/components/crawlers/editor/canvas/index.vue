@@ -167,7 +167,7 @@ import CrawlersNodesFunctionStart from '@/components/crawlers/nodes/function/sta
 import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
 
 /**
- * 属性：画布渲染与状态数据。
+ * Props：组件入参。
  */
 const { nodes, edges, isValidConnection, helperLineHorizontal, helperLineVertical, functionRefreshNonce = 0, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
 

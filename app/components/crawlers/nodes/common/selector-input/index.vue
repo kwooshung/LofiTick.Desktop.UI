@@ -16,7 +16,7 @@ import type { ICrawlersNodesCommonSelectorInputProps, TCrawlersNodesCommonSelect
 const { t } = useI18n();
 
 /**
- * 常量：props。
+ * Props：组件入参。
  */
 const props = defineProps<ICrawlersNodesCommonSelectorInputProps>();
 

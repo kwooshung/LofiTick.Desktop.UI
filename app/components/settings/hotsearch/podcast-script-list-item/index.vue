@@ -43,6 +43,9 @@ import type { ISettingsHotsearchPodcastScriptListItemProps } from '@/components/
 /**
  * 属性：播客脚本列表行。
  */
+/**
+ * Props：组件入参。
+ */
 const { item, disabled = false, showHandle = true, showRemove = true, placeholder, adContentPlaceholder = '', editorMode, voiceOptions, segmentOptions } = defineProps<ISettingsHotsearchPodcastScriptListItemProps>();
 
 /**

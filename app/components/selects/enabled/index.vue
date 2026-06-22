@@ -4,6 +4,9 @@
 
 <script setup lang="ts">
 import type { ISelectsEnabledProps } from '@/components/selects/enabled/index.types';
+/**
+ * Props：组件入参。
+ */
 const { placeholder = undefined } = defineProps<ISelectsEnabledProps>();
 
 /**

@@ -40,7 +40,7 @@ import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/in
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
- * 属性：站点名称与基础 URL。
+ * Props：组件入参。
  */
 const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource } = defineProps<ICrawlersCodeProps>();
 

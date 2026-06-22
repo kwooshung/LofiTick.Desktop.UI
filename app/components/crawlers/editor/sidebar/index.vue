@@ -116,26 +116,26 @@ import type { ICrawlersEditorSidebarClickRow, ICrawlersEditorSidebarEmits, ICraw
 import type { ICrawlerBlueprintDnDPayload } from '@/composables/hooks/useCrawlerBlueprintDnD/index.types';
 
 /**
- * 常量：左侧三栏标签页配置。
- */
-const EDITOR_SIDEBAR_TABS: Pick<ICrawlersEditorSidebarTabItem, 'value' | 'icon'>[] = [
-  { value: 'nodes', icon: 'i-lucide:workflow' },
-  { value: 'site-functions', icon: 'i-lucide:folder-code' },
-  { value: 'global-functions', icon: 'i-lucide:globe-2' }
-];
-
-/**
  * Hook：国际化。
  */
 const { t } = useI18n();
 
 /**
- * Hook：蓝图拖拽。
+ * Hook：爬虫蓝图拖拽。
  */
 const { onDragStart } = useCrawlerBlueprintDnD();
 
 /**
- * 属性：左侧栏显示数据。
+ * 常量：侧栏标签定义。
+ */
+const EDITOR_SIDEBAR_TABS: ICrawlersEditorSidebarTabItem[] = [
+  { value: 'nodes', label: '', icon: 'i-lucide:workflow' },
+  { value: 'site-functions', label: '', icon: 'i-mdi-function-variant' },
+  { value: 'global-functions', label: '', icon: 'i-mdi-function-variant' }
+];
+
+/**
+ * Props：组件入参。
  */
 const { groups, selectedKey, targetId = 0, functionRefreshNonce = 0 } = defineProps<ICrawlersEditorSidebarProps>();
 
@@ -224,9 +224,6 @@ const stateDeleteOpen = ref(false);
  */
 const stateDeleteTarget = ref<ICrawlersEditorSidebarFunctionRow | null>(null);
 
-/**
- * 计算属性：当前标签页标题。
- */
 /**
  * 计算属性：编辑是否可提交。
  */

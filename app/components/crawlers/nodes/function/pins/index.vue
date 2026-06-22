@@ -68,7 +68,7 @@ import type { IVariableDefinitionData, TVariableValueDataType } from '@/componen
 import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableInputHandleIdGet, variableJsonTextGet, variableJsonTextParse, variableOutputHandleIdGet, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
- * 属性：函数节点引脚编辑器参数。
+ * Props：组件入参。
  */
 const { modelValue, nodeId, direction, emptyTitle, emptyDescription, emptyActionLabel, addActionLabel, namePlaceholder, stringPlaceholder, jsonPlaceholder, connectedHint } = defineProps<ICrawlersNodesFunctionPinsProps>();
 

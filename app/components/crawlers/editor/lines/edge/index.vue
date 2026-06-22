@@ -18,6 +18,9 @@ defineOptions({
 /**
  * 属性：边组件入参。
  */
+/**
+ * Props：组件入参。
+ */
 const props = defineProps<EdgeProps<ILineEdgeData>>();
 
 /**
