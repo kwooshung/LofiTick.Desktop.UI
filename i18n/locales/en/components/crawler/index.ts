@@ -199,7 +199,14 @@ export const crawler = {
           fields: {
             path: {
               label: 'Target Path',
-              placeholder: 'Enter target path, e.g. /news/123'
+              placeholder: 'Enter target path, e.g. /news/123',
+              validation: {
+                empty: 'Path cannot be empty',
+                invalidFormat: 'Path should start with "/" or be a complete URL',
+                invalidUrl: 'Invalid URL format',
+                extracted: 'Extracted path from URL "{domain}": {path}',
+                domainMismatch: 'Domain mismatch: expected "{expected}"\n, actual "{actual}"'
+              }
             },
             waitReady: {
               label: 'Wait for page ready'

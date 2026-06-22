@@ -2,7 +2,17 @@
   <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :right-pins="computedRightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
-        <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" />
+        <div class="space-y-2">
+          <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" :class="[computedPathError ? 'border-error/50 bg-error/5' : '']" @blur="handlePathBlur" @input="handleInputChange" />
+          <div v-if="computedPathError" class="bg-error/10 text-error flex items-start gap-2 rounded-md p-2 text-xs">
+            <UIcon name="i-lucide:alert-circle" class="mt-0.5 shrink-0" />
+            <div class="flex-1 whitespace-pre-wrap">{{ computedPathError }}</div>
+          </div>
+          <div v-else-if="computedPathInfo" class="bg-info/10 text-info flex items-start gap-2 rounded-md p-2 text-xs">
+            <UIcon name="i-lucide:info" class="mt-0.5 shrink-0" />
+            <div class="flex-1">{{ computedPathInfo }}</div>
+          </div>
+        </div>
       </UFormField>
 
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.timeoutMs.label')">
@@ -36,6 +46,34 @@ const { t } = useI18n();
 const stateNode = useNode();
 
 /**
+ * 常量：baseUrl provide key。
+ */
+const PROVIDE_KEY_BASE_URL = 'crawlers:editor:baseUrl';
+
+/**
+ * Hook：获取编辑器的 baseUrl。
+ */
+const injectedBaseUrl = inject<string>(PROVIDE_KEY_BASE_URL, '');
+
+/**
+ * 函数：从 baseUrl 中提取域名部分。
+ * @param {string} baseUrlText 基础 URL（例如 https://example.com）。
+ * @returns {string | undefined} 域名部分（例如 example.com），或 undefined 如果无法解析。
+ */
+const extractDomainFromBaseUrl = (baseUrlText: string): string | undefined => {
+  if (!baseUrlText.trim()) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(baseUrlText);
+    return url.hostname;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
  * 状态：是否已完成 node.data 的首次回填。
  */
 const stateInitialized = ref(false);
@@ -54,6 +92,119 @@ const stateWaitReady = ref(true);
  * 状态：超时时间（毫秒）。
  */
 const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
+
+/**
+ * 状态：路径验证错误消息。
+ */
+const statePathError = ref('');
+
+/**
+ * 状态：路径信息提示（如已自动提取）。
+ */
+const statePathInfo = ref('');
+
+/**
+ * 状态：路径信息提示自动清除计时器 ID。
+ */
+let timeoutIdPathInfo: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * 函数：清除路径信息提示自动清除计时器。
+ *
+ * @returns {void} 无返回值。
+ */
+const clearPathInfoTimeout = (): void => {
+  if (timeoutIdPathInfo !== null) {
+    clearTimeout(timeoutIdPathInfo);
+    timeoutIdPathInfo = null;
+  }
+};
+
+/**
+ * 计算属性：路径验证错误（不为空时表示有错误）。
+ */
+const computedPathError = computed(() => statePathError.value);
+
+/**
+ * 计算属性：路径信息提示文本。
+ */
+const computedPathInfo = computed(() => statePathInfo.value);
+
+/**
+ * 函数：处理路径输入失焦时的验证与提取。
+ *
+ * @returns {void} 无返回值。
+ */
+const handlePathBlur = (): void => {
+  const input = statePath.value.trim();
+  if (input === '') {
+    statePathError.value = '';
+    statePathInfo.value = '';
+    return;
+  }
+
+  // 从 baseUrl 中提取期望的域名
+  const expectedDomain = extractDomainFromBaseUrl(injectedBaseUrl);
+
+  // 尝试从完整 URL 中提取路径，同时验证域名
+  const parseResult = parseAndExtractUrlPath(input, expectedDomain);
+
+  if (!parseResult.success) {
+    // 使用国际化文案
+    let errorMsg = parseResult.error || t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.invalidUrl');
+
+    // 尝试映射已知的错误信息到国际化文案
+    if (parseResult.error?.includes('路径不能为空') || parseResult.error?.includes('Path cannot be empty')) {
+      errorMsg = t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.empty');
+    } else if (parseResult.error?.includes('域名不匹配') || parseResult.error?.includes('Domain mismatch')) {
+      errorMsg = parseResult.error; // 已包含详细信息
+    } else if (parseResult.error?.includes('应以')) {
+      errorMsg = t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.invalidFormat');
+    }
+
+    statePathError.value = errorMsg;
+    statePathInfo.value = '';
+    return;
+  }
+
+  // 解析成功
+  statePathError.value = '';
+
+  // 如果提取了路径（从完整 URL），自动更新
+  if (parseResult.isFullUrl && parseResult.path && parseResult.path !== input) {
+    statePath.value = parseResult.path;
+    const domain = parseResult.domain || input;
+    const pathStr = parseResult.path;
+    statePathInfo.value = t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.extracted', {
+      domain,
+      path: pathStr
+    });
+
+    // 清除之前的计时器
+    clearPathInfoTimeout();
+
+    // 2 秒后自动清除提示信息
+    timeoutIdPathInfo = setTimeout(() => {
+      statePathInfo.value = '';
+      timeoutIdPathInfo = null;
+    }, 2000);
+  } else {
+    statePathInfo.value = '';
+    clearPathInfoTimeout();
+  }
+};
+
+/**
+ * 函数：处理输入值变化。
+ *
+ * @returns {void} 无返回值。
+ */
+const handleInputChange = (): void => {
+  // 实时清除错误提示和信息提示，同时清除自动消失计时器
+  statePathError.value = '';
+  statePathInfo.value = '';
+  clearPathInfoTimeout();
+};
 
 /**
  * 计算属性：右侧数据输出引脚配置。
@@ -77,6 +228,13 @@ const computedRightPins = computed<IBasicSidePin[]>(() => {
       description: t('components.crawler.blueprint.nodes.navigation.goto.outputs.messageDescription')
     }
   ];
+});
+
+/**
+ * 生命周期：组件卸载前清除计时器。
+ */
+onBeforeUnmount(() => {
+  clearPathInfoTimeout();
 });
 
 /**

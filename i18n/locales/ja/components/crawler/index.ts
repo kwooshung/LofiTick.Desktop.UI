@@ -199,7 +199,14 @@ export const crawler = {
           fields: {
             path: {
               label: '遷移先パス',
-              placeholder: '遷移先パスを入力（例: /news/123）'
+              placeholder: '遷移先パスを入力（例: /news/123）',
+              validation: {
+                empty: 'パスは空にできません',
+                invalidFormat: 'パスは「/」で始まるか、完全な URL である必要があります',
+                invalidUrl: '無効な URL 形式です',
+                extracted: 'URL "{domain}" からパスを抽出しました：{path}',
+                domainMismatch: 'ドメイン不一致：期待 "{expected}"\n、実際 "{actual}"'
+              }
             },
             waitReady: {
               label: 'ページ準備完了を待機'

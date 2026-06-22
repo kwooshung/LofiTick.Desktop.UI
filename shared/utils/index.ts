@@ -42,6 +42,8 @@ export { hotsearchArchiveDateSummariesGet, hotsearchDataRowsGet, hotsearchDateLa
 export { ONEPANEL_CRON_LIBRARY_PATH, ONEPANEL_CRONJOBS_PATH, ONEPANEL_PANEL_BASE_DEFAULT, onepanelLinkBuild, onepanelLinkSections, onepanelPanelBaseNormalize } from '@@/shared/utils/onepanel';
 export { calcPagination } from '@@/shared/utils/pagination';
 export type { ISqlOptionsPagination, ISqlResultPagination } from '@@/shared/utils/pagination/index.types';
+export { isValidPath, parseAndExtractUrlPath } from '@@/shared/utils/crawler/url-parser';
+export type { IUrlParseResult } from '@@/shared/utils/crawler/url-parser';
 export { quoteTypes } from '@@/shared/utils/quotes';
 export type { IResolveSignBlobCookieNameArgs } from '@@/shared/utils/sign';
 export { DEFAULT_SIGN_BLOB_COOKIE_NAME, getPublicSignAesSeedFromConfig, pickSignRefreshBlob, resolveSignBlobCookieName, SIGN_BLOB_COOKIE_NAME_HINT_HEADER, SIGN_INIT_PATH, SIGN_REFRESH_BLOB_PREFIX, SIGN_REFRESH_PATH, stripSignRefreshAttach } from '@@/shared/utils/sign';

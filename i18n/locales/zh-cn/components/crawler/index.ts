@@ -199,7 +199,14 @@ export const crawler = {
           fields: {
             path: {
               label: '目标路径',
-              placeholder: '请输入目标路径，例如 /news/123'
+              placeholder: '请输入目标路径，例如 /news/123',
+              validation: {
+                empty: '路径不能为空',
+                invalidFormat: '路径应以 "/" 开头，或为完整 URL',
+                invalidUrl: 'URL 格式无效',
+                extracted: '已从 URL "{domain}" 提取路径：{path}',
+                domainMismatch: '域名不匹配：期望 "{expected}"\n，实际 "{actual}"'
+              }
             },
             waitReady: {
               label: '等待页面就绪'

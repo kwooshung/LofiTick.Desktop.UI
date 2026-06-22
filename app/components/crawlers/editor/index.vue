@@ -102,6 +102,16 @@ const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '',
 const systemNodeMeta = resolveSystemNodeMeta(flowKind);
 
 /**
+ * 常量：baseUrl provide key。
+ */
+const PROVIDE_KEY_BASE_URL = 'crawlers:editor:baseUrl';
+
+/**
+ * 提供：baseUrl 给所有子节点组件。
+ */
+provide(PROVIDE_KEY_BASE_URL, baseUrl);
+
+/**
  * 类型：导入图数据中的节点摘要。
  */
 type TFlowDataNodeLike = {

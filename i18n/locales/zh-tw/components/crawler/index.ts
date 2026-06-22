@@ -199,7 +199,14 @@ export const crawler = {
           fields: {
             path: {
               label: '目標路徑',
-              placeholder: '請輸入目標路徑，例如 /news/123'
+              placeholder: '請輸入目標路徑，例如 /news/123',
+              validation: {
+                empty: '路徑不能為空',
+                invalidFormat: '路徑應以 "/" 開頭，或為完整 URL',
+                invalidUrl: 'URL 格式無效',
+                extracted: '已從 URL "{domain}" 擷取路徑：{path}',
+                domainMismatch: '網域不符：期望 "{expected}"\n，實際 "{actual}"'
+              }
             },
             waitReady: {
               label: '等待頁面就緒'

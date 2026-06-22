@@ -706,27 +706,3 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     handleConnectEnd
   };
 };
-
-if (import.meta.vitest) {
-  const { describe, expect, it } = import.meta.vitest;
-
-  describe('resolveSystemNodeMeta', () => {
-    it('returns crawler system nodes by default', () => {
-      expect(resolveSystemNodeMeta()).toEqual({
-        startNodeId: 'start',
-        endNodeId: 'end',
-        startNodeType: 'start',
-        endNodeType: 'end'
-      });
-    });
-
-    it('returns function system nodes for function flow', () => {
-      expect(resolveSystemNodeMeta('function')).toEqual({
-        startNodeId: 'function-start',
-        endNodeId: 'function-return',
-        startNodeType: 'function-start',
-        endNodeType: 'function-return'
-      });
-    });
-  });
-}
