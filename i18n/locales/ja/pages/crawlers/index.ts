@@ -186,7 +186,7 @@ export const crawlers = {
     table: {
       name: 'クローラー名',
       status: '実行状態',
-      lastRunAt: '最終実行',
+      lastRunAt: '最終実行'
     }
   },
   spider: {

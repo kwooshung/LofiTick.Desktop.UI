@@ -230,7 +230,9 @@ const computedBlueprintRows = computed<IQueryResultCrawlerBlueprintRow[]>(() => 
  * 返回 true 表示该时间没有业务意义。
  */
 const lastRunAtIsEmpty = (value: string): boolean => {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === '') {
     return true;
   }
@@ -378,10 +380,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
 
       return h('div', { class: 'flex min-w-0 flex-col gap-2' }, [
-        h('div', { class: 'space-y-1' }, [
-          h('div', { class: 'text-default break-words text-sm font-medium' }, row.original.name || '-'),
-          h('div', { class: 'text-muted break-words text-xs leading-5' }, row.original.description || t('common.labels.none'))
-        ]),
+        h('div', { class: 'space-y-1' }, [h('div', { class: 'text-default break-words text-sm font-medium' }, row.original.name || '-'), h('div', { class: 'text-muted break-words text-xs leading-5' }, row.original.description || t('common.labels.none'))]),
         h('div', { class: 'flex flex-wrap items-center gap-2' }, [
           h(
             UBadge,
@@ -434,10 +433,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
 
       return h('div', { class: 'flex min-w-0 flex-col gap-2 py-1' }, [
-        h('div', { class: 'min-w-0' }, [
-          h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'),
-          h('div', { class: 'text-muted mt-1 line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))
-        ]),
+        h('div', { class: 'min-w-0' }, [h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'), h('div', { class: 'text-muted mt-1 line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))]),
         h('div', { class: 'flex flex-wrap items-center gap-2 text-xs text-muted' }, [
           h(
             UBadge,
@@ -475,11 +471,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       }
     },
     header: t('pages.crawlers.blueprints.table.name'),
-    cell: ({ row }) =>
-      h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [
-        h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'),
-        h('div', { class: 'text-muted line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))
-      ])
+    cell: ({ row }) => h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'), h('div', { class: 'text-muted line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))])
   },
   {
     accessorKey: 'lastRunStatus',
@@ -525,18 +517,9 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const hasValue = !lastRunAtIsEmpty(value);
 
       return h('div', { class: 'flex flex-col gap-1.5' }, [
-        h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`),
-          hasValue ? h(Datetime, { value, class: 'w-auto max-w-full' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))
-        ]),
-        h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`),
-          h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })
-        ]),
-        h('div', { class: 'flex items-center gap-1 text-xs' }, [
-          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`),
-          h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })
-        ])
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), hasValue ? h(Datetime, { value, class: 'w-auto max-w-full' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })])
       ]);
     }
   },
