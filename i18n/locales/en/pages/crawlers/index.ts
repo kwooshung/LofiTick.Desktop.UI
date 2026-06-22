@@ -180,11 +180,11 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: 'No Blueprints',
-      description: 'No crawler blueprint has been created for this site yet. Click "Add Task" in the top-right to start.'
+      title: 'No Crawlers',
+      description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
     },
     table: {
-      name: 'Blueprint',
+      name: 'Crawler Name',
       status: 'Execution Status',
       lastRunAt: 'Last Run',
     }

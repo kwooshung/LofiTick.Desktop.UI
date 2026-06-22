@@ -180,11 +180,11 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: '暫無藍圖',
-      description: '目前站點還沒有建立爬蟲藍圖，請點擊右上角「添加任務」開始建立。'
+      title: '暫無爬蟲',
+      description: '目前站點還沒有建立任何爬蟲，請點擊右上角「添加任務」開始建立。'
     },
     table: {
-      name: '藍圖',
+      name: '爬蟲名稱',
       status: '執行狀態',
       lastRunAt: '最後執行',
     }

@@ -180,11 +180,11 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: 'ブループリントがありません',
-      description: 'このサイトにはまだクローラーブループリントがありません。右上の「タスクを追加」から作成してください。'
+      title: 'クローラーがありません',
+      description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
     },
     table: {
-      name: 'ブループリント',
+      name: 'クローラー名',
       status: '実行状態',
       lastRunAt: '最終実行',
     }

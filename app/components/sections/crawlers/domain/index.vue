@@ -48,6 +48,11 @@ const USwitch = resolveComponent('USwitch');
 const UButton = resolveComponent('UButton');
 
 /**
+ * 组件：徽标。
+ */
+const UBadge = resolveComponent('UBadge');
+
+/**
  * Hook：国际化。
  */
 const { t } = useI18n();
@@ -56,6 +61,16 @@ const { t } = useI18n();
  * 路由。
  */
 const route = useRoute();
+
+/**
+ * 状态：蓝图抽屉开关。
+ */
+const stateCodeSlideoverOpen = useState<boolean>('crawlers-blueprint-open', () => false);
+
+/**
+ * 状态：蓝图抽屉目标站点。
+ */
+const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
 
 /**
  * 状态：分页大小 cookie。
@@ -204,6 +219,26 @@ const computedBlueprintRows = computed<IQueryResultCrawlerBlueprintRow[]>(() => 
 });
 
 /**
+ * 函数：判断最后执行时间是否应视为“无”。
+ *
+ * # Arguments
+ *
+ * * `value` - 最后执行时间原始值。
+ *
+ * # Returns
+ *
+ * 返回 true 表示该时间没有业务意义。
+ */
+const lastRunAtIsEmpty = (value: string): boolean => {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (normalized === '') {
+    return true;
+  }
+
+  return /^(1000|0001)[/-]0?1[/-]0?1(?:[ t]|$)/.test(normalized);
+};
+
+/**
  * 计算属性：总数。
  */
 const computedTotal = computed<number>(() => Number(stateDatas.value?.total ?? 0));
@@ -272,6 +307,26 @@ const blueprintStatusColorGet = (status: TCrawlerBlueprintLastRunStatus): 'neutr
 };
 
 /**
+ * 函数：打开当前爬虫的编辑抽屉。
+ *
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {void} 无返回值。
+ */
+const handleOpenCrawlerEditor = (row: IQueryResultCrawlerBlueprintRow): void => {
+  if (!stateDetailDatas.value || computedTargetId.value <= 0) {
+    return;
+  }
+
+  stateBlueprintDrawerTarget.value = {
+    ...stateDetailDatas.value,
+    name: String(row.name ?? '').trim(),
+    description: String(row.description ?? '').trim(),
+    isEnabled: Boolean(row.isEnabled)
+  };
+  stateCodeSlideoverOpen.value = true;
+};
+
+/**
  * 排序：切换字段。
  */
 const toggleSort = (field: 'id' | 'updated' | 'created') => {
@@ -291,6 +346,12 @@ const toggleSort = (field: 'id' | 'updated' | 'created') => {
 const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
   {
     accessorKey: 'id',
+    meta: {
+      class: {
+        th: 'w-18',
+        td: 'w-18 align-top'
+      }
+    },
     header: () =>
       h(UButton, {
         color: 'neutral',
@@ -301,15 +362,133 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
         label: 'ID',
         onClick: () => toggleSort('id')
       }),
-    cell: ({ row }) => h('span', { class: 'text-muted' }, `#${row.original.id}`)
+    cell: ({ row }) => h('span', { class: 'text-muted text-xs sm:text-sm' }, `#${row.original.id}`)
+  },
+  {
+    accessorKey: 'summaryMobile',
+    meta: {
+      class: {
+        th: 'sm:hidden',
+        td: 'sm:hidden align-top whitespace-normal py-3'
+      }
+    },
+    header: t('pages.crawlers.blueprints.table.name'),
+    cell: ({ row }) => {
+      const lastRunAt = String(row.original.lastRunAt ?? '').trim();
+      const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
+
+      return h('div', { class: 'flex min-w-0 flex-col gap-2' }, [
+        h('div', { class: 'space-y-1' }, [
+          h('div', { class: 'text-default break-words text-sm font-medium' }, row.original.name || '-'),
+          h('div', { class: 'text-muted break-words text-xs leading-5' }, row.original.description || t('common.labels.none'))
+        ]),
+        h('div', { class: 'flex flex-wrap items-center gap-2' }, [
+          h(
+            UBadge,
+            {
+              variant: 'soft',
+              color: blueprintStatusColorGet(row.original.lastRunStatus)
+            },
+            () => blueprintStatusLabelGet(row.original.lastRunStatus)
+          ),
+          h(
+            UBadge,
+            {
+              variant: 'subtle',
+              color: row.original.isEnabled ? 'success' : 'neutral'
+            },
+            () => (row.original.isEnabled ? t('common.labels.enabled') : t('common.labels.disabled'))
+          )
+        ]),
+        h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
+          h('div', { class: 'flex items-center gap-1 text-muted' }, [h('span', { class: 'shrink-0' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), hasLastRunAt ? h(Datetime, { value: lastRunAt, class: 'w-auto max-w-full' }) : h('span', t('common.labels.none'))]),
+          h('div', { class: 'flex items-center gap-1 text-muted' }, [h('span', { class: 'shrink-0' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })]),
+          h('div', { class: 'flex items-center gap-1 text-muted' }, [h('span', { class: 'shrink-0' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })])
+        ]),
+        h(
+          UButton,
+          {
+            color: 'primary',
+            variant: 'soft',
+            size: 'xs',
+            icon: 'i-lucide:edit',
+            class: 'mt-1 self-start',
+            onClick: () => handleOpenCrawlerEditor(row.original)
+          },
+          () => t('common.actions.edit')
+        )
+      ]);
+    }
+  },
+  {
+    accessorKey: 'nameCompact',
+    meta: {
+      class: {
+        th: 'hidden sm:table-cell lg:hidden w-[20rem]',
+        td: 'hidden sm:table-cell lg:hidden align-top py-3 w-[20rem]'
+      }
+    },
+    header: t('pages.crawlers.blueprints.table.name'),
+    cell: ({ row }) => {
+      const lastRunAt = String(row.original.lastRunAt ?? '').trim();
+      const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
+
+      return h('div', { class: 'flex min-w-0 flex-col gap-2 py-1' }, [
+        h('div', { class: 'min-w-0' }, [
+          h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'),
+          h('div', { class: 'text-muted mt-1 line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))
+        ]),
+        h('div', { class: 'flex flex-wrap items-center gap-2 text-xs text-muted' }, [
+          h(
+            UBadge,
+            {
+              variant: 'soft',
+              color: blueprintStatusColorGet(row.original.lastRunStatus)
+            },
+            () => blueprintStatusLabelGet(row.original.lastRunStatus)
+          ),
+          h('span', row.original.isEnabled ? t('common.labels.enabled') : t('common.labels.disabled')),
+          h('span', '·'),
+          hasLastRunAt ? h(Datetime, { value: lastRunAt }) : h('span', t('common.labels.none'))
+        ]),
+        h(
+          UButton,
+          {
+            color: 'primary',
+            variant: 'ghost',
+            size: 'xs',
+            icon: 'i-lucide:edit',
+            class: 'mt-1 self-start -ml-2',
+            onClick: () => handleOpenCrawlerEditor(row.original)
+          },
+          () => t('common.actions.edit')
+        )
+      ]);
+    }
   },
   {
     accessorKey: 'name',
+    meta: {
+      class: {
+        th: 'hidden lg:table-cell w-[24rem] 4xl:w-[30rem]',
+        td: 'hidden lg:table-cell w-[24rem] 4xl:w-[30rem] align-top py-3'
+      }
+    },
     header: t('pages.crawlers.blueprints.table.name'),
-    cell: ({ row }) => h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'), h('div', { class: 'truncate text-xs text-muted' }, row.original.description || t('common.labels.none'))])
+    cell: ({ row }) =>
+      h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [
+        h('div', { class: 'truncate text-sm font-medium text-highlighted' }, row.original.name || '-'),
+        h('div', { class: 'text-muted line-clamp-2 text-xs leading-5' }, row.original.description || t('common.labels.none'))
+      ])
   },
   {
     accessorKey: 'lastRunStatus',
+    meta: {
+      class: {
+        th: 'hidden sm:table-cell w-28',
+        td: 'hidden sm:table-cell align-top w-28'
+      }
+    },
     header: t('pages.crawlers.blueprints.table.status'),
     cell: ({ row }) =>
       h(
@@ -322,24 +501,71 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       )
   },
   {
-    accessorKey: 'lastRunAt',
-    header: t('pages.crawlers.blueprints.table.lastRunAt'),
-    cell: ({ row }) => {
-      const value = String(row.original.lastRunAt ?? '').trim();
-      if (value === '') {
-        return h('span', { class: 'text-muted' }, '-');
-      }
-
-      return h(Datetime, { value });
-    }
-  },
-  {
     accessorKey: 'isEnabled',
+    meta: {
+      class: {
+        th: 'hidden md:table-cell w-20',
+        td: 'hidden md:table-cell align-top w-20'
+      }
+    },
     header: t('common.labels.enabled'),
     cell: ({ row }) => h(USwitch, { modelValue: row.original.isEnabled, disabled: true })
   },
   {
+    accessorKey: 'times',
+    meta: {
+      class: {
+        th: 'hidden lg:table-cell 3xl:hidden w-56',
+        td: 'hidden lg:table-cell 3xl:hidden w-56 align-top text-default'
+      }
+    },
+    header: t('common.labels.time'),
+    cell: ({ row }) => {
+      const value = String(row.original.lastRunAt ?? '').trim();
+      const hasValue = !lastRunAtIsEmpty(value);
+
+      return h('div', { class: 'flex flex-col gap-1.5' }, [
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [
+          h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`),
+          hasValue ? h(Datetime, { value, class: 'w-auto max-w-full' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))
+        ]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`),
+          h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })
+        ]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [
+          h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`),
+          h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })
+        ])
+      ]);
+    }
+  },
+  {
+    accessorKey: 'lastRunAt',
+    meta: {
+      class: {
+        th: 'hidden 3xl:table-cell w-36 text-right',
+        td: 'hidden 3xl:table-cell w-36 align-top text-right'
+      }
+    },
+    header: t('pages.crawlers.blueprints.table.lastRunAt'),
+    cell: ({ row }) => {
+      const value = String(row.original.lastRunAt ?? '').trim();
+      if (lastRunAtIsEmpty(value)) {
+        return h('span', { class: 'text-muted' }, t('common.labels.none'));
+      }
+
+      return h(Datetime, { class: 'w-auto max-w-full text-sm', value });
+    }
+  },
+  {
     accessorKey: 'updatedAt',
+    meta: {
+      class: {
+        th: 'hidden 3xl:table-cell w-36 text-right',
+        td: 'hidden 3xl:table-cell w-36 align-top text-right'
+      }
+    },
     header: () =>
       h(UButton, {
         color: 'neutral',
@@ -350,10 +576,16 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
         label: t('common.datetimes.updatedAt'),
         onClick: () => toggleSort('updated')
       }),
-    cell: ({ row }) => h(Datetime, { value: row.original.updatedAt })
+    cell: ({ row }) => h(Datetime, { class: 'w-auto max-w-full text-sm', value: row.original.updatedAt })
   },
   {
     accessorKey: 'createdAt',
+    meta: {
+      class: {
+        th: 'hidden 4xl:table-cell w-36 text-right',
+        td: 'hidden 4xl:table-cell w-36 align-top text-right'
+      }
+    },
     header: () =>
       h(UButton, {
         color: 'neutral',
@@ -364,7 +596,32 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
         label: t('common.datetimes.createdAt'),
         onClick: () => toggleSort('created')
       }),
-    cell: ({ row }) => h(Datetime, { value: row.original.createdAt })
+    cell: ({ row }) => h(Datetime, { class: 'w-auto max-w-full text-sm', value: row.original.createdAt })
+  },
+  {
+    id: 'actions',
+    meta: {
+      class: {
+        th: 'w-24 text-center',
+        td: 'w-24 align-top'
+      }
+    },
+    enableHiding: false,
+    header: () => h('div', { class: 'w-full text-center' }, t('common.labels.actions')),
+    cell: ({ row }) =>
+      h('div', { class: 'flex w-full justify-center pt-1' }, [
+        h(
+          UButton,
+          {
+            color: 'primary',
+            variant: 'ghost',
+            size: 'sm',
+            icon: 'i-lucide:edit',
+            onClick: () => handleOpenCrawlerEditor(row.original)
+          },
+          () => t('common.actions.edit')
+        )
+      ])
   }
 ];
 </script>
