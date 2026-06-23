@@ -148,8 +148,6 @@
   - 纯 TS 工具函数 / Node 脚本：更适合用 `es-toolkit`（例如 `debounce`），避免引入 Vue 运行时语义。
   - 如果两者都可用且你不确定：必须先说明你选择的理由与取舍，再让我拍板。
 
-
-
 ### 3.6 CSS 与断点（强制）
 
 - 本项目使用 TailwindCSS（v4 语法），全局样式入口为 [`app/assets/css/main.css`](../../../app/assets/css/main.css)：
@@ -187,7 +185,6 @@
     - .github/copilot-instructions.md
     - .trae/skills/lofi-nuxt-ui/SKILL.md
   - 强制：当你对任一处关于的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
-
 
 ### 3.7 空状态（强制）
 
