@@ -2030,17 +2030,14 @@ watch(
 /**
  * 监听：外部保存成功后清理当前草稿。
  */
-watch(
-  stateDraftCleanupKey,
-  (value) => {
-    const cleanupKey = String(value ?? '').trim();
-    if (cleanupKey === '' || cleanupKey !== computedDraftKey.value) {
-      return;
-    }
-
-    stopDraftWritingAndClear();
+watch(stateDraftCleanupKey, (value) => {
+  const cleanupKey = String(value ?? '').trim();
+  if (cleanupKey === '' || cleanupKey !== computedDraftKey.value) {
+    return;
   }
-);
+
+  stopDraftWritingAndClear();
+});
 
 /**
  * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。

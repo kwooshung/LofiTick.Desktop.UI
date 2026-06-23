@@ -1227,7 +1227,6 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
   }
   refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
-
 };
 
 /**
