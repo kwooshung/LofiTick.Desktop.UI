@@ -727,8 +727,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleMedium',
     meta: {
       class: {
-        th: 'w-[30rem] hidden xl:table-cell 2xl:hidden',
-        td: 'w-[30rem] hidden xl:table-cell 2xl:hidden'
+        th: 'min-w-60 hidden xl:table-cell 2xl:hidden',
+        td: 'min-w-60 hidden xl:table-cell 2xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -756,8 +756,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleFull',
     meta: {
       class: {
-        th: 'w-[30rem] hidden 2xl:table-cell 5xl:hidden',
-        td: 'w-[30rem] hidden 2xl:table-cell 5xl:hidden'
+        th: 'min-w-60 hidden 2xl:table-cell 5xl:hidden',
+        td: 'min-w-60 hidden 2xl:table-cell 5xl:hidden'
       }
     },
     header: t('pages.poetrys.result.table.title'),
@@ -780,8 +780,8 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     accessorKey: 'poemTitleUltra',
     meta: {
       class: {
-        th: 'w-[32rem] hidden 5xl:table-cell',
-        td: 'w-[32rem] hidden 5xl:table-cell'
+        th: 'min-w-128 hidden 5xl:table-cell',
+        td: 'min-w-128 hidden 5xl:table-cell'
       }
     },
     header: t('pages.poetrys.result.table.title'),
