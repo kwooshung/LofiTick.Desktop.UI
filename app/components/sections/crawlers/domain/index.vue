@@ -545,6 +545,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     cell: ({ row }) => {
       const lastRunAt = String(row.original.lastRunAt ?? '').trim();
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
+      const lastRunNode = hasLastRunAt ? h(Datetime, { value: lastRunAt, class: 'w-auto max-w-full text-xs' }) : h('span', { class: 'text-muted' }, t('common.labels.none'));
 
       return h('div', { class: 'flex min-w-0 flex-col gap-2' }, [
         h('div', { class: 'space-y-1' }, [h('div', { class: 'break-words font-medium' }, row.original.name || '-'), h('div', { class: 'text-sm text-muted break-words leading-5' }, row.original.description || t('common.labels.none'))]),
@@ -566,10 +567,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             () => (row.original.enabled ? t('common.labels.enabled') : t('common.labels.disabled'))
           )
         ]),
-        h('div', { class: 'flex flex-col gap-1.5' }, [
-          h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), hasLastRunAt ? h(Datetime, { value: lastRunAt, class: 'w-auto max-w-full' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))]),
-          h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })]),
-          h('div', { class: 'flex items-center gap-1' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })])
+        h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
+          h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), lastRunNode]),
+          h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full text-xs' })]),
+          h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full text-xs' })])
         ]),
         h('div', { class: 'mt-1 flex flex-wrap items-center gap-2' }, [
           h(
@@ -608,7 +609,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               },
               arrow: true,
               content: { side: 'top', align: 'start', sideOffset: 8 },
-              ui: { content: 'p-3 w-64' }
+              ui: { content: 'p-3.5 w-70' }
             },
             {
               default: () =>
@@ -628,12 +629,14 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                   () => t('common.actions.delete')
                 ),
               content: () =>
-                h('div', { class: 'space-y-3' }, [
-                  h('div', { class: 'leading-6' }, t('pages.crawlers.blueprints.actions.deleteConfirm', { name: row.original.name || '-' })),
-                  h('div', { class: 'flex items-center justify-end gap-2' }, [
+                h('div', { class: 'flex flex-col gap-2.5' }, [
+                  h('div', { class: 'flex items-center gap-2 text-highlighted text-sm font-medium' }, [h('i', { class: 'i-lucide:trash-2 w-4 h-4 text-warning' }), h('span', {}, '删除爬虫')]),
+                  h('div', { class: 'text-muted text-xs leading-5' }, t('pages.crawlers.blueprints.actions.deleteConfirm', { name: row.original.name || '-' })),
+                  h('div', { class: 'flex items-center justify-end gap-2 pt-1' }, [
                     h(UButton, {
                       color: 'neutral',
-                      variant: 'soft',
+                      variant: 'outline',
+                      size: 'xs',
                       label: t('common.actions.cancel'),
                       onClick: () => {
                         stateDeletePopoverOpenId.value = null;
@@ -643,6 +646,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                     h(UButton, {
                       color: 'error',
                       variant: 'solid',
+                      size: 'xs',
                       label: t('common.actions.confirm'),
                       onClick: () => {
                         void handleDeleteCrawler(row.original);
@@ -664,7 +668,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
         td: 'hidden sm:table-cell lg:hidden py-3 w-[20rem]'
       }
     },
-    header: t('pages.crawlers.blueprints.table.name'),
+    header: `${t('pages.crawlers.blueprints.table.name')} / ${t('pages.crawlers.blueprints.table.description')}`,
     cell: ({ row }) => {
       const lastRunAt = String(row.original.lastRunAt ?? '').trim();
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
@@ -770,10 +774,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const value = String(row.original.lastRunAt ?? '').trim();
       const hasValue = !lastRunAtIsEmpty(value);
 
-      return h('div', { class: 'flex flex-col gap-1.5 text-sm' }, [
-        h('div', { class: 'flex items-center gap-1 text-sm' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), hasValue ? h(Datetime, { value, class: 'w-auto max-w-full' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))]),
-        h('div', { class: 'flex items-center gap-1 text-sm' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full' })]),
-        h('div', { class: 'flex items-center gap-1 text-sm' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full' })])
+      return h('div', { class: 'flex flex-col gap-1.5 text-xs' }, [
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('pages.crawlers.blueprints.table.lastRunAt')}：`), hasValue ? h(Datetime, { value, class: 'w-auto max-w-full text-xs' }) : h('span', { class: 'text-muted' }, t('common.labels.none'))]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.updatedAt')}：`), h(Datetime, { value: row.original.updatedAt, class: 'w-auto max-w-full text-xs' })]),
+        h('div', { class: 'flex items-center gap-1 text-xs' }, [h('span', { class: 'shrink-0 text-muted' }, `${t('common.datetimes.createdAt')}：`), h(Datetime, { value: row.original.createdAt, class: 'w-auto max-w-full text-xs' })])
       ]);
     }
   },
@@ -890,7 +894,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             },
             arrow: true,
             content: { side: 'top', align: 'end', sideOffset: 8 },
-            ui: { content: 'p-3 w-64' }
+            ui: { content: 'p-3.5 w-70' }
           },
           {
             default: () =>
@@ -906,12 +910,14 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                 }
               }),
             content: () =>
-              h('div', { class: 'space-y-3' }, [
-                h('div', { class: 'leading-6' }, t('pages.crawlers.blueprints.actions.deleteConfirm', { name: row.original.name || '-' })),
-                h('div', { class: 'flex items-center justify-end gap-2' }, [
+              h('div', { class: 'flex flex-col gap-2.5' }, [
+                h('div', { class: 'flex items-center gap-2 text-highlighted text-sm font-medium' }, [h('i', { class: 'i-lucide:trash-2 w-4 h-4 text-warning' }), h('span', {}, '删除爬虫')]),
+                h('div', { class: 'text-muted text-xs leading-5' }, t('pages.crawlers.blueprints.actions.deleteConfirm', { name: row.original.name || '-' })),
+                h('div', { class: 'flex items-center justify-end gap-2 pt-1' }, [
                   h(UButton, {
                     color: 'neutral',
-                    variant: 'soft',
+                    variant: 'outline',
+                    size: 'xs',
                     label: t('common.actions.cancel'),
                     onClick: () => {
                       stateDeletePopoverOpenId.value = null;
@@ -921,6 +927,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                   h(UButton, {
                     color: 'error',
                     variant: 'solid',
+                    size: 'xs',
                     label: t('common.actions.confirm'),
                     onClick: () => {
                       void handleDeleteCrawler(row.original);

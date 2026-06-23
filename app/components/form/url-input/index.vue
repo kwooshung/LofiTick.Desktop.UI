@@ -4,7 +4,9 @@
 
     <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" :ui="slots.actions ? { trailing: 'pe-1' } : undefined" @update:model-value="handleValueInput" @blur="handleInputBlur">
       <template v-if="slots.actions" #trailing>
-        <slot name="actions" />
+        <div class="flex items-center gap-0.5">
+          <slot name="actions" />
+        </div>
       </template>
     </UInput>
   </UFieldGroup>
