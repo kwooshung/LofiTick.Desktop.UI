@@ -159,6 +159,7 @@
 - 编写样式时的优先级（从高到低）：
   1. 优先在模板里使用 Tailwind utility（不要为了"写得像传统 CSS"而回退到大段自定义 CSS）。
   2. 需要全局/跨组件复用的基础样式与工具类，新增到 [`app/assets/css/main.css`](../../../app/assets/css/main.css)（例如 `@utility`）。
+  - 强制补充：新增项目级工具类的条件——该命名类在仓库中被引用超过一次（>1 次）时方可新增；单次使用的特殊尺寸应优先评估为合理例外或保留方括号写法并在变更清单中说明。
   3. 页面/组件局部样式再考虑 `scoped`（仅在确有必要且能说明边界时）。
 - 编写 `class` 时，必须优先使用 Tailwind CSS v4 内置 utility class；只有当内置 utility 无法准确表达需求时，才允许补充项目级 `@utility` 或局部样式。
 - Vue 3.5+ 组件中，`withDefaults(defineProps(...))` 应优先改为直接解构默认值的写法；能用 `const { a = 1 } = defineProps<...>()` 就不要再保留 `withDefaults`，模板里也优先直接使用解构出的标识符。

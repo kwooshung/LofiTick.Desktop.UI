@@ -66,6 +66,14 @@
   @apply overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full;
 }
 
+/* Project utility: fixed width 8.75rem (140px)
+   Added because `w-[8.75rem]` appears multiple times and should be a reusable named utility.
+   Rule: only add utilities when used >1 time (per repo policy).
+*/
+@utility w-8-75-rem {
+  width: 8.75rem;
+}
+
 html,
 body {
   overflow: hidden;

@@ -664,8 +664,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'nameCompact',
     meta: {
       class: {
-        th: 'hidden sm:table-cell xl:hidden w-[20rem]',
-        td: 'hidden sm:table-cell xl:hidden py-3 w-[20rem]'
+        th: 'hidden sm:table-cell xl:hidden w-80',
+        td: 'hidden sm:table-cell xl:hidden py-3 w-80'
       }
     },
     header: `${t('pages.crawlers.blueprints.table.name')} / ${t('pages.crawlers.blueprints.table.description')}`,
@@ -677,8 +677,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'name',
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-[24rem]',
-        td: 'hidden xl:table-cell w-[24rem] py-3'
+        th: 'hidden xl:table-cell w-96',
+        td: 'hidden xl:table-cell w-96 py-3'
       }
     },
     header: t('pages.crawlers.blueprints.table.name'),
@@ -688,8 +688,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'description',
     meta: {
       class: {
-        th: 'hidden xl:table-cell w-[18rem]',
-        td: 'hidden xl:table-cell w-[18rem] py-3'
+        th: 'hidden xl:table-cell w-72',
+        td: 'hidden xl:table-cell w-72 py-3'
       }
     },
     header: t('pages.crawlers.blueprints.table.description'),
@@ -803,8 +803,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     id: 'actions',
     meta: {
       class: {
-        th: 'w-[8.75rem] text-right',
-        td: 'w-[8.75rem] text-right'
+        th: 'w-8-75-rem text-right',
+        td: 'w-8-75-rem text-right'
       }
     },
     enableHiding: false,
