@@ -664,68 +664,21 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'nameCompact',
     meta: {
       class: {
-        th: 'hidden sm:table-cell lg:hidden w-[20rem]',
-        td: 'hidden sm:table-cell lg:hidden py-3 w-[20rem]'
+        th: 'hidden sm:table-cell xl:hidden w-[20rem]',
+        td: 'hidden sm:table-cell xl:hidden py-3 w-[20rem]'
       }
     },
     header: `${t('pages.crawlers.blueprints.table.name')} / ${t('pages.crawlers.blueprints.table.description')}`,
     cell: ({ row }) => {
-      const lastRunAt = String(row.original.lastRunAt ?? '').trim();
-      const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
-
-      return h('div', { class: 'flex min-w-0 flex-col gap-2 py-1' }, [
-        h('div', { class: 'min-w-0' }, [h('div', { class: 'truncate font-medium' }, row.original.name || '-')]),
-        h('div', { class: 'text-sm text-muted line-clamp-2 leading-5' }, row.original.description || t('common.labels.none')),
-        h('div', { class: 'flex flex-wrap items-center gap-2 text-muted' }, [
-          h(
-            UBadge,
-            {
-              variant: 'soft',
-              color: blueprintStatusColorGet(row.original.lastRunStatus)
-            },
-            () => blueprintStatusLabelGet(row.original.lastRunStatus)
-          ),
-          h('span', row.original.enabled ? t('common.labels.enabled') : t('common.labels.disabled')),
-          h('span', '·'),
-          hasLastRunAt ? h(Datetime, { value: lastRunAt }) : h('span', t('common.labels.none'))
-        ]),
-        h('div', { class: 'mt-1 flex flex-wrap items-center gap-1.5' }, [
-          h(
-            UButton,
-            {
-              color: 'neutral',
-              variant: 'ghost',
-              icon: 'i-lucide:play',
-              class: '-ml-2',
-              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
-              onClick: () => {
-                void handleOpenCrawlerExecution(row.original);
-              }
-            },
-            () => t('pages.crawlers.blueprints.actions.execute')
-          ),
-          h(
-            UButton,
-            {
-              color: 'neutral',
-              variant: 'ghost',
-              icon: 'i-lucide:edit',
-              class: '-ml-2',
-              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
-              onClick: () => handleOpenCrawlerEditor(row.original)
-            },
-            () => t('common.actions.edit')
-          )
-        ])
-      ]);
+      return h('div', { class: 'flex min-w-0 flex-col gap-1 py-1' }, [h('div', { class: 'min-w-0' }, [h('div', { class: 'truncate font-medium' }, row.original.name || '-')]), h('div', { class: 'text-sm text-dimmed line-clamp-2 leading-5' }, row.original.description || t('common.labels.none'))]);
     }
   },
   {
     accessorKey: 'name',
     meta: {
       class: {
-        th: 'hidden lg:table-cell w-[24rem] 4xl:w-[30rem]',
-        td: 'hidden lg:table-cell w-[24rem] 4xl:w-[30rem] py-3'
+        th: 'hidden xl:table-cell w-[24rem]',
+        td: 'hidden xl:table-cell w-[24rem] py-3'
       }
     },
     header: t('pages.crawlers.blueprints.table.name'),
@@ -735,8 +688,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'description',
     meta: {
       class: {
-        th: 'hidden lg:table-cell w-[18rem] 4xl:w-[24rem]',
-        td: 'hidden lg:table-cell w-[18rem] 4xl:w-[24rem] py-3'
+        th: 'hidden xl:table-cell w-[18rem]',
+        td: 'hidden xl:table-cell w-[18rem] py-3'
       }
     },
     header: t('pages.crawlers.blueprints.table.description'),

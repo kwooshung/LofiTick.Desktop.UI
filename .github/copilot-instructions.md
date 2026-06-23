@@ -9,25 +9,25 @@
 
 ## 目录
 
-- [1. 项目与工作区](#1-项目与工作区)
-- [2. 执行流程（改动前门禁）](#2-执行流程改动前门禁)
-- [2.1 规则同步（强制）](#21-规则同步强制)
-- [3. 工程与依赖约束](#3-工程与依赖约束)
-- [3.2.1 导入路径（强制）](#321-导入路径强制)
-- [4. API 请求规范](#4-api-请求规范)
-- [5. TypeScript 与注释规范](#5-typescript-与注释规范)
-- [6. Pages 特例（零容忍）](#6-pages-特例零容忍)
-- [7. i18n 规则](#7-i18n-规则)
-- [8. Tauri 集成规范](#8-tauri-集成规范)
-- [9. Skills 与冲突处理](#9-skills-与冲突处理)
-- [10. 参考与示例](#10-参考与示例)
+- [1. 项目与工作区](copilot-instructions.md#1-项目与工作区)
+- [2. 执行流程（改动前门禁）](copilot-instructions.md#2-执行流程改动前门禁)
+- [2.1 规则同步（强制）](copilot-instructions.md#21-规则同步强制)
+- [3. 工程与依赖约束](copilot-instructions.md#3-工程与依赖约束)
+- [3.2.1 导入路径（强制）](copilot-instructions.md#321-导入路径强制)
+- [4. API 请求规范](copilot-instructions.md#4-api-请求规范)
+- [5. TypeScript 与注释规范](copilot-instructions.md#5-typescript-与注释规范)
+- [6. Pages 特例（零容忍）](copilot-instructions.md#6-pages-特例零容忍)
+- [7. i18n 规则](copilot-instructions.md#7-i18n-规则)
+- [8. Tauri 集成规范](copilot-instructions.md#8-tauri-集成规范)
+- [9. Skills 与冲突处理](copilot-instructions.md#9-skills-与冲突处理)
+- [10. 参考与示例](copilot-instructions.md#10-参考与示例)
 
 ---
 
 ## 1. 项目与工作区
 
 - 本项目基于 **Nuxt 5**（nightly 日更版，通过 `pnpm.overrides` 将 `nuxt` 别名到 `nuxt-nightly@5x`）。
-- 本项目是 **LofiTick Desktop UI**，定位为 Tauri 桌面客户端的前端层，当前启用服务端渲染（`ssr: true`，以 [configs/nuxt/index.ts](configs/nuxt/index.ts) 为准）。
+- 本项目是 **LofiTick Desktop UI**，定位为 Tauri 桌面客户端的前端层，当前启用服务端渲染（`ssr: true`，以 [configs/nuxt/index.ts](../configs/nuxt/index.ts) 为准）。
 - 本仓库只有一个前端项目，路径为 `i:/Frontends/LofiTick.Desktop.UI`。
 - 关联只读项目（**只能读取，不能修改**）：
   - `I:\Desktops\LofiTickDesktop\frontend` — 参考配置来源
@@ -51,9 +51,9 @@
 ### 1.2 必须先读配置（强制）
 
 - 项目文档导航：[README.md](../README.md)
-- 强制：在判断项目已实现能力、页面边界、桌面集成范围与是否需要新增实现前，必须优先阅读根目录 `README.md`；若根目录暂不存在 `README.md`，则按 `package.json` -> `configs/nuxt/index.ts` -> `configs/nuxt/modules.ts` 的顺序补足项目能力认知，禁止跳过这条检查链直接凭经验下结论。
+- 强制：在判断项目已实现能力、页面边界、桌面集成范围与是否需要新增实现前，必须优先阅读根目录 `README.md`；若根目录暂不存在 `README.md`，则按 `package.json` -> [configs/nuxt/index.ts](../configs/nuxt/index.ts) -> `configs/nuxt/modules.ts` 的顺序补足项目能力认知，禁止跳过这条检查链直接凭经验下结论。
 - 任何操作前，必须优先阅读 `package.json`，不要猜依赖、不要靠经验拍脑袋。
-- 特别是 `configs/nuxt/index.ts`、`configs/nuxt/modules.ts` 必须先仔细阅读，避免误解现有配置。
+- 特别是 [configs/nuxt/index.ts](../configs/nuxt/index.ts)、`configs/nuxt/modules.ts` 必须先仔细阅读，避免误解现有配置。
 
 ### 1.3 安装依赖（强制）
 
@@ -164,6 +164,20 @@
   - `4xl`：`130rem`（2080px）
   - （还包含 `5xl~8xl`，以该文件为准）
     使用方式：在 class 中写 `3xl:...`、`4xl:...`（例如 `3xl:grid-cols-5`）。
+
+    强制：禁止在 class 中使用带方括号的任意值工具类作为断点限定（例如 `4xl:w-[30rem]`、`3xl:gap-[22px]`、`5xl:translate-x-[1.5rem]`）。所有响应式尺寸与间距必须使用项目在 [`app/assets/css/main.css`](../app/assets/css/main.css) 中定义的断点、命名工具类或 CSS 变量；若确有非常特殊的尺寸需求，必须先在 [`app/assets/css/main.css`](../app/assets/css/main.css) 中新增明确命名的工具类并在变更清单中说明，禁止直接在组件内使用方括号写法。
+
+    强制：变更前必须自查并替换此类写法；PR 描述中需列出全部替换点与理由，禁止留下未审核的任意值样式。
+
+### 文档同步（强制）
+
+- 强制：本规则在仓库中存在两份来源文件：
+  - .github/copilot-instructions.md
+  - .trae/skills/lofi-nuxt-ui/SKILL.md
+- 强制：当你对任一处关于 CSS/断点/样式 的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
+- 强制：变更提交（PR）必须在描述中列出两份文件的路径与修改摘要，并由审查者确认两份文件内容一致后方可合并。
+- 强制：禁止把文档同步依赖于 CI/脚本扫描来替代人工核对；仅允许把 CI 用作补充验证，但最终责任在提交者手动确认并在 PR 中注明已同步。
+
 - 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
 - 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
 - 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
@@ -344,7 +358,7 @@
 - 其他语言翻译内容必须与 `zh.cn.ts` 完全对齐：不能多也不能少。
 - 翻译必须符合母语者习惯用法，禁止生硬直译，需要润色自然流畅。
 - 语言文件目录：`i18n/`，文件命名：`zh.cn.ts` / `zh.tw.ts` / `en.ts` / `ja.ts`。
-- locale 配置在 `configs/nuxt/index.ts` 的 `i18n` 字段，默认语言为 `zh_cn`。
+- locale 配置在 [configs/nuxt/index.ts](../configs/nuxt/index.ts) 的 `i18n` 字段，默认语言为 `zh_cn`。
 - 在 Vue 页面和组件中，不要用 `te(...)` 探测某个键是否存在再分支渲染；应直接使用 `t(...)`。如果键缺失，先补齐四语 `i18n` 文案，再使用该键。
 
 ---
