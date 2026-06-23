@@ -201,7 +201,7 @@ export interface IQueryResultCrawlerBlueprintRow {
   /**
    * 是否启用。
    */
-  isEnabled: boolean;
+  enabled: boolean;
 
   /**
    * 最后执行状态。

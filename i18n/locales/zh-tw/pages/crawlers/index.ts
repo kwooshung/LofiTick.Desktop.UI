@@ -184,7 +184,8 @@ export const crawlers = {
       description: '目前站點還沒有建立任何爬蟲，請點擊右上角「添加任務」開始建立。'
     },
     table: {
-      name: '爬蟲名稱',
+      name: '名稱',
+      description: '描述',
       status: '執行狀態',
       lastRunAt: '最後執行'
     },

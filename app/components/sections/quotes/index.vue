@@ -662,8 +662,8 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     accessorKey: 'quoteTypeFull',
     meta: {
       class: {
-        th: 'w-25 hidden 3xl:table-cell',
-        td: 'w-25 hidden 3xl:table-cell'
+        th: 'w-max hidden 3xl:table-cell whitespace-nowrap',
+        td: 'w-max hidden 3xl:table-cell whitespace-nowrap'
       }
     },
     header: t('pages.quotes.result.table.type'),
@@ -688,8 +688,8 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     accessorKey: 'quoteSourceFull',
     meta: {
       class: {
-        th: 'w-25 hidden 3xl:table-cell',
-        td: 'w-25 hidden 3xl:table-cell'
+        th: 'w-max hidden 3xl:table-cell whitespace-nowrap',
+        td: 'w-max hidden 3xl:table-cell whitespace-nowrap'
       }
     },
     header: t('pages.quotes.result.table.source'),
@@ -715,8 +715,8 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     accessorKey: 'quoteAuthorFull',
     meta: {
       class: {
-        th: 'w-40 hidden 3xl:table-cell',
-        td: 'w-40 hidden 3xl:table-cell'
+        th: 'w-max hidden 3xl:table-cell whitespace-nowrap',
+        td: 'w-max hidden 3xl:table-cell whitespace-nowrap'
       }
     },
     header: t('pages.quotes.result.table.author'),

@@ -921,25 +921,37 @@ const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>
 };
 
 /**
- * 函数：校验开始节点爬虫标题是否有效。
- * @param {unknown} flowData 图数据。
- * @returns {boolean} 是否通过校验。
+ * 类型：开始节点蓝图元数据。
  */
-const startNodeCrawlerTitleValidate = (flowData: unknown): boolean => {
+type TStartNodeCrawlerMeta = {
+  crawlerTitle: string;
+  crawlerDescription: string;
+};
+
+/**
+ * 函数：提取开始节点中的蓝图元数据。
+ * @param {unknown} flowData 图数据。
+ * @returns {TStartNodeCrawlerMeta | null} 蓝图元数据。
+ */
+const startNodeCrawlerMetaGet = (flowData: unknown): TStartNodeCrawlerMeta | null => {
   const parsed = graphParseSafe(flowData);
 
   if (!parsed || !Array.isArray(parsed.nodes)) {
-    return false;
+    return null;
   }
 
-  const startNode = parsed.nodes.find((node) => ['start'].includes(String(node.type ?? '').trim()));
+  const startNode = parsed.nodes.find((node) => String(node.type ?? '').trim() === 'start');
 
   if (!startNode) {
-    return false;
+    return null;
   }
 
   const data = (startNode.data ?? {}) as Record<string, unknown>;
-  return String(data.crawlerTitle ?? '').trim() !== '';
+
+  return {
+    crawlerTitle: String(data.crawlerTitle ?? '').trim(),
+    crawlerDescription: String(data.crawlerDescription ?? '').trim()
+  };
 };
 
 /**
@@ -1110,7 +1122,9 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     return;
   }
 
-  if (!startNodeCrawlerTitleValidate(payload?.flowData)) {
+  const startNodeCrawlerMeta = startNodeCrawlerMetaGet(payload?.flowData);
+
+  if (!startNodeCrawlerMeta || startNodeCrawlerMeta.crawlerTitle === '') {
     toast.add({
       title: t('pages.crawlers.editor.saveFeedback.title'),
       description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
@@ -1124,8 +1138,8 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
   await refreshCrawlerTaskGraphSave({
     datas: {
       targetId,
-      name: String(target.name ?? '').trim(),
-      description: String(target.description ?? '').trim(),
+      name: startNodeCrawlerMeta.crawlerTitle,
+      description: startNodeCrawlerMeta.crawlerDescription,
       nodes: payload?.flowData ?? {},
       code: payload?.flowData ?? {},
       isEnabled: Boolean(target.isEnabled ?? true)
@@ -1156,6 +1170,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
   });
 
   stateCodeSlideoverOpen.value = false;
+  refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
 
   if (import.meta.client) {
     /**

@@ -184,7 +184,8 @@ export const crawlers = {
       description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
     },
     table: {
-      name: 'クローラー名',
+      name: '名称',
+      description: '説明',
       status: '実行状態',
       lastRunAt: '最終実行'
     },

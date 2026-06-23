@@ -184,7 +184,8 @@ export const crawlers = {
       description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
     },
     table: {
-      name: 'Crawler Name',
+      name: 'Name',
+      description: 'Description',
       status: 'Execution Status',
       lastRunAt: 'Last Run'
     },
