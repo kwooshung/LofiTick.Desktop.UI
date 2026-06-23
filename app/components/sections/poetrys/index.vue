@@ -33,7 +33,7 @@
       :ui="{
         content: 'font-ma-shan-zheng w-auto max-w-225 light:border-10 light:border-neutral-500 dark:border-neutral-600 light:bg-yellow-50 select-none',
         header: 'text-5xl font-medium',
-        title: 'mb-4 text-default font-medium',
+        title: 'mb-4 font-medium',
         close: 'no-drag',
         description: 'text-lg text-muted',
         body: 'scrollbar'
@@ -46,7 +46,7 @@
             <span>·</span>
             <span>{{ poetryMetaValueGet(stateDetailInfo.rhythmic.name) }}</span>
           </div>
-          <p v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" class="text-default text-2xl leading-relaxed">
+          <p v-for="(para, inx) in stateDetailInfo.content" :key="`content-paragraph-${inx}`" class="text-2xl leading-relaxed">
             {{ para }}
           </p>
         </div>
@@ -679,7 +679,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
             ULink,
             {
               raw: true,
-              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              class: 'p-0 no-underline hover:text-primary hover:underline',
               onClick: () => handleViewDetail(row.original)
             },
             () => h('span', { class: 'whitespace-normal break-words' }, titleLine)
@@ -741,7 +741,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
             ULink,
             {
               raw: true,
-              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              class: 'p-0 no-underline hover:text-primary hover:underline',
               onClick: () => handleViewDetail(row.original)
             },
             () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(infos, true))
@@ -767,7 +767,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+            class: 'p-0 no-underline hover:text-primary hover:underline',
             onClick: () => handleViewDetail(row.original)
           },
           () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(row.original.infos, true))
@@ -791,7 +791,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+            class: 'p-0 no-underline hover:text-primary hover:underline',
             onClick: () => handleViewDetail(row.original)
           },
           () => h('span', { class: 'whitespace-normal break-words' }, poetryTitleDisplayGet(row.original.infos, false))
@@ -960,7 +960,7 @@ const columns: TableColumn<IPageTableColumnPoetrys>[] = [
     meta: {
       class: {
         th: 'w-45 2xl:hidden',
-        td: 'w-45 2xl:hidden text-default'
+        td: 'w-45 2xl:hidden'
       }
     },
     header: t('common.labels.time'),

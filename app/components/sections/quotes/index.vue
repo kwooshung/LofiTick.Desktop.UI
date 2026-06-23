@@ -496,7 +496,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
               href: buildQuoteDetailUrl(row.original.uuid),
               target: '_blank',
               rel: 'noopener noreferrer',
-              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              class: 'p-0 no-underline hover:text-primary hover:underline',
               onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
             },
             () => h('span', { class: 'whitespace-normal break-words' }, sentence)
@@ -577,7 +577,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
               href: buildQuoteDetailUrl(row.original.uuid),
               target: '_blank',
               rel: 'noopener noreferrer',
-              class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+              class: 'p-0 no-underline hover:text-primary hover:underline',
               onClick: (event: MouseEvent) => void handleClickSentenceLink(event, row.original.uuid)
             },
             () => h('span', { class: 'whitespace-normal break-words' }, sentence)
@@ -745,7 +745,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     meta: {
       class: {
         th: 'w-45 2xl:hidden',
-        td: 'w-45 2xl:hidden text-default'
+        td: 'w-45 2xl:hidden'
       }
     },
     header: t('common.labels.time'),

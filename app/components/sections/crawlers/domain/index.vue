@@ -619,6 +619,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                     variant: 'ghost',
                     icon: 'i-lucide:trash-2',
                     class: 'hover:text-error',
+                    ui: { leadingIcon: 'text-dimmed group-hover:text-error' },
                     onClick: () => {
                       stateDeletePopoverOpenId.value = row.original.id;
                       stateDeletePopoverSource.value = 'summaryMobile';
@@ -898,6 +899,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                 variant: 'ghost',
                 icon: 'i-lucide:trash-2',
                 class: 'hover:text-error',
+                ui: { leadingIcon: 'text-dimmed group-hover:text-error' },
                 onClick: () => {
                   stateDeletePopoverOpenId.value = row.original.id;
                   stateDeletePopoverSource.value = 'actions';

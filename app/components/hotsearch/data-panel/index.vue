@@ -551,7 +551,7 @@ const hotsearchTitleWithSummaryCellRender = (item: IHotsearchDataRow) =>
         {
           raw: true,
           href: item.url,
-          class: 'p-0 text-default no-underline hover:text-primary hover:underline',
+          class: 'p-0 no-underline hover:text-primary hover:underline',
           onClick: () => void handleSourceOpen(item.url)
         },
         () => h('span', { class: 'whitespace-normal break-all' }, item.title)
@@ -830,7 +830,7 @@ const columns: TableColumn<IHotsearchDataRow>[] = [
         onClick: () => toggleSort('popularity')
       });
     },
-    cell: ({ row }) => h('div', { class: 'py-2 text-sm text-default' }, row.original.popularity.toLocaleString()),
+    cell: ({ row }) => h('div', { class: 'py-2 text-sm' }, row.original.popularity.toLocaleString()),
     meta: {
       class: {
         th: 'w-24',

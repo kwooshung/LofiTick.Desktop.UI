@@ -2,9 +2,11 @@
   <UFieldGroup class="w-full">
     <USelect v-model="stateProtocol" :items="computedProtocolOptions" value-attribute="value" option-attribute="label" :disabled="props.readonly || props.disabled" :class="props.protocolSelectClass" />
 
-    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" @update:model-value="handleValueInput" @blur="handleInputBlur" />
-
-    <slot v-if="slots.actions" name="actions" />
+    <UInput :model-value="stateValue" class="w-full" :placeholder="computedInputPlaceholder" :readonly="props.readonly" :disabled="props.disabled" :ui="slots.actions ? { trailing: 'pe-1' } : undefined" @update:model-value="handleValueInput" @blur="handleInputBlur">
+      <template v-if="slots.actions" #trailing>
+        <slot name="actions" />
+      </template>
+    </UInput>
   </UFieldGroup>
 </template>
 

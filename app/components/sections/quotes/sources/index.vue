@@ -271,7 +271,7 @@ const columns: TableColumn<IPageTableColumnQuoteSources>[] = [
         ULink,
         {
           raw: true,
-          class: 'p-0 no-underline text-default hover:text-primary hover:underline',
+          class: 'p-0 no-underline hover:text-primary hover:underline',
           to: buildSingleFilterLocation(row.original.id)
         },
         () => `${row.original.infos.name}（${row.original.infos.count}）`

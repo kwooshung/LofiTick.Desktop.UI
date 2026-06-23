@@ -3985,7 +3985,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
               }),
             content: () =>
               h('div', { class: 'space-y-3' }, [
-                h('div', { class: 'text-sm leading-6 text-pretty text-default' }, t('pages.ads.hotsearch.actions.deleteConfirm')),
+                h('div', { class: 'text-sm leading-6 text-pretty' }, t('pages.ads.hotsearch.actions.deleteConfirm')),
                 h('div', { class: 'flex items-center justify-end gap-2' }, [
                   h(UButton, {
                     color: 'neutral',
