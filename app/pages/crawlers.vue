@@ -382,6 +382,21 @@ const stateFunctionLogicDetail = ref<ICrawlersEditorSidebarFunctionDetail | null
 const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
 
 /**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateBlueprintDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateBlueprintDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
+
+/**
+ * 状态：蓝图抽屉当前启用状态。
+ */
+const stateBlueprintDrawerEnabled = useState<boolean>('crawlers-blueprint-enabled', () => true);
+
+/**
  * 状态：编辑器表单
  */
 const stateEditor = ref<IPageCrawlerTargetForm>({
@@ -712,6 +727,9 @@ const isEditorDomainUnchanged = (): boolean => {
  */
 const handleAddTask = () => {
   stateBlueprintDrawerTarget.value = stateDetail.value ?? null;
+  stateBlueprintDrawerBlueprintId.value = 0;
+  stateBlueprintDrawerFlowData.value = null;
+  stateBlueprintDrawerEnabled.value = true;
   stateCodeSlideoverOpen.value = true;
 };
 
@@ -807,6 +825,7 @@ const { status: stateCrawlerTargetSaveStatus, error: stateCrawlerTargetSaveError
 const {
   status: stateCrawlerTaskGraphSaveStatus,
   error: stateCrawlerTaskGraphSaveError,
+  datas: stateCrawlerTaskGraphSaveResult,
   refresh: refreshCrawlerTaskGraphSave
 } = await useApi<{ affected: number; id: number; referenceCount: number }>('crawlers/blueprints/add', {
   method: 'POST',
@@ -1076,6 +1095,31 @@ const functionDraftGraphGet = (id: number): unknown | null => {
 };
 
 /**
+ * 函数：保存成功后删除草稿缓存。
+ * @param {unknown} value 草稿缓存键。
+ * @returns {Promise<void>} Promise。
+ */
+const draftRemoveAfterSave = async (value: unknown): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const draftKey = String(value ?? '').trim();
+  if (draftKey === '') {
+    return;
+  }
+
+  const stateDraftCleanupKey = useState<string>('crawlers-editor-draft-cleanup-key');
+  stateDraftCleanupKey.value = '';
+  await nextTick();
+  stateDraftCleanupKey.value = draftKey;
+
+  localStorage.removeItem(draftKey);
+  await nextTick();
+  localStorage.removeItem(draftKey);
+};
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -1137,12 +1181,12 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
 
   await refreshCrawlerTaskGraphSave({
     datas: {
+      id: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerBlueprintId.value : undefined,
       targetId,
       name: startNodeCrawlerMeta.crawlerTitle,
       description: startNodeCrawlerMeta.crawlerDescription,
       nodes: payload?.flowData ?? {},
-      code: payload?.flowData ?? {},
-      isEnabled: Boolean(target.isEnabled ?? true)
+      isEnabled: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerEnabled.value : true
     },
     replace: true
   });
@@ -1169,18 +1213,21 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     duration: 2600
   });
 
+  const savedId = Number(stateCrawlerTaskGraphSaveResult.value?.id ?? 0);
+  if (Number.isFinite(savedId) && savedId > 0 && stateBlueprintDrawerBlueprintId.value <= 0) {
+    stateBlueprintDrawerBlueprintId.value = savedId;
+    stateBlueprintDrawerEnabled.value = true;
+  }
+
+  await draftRemoveAfterSave(payload?.draftKey);
   stateCodeSlideoverOpen.value = false;
+
+  const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
+  if (stateBlueprintRefreshNonce) {
+    stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
+  }
   refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
 
-  if (import.meta.client) {
-    /**
-     * 常量：draftKey。
-     */
-    const draftKey = String(payload?.draftKey ?? '').trim();
-    if (draftKey !== '') {
-      localStorage.removeItem(draftKey);
-    }
-  }
 };
 
 /**
@@ -1449,13 +1496,6 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       };
     }
 
-    if (import.meta.client) {
-      const draftKey = String(payload?.draftKey ?? '').trim();
-      if (draftKey !== '') {
-        localStorage.setItem(draftKey, JSON.stringify({ ts: Date.now(), data: JSON.stringify(payload?.flowData ?? {}) }));
-      }
-    }
-
     stateFunctionRefreshNonce.value += 1;
 
     toast.add({
@@ -1466,6 +1506,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       duration: 2600
     });
 
+    await draftRemoveAfterSave(payload?.draftKey);
     stateFunctionLogicOpen.value = false;
   } catch (error) {
     toast.add({

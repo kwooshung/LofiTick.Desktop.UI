@@ -199,6 +199,11 @@ export interface IQueryResultCrawlerBlueprintRow {
   description: string;
 
   /**
+   * 服务端节点图定义。
+   */
+  nodes?: unknown;
+
+  /**
    * 是否启用。
    */
   enabled: boolean;

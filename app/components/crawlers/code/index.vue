@@ -21,8 +21,8 @@
         :groups="computedBlueprintGroups"
         :selected-key="computedSelectedKey"
         :function-refresh-nonce="functionRefreshNonce"
-        :initial-flow-data="initialFlowData"
-        :initial-load-source="initialLoadSource"
+        :initial-flow-data="computedInitialFlowData"
+        :initial-load-source="computedInitialLoadSource"
         @cancel="open = false"
         @click="handleEditorClick"
         @save="handleSave"
@@ -53,6 +53,16 @@ const emit = defineEmits<ICrawlersCodeEmits>();
  * 状态：蓝图抽屉目标站点。
  */
 const stateDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
 
 /**
  * 路由：当前路由。
@@ -203,10 +213,20 @@ const computedBlueprintGroups = computed(() => (groups.length > 0 ? groups : blu
 const computedSelectedKey = computed(() => (selectedKey !== '' ? selectedKey : (computedBlueprintGroups.value[0]?.crawlers[0]?.key ?? '')));
 
 /**
+ * 计算属性：编辑器初始图数据。
+ */
+const computedInitialFlowData = computed(() => (stateDrawerBlueprintId.value > 0 ? stateDrawerFlowData.value : initialFlowData));
+
+/**
+ * 计算属性：编辑器初始数据来源。
+ */
+const computedInitialLoadSource = computed(() => (stateDrawerBlueprintId.value > 0 && stateDrawerFlowData.value ? 'server' : initialLoadSource));
+
+/**
  * 计算属性：编辑器重建 key。
  */
 const computedEditorKey = computed(() => {
-  return [computedDrawerTargetId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
+  return [computedDrawerTargetId.value, stateDrawerBlueprintId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
 });
 
 /**

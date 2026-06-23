@@ -1399,6 +1399,16 @@ const stateInitialFlowApplied = ref(false);
 const stateLastDraftSnapshot = ref('');
 
 /**
+ * 状态：是否禁止继续写入草稿。
+ */
+const stateDraftWritingDisabled = ref(false);
+
+/**
+ * 状态：外部请求清理的草稿键。
+ */
+const stateDraftCleanupKey = useState<string>('crawlers-editor-draft-cleanup-key', () => '');
+
+/**
  * 状态：自动保存倒计时（秒）。
  */
 const stateAutoSaveCountdown = ref<number>(AUTO_SAVE_COUNTDOWN_SECONDS);
@@ -1739,10 +1749,31 @@ const clearDraft = (): void => {
 };
 
 /**
+ * 函数：停止自动保存并清理当前草稿。
+ * @returns {void} 无返回值。
+ */
+const stopDraftWritingAndClear = (): void => {
+  stateDraftWritingDisabled.value = true;
+  pushHistorySnapshotDebounced.cancel();
+
+  if (stateAutoSaveTimerId.value !== null) {
+    window.clearInterval(stateAutoSaveTimerId.value);
+    stateAutoSaveTimerId.value = null;
+  }
+
+  clearDraft();
+};
+
+/**
  * 函数：将当前画布保存到草稿。
  * @returns {void} 无返回值。
  */
 const saveDraft = (): boolean => {
+  if (stateDraftWritingDisabled.value) {
+    clearDraft();
+    return true;
+  }
+
   if (!import.meta.client) {
     return true;
   }
@@ -1777,6 +1808,10 @@ const saveDraft = (): boolean => {
  * @returns {void} 无返回值。
  */
 const runAutoSave = (): void => {
+  if (stateDraftWritingDisabled.value) {
+    return;
+  }
+
   /**
    * 常量：success。
    */
@@ -1791,7 +1826,7 @@ const runAutoSave = (): void => {
  * @returns {void} 无返回值。
  */
 const handleAutoSaveManual = (): void => {
-  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+  if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
     return;
   }
 
@@ -1802,7 +1837,7 @@ const handleAutoSaveManual = (): void => {
  * 函数：防抖记录历史。
  */
 const pushHistorySnapshotDebounced = debounce(() => {
-  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+  if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
     return;
   }
 
@@ -1936,7 +1971,7 @@ onMounted(async () => {
   }, 150);
 
   stateAutoSaveTimerId.value = window.setInterval(() => {
-    if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
       return;
     }
 
@@ -1993,6 +2028,21 @@ watch(
 );
 
 /**
+ * 监听：外部保存成功后清理当前草稿。
+ */
+watch(
+  stateDraftCleanupKey,
+  (value) => {
+    const cleanupKey = String(value ?? '').trim();
+    if (cleanupKey === '' || cleanupKey !== computedDraftKey.value) {
+      return;
+    }
+
+    stopDraftWritingAndClear();
+  }
+);
+
+/**
  * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。
  */
 watch(
@@ -2010,6 +2060,10 @@ watch(
  * 生命周期：组件挂载后，记录初始快照。
  */
 watchEffect(() => {
+  if (stateDraftWritingDisabled.value) {
+    return;
+  }
+
   if (nodes.value.length > 0 && stateHistory.value.length === 0) {
     pushHistorySnapshot();
     saveDraft();

@@ -100,6 +100,21 @@ const stateCodeSlideoverOpen = useState<boolean>('crawlers-blueprint-open', () =
 const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
 
 /**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateBlueprintDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateBlueprintDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
+
+/**
+ * 状态：蓝图抽屉当前启用状态。
+ */
+const stateBlueprintDrawerEnabled = useState<boolean>('crawlers-blueprint-enabled', () => true);
+
+/**
  * 状态：分页大小 cookie。
  */
 const pagesizesCookie = useCookie<Record<string, number>>(COOKIE_KEY_PAGESIZES, {
@@ -206,11 +221,40 @@ const buildBlueprintQueryFromRoute = (): Record<string, string> => {
 const {
   datas: stateDatas,
   loading: stateLoading,
-  refreshDebounced: refreshListDebounced
+  refreshDebounced: refreshListDebounced,
+  refresh: refreshList
 } = await useApi<IQueryResultCrawlerBlueprintSummaryPage>('crawlers/blueprints', {
   immediate: true,
   datas: buildBlueprintQueryFromRoute()
 });
+
+/**
+ * 全局：外部触发的强制刷新 nonce（页面保存蓝图后会触发）
+ */
+const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce', () => 0);
+
+// 监听外部刷新请求，立即调用非 debounce 的刷新函数以保证列表立刻更新
+watch(
+  stateBlueprintRefreshNonce,
+  (val) => {
+    if (!Number.isFinite(Number(val ?? 0))) {
+      return;
+    }
+
+    if (computedTargetId.value <= 0) {
+      return;
+    }
+
+    try {
+      // 尝试使用非防抖的刷新以保证实时性
+      refreshList({ datas: buildBlueprintQueryFromRoute(), replace: true });
+    } catch {
+      // fallback to debounced refresh
+      refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
+    }
+  },
+  { immediate: false }
+);
 
 /**
  * API：手动执行蓝图。
@@ -262,6 +306,7 @@ const computedBlueprintRows = computed<IQueryResultCrawlerBlueprintRow[]>(() => 
     targetId: Number(item.targetId ?? 0),
     name: String(item.name ?? ''),
     description: String(item.description ?? ''),
+    nodes: item.nodes ?? null,
     enabled: Boolean(Reflect.get(item as object, 'isEnabled')),
     lastRunStatus: String(item.lastRunStatus ?? 'pending'),
     lastRunAt: String(item.lastRunAt ?? ''),
@@ -361,6 +406,13 @@ const blueprintStatusColorGet = (status: TCrawlerBlueprintLastRunStatus): 'neutr
 };
 
 /**
+ * 函数：判断蓝图是否正在执行。
+ * @param {TCrawlerBlueprintLastRunStatus} status 执行状态。
+ * @returns {boolean} 是否正在执行。
+ */
+const blueprintIsRunning = (status: TCrawlerBlueprintLastRunStatus): boolean => String(status ?? '').trim() === 'running';
+
+/**
  * 函数：打开当前爬虫的编辑抽屉。
  *
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
@@ -371,12 +423,19 @@ const handleOpenCrawlerEditor = (row: IQueryResultCrawlerBlueprintRow): void => 
     return;
   }
 
+  if (blueprintIsRunning(row.lastRunStatus)) {
+    return;
+  }
+
   stateBlueprintDrawerTarget.value = {
     ...stateDetailDatas.value,
     name: String(row.name ?? '').trim(),
     description: String(row.description ?? '').trim(),
     isEnabled: Boolean(row.enabled)
   };
+  stateBlueprintDrawerBlueprintId.value = Number(row.id ?? 0);
+  stateBlueprintDrawerFlowData.value = row.nodes ?? null;
+  stateBlueprintDrawerEnabled.value = Boolean(row.enabled);
   stateCodeSlideoverOpen.value = true;
 };
 
@@ -475,6 +534,10 @@ const handleDeleteCrawler = async (row: IQueryResultCrawlerBlueprintRow): Promis
   stateDeletePopoverOpenId.value = null;
   stateDeletePopoverSource.value = null;
 
+  if (blueprintIsRunning(row.lastRunStatus)) {
+    return;
+  }
+
   await refreshBlueprintDelete({
     datas: {
       id: Number(row.id ?? 0)
@@ -546,6 +609,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const lastRunAt = String(row.original.lastRunAt ?? '').trim();
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
       const lastRunNode = hasLastRunAt ? h(Datetime, { value: lastRunAt, class: 'w-auto max-w-full text-xs' }) : h('span', { class: 'text-muted' }, t('common.labels.none'));
+      const isRunning = blueprintIsRunning(row.original.lastRunStatus);
 
       return h('div', { class: 'flex min-w-0 flex-col gap-2' }, [
         h('div', { class: 'space-y-1' }, [h('div', { class: 'break-words font-medium' }, row.original.name || '-'), h('div', { class: 'text-sm text-muted break-words leading-5' }, row.original.description || t('common.labels.none'))]),
@@ -592,6 +656,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               color: 'neutral',
               variant: 'ghost',
               icon: 'i-lucide:edit',
+              disabled: isRunning,
               ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
               onClick: () => handleOpenCrawlerEditor(row.original)
             },
@@ -619,9 +684,14 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                     color: 'neutral',
                     variant: 'ghost',
                     icon: 'i-lucide:trash-2',
+                    disabled: isRunning,
                     class: 'hover:text-error',
                     ui: { leadingIcon: 'text-dimmed group-hover:text-error' },
                     onClick: () => {
+                      if (isRunning) {
+                        return;
+                      }
+
                       stateDeletePopoverOpenId.value = row.original.id;
                       stateDeletePopoverSource.value = 'summaryMobile';
                     }
@@ -648,6 +718,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                       variant: 'solid',
                       size: 'xs',
                       label: t('common.actions.confirm'),
+                      disabled: isRunning,
                       onClick: () => {
                         void handleDeleteCrawler(row.original);
                       }
@@ -786,7 +857,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     accessorKey: 'enabled',
     meta: {
       class: {
-        td: 'w-16'
+        td: 'w-20'
       }
     },
     header: t('common.labels.enabled'),
@@ -809,8 +880,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     },
     enableHiding: false,
     header: () => h('div', { class: 'w-full text-right' }, t('common.labels.actions')),
-    cell: ({ row }) =>
-      h('div', { class: 'flex flex-nowrap items-center justify-end gap-1' }, [
+    cell: ({ row }) => {
+      const isRunning = blueprintIsRunning(row.original.lastRunStatus);
+
+      return h('div', { class: 'flex flex-nowrap items-center justify-end gap-1' }, [
         h(
           UButton,
           {
@@ -830,6 +903,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             color: 'neutral',
             variant: 'ghost',
             icon: 'i-lucide:edit',
+            disabled: isRunning,
             ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
             onClick: () => handleOpenCrawlerEditor(row.original)
           },
@@ -855,9 +929,14 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                 color: 'neutral',
                 variant: 'ghost',
                 icon: 'i-lucide:trash-2',
+                disabled: isRunning,
                 class: 'hover:text-error',
                 ui: { leadingIcon: 'text-dimmed group-hover:text-error' },
                 onClick: () => {
+                  if (isRunning) {
+                    return;
+                  }
+
                   stateDeletePopoverOpenId.value = row.original.id;
                   stateDeletePopoverSource.value = 'actions';
                 }
@@ -882,6 +961,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                     variant: 'solid',
                     size: 'xs',
                     label: t('common.actions.confirm'),
+                    disabled: isRunning,
                     onClick: () => {
                       void handleDeleteCrawler(row.original);
                     }
@@ -890,7 +970,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               ])
           }
         )
-      ])
+      ]);
+    }
   }
 ];
 </script>
