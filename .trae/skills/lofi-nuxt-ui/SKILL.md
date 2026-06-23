@@ -172,20 +172,20 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 
   - 强制：禁止在 class 中使用带方括号的任意值工具类作为断点限定（例如 `4xl:w-[30rem]`、`3xl:gap-[22px]`、`5xl:translate-x-[1.5rem]`）。所有响应式尺寸与间距必须使用项目在 [`app/assets/css/main.css`](../../../app/assets/css/main.css) 中定义的断点、命名工具类或 CSS 变量；若确有非常特殊的尺寸需求，必须先在 [`app/assets/css/main.css`](../../../app/assets/css/main.css) 中新增明确命名的工具类并在变更清单中说明，禁止直接在组件内使用方括号写法。
 
+  - 强制：Tailwind CSS v4 中所有使用 `[]` 的任意值写法，只有在“项目本地没有对应命名类，且 Tailwind 官方也没有对应内置 utility class”时才允许使用；只要本地或官方存在可用 class，必须优先使用已有 class，禁止继续写 `[]`。
+
   - 强制：变更前必须自查并替换此类写法；在 PR 描述中需列出全部替换点与理由，禁止留下未审核的任意值样式。
+
+  - 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
+  - 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
+  - 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
+  - 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
 
   ### 文档同步（强制）
   - 强制：本规则在仓库中存在两份来源文件：
     - .github/copilot-instructions.md
     - .trae/skills/lofi-nuxt-ui/SKILL.md
-  - 强制：当你对任一处关于 CSS/断点/样式 的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
-  - 强制：变更提交（PR）必须在描述中列出两份文件的路径与修改摘要，并由审查者确认两份文件内容一致后方可合并。
-  - 强制：禁止把文档同步依赖于 CI/脚本扫描来替代人工核对；仅允许把 CI 用作补充验证，但最终责任在提交者手动确认并在 PR 中注明已同步。
-
-- 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
-- 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
-- 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
-- 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
+  - 强制：当你对任一处关于的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
 
 ### 3.7 空状态（强制）
 

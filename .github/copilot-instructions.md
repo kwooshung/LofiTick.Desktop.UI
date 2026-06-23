@@ -148,41 +148,45 @@
   - 纯 TS 工具函数 / Node 脚本：更适合用 `es-toolkit`（例如 `debounce`），避免引入 Vue 运行时语义。
   - 如果两者都可用且你不确定：必须先说明你选择的理由与取舍，再让我拍板。
 
+
+
 ### 3.6 CSS 与断点（强制）
 
-- 本项目使用 TailwindCSS（v4 语法），全局样式入口为 [`app/assets/css/main.css`](../app/assets/css/main.css)：
+- 本项目使用 TailwindCSS（v4 语法），全局样式入口为 [`app/assets/css/main.css`](../../../app/assets/css/main.css)：
   - 通过 `@import 'tailwindcss';` 启用 Tailwind。
   - 通过 `@import '@nuxt/ui';` 接入 Nuxt UI 的样式。
   - 同时引入了过渡样式（`vue-transitions.css`）。
 - 编写样式时的优先级（从高到低）：
   1. 优先在模板里使用 Tailwind utility（不要为了"写得像传统 CSS"而回退到大段自定义 CSS）。
-  2. 需要全局/跨组件复用的基础样式与工具类，新增到 [`app/assets/css/main.css`](../app/assets/css/main.css)（例如 `@utility`）。
+  2. 需要全局/跨组件复用的基础样式与工具类，新增到 [`app/assets/css/main.css`](../../../app/assets/css/main.css)（例如 `@utility`）。
   3. 页面/组件局部样式再考虑 `scoped`（仅在确有必要且能说明边界时）。
 - 编写 `class` 时，必须优先使用 Tailwind CSS v4 内置 utility class；只有当内置 utility 无法准确表达需求时，才允许补充项目级 `@utility` 或局部样式。
-- 断点来自 [`app/assets/css/main.css`](../app/assets/css/main.css) 的 `@theme` 定义，除 Tailwind 默认断点外，项目额外提供：
+- Vue 3.5+ 组件中，`withDefaults(defineProps(...))` 应优先改为直接解构默认值的写法；能用 `const { a = 1 } = defineProps<...>()` 就不要再保留 `withDefaults`，模板里也优先直接使用解构出的标识符。
+- `props` / `defineProps` 必须放在 `import` 之后、`<script setup>` 顶层，不允许藏在函数体里或条件分支里。
+- 只在确实会用到时才解构 props；如果某个属性不会被脚本或模板使用，就不要把它从 `defineProps` 里解构出来。
+- 断点来自 [`app/assets/css/main.css`](../../../app/assets/css/main.css) 的 `@theme` 定义，除 Tailwind 默认断点外，项目额外提供：
   - `3xl`：`120rem`（1920px）
   - `4xl`：`130rem`（2080px）
   - （还包含 `5xl~8xl`，以该文件为准）
     使用方式：在 class 中写 `3xl:...`、`4xl:...`（例如 `3xl:grid-cols-5`）。
 
-    强制：禁止在 class 中使用带方括号的任意值工具类作为断点限定（例如 `4xl:w-[30rem]`、`3xl:gap-[22px]`、`5xl:translate-x-[1.5rem]`）。所有响应式尺寸与间距必须使用项目在 [`app/assets/css/main.css`](../app/assets/css/main.css) 中定义的断点、命名工具类或 CSS 变量；若确有非常特殊的尺寸需求，必须先在 [`app/assets/css/main.css`](../app/assets/css/main.css) 中新增明确命名的工具类并在变更清单中说明，禁止直接在组件内使用方括号写法。
+  - 强制：禁止在 class 中使用带方括号的任意值工具类作为断点限定（例如 `4xl:w-[30rem]`、`3xl:gap-[22px]`、`5xl:translate-x-[1.5rem]`）。所有响应式尺寸与间距必须使用项目在 [`app/assets/css/main.css`](../../../app/assets/css/main.css) 中定义的断点、命名工具类或 CSS 变量；若确有非常特殊的尺寸需求，必须先在 [`app/assets/css/main.css`](../../../app/assets/css/main.css) 中新增明确命名的工具类并在变更清单中说明，禁止直接在组件内使用方括号写法。
 
-    强制：变更前必须自查并替换此类写法；PR 描述中需列出全部替换点与理由，禁止留下未审核的任意值样式。
+  - 强制：Tailwind CSS v4 中所有使用 `[]` 的任意值写法，只有在“项目本地没有对应命名类，且 Tailwind 官方也没有对应内置 utility class”时才允许使用；只要本地或官方存在可用 class，必须优先使用已有 class，禁止继续写 `[]`。
 
-### 文档同步（强制）
+  - 强制：变更前必须自查并替换此类写法；在 PR 描述中需列出全部替换点与理由，禁止留下未审核的任意值样式。
 
-- 强制：本规则在仓库中存在两份来源文件：
-  - .github/copilot-instructions.md
-  - .trae/skills/lofi-nuxt-ui/SKILL.md
-- 强制：当你对任一处关于 CSS/断点/样式 的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
-- 强制：变更提交（PR）必须在描述中列出两份文件的路径与修改摘要，并由审查者确认两份文件内容一致后方可合并。
-- 强制：禁止把文档同步依赖于 CI/脚本扫描来替代人工核对；仅允许把 CI 用作补充验证，但最终责任在提交者手动确认并在 PR 中注明已同步。
+  - 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
+  - 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
+  - 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
+  - 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
 
-- 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
-- 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
-- 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
-- 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
-- 强制：除非用户或设计明确说明需要调整字号，并且已经参考同类/相邻代码确认风格基线，否则**禁止**在任何组件、页面、渲染函数中主动设置 `text-xs`、`text-sm`、`text-base`、`text-lg` 等字体大小 utility；默认字号不得擅自改动。
+  ### 文档同步（强制）
+  - 强制：本规则在仓库中存在两份来源文件：
+    - .github/copilot-instructions.md
+    - .trae/skills/lofi-nuxt-ui/SKILL.md
+  - 强制：当你对任一处关于的规则段落进行新增、修改或删除时，必须同时在另一份文件中执行完全相同的更新。
+
 
 ### 3.7 空状态（强制）
 
