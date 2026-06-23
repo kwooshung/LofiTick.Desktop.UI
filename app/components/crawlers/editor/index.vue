@@ -65,6 +65,7 @@
         :undo-text="t('pages.crawlers.editor.actions.undo')"
         :cancel-text="t('common.actions.cancel')"
         :save-text="t('common.actions.save')"
+        :save-disabled="computedSaveDisabled"
         @restore="handleViewportRestore"
         @zoom-in="handleViewportZoomIn"
         @zoom-out="handleViewportZoomOut"
@@ -382,6 +383,16 @@ const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 const isCanvasEmpty = computed(() => nodes.value.length === 0);
 
 /**
+ * 计算属性：保存是否禁用（开始节点标题必填）。
+ */
+const computedSaveDisabled = computed<boolean>(() => {
+  const startNode = nodes.value.find((node) => node.id === systemNodeMeta.startNodeId);
+  const nodeData = (startNode?.data ?? {}) as { crawlerTitle?: unknown };
+
+  return String(nodeData.crawlerTitle ?? '').trim() === '';
+});
+
+/**
  * 计算属性：描述文本。
  */
 const computedDescription = computed(() => {
@@ -558,6 +569,46 @@ const restoreInitialFlowData = async (): Promise<boolean> => {
   }
 
   return restoreFlowData(parsedInitialFlowData);
+};
+
+/**
+ * 函数：在初始图晚到时补做一次恢复。
+ *
+ * 补充说明：当父级图数据晚于编辑器挂载到达时，默认起止节点会先占位；这里负责在画布仍处于占位阶段时把真实图恢复进来。
+ *
+ * # Returns
+ *
+ * 返回 true 表示已经成功应用初始图。
+ */
+const restoreInitialFlowDataWhenReady = async (): Promise<boolean> => {
+  if (stateInitialFlowApplied.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    return false;
+  }
+
+  if (nodes.value.length > 2) {
+    return false;
+  }
+
+  const restored = await restoreInitialFlowData();
+  if (!restored) {
+    return false;
+  }
+
+  stateInitialFlowApplied.value = true;
+  syncStartNodeDomain();
+  syncFunctionNodeMeta();
+
+  stateHistory.value = [];
+  stateHistoryIndex.value = -1;
+  pushHistorySnapshot();
+
+  stateLastDraftSnapshot.value = createSnapshot();
+
+  if (saveDraft()) {
+    stateLastDraftSnapshot.value = createSnapshot();
+  }
+
+  return true;
 };
 
 /**
@@ -1338,6 +1389,11 @@ const stateInitializingDefault = ref(false);
 const stateDraftRestored = ref(false);
 
 /**
+ * 状态：是否已应用一次初始图。
+ */
+const stateInitialFlowApplied = ref(false);
+
+/**
  * 状态：上次草稿快照。
  */
 const stateLastDraftSnapshot = ref('');
@@ -1773,6 +1829,7 @@ onMounted(async () => {
         const restoredInitialFlow = await restoreInitialFlowData();
 
         if (restoredInitialFlow) {
+          stateInitialFlowApplied.value = true;
           stateInitialLoadSource = 'server';
           syncStartNodeDomain();
           syncFunctionNodeMeta();
@@ -1801,6 +1858,7 @@ onMounted(async () => {
         const restoredInitialFlow = await restoreInitialFlowData();
 
         if (restoredInitialFlow) {
+          stateInitialFlowApplied.value = true;
           stateInitialLoadSource = 'server';
           syncStartNodeDomain();
           syncFunctionNodeMeta();
@@ -1925,6 +1983,16 @@ watch(computedNormalizedDomain, () => {
 });
 
 /**
+ * 监听：初始图数据晚到时补做恢复。
+ */
+watch(
+  () => initialFlowData,
+  () => {
+    void restoreInitialFlowDataWhenReady();
+  }
+);
+
+/**
  * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。
  */
 watch(
@@ -1980,6 +2048,8 @@ const handelModalSave = async () => {
   await new Promise<void>((resolve) => {
     requestAnimationFrame(() => resolve());
   });
+
+  flushPendingHistorySnapshot();
 
   /**
    * 常量：flowData。

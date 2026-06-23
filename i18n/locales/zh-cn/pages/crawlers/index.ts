@@ -187,6 +187,14 @@ export const crawlers = {
       name: '爬虫名称',
       status: '执行状态',
       lastRunAt: '最后执行'
+    },
+    actions: {
+      execute: '执行',
+      deleteConfirm: '确定要删除爬虫「{name}」吗？此操作不可撤销。',
+      runSuccess: '已触发执行，正在运行。',
+      runFailed: '触发执行失败，请稍后重试。',
+      deleteSuccess: '删除成功。',
+      deleteFailed: '删除失败，请稍后重试。'
     }
   },
   spider: {

@@ -22,7 +22,7 @@
     </div>
     <div class="flex items-center gap-2">
       <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
-      <UButton type="button" color="primary" icon="i-lucide:save" @click="emit('save')">{{ saveText }}</UButton>
+      <UButton type="button" color="primary" icon="i-lucide:save" :disabled="saveDisabled" @click="emit('save')">{{ saveText }}</UButton>
     </div>
   </div>
 </template>
@@ -36,7 +36,7 @@ import type { ICrawlersEditorActionsEmits, ICrawlersEditorActionsProps } from '@
 /**
  * Props：组件入参。
  */
-const { cancelText, saveText } = defineProps<ICrawlersEditorActionsProps>();
+const { cancelText, saveText, saveDisabled = false } = defineProps<ICrawlersEditorActionsProps>();
 
 /**
  * 事件：底部操作栏操作。

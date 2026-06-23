@@ -187,6 +187,14 @@ export const crawlers = {
       name: 'Crawler Name',
       status: 'Execution Status',
       lastRunAt: 'Last Run'
+    },
+    actions: {
+      execute: 'Run',
+      deleteConfirm: 'Delete crawler "{name}"? This action cannot be undone.',
+      runSuccess: 'Execution has been triggered and is now running.',
+      runFailed: 'Failed to trigger execution. Please try again later.',
+      deleteSuccess: 'Deleted successfully.',
+      deleteFailed: 'Delete failed. Please try again later.'
     }
   },
   spider: {

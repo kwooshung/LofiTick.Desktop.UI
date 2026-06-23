@@ -5,8 +5,7 @@
 
       <div class="space-y-1">
         <label class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.common.start.form.crawlerTitle') }}</label>
-        <UInput v-model="stateCrawlerTitle" :placeholder="t('components.crawler.blueprint.nodes.common.start.form.crawlerTitlePlaceholder')" class="w-full" maxlength="120" />
-        <p v-if="computedCrawlerTitleRequiredInvalid" class="text-error text-xs">{{ t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired') }}</p>
+        <UInput v-model="stateCrawlerTitle" :placeholder="t('components.crawler.blueprint.nodes.common.start.form.crawlerTitlePlaceholder')" class="w-full" maxlength="120" @blur="handleCrawlerTitleBlur" />
       </div>
 
       <div class="space-y-1">
@@ -26,6 +25,11 @@ import type { ICrawlersNodesCommonStartData } from '@/components/crawlers/nodes/
  * Hook：国际化。
  */
 const { t } = useI18n();
+
+/**
+ * Hook：提示。
+ */
+const toast = useToast();
 
 /**
  * Hook：Vue Flow。
@@ -95,9 +99,18 @@ const computedCrawlerDescription = computed(() => {
 });
 
 /**
- * 计算属性：爬虫标题是否为空。
+ * 事件：爬虫标题失焦校验。
  */
-const computedCrawlerTitleRequiredInvalid = computed(() => stateCrawlerTitle.value.trim() === '');
+const handleCrawlerTitleBlur = (): void => {
+  if (stateCrawlerTitle.value.trim() !== '') {
+    return;
+  }
+
+  toast.add({
+    color: 'error',
+    description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired')
+  });
+};
 
 watch(
   () => stateNode.node.data,

@@ -204,6 +204,8 @@ export const crawler = {
                 empty: 'Path cannot be empty',
                 invalidFormat: 'Path should start with "/" or be a complete URL',
                 invalidUrl: 'Invalid URL format',
+                invalidTitle: 'Go-to path hint',
+                extractedTitle: 'Path extracted automatically',
                 extracted: 'Extracted path from URL "{domain}": {path}',
                 domainMismatch: 'Domain mismatch: expected "{expected}"\n, actual "{actual}"'
               }

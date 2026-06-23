@@ -41,6 +41,11 @@ export interface ICrawlersEditorActionsProps {
    * 属性：保存按钮文案。
    */
   saveText: string;
+
+  /**
+   * 属性：保存按钮是否禁用。
+   */
+  saveDisabled?: boolean;
 }
 
 /**

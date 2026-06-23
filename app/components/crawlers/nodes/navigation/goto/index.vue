@@ -4,14 +4,6 @@
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
         <div class="space-y-2">
           <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" :class="[computedPathError ? 'border-error/50 bg-error/5' : '']" @blur="handlePathBlur" @input="handleInputChange" />
-          <div v-if="computedPathError" class="bg-error/10 text-error flex items-start gap-2 rounded-md p-2 text-xs">
-            <UIcon name="i-lucide:alert-circle" class="mt-0.5 shrink-0" />
-            <div class="flex-1 whitespace-pre-wrap">{{ computedPathError }}</div>
-          </div>
-          <div v-else-if="computedPathInfo" class="bg-info/10 text-info flex items-start gap-2 rounded-md p-2 text-xs">
-            <UIcon name="i-lucide:info" class="mt-0.5 shrink-0" />
-            <div class="flex-1">{{ computedPathInfo }}</div>
-          </div>
         </div>
       </UFormField>
 
@@ -44,6 +36,11 @@ const { t } = useI18n();
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+
+/**
+ * Hook：提示。
+ */
+const toast = useToast();
 
 /**
  * 常量：baseUrl provide key。
@@ -99,36 +96,9 @@ const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
 const statePathError = ref('');
 
 /**
- * 状态：路径信息提示（如已自动提取）。
- */
-const statePathInfo = ref('');
-
-/**
- * 状态：路径信息提示自动清除计时器 ID。
- */
-let timeoutIdPathInfo: ReturnType<typeof setTimeout> | null = null;
-
-/**
- * 函数：清除路径信息提示自动清除计时器。
- *
- * @returns {void} 无返回值。
- */
-const clearPathInfoTimeout = (): void => {
-  if (timeoutIdPathInfo !== null) {
-    clearTimeout(timeoutIdPathInfo);
-    timeoutIdPathInfo = null;
-  }
-};
-
-/**
  * 计算属性：路径验证错误（不为空时表示有错误）。
  */
 const computedPathError = computed(() => statePathError.value);
-
-/**
- * 计算属性：路径信息提示文本。
- */
-const computedPathInfo = computed(() => statePathInfo.value);
 
 /**
  * 函数：处理路径输入失焦时的验证与提取。
@@ -139,7 +109,6 @@ const handlePathBlur = (): void => {
   const input = statePath.value.trim();
   if (input === '') {
     statePathError.value = '';
-    statePathInfo.value = '';
     return;
   }
 
@@ -163,7 +132,13 @@ const handlePathBlur = (): void => {
     }
 
     statePathError.value = errorMsg;
-    statePathInfo.value = '';
+    toast.add({
+      title: t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.invalidTitle'),
+      description: errorMsg,
+      color: 'error',
+      icon: 'i-lucide:triangle-alert',
+      duration: 3200
+    });
     return;
   }
 
@@ -175,22 +150,18 @@ const handlePathBlur = (): void => {
     statePath.value = parseResult.path;
     const domain = parseResult.domain || input;
     const pathStr = parseResult.path;
-    statePathInfo.value = t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.extracted', {
+    const extractedMessage = t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.extracted', {
       domain,
       path: pathStr
     });
 
-    // 清除之前的计时器
-    clearPathInfoTimeout();
-
-    // 2 秒后自动清除提示信息
-    timeoutIdPathInfo = setTimeout(() => {
-      statePathInfo.value = '';
-      timeoutIdPathInfo = null;
-    }, 2000);
-  } else {
-    statePathInfo.value = '';
-    clearPathInfoTimeout();
+    toast.add({
+      title: t('components.crawler.blueprint.nodes.navigation.goto.fields.path.validation.extractedTitle'),
+      description: extractedMessage,
+      color: 'info',
+      icon: 'i-lucide:info',
+      duration: 2600
+    });
   }
 };
 
@@ -202,8 +173,6 @@ const handlePathBlur = (): void => {
 const handleInputChange = (): void => {
   // 实时清除错误提示和信息提示，同时清除自动消失计时器
   statePathError.value = '';
-  statePathInfo.value = '';
-  clearPathInfoTimeout();
 };
 
 /**
@@ -228,13 +197,6 @@ const computedRightPins = computed<IBasicSidePin[]>(() => {
       description: t('components.crawler.blueprint.nodes.navigation.goto.outputs.messageDescription')
     }
   ];
-});
-
-/**
- * 生命周期：组件卸载前清除计时器。
- */
-onBeforeUnmount(() => {
-  clearPathInfoTimeout();
 });
 
 /**

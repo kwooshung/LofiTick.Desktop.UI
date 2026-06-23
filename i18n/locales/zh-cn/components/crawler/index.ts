@@ -204,6 +204,8 @@ export const crawler = {
                 empty: '路径不能为空',
                 invalidFormat: '路径应以 "/" 开头，或为完整 URL',
                 invalidUrl: 'URL 格式无效',
+                invalidTitle: '跳转路径提示',
+                extractedTitle: '已自动提取路径',
                 extracted: '已从 URL "{domain}" 提取路径：{path}',
                 domainMismatch: '域名不匹配：期望 "{expected}"\n，实际 "{actual}"'
               }

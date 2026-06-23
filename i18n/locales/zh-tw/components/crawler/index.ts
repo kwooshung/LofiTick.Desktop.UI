@@ -204,6 +204,8 @@ export const crawler = {
                 empty: '路徑不能為空',
                 invalidFormat: '路徑應以 "/" 開頭，或為完整 URL',
                 invalidUrl: 'URL 格式無效',
+                invalidTitle: '跳轉路徑提示',
+                extractedTitle: '已自動擷取路徑',
                 extracted: '已從 URL "{domain}" 擷取路徑：{path}',
                 domainMismatch: '網域不符：期望 "{expected}"\n，實際 "{actual}"'
               }
