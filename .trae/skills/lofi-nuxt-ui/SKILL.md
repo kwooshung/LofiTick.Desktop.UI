@@ -170,6 +170,9 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
   - （还包含 `5xl~8xl`，以该文件为准）
     使用方式：在 class 中写 `3xl:...`、`4xl:...`（例如 `3xl:grid-cols-5`）。
 - 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
+- 默认文本颜色禁止显式指定；只在需要弱化、强调、危险提示等真实语义变化的元素上设置颜色，禁止父级先指定颜色再由子级改回默认色。
+- 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
+- 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
 
 ### 3.7 空状态（强制）
 
