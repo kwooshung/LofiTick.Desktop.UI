@@ -578,7 +578,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               color: 'neutral',
               variant: 'soft',
               icon: 'i-lucide:play',
-              class: 'text-muted hover:text-highlighted',
+              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
               onClick: () => {
                 void handleOpenCrawlerExecution(row.original);
               }
@@ -588,9 +588,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
           h(
             UButton,
             {
-              color: 'primary',
-              variant: 'soft',
+              color: 'neutral',
+              variant: 'ghost',
               icon: 'i-lucide:edit',
+              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
               onClick: () => handleOpenCrawlerEditor(row.original)
             },
             () => t('common.actions.edit')
@@ -614,9 +615,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
                 h(
                   UButton,
                   {
-                    color: 'error',
-                    variant: 'soft',
+                    color: 'neutral',
+                    variant: 'ghost',
                     icon: 'i-lucide:trash-2',
+                    class: 'text-muted hover:text-error',
                     onClick: () => {
                       stateDeletePopoverOpenId.value = row.original.id;
                       stateDeletePopoverSource.value = 'summaryMobile';
@@ -689,7 +691,8 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               color: 'neutral',
               variant: 'ghost',
               icon: 'i-lucide:play',
-              class: '-ml-2 text-muted hover:text-highlighted',
+              class: '-ml-2',
+              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
               onClick: () => {
                 void handleOpenCrawlerExecution(row.original);
               }
@@ -699,10 +702,11 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
           h(
             UButton,
             {
-              color: 'primary',
+              color: 'neutral',
               variant: 'ghost',
               icon: 'i-lucide:edit',
               class: '-ml-2',
+              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
               onClick: () => handleOpenCrawlerEditor(row.original)
             },
             () => t('common.actions.edit')
@@ -855,7 +859,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             color: 'neutral',
             variant: 'ghost',
             icon: 'i-lucide:play',
-            class: 'text-muted hover:text-highlighted',
+            ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
             onClick: () => {
               void handleOpenCrawlerExecution(row.original);
             }
@@ -865,9 +869,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
         h(
           UButton,
           {
-            color: 'primary',
+            color: 'neutral',
             variant: 'ghost',
             icon: 'i-lucide:edit',
+            ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
             onClick: () => handleOpenCrawlerEditor(row.original)
           },
           () => t('common.actions.edit')
@@ -889,9 +894,10 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
           {
             default: () =>
               h(UButton, {
-                color: 'error',
+                color: 'neutral',
                 variant: 'ghost',
                 icon: 'i-lucide:trash-2',
+                class: 'text-muted hover:text-error',
                 onClick: () => {
                   stateDeletePopoverOpenId.value = row.original.id;
                   stateDeletePopoverSource.value = 'actions';

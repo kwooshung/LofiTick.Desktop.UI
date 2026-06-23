@@ -596,8 +596,8 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
     accessorKey: 'quote',
     meta: {
       class: {
-        th: 'w-30 hidden xl:table-cell 3xl:hidden',
-        td: 'w-30 hidden xl:table-cell 3xl:hidden'
+        th: 'w-max min-w-max hidden xl:table-cell 3xl:hidden whitespace-nowrap',
+        td: 'w-max min-w-max hidden xl:table-cell 3xl:hidden whitespace-nowrap'
       }
     },
     header: t('pages.quotes.result.table.typeSourceAuthor'),
@@ -624,12 +624,12 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
        */
       const authorName = author?.name || 'unknown';
 
-      return h('div', { class: 'text-sm text-muted mt-1' }, [
+      return h('div', { class: 'text-sm text-muted mt-1 whitespace-nowrap' }, [
         h(
           ULink,
           {
             raw: true,
-            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-nowrap no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('type_ids', typeId)
           },
           () => typeLabel
@@ -639,7 +639,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-nowrap no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('source_ids', source?.id ?? 0)
           },
           () => `${bookTitlePrefix}${sourceName}${bookTitleSuffix}`
@@ -649,7 +649,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
           ULink,
           {
             raw: true,
-            class: 'p-0 text-muted whitespace-normal break-words no-underline hover:text-primary hover:underline',
+            class: 'p-0 text-muted whitespace-nowrap no-underline hover:text-primary hover:underline',
             to: buildSingleFilterLocation('author_ids', author?.id ?? 0)
           },
           () => authorName
@@ -684,6 +684,7 @@ const columns: TableColumn<IPageTableColumnQuotes>[] = [
       );
     }
   },
+  // 5级宽度：名句（内容）+ 翻译 + 来源 + 作者
   {
     accessorKey: 'quoteSourceFull',
     meta: {
