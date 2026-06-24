@@ -1238,7 +1238,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
   if (stateBlueprintRefreshNonce) {
     stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
   }
-  refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
+  // 列表刷新由 `crawlers-blueprints-refresh-nonce` 全局 state 驱动，避免直接引用 domain 组件内部方法
 };
 
 /**
