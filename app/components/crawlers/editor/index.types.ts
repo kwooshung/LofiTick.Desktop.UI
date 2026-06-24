@@ -142,6 +142,11 @@ export interface ICrawlersEditorProps {
    * 属性：草稿缓存键。
    */
   draftStorageKey?: string;
+
+  /**
+   * 属性：执行按钮是否加载中。
+   */
+  executeLoading?: boolean;
 }
 
 /**
@@ -152,6 +157,11 @@ export interface ICrawlersEditorEmits {
    * 事件：保存。
    */
   save: [payload: ICrawlersEditorSavePayload];
+
+  /**
+   * 事件：执行。
+   */
+  execute: [payload: IPageCrawlerBlueprintEditorExecutePayload];
 
   /**
    * 事件：取消。

@@ -19,6 +19,9 @@
       <UTooltip :text="undoText">
         <UButton type="button" color="neutral" variant="outline" icon="i-lucide:undo-2" @click="emit('undo')" />
       </UTooltip>
+      <UTooltip v-if="executeVisible" :text="executeText || ''">
+        <UButton type="button" color="primary" variant="soft" icon="i-lucide:play" :loading="executeLoading" :disabled="executeDisabled || executeLoading" @click="emit('execute')" />
+      </UTooltip>
     </div>
     <div class="flex items-center gap-2">
       <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
@@ -36,7 +39,7 @@ import type { ICrawlersEditorActionsEmits, ICrawlersEditorActionsProps } from '@
 /**
  * Props：组件入参。
  */
-const { cancelText, saveText, saveDisabled = false } = defineProps<ICrawlersEditorActionsProps>();
+const { cancelText, saveText, saveDisabled = false, executeVisible = false, executeText = '', executeDisabled = false, executeLoading = false } = defineProps<ICrawlersEditorActionsProps>();
 
 /**
  * 事件：底部操作栏操作。

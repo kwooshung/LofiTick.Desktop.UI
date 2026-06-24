@@ -230,6 +230,16 @@ export interface IQueryResultCrawlerBlueprintRow {
 }
 
 /**
+ * 接口：爬虫蓝图编辑器执行载荷。
+ */
+export interface IPageCrawlerBlueprintEditorExecutePayload {
+  /**
+   * 当前画布导出数据。
+   */
+  flowData: unknown;
+}
+
+/**
  * 接口：爬虫蓝图列表分页响应。
  */
 export interface IQueryResultCrawlerBlueprintSummaryPage {

@@ -66,6 +66,10 @@
         :cancel-text="t('common.actions.cancel')"
         :save-text="t('common.actions.save')"
         :save-disabled="computedSaveDisabled"
+        :execute-visible="flowKind === 'crawler'"
+        :execute-text="t('pages.crawlers.blueprints.actions.execute')"
+        :execute-disabled="computedSaveDisabled"
+        :execute-loading="executeLoading"
         @restore="handleViewportRestore"
         @zoom-in="handleViewportZoomIn"
         @zoom-out="handleViewportZoomOut"
@@ -74,6 +78,7 @@
         @undo="handleUndo"
         @cancel="handelModalCancel"
         @save="handelModalSave"
+        @execute="handleExecute"
       />
 
       <div v-if="stateEditorInitializing" class="bg-default/70 absolute inset-0 z-40 flex items-center justify-center backdrop-blur-sm">
@@ -99,7 +104,7 @@ import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hoo
 /**
  * Props：组件入参。
  */
-const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
+const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '', executeLoading = false } = defineProps<ICrawlersEditorProps>();
 const systemNodeMeta = resolveSystemNodeMeta(flowKind);
 
 /**
@@ -2117,6 +2122,25 @@ const handelModalSave = async () => {
   emit('save', {
     flowData,
     draftKey: computedDraftKey.value
+  });
+};
+
+/**
+ * 事件：处理蓝图执行。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecute = async (): Promise<void> => {
+  await nextTick();
+
+  // Vue Flow 的 updateNodeData 存在批处理，这里等一帧确保节点数据已落到快照。
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+
+  flushPendingHistorySnapshot();
+
+  emit('execute', {
+    flowData: toObject()
   });
 };
 

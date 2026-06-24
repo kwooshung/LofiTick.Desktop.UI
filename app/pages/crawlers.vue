@@ -78,7 +78,9 @@
       :target-id="Number(stateDetail?.id ?? 0)"
       :function-refresh-nonce="stateFunctionRefreshNonce"
       :initial-flow-data="computedCrawlerInitialFlowData"
+      :execute-loading="stateCrawlerBlueprintExecuting"
       @save="handleBlueprintSave"
+      @execute="handleBlueprintExecute"
       @create-function="handleCreateFunctionFromSidebar"
       @edit-function-logic="handleEditFunctionLogicFromSidebar"
       @functions-changed="stateFunctionRefreshNonce += 1"
@@ -218,6 +220,11 @@ const { t } = useI18n();
  * Hook：提示。
  */
 const toast = useToast();
+
+/**
+ * Hook：Tauri 爬虫蓝图能力。
+ */
+const { execute: executeCrawlerBlueprint } = useTauriCrawlerBlueprint();
 
 /**
  * 函数：本地化路由
@@ -360,6 +367,11 @@ const stateFunctionLogicOpen = ref(false);
  * 状态：函数逻辑加载中。
  */
 const stateFunctionLogicLoading = ref(false);
+
+/**
+ * 状态：爬虫蓝图执行中。
+ */
+const stateCrawlerBlueprintExecuting = ref(false);
 
 /**
  * 状态：函数逻辑初始数据来源。
@@ -1227,6 +1239,55 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
   }
   refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
+};
+
+/**
+ * 事件：执行当前编辑器蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
+  if (stateCrawlerBlueprintExecuting.value) {
+    return;
+  }
+
+  const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
+  const targetId = Number(target?.id ?? 0);
+
+  if (!target || !Number.isFinite(targetId) || targetId <= 0) {
+    toast.add({
+      color: 'error',
+      title: t('pages.crawlers.blueprints.actions.execute'),
+      description: t('pages.crawlers.blueprints.actions.runFailed')
+    });
+    return;
+  }
+
+  stateCrawlerBlueprintExecuting.value = true;
+
+  try {
+    await executeCrawlerBlueprint({
+      blueprintId: Number(stateBlueprintDrawerBlueprintId.value ?? 0),
+      targetId,
+      siteName: String(target.name ?? computedRouteDetailTitle.value ?? '').trim(),
+      baseUrl: String(target.baseUrl ?? '').trim(),
+      nodes: payload.flowData ?? {}
+    });
+
+    toast.add({
+      color: 'success',
+      title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
+      description: t('pages.crawlers.blueprints.actions.runSuccess')
+    });
+  } catch {
+    toast.add({
+      color: 'error',
+      title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
+      description: t('pages.crawlers.blueprints.actions.runFailed')
+    });
+  } finally {
+    stateCrawlerBlueprintExecuting.value = false;
+  }
 };
 
 /**

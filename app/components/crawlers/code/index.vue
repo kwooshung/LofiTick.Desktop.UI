@@ -23,9 +23,11 @@
         :function-refresh-nonce="functionRefreshNonce"
         :initial-flow-data="computedInitialFlowData"
         :initial-load-source="computedInitialLoadSource"
+        :execute-loading="executeLoading"
         @cancel="open = false"
         @click="handleEditorClick"
         @save="handleSave"
+        @execute="handleExecute"
         @create-function="handleEditorCreateFunction"
         @edit-function-logic="handleEditorEditFunctionLogic"
         @functions-changed="handleEditorFunctionsChanged"
@@ -42,7 +44,7 @@ import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
  * Props：组件入参。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource, executeLoading = false } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -242,6 +244,14 @@ const open = defineModel<boolean>('open', {
  */
 const handleSave = (payload: ICrawlersEditorSavePayload) => {
   emit('save', payload);
+};
+
+/**
+ * 事件：执行蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ */
+const handleExecute = (payload: IPageCrawlerBlueprintEditorExecutePayload) => {
+  emit('execute', payload);
 };
 
 /**
