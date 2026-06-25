@@ -6,39 +6,59 @@
     header-color=""
     header-bg="bg-green-500"
     :left-pins="leftPins"
-    :right-pins="rightPins"
+    :show-exec-out="false"
   >
-    <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.mode.label')">
-        <div v-if="hasTargetPinConnection('input-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
-          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+    <div class="flex items-start gap-4">
+      <div class="min-w-0 flex-1 space-y-3">
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.mode.label')">
+          <div v-if="hasTargetPinConnection('input-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+            <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+          </div>
+
+          <USelect v-else v-model="stateMode" class="w-full" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
+        </UFormField>
+
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')">
+          <div v-if="hasTargetPinConnection('input-strict-compare-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+            <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+          </div>
+
+          <USwitch v-else v-model="stateStrictCompare" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')" />
+        </UFormField>
+      </div>
+
+      <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
+        <div v-for="branch in branchOutputs" :key="branch.id" class="flex h-5 items-center gap-2">
+          <div class="min-w-0 flex-1 text-right leading-5">
+            <UTooltip :text="branch.description" :content="{ side: 'top' }">
+              <span class="block truncate text-right text-sm leading-5 font-medium">{{ branch.label }}</span>
+            </UTooltip>
+          </div>
+
+          <span class="relative flex h-5 w-3 shrink-0 items-center justify-center">
+            <span class="pointer-events-none block h-3.5 w-2.5 bg-green-500 shadow-sm [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+            <Handle
+              :id="branch.id"
+              type="source"
+              :position="Position.Right"
+              :is-valid-connection="isBranchOutputConnectionSource"
+              class="absolute! inset-0! h-full! w-full! translate-x-0! translate-y-0! cursor-crosshair! rounded-none! border-0! bg-transparent! opacity-0!"
+            />
+          </span>
         </div>
-
-        <USelect v-else v-model="stateMode" class="w-full" :items="stateModeOptions" value-attribute="value" option-attribute="label" />
-      </UFormField>
-
-      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')">
-        <div v-if="hasTargetPinConnection('input-strict-compare-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
-          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
-        </div>
-
-        <USwitch v-else v-model="stateStrictCompare" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.strictCompare.label')" />
-      </UFormField>
+      </div>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
+import type { Connection } from '@vue-flow/core';
+import { Handle, Position, useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-
-/**
- * 类型：条件输入模式。
- */
-type TConditionMode = 'boolean' | 'compare';
+import type { IControlFlowConditionBranch, TControlFlowConditionMode } from './index.types';
 
 const { t } = useI18n();
 
@@ -57,7 +77,7 @@ const stateInitialized = ref(false);
 /**
  * 状态：条件输入模式。
  */
-const stateMode = ref<TConditionMode>('boolean');
+const stateMode = ref<TControlFlowConditionMode>('boolean');
 
 /**
  * 状态：比较时是否严格比较。
@@ -140,34 +160,33 @@ const leftPins: IBasicSidePin[] = [
 ];
 
 /**
- * 常量：右侧数据输出引脚配置。
+ * 常量：执行分支配置。
  */
-const rightPins: IBasicSidePin[] = [
+const branchOutputs: IControlFlowConditionBranch[] = [
   {
-    id: 'result-true-boolean',
+    id: 'true',
     label: t('components.crawler.blueprint.nodes.controlFlow.condition.outputs.true.label'),
-    direction: 'out',
-    dataType: 'boolean',
-    topPercent: 30,
     description: t('components.crawler.blueprint.nodes.controlFlow.condition.outputs.true.description')
   },
   {
-    id: 'result-false-boolean',
+    id: 'false',
     label: t('components.crawler.blueprint.nodes.controlFlow.condition.outputs.false.label'),
-    direction: 'out',
-    dataType: 'boolean',
-    topPercent: 58,
     description: t('components.crawler.blueprint.nodes.controlFlow.condition.outputs.false.description')
-  },
-  {
-    id: 'result-message',
-    label: t('components.crawler.blueprint.nodes.interaction.common.outputs.message'),
-    direction: 'out',
-    dataType: 'string',
-    topPercent: 84,
-    description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription')
   }
 ];
+
+/**
+ * 函数：判断分支输出是否合法。
+ * @param {Connection} connection 连接信息。
+ * @returns {boolean} 是否可连接。
+ */
+const isBranchOutputConnectionSource = (connection: Connection): boolean => {
+  if (!connection.target || connection.target === stateNodeId.value) {
+    return false;
+  }
+
+  return (connection.sourceHandle === 'true' || connection.sourceHandle === 'false') && connection.targetHandle === 'exec-in';
+};
 
 watchEffect(() => {
   if (stateInitialized.value) {

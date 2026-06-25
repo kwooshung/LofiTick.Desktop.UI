@@ -6,41 +6,65 @@
     header-color=""
     header-bg="bg-green-500"
     :left-pins="leftPins"
-    :right-pins="computedRightPins"
+    :show-exec-out="false"
   >
-    <div class="space-y-3">
-      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.matchMode.label')">
-        <div v-if="hasTargetPinConnection('input-match-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
-          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+    <div class="flex items-start gap-4">
+      <div class="min-w-0 flex-1 space-y-3">
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.matchMode.label')">
+          <div v-if="hasTargetPinConnection('input-match-mode-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+            <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+          </div>
+
+          <USelect v-else v-model="stateMatchMode" class="w-full" :items="stateMatchModeOptions" value-attribute="value" option-attribute="label" />
+        </UFormField>
+
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.label')">
+          <div v-if="hasTargetPinConnection('input-cases-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+            <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+          </div>
+
+          <UTextarea v-else v-model="stateCasesText" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.placeholder')" />
+        </UFormField>
+
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')">
+          <div v-if="hasTargetPinConnection('input-use-default-branch-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
+            <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
+            <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
+          </div>
+
+          <USwitch v-else v-model="stateUseDefaultBranch" :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')" />
+        </UFormField>
+      </div>
+
+      <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
+        <div v-for="branch in computedBranchOutputs" :key="branch.id" class="flex h-5 items-center gap-2">
+          <div class="min-w-0 flex-1 text-right leading-5">
+            <UTooltip :text="branch.description" :content="{ side: 'top' }">
+              <span class="block truncate text-right text-sm leading-5 font-medium">{{ branch.label }}</span>
+            </UTooltip>
+          </div>
+
+          <span class="relative flex h-5 w-3 shrink-0 items-center justify-center">
+            <span class="pointer-events-none block h-3.5 w-2.5 bg-green-500 shadow-sm [clip-path:polygon(0_0,100%_50%,0_100%)]" />
+            <Handle
+              :id="branch.id"
+              type="source"
+              :position="Position.Right"
+              :is-valid-connection="isBranchOutputConnectionSource"
+              class="absolute! inset-0! h-full! w-full! translate-x-0! translate-y-0! cursor-crosshair! rounded-none! border-0! bg-transparent! opacity-0!"
+            />
+          </span>
         </div>
-
-        <USelect v-else v-model="stateMatchMode" class="w-full" :items="stateMatchModeOptions" value-attribute="value" option-attribute="label" />
-      </UFormField>
-
-      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.label')">
-        <div v-if="hasTargetPinConnection('input-cases-string')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
-          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
-        </div>
-
-        <UTextarea v-else v-model="stateCasesText" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.cases.placeholder')" />
-      </UFormField>
-
-      <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')">
-        <div v-if="hasTargetPinConnection('input-use-default-branch-boolean')" class="border-default text-muted flex h-8 items-center gap-1 rounded-sm border px-2 text-xs">
-          <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-          <span class="truncate">{{ t('components.crawler.blueprint.nodes.common.connectedInputHint') }}</span>
-        </div>
-
-        <USwitch v-else v-model="stateUseDefaultBranch" :label="t('components.crawler.blueprint.nodes.controlFlow.switch.fields.useDefaultBranch.label')" />
-      </UFormField>
+      </div>
     </div>
   </CrawlersNodesCommonBasic>
 </template>
 
 <script setup lang="ts">
-import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
+import type { Connection } from '@vue-flow/core';
+import { Handle, Position, useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
@@ -111,9 +135,6 @@ const hasTargetPinConnection = (handleId: string): boolean => {
  * 计算属性：分支列表。
  */
 const computedCaseList = computed(() => {
-  /**
-   * 常量：rows。
-   */
   const rows = stateCasesText.value
     .split('\n')
     .map((item) => item.trim())
@@ -161,65 +182,52 @@ const leftPins: IBasicSidePin[] = [
 ];
 
 /**
- * 计算属性：右侧数据输出引脚配置。
+ * 计算属性：右侧执行分支配置。
  */
-const computedRightPins = computed<IBasicSidePin[]>(() => {
-  /**
-   * 常量：pins。
-   */
-  const pins: IBasicSidePin[] = computedCaseList.value.map((item, index) => ({
+const computedBranchOutputs = computed(() => {
+  const branches = computedCaseList.value.map((item, index) => ({
     id: `result-case-${index + 1}-boolean`,
     label: item,
-    direction: 'out',
-    dataType: 'boolean',
-    topPercent: 20 + Math.round((index / Math.max(1, computedCaseList.value.length)) * 55),
     description: t('components.crawler.blueprint.nodes.controlFlow.switch.outputs.case.description', {
       label: item
     })
   }));
 
   if (stateUseDefaultBranch.value) {
-    pins.push({
+    branches.push({
       id: 'result-default-boolean',
       label: t('components.crawler.blueprint.nodes.controlFlow.switch.outputs.default.label'),
-      direction: 'out',
-      dataType: 'boolean',
-      topPercent: 84,
       description: t('components.crawler.blueprint.nodes.controlFlow.switch.outputs.default.description')
     });
   }
 
-  pins.push({
-    id: 'result-message',
-    label: t('components.crawler.blueprint.nodes.interaction.common.outputs.message'),
-    direction: 'out',
-    dataType: 'string',
-    topPercent: 94,
-    description: t('components.crawler.blueprint.nodes.interaction.common.outputs.messageDescription')
-  });
-
-  return pins;
+  return branches;
 });
+
+/**
+ * 函数：判断 switch 执行分支是否可连接。
+ * @param {Connection} connection 连接信息。
+ * @returns {boolean} 是否可连接。
+ */
+const isBranchOutputConnectionSource = (connection: Connection): boolean => {
+  if (!connection.target || connection.target === stateNodeId.value) {
+    return false;
+  }
+
+  const sourceHandle = String(connection.sourceHandle ?? '').trim();
+  return (sourceHandle.startsWith('result-case-') || sourceHandle.startsWith('result-default-')) && connection.targetHandle === 'exec-in';
+};
 
 watchEffect(() => {
   if (stateInitialized.value) {
     return;
   }
 
-  /**
-   * 常量：data。
-   */
   const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
 
-  /**
-   * 常量：matchMode。
-   */
   const matchMode = String(data.matchMode ?? 'strict');
   stateMatchMode.value = matchMode === 'loose' ? 'loose' : 'strict';
 
-  /**
-   * 常量：cases。
-   */
   const cases = Array.isArray(data.cases) ? data.cases.map((item) => String(item ?? '').trim()).filter((item) => item !== '') : [];
 
   stateCasesText.value = cases.length > 0 ? cases.join('\n') : 'case_1\ncase_2';

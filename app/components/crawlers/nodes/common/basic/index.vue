@@ -241,7 +241,7 @@ const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataT
     return 'unknown';
   }
 
-  if (id === 'exec-in' || id === 'exec-out' || id.includes('exec')) {
+  if (id === 'exec-in' || id === 'exec-out' || id === 'true' || id === 'false' || id.includes('exec')) {
     return 'exec';
   }
 
@@ -312,7 +312,7 @@ const isValidSidePinDataTypeConnection = (connection: Connection): boolean => {
  * 函数：验证连接是否满足 exec-out -> exec-in 规则。
  */
 const isExecConnection = (connection: Connection): boolean => {
-  return connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
+  return (connection.sourceHandle === 'exec-out' || connection.sourceHandle === 'true' || connection.sourceHandle === 'false') && connection.targetHandle === 'exec-in';
 };
 
 /**
