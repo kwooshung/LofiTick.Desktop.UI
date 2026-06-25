@@ -2604,6 +2604,59 @@ export const crawler = {
             }
           }
         },
+        playSound: {
+          title: '通知音を再生',
+          description: '固定の状態通知音を再生します',
+          pinDescriptions: {
+            kind: '通知音タイプ入力'
+          },
+          outputs: {
+            kind: {
+              label: '通知音タイプ',
+              description: '実際に再生した通知音タイプ'
+            }
+          },
+          fields: {
+            kind: {
+              label: '通知音タイプ',
+              options: {
+                info: '情報',
+                success: '成功',
+                warning: '警告',
+                error: 'エラー'
+              }
+            }
+          }
+        },
+        sendEmail: {
+          title: 'メール送信',
+          description: '既存のデスクトップメール API を再利用して送信します',
+          pinDescriptions: {
+            to: '宛先入力',
+            subject: '件名入力',
+            text: '本文入力'
+          },
+          outputs: {
+            count: {
+              label: '宛先数',
+              description: '実際に送信された宛先数'
+            }
+          },
+          fields: {
+            to: {
+              label: '宛先',
+              placeholder: 'メールアドレスを入力してください。複数指定は改行またはカンマ区切りです'
+            },
+            subject: {
+              label: '件名',
+              placeholder: 'メールの件名を入力してください'
+            },
+            text: {
+              label: '本文',
+              placeholder: 'メール本文を入力してください'
+            }
+          }
+        },
         screenshot: {
           title: 'スクリーンショット',
           description: 'ページや要素をキャプチャします',

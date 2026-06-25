@@ -693,6 +693,18 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         description: 'pages.crawlers.blueprint.nodes.output.printLog.description'
       },
       {
+        key: 'output-play-sound',
+        icon: 'i-lucide-bell',
+        title: 'pages.crawlers.blueprint.nodes.output.playSound.title',
+        description: 'pages.crawlers.blueprint.nodes.output.playSound.description'
+      },
+      {
+        key: 'output-send-email',
+        icon: 'i-lucide-mail',
+        title: 'pages.crawlers.blueprint.nodes.output.sendEmail.title',
+        description: 'pages.crawlers.blueprint.nodes.output.sendEmail.description'
+      },
+      {
         key: 'output-screenshot',
         icon: 'i-lucide-camera',
         title: 'pages.crawlers.blueprint.nodes.output.screenshot.title',
@@ -773,6 +785,8 @@ if (import.meta.vitest) {
       expect(groups[10]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
       expect(groups[10]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
       expect(groups[13]?.label).toBe('pages.crawlers.blueprint.groups.dateTime.title');
+      expect(groups[17]?.crawlers).toContainEqual(expect.objectContaining({ key: 'output-play-sound', iconName: 'i-lucide-bell' }));
+      expect(groups[17]?.crawlers).toContainEqual(expect.objectContaining({ key: 'output-send-email', iconName: 'i-lucide-mail' }));
     });
   });
 }

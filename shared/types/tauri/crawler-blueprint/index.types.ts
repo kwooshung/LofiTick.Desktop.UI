@@ -49,6 +49,31 @@ export interface ITauriCrawlerBlueprintExecuteResponse {
 export type TTauriCrawlerBlueprintOutputLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 /**
+ * 类型：Tauri 爬虫蓝图提示音类型。
+ */
+export type TTauriCrawlerBlueprintPlaySoundKind = 'info' | 'success' | 'warning' | 'error';
+
+/**
+ * 接口：Tauri 爬虫蓝图提示音事件。
+ */
+export interface ITauriCrawlerBlueprintPlaySoundEvent {
+  /**
+   * 执行会话 ID。
+   */
+  sessionId: string;
+
+  /**
+   * 节点 ID。
+   */
+  nodeId: string;
+
+  /**
+   * 提示音类型。
+   */
+  kind: TTauriCrawlerBlueprintPlaySoundKind;
+}
+
+/**
  * 接口：Tauri 爬虫蓝图输出日志事件。
  */
 export interface ITauriCrawlerBlueprintOutputLogEvent {

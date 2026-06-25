@@ -119,6 +119,8 @@
       <template #node-control-flow-switch="props"><CrawlersNodesControlFlowSwitch v-bind="props" /></template>
       <template #node-output-save-data="props"><CrawlersNodesOutputSaveData v-bind="props" /></template>
       <template #node-output-print-log="props"><CrawlersNodesOutputPrintLog v-bind="props" /></template>
+      <template #node-output-play-sound="props"><CrawlersNodesOutputPlaySound v-bind="props" /></template>
+      <template #node-output-send-email="props"><CrawlersNodesOutputSendEmail v-bind="props" /></template>
       <template #node-output-screenshot="props"><CrawlersNodesOutputScreenshot v-bind="props" /></template>
       <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
         <UEmpty
@@ -165,6 +167,10 @@ import CrawlersNodesFunctionCall from '@/components/crawlers/nodes/function/call
 import CrawlersNodesFunctionReturn from '@/components/crawlers/nodes/function/return/index.vue';
 import CrawlersNodesFunctionStart from '@/components/crawlers/nodes/function/start/index.vue';
 import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
+import CrawlersNodesOutputPlaySound from '@/components/crawlers/nodes/output/playSound/index.vue';
+import CrawlersNodesOutputSendEmail from '@/components/crawlers/nodes/output/sendEmail/index.vue';
+import CrawlersNodesOutputPrintLog from '@/components/crawlers/nodes/output/printLog/index.vue';
+import CrawlersNodesOutputScreenshot from '@/components/crawlers/nodes/output/screenshot/index.vue';
 
 /**
  * Props：组件入参。

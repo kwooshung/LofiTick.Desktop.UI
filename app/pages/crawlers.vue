@@ -194,6 +194,7 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 import { z } from 'zod';
 
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ITauriCrawlerBlueprintOutputLogEvent, TTauriCrawlerBlueprintOutputLogLevel } from '@@/shared/types/index.types';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。
@@ -225,7 +226,7 @@ const toast = useToast();
 /**
  * Hook：Tauri 爬虫蓝图能力。
  */
-const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent } = useTauriCrawlerBlueprint();
+const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
 
 /**
  * 变量：取消订阅爬虫蓝图输出日志事件句柄。
@@ -254,7 +255,7 @@ const crawlerBlueprintOutputLogToastColor = (level: TTauriCrawlerBlueprintOutput
  */
 onMounted(async () => {
   try {
-    unsubscribeCrawlerBlueprintOutputLog = await onCrawlerBlueprintOutputLogEvent((payload) => {
+    unsubscribeCrawlerBlueprintOutputLog = await onCrawlerBlueprintOutputLogEvent((payload: ITauriCrawlerBlueprintOutputLogEvent) => {
       toast.add({
         color: crawlerBlueprintOutputLogToastColor(payload.level),
         title: payload.title,
@@ -1314,6 +1315,8 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
   stateCrawlerBlueprintExecuting.value = true;
 
   try {
+    await unlockCrawlerBlueprintAudio();
+
     await executeCrawlerBlueprint({
       blueprintId: Number(stateBlueprintDrawerBlueprintId.value ?? 0),
       targetId,

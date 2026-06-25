@@ -2606,6 +2606,59 @@ export const crawler = {
             }
           }
         },
+        playSound: {
+          title: '播放提示音',
+          description: '播放固定的状态提示音',
+          pinDescriptions: {
+            kind: '提示音类型输入'
+          },
+          outputs: {
+            kind: {
+              label: '提示音类型',
+              description: '本次实际播放的提示音类型'
+            }
+          },
+          fields: {
+            kind: {
+              label: '提示音类型',
+              options: {
+                info: '信息',
+                success: '成功',
+                warning: '警告',
+                error: '错误'
+              }
+            }
+          }
+        },
+        sendEmail: {
+          title: '发送邮件',
+          description: '复用桌面端现有邮件接口发送邮件',
+          pinDescriptions: {
+            to: '收件人输入',
+            subject: '邮件主题输入',
+            text: '邮件正文输入'
+          },
+          outputs: {
+            count: {
+              label: '收件人数',
+              description: '本次实际发送到的收件人数'
+            }
+          },
+          fields: {
+            to: {
+              label: '收件人',
+              placeholder: '请输入邮箱地址，支持多个，使用换行或逗号分隔'
+            },
+            subject: {
+              label: '标题',
+              placeholder: '请输入邮件标题'
+            },
+            text: {
+              label: '内容',
+              placeholder: '请输入邮件正文'
+            }
+          }
+        },
         screenshot: {
           title: '截图',
           description: '截取页面或元素',

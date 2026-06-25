@@ -2543,6 +2543,59 @@ export const crawler = {
             }
           }
         },
+        playSound: {
+          title: 'Play Sound',
+          description: 'Play a fixed status prompt tone',
+          pinDescriptions: {
+            kind: 'Prompt tone type input'
+          },
+          outputs: {
+            kind: {
+              label: 'Prompt tone type',
+              description: 'Prompt tone type actually played'
+            }
+          },
+          fields: {
+            kind: {
+              label: 'Prompt tone type',
+              options: {
+                info: 'Info',
+                success: 'Success',
+                warning: 'Warning',
+                error: 'Error'
+              }
+            }
+          }
+        },
+        sendEmail: {
+          title: 'Send Email',
+          description: 'Reuse the existing desktop email endpoint to send mail',
+          pinDescriptions: {
+            to: 'Recipient input',
+            subject: 'Email subject input',
+            text: 'Email body input'
+          },
+          outputs: {
+            count: {
+              label: 'Recipient count',
+              description: 'Actual number of recipients reached'
+            }
+          },
+          fields: {
+            to: {
+              label: 'Recipients',
+              placeholder: 'Enter email addresses, multiple values supported via new lines or commas'
+            },
+            subject: {
+              label: 'Subject',
+              placeholder: 'Enter email subject'
+            },
+            text: {
+              label: 'Content',
+              placeholder: 'Enter email body'
+            }
+          }
+        },
         screenshot: {
           title: 'Screenshot',
           description: 'Capture a page or element',
