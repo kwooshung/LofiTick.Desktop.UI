@@ -22,7 +22,7 @@
       </UFormField>
 
       <template v-if="stateWindowPositionMode === 'custom'">
-        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div class="space-y-3">
           <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowX.label')">
             <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoWindowX" v-model="stateWindowX" :min="-10000" :step="10" prefix="X" unit="px" />
           </UFormField>
