@@ -1,5 +1,3 @@
-import type { ISettingsHotsearchPodcastTemplateItem } from '@@/shared/types/index.types';
-
 /**
  * 类型：热搜播客文案列表属性。
  */

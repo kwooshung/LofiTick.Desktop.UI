@@ -1,5 +1,3 @@
-import type { THotsearchPodcastHeadMusicKind } from '@@/shared/types/index.types';
-
 /**
  * 接口：热搜开头音乐条目。
  */

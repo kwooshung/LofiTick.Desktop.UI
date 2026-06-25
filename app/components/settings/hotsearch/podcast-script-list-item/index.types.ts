@@ -1,5 +1,3 @@
-import type { THotsearchPodcastSegmentType, THotsearchPodcastVoiceKey } from '@@/shared/types/index.types';
-
 /**
  * 类型：播客脚本编辑器模式。
  */

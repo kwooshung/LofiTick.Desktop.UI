@@ -3,7 +3,6 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 import { listen } from '@tauri-apps/api/event';
 
 import { buildCrawlerBlueprintSoundDataUrl, CRAWLER_BLUEPRINT_SOUND_BASE64_MAP } from '@/composables/tauri/crawler-blueprint/sounds';
-import type { ITauriCrawlerBlueprintPlaySoundEvent, TTauriCrawlerBlueprintPlaySoundKind } from '@@/shared/types/index.types';
 
 /**
  * 常量：爬虫蓝图输出日志事件名。

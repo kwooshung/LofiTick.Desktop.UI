@@ -194,7 +194,6 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 import { z } from 'zod';
 
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
-import type { ITauriCrawlerBlueprintOutputLogEvent, TTauriCrawlerBlueprintOutputLogLevel } from '@@/shared/types/index.types';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。

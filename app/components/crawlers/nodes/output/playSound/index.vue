@@ -17,7 +17,6 @@
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-import type { TTauriCrawlerBlueprintPlaySoundKind } from '@@/shared/types';
 
 /**
  * 常量：提示音类型。
