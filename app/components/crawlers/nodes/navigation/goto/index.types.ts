@@ -13,6 +13,11 @@ export interface ICrawlersNodesNavigationGotoData {
   url?: string;
 
   /**
+   * 属性：是否显示 WebView。
+   */
+  showWebview?: boolean;
+
+  /**
    * 属性：跳转后是否等待页面 ready。
    */
   waitReady?: boolean;

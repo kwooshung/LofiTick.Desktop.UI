@@ -1,4 +1,11 @@
 import { invoke } from '@tauri-apps/api/core';
+import type { UnlistenFn } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event';
+
+/**
+ * 常量：爬虫蓝图输出日志事件名。
+ */
+const CRAWLER_BLUEPRINT_OUTPUT_LOG_EVENT = 'crawler-blueprint://output-log';
 
 /**
  * Hook：Tauri 爬虫蓝图能力。
@@ -27,5 +34,24 @@ export const useTauriCrawlerBlueprint = () => {
     return invoke<ITauriCrawlerBlueprintExecuteResponse>('crawler_blueprint_execute', { request });
   };
 
-  return { execute };
+  /**
+   * 函数：监听爬虫蓝图输出日志事件。
+   * @param {(payload: ITauriCrawlerBlueprintOutputLogEvent) => void} handler 事件处理器。
+   * @returns {Promise<UnlistenFn>} 取消监听函数。
+   */
+  const onOutputLogEvent = async (handler: (payload: ITauriCrawlerBlueprintOutputLogEvent) => void): Promise<UnlistenFn> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return listen<ITauriCrawlerBlueprintOutputLogEvent>(CRAWLER_BLUEPRINT_OUTPUT_LOG_EVENT, (event) => {
+      handler(event.payload);
+    });
+  };
+
+  return { execute, onOutputLogEvent };
 };

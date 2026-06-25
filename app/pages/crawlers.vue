@@ -190,6 +190,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
+import type { UnlistenFn } from '@tauri-apps/api/event';
 import { z } from 'zod';
 
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
@@ -224,7 +225,54 @@ const toast = useToast();
 /**
  * Hook：Tauri 爬虫蓝图能力。
  */
-const { execute: executeCrawlerBlueprint } = useTauriCrawlerBlueprint();
+const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent } = useTauriCrawlerBlueprint();
+
+/**
+ * 变量：取消订阅爬虫蓝图输出日志事件句柄。
+ */
+let unsubscribeCrawlerBlueprintOutputLog: UnlistenFn | null = null;
+
+/**
+ * 函数：映射爬虫蓝图输出日志 Toast 颜色。
+ * @param {TTauriCrawlerBlueprintOutputLogLevel} level 日志级别。
+ * @returns {'info' | 'warning' | 'error'} Toast 颜色。
+ */
+const crawlerBlueprintOutputLogToastColor = (level: TTauriCrawlerBlueprintOutputLogLevel): 'info' | 'warning' | 'error' => {
+  if (level === 'warn') {
+    return 'warning';
+  }
+
+  if (level === 'error') {
+    return 'error';
+  }
+
+  return 'info';
+};
+
+/**
+ * 生命周期：监听爬虫蓝图输出日志并显示 Toast。
+ */
+onMounted(async () => {
+  try {
+    unsubscribeCrawlerBlueprintOutputLog = await onCrawlerBlueprintOutputLogEvent((payload) => {
+      toast.add({
+        color: crawlerBlueprintOutputLogToastColor(payload.level),
+        title: payload.title,
+        description: payload.message
+      });
+    });
+  } catch {
+    unsubscribeCrawlerBlueprintOutputLog = null;
+  }
+});
+
+/**
+ * 生命周期：释放爬虫蓝图输出日志监听。
+ */
+onUnmounted(() => {
+  unsubscribeCrawlerBlueprintOutputLog?.();
+  unsubscribeCrawlerBlueprintOutputLog = null;
+});
 
 /**
  * 函数：本地化路由
@@ -829,7 +877,7 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
 /**
  * API：保存（新增/编辑）
  */
-const { status: stateCrawlerTargetSaveStatus, error: stateCrawlerTargetSaveError, refresh: refreshSave } = await useApi<{ affected: number; id: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
+const { refresh: refreshSave } = await useApi<{ affected: number; id: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
 
 /**
  * API：保存站点主逻辑蓝图。
@@ -1279,11 +1327,13 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
       title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
       description: t('pages.crawlers.blueprints.actions.runSuccess')
     });
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
+
     toast.add({
       color: 'error',
       title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
-      description: t('pages.crawlers.blueprints.actions.runFailed')
+      description: errorMessage !== '' ? errorMessage : t('pages.crawlers.blueprints.actions.runFailed')
     });
   } finally {
     stateCrawlerBlueprintExecuting.value = false;

@@ -214,7 +214,10 @@ export const crawler = {
               label: 'Wait for page ready'
             },
             timeoutMs: {
-              label: 'Timeout (毫秒)'
+              label: 'Timeout (ms)'
+            },
+            showWebview: {
+              label: 'Show WebView'
             }
           }
         },

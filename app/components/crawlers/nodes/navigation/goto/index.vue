@@ -11,6 +11,8 @@
         <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
 
+      <USwitch v-model="stateShowWebview" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.showWebview.label')" />
+
       <USwitch v-model="stateWaitReady" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.waitReady.label')" />
     </div>
   </CrawlersNodesCommonBasic>
@@ -84,6 +86,11 @@ const statePath = ref('');
  * 状态：是否等待页面就绪。
  */
 const stateWaitReady = ref(true);
+
+/**
+ * 状态：是否显示 WebView。
+ */
+const stateShowWebview = ref(false);
 
 /**
  * 状态：超时时间（毫秒）。
@@ -212,6 +219,7 @@ watchEffect(() => {
    */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationGotoData;
   statePath.value = String(data.path ?? data.url ?? '');
+  stateShowWebview.value = Boolean(data.showWebview ?? false);
   stateWaitReady.value = Boolean(data.waitReady ?? true);
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(1000, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;
   stateInitialized.value = true;
@@ -220,7 +228,7 @@ watchEffect(() => {
 /**
  * 监听：本地状态变化时回写到 node.data。
  */
-watch([statePath, stateWaitReady, stateTimeoutMs], () => {
+watch([statePath, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -228,6 +236,7 @@ watch([statePath, stateWaitReady, stateTimeoutMs], () => {
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     path: statePath.value,
+    showWebview: stateShowWebview.value,
     waitReady: stateWaitReady.value,
     timeoutMs: stateTimeoutMs.value
   };

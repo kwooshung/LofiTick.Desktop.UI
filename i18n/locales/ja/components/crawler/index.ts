@@ -212,7 +212,10 @@ export const crawler = {
               label: 'ページ準備完了を待機'
             },
             timeoutMs: {
-              label: 'タイムアウト（毫秒）'
+              label: 'タイムアウト（ms）'
+            },
+            showWebview: {
+              label: 'WebView を表示'
             }
           }
         },

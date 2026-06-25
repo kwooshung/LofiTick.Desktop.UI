@@ -215,6 +215,9 @@ export const crawler = {
             },
             timeoutMs: {
               label: '超时毫秒'
+            },
+            showWebview: {
+              label: '显示 WebView'
             }
           }
         },
