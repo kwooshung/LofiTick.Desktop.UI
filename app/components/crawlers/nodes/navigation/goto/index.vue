@@ -7,6 +7,36 @@
         </div>
       </UFormField>
 
+      <div class="space-y-3">
+        <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowWidth.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoWindowWidth" v-model="stateWindowWidth" :min="320" :step="10" prefix="W" unit="px" />
+        </UFormField>
+
+        <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowHeight.label')">
+          <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoWindowHeight" v-model="stateWindowHeight" :min="240" :step="10" prefix="H" unit="px" />
+        </UFormField>
+      </div>
+
+      <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionMode.label')">
+        <USelect v-model="stateWindowPositionMode" class="w-full" :items="computedWindowPositionModeOptions" value-attribute="value" option-attribute="label" />
+      </UFormField>
+
+      <template v-if="stateWindowPositionMode === 'custom'">
+        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowX.label')">
+            <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoWindowX" v-model="stateWindowX" :min="-10000" :step="10" prefix="X" unit="px" />
+          </UFormField>
+
+          <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowY.label')">
+            <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoWindowY" v-model="stateWindowY" :min="-10000" :step="10" prefix="Y" unit="px" />
+          </UFormField>
+        </div>
+      </template>
+
+      <UFormField v-else :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.label')">
+        <USelect v-model="stateWindowPositionPreset" class="w-full" :items="computedWindowPositionPresetOptions" value-attribute="value" option-attribute="label" />
+      </UFormField>
+
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.timeoutMs.label')">
         <CrawlersNodesCommonNumberInput id="crawlerNavigationGotoTimeoutMs" v-model="stateTimeoutMs" :min="1000" :step="500" prefix="#" :unit="t('components.crawler.blueprint.nodes.common.units.millisecond')" />
       </UFormField>
@@ -23,6 +53,46 @@ import { useNode } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationGotoData } from '@/components/crawlers/nodes/navigation/goto/index.types';
+
+/**
+ * 类型：窗口位置模式。
+ */
+type TCrawlersNodesNavigationGotoWindowPositionMode = 'preset' | 'custom';
+
+/**
+ * 类型：窗口预设位置。
+ */
+type TCrawlersNodesNavigationGotoWindowPositionPreset = 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+
+/**
+ * 常量：窗口位置模式选项。
+ */
+const CRAWLER_WINDOW_POSITION_MODE_OPTIONS = ['preset', 'custom'] as const satisfies readonly TCrawlersNodesNavigationGotoWindowPositionMode[];
+
+/**
+ * 常量：窗口预设位置选项。
+ */
+const CRAWLER_WINDOW_POSITION_PRESET_OPTIONS = ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const satisfies readonly TCrawlersNodesNavigationGotoWindowPositionPreset[];
+
+/**
+ * 常量：默认窗口宽度（像素）。
+ */
+const DEFAULT_WINDOW_WIDTH = 1280;
+
+/**
+ * 常量：默认窗口高度（像素）。
+ */
+const DEFAULT_WINDOW_HEIGHT = 800;
+
+/**
+ * 常量：默认窗口位置模式。
+ */
+const DEFAULT_WINDOW_POSITION_MODE: TCrawlersNodesNavigationGotoWindowPositionMode = 'preset';
+
+/**
+ * 常量：默认窗口预设位置。
+ */
+const DEFAULT_WINDOW_POSITION_PRESET: TCrawlersNodesNavigationGotoWindowPositionPreset = 'center';
 
 /**
  * 常量：跳转节点默认超时时间（毫秒）。
@@ -93,6 +163,36 @@ const stateWaitReady = ref(true);
 const stateShowWebview = ref(false);
 
 /**
+ * 状态：窗口宽度（像素）。
+ */
+const stateWindowWidth = ref(DEFAULT_WINDOW_WIDTH);
+
+/**
+ * 状态：窗口高度（像素）。
+ */
+const stateWindowHeight = ref(DEFAULT_WINDOW_HEIGHT);
+
+/**
+ * 状态：窗口位置模式。
+ */
+const stateWindowPositionMode = ref<TCrawlersNodesNavigationGotoWindowPositionMode>(DEFAULT_WINDOW_POSITION_MODE);
+
+/**
+ * 状态：窗口预设位置。
+ */
+const stateWindowPositionPreset = ref<TCrawlersNodesNavigationGotoWindowPositionPreset>(DEFAULT_WINDOW_POSITION_PRESET);
+
+/**
+ * 状态：窗口坐标 X（像素）。
+ */
+const stateWindowX = ref(0);
+
+/**
+ * 状态：窗口坐标 Y（像素）。
+ */
+const stateWindowY = ref(0);
+
+/**
  * 状态：超时时间（毫秒）。
  */
 const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
@@ -101,6 +201,53 @@ const stateTimeoutMs = ref(DEFAULT_TIMEOUT_MS);
  * 状态：路径验证错误消息。
  */
 const statePathError = ref('');
+
+/**
+ * 计算属性：窗口位置模式选项。
+ */
+const computedWindowPositionModeOptions = computed(() => [
+  {
+    value: 'preset',
+    label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionMode.options.preset')
+  },
+  {
+    value: 'custom',
+    label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionMode.options.custom')
+  }
+]);
+
+/**
+ * 计算属性：窗口预设位置选项。
+ */
+const computedWindowPositionPresetOptions = computed(() => [
+  { value: 'top-left', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.topLeft') },
+  { value: 'top-center', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.topCenter') },
+  { value: 'top-right', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.topRight') },
+  { value: 'center-left', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.centerLeft') },
+  { value: 'center', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.center') },
+  { value: 'center-right', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.centerRight') },
+  { value: 'bottom-left', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.bottomLeft') },
+  { value: 'bottom-center', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.bottomCenter') },
+  { value: 'bottom-right', label: t('components.crawler.blueprint.nodes.navigation.goto.fields.windowPositionPreset.options.bottomRight') }
+]);
+
+/**
+ * 函数：判断窗口位置模式是否合法。
+ * @param {string} value 位置模式字符串。
+ * @returns {value is TCrawlersNodesNavigationGotoWindowPositionMode} 是否为合法位置模式。
+ */
+const isWindowPositionMode = (value: string): value is TCrawlersNodesNavigationGotoWindowPositionMode => {
+  return CRAWLER_WINDOW_POSITION_MODE_OPTIONS.includes(value as TCrawlersNodesNavigationGotoWindowPositionMode);
+};
+
+/**
+ * 函数：判断窗口预设位置是否合法。
+ * @param {string} value 预设位置字符串。
+ * @returns {value is TCrawlersNodesNavigationGotoWindowPositionPreset} 是否为合法预设位置。
+ */
+const isWindowPositionPreset = (value: string): value is TCrawlersNodesNavigationGotoWindowPositionPreset => {
+  return CRAWLER_WINDOW_POSITION_PRESET_OPTIONS.includes(value as TCrawlersNodesNavigationGotoWindowPositionPreset);
+};
 
 /**
  * 计算属性：路径验证错误（不为空时表示有错误）。
@@ -219,6 +366,12 @@ watchEffect(() => {
    */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationGotoData;
   statePath.value = String(data.path ?? data.url ?? '');
+  stateWindowWidth.value = Number.isFinite(Number(data.windowWidth)) ? Math.max(320, Number(data.windowWidth)) : DEFAULT_WINDOW_WIDTH;
+  stateWindowHeight.value = Number.isFinite(Number(data.windowHeight)) ? Math.max(240, Number(data.windowHeight)) : DEFAULT_WINDOW_HEIGHT;
+  stateWindowPositionMode.value = isWindowPositionMode(String(data.windowPositionMode ?? '')) ? String(data.windowPositionMode) : DEFAULT_WINDOW_POSITION_MODE;
+  stateWindowPositionPreset.value = isWindowPositionPreset(String(data.windowPositionPreset ?? '')) ? String(data.windowPositionPreset) : DEFAULT_WINDOW_POSITION_PRESET;
+  stateWindowX.value = Number.isFinite(Number(data.windowX)) ? Number(data.windowX) : 0;
+  stateWindowY.value = Number.isFinite(Number(data.windowY)) ? Number(data.windowY) : 0;
   stateShowWebview.value = Boolean(data.showWebview ?? false);
   stateWaitReady.value = Boolean(data.waitReady ?? true);
   stateTimeoutMs.value = Number.isFinite(Number(data.timeoutMs)) ? Math.max(1000, Number(data.timeoutMs)) : DEFAULT_TIMEOUT_MS;
@@ -228,7 +381,7 @@ watchEffect(() => {
 /**
  * 监听：本地状态变化时回写到 node.data。
  */
-watch([statePath, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
+watch([statePath, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, stateWindowPositionPreset, stateWindowX, stateWindowY, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -236,6 +389,12 @@ watch([statePath, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     path: statePath.value,
+    windowWidth: stateWindowWidth.value,
+    windowHeight: stateWindowHeight.value,
+    windowPositionMode: stateWindowPositionMode.value,
+    windowPositionPreset: stateWindowPositionPreset.value,
+    windowX: stateWindowX.value,
+    windowY: stateWindowY.value,
     showWebview: stateShowWebview.value,
     waitReady: stateWaitReady.value,
     timeoutMs: stateTimeoutMs.value

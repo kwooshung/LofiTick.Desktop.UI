@@ -216,6 +216,39 @@ export const crawler = {
             timeoutMs: {
               label: '超时毫秒'
             },
+            windowWidth: {
+              label: '窗口宽度'
+            },
+            windowHeight: {
+              label: '窗口高度'
+            },
+            windowPositionMode: {
+              label: '位置模式',
+              options: {
+                preset: '预设位置',
+                custom: '自定义坐标'
+              }
+            },
+            windowPositionPreset: {
+              label: '预设位置',
+              options: {
+                topLeft: '左上',
+                topCenter: '上中',
+                topRight: '右上',
+                centerLeft: '左中',
+                center: '居中',
+                centerRight: '右中',
+                bottomLeft: '左下',
+                bottomCenter: '下中',
+                bottomRight: '右下'
+              }
+            },
+            windowX: {
+              label: '窗口 X'
+            },
+            windowY: {
+              label: '窗口 Y'
+            },
             showWebview: {
               label: '显示 WebView'
             }

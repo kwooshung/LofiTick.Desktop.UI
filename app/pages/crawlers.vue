@@ -1321,12 +1321,6 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
       baseUrl: String(target.baseUrl ?? '').trim(),
       nodes: payload.flowData ?? {}
     });
-
-    toast.add({
-      color: 'success',
-      title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
-      description: t('pages.crawlers.blueprints.actions.runSuccess')
-    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
 

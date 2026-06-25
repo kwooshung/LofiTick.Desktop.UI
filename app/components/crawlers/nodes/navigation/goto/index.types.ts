@@ -13,6 +13,36 @@ export interface ICrawlersNodesNavigationGotoData {
   url?: string;
 
   /**
+   * 属性：窗口宽度（像素）。
+   */
+  windowWidth?: number;
+
+  /**
+   * 属性：窗口高度（像素）。
+   */
+  windowHeight?: number;
+
+  /**
+   * 属性：窗口位置模式。
+   */
+  windowPositionMode?: 'preset' | 'custom';
+
+  /**
+   * 属性：窗口预设位置。
+   */
+  windowPositionPreset?: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+
+  /**
+   * 属性：窗口坐标 X（像素）。
+   */
+  windowX?: number;
+
+  /**
+   * 属性：窗口坐标 Y（像素）。
+   */
+  windowY?: number;
+
+  /**
    * 属性：是否显示 WebView。
    */
   showWebview?: boolean;

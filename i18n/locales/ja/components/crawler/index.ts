@@ -214,6 +214,39 @@ export const crawler = {
             timeoutMs: {
               label: 'タイムアウト（ms）'
             },
+            windowWidth: {
+              label: 'ウィンドウ幅'
+            },
+            windowHeight: {
+              label: 'ウィンドウ高さ'
+            },
+            windowPositionMode: {
+              label: '位置モード',
+              options: {
+                preset: 'プリセット位置',
+                custom: 'カスタム座標'
+              }
+            },
+            windowPositionPreset: {
+              label: 'プリセット位置',
+              options: {
+                topLeft: '左上',
+                topCenter: '上中',
+                topRight: '右上',
+                centerLeft: '左中',
+                center: '中央',
+                centerRight: '右中',
+                bottomLeft: '左下',
+                bottomCenter: '下中',
+                bottomRight: '右下'
+              }
+            },
+            windowX: {
+              label: 'ウィンドウ X'
+            },
+            windowY: {
+              label: 'ウィンドウ Y'
+            },
             showWebview: {
               label: 'WebView を表示'
             }

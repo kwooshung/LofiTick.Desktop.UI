@@ -216,6 +216,39 @@ export const crawler = {
             timeoutMs: {
               label: 'Timeout (ms)'
             },
+            windowWidth: {
+              label: 'Window Width'
+            },
+            windowHeight: {
+              label: 'Window Height'
+            },
+            windowPositionMode: {
+              label: 'Position Mode',
+              options: {
+                preset: 'Preset position',
+                custom: 'Custom coordinates'
+              }
+            },
+            windowPositionPreset: {
+              label: 'Preset Position',
+              options: {
+                topLeft: 'Top Left',
+                topCenter: 'Top Center',
+                topRight: 'Top Right',
+                centerLeft: 'Middle Left',
+                center: 'Center',
+                centerRight: 'Middle Right',
+                bottomLeft: 'Bottom Left',
+                bottomCenter: 'Bottom Center',
+                bottomRight: 'Bottom Right'
+              }
+            },
+            windowX: {
+              label: 'Window X'
+            },
+            windowY: {
+              label: 'Window Y'
+            },
             showWebview: {
               label: 'Show WebView'
             }
