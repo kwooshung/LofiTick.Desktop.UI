@@ -26,10 +26,6 @@ export const crawler = {
         title: 'HTTP Request',
         description: 'Run raw HTTP requests and handle cookies'
       },
-      detect: {
-        title: 'Detection and Protection',
-        description: 'Detect verification and common protection pages'
-      },
       system: {
         title: 'System and Window',
         description: 'Read screen, window, and clipboard data'
@@ -107,106 +103,6 @@ export const crawler = {
             empty: {
               title: 'No parameters yet',
               description: 'Add parameters to let the function receive values from the outside.',
-              action: 'Add parameter'
-            }
-          },
-          return: {
-            title: 'Function Return',
-            suffix: 'Return Value',
-            description: 'Return node that ends execution and yields the result',
-            fields: {
-              returnLabel: 'Return value',
-              returnDescription: 'Result value received and output by the function return node'
-            },
-            actions: {
-              add: 'Add return value'
-            },
-            empty: {
-              title: 'No return value yet',
-              description: 'Add a return value so the function can pass results back to callers.',
-              action: 'Add return value'
-            }
-          },
-          pins: {
-            connectedHint: 'Connected, using linked value',
-            namePlaceholder: 'Pin name',
-            stringPlaceholder: 'Enter a default value',
-            jsonPlaceholder: 'Enter a JSON default value'
-          }
-        },
-        units: {
-          millisecond: 'ms',
-          count: 'Times',
-          item: 'item',
-          char: 'char',
-          pixel: 'px',
-          percent: '%',
-          indent: 'spaces'
-        },
-        pinLabels: {
-          input: 'Input',
-          element: 'Element',
-          elements: 'Elements',
-          exists: 'Exists',
-          context: 'Context',
-          text: 'Text',
-          pattern: 'Pattern',
-          replacement: 'Replacement',
-          search: 'Search',
-          flags: 'Flags',
-          value: 'Value',
-          a: 'A',
-          b: 'B',
-          min: 'Min',
-          max: 'Max',
-          base: 'Base',
-          exp: 'Exp',
-          start: 'Start',
-          separator: 'Separator',
-          result: 'Result',
-          matches: 'Matches',
-          message: 'Message',
-          array: 'Array',
-          length: 'Length',
-          index: 'Index',
-          item: 'Item'
-        },
-        connectedInputHint: 'Input connected, using linked value',
-        operandInputLabel: 'Input {label}',
-        operandCount: '{count} items',
-        selectorInput: {
-          mode: {
-            options: {
-              xpath: 'XPath',
-              css: 'CSS'
-            }
-          },
-          invalidHint: 'Selector does not match the selected type. Please verify XPath/CSS syntax.'
-        }
-      },
-      navigation: {
-        goto: {
-          title: 'Go to Page',
-          description: 'Open the specified URL',
-          outputs: {
-            success: 'Success',
-            fail: 'Fail',
-            boolean: 'Result',
-            booleanDescription: 'Whether the navigation succeeded',
-            message: 'Info',
-            messageDescription: 'Error or exception details when navigation fails'
-          },
-          fields: {
-            path: {
-              label: 'Target Path',
-              placeholder: 'Enter target path, e.g. /news/123',
-              validation: {
-                empty: 'Path cannot be empty',
-                invalidFormat: 'Path should start with "/" or be a complete URL',
-                invalidUrl: 'Invalid URL format',
-                invalidTitle: 'Go-to path hint',
-                extractedTitle: 'Path extracted automatically',
-                extracted: 'Extracted path from URL "{domain}": {path}',
                 domainMismatch: 'Domain mismatch: expected "{expected}"\n, actual "{actual}"'
               }
             },
@@ -1332,106 +1228,6 @@ export const crawler = {
             },
             persistent: {
               label: 'Persistent'
-            }
-          }
-        }
-      },
-      detect: {
-        verification: {
-          title: 'Detect Verification',
-          description: 'Detect common verification protections such as Cloudflare, Google reCAPTCHA, and hCaptcha',
-          fields: {
-            matchMode: {
-              label: 'Match Mode',
-              options: {
-                any: 'Match Any',
-                all: 'Match All'
-              }
-            },
-            vendors: {
-              label: 'Verification Types',
-              options: {
-                cloudflareChallenge: 'Cloudflare Challenge',
-                cloudflareTurnstile: 'Cloudflare Turnstile',
-                googleRecaptcha: 'Google reCAPTCHA',
-                hcaptcha: 'hCaptcha',
-                geetest: 'GeeTest',
-                arkose: 'Arkose Labs FunCaptcha',
-                datadome: 'DataDome',
-                loginWall: 'Login Wall / Access Restricted'
-              }
-            },
-            strategy: {
-              label: 'Smart Detection Strategy',
-              options: {
-                smart: 'Smart Balanced (Recommended)',
-                strict: 'Strict Detection',
-                lenient: 'Lenient Detection'
-              }
-            },
-            notifyAdmin: {
-              label: 'Email notify admin when detected'
-            },
-            adminEmails: {
-              label: 'Admin Emails',
-              placeholder: 'One email per line, e.g. admin@example.com'
-            },
-            minConfidence: {
-              label: 'Minimum Confidence'
-            },
-            urlKeywords: {
-              label: 'URL Keywords',
-              placeholder: 'One keyword per line, e.g. challenge'
-            },
-            titleKeywords: {
-              label: 'Title Keywords',
-              placeholder: 'One keyword per line, e.g. Verify you are human'
-            },
-            textKeywords: {
-              label: 'Page Text Keywords',
-              placeholder: 'One keyword per line, e.g. I am not a robot'
-            },
-            cookieKeywords: {
-              label: 'Cookie Keywords',
-              placeholder: 'One cookie key per line, e.g. cf_clearance'
-            },
-            selectors: {
-              label: 'Selector Signals',
-              placeholder: 'e.g. iframe[src*="recaptcha"]',
-              add: 'Add Selector',
-              remove: 'Remove'
-            }
-          },
-          actions: {
-            resetDefaults: 'Restore Common Presets'
-          },
-          inputs: {
-            contextDescription: 'Pass page context, script results, or external detection input'
-          },
-          outputs: {
-            detected: {
-              label: 'Detected',
-              description: 'Whether verification or protection page is detected'
-            },
-            vendor: {
-              label: 'Matched Vendor',
-              description: 'Matched verification vendor identifier'
-            },
-            kind: {
-              label: 'Verification Kind',
-              description: 'Verification type such as challenge or login-wall'
-            },
-            confidence: {
-              label: 'Confidence',
-              description: 'Confidence score of current detection'
-            },
-            matchedSignals: {
-              label: 'Matched Signals',
-              description: 'Matched URL, text, selector and other signals'
-            },
-            details: {
-              label: 'Detection Details',
-              description: 'Structured detail object of detection result'
             }
           }
         }
@@ -2631,4 +2427,3 @@ export const crawler = {
       }
     }
   }
-};

@@ -608,7 +608,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     /**
      * 函数：isExecConnection。
      */
-    const isExecConnection = (connection.sourceHandle === 'exec-out' || connection.sourceHandle === 'true' || connection.sourceHandle === 'false' || String(connection.sourceHandle ?? '').startsWith('result-case-') || String(connection.sourceHandle ?? '').startsWith('result-default-')) && connection.targetHandle === 'exec-in';
+    const isExecConnection =
+      (connection.sourceHandle === 'exec-out' || connection.sourceHandle === 'true' || connection.sourceHandle === 'false' || String(connection.sourceHandle ?? '').startsWith('result-case-') || String(connection.sourceHandle ?? '').startsWith('result-default-')) &&
+      connection.targetHandle === 'exec-in';
 
     if (!connection.target) {
       return isExecConnection || isValidDataPinConnection(connection);

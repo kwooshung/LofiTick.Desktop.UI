@@ -4,19 +4,19 @@ export const crawler = {
     groups: {
       navigation: {
         title: '導覽與頁面控制',
-        description: '瀏覽器頁面導覽與前進後退'
+        description: '瀏覽器導覽、前進與返回'
       },
       wait: {
         title: '等待與同步',
-        description: '等待元素、文字、條件或固定時間'
+        description: '等待元素、文字、條件或時間'
       },
       interaction: {
         title: '互動與輸入',
-        description: '點擊、輸入、選擇與鍵盤互動'
+        description: '點擊、輸入、選取與鍵盤輸入'
       },
       scroll: {
         title: '捲動與視圖',
-        description: '控制頁面捲動與可見區域'
+        description: '控制頁面捲動與可見性'
       },
       extract: {
         title: '擷取與查詢',
@@ -24,43 +24,39 @@ export const crawler = {
       },
       http: {
         title: 'HTTP 請求',
-        description: '執行純 HTTP 請求與 Cookie 處理'
-      },
-      detect: {
-        title: '檢測與防護',
-        description: '辨識驗證頁與常見防護頁面'
+        description: '執行原始 HTTP 請求並處理 cookie'
       },
       system: {
         title: '系統與視窗',
-        description: '讀取螢幕、視窗與剪貼簿資訊'
+        description: '讀取螢幕、視窗與剪貼簿資料'
       },
       variable: {
         title: '資料處理 - 變數',
-        description: '儲存與讀取節點間共用變數'
+        description: '在節點間儲存與讀取共用變數'
       },
       constant: {
-        title: '資料處理 - 常量',
-        description: '讀取系統內建常量值'
+        title: '資料處理 - 常數',
+        description: '讀取內建系統常數'
       },
       logic: {
         title: '資料處理 - 邏輯',
-        description: '比較、布林與空值判斷'
+        description: '比較、布林與空值檢查'
       },
       math: {
         title: '資料處理 - 數學',
-        description: '基本算術、隨機數與取整'
+        description: '基本算術、亂數與四捨五入'
       },
       string: {
         title: '資料處理 - 字串',
-        description: '字串擷取、替換、拼接與正則'
+        description: '子字串、取代、串接與正則表達式'
       },
       dateTime: {
-        title: '資料處理 - 日期時間',
+        title: '資料處理 - 日期與時間',
         description: '處理目前時間與時間戳格式'
       },
       arrayObject: {
         title: '資料處理 - 陣列與物件',
-        description: '過濾、合併、拆分與索引讀取'
+        description: '篩選、合併、拆分與索引查找'
       },
       typeConvert: {
         title: '資料處理 - 型別轉換',
@@ -68,35 +64,36 @@ export const crawler = {
       },
       controlFlow: {
         title: '控制流程',
-        description: '迴圈、條件判斷與多路分支'
+        description: '迴圈、分支與 switch 控制'
       },
       output: {
         title: '輸出',
-        description: '傳送、列印與截圖類輸出'
+        description: '傳送、日誌與截圖輸出'
       }
     },
     nodes: {
       common: {
         start: {
-          title: '開始',
-          description: '爬蟲的入口節點，負責觸發爬蟲執行',
+          title: '函式開始',
+          suffix: '開始',
+          description: '函式邏輯的入口節點，負責接收參數並開始執行',
           form: {
             crawlerTitle: '爬蟲標題（必填）',
             crawlerTitlePlaceholder: '請輸入爬蟲標題',
-            crawlerTitleRequired: '爬蟲標題不可為空，請先填寫後再儲存藍圖。',
+            crawlerTitleRequired: '儲存藍圖前必須先填寫爬蟲標題。',
             crawlerDescription: '爬蟲描述',
-            crawlerDescriptionPlaceholder: '請輸入爬蟲描述（可選）'
+            crawlerDescriptionPlaceholder: '請輸入爬蟲描述（選填）'
           }
         },
         end: {
           title: '結束',
-          description: '爬蟲的結束節點，負責終止爬蟲執行'
+          description: '終止節點，結束爬蟲執行'
         },
         function: {
           start: {
             title: '函式開始',
             suffix: '開始',
-            description: '函式邏輯的入口節點，負責接收執行流',
+            description: '函式邏輯的入口節點，負責接收參數並開始執行',
             fields: {
               parameterLabel: '參數',
               parameterDescription: '函式開始節點輸出的參數值'
@@ -1332,106 +1329,6 @@ export const crawler = {
             },
             persistent: {
               label: '持久化'
-            }
-          }
-        }
-      },
-      detect: {
-        verification: {
-          title: '檢測驗證',
-          description: '檢測 Cloudflare、Google reCAPTCHA、hCaptcha 等常見驗證防護',
-          fields: {
-            matchMode: {
-              label: '命中模式',
-              options: {
-                any: '任一命中',
-                all: '全部命中'
-              }
-            },
-            vendors: {
-              label: '驗證類型',
-              options: {
-                cloudflareChallenge: 'Cloudflare Challenge',
-                cloudflareTurnstile: 'Cloudflare Turnstile',
-                googleRecaptcha: 'Google reCAPTCHA',
-                hcaptcha: 'hCaptcha',
-                geetest: 'GeeTest 極驗',
-                arkose: 'Arkose Labs FunCaptcha',
-                datadome: 'DataDome',
-                loginWall: '登入牆 / 存取受限頁'
-              }
-            },
-            strategy: {
-              label: '智慧判定策略',
-              options: {
-                smart: '智慧平衡（推薦）',
-                strict: '嚴格判定',
-                lenient: '寬鬆判定'
-              }
-            },
-            notifyAdmin: {
-              label: '命中後寄信通知管理員'
-            },
-            adminEmails: {
-              label: '管理員信箱',
-              placeholder: '每行一個信箱，例如 admin@example.com'
-            },
-            minConfidence: {
-              label: '最小信心分數'
-            },
-            urlKeywords: {
-              label: 'URL 關鍵字',
-              placeholder: '每行一個關鍵字，例如 challenge'
-            },
-            titleKeywords: {
-              label: '標題關鍵字',
-              placeholder: '每行一個關鍵字，例如 Verify you are human'
-            },
-            textKeywords: {
-              label: '頁面文字關鍵字',
-              placeholder: '每行一個關鍵字，例如 I am not a robot'
-            },
-            cookieKeywords: {
-              label: 'Cookie 關鍵字',
-              placeholder: '每行一個 Cookie 鍵名，例如 cf_clearance'
-            },
-            selectors: {
-              label: '選擇器特徵',
-              placeholder: '例如 iframe[src*="recaptcha"]',
-              add: '新增選擇器',
-              remove: '刪除'
-            }
-          },
-          actions: {
-            resetDefaults: '還原常見驗證預設'
-          },
-          inputs: {
-            contextDescription: '傳入頁面上下文、腳本結果或外部檢測輸入'
-          },
-          outputs: {
-            detected: {
-              label: '檢測結果',
-              description: '是否命中驗證或防護頁面'
-            },
-            vendor: {
-              label: '命中廠商',
-              description: '回傳命中的驗證廠商識別'
-            },
-            kind: {
-              label: '驗證類型',
-              description: '回傳驗證類型，例如 challenge 或 login-wall'
-            },
-            confidence: {
-              label: '信心分數',
-              description: '回傳本次檢測信心分數'
-            },
-            matchedSignals: {
-              label: '命中特徵',
-              description: '回傳命中的 URL、文字、選擇器等特徵列表'
-            },
-            details: {
-              label: '檢測詳情',
-              description: '回傳結構化檢測明細物件'
             }
           }
         }

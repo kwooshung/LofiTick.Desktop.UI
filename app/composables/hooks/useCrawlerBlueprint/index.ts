@@ -269,19 +269,6 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
     ]
   },
   {
-    icon: 'i-lucide-shield-check',
-    title: 'pages.crawlers.blueprint.groups.detect.title',
-    description: 'pages.crawlers.blueprint.groups.detect.description',
-    nodes: [
-      {
-        key: 'detect-verification',
-        icon: 'i-lucide-shield-alert',
-        title: 'pages.crawlers.blueprint.nodes.detect.verification.title',
-        description: 'pages.crawlers.blueprint.nodes.detect.verification.description'
-      }
-    ]
-  },
-  {
     icon: 'i-lucide-monitor-cog',
     title: 'pages.crawlers.blueprint.groups.system.title',
     description: 'pages.crawlers.blueprint.groups.system.description',

@@ -60,7 +60,6 @@
       <template #node-http-request="props"><CrawlersNodesHttpRequest v-bind="props" /></template>
       <template #node-http-get-cookies="props"><CrawlersNodesHttpGetCookies v-bind="props" /></template>
       <template #node-http-set-cookies="props"><CrawlersNodesHttpSetCookies v-bind="props" /></template>
-      <template #node-detect-verification="props"><CrawlersNodesDetectVerification v-bind="props" /></template>
       <template #node-system-screen-size="props"><CrawlersNodesSystemScreenSize v-bind="props" /></template>
       <template #node-system-window-size="props"><CrawlersNodesSystemWindowSize v-bind="props" /></template>
       <template #node-system-mouse-position="props"><CrawlersNodesSystemMousePosition v-bind="props" /></template>

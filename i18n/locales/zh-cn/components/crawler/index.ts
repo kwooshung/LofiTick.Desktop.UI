@@ -4,99 +4,96 @@ export const crawler = {
     groups: {
       navigation: {
         title: '导航与页面控制',
-        description: '浏览器页面导航与前进后退'
+        description: '浏览器导航、前进与返回'
       },
       wait: {
         title: '等待与同步',
-        description: '等待元素、文本、条件或固定时长'
+        description: '等待元素、文字、条件或时间'
       },
       interaction: {
         title: '交互与输入',
-        description: '点击、输入、选择与键盘交互'
+        description: '点击、输入、选择与键盘输入'
       },
       scroll: {
         title: '滚动与视图',
-        description: '控制页面滚动与可见区域'
+        description: '控制页面滚动与可见性'
       },
       extract: {
         title: '提取与查询',
-        description: '读取文本、属性、HTML 与脚本结果'
+        description: '读取文字、属性、HTML 与脚本结果'
       },
       http: {
         title: 'HTTP 请求',
-        description: '执行纯 HTTP 请求与 Cookie 处理'
-      },
-      detect: {
-        title: '检测与防护',
-        description: '识别验证页与常见防护页面'
+        description: '执行原始 HTTP 请求并处理 cookie'
       },
       system: {
         title: '系统与窗口',
-        description: '读取屏幕、窗口和剪贴板信息'
+        description: '读取屏幕、窗口与剪贴板数据'
       },
       variable: {
         title: '数据处理 - 变量',
-        description: '保存和读取节点间共享变量'
+        description: '在节点间存储与读取共享变量'
       },
       constant: {
         title: '数据处理 - 常量',
-        description: '读取系统内置常量值'
+        description: '读取内建系统常量'
       },
       logic: {
         title: '数据处理 - 逻辑',
-        description: '比较、布尔与空值判断'
+        description: '比较、布尔与空值检查'
       },
       math: {
         title: '数据处理 - 数学',
-        description: '基础算术、随机数与取整'
+        description: '基本算术、随机数与四舍五入'
       },
       string: {
         title: '数据处理 - 字符串',
-        description: '字符串截取、替换、拼接与正则'
+        description: '子字符串、替换、拼接与正则表达式'
       },
       dateTime: {
-        title: '数据处理 - 日期时间',
+        title: '数据处理 - 日期与时间',
         description: '处理当前时间与时间戳格式'
       },
       arrayObject: {
         title: '数据处理 - 数组与对象',
-        description: '过滤、合并、拆分与索引读取'
+        description: '筛选、合并、拆分与索引查找'
       },
       typeConvert: {
         title: '数据处理 - 类型转换',
         description: '字符串、数字、布尔与 JSON 转换'
       },
       controlFlow: {
-        title: '控制流',
-        description: '循环、条件判断与多路分支'
+        title: '控制流程',
+        description: '循环、分支与 switch 控制'
       },
       output: {
         title: '输出',
-        description: '发送、打印与截图类结果输出'
+        description: '发送、日志与截图输出'
       }
     },
     nodes: {
       common: {
         start: {
-          title: '开始',
-          description: '爬虫的入口节点，负责触发爬虫的执行',
+          title: '函数开始',
+          suffix: '开始',
+          description: '函数逻辑的入口节点，负责接收参数并开始执行',
           form: {
             crawlerTitle: '爬虫标题（必填）',
             crawlerTitlePlaceholder: '请输入爬虫标题',
-            crawlerTitleRequired: '爬虫标题不能为空，请先填写后再保存蓝图。',
+            crawlerTitleRequired: '保存蓝图前必须先填写爬虫标题。',
             crawlerDescription: '爬虫描述',
-            crawlerDescriptionPlaceholder: '请输入爬虫描述（可选）'
+            crawlerDescriptionPlaceholder: '请输入爬虫描述（选填）'
           }
         },
         end: {
           title: '结束',
-          description: '爬虫的结束节点，负责终止爬虫的执行'
+          description: '终止节点，结束爬虫执行'
         },
         function: {
           start: {
             title: '函数开始',
             suffix: '开始',
-            description: '函数逻辑的入口节点，负责接收执行流',
+            description: '函数逻辑的入口节点，负责接收参数并开始执行',
             fields: {
               parameterLabel: '参数',
               parameterDescription: '函数开始节点输出的参数值'
@@ -1332,106 +1329,6 @@ export const crawler = {
             },
             persistent: {
               label: '持久化'
-            }
-          }
-        }
-      },
-      detect: {
-        verification: {
-          title: '检测验证',
-          description: '检测 Cloudflare、Google reCAPTCHA、hCaptcha 等常见验证防护',
-          fields: {
-            matchMode: {
-              label: '命中模式',
-              options: {
-                any: '任意命中',
-                all: '全部命中'
-              }
-            },
-            vendors: {
-              label: '验证类型',
-              options: {
-                cloudflareChallenge: 'Cloudflare Challenge',
-                cloudflareTurnstile: 'Cloudflare Turnstile',
-                googleRecaptcha: 'Google reCAPTCHA',
-                hcaptcha: 'hCaptcha',
-                geetest: 'GeeTest 极验',
-                arkose: 'Arkose Labs FunCaptcha',
-                datadome: 'DataDome',
-                loginWall: '登录墙 / 访问受限页'
-              }
-            },
-            strategy: {
-              label: '智能判定策略',
-              options: {
-                smart: '智能平衡（推荐）',
-                strict: '严格判定',
-                lenient: '宽松判定'
-              }
-            },
-            notifyAdmin: {
-              label: '命中后邮件通知管理员'
-            },
-            adminEmails: {
-              label: '管理员邮箱',
-              placeholder: '每行一个邮箱，例如 admin@example.com'
-            },
-            minConfidence: {
-              label: '最小置信度'
-            },
-            urlKeywords: {
-              label: 'URL 关键词',
-              placeholder: '每行一个关键词，例如 challenge'
-            },
-            titleKeywords: {
-              label: '标题关键词',
-              placeholder: '每行一个关键词，例如 Verify you are human'
-            },
-            textKeywords: {
-              label: '页面文本关键词',
-              placeholder: '每行一个关键词，例如 I am not a robot'
-            },
-            cookieKeywords: {
-              label: 'Cookie 关键词',
-              placeholder: '每行一个 Cookie 键名，例如 cf_clearance'
-            },
-            selectors: {
-              label: '选择器特征',
-              placeholder: '例如 iframe[src*="recaptcha"]',
-              add: '新增选择器',
-              remove: '删除'
-            }
-          },
-          actions: {
-            resetDefaults: '恢复常见验证预设'
-          },
-          inputs: {
-            contextDescription: '传入页面上下文、脚本结果或外部检测输入'
-          },
-          outputs: {
-            detected: {
-              label: '检测结果',
-              description: '是否命中验证或防护页面'
-            },
-            vendor: {
-              label: '命中厂商',
-              description: '返回命中的验证厂商标识'
-            },
-            kind: {
-              label: '验证类型',
-              description: '返回验证类型，例如 challenge 或 login-wall'
-            },
-            confidence: {
-              label: '置信度',
-              description: '返回本次检测的置信度分值'
-            },
-            matchedSignals: {
-              label: '命中特征',
-              description: '返回命中的 URL、文本、选择器等特征列表'
-            },
-            details: {
-              label: '检测详情',
-              description: '返回结构化的检测明细对象'
             }
           }
         }

@@ -7,13 +7,7 @@
         </UTooltip>
       </div>
 
-      <Handle
-        :id="branch.id"
-        type="source"
-        :position="Position.Right"
-        :is-valid-connection="isValidConnection"
-        class="h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-amber-400 shadow-sm [clip-path:polygon(0_0,100%_50%,0_100%)]"
-      />
+      <Handle :id="branch.id" type="source" :position="Position.Right" :is-valid-connection="isValidConnection" class="h-5! w-4! cursor-crosshair! rounded-none! border-0! bg-amber-400 shadow-sm [clip-path:polygon(0_0,100%_50%,0_100%)]" />
     </div>
   </div>
 </template>
