@@ -78,6 +78,7 @@
         @undo="handleUndo"
         @cancel="handelModalCancel"
         @save="handelModalSave"
+        @save-and-close="handelModalSaveAndClose"
         @execute="handleExecute"
       />
 
@@ -2123,6 +2124,15 @@ const handelModalSave = async () => {
     flowData,
     draftKey: computedDraftKey.value
   });
+};
+
+/**
+ * 事件：处理模态框保存并关闭
+ */
+const handelModalSaveAndClose = async () => {
+  await handelModalSave();
+  // 保存完成后触发取消事件由上层关闭编辑器
+  emit('cancel');
 };
 
 /**

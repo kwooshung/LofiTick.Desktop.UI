@@ -26,6 +26,7 @@
     <div class="flex items-center gap-2">
       <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
       <UButton type="button" color="primary" icon="i-lucide:save" :disabled="saveDisabled" @click="emit('save')">{{ saveText }}</UButton>
+      <UButton type="button" color="primary" variant="soft" icon="i-lucide:save" :disabled="saveDisabled" @click="emit('save-and-close')">{{ saveText }} · {{ $t('common.actions.close') }}</UButton>
     </div>
   </div>
 </template>

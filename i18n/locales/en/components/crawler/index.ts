@@ -2253,6 +2253,12 @@ export const crawler = {
             label: 'False branch',
             description: 'Output when condition is false'
           }
+        },
+        fields: {
+          invert: {
+            label: 'Invert',
+            hint: 'Invert the condition result (when enabled, true becomes false)'
+          }
         }
       },
       switch: {

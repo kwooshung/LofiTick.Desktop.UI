@@ -121,6 +121,7 @@
             :draft-storage-key="computedFunctionLogicDraftKey"
             @cancel="stateFunctionLogicOpen = false"
             @save="handleFunctionLogicSave"
+            @save-and-close="handleFunctionLogicSaveAndClose"
             @functions-changed="stateFunctionRefreshNonce += 1"
           />
         </div>
@@ -247,6 +248,14 @@ const crawlerBlueprintOutputLogToastColor = (level: TTauriCrawlerBlueprintOutput
   }
 
   return 'info';
+};
+
+/**
+ * 事件：保存函数逻辑并关闭编辑器（由 Save & Close 按钮触发）
+ */
+const handleFunctionLogicSaveAndClose = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
+  await handleFunctionLogicSave(payload);
+  stateFunctionLogicOpen.value = false;
 };
 
 /**
@@ -1613,7 +1622,6 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
     });
 
     await draftRemoveAfterSave(payload?.draftKey);
-    stateFunctionLogicOpen.value = false;
   } catch (error) {
     toast.add({
       title: t('pages.crawlers.editor.saveFeedback.title'),

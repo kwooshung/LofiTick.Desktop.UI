@@ -7,5 +7,7 @@ export const actions = {
   delete: '削除',
   search: '検索',
   reset: 'リセット',
-  confirm: '確認'
+  confirm: '確認',
+  close: '閉じる',
+  saveAndClose: '保存して閉じる'
 };

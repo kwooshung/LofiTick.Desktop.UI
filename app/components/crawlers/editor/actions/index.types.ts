@@ -113,6 +113,11 @@ export interface ICrawlersEditorActionsEmits {
   save: [];
 
   /**
+   * 事件：保存并关闭。
+   */
+  'save-and-close': [];
+
+  /**
    * 事件：执行。
    */
   execute: [];

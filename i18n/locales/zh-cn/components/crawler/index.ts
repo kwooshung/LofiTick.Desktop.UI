@@ -2417,6 +2417,12 @@ export const crawler = {
               label: 'False 分支',
               description: '条件命中 false 时输出'
             }
+          },
+          fields: {
+            invert: {
+              label: '取反',
+              hint: '是否对条件结果取反（开启后 true 与 false 互换）'
+            }
           }
         },
         switch: {

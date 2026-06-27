@@ -9,7 +9,13 @@
     :show-exec-out="false"
   >
     <div class="flex w-full items-start justify-end gap-4">
-      <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
+        <div class="min-w-0 flex-1 space-y-3">
+          <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.label')">
+            <USwitch v-model="stateInvert" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.hint')" />
+          </UFormField>
+        </div>
+
+        <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
         <div v-for="branch in branchOutputs" :key="branch.id" class="flex h-5 items-center gap-2">
           <div class="min-w-0 flex-1 text-right leading-5">
             <UTooltip :text="branch.description" :content="{ side: 'top' }">
@@ -29,12 +35,27 @@
 
 <script setup lang="ts">
 import type { Connection } from '@vue-flow/core';
-import { Handle, Position, useNodeId, useVueFlow } from '@vue-flow/core';
+import { Handle, Position, useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { IControlFlowConditionBranch } from './index.types';
 
 const { t } = useI18n();
+
+/**
+ * Hook：当前节点上下文（用于持久化节点配置）。
+ */
+const stateNode = useNode();
+
+/**
+ * 状态：是否已完成首次数据回填。
+ */
+const stateInitialized = ref(false);
+
+/**
+ * 状态：是否取反（invert）。
+ */
+const stateInvert = ref(false);
 
 /**
  * Hook：当前节点标识。
@@ -84,4 +105,26 @@ const isBranchOutputConnectionSource = (connection: Connection): boolean => {
 
   return (connection.sourceHandle === 'true' || connection.sourceHandle === 'false') && connection.targetHandle === 'exec-in';
 };
+
+// 回填与持久化节点数据（取反开关）
+watchEffect(() => {
+  if (stateInitialized.value) {
+    return;
+  }
+
+  const data = (stateNode.node.data ?? {}) as Record<string, unknown>;
+  stateInvert.value = Boolean(data.invert ?? false);
+  stateInitialized.value = true;
+});
+
+watch([stateInvert], () => {
+  if (!stateInitialized.value) {
+    return;
+  }
+
+  stateNode.node.data = {
+    ...(stateNode.node.data as Record<string, unknown> | undefined),
+    invert: stateInvert.value
+  };
+});
 </script>

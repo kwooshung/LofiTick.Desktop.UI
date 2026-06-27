@@ -87,8 +87,8 @@ export const crawler = {
       outputs: {
         success: '成功',
         fail: '失敗',
-        boolean: '結果',
-        booleanDescription: '遷移が成功したかどうかを示します',
+          boolean: '結果',
+          booleanDescription: '遷移が成功したかどうかを示します',
         message: '情報',
         messageDescription: '失敗時のエラー情報または例外内容'
       },
@@ -2313,6 +2313,12 @@ export const crawler = {
         false: {
           label: 'False 分岐',
           description: '条件が false のとき出力'
+        }
+      },
+      fields: {
+        invert: {
+          label: '反転',
+          hint: '条件結果を反転します（有効時は true が false に変わります）'
         }
       }
     },
