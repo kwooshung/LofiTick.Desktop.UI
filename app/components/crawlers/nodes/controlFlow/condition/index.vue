@@ -9,13 +9,13 @@
     :show-exec-out="false"
   >
     <div class="flex w-full items-start justify-end gap-4">
-        <div class="min-w-0 flex-1 space-y-3">
-          <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.label')">
-            <USwitch v-model="stateInvert" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.hint')" />
-          </UFormField>
-        </div>
+      <div class="min-w-0 flex-1 space-y-3">
+        <UFormField :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.label')">
+          <USwitch v-model="stateInvert" :label="t('components.crawler.blueprint.nodes.controlFlow.condition.fields.invert.hint')" />
+        </UFormField>
+      </div>
 
-        <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
+      <div class="nodrag flex shrink-0 flex-col gap-3 pt-1">
         <div v-for="branch in branchOutputs" :key="branch.id" class="flex h-5 items-center gap-2">
           <div class="min-w-0 flex-1 text-right leading-5">
             <UTooltip :text="branch.description" :content="{ side: 'top' }">

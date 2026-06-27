@@ -87,8 +87,8 @@ export const crawler = {
       outputs: {
         success: '成功',
         fail: '失敗',
-          boolean: '結果',
-          booleanDescription: '遷移が成功したかどうかを示します',
+        boolean: '結果',
+        booleanDescription: '遷移が成功したかどうかを示します',
         message: '情報',
         messageDescription: '失敗時のエラー情報または例外内容'
       },
