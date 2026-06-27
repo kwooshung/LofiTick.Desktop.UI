@@ -1081,6 +1081,22 @@ export const crawler = {
             length: '匹配到的元素數量'
           }
         },
+        queryBlocked: {
+          title: '頁面攔截判斷',
+          description: '偵測目前頁面是否進入 Cloudflare 等攔截驗證頁並輸出布林值',
+          fields: {
+            mode: {
+              label: '攔截方式',
+              options: {
+                auto: '自動識別',
+                cloudflare: 'Cloudflare 攔截'
+              }
+            }
+          },
+          pinDescriptions: {
+            blocked: '是否偵測到攔截頁面'
+          }
+        },
         executeScript: {
           title: '執行腳本',
           description: '執行自訂 JS 並回傳結果',

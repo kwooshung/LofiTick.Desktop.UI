@@ -236,6 +236,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         description: 'pages.crawlers.blueprint.nodes.extract.queryAllElements.description'
       },
       {
+        key: 'extract-query-blocked',
+        icon: 'i-lucide-shield-alert',
+        title: 'pages.crawlers.blueprint.nodes.extract.queryBlocked.title',
+        description: 'pages.crawlers.blueprint.nodes.extract.queryBlocked.description'
+      },
+      {
         key: 'extract-execute-script',
         icon: 'i-lucide-square-code',
         title: 'pages.crawlers.blueprint.nodes.extract.executeScript.title',

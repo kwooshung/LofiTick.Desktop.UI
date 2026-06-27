@@ -1081,6 +1081,22 @@ export const crawler = {
             length: '匹配到的元素数量'
           }
         },
+        queryBlocked: {
+          title: '页面拦截判断',
+          description: '检测当前页面是否进入 Cloudflare 等拦截验证页并输出布尔值',
+          fields: {
+            mode: {
+              label: '拦截方式',
+              options: {
+                auto: '自动识别',
+                cloudflare: 'Cloudflare 拦截'
+              }
+            }
+          },
+          pinDescriptions: {
+            blocked: '是否检测到拦截页面'
+          }
+        },
         executeScript: {
           title: '执行脚本',
           description: '执行自定义 JS 并返回结果',

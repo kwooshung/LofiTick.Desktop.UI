@@ -56,6 +56,7 @@
       <template #node-extract-get-value="props"><CrawlersNodesExtractGetValue v-bind="props" /></template>
       <template #node-extract-query-element="props"><CrawlersNodesExtractQueryElement v-bind="props" /></template>
       <template #node-extract-query-all-elements="props"><CrawlersNodesExtractQueryAllElements v-bind="props" /></template>
+      <template #node-extract-query-blocked="props"><CrawlersNodesExtractQueryBlocked v-bind="props" /></template>
       <template #node-extract-execute-script="props"><CrawlersNodesExtractExecuteScript v-bind="props" /></template>
       <template #node-http-request="props"><CrawlersNodesHttpRequest v-bind="props" /></template>
       <template #node-http-get-cookies="props"><CrawlersNodesHttpGetCookies v-bind="props" /></template>

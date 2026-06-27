@@ -978,6 +978,22 @@ export const crawler = {
         length: '一致した要素数'
       }
     },
+    queryBlocked: {
+      title: 'ブロックページ判定',
+      description: '現在のページが Cloudflare などのブロック/検証ページかどうかを判定してブール値を出力します',
+      fields: {
+        mode: {
+          label: '判定方式',
+          options: {
+            auto: '自動判定',
+            cloudflare: 'Cloudflare ブロック'
+          }
+        }
+      },
+      pinDescriptions: {
+        blocked: 'ブロックページを検出したか'
+      }
+    },
     executeScript: {
       title: 'スクリプト実行',
       description: 'カスタム JS を実行して結果を返します',

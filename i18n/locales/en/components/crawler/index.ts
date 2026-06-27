@@ -980,6 +980,22 @@ export const crawler = {
           length: 'Matched element count'
         }
       },
+      queryBlocked: {
+        title: 'Blocked Page Check',
+        description: 'Detect whether the current page is a Cloudflare-style blocked or verification page and output a boolean',
+        fields: {
+          mode: {
+            label: 'Block mode',
+            options: {
+              auto: 'Auto detect',
+              cloudflare: 'Cloudflare blocked'
+            }
+          }
+        },
+        pinDescriptions: {
+          blocked: 'Whether a blocked page was detected'
+        }
+      },
       executeScript: {
         title: 'Execute Script',
         description: 'Run custom JS and return the result',
