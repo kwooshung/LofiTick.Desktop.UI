@@ -48,7 +48,7 @@
 
           <span class="relative flex h-5 w-3 shrink-0 items-center justify-center">
             <span class="pointer-events-none block h-3.5 w-2.5 bg-green-500 shadow-sm [clip-path:polygon(0_0,100%_50%,0_100%)]" />
-            <Handle :id="branch.id" type="source" :position="Position.Right" :is-valid-connection="isBranchOutputConnectionSource" class="absolute! right-0! top-3.25! h-2! w-2! translate-x-0! -translate-y-1/2! cursor-crosshair! rounded-none! border-0! bg-transparent! opacity-0!" />
+            <Handle :id="branch.id" type="source" :position="Position.Right" :is-valid-connection="isBranchOutputConnectionSource" class="absolute! top-3.25! right-0! h-2! w-2! translate-x-0! -translate-y-1/2! cursor-crosshair! rounded-none! border-0! bg-transparent! opacity-0!" />
           </span>
         </div>
       </div>

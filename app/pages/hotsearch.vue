@@ -43,7 +43,10 @@
               <div class="border-default bg-default/80 space-y-3 rounded-xl border px-3 py-3">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <div class="text-highlighted text-sm font-medium">{{ computedDatePickerDisplaySummary?.updatedAt || hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
+                    <div class="text-highlighted text-sm font-medium">
+                      <Datetime v-if="computedDatePickerDisplaySummary?.updatedAt" :datetime="computedDatePickerDisplaySummary.updatedAt" :relative="false" year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit" second="2-digit" />
+                      <template v-else>{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</template>
+                    </div>
                     <div class="text-muted mt-1 text-xs">{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
                   </div>
 
