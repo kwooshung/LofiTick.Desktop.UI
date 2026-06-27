@@ -2240,13 +2240,9 @@ export const crawler = {
       },
       condition: {
         title: 'Condition',
-        description: 'If / Else branch',
+        description: 'Branch on a boolean input into True / False',
         pinDescriptions: {
-          condition: 'Boolean condition input (boolean mode)',
-          valueA: 'Compare value A (compare mode)',
-          valueB: 'Compare value B (compare mode)',
-          mode: 'Condition mode input (boolean / compare)',
-          strictCompare: 'Whether strict compare is enabled'
+          condition: 'Boolean condition input'
         },
         outputs: {
           true: {
@@ -2256,18 +2252,6 @@ export const crawler = {
           false: {
             label: 'False branch',
             description: 'Output when condition is false'
-          }
-        },
-        fields: {
-          mode: {
-            label: 'Condition mode',
-            options: {
-              boolean: 'Boolean mode (use boolean input directly)',
-              compare: 'Compare mode (compare A and B)'
-            }
-          },
-          strictCompare: {
-            label: 'Strict compare (===)'
           }
         }
       },

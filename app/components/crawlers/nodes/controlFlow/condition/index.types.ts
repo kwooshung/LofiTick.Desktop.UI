@@ -1,9 +1,4 @@
 /**
- * 类型：条件判断模式。
- */
-export type TControlFlowConditionMode = 'boolean' | 'compare';
-
-/**
  * 接口：条件判断执行分支。
  */
 export interface IControlFlowConditionBranch {

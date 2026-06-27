@@ -2301,13 +2301,9 @@ export const crawler = {
     },
     condition: {
       title: '条件分岐',
-      description: 'If / Else 分岐です',
+      description: '真偽値入力に応じて True / False に分岐します',
       pinDescriptions: {
-        condition: '真偽条件入力（boolean モード）',
-        valueA: '比較値 A（compare モード）',
-        valueB: '比較値 B（compare モード）',
-        mode: '条件モード入力（boolean / compare）',
-        strictCompare: '厳密比較を有効にするか'
+        condition: '真偽値条件入力'
       },
       outputs: {
         true: {
@@ -2317,18 +2313,6 @@ export const crawler = {
         false: {
           label: 'False 分岐',
           description: '条件が false のとき出力'
-        }
-      },
-      fields: {
-        mode: {
-          label: '条件モード',
-          options: {
-            boolean: 'boolean モード（真偽入力を直接使用）',
-            compare: 'compare モード（A と B を比較）'
-          }
-        },
-        strictCompare: {
-          label: '厳密比較（===）'
         }
       }
     },

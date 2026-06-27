@@ -2380,13 +2380,9 @@ export const crawler = {
         },
         condition: {
           title: '條件判斷',
-          description: 'If / Else 分支',
+          description: '根據布林輸入在 True / False 之間分支',
           pinDescriptions: {
-            condition: '布林條件輸入（boolean 模式）',
-            valueA: '比較值 A（compare 模式）',
-            valueB: '比較值 B（compare 模式）',
-            mode: '條件模式輸入（boolean / compare）',
-            strictCompare: '是否啟用嚴格比較'
+            condition: '布林條件輸入'
           },
           outputs: {
             true: {
@@ -2396,18 +2392,6 @@ export const crawler = {
             false: {
               label: 'False 分支',
               description: '條件命中 false 時輸出'
-            }
-          },
-          fields: {
-            mode: {
-              label: '條件模式',
-              options: {
-                boolean: '布林模式（直接讀取布林輸入）',
-                compare: '比較模式（比較 A 與 B）'
-              }
-            },
-            strictCompare: {
-              label: '嚴格比較（===）'
             }
           }
         },

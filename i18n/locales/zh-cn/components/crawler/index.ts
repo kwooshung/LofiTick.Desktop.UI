@@ -2404,13 +2404,9 @@ export const crawler = {
         },
         condition: {
           title: '条件判断',
-          description: 'If / Else 分支',
+          description: '根据布尔输入在 True / False 之间分支',
           pinDescriptions: {
-            condition: '布尔条件输入（boolean 模式）',
-            valueA: '比较值 A（compare 模式）',
-            valueB: '比较值 B（compare 模式）',
-            mode: '条件模式输入（boolean / compare）',
-            strictCompare: '是否启用严格比较'
+            condition: '布尔条件输入'
           },
           outputs: {
             true: {
@@ -2420,18 +2416,6 @@ export const crawler = {
             false: {
               label: 'False 分支',
               description: '条件命中 false 时输出'
-            }
-          },
-          fields: {
-            mode: {
-              label: '条件模式',
-              options: {
-                boolean: '布尔模式（直接读取布尔输入）',
-                compare: '比较模式（比较 A 与 B）'
-              }
-            },
-            strictCompare: {
-              label: '严格比较（===）'
             }
           }
         },
