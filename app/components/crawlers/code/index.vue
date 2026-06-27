@@ -27,6 +27,7 @@
         @cancel="open = false"
         @click="handleEditorClick"
         @save="handleSave"
+        @save-and-close="handleSaveAndClose"
         @execute="handleExecute"
         @create-function="handleEditorCreateFunction"
         @edit-function-logic="handleEditorEditFunctionLogic"
@@ -244,6 +245,14 @@ const open = defineModel<boolean>('open', {
  */
 const handleSave = (payload: ICrawlersEditorSavePayload) => {
   emit('save', payload);
+};
+
+/**
+ * 事件：保存并关闭蓝图。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ */
+const handleSaveAndClose = (payload: ICrawlersEditorSavePayload) => {
+  emit('save-and-close', payload);
 };
 
 /**

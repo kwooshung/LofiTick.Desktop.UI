@@ -97,7 +97,7 @@ import type { Edge, Node, XYPosition } from '@vue-flow/core';
 import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
 
-import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps, ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
@@ -2089,16 +2089,10 @@ watch(
 );
 
 /**
- * 事件：处理模态框保存
+ * 函数：创建编辑器保存载荷。
+ * @returns {Promise<ICrawlersEditorSavePayload>} 保存载荷。
  */
-const handelModalSave = async () => {
-  console.info('[crawler:editor:save-click]', {
-    flowKind,
-    draftKey: computedDraftKey.value,
-    nodes: nodes.value.length,
-    edges: edges.value.length
-  });
-
+const createEditorSavePayload = async (): Promise<ICrawlersEditorSavePayload> => {
   await nextTick();
 
   // Vue Flow 的 updateNodeData 存在批处理，这里等一帧确保节点数据已落到快照。
@@ -2113,26 +2107,43 @@ const handelModalSave = async () => {
    */
   const flowData = toObject();
 
-  console.info('[crawler:editor:save-emit]', {
-    flowKind,
-    draftKey: computedDraftKey.value,
-    nodeCount: Array.isArray(flowData.nodes) ? flowData.nodes.length : 0,
-    edgeCount: Array.isArray(flowData.edges) ? flowData.edges.length : 0
-  });
-
-  emit('save', {
+  return {
     flowData,
     draftKey: computedDraftKey.value
-  });
+  };
 };
 
 /**
- * 事件：处理模态框保存并关闭
+ * 事件：处理模态框保存。
+ */
+const handelModalSave = async () => {
+  console.info('[crawler:editor:save-click]', {
+    flowKind,
+    draftKey: computedDraftKey.value,
+    nodes: nodes.value.length,
+    edges: edges.value.length
+  });
+
+  const payload = await createEditorSavePayload();
+  const flowDataStats = payload.flowData as TFlowDataLike;
+
+  console.info('[crawler:editor:save-emit]', {
+    flowKind,
+    draftKey: computedDraftKey.value,
+    nodeCount: Array.isArray(flowDataStats.nodes) ? flowDataStats.nodes.length : 0,
+    edgeCount: Array.isArray(flowDataStats.edges) ? flowDataStats.edges.length : 0
+  });
+
+  emit('save', payload);
+};
+
+/**
+ * 事件：处理模态框保存并关闭。
  */
 const handelModalSaveAndClose = async () => {
-  await handelModalSave();
-  // 保存完成后触发取消事件由上层关闭编辑器
-  emit('cancel');
+  const payload = await createEditorSavePayload();
+
+  emit('save-and-close', payload);
 };
 
 /**

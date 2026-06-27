@@ -159,6 +159,11 @@ export interface ICrawlersEditorEmits {
   save: [payload: ICrawlersEditorSavePayload];
 
   /**
+   * 事件：保存并关闭。
+   */
+  'save-and-close': [payload: ICrawlersEditorSavePayload];
+
+  /**
    * 事件：执行。
    */
   execute: [payload: IPageCrawlerBlueprintEditorExecutePayload];

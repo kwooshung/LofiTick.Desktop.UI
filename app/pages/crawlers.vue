@@ -80,6 +80,7 @@
       :initial-flow-data="computedCrawlerInitialFlowData"
       :execute-loading="stateCrawlerBlueprintExecuting"
       @save="handleBlueprintSave"
+      @save-and-close="handleBlueprintSaveAndClose"
       @execute="handleBlueprintExecute"
       @create-function="handleCreateFunctionFromSidebar"
       @edit-function-logic="handleEditFunctionLogicFromSidebar"
@@ -194,6 +195,7 @@ import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { z } from 'zod';
 
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 
 /**
@@ -248,14 +250,6 @@ const crawlerBlueprintOutputLogToastColor = (level: TTauriCrawlerBlueprintOutput
   }
 
   return 'info';
-};
-
-/**
- * 事件：保存函数逻辑并关闭编辑器（由 Save & Close 按钮触发）
- */
-const handleFunctionLogicSaveAndClose = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
-  await handleFunctionLogicSave(payload);
-  stateFunctionLogicOpen.value = false;
 };
 
 /**
@@ -1210,13 +1204,13 @@ const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>
 /**
  * 事件：保存蓝图。
  */
-const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: string }) => {
+const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise<boolean> => {
   /**
    * 常量：target。
    */
   const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
   if (!target) {
-    return;
+    return false;
   }
 
   /**
@@ -1232,7 +1226,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
   const startNodeCrawlerMeta = startNodeCrawlerMetaGet(payload?.flowData);
@@ -1245,7 +1239,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
   await refreshCrawlerTaskGraphSave({
@@ -1271,7 +1265,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
   toast.add({
@@ -1289,13 +1283,26 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
   }
 
   await draftRemoveAfterSave(payload?.draftKey);
-  stateCodeSlideoverOpen.value = false;
 
   const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
   if (stateBlueprintRefreshNonce) {
     stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
   }
   // 列表刷新由 `crawlers-blueprints-refresh-nonce` 全局 state 驱动，避免直接引用 domain 组件内部方法
+  return true;
+};
+
+/**
+ * 事件：保存蓝图并关闭编辑器。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintSaveAndClose = async (payload: ICrawlersEditorSavePayload): Promise<void> => {
+  const saved = await handleBlueprintSave(payload);
+
+  if (saved) {
+    stateCodeSlideoverOpen.value = false;
+  }
 };
 
 /**
@@ -1470,10 +1477,10 @@ const handleEditFunctionLogicFromSidebar = async (row: ICrawlersEditorSidebarFun
 
 /**
  * 事件：保存函数逻辑。
- * @param {{ flowData?: unknown; draftKey?: string }} payload 保存载荷。
- * @returns {Promise<void>} Promise。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<boolean>} 是否保存成功。
  */
-const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
+const handleFunctionLogicSave = async (payload: ICrawlersEditorSavePayload): Promise<boolean> => {
   const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
 
   if (!Number.isFinite(id) || id <= 0) {
@@ -1485,7 +1492,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       duration: 4200
     });
 
-    return;
+    return false;
   }
 
   try {
@@ -1533,7 +1540,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
         error: stateFunctionGraphSaveError.value,
         localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
       });
-      return;
+      return false;
     }
 
     if (!Number.isFinite(saveAffected) || saveAffected <= 0) {
@@ -1552,7 +1559,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
         result: stateFunctionGraphSaveResult.value,
         localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
       });
-      return;
+      return false;
     }
 
     await refreshFunctionDetail({
@@ -1622,6 +1629,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
     });
 
     await draftRemoveAfterSave(payload?.draftKey);
+    return true;
   } catch (error) {
     toast.add({
       title: t('pages.crawlers.editor.saveFeedback.title'),
@@ -1636,6 +1644,20 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       error,
       localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
     });
+    return false;
+  }
+};
+
+/**
+ * 事件：保存函数逻辑并关闭编辑器。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleFunctionLogicSaveAndClose = async (payload: ICrawlersEditorSavePayload): Promise<void> => {
+  const saved = await handleFunctionLogicSave(payload);
+
+  if (saved) {
+    stateFunctionLogicOpen.value = false;
   }
 };
 
