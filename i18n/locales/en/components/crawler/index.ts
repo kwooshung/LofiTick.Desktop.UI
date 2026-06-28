@@ -185,7 +185,8 @@ export const crawler = {
               fallbackLabel: 'Variable {index}',
               pinDescription: 'Replaces the matching variable placeholder in the target path',
               actions: {
-                add: 'Add variable'
+                add: 'Add variable',
+                insert: 'Insert variable'
               },
               empty: {
                 title: 'No path variables yet',

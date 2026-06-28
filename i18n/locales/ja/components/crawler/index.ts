@@ -74,7 +74,8 @@ export const crawler = {
               fallbackLabel: '変数 {index}',
               pinDescription: '遷移先パス内の同名変数プレースホルダーを置換します',
               actions: {
-                add: '変数を追加'
+                add: '変数を追加',
+                insert: '変数を挿入'
               },
               empty: {
                 title: 'パス変数はまだありません',

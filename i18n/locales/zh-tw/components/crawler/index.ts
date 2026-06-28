@@ -225,7 +225,8 @@ export const crawler = {
               fallbackLabel: '變數 {index}',
               pinDescription: '替換目標路徑中的同名變數佔位符',
               actions: {
-                add: '新增變數'
+                add: '新增變數',
+                insert: '插入變數'
               },
               empty: {
                 title: '還沒有路徑變數',

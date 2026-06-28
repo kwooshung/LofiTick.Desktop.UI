@@ -9,8 +9,20 @@
   >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
-        <div class="space-y-2">
-          <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" :class="[computedPathError ? 'border-error/50 bg-error/5' : '']" @blur="handlePathBlur" @input="handleInputChange" />
+        <div ref="refPathTextareaWrapper" class="space-y-2">
+          <UTextarea
+            v-model="statePath"
+            autoresize
+            class="scrollbar w-full"
+            :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')"
+            :class="[computedPathError ? 'border-error/50 bg-error/5' : '']"
+            @blur="handlePathBlur"
+            @click="handlePathSelectionUpdate"
+            @focus="handlePathSelectionUpdate"
+            @input="handlePathSelectionUpdate"
+            @keyup="handlePathSelectionUpdate"
+            @mouseup="handlePathSelectionUpdate"
+          />
         </div>
       </UFormField>
 
@@ -32,6 +44,7 @@
                 <CrawlersNodesCommonConnectedInputHint compact :label="t('components.crawler.blueprint.nodes.common.connectedInputHint')" />
               </template>
             </UInput>
+            <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-text-cursor-input" class="shrink-0" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.insert')" @mousedown.prevent @click="handlePathVariableInsert(item)" />
             <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handlePathVariableRemove(item.id)" />
           </div>
 
@@ -198,6 +211,21 @@ const stateInitialized = ref(false);
  * 状态：目标路径。
  */
 const statePath = ref('');
+
+/**
+ * 状态：路径输入框当前选区起点（字符索引）。
+ */
+const statePathSelectionStart = ref<number | null>(null);
+
+/**
+ * 状态：路径输入框当前选区终点（字符索引）。
+ */
+const statePathSelectionEnd = ref<number | null>(null);
+
+/**
+ * 状态：路径输入框包装元素。
+ */
+const refPathTextareaWrapper = ref<HTMLDivElement | null>(null);
 
 /**
  * 状态：目标路径变量定义列表。
@@ -382,6 +410,32 @@ const handleInputChange = (): void => {
 };
 
 /**
+ * 函数：获取路径输入框原生 textarea 元素。
+ * @returns {HTMLTextAreaElement | null} 原生 textarea 元素。
+ */
+const getPathTextareaElement = (): HTMLTextAreaElement | null => {
+  const element = refPathTextareaWrapper.value?.querySelector('textarea');
+
+  return element instanceof HTMLTextAreaElement ? element : null;
+};
+
+/**
+ * 函数：记录路径输入框当前选区。
+ * @param {Event} event 原始事件。
+ * @returns {void} 无返回值。
+ */
+const handlePathSelectionUpdate = (event: Event): void => {
+  const target = event.target;
+
+  if (!(target instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  statePathSelectionStart.value = target.selectionStart;
+  statePathSelectionEnd.value = target.selectionEnd;
+};
+
+/**
  * 函数：获取路径变量输入引脚 ID。
  * @param {string} variableId 路径变量 ID。
  * @returns {string} 输入引脚 ID。
@@ -430,6 +484,30 @@ const handlePathVariableAdd = (): void => {
     id: variableDefinitionIdCreate(),
     name: ''
   });
+};
+
+/**
+ * 事件：向目标路径插入变量占位符。
+ * @param {ICrawlersNodesNavigationGotoPathVariable} item 路径变量定义。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handlePathVariableInsert = async (item: ICrawlersNodesNavigationGotoPathVariable): Promise<void> => {
+  const tokenName = item.name.trim() !== '' ? item.name.trim() : item.id;
+  const token = `{${tokenName}}`;
+  const selectionStart = statePathSelectionStart.value ?? statePath.value.length;
+  const selectionEnd = statePathSelectionEnd.value ?? selectionStart;
+  const nextPath = `${statePath.value.slice(0, selectionStart)}${token}${statePath.value.slice(selectionEnd)}`;
+  const nextCursor = selectionStart + token.length;
+
+  statePath.value = nextPath;
+  statePathSelectionStart.value = nextCursor;
+  statePathSelectionEnd.value = nextCursor;
+
+  await nextTick();
+
+  const textareaElement = getPathTextareaElement();
+  textareaElement?.focus();
+  textareaElement?.setSelectionRange(nextCursor, nextCursor);
 };
 
 /**
