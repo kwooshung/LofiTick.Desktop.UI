@@ -26,6 +26,11 @@ export interface ITauriCrawlerBlueprintExecuteRequest {
    * 完整节点图数据。
    */
   nodes: unknown;
+
+  /**
+   * 执行入口参数覆盖值。
+   */
+  parameters?: Record<string, unknown>;
 }
 
 /**

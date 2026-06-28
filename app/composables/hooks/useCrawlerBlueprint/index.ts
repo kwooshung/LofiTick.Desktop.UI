@@ -333,6 +333,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         icon: 'i-lucide-hash',
         title: 'pages.crawlers.blueprint.nodes.variable.get.title',
         description: 'pages.crawlers.blueprint.nodes.variable.get.description'
+      },
+      {
+        key: 'parameter-get',
+        icon: 'i-lucide-key-round',
+        title: 'pages.crawlers.blueprint.nodes.parameter.get.title',
+        description: 'pages.crawlers.blueprint.nodes.parameter.get.description'
       }
     ]
   },

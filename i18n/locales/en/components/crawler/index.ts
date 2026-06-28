@@ -82,6 +82,14 @@ export const crawler = {
             crawlerTitleRequired: 'Crawler title is required before saving the blueprint.',
             crawlerDescription: 'Crawler description',
             crawlerDescriptionPlaceholder: 'Enter crawler description (optional)'
+          },
+          actions: {
+            add: 'Add entry parameter'
+          },
+          empty: {
+            title: 'No entry parameters yet',
+            description: 'Add parameters so blueprint execution can receive paths, keywords, and other external values.',
+            action: 'Add entry parameter'
           }
         },
         end: {
@@ -102,8 +110,7 @@ export const crawler = {
             },
             empty: {
               title: 'No parameters yet',
-              description: 'Add parameters to let the function receive values from the outside.',
-              domainMismatch: 'Domain mismatch: expected "{expected}"\n, actual "{actual}"'
+              description: 'Add parameters to let the function receive values from the outside.'
             }
           },
           waitReady: {
@@ -147,6 +154,94 @@ export const crawler = {
           },
           showWebview: {
             label: 'Show WebView'
+          }
+        }
+      },
+      navigation: {
+        goto: {
+          title: 'Open Page',
+          description: 'Open the specified URL',
+          inputs: {
+            path: 'Target Path',
+            pathDescription: 'The upstream path is used when the target path is empty'
+          },
+          fields: {
+            path: {
+              label: 'Target Path',
+              placeholder: 'Enter target path, e.g. /news/slug. Wrap variable placeholders in braces.',
+              validation: {
+                empty: 'Path cannot be empty',
+                invalidFormat: 'Path should start with "/" or be a full URL',
+                invalidUrl: 'Invalid URL format',
+                invalidTitle: 'Navigation Path Hint',
+                extractedTitle: 'Path Extracted',
+                extracted: 'Extracted path from URL "{domain}": {path}',
+                domainMismatch: 'Domain mismatch: expected "{expected}"\n, actual "{actual}"'
+              }
+            },
+            pathVariables: {
+              label: 'Path Variables',
+              placeholder: 'Variable name, e.g. slug',
+              fallbackLabel: 'Variable {index}',
+              pinDescription: 'Replaces the matching variable placeholder in the target path',
+              actions: {
+                add: 'Add variable'
+              },
+              empty: {
+                title: 'No path variables yet',
+                description: 'Add variables, then use variable placeholders in the target path to compose a dynamic path.'
+              }
+            },
+            waitReady: {
+              label: 'Wait for page ready'
+            },
+            timeoutMs: {
+              label: 'Timeout (ms)'
+            },
+            windowWidth: {
+              label: 'Window Width'
+            },
+            windowHeight: {
+              label: 'Window Height'
+            },
+            windowPositionMode: {
+              label: 'Position Mode',
+              options: {
+                preset: 'Preset position',
+                custom: 'Custom coordinates'
+              }
+            },
+            windowPositionPreset: {
+              label: 'Preset Position',
+              options: {
+                topLeft: 'Top Left',
+                topCenter: 'Top Center',
+                topRight: 'Top Right',
+                centerLeft: 'Middle Left',
+                center: 'Center',
+                centerRight: 'Middle Right',
+                bottomLeft: 'Bottom Left',
+                bottomCenter: 'Bottom Center',
+                bottomRight: 'Bottom Right'
+              }
+            },
+            windowX: {
+              label: 'Window X'
+            },
+            windowY: {
+              label: 'Window Y'
+            },
+            showWebview: {
+              label: 'Show WebView'
+            }
+          },
+          outputs: {
+            success: 'Success',
+            fail: 'Fail',
+            boolean: 'Result',
+            booleanDescription: 'Whether navigation succeeded',
+            message: 'Info',
+            messageDescription: 'Error or exception details when navigation fails'
           }
         }
       },
@@ -1505,6 +1600,28 @@ export const crawler = {
         outputs: {
           value: {
             description: 'Outputs the current value of the selected variable ({type})'
+          }
+        }
+      }
+    },
+    parameter: {
+      get: {
+        title: 'Get Parameter',
+        description: 'Read entry parameters defined on the start node and output their values',
+        empty: {
+          title: 'No entry parameters on this blueprint yet',
+          description: 'Add entry parameters on the start node first.'
+        },
+        fields: {
+          parameters: {
+            label: 'Select Parameters',
+            placeholder: 'Select entry parameters',
+            description: 'Multiple selection is supported. A single selection outputs the value; multiple selections output an object.'
+          }
+        },
+        outputs: {
+          value: {
+            description: 'Outputs the current value of the selected entry parameter ({type})'
           }
         }
       }

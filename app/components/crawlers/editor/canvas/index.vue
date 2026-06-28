@@ -19,6 +19,8 @@
       @nodes-change="(changes) => emit('nodes-change', changes)"
     >
       <CrawlersEditorLinesHelper :horizontal="helperLineHorizontal" :vertical="helperLineVertical" />
+      <template #edge-default="props"><CrawlersEditorLinesEdge v-bind="props" /></template>
+      <template #edge-crawler="props"><CrawlersEditorLinesEdge v-bind="props" /></template>
       <template #node-start="props"><CrawlersNodesCommonStart v-bind="props" /></template>
       <template #node-end="props"><CrawlersNodesCommonEnd v-bind="props" /></template>
       <template #node-function-start="props"><CrawlersNodesFunctionStart v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
@@ -69,6 +71,7 @@
       <template #node-system-write-clipboard="props"><CrawlersNodesSystemWriteClipboard v-bind="props" /></template>
       <template #node-variable-set="props"><CrawlersNodesVariableSet v-bind="props" /></template>
       <template #node-variable-get="props"><CrawlersNodesVariableGet v-bind="props" /></template>
+      <template #node-parameter-get="props"><CrawlersNodesParameterGet v-bind="props" /></template>
       <template #node-constant-get="props"><CrawlersNodesConstantGet v-bind="props" /></template>
       <template #node-logic-equal="props"><CrawlersNodesLogicEqual v-bind="props" /></template>
       <template #node-logic-not-equal="props"><CrawlersNodesLogicNotEqual v-bind="props" /></template>
@@ -160,6 +163,7 @@ import { ConnectionMode, SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';
+import CrawlersEditorLinesEdge from '@/components/crawlers/editor/lines/edge/index.vue';
 import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
 import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
 import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';

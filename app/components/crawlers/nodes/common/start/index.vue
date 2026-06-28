@@ -1,5 +1,5 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-tdesign:play-circle-filled" :title="computedCrawlerTitle" :description="computedCrawlerDescription" header-bg="bg-rose-500" :show-exec-in="false">
+  <CrawlersNodesCommonBasic icon-name="i-tdesign:play-circle-filled" :title="computedCrawlerTitle" :description="computedCrawlerDescription" header-bg="bg-rose-500" :show-exec-in="false" :right-pins="computedRightPins">
     <div class="space-y-2">
       <FormUrlInput v-if="computedDomain !== ''" :model-value="computedDomain" readonly base-url-only class="w-full" />
 
@@ -12,6 +12,21 @@
         <label class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.common.start.form.crawlerDescription') }}</label>
         <UTextarea v-model="stateCrawlerDescription" :placeholder="t('components.crawler.blueprint.nodes.common.start.form.crawlerDescriptionPlaceholder')" :rows="2" autoresize :maxrows="4" class="w-full" />
       </div>
+
+      <CrawlersNodesFunctionPins
+        :node-id="computedNodeId"
+        direction="output"
+        :model-value="stateParameters"
+        :empty-title="t('components.crawler.blueprint.nodes.common.start.empty.title')"
+        :empty-description="t('components.crawler.blueprint.nodes.common.start.empty.description')"
+        :empty-action-label="t('components.crawler.blueprint.nodes.common.start.empty.action')"
+        :add-action-label="t('components.crawler.blueprint.nodes.common.start.actions.add')"
+        :name-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.namePlaceholder')"
+        :string-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.stringPlaceholder')"
+        :json-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.jsonPlaceholder')"
+        :connected-hint="t('components.crawler.blueprint.nodes.common.function.pins.connectedHint')"
+        @update:model-value="handleParametersUpdate"
+      />
     </div>
   </CrawlersNodesCommonBasic>
 </template>
@@ -19,7 +34,12 @@
 <script setup lang="ts">
 import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
+import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
+import type { IFunctionNodePinDefinition } from '@/components/crawlers/nodes/common/function/index';
+import { functionNodePinDefinitionsParse, functionNodePinSignatureGet } from '@/components/crawlers/nodes/common/function/index';
 import type { ICrawlersNodesCommonStartData } from '@/components/crawlers/nodes/common/start/index.types';
+import type { IVariableDefinitionData } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * Hook：国际化。
@@ -35,6 +55,13 @@ const toast = useToast();
  * Hook：Vue Flow。
  */
 const { updateNodeData } = useVueFlow();
+
+/**
+ * 事件：节点内部尺寸刷新。
+ */
+const emit = defineEmits<{
+  updateNodeInternals: [];
+}>();
 
 /**
  * Hook：当前节点实例。
@@ -55,6 +82,11 @@ const stateCrawlerTitle = ref('');
  * 状态：爬虫描述。
  */
 const stateCrawlerDescription = ref('');
+
+/**
+ * 状态：爬虫入口参数定义列表。
+ */
+const stateParameters = ref<IFunctionNodePinDefinition[]>([]);
 
 /**
  * 计算属性：开始节点域名。
@@ -99,6 +131,24 @@ const computedCrawlerDescription = computed(() => {
 });
 
 /**
+ * 计算属性：入口参数输出引脚。
+ */
+const computedRightPins = computed<IBasicSidePin[]>(() => {
+  return stateParameters.value.map((item) => ({
+    id: variableOutputHandleIdGet(item.id, item.dataType),
+    label: item.name.trim() !== '' ? item.name.trim() : t('components.crawler.blueprint.nodes.common.function.start.fields.parameterLabel'),
+    direction: 'out',
+    dataType: item.dataType,
+    description: t('components.crawler.blueprint.nodes.common.function.start.fields.parameterDescription')
+  }));
+});
+
+/**
+ * 计算属性：入口参数引脚结构签名。
+ */
+const computedPinSignature = computed(() => functionNodePinSignatureGet(stateParameters.value));
+
+/**
  * 事件：爬虫标题失焦校验。
  */
 const handleCrawlerTitleBlur = (): void => {
@@ -112,18 +162,36 @@ const handleCrawlerTitleBlur = (): void => {
   });
 };
 
+/**
+ * 事件：更新爬虫入口参数定义列表。
+ * @param {IVariableDefinitionData[]} value 参数定义列表。
+ * @returns {void} 无返回值。
+ */
+const handleParametersUpdate = (value: IVariableDefinitionData[]): void => {
+  stateParameters.value = value.map((item) => ({
+    id: item.id,
+    name: item.name,
+    dataType: item.dataType,
+    defaultValue: item.defaultValue
+  }));
+};
+
 watch(
   () => stateNode.node.data,
   (data) => {
     const normalizedData = (data ?? {}) as ICrawlersNodesCommonStartData;
+    const nextParameters = functionNodePinDefinitionsParse(normalizedData.crawlerParameters);
     stateCrawlerTitle.value = String(normalizedData.crawlerTitle ?? '');
     stateCrawlerDescription.value = String(normalizedData.crawlerDescription ?? '');
+    if (functionNodePinSignatureGet(nextParameters) !== computedPinSignature.value) {
+      stateParameters.value = nextParameters;
+    }
   },
   { immediate: true, deep: true }
 );
 
 watch(
-  () => [stateCrawlerTitle.value, stateCrawlerDescription.value],
+  () => [stateCrawlerTitle.value, stateCrawlerDescription.value, stateParameters.value],
   () => {
     if (computedNodeId.value === '') {
       return;
@@ -132,8 +200,24 @@ watch(
     void updateNodeData(computedNodeId.value, {
       crawlerTitle: stateCrawlerTitle.value,
       crawlerDescription: stateCrawlerDescription.value,
-      domain: computedDomain.value
+      domain: computedDomain.value,
+      crawlerParameters: stateParameters.value.map((item) => ({
+        id: item.id,
+        name: item.name,
+        dataType: item.dataType,
+        defaultValue: item.defaultValue
+      }))
     });
-  }
+  },
+  { deep: true }
+);
+
+watch(
+  computedPinSignature,
+  async () => {
+    await nextTick();
+    emit('updateNodeInternals');
+  },
+  { immediate: true }
 );
 </script>

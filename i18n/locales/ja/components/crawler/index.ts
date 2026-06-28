@@ -30,6 +30,94 @@ export const crawler = {
         title: 'システムとウィンドウ'
       }
     },
+      nodes: {
+        common: {
+          start: {
+            actions: {
+              add: '入口パラメータを追加'
+            },
+            empty: {
+              title: '入口パラメータはまだありません',
+              description: 'パラメータを追加すると、ブループリント実行時にパスやキーワードなどの外部値を受け取れます。',
+              action: '入口パラメータを追加'
+            }
+          },
+          function: {
+            start: {
+              fields: {
+                parameterLabel: 'パラメータ',
+                parameterDescription: '開始ノードから出力される入口パラメータ値'
+              }
+            },
+            pins: {
+              connectedHint: '接続済み、接続値を使用します',
+              namePlaceholder: 'ピン名',
+              stringPlaceholder: 'デフォルト値を入力',
+              jsonPlaceholder: 'JSON のデフォルト値を入力'
+            }
+          }
+        },
+        navigation: {
+          goto: {
+            inputs: {
+              path: '遷移先パス',
+              pathDescription: '上流入力のパスは、遷移先パスが空の場合に使用されます'
+            },
+            fields: {
+              path: {
+                label: '遷移先パス',
+                placeholder: '遷移先パスを入力（例: /news/slug）。変数プレースホルダーは英字の波括弧で囲みます'
+              },
+              pathVariables: {
+                label: 'パス変数',
+                placeholder: '変数名（例: slug）',
+                fallbackLabel: '変数 {index}',
+                pinDescription: '遷移先パス内の同名変数プレースホルダーを置換します',
+                actions: {
+                  add: '変数を追加'
+                },
+                empty: {
+                  title: 'パス変数はまだありません',
+                  description: '変数を追加すると、遷移先パス内で変数プレースホルダーを使って動的なパスを組み立てられます。'
+                }
+              }
+            }
+          }
+        },
+        variable: {
+          common: {
+            dataTypes: {
+              string: 'テキスト',
+              number: '数値',
+              boolean: '真偽値',
+              array: '配列',
+              object: 'オブジェクト'
+            }
+          }
+        },
+        parameter: {
+          get: {
+            title: 'パラメータを取得',
+            description: '開始ノードで定義した入口パラメータを読み取り、値を出力します',
+            empty: {
+              title: 'このブループリントにはまだ入口パラメータがありません',
+              description: '先に開始ノードで入口パラメータを追加してください。'
+            },
+            fields: {
+              parameters: {
+                label: 'パラメータを選択',
+                placeholder: '入口パラメータを選択',
+                description: '複数選択に対応します。単一選択では値を、複数選択ではオブジェクトを出力します。'
+              }
+            },
+            outputs: {
+              value: {
+                description: '選択した入口パラメータの現在値を出力します（{type}）'
+              }
+            }
+          }
+        }
+      },
     units: {
       millisecond: 'ミリ秒',
       count: '回',

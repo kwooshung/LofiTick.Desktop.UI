@@ -682,6 +682,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
 
       addEdges({
         ...params,
+        type: 'crawler',
         animated: isExecConnection,
         class: buildEdgeClassName('', edgeDataType, isExecConnection)
       });

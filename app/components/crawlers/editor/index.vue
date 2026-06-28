@@ -98,6 +98,7 @@ import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
 
 import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps, ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ILineEdgeData } from '@/components/crawlers/editor/lines/edge/index.types';
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
@@ -779,6 +780,32 @@ const createClipboardEdge = (edge: Edge): Edge => {
 };
 
 /**
+ * 函数：按粘贴偏移量移动边拐点。
+ * @param {Edge} edge 原始边。
+ * @param {number} offsetX 横向偏移。
+ * @param {number} offsetY 纵向偏移。
+ * @returns {Edge} 已偏移拐点的边。
+ */
+const offsetClipboardEdgePoints = (edge: Edge, offsetX: number, offsetY: number): Edge => {
+  const data = edge.data as ILineEdgeData | undefined;
+
+  if (!Array.isArray(data?.points) || data.points.length === 0) {
+    return edge;
+  }
+
+  return {
+    ...edge,
+    data: {
+      ...data,
+      points: data.points.map((point) => ({
+        x: point.x + offsetX,
+        y: point.y + offsetY
+      }))
+    }
+  } as Edge;
+};
+
+/**
  * 函数：构建当前选中节点的剪贴板数据。
  * @returns {ICrawlersEditorClipboardData | null} 剪贴板数据。
  */
@@ -1106,6 +1133,7 @@ const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void =
         selected: false
       } as unknown as Edge;
     })
+    .map((edge) => (edge ? offsetClipboardEdgePoints(edge, offsetX, offsetY) : edge))
     .filter((edge): edge is Edge => Boolean(edge));
 
   const deselectNodeChanges = nodes.value
@@ -2435,6 +2463,26 @@ $breakpoint-xs-max: 639px;
 
       &.updating .vue-flow__edge-path {
         stroke: color-mix(in oklab, var(--ui-text-muted) 85%, var(--color-black) 15%);
+      }
+
+      .crawlers-edge-bend-point {
+        pointer-events: all;
+        cursor: grab;
+        fill: var(--ui-bg);
+        stroke: var(--ui-primary);
+        stroke-width: 2;
+      }
+
+      .crawlers-edge-bend-point:hover,
+      .crawlers-edge-bend-point:focus,
+      .crawlers-edge-bend-point-selected {
+        outline: none;
+        fill: var(--ui-primary);
+        stroke: var(--ui-bg);
+      }
+
+      .crawlers-edge-bend-point:active {
+        cursor: grabbing;
       }
     }
 

@@ -83,6 +83,14 @@ export const crawler = {
             crawlerTitleRequired: '保存蓝图前必须先填写爬虫标题。',
             crawlerDescription: '爬虫描述',
             crawlerDescriptionPlaceholder: '请输入爬虫描述（选填）'
+          },
+          actions: {
+            add: '添加入口参数'
+          },
+          empty: {
+            title: '还没有入口参数',
+            description: '添加参数后，执行蓝图时就能从外部传入路径、关键词等值。',
+            action: '添加入口参数'
           }
         },
         end: {
@@ -185,6 +193,10 @@ export const crawler = {
         goto: {
           title: '跳转页面',
           description: '打开指定 URL',
+          inputs: {
+            path: '目标路径',
+            pathDescription: '上游输入的路径会在目标路径为空时用于跳转'
+          },
           outputs: {
             success: '成功',
             fail: '失败',
@@ -196,7 +208,7 @@ export const crawler = {
           fields: {
             path: {
               label: '目标路径',
-              placeholder: '请输入目标路径，例如 /news/123',
+              placeholder: '请输入目标路径，例如 /news/slug，变量占位符请使用英文花括号包裹',
               validation: {
                 empty: '路径不能为空',
                 invalidFormat: '路径应以 "/" 开头，或为完整 URL',
@@ -205,6 +217,19 @@ export const crawler = {
                 extractedTitle: '已自动提取路径',
                 extracted: '已从 URL "{domain}" 提取路径：{path}',
                 domainMismatch: '域名不匹配：期望 "{expected}"\n，实际 "{actual}"'
+              }
+            },
+            pathVariables: {
+              label: '路径变量',
+              placeholder: '变量名，例如 slug',
+              fallbackLabel: '变量 {index}',
+              pinDescription: '替换目标路径中的同名变量占位符',
+              actions: {
+                add: '添加变量'
+              },
+              empty: {
+                title: '还没有路径变量',
+                description: '添加变量后，可在目标路径中使用变量占位符拼接动态路径。'
               }
             },
             waitReady: {
@@ -1606,6 +1631,28 @@ export const crawler = {
           outputs: {
             value: {
               description: '输出所选变量的当前值（{type}）'
+            }
+          }
+        }
+      },
+      parameter: {
+        get: {
+          title: '获取参数',
+          description: '读取开始节点定义的入口参数并输出对应值',
+          empty: {
+            title: '当前蓝图还没有入口参数',
+            description: '请先在开始节点中添加入口参数。'
+          },
+          fields: {
+            parameters: {
+              label: '选择参数',
+              placeholder: '请选择入口参数',
+              description: '支持多选；单选时执行输出为参数值，多选时输出参数对象。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '输出所选入口参数的当前值（{type}）'
             }
           }
         }

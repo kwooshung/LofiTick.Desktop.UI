@@ -8,10 +8,7 @@
 
             <UInput v-model="item.name" class="min-w-0 flex-1" :placeholder="namePlaceholder" />
 
-            <div v-if="hasConnectedPin(item)" :title="connectedHint" class="border-default text-muted flex h-8 min-w-0 flex-1 items-center gap-1 overflow-hidden border-l px-2 text-[11px] whitespace-nowrap">
-              <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-              <span class="truncate">{{ connectedHint }}</span>
-            </div>
+            <CrawlersNodesCommonConnectedInputHint v-if="hasConnectedPin(item)" class="min-w-0 flex-1" :label="connectedHint" />
 
             <UInput v-else-if="item.dataType === 'string'" :model-value="String(item.defaultValue ?? '')" class="min-w-0 flex-1" :placeholder="stringPlaceholder" @update:model-value="(value) => handleStringValueUpdate(item.id, value)" />
 
@@ -38,7 +35,7 @@
             </UInput>
           </UFieldGroup>
 
-          <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" :disabled="statePins.length <= 1" @click="handleRemove(item.id)" />
+          <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handleRemove(item.id)" />
         </div>
 
         <UTextarea v-if="(item.dataType === 'array' || item.dataType === 'object') && !hasConnectedPin(item)" :model-value="item.jsonText" :rows="4" autoresize class="w-full" :placeholder="jsonPlaceholder" @update:model-value="(value) => handleJsonValueUpdate(item.id, value)" />

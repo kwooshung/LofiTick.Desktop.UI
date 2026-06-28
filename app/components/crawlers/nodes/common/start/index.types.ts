@@ -16,4 +16,9 @@ export interface ICrawlersNodesCommonStartData {
    * 属性：站点域名。
    */
   domain?: string;
+
+  /**
+   * 属性：爬虫入口参数定义列表。
+   */
+  crawlerParameters?: unknown;
 }

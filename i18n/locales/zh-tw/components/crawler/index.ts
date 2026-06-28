@@ -83,6 +83,14 @@ export const crawler = {
             crawlerTitleRequired: '儲存藍圖前必須先填寫爬蟲標題。',
             crawlerDescription: '爬蟲描述',
             crawlerDescriptionPlaceholder: '請輸入爬蟲描述（選填）'
+          },
+          actions: {
+            add: '新增入口參數'
+          },
+          empty: {
+            title: '還沒有入口參數',
+            description: '新增參數後，執行藍圖時就能從外部傳入路徑、關鍵字等值。',
+            action: '新增入口參數'
           }
         },
         end: {
@@ -185,6 +193,10 @@ export const crawler = {
         goto: {
           title: '跳轉頁面',
           description: '開啟指定 URL',
+          inputs: {
+            path: '目標路徑',
+            pathDescription: '上游輸入的路徑會在目標路徑為空時用於跳轉'
+          },
           outputs: {
             success: '成功',
             fail: '失敗',
@@ -196,7 +208,7 @@ export const crawler = {
           fields: {
             path: {
               label: '目標路徑',
-              placeholder: '請輸入目標路徑，例如 /news/123',
+              placeholder: '請輸入目標路徑，例如 /news/slug，變數佔位符請使用英文花括號包裹',
               validation: {
                 empty: '路徑不能為空',
                 invalidFormat: '路徑應以 "/" 開頭，或為完整 URL',
@@ -205,6 +217,19 @@ export const crawler = {
                 extractedTitle: '已自動擷取路徑',
                 extracted: '已從 URL "{domain}" 擷取路徑：{path}',
                 domainMismatch: '網域不符：期望 "{expected}"\n，實際 "{actual}"'
+              }
+            },
+            pathVariables: {
+              label: '路徑變數',
+              placeholder: '變數名稱，例如 slug',
+              fallbackLabel: '變數 {index}',
+              pinDescription: '替換目標路徑中的同名變數佔位符',
+              actions: {
+                add: '新增變數'
+              },
+              empty: {
+                title: '還沒有路徑變數',
+                description: '新增變數後，可在目標路徑中使用變數佔位符拼接動態路徑。'
               }
             },
             waitReady: {
@@ -1606,6 +1631,28 @@ export const crawler = {
           outputs: {
             value: {
               description: '輸出所選變數的目前值（{type}）'
+            }
+          }
+        }
+      },
+      parameter: {
+        get: {
+          title: '取得參數',
+          description: '讀取開始節點定義的入口參數並輸出對應值',
+          empty: {
+            title: '目前藍圖還沒有入口參數',
+            description: '請先在開始節點中新增入口參數。'
+          },
+          fields: {
+            parameters: {
+              label: '選擇參數',
+              placeholder: '請選擇入口參數',
+              description: '支援多選；單選時執行輸出為參數值，多選時輸出參數物件。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '輸出所選入口參數的目前值（{type}）'
             }
           }
         }

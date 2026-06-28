@@ -1,11 +1,28 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :right-pins="computedRightPins">
+  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
         <div class="space-y-2">
           <UTextarea v-model="statePath" autoresize class="scrollbar w-full" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.placeholder')" :class="[computedPathError ? 'border-error/50 bg-error/5' : '']" @blur="handlePathBlur" @input="handleInputChange" />
         </div>
       </UFormField>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.label') }}</span>
+          <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')" @click="handlePathVariableAdd" />
+        </div>
+
+        <UEmpty v-if="statePathVariables.length === 0" icon="i-lucide-braces" :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')" variant="naked" size="sm" />
+
+        <div v-else class="space-y-1">
+          <div v-for="item in statePathVariables" :key="item.id" class="flex items-center gap-2">
+            <CrawlersNodesCommonConnectedInputHint v-if="hasConnectedPathVariable(item)" class="min-w-0 flex-1" :label="t('components.crawler.blueprint.nodes.common.connectedInputHint')" />
+            <UInput v-else :model-value="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')" @update:model-value="(value) => handlePathVariableNameUpdate(item.id, value)" />
+            <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handlePathVariableRemove(item.id)" />
+          </div>
+        </div>
+      </div>
 
       <div class="space-y-3">
         <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.windowWidth.label')">
@@ -49,10 +66,11 @@
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
-import type { ICrawlersNodesNavigationGotoData } from '@/components/crawlers/nodes/navigation/goto/index.types';
+import type { ICrawlersNodesNavigationGotoData, ICrawlersNodesNavigationGotoPathVariable } from '@/components/crawlers/nodes/navigation/goto/index.types';
+import { variableDefinitionIdCreate, variableDefinitionNameNormalize } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * 类型：窗口位置模式。
@@ -105,9 +123,21 @@ const DEFAULT_TIMEOUT_MS = 15000;
 const { t } = useI18n();
 
 /**
+ * 事件：节点内部尺寸刷新。
+ */
+const emit = defineEmits<{
+  updateNodeInternals: [];
+}>();
+
+/**
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+
+/**
+ * Hook：Vue Flow。
+ */
+const { edges } = useVueFlow();
 
 /**
  * Hook：提示。
@@ -151,6 +181,11 @@ const stateInitialized = ref(false);
  * 状态：目标路径。
  */
 const statePath = ref('');
+
+/**
+ * 状态：目标路径变量定义列表。
+ */
+const statePathVariables = ref<ICrawlersNodesNavigationGotoPathVariable[]>([]);
 
 /**
  * 状态：是否等待页面就绪。
@@ -330,6 +365,122 @@ const handleInputChange = (): void => {
 };
 
 /**
+ * 函数：获取路径变量输入引脚 ID。
+ * @param {string} variableId 路径变量 ID。
+ * @returns {string} 输入引脚 ID。
+ */
+const pathVariableInputHandleIdGet = (variableId: string): string => {
+  return `path-variable-${variableId}-string`;
+};
+
+/**
+ * 函数：解析路径变量定义列表。
+ * @param {unknown} value 未知来源变量定义。
+ * @returns {ICrawlersNodesNavigationGotoPathVariable[]} 路径变量定义列表。
+ */
+const pathVariablesParse = (value: unknown): ICrawlersNodesNavigationGotoPathVariable[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') {
+      return [];
+    }
+
+    const variable = item as Partial<ICrawlersNodesNavigationGotoPathVariable>;
+    const id = String(variable.id ?? variableDefinitionIdCreate()).trim();
+
+    if (id === '') {
+      return [];
+    }
+
+    return [
+      {
+        id,
+        name: variableDefinitionNameNormalize(String(variable.name ?? ''))
+      }
+    ];
+  });
+};
+
+/**
+ * 事件：新增路径变量。
+ * @returns {void} 无返回值。
+ */
+const handlePathVariableAdd = (): void => {
+  statePathVariables.value.push({
+    id: variableDefinitionIdCreate(),
+    name: ''
+  });
+};
+
+/**
+ * 事件：更新路径变量名称。
+ * @param {string} variableId 路径变量 ID。
+ * @param {string | number} value 输入值。
+ * @returns {void} 无返回值。
+ */
+const handlePathVariableNameUpdate = (variableId: string, value: string | number): void => {
+  statePathVariables.value = statePathVariables.value.map((item) => (item.id === variableId ? { ...item, name: variableDefinitionNameNormalize(String(value ?? '')) } : item));
+};
+
+/**
+ * 函数：判断路径变量输入引脚是否已连接。
+ * @param {ICrawlersNodesNavigationGotoPathVariable} item 路径变量定义。
+ * @returns {boolean} 是否已连接。
+ */
+const hasConnectedPathVariable = (item: ICrawlersNodesNavigationGotoPathVariable): boolean => {
+  const handleId = pathVariableInputHandleIdGet(item.id);
+
+  return edges.value.some((edge) => edge.target === stateNode.node.id && edge.targetHandle === handleId);
+};
+
+/**
+ * 事件：移除路径变量。
+ * @param {string} variableId 路径变量 ID。
+ * @returns {void} 无返回值。
+ */
+const handlePathVariableRemove = (variableId: string): void => {
+  const handleId = pathVariableInputHandleIdGet(variableId);
+  statePathVariables.value = statePathVariables.value.filter((item) => item.id !== variableId);
+  edges.value = edges.value.filter((edge) => !(edge.target === stateNode.node.id && edge.targetHandle === handleId));
+};
+
+/**
+ * 计算属性：左侧数据输入引脚配置。
+ */
+const computedLeftPins = computed<IBasicSidePin[]>(() => {
+  return [
+    {
+      id: 'path-string',
+      label: t('components.crawler.blueprint.nodes.navigation.goto.inputs.path'),
+      direction: 'in',
+      dataType: 'string',
+      topPercent: 50,
+      description: t('components.crawler.blueprint.nodes.navigation.goto.inputs.pathDescription')
+    },
+    ...statePathVariables.value.map((item, index) => ({
+      id: pathVariableInputHandleIdGet(item.id),
+      label: item.name.trim() !== '' ? item.name.trim() : t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.fallbackLabel', { index: index + 1 }),
+      direction: 'in' as const,
+      dataType: 'string' as const,
+      topPercent: Math.min(85, 20 + index * 12),
+      description: t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.pinDescription', {
+        name: item.name.trim() !== '' ? item.name.trim() : `${index + 1}`
+      })
+    }))
+  ];
+});
+
+/**
+ * 计算属性：路径变量引脚签名。
+ */
+const computedPathVariablePinSignature = computed(() => {
+  return statePathVariables.value.map((item) => `${item.id}:${item.name}`).join('|');
+});
+
+/**
  * 计算属性：右侧数据输出引脚配置。
  */
 const computedRightPins = computed<IBasicSidePin[]>(() => {
@@ -366,6 +517,7 @@ watchEffect(() => {
    */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesNavigationGotoData;
   statePath.value = String(data.path ?? data.url ?? '');
+  statePathVariables.value = pathVariablesParse(data.pathVariables);
   stateWindowWidth.value = Number.isFinite(Number(data.windowWidth)) ? Math.max(320, Number(data.windowWidth)) : DEFAULT_WINDOW_WIDTH;
   stateWindowHeight.value = Number.isFinite(Number(data.windowHeight)) ? Math.max(240, Number(data.windowHeight)) : DEFAULT_WINDOW_HEIGHT;
   stateWindowPositionMode.value = isWindowPositionMode(String(data.windowPositionMode ?? '')) ? String(data.windowPositionMode) : DEFAULT_WINDOW_POSITION_MODE;
@@ -381,7 +533,7 @@ watchEffect(() => {
 /**
  * 监听：本地状态变化时回写到 node.data。
  */
-watch([statePath, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, stateWindowPositionPreset, stateWindowX, stateWindowY, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
+watch([statePath, statePathVariables, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, stateWindowPositionPreset, stateWindowX, stateWindowY, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
   if (!stateInitialized.value) {
     return;
   }
@@ -389,6 +541,10 @@ watch([statePath, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, 
   stateNode.node.data = {
     ...(stateNode.node.data as Record<string, unknown> | undefined),
     path: statePath.value,
+    pathVariables: statePathVariables.value.map((item) => ({
+      id: item.id,
+      name: item.name
+    })),
     windowWidth: stateWindowWidth.value,
     windowHeight: stateWindowHeight.value,
     windowPositionMode: stateWindowPositionMode.value,
@@ -399,5 +555,17 @@ watch([statePath, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, 
     waitReady: stateWaitReady.value,
     timeoutMs: stateTimeoutMs.value
   };
-});
+}, { deep: true });
+
+/**
+ * 监听：路径变量引脚变化后刷新 Vue Flow 内部命中区域。
+ */
+watch(
+  computedPathVariablePinSignature,
+  async () => {
+    await nextTick();
+    emit('updateNodeInternals');
+  },
+  { immediate: true }
+);
 </script>
