@@ -63,18 +63,18 @@ const computedShowUnit = computed(() => {
  */
 const computedRootClass = computed(() => {
   if (computedShowPrefix.value && computedShowUnit.value) {
-    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center';
   }
 
   if (computedShowPrefix.value) {
-    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[3rem_minmax(0,1fr)] items-center self-center';
   }
 
   if (computedShowUnit.value) {
-    return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
   }
 
-  return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)] items-center self-center';
+  return 'grid w-full min-w-0 shrink-0 grid-cols-[minmax(0,1fr)] items-center self-center';
 });
 
 /**
