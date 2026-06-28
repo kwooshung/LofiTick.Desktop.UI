@@ -22,9 +22,6 @@ const computedTitle = computed(() => title ?? label);
  * 计算属性：根元素样式。
  */
 const computedRootClass = computed(() => {
-  return [
-    'text-muted flex items-center overflow-hidden text-[11px] whitespace-nowrap',
-    compact ? 'size-5 justify-center rounded-sm' : 'border-default h-8 gap-1 border-l px-2'
-  ];
+  return ['text-muted flex items-center overflow-hidden text-[11px] whitespace-nowrap', compact ? 'size-5 justify-center rounded-sm' : 'border-default h-8 gap-1 border-l px-2'];
 });
 </script>

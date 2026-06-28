@@ -17,13 +17,7 @@
       <div class="space-y-2">
         <span class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.label') }}</span>
 
-        <UEmpty
-          v-if="statePathVariables.length === 0"
-          icon="i-lucide-braces"
-          :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')"
-          :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')"
-          size="sm"
-        >
+        <UEmpty v-if="statePathVariables.length === 0" icon="i-lucide-braces" :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')" size="sm">
           <template #actions>
             <UButton color="primary" variant="soft" icon="i-lucide-plus" @click="handlePathVariableAdd">
               {{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add') }}
