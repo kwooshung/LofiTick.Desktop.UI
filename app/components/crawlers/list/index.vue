@@ -29,7 +29,7 @@
 import type { ICrawlersListProps } from '@/components/crawlers/list/index.types';
 
 /**
- * 属性：爬虫列表分组数据。
+ * Props：组件入参。
  */
 const { groups = [], selectedKey = '' } = defineProps<ICrawlersListProps>();
 

@@ -78,7 +78,10 @@
       :target-id="Number(stateDetail?.id ?? 0)"
       :function-refresh-nonce="stateFunctionRefreshNonce"
       :initial-flow-data="computedCrawlerInitialFlowData"
+      :execute-loading="stateCrawlerBlueprintExecuting"
       @save="handleBlueprintSave"
+      @save-and-close="handleBlueprintSaveAndClose"
+      @execute="handleBlueprintExecute"
       @create-function="handleCreateFunctionFromSidebar"
       @edit-function-logic="handleEditFunctionLogicFromSidebar"
       @functions-changed="stateFunctionRefreshNonce += 1"
@@ -119,6 +122,7 @@
             :draft-storage-key="computedFunctionLogicDraftKey"
             @cancel="stateFunctionLogicOpen = false"
             @save="handleFunctionLogicSave"
+            @save-and-close="handleFunctionLogicSaveAndClose"
             @functions-changed="stateFunctionRefreshNonce += 1"
           />
         </div>
@@ -188,8 +192,10 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent, NavigationMenuItem } from '@nuxt/ui';
+import type { UnlistenFn } from '@tauri-apps/api/event';
 import { z } from 'zod';
 
+import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 
 /**
@@ -218,6 +224,58 @@ const { t } = useI18n();
  * Hook：提示。
  */
 const toast = useToast();
+
+/**
+ * Hook：Tauri 爬虫蓝图能力。
+ */
+const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
+
+/**
+ * 变量：取消订阅爬虫蓝图输出日志事件句柄。
+ */
+let unsubscribeCrawlerBlueprintOutputLog: UnlistenFn | null = null;
+
+/**
+ * 函数：映射爬虫蓝图输出日志 Toast 颜色。
+ * @param {TTauriCrawlerBlueprintOutputLogLevel} level 日志级别。
+ * @returns {'info' | 'warning' | 'error'} Toast 颜色。
+ */
+const crawlerBlueprintOutputLogToastColor = (level: TTauriCrawlerBlueprintOutputLogLevel): 'info' | 'warning' | 'error' => {
+  if (level === 'warn') {
+    return 'warning';
+  }
+
+  if (level === 'error') {
+    return 'error';
+  }
+
+  return 'info';
+};
+
+/**
+ * 生命周期：监听爬虫蓝图输出日志并显示 Toast。
+ */
+onMounted(async () => {
+  try {
+    unsubscribeCrawlerBlueprintOutputLog = await onCrawlerBlueprintOutputLogEvent((payload: ITauriCrawlerBlueprintOutputLogEvent) => {
+      toast.add({
+        color: crawlerBlueprintOutputLogToastColor(payload.level),
+        title: payload.title,
+        description: payload.message
+      });
+    });
+  } catch {
+    unsubscribeCrawlerBlueprintOutputLog = null;
+  }
+});
+
+/**
+ * 生命周期：释放爬虫蓝图输出日志监听。
+ */
+onUnmounted(() => {
+  unsubscribeCrawlerBlueprintOutputLog?.();
+  unsubscribeCrawlerBlueprintOutputLog = null;
+});
 
 /**
  * 函数：本地化路由
@@ -362,6 +420,11 @@ const stateFunctionLogicOpen = ref(false);
 const stateFunctionLogicLoading = ref(false);
 
 /**
+ * 状态：爬虫蓝图执行中。
+ */
+const stateCrawlerBlueprintExecuting = ref(false);
+
+/**
  * 状态：函数逻辑初始数据来源。
  */
 const stateFunctionLogicLoadSource = ref<'server' | 'draft' | 'default'>('server');
@@ -380,6 +443,21 @@ const stateFunctionLogicDetail = ref<ICrawlersEditorSidebarFunctionDetail | null
  * 状态：蓝图抽屉目标站点。
  */
 const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateBlueprintDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateBlueprintDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
+
+/**
+ * 状态：蓝图抽屉当前启用状态。
+ */
+const stateBlueprintDrawerEnabled = useState<boolean>('crawlers-blueprint-enabled', () => true);
 
 /**
  * 状态：编辑器表单
@@ -712,6 +790,9 @@ const isEditorDomainUnchanged = (): boolean => {
  */
 const handleAddTask = () => {
   stateBlueprintDrawerTarget.value = stateDetail.value ?? null;
+  stateBlueprintDrawerBlueprintId.value = 0;
+  stateBlueprintDrawerFlowData.value = null;
+  stateBlueprintDrawerEnabled.value = true;
   stateCodeSlideoverOpen.value = true;
 };
 
@@ -799,7 +880,7 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.doma
 /**
  * API：保存（新增/编辑）
  */
-const { status: stateCrawlerTargetSaveStatus, error: stateCrawlerTargetSaveError, refresh: refreshSave } = await useApi<{ affected: number; id: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
+const { refresh: refreshSave } = await useApi<{ affected: number; id: number }>('crawlers/targets/add', { method: 'POST', immediate: false });
 
 /**
  * API：保存站点主逻辑蓝图。
@@ -807,6 +888,7 @@ const { status: stateCrawlerTargetSaveStatus, error: stateCrawlerTargetSaveError
 const {
   status: stateCrawlerTaskGraphSaveStatus,
   error: stateCrawlerTaskGraphSaveError,
+  datas: stateCrawlerTaskGraphSaveResult,
   refresh: refreshCrawlerTaskGraphSave
 } = await useApi<{ affected: number; id: number; referenceCount: number }>('crawlers/blueprints/add', {
   method: 'POST',
@@ -921,25 +1003,37 @@ const graphParseSafe = (graph: unknown): { nodes?: Array<Record<string, unknown>
 };
 
 /**
- * 函数：校验开始节点爬虫标题是否有效。
- * @param {unknown} flowData 图数据。
- * @returns {boolean} 是否通过校验。
+ * 类型：开始节点蓝图元数据。
  */
-const startNodeCrawlerTitleValidate = (flowData: unknown): boolean => {
+type TStartNodeCrawlerMeta = {
+  crawlerTitle: string;
+  crawlerDescription: string;
+};
+
+/**
+ * 函数：提取开始节点中的蓝图元数据。
+ * @param {unknown} flowData 图数据。
+ * @returns {TStartNodeCrawlerMeta | null} 蓝图元数据。
+ */
+const startNodeCrawlerMetaGet = (flowData: unknown): TStartNodeCrawlerMeta | null => {
   const parsed = graphParseSafe(flowData);
 
   if (!parsed || !Array.isArray(parsed.nodes)) {
-    return false;
+    return null;
   }
 
-  const startNode = parsed.nodes.find((node) => ['start'].includes(String(node.type ?? '').trim()));
+  const startNode = parsed.nodes.find((node) => String(node.type ?? '').trim() === 'start');
 
   if (!startNode) {
-    return false;
+    return null;
   }
 
   const data = (startNode.data ?? {}) as Record<string, unknown>;
-  return String(data.crawlerTitle ?? '').trim() !== '';
+
+  return {
+    crawlerTitle: String(data.crawlerTitle ?? '').trim(),
+    crawlerDescription: String(data.crawlerDescription ?? '').trim()
+  };
 };
 
 /**
@@ -1064,6 +1158,31 @@ const functionDraftGraphGet = (id: number): unknown | null => {
 };
 
 /**
+ * 函数：保存成功后删除草稿缓存。
+ * @param {unknown} value 草稿缓存键。
+ * @returns {Promise<void>} Promise。
+ */
+const draftRemoveAfterSave = async (value: unknown): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const draftKey = String(value ?? '').trim();
+  if (draftKey === '') {
+    return;
+  }
+
+  const stateDraftCleanupKey = useState<string>('crawlers-editor-draft-cleanup-key');
+  stateDraftCleanupKey.value = '';
+  await nextTick();
+  stateDraftCleanupKey.value = draftKey;
+
+  localStorage.removeItem(draftKey);
+  await nextTick();
+  localStorage.removeItem(draftKey);
+};
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -1085,13 +1204,13 @@ const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>
 /**
  * 事件：保存蓝图。
  */
-const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: string }) => {
+const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise<boolean> => {
   /**
    * 常量：target。
    */
   const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
   if (!target) {
-    return;
+    return false;
   }
 
   /**
@@ -1107,10 +1226,12 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
-  if (!startNodeCrawlerTitleValidate(payload?.flowData)) {
+  const startNodeCrawlerMeta = startNodeCrawlerMetaGet(payload?.flowData);
+
+  if (!startNodeCrawlerMeta || startNodeCrawlerMeta.crawlerTitle === '') {
     toast.add({
       title: t('pages.crawlers.editor.saveFeedback.title'),
       description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
@@ -1118,17 +1239,17 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
   await refreshCrawlerTaskGraphSave({
     datas: {
+      id: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerBlueprintId.value : undefined,
       targetId,
-      name: String(target.name ?? '').trim(),
-      description: String(target.description ?? '').trim(),
+      name: startNodeCrawlerMeta.crawlerTitle,
+      description: startNodeCrawlerMeta.crawlerDescription,
       nodes: payload?.flowData ?? {},
-      code: payload?.flowData ?? {},
-      isEnabled: Boolean(target.isEnabled ?? true)
+      isEnabled: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerEnabled.value : true
     },
     replace: true
   });
@@ -1144,7 +1265,7 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
       icon: 'i-lucide:triangle-alert',
       duration: 4200
     });
-    return;
+    return false;
   }
 
   toast.add({
@@ -1155,16 +1276,79 @@ const handleBlueprintSave = async (payload: { flowData?: unknown; draftKey?: str
     duration: 2600
   });
 
-  stateCodeSlideoverOpen.value = false;
+  const savedId = Number(stateCrawlerTaskGraphSaveResult.value?.id ?? 0);
+  if (Number.isFinite(savedId) && savedId > 0 && stateBlueprintDrawerBlueprintId.value <= 0) {
+    stateBlueprintDrawerBlueprintId.value = savedId;
+    stateBlueprintDrawerEnabled.value = true;
+  }
 
-  if (import.meta.client) {
-    /**
-     * 常量：draftKey。
-     */
-    const draftKey = String(payload?.draftKey ?? '').trim();
-    if (draftKey !== '') {
-      localStorage.removeItem(draftKey);
-    }
+  await draftRemoveAfterSave(payload?.draftKey);
+
+  const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
+  if (stateBlueprintRefreshNonce) {
+    stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
+  }
+  // 列表刷新由 `crawlers-blueprints-refresh-nonce` 全局 state 驱动，避免直接引用 domain 组件内部方法
+  return true;
+};
+
+/**
+ * 事件：保存蓝图并关闭编辑器。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintSaveAndClose = async (payload: ICrawlersEditorSavePayload): Promise<void> => {
+  const saved = await handleBlueprintSave(payload);
+
+  if (saved) {
+    stateCodeSlideoverOpen.value = false;
+  }
+};
+
+/**
+ * 事件：执行当前编辑器蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
+  if (stateCrawlerBlueprintExecuting.value) {
+    return;
+  }
+
+  const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
+  const targetId = Number(target?.id ?? 0);
+
+  if (!target || !Number.isFinite(targetId) || targetId <= 0) {
+    toast.add({
+      color: 'error',
+      title: t('pages.crawlers.blueprints.actions.execute'),
+      description: t('pages.crawlers.blueprints.actions.runFailed')
+    });
+    return;
+  }
+
+  stateCrawlerBlueprintExecuting.value = true;
+
+  try {
+    await unlockCrawlerBlueprintAudio();
+
+    await executeCrawlerBlueprint({
+      blueprintId: Number(stateBlueprintDrawerBlueprintId.value ?? 0),
+      targetId,
+      siteName: String(target.name ?? computedRouteDetailTitle.value ?? '').trim(),
+      baseUrl: String(target.baseUrl ?? '').trim(),
+      nodes: payload.flowData ?? {}
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
+
+    toast.add({
+      color: 'error',
+      title: String(target.name ?? computedRouteDetailTitle.value ?? '').trim() || t('pages.crawlers.blueprints.actions.execute'),
+      description: errorMessage !== '' ? errorMessage : t('pages.crawlers.blueprints.actions.runFailed')
+    });
+  } finally {
+    stateCrawlerBlueprintExecuting.value = false;
   }
 };
 
@@ -1293,10 +1477,10 @@ const handleEditFunctionLogicFromSidebar = async (row: ICrawlersEditorSidebarFun
 
 /**
  * 事件：保存函数逻辑。
- * @param {{ flowData?: unknown; draftKey?: string }} payload 保存载荷。
- * @returns {Promise<void>} Promise。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<boolean>} 是否保存成功。
  */
-const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?: string }): Promise<void> => {
+const handleFunctionLogicSave = async (payload: ICrawlersEditorSavePayload): Promise<boolean> => {
   const id = Number(stateFunctionLogicDetail.value?.id ?? 0);
 
   if (!Number.isFinite(id) || id <= 0) {
@@ -1308,7 +1492,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       duration: 4200
     });
 
-    return;
+    return false;
   }
 
   try {
@@ -1356,7 +1540,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
         error: stateFunctionGraphSaveError.value,
         localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
       });
-      return;
+      return false;
     }
 
     if (!Number.isFinite(saveAffected) || saveAffected <= 0) {
@@ -1375,7 +1559,7 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
         result: stateFunctionGraphSaveResult.value,
         localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
       });
-      return;
+      return false;
     }
 
     await refreshFunctionDetail({
@@ -1434,13 +1618,6 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       };
     }
 
-    if (import.meta.client) {
-      const draftKey = String(payload?.draftKey ?? '').trim();
-      if (draftKey !== '') {
-        localStorage.setItem(draftKey, JSON.stringify({ ts: Date.now(), data: JSON.stringify(payload?.flowData ?? {}) }));
-      }
-    }
-
     stateFunctionRefreshNonce.value += 1;
 
     toast.add({
@@ -1451,7 +1628,8 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       duration: 2600
     });
 
-    stateFunctionLogicOpen.value = false;
+    await draftRemoveAfterSave(payload?.draftKey);
+    return true;
   } catch (error) {
     toast.add({
       title: t('pages.crawlers.editor.saveFeedback.title'),
@@ -1466,6 +1644,20 @@ const handleFunctionLogicSave = async (payload: { flowData?: unknown; draftKey?:
       error,
       localSnapshot: functionGraphDebugSnapshotGet(payload?.flowData ?? {})
     });
+    return false;
+  }
+};
+
+/**
+ * 事件：保存函数逻辑并关闭编辑器。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleFunctionLogicSaveAndClose = async (payload: ICrawlersEditorSavePayload): Promise<void> => {
+  const saved = await handleFunctionLogicSave(payload);
+
+  if (saved) {
+    stateFunctionLogicOpen.value = false;
   }
 };
 

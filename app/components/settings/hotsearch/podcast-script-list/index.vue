@@ -187,6 +187,9 @@ import type { ISettingsHotsearchPodcastScriptListProps } from '@/components/sett
 /**
  * 属性：热搜播客文案列表。
  */
+/**
+ * Props：组件入参。
+ */
 const { disabled = false, templateItems = [] } = defineProps<ISettingsHotsearchPodcastScriptListProps>();
 
 /**

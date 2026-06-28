@@ -70,7 +70,7 @@ import { Handle, Position, useNode, useNodeId, useVueFlow } from '@vue-flow/core
 import type { IBasicSidePin, ICrawlersNodesCommonBasicProps, TBasicSidePinDataType } from '@/components/crawlers/nodes/common/basic/index.types';
 
 /**
- * 属性：基础节点配置。
+ * Props：组件入参。
  */
 const { title, titleClass = 'text-white', iconName = 'i-lucide-monitor', iconClass = 'text-white/80', description, descriptionClass = 'text-white/70', headerBg, showExecIn = true, showExecOut = true, leftPins = [], rightPins = [] } = defineProps<ICrawlersNodesCommonBasicProps>();
 
@@ -241,7 +241,7 @@ const inferDataTypeFromHandleId = (handleId?: string | null): TBasicSidePinDataT
     return 'unknown';
   }
 
-  if (id === 'exec-in' || id === 'exec-out' || id.includes('exec')) {
+  if (id === 'exec-in' || id === 'exec-out' || id === 'true' || id === 'false' || id.includes('exec')) {
     return 'exec';
   }
 
@@ -312,7 +312,7 @@ const isValidSidePinDataTypeConnection = (connection: Connection): boolean => {
  * 函数：验证连接是否满足 exec-out -> exec-in 规则。
  */
 const isExecConnection = (connection: Connection): boolean => {
-  return connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
+  return (connection.sourceHandle === 'exec-out' || connection.sourceHandle === 'true' || connection.sourceHandle === 'false') && connection.targetHandle === 'exec-in';
 };
 
 /**

@@ -14,6 +14,7 @@ export type {
 } from '@@/shared/types/pages/ad/hotsearch/index.types';
 export type {
   IPageCrawlersTargetsProps,
+  IPageCrawlerBlueprintEditorExecutePayload,
   IPageCrawlerTargetForm,
   IQueryResultCrawlerBlueprintRow,
   IQueryResultCrawlerBlueprintSummaryPage,
@@ -148,6 +149,14 @@ export type {
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileContentResult, IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type {
+  ITauriCrawlerBlueprintExecuteRequest,
+  ITauriCrawlerBlueprintExecuteResponse,
+  ITauriCrawlerBlueprintOutputLogEvent,
+  ITauriCrawlerBlueprintPlaySoundEvent,
+  TTauriCrawlerBlueprintOutputLogLevel,
+  TTauriCrawlerBlueprintPlaySoundKind
+} from '@@/shared/types/tauri/crawler-blueprint/index.types';
 export type {
   ITauriPodcastGenerateAccepted,
   ITauriPodcastNlpText,

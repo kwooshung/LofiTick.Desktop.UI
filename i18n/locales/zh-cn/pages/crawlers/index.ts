@@ -180,13 +180,22 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: '暂无蓝图',
-      description: '当前站点还没有创建爬虫蓝图，点击右上角“添加爬虫”开始创建。'
+      title: '暂无爬虫',
+      description: '当前站点还没有创建任何爬虫，点击右上角“添加爬虫”开始创建。'
     },
     table: {
-      name: '蓝图',
+      name: '名称',
+      description: '描述',
       status: '执行状态',
-      lastRunAt: '最后执行',
+      lastRunAt: '最后执行'
+    },
+    actions: {
+      execute: '执行',
+      deleteConfirm: '确定要删除爬虫「{name}」吗？此操作不可撤销。',
+      runSuccess: '已触发执行，正在运行。',
+      runFailed: '触发执行失败，请稍后重试。',
+      deleteSuccess: '删除成功。',
+      deleteFailed: '删除失败，请稍后重试。'
     }
   },
   spider: {

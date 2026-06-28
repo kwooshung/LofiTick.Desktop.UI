@@ -180,13 +180,22 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: 'ブループリントがありません',
-      description: 'このサイトにはまだクローラーブループリントがありません。右上の「タスクを追加」から作成してください。'
+      title: 'クローラーがありません',
+      description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
     },
     table: {
-      name: 'ブループリント',
+      name: '名称',
+      description: '説明',
       status: '実行状態',
-      lastRunAt: '最終実行',
+      lastRunAt: '最終実行'
+    },
+    actions: {
+      execute: '実行',
+      deleteConfirm: 'クローラー「{name}」を削除しますか？この操作は取り消せません。',
+      runSuccess: '実行を開始しました。現在実行中です。',
+      runFailed: '実行の開始に失敗しました。しばらくしてから再試行してください。',
+      deleteSuccess: '削除しました。',
+      deleteFailed: '削除に失敗しました。しばらくしてから再試行してください。'
     }
   },
   spider: {

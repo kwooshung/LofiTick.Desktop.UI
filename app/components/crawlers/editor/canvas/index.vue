@@ -19,6 +19,8 @@
       @nodes-change="(changes) => emit('nodes-change', changes)"
     >
       <CrawlersEditorLinesHelper :horizontal="helperLineHorizontal" :vertical="helperLineVertical" />
+      <template #edge-default="props"><CrawlersEditorLinesEdge v-bind="props" /></template>
+      <template #edge-crawler="props"><CrawlersEditorLinesEdge v-bind="props" /></template>
       <template #node-start="props"><CrawlersNodesCommonStart v-bind="props" /></template>
       <template #node-end="props"><CrawlersNodesCommonEnd v-bind="props" /></template>
       <template #node-function-start="props"><CrawlersNodesFunctionStart v-bind="props" :function-refresh-nonce="functionRefreshNonce" /></template>
@@ -56,11 +58,11 @@
       <template #node-extract-get-value="props"><CrawlersNodesExtractGetValue v-bind="props" /></template>
       <template #node-extract-query-element="props"><CrawlersNodesExtractQueryElement v-bind="props" /></template>
       <template #node-extract-query-all-elements="props"><CrawlersNodesExtractQueryAllElements v-bind="props" /></template>
+      <template #node-extract-query-blocked="props"><CrawlersNodesExtractQueryBlocked v-bind="props" /></template>
       <template #node-extract-execute-script="props"><CrawlersNodesExtractExecuteScript v-bind="props" /></template>
       <template #node-http-request="props"><CrawlersNodesHttpRequest v-bind="props" /></template>
       <template #node-http-get-cookies="props"><CrawlersNodesHttpGetCookies v-bind="props" /></template>
       <template #node-http-set-cookies="props"><CrawlersNodesHttpSetCookies v-bind="props" /></template>
-      <template #node-detect-verification="props"><CrawlersNodesDetectVerification v-bind="props" /></template>
       <template #node-system-screen-size="props"><CrawlersNodesSystemScreenSize v-bind="props" /></template>
       <template #node-system-window-size="props"><CrawlersNodesSystemWindowSize v-bind="props" /></template>
       <template #node-system-mouse-position="props"><CrawlersNodesSystemMousePosition v-bind="props" /></template>
@@ -69,6 +71,7 @@
       <template #node-system-write-clipboard="props"><CrawlersNodesSystemWriteClipboard v-bind="props" /></template>
       <template #node-variable-set="props"><CrawlersNodesVariableSet v-bind="props" /></template>
       <template #node-variable-get="props"><CrawlersNodesVariableGet v-bind="props" /></template>
+      <template #node-parameter-get="props"><CrawlersNodesParameterGet v-bind="props" /></template>
       <template #node-constant-get="props"><CrawlersNodesConstantGet v-bind="props" /></template>
       <template #node-logic-equal="props"><CrawlersNodesLogicEqual v-bind="props" /></template>
       <template #node-logic-not-equal="props"><CrawlersNodesLogicNotEqual v-bind="props" /></template>
@@ -119,6 +122,8 @@
       <template #node-control-flow-switch="props"><CrawlersNodesControlFlowSwitch v-bind="props" /></template>
       <template #node-output-save-data="props"><CrawlersNodesOutputSaveData v-bind="props" /></template>
       <template #node-output-print-log="props"><CrawlersNodesOutputPrintLog v-bind="props" /></template>
+      <template #node-output-play-sound="props"><CrawlersNodesOutputPlaySound v-bind="props" /></template>
+      <template #node-output-send-email="props"><CrawlersNodesOutputSendEmail v-bind="props" /></template>
       <template #node-output-screenshot="props"><CrawlersNodesOutputScreenshot v-bind="props" /></template>
       <CrawlersBackgroundDropzone :class="[isDragOver ? 'bg-primary/10' : 'bg-transparent', 'transition-colors duration-200 ease-in-out']">
         <UEmpty
@@ -158,6 +163,7 @@ import { ConnectionMode, SelectionMode, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 
 import type { ICrawlersEditorCanvasEmits, ICrawlersEditorCanvasProps, TCrawlersCanvasConnectStartEvent } from '@/components/crawlers/editor/canvas/index.types';
+import CrawlersEditorLinesEdge from '@/components/crawlers/editor/lines/edge/index.vue';
 import CrawlersNodesConstantGet from '@/components/crawlers/nodes/constant/get/index.vue';
 import CrawlersNodesDateTimeFormat from '@/components/crawlers/nodes/dateTime/format/index.vue';
 import CrawlersNodesDateTimeNow from '@/components/crawlers/nodes/dateTime/now/index.vue';
@@ -165,9 +171,13 @@ import CrawlersNodesFunctionCall from '@/components/crawlers/nodes/function/call
 import CrawlersNodesFunctionReturn from '@/components/crawlers/nodes/function/return/index.vue';
 import CrawlersNodesFunctionStart from '@/components/crawlers/nodes/function/start/index.vue';
 import CrawlersNodesOutputSaveData from '@/components/crawlers/nodes/output/saveData/index.vue';
+import CrawlersNodesOutputPlaySound from '@/components/crawlers/nodes/output/playSound/index.vue';
+import CrawlersNodesOutputSendEmail from '@/components/crawlers/nodes/output/sendEmail/index.vue';
+import CrawlersNodesOutputPrintLog from '@/components/crawlers/nodes/output/printLog/index.vue';
+import CrawlersNodesOutputScreenshot from '@/components/crawlers/nodes/output/screenshot/index.vue';
 
 /**
- * 属性：画布渲染与状态数据。
+ * Props：组件入参。
  */
 const { nodes, edges, isValidConnection, helperLineHorizontal, helperLineVertical, functionRefreshNonce = 0, isDragOver, isCanvasEmpty, dragTitle, dragDescription, emptyTitle, emptyDescription } = defineProps<ICrawlersEditorCanvasProps>();
 

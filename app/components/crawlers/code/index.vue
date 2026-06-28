@@ -21,11 +21,14 @@
         :groups="computedBlueprintGroups"
         :selected-key="computedSelectedKey"
         :function-refresh-nonce="functionRefreshNonce"
-        :initial-flow-data="initialFlowData"
-        :initial-load-source="initialLoadSource"
+        :initial-flow-data="computedInitialFlowData"
+        :initial-load-source="computedInitialLoadSource"
+        :execute-loading="executeLoading"
         @cancel="open = false"
         @click="handleEditorClick"
         @save="handleSave"
+        @save-and-close="handleSaveAndClose"
+        @execute="handleExecute"
         @create-function="handleEditorCreateFunction"
         @edit-function-logic="handleEditorEditFunctionLogic"
         @functions-changed="handleEditorFunctionsChanged"
@@ -40,9 +43,9 @@ import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/in
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 /**
- * 属性：站点名称与基础 URL。
+ * Props：组件入参。
  */
-const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource } = defineProps<ICrawlersCodeProps>();
+const { siteName = '', baseUrl = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, initialLoadSource, executeLoading = false } = defineProps<ICrawlersCodeProps>();
 
 /**
  * 事件：蓝图抽屉事件。
@@ -53,6 +56,16 @@ const emit = defineEmits<ICrawlersCodeEmits>();
  * 状态：蓝图抽屉目标站点。
  */
 const stateDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
 
 /**
  * 路由：当前路由。
@@ -203,10 +216,20 @@ const computedBlueprintGroups = computed(() => (groups.length > 0 ? groups : blu
 const computedSelectedKey = computed(() => (selectedKey !== '' ? selectedKey : (computedBlueprintGroups.value[0]?.crawlers[0]?.key ?? '')));
 
 /**
+ * 计算属性：编辑器初始图数据。
+ */
+const computedInitialFlowData = computed(() => (stateDrawerBlueprintId.value > 0 ? stateDrawerFlowData.value : initialFlowData));
+
+/**
+ * 计算属性：编辑器初始数据来源。
+ */
+const computedInitialLoadSource = computed(() => (stateDrawerBlueprintId.value > 0 && stateDrawerFlowData.value ? 'server' : initialLoadSource));
+
+/**
  * 计算属性：编辑器重建 key。
  */
 const computedEditorKey = computed(() => {
-  return [computedDrawerTargetId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
+  return [computedDrawerTargetId.value, stateDrawerBlueprintId.value, computedDrawerBaseUrl.value, computedDrawerSiteName.value].join('|');
 });
 
 /**
@@ -222,6 +245,22 @@ const open = defineModel<boolean>('open', {
  */
 const handleSave = (payload: ICrawlersEditorSavePayload) => {
   emit('save', payload);
+};
+
+/**
+ * 事件：保存并关闭蓝图。
+ * @param {ICrawlersEditorSavePayload} payload 保存载荷。
+ */
+const handleSaveAndClose = (payload: ICrawlersEditorSavePayload) => {
+  emit('save-and-close', payload);
+};
+
+/**
+ * 事件：执行蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ */
+const handleExecute = (payload: IPageCrawlerBlueprintEditorExecutePayload) => {
+  emit('execute', payload);
 };
 
 /**

@@ -18,7 +18,25 @@
           class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
         >
           <div class="w-full max-w-6xl min-w-0 justify-self-end">
-            <FormUrlInput v-model="stateApiBaseValue" class="w-full" :placeholder="t('pages.settings.connections.apiBase.placeholder')" />
+            <FormUrlInput v-model="stateApiBaseValue" class="w-full" :placeholder="t('pages.settings.connections.apiBase.placeholder')">
+              <template #actions>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                  <UButton
+                    :color="copiedGet('apiBase') ? 'success' : 'neutral'"
+                    variant="link"
+                    size="sm"
+                    :icon="copiedGet('apiBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
+                    @click.stop="handleCopy('apiBase', stateApiBaseValue)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
+                  <ULink raw :href="stateApiBaseValue" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(stateApiBaseValue)">
+                    <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+                  </ULink>
+                </UTooltip>
+              </template>
+            </FormUrlInput>
           </div>
         </UFormField>
 
@@ -29,7 +47,25 @@
           class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
         >
           <div class="w-full max-w-6xl min-w-0 justify-self-end">
-            <FormUrlInput v-model="stateOnepanelPanelBaseValue" class="w-full" :placeholder="t('pages.settings.connections.onepanelPanelBase.placeholder')" />
+            <FormUrlInput v-model="stateOnepanelPanelBaseValue" class="w-full" :placeholder="t('pages.settings.connections.onepanelPanelBase.placeholder')">
+              <template #actions>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                  <UButton
+                    :color="copiedGet('onepanelPanelBase') ? 'success' : 'neutral'"
+                    variant="link"
+                    size="sm"
+                    :icon="copiedGet('onepanelPanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
+                    @click.stop="handleCopy('onepanelPanelBase', computedPanelBase)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
+                  <ULink raw :href="computedPanelBase" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
+                    <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+                  </ULink>
+                </UTooltip>
+              </template>
+            </FormUrlInput>
           </div>
         </UFormField>
       </UPageCard>
@@ -44,6 +80,21 @@
           <div class="flex w-full max-w-6xl min-w-0 flex-col gap-2 justify-self-end">
             <FormUrlInput :model-value="computedPanelBase" readonly>
               <template #actions>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                  <UButton
+                    :color="copiedGet('onepanelBase') ? 'success' : 'neutral'"
+                    variant="link"
+                    size="sm"
+                    :icon="copiedGet('onepanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
+                    @click.stop="handleCopy('onepanelBase', computedPanelBase)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
+                  <ULink raw :href="computedPanelBase" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
+                    <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
+                  </ULink>
+                </UTooltip>
                 <UTooltip :text="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')" :content="{ side: 'top' }">
                   <ULink
                     raw
@@ -90,6 +141,16 @@
                     <div class="w-full max-w-6xl min-w-0 justify-self-end">
                       <FormUrlInput :model-value="link.href" readonly class="w-full">
                         <template #actions>
+                          <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                            <UButton
+                              :color="copiedGet(`onepanelLink|${link.href}`) ? 'success' : 'neutral'"
+                              variant="link"
+                              size="sm"
+                              :icon="copiedGet(`onepanelLink|${link.href}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                              :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
+                              @click.stop="handleCopy(`onepanelLink|${link.href}`, link.href)"
+                            />
+                          </UTooltip>
                           <UTooltip :text="link.label" :content="{ side: 'top' }">
                             <ULink raw :href="link.href" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="link.label" @click.stop.prevent="handleOpenExternal(link.href)">
                               <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
@@ -200,6 +261,16 @@ const stateOnepanelPanelBaseValue = ref(ONEPANEL_PANEL_BASE_DEFAULT);
 const stateSettingsHydrated = ref(false);
 
 /**
+ * 状态：复制成功标识。
+ */
+const stateCopiedKey = ref('');
+
+/**
+ * 变量：复制状态重置计时器。
+ */
+let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
+
+/**
  * 计算属性：当前生效的 1Panel 根域名。
  */
 const computedPanelBase = computed(() => onepanelPanelBaseNormalize(stateOnepanelPanelBaseValue.value));
@@ -238,6 +309,45 @@ const handleOpenExternal = async (href: string): Promise<void> => {
 
   window.open(href, '_blank', 'noopener,noreferrer');
 };
+
+/**
+ * 函数：复制链接到剪贴板。
+ *
+ * @param {string} key 复制来源标识。
+ * @param {string} value 需要复制的链接。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCopy = async (key: string, value: string): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const text = String(value || '').trim();
+  if (!text) {
+    return;
+  }
+
+  await navigator.clipboard.writeText(text);
+  stateCopiedKey.value = key;
+
+  if (timeoutCopied) {
+    clearTimeout(timeoutCopied);
+  }
+
+  timeoutCopied = setTimeout(() => {
+    if (stateCopiedKey.value === key) {
+      stateCopiedKey.value = '';
+    }
+  }, 1500);
+};
+
+/**
+ * 函数：判断指定来源是否刚完成复制。
+ *
+ * @param {string} key 复制来源标识。
+ * @returns {boolean} 返回 true 表示当前来源刚完成复制。
+ */
+const copiedGet = (key: string): boolean => stateCopiedKey.value === key;
 
 /**
  * 函数：防抖同步 Tauri 本地 API 配置镜像。
@@ -338,5 +448,14 @@ watch(stateOnepanelPanelBaseValue, () => {
  */
 onMounted(() => {
   void loadSettings();
+});
+
+/**
+ * 生命周期：清理复制状态计时器。
+ */
+onBeforeUnmount(() => {
+  if (timeoutCopied) {
+    clearTimeout(timeoutCopied);
+  }
 });
 </script>

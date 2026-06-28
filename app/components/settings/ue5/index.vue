@@ -17,9 +17,16 @@
     >
       <FormUrlInput readonly :model-value="computedBaseUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
         <template #actions>
-          <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-            <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
-          </UTooltip>
+          <div class="flex items-center gap-0.5">
+            <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+              <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
+            </UTooltip>
+            <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
+              <ULink raw :href="computedBaseUrl" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" @click.stop.prevent="handleLinkOpen(computedBaseUrl)">
+                <UIcon name="i-lucide-external-link" class="size-4 shrink-0" />
+              </ULink>
+            </UTooltip>
+          </div>
         </template>
       </FormUrlInput>
     </UFormField>

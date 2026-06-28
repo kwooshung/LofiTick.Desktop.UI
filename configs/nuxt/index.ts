@@ -52,6 +52,12 @@ export const configs = {
       target: 'esnext',
       sourcemap: false
     },
+    server: {
+      watch: {
+        // 忽略 Tauri sidecar / 二进制目录，避免被 Vite watcher 和预打包扫描
+        ignored: ['**/src-tauri/**', '**/src-tauri/**/bin/**', '**/bin/**']
+      }
+    },
     optimizeDeps: {
       // 预打包 CJS 格式的依赖，避免运行时 Vite 动态发现导致页面重载
       include: [
@@ -72,6 +78,24 @@ export const configs = {
         'tailwindcss/colors',
         'es-toolkit',
         '@tauri-apps/api/core'
+      ],
+      // 排除体积大或包含大量 JSON 的 iconify 包，避免一次性预打包导致内存峰值
+      exclude: [
+        '@iconify-json/carbon',
+        '@iconify-json/codicon',
+        '@iconify-json/file-icons',
+        '@iconify-json/flag',
+        '@iconify-json/gg',
+        '@iconify-json/heroicons',
+        '@iconify-json/lucide',
+        '@iconify-json/material-symbols',
+        '@iconify-json/material-symbols-light',
+        '@iconify-json/mdi',
+        '@iconify-json/mingcute',
+        '@iconify-json/proicons',
+        '@iconify-json/ri',
+        '@iconify-json/simple-icons',
+        '@iconify-json/tabler'
       ]
     }
   },

@@ -2,8 +2,6 @@ import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { listen } from '@tauri-apps/api/event';
 
-import type { ITauriPodcastTaskEvent, ITauriPodcastTaskSnapshot } from '@@/shared/types/index.types';
-
 /**
  * 常量：播客任务事件名列表。
  */

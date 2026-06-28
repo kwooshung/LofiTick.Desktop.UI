@@ -207,6 +207,9 @@ import type { ISettingsHotsearchHeadMusicEmits, ISettingsHotsearchHeadMusicItem,
 /**
  * 属性：热搜开头音乐。
  */
+/**
+ * Props：组件入参。
+ */
 const { disabled = false, attachmentsDirConfigured, generateEnabled, generateLoading, generateDisabled = false, generateOwnerExists, generateOwnedByCurrentMachine, generateOwnerDescription, items, uploadRequest, previewRequest } = defineProps<ISettingsHotsearchHeadMusicProps>();
 
 /**

@@ -28,6 +28,9 @@ const tauriSettings = useTauriSettings();
 /**
  * 属性：附件目录确认弹窗属性。
  */
+/**
+ * Props：组件入参。
+ */
 const { open, currentPath } = defineProps<ISettingsHotsearchAttachmentsDirDialogProps>();
 
 /**

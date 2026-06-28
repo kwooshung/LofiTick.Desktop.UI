@@ -7,5 +7,7 @@ export const actions = {
   delete: 'Delete',
   search: 'Search',
   reset: 'Reset',
-  confirm: 'Confirm'
+  confirm: 'Confirm',
+  close: 'Close',
+  saveAndClose: 'Save and close'
 };

@@ -56,7 +56,7 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 /**
- * Props
+ * Props：组件入参。
  */
 const { createNonce = 0, keyword = '' } = defineProps<IPageCrawlersTargetsProps>();
 
@@ -74,6 +74,21 @@ const stateBlueprintDrawerOpen = useState<boolean>('crawlers-blueprint-open', ()
  * 状态：蓝图抽屉目标站点。
  */
 const stateBlueprintDrawerTarget = useState<IQueryResultCrawlerTargetRow | null>('crawlers-blueprint-target', () => null);
+
+/**
+ * 状态：蓝图抽屉当前编辑蓝图 ID。
+ */
+const stateBlueprintDrawerBlueprintId = useState<number>('crawlers-blueprint-id', () => 0);
+
+/**
+ * 状态：蓝图抽屉当前服务端节点图。
+ */
+const stateBlueprintDrawerFlowData = useState<unknown>('crawlers-blueprint-flow-data', () => null);
+
+/**
+ * 状态：蓝图抽屉当前启用状态。
+ */
+const stateBlueprintDrawerEnabled = useState<boolean>('crawlers-blueprint-enabled', () => true);
 
 /**
  * 函数：本地化路由
@@ -478,6 +493,9 @@ const buildCrawlerTargetContextMenuProps = (row: IQueryResultCrawlerTargetRow) =
     },
     onAddTask: () => {
       stateBlueprintDrawerTarget.value = row;
+      stateBlueprintDrawerBlueprintId.value = 0;
+      stateBlueprintDrawerFlowData.value = null;
+      stateBlueprintDrawerEnabled.value = true;
       stateBlueprintDrawerOpen.value = true;
     }
   })

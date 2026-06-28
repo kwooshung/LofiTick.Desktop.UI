@@ -10,6 +10,9 @@ import type { IDashboardPageProps } from '@/components/dashboard/page/index.type
 /**
  * 属性
  */
+/**
+ * Props：组件入参。
+ */
 const { direction = 'vertical', padded = true } = defineProps<IDashboardPageProps>();
 
 /**

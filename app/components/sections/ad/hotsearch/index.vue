@@ -424,7 +424,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { z } from 'zod';
 
 /**
- * 属性：页面刷新标记。
+ * Props：组件入参。
  */
 const { createNonce = 0 } = defineProps<IPageAdHotsearchProps>();
 
@@ -478,9 +478,6 @@ const stateTableUi = {
   separator: 'h-0'
 } as const;
 
-/**
- * Hook：国际化。
- */
 /**
  * Hook：国际化工具。
  */
@@ -3988,7 +3985,7 @@ const columns: TableColumn<IPageTableColumnHotsearchAdMaterial>[] = [
               }),
             content: () =>
               h('div', { class: 'space-y-3' }, [
-                h('div', { class: 'text-sm leading-6 text-pretty text-default' }, t('pages.ads.hotsearch.actions.deleteConfirm')),
+                h('div', { class: 'text-sm leading-6 text-pretty' }, t('pages.ads.hotsearch.actions.deleteConfirm')),
                 h('div', { class: 'flex items-center justify-end gap-2' }, [
                   h(UButton, {
                     color: 'neutral',

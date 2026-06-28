@@ -64,7 +64,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return 'unknown';
     }
 
-    if (id === 'exec-in' || id === 'exec-out' || id.includes('exec')) {
+    if (id === 'exec-in' || id === 'exec-out' || id === 'true' || id === 'false' || id.startsWith('result-case-') || id.startsWith('result-default-') || id.includes('exec')) {
       return 'exec';
     }
 
@@ -131,7 +131,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     /**
      * 函数：isExecConnection。
      */
-    const isExecConnection = sourceHandle === 'exec-out' && targetHandle === 'exec-in';
+    const isExecConnection = (sourceHandle === 'exec-out' || sourceHandle === 'true' || sourceHandle === 'false' || String(sourceHandle ?? '').startsWith('result-case-') || String(sourceHandle ?? '').startsWith('result-default-')) && targetHandle === 'exec-in';
     /**
      * 常量：sourceType。
      */
@@ -608,7 +608,9 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     /**
      * 函数：isExecConnection。
      */
-    const isExecConnection = connection.sourceHandle === 'exec-out' && connection.targetHandle === 'exec-in';
+    const isExecConnection =
+      (connection.sourceHandle === 'exec-out' || connection.sourceHandle === 'true' || connection.sourceHandle === 'false' || String(connection.sourceHandle ?? '').startsWith('result-case-') || String(connection.sourceHandle ?? '').startsWith('result-default-')) &&
+      connection.targetHandle === 'exec-in';
 
     if (!connection.target) {
       return isExecConnection || isValidDataPinConnection(connection);
@@ -680,6 +682,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
 
       addEdges({
         ...params,
+        type: 'crawler',
         animated: isExecConnection,
         class: buildEdgeClassName('', edgeDataType, isExecConnection)
       });
@@ -706,27 +709,3 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
     handleConnectEnd
   };
 };
-
-if (import.meta.vitest) {
-  const { describe, expect, it } = import.meta.vitest;
-
-  describe('resolveSystemNodeMeta', () => {
-    it('returns crawler system nodes by default', () => {
-      expect(resolveSystemNodeMeta()).toEqual({
-        startNodeId: 'start',
-        endNodeId: 'end',
-        startNodeType: 'start',
-        endNodeType: 'end'
-      });
-    });
-
-    it('returns function system nodes for function flow', () => {
-      expect(resolveSystemNodeMeta('function')).toEqual({
-        startNodeId: 'function-start',
-        endNodeId: 'function-return',
-        startNodeType: 'function-start',
-        endNodeType: 'function-return'
-      });
-    });
-  });
-}

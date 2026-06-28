@@ -180,13 +180,22 @@ export const crawlers = {
   },
   blueprints: {
     empty: {
-      title: 'No Blueprints',
-      description: 'No crawler blueprint has been created for this site yet. Click "Add Task" in the top-right to start.'
+      title: 'No Crawlers',
+      description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
     },
     table: {
-      name: 'Blueprint',
+      name: 'Name',
+      description: 'Description',
       status: 'Execution Status',
-      lastRunAt: 'Last Run',
+      lastRunAt: 'Last Run'
+    },
+    actions: {
+      execute: 'Run',
+      deleteConfirm: 'Delete crawler "{name}"? This action cannot be undone.',
+      runSuccess: 'Execution has been triggered and is now running.',
+      runFailed: 'Failed to trigger execution. Please try again later.',
+      deleteSuccess: 'Deleted successfully.',
+      deleteFailed: 'Delete failed. Please try again later.'
     }
   },
   spider: {

@@ -41,6 +41,31 @@ export interface ICrawlersEditorActionsProps {
    * 属性：保存按钮文案。
    */
   saveText: string;
+
+  /**
+   * 属性：保存按钮是否禁用。
+   */
+  saveDisabled?: boolean;
+
+  /**
+   * 属性：执行按钮是否显示。
+   */
+  executeVisible?: boolean;
+
+  /**
+   * 属性：执行按钮文案。
+   */
+  executeText?: string;
+
+  /**
+   * 属性：执行按钮是否禁用。
+   */
+  executeDisabled?: boolean;
+
+  /**
+   * 属性：执行按钮是否加载中。
+   */
+  executeLoading?: boolean;
 }
 
 /**
@@ -86,4 +111,14 @@ export interface ICrawlersEditorActionsEmits {
    * 事件：保存。
    */
   save: [];
+
+  /**
+   * 事件：保存并关闭。
+   */
+  'save-and-close': [];
+
+  /**
+   * 事件：执行。
+   */
+  execute: [];
 }

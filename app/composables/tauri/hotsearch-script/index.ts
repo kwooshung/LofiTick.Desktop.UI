@@ -1,7 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import type { IPageHomePodcastScriptGenerateRequest, IPageHomePodcastScriptGenerateResponse, ITauriPodcastGenerateAccepted } from '@@/shared/types/index.types';
-
 /**
  * Hook：热搜播客脚本。
  * 描述：封装 Desktop 壳侧的热搜播客脚本构建命令。

@@ -14,6 +14,9 @@ import type { IButtonSettingColorsProps } from '@/components/button/setting-colo
 /**
  * 属性
  */
+/**
+ * Props：组件入参。
+ */
 const { size = 'sm' } = defineProps<IButtonSettingColorsProps>();
 
 /**

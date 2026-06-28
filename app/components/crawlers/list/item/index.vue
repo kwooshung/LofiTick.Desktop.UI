@@ -8,7 +8,7 @@
 import type { ICrawlersListItemProps } from '@/components/crawlers/list/item/index.types';
 
 /**
- * 属性：爬虫列表项卡片。
+ * Props：组件入参。
  */
 const { name, label, description, disabled = false, iconName = 'i-lucide-atom' } = defineProps<ICrawlersListItemProps>();
 

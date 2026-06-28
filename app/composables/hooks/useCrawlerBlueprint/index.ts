@@ -236,6 +236,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         description: 'pages.crawlers.blueprint.nodes.extract.queryAllElements.description'
       },
       {
+        key: 'extract-query-blocked',
+        icon: 'i-lucide-shield-alert',
+        title: 'pages.crawlers.blueprint.nodes.extract.queryBlocked.title',
+        description: 'pages.crawlers.blueprint.nodes.extract.queryBlocked.description'
+      },
+      {
         key: 'extract-execute-script',
         icon: 'i-lucide-square-code',
         title: 'pages.crawlers.blueprint.nodes.extract.executeScript.title',
@@ -265,19 +271,6 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         icon: 'i-lucide-clipboard-plus',
         title: 'pages.crawlers.blueprint.nodes.http.setCookies.title',
         description: 'pages.crawlers.blueprint.nodes.http.setCookies.description'
-      }
-    ]
-  },
-  {
-    icon: 'i-lucide-shield-check',
-    title: 'pages.crawlers.blueprint.groups.detect.title',
-    description: 'pages.crawlers.blueprint.groups.detect.description',
-    nodes: [
-      {
-        key: 'detect-verification',
-        icon: 'i-lucide-shield-alert',
-        title: 'pages.crawlers.blueprint.nodes.detect.verification.title',
-        description: 'pages.crawlers.blueprint.nodes.detect.verification.description'
       }
     ]
   },
@@ -340,6 +333,12 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         icon: 'i-lucide-hash',
         title: 'pages.crawlers.blueprint.nodes.variable.get.title',
         description: 'pages.crawlers.blueprint.nodes.variable.get.description'
+      },
+      {
+        key: 'parameter-get',
+        icon: 'i-lucide-key-round',
+        title: 'pages.crawlers.blueprint.nodes.parameter.get.title',
+        description: 'pages.crawlers.blueprint.nodes.parameter.get.description'
       }
     ]
   },
@@ -693,6 +692,18 @@ const crawlerBlueprintGroupDefinitions: ICrawlersBlueprintGroupDefinition[] = [
         description: 'pages.crawlers.blueprint.nodes.output.printLog.description'
       },
       {
+        key: 'output-play-sound',
+        icon: 'i-lucide-bell',
+        title: 'pages.crawlers.blueprint.nodes.output.playSound.title',
+        description: 'pages.crawlers.blueprint.nodes.output.playSound.description'
+      },
+      {
+        key: 'output-send-email',
+        icon: 'i-lucide-mail',
+        title: 'pages.crawlers.blueprint.nodes.output.sendEmail.title',
+        description: 'pages.crawlers.blueprint.nodes.output.sendEmail.description'
+      },
+      {
         key: 'output-screenshot',
         icon: 'i-lucide-camera',
         title: 'pages.crawlers.blueprint.nodes.output.screenshot.title',
@@ -773,6 +784,8 @@ if (import.meta.vitest) {
       expect(groups[10]?.label).toBe('pages.crawlers.blueprint.groups.logic.title');
       expect(groups[10]?.crawlers[0]?.iconName).toBe('i-lucide-equal');
       expect(groups[13]?.label).toBe('pages.crawlers.blueprint.groups.dateTime.title');
+      expect(groups[17]?.crawlers).toContainEqual(expect.objectContaining({ key: 'output-play-sound', iconName: 'i-lucide-bell' }));
+      expect(groups[17]?.crawlers).toContainEqual(expect.objectContaining({ key: 'output-send-email', iconName: 'i-lucide-mail' }));
     });
   });
 }

@@ -199,9 +199,14 @@ export interface IQueryResultCrawlerBlueprintRow {
   description: string;
 
   /**
+   * 服务端节点图定义。
+   */
+  nodes?: unknown;
+
+  /**
    * 是否启用。
    */
-  isEnabled: boolean;
+  enabled: boolean;
 
   /**
    * 最后执行状态。
@@ -222,6 +227,16 @@ export interface IQueryResultCrawlerBlueprintRow {
    * 更新时间。
    */
   updatedAt: string;
+}
+
+/**
+ * 接口：爬虫蓝图编辑器执行载荷。
+ */
+export interface IPageCrawlerBlueprintEditorExecutePayload {
+  /**
+   * 当前画布导出数据。
+   */
+  flowData: unknown;
 }
 
 /**

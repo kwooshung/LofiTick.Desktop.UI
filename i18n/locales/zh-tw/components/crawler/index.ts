@@ -4,19 +4,19 @@ export const crawler = {
     groups: {
       navigation: {
         title: '導覽與頁面控制',
-        description: '瀏覽器頁面導覽與前進後退'
+        description: '瀏覽器導覽、前進與返回'
       },
       wait: {
         title: '等待與同步',
-        description: '等待元素、文字、條件或固定時間'
+        description: '等待元素、文字、條件或時間'
       },
       interaction: {
         title: '互動與輸入',
-        description: '點擊、輸入、選擇與鍵盤互動'
+        description: '點擊、輸入、選取與鍵盤輸入'
       },
       scroll: {
         title: '捲動與視圖',
-        description: '控制頁面捲動與可見區域'
+        description: '控制頁面捲動與可見性'
       },
       extract: {
         title: '擷取與查詢',
@@ -24,43 +24,39 @@ export const crawler = {
       },
       http: {
         title: 'HTTP 請求',
-        description: '執行純 HTTP 請求與 Cookie 處理'
-      },
-      detect: {
-        title: '檢測與防護',
-        description: '辨識驗證頁與常見防護頁面'
+        description: '執行原始 HTTP 請求並處理 cookie'
       },
       system: {
         title: '系統與視窗',
-        description: '讀取螢幕、視窗與剪貼簿資訊'
+        description: '讀取螢幕、視窗與剪貼簿資料'
       },
       variable: {
         title: '資料處理 - 變數',
-        description: '儲存與讀取節點間共用變數'
+        description: '在節點間儲存與讀取共用變數'
       },
       constant: {
-        title: '資料處理 - 常量',
-        description: '讀取系統內建常量值'
+        title: '資料處理 - 常數',
+        description: '讀取內建系統常數'
       },
       logic: {
         title: '資料處理 - 邏輯',
-        description: '比較、布林與空值判斷'
+        description: '比較、布林與空值檢查'
       },
       math: {
         title: '資料處理 - 數學',
-        description: '基本算術、隨機數與取整'
+        description: '基本算術、亂數與四捨五入'
       },
       string: {
         title: '資料處理 - 字串',
-        description: '字串擷取、替換、拼接與正則'
+        description: '子字串、取代、串接與正則表達式'
       },
       dateTime: {
-        title: '資料處理 - 日期時間',
+        title: '資料處理 - 日期與時間',
         description: '處理目前時間與時間戳格式'
       },
       arrayObject: {
         title: '資料處理 - 陣列與物件',
-        description: '過濾、合併、拆分與索引讀取'
+        description: '篩選、合併、拆分與索引查找'
       },
       typeConvert: {
         title: '資料處理 - 型別轉換',
@@ -68,35 +64,44 @@ export const crawler = {
       },
       controlFlow: {
         title: '控制流程',
-        description: '迴圈、條件判斷與多路分支'
+        description: '迴圈、分支與 switch 控制'
       },
       output: {
         title: '輸出',
-        description: '傳送、列印與截圖類輸出'
+        description: '傳送、日誌與截圖輸出'
       }
     },
     nodes: {
       common: {
         start: {
-          title: '開始',
-          description: '爬蟲的入口節點，負責觸發爬蟲執行',
+          title: '函式開始',
+          suffix: '開始',
+          description: '函式邏輯的入口節點，負責接收參數並開始執行',
           form: {
             crawlerTitle: '爬蟲標題（必填）',
             crawlerTitlePlaceholder: '請輸入爬蟲標題',
-            crawlerTitleRequired: '爬蟲標題不可為空，請先填寫後再儲存藍圖。',
+            crawlerTitleRequired: '儲存藍圖前必須先填寫爬蟲標題。',
             crawlerDescription: '爬蟲描述',
-            crawlerDescriptionPlaceholder: '請輸入爬蟲描述（可選）'
+            crawlerDescriptionPlaceholder: '請輸入爬蟲描述（選填）'
+          },
+          actions: {
+            add: '新增入口參數'
+          },
+          empty: {
+            title: '還沒有入口參數',
+            description: '新增參數後，執行藍圖時就能從外部傳入路徑、關鍵字等值。',
+            action: '新增入口參數'
           }
         },
         end: {
           title: '結束',
-          description: '爬蟲的結束節點，負責終止爬蟲執行'
+          description: '終止節點，結束爬蟲執行'
         },
         function: {
           start: {
             title: '函式開始',
             suffix: '開始',
-            description: '函式邏輯的入口節點，負責接收執行流',
+            description: '函式邏輯的入口節點，負責接收參數並開始執行',
             fields: {
               parameterLabel: '參數',
               parameterDescription: '函式開始節點輸出的參數值'
@@ -188,6 +193,10 @@ export const crawler = {
         goto: {
           title: '跳轉頁面',
           description: '開啟指定 URL',
+          inputs: {
+            path: '目標路徑',
+            pathDescription: '上游輸入的路徑會在目標路徑為空時用於跳轉'
+          },
           outputs: {
             success: '成功',
             fail: '失敗',
@@ -199,13 +208,72 @@ export const crawler = {
           fields: {
             path: {
               label: '目標路徑',
-              placeholder: '請輸入目標路徑，例如 /news/123'
+              placeholder: '請輸入目標路徑，例如 /news/slug，變數佔位符請使用英文花括號包裹',
+              validation: {
+                empty: '路徑不能為空',
+                invalidFormat: '路徑應以 "/" 開頭，或為完整 URL',
+                invalidUrl: 'URL 格式無效',
+                invalidTitle: '跳轉路徑提示',
+                extractedTitle: '已自動擷取路徑',
+                extracted: '已從 URL "{domain}" 擷取路徑：{path}',
+                domainMismatch: '網域不符：期望 "{expected}"\n，實際 "{actual}"'
+              }
+            },
+            pathVariables: {
+              label: '路徑變數',
+              placeholder: '變數名稱，例如 slug',
+              fallbackLabel: '變數 {index}',
+              pinDescription: '替換目標路徑中的同名變數佔位符',
+              actions: {
+                add: '新增變數',
+                insert: '插入變數'
+              },
+              empty: {
+                title: '還沒有路徑變數',
+                description: '新增變數後，可在目標路徑中使用變數佔位符拼接動態路徑。'
+              }
             },
             waitReady: {
               label: '等待頁面就緒'
             },
             timeoutMs: {
               label: '逾時毫秒'
+            },
+            windowWidth: {
+              label: '視窗寬度'
+            },
+            windowHeight: {
+              label: '視窗高度'
+            },
+            windowPositionMode: {
+              label: '位置模式',
+              options: {
+                preset: '預設位置',
+                custom: '自訂座標'
+              }
+            },
+            windowPositionPreset: {
+              label: '預設位置',
+              options: {
+                topLeft: '左上',
+                topCenter: '上中',
+                topRight: '右上',
+                centerLeft: '左中',
+                center: '置中',
+                centerRight: '右中',
+                bottomLeft: '左下',
+                bottomCenter: '下中',
+                bottomRight: '右下'
+              }
+            },
+            windowX: {
+              label: '視窗 X'
+            },
+            windowY: {
+              label: '視窗 Y'
+            },
+            showWebview: {
+              label: '顯示 WebView'
             }
           }
         },
@@ -1039,6 +1107,22 @@ export const crawler = {
             length: '匹配到的元素數量'
           }
         },
+        queryBlocked: {
+          title: '頁面攔截判斷',
+          description: '偵測目前頁面是否進入 Cloudflare 等攔截驗證頁並輸出布林值',
+          fields: {
+            mode: {
+              label: '攔截方式',
+              options: {
+                auto: '自動識別',
+                cloudflare: 'Cloudflare 攔截'
+              }
+            }
+          },
+          pinDescriptions: {
+            blocked: '是否偵測到攔截頁面'
+          }
+        },
         executeScript: {
           title: '執行腳本',
           description: '執行自訂 JS 並回傳結果',
@@ -1287,106 +1371,6 @@ export const crawler = {
             },
             persistent: {
               label: '持久化'
-            }
-          }
-        }
-      },
-      detect: {
-        verification: {
-          title: '檢測驗證',
-          description: '檢測 Cloudflare、Google reCAPTCHA、hCaptcha 等常見驗證防護',
-          fields: {
-            matchMode: {
-              label: '命中模式',
-              options: {
-                any: '任一命中',
-                all: '全部命中'
-              }
-            },
-            vendors: {
-              label: '驗證類型',
-              options: {
-                cloudflareChallenge: 'Cloudflare Challenge',
-                cloudflareTurnstile: 'Cloudflare Turnstile',
-                googleRecaptcha: 'Google reCAPTCHA',
-                hcaptcha: 'hCaptcha',
-                geetest: 'GeeTest 極驗',
-                arkose: 'Arkose Labs FunCaptcha',
-                datadome: 'DataDome',
-                loginWall: '登入牆 / 存取受限頁'
-              }
-            },
-            strategy: {
-              label: '智慧判定策略',
-              options: {
-                smart: '智慧平衡（推薦）',
-                strict: '嚴格判定',
-                lenient: '寬鬆判定'
-              }
-            },
-            notifyAdmin: {
-              label: '命中後寄信通知管理員'
-            },
-            adminEmails: {
-              label: '管理員信箱',
-              placeholder: '每行一個信箱，例如 admin@example.com'
-            },
-            minConfidence: {
-              label: '最小信心分數'
-            },
-            urlKeywords: {
-              label: 'URL 關鍵字',
-              placeholder: '每行一個關鍵字，例如 challenge'
-            },
-            titleKeywords: {
-              label: '標題關鍵字',
-              placeholder: '每行一個關鍵字，例如 Verify you are human'
-            },
-            textKeywords: {
-              label: '頁面文字關鍵字',
-              placeholder: '每行一個關鍵字，例如 I am not a robot'
-            },
-            cookieKeywords: {
-              label: 'Cookie 關鍵字',
-              placeholder: '每行一個 Cookie 鍵名，例如 cf_clearance'
-            },
-            selectors: {
-              label: '選擇器特徵',
-              placeholder: '例如 iframe[src*="recaptcha"]',
-              add: '新增選擇器',
-              remove: '刪除'
-            }
-          },
-          actions: {
-            resetDefaults: '還原常見驗證預設'
-          },
-          inputs: {
-            contextDescription: '傳入頁面上下文、腳本結果或外部檢測輸入'
-          },
-          outputs: {
-            detected: {
-              label: '檢測結果',
-              description: '是否命中驗證或防護頁面'
-            },
-            vendor: {
-              label: '命中廠商',
-              description: '回傳命中的驗證廠商識別'
-            },
-            kind: {
-              label: '驗證類型',
-              description: '回傳驗證類型，例如 challenge 或 login-wall'
-            },
-            confidence: {
-              label: '信心分數',
-              description: '回傳本次檢測信心分數'
-            },
-            matchedSignals: {
-              label: '命中特徵',
-              description: '回傳命中的 URL、文字、選擇器等特徵列表'
-            },
-            details: {
-              label: '檢測詳情',
-              description: '回傳結構化檢測明細物件'
             }
           }
         }
@@ -1648,6 +1632,28 @@ export const crawler = {
           outputs: {
             value: {
               description: '輸出所選變數的目前值（{type}）'
+            }
+          }
+        }
+      },
+      parameter: {
+        get: {
+          title: '取得參數',
+          description: '讀取開始節點定義的入口參數並輸出對應值',
+          empty: {
+            title: '目前藍圖還沒有入口參數',
+            description: '請先在開始節點中新增入口參數。'
+          },
+          fields: {
+            parameters: {
+              label: '選擇參數',
+              placeholder: '請選擇入口參數',
+              description: '支援多選；單選時執行輸出為參數值，多選時輸出參數物件。'
+            }
+          },
+          outputs: {
+            value: {
+              description: '輸出所選入口參數的目前值（{type}）'
             }
           }
         }
@@ -2422,13 +2428,9 @@ export const crawler = {
         },
         condition: {
           title: '條件判斷',
-          description: 'If / Else 分支',
+          description: '根據布林輸入在 True / False 之間分支',
           pinDescriptions: {
-            condition: '布林條件輸入（boolean 模式）',
-            valueA: '比較值 A（compare 模式）',
-            valueB: '比較值 B（compare 模式）',
-            mode: '條件模式輸入（boolean / compare）',
-            strictCompare: '是否啟用嚴格比較'
+            condition: '布林條件輸入'
           },
           outputs: {
             true: {
@@ -2441,15 +2443,9 @@ export const crawler = {
             }
           },
           fields: {
-            mode: {
-              label: '條件模式',
-              options: {
-                boolean: '布林模式（直接讀取布林輸入）',
-                compare: '比較模式（比較 A 與 B）'
-              }
-            },
-            strictCompare: {
-              label: '嚴格比較（===）'
+            invert: {
+              label: '取反',
+              hint: '是否對條件結果取反（開啟後 true 與 false 互換）'
             }
           }
         },

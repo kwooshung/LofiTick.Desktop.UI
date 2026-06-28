@@ -45,6 +45,11 @@ export interface ICrawlersCodeProps {
    * 属性：编辑器初始数据来源提示。
    */
   initialLoadSource?: 'server' | 'draft' | 'default';
+
+  /**
+   * 属性：执行按钮是否加载中。
+   */
+  executeLoading?: boolean;
 }
 
 /**
@@ -55,6 +60,16 @@ export interface ICrawlersCodeEmits {
    * 事件：保存。
    */
   save: [payload: ICrawlersEditorSavePayload];
+
+  /**
+   * 事件：保存并关闭。
+   */
+  'save-and-close': [payload: ICrawlersEditorSavePayload];
+
+  /**
+   * 事件：执行。
+   */
+  execute: [payload: IPageCrawlerBlueprintEditorExecutePayload];
 
   /**
    * 事件：点击左侧列表条目。

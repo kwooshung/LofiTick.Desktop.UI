@@ -45,6 +45,9 @@ import type { IEmailLayoutProps } from '@/emails/index.types';
 /**
  * 属性：布局属性。
  */
+/**
+ * Props：组件入参。
+ */
 const { type } = defineProps<IEmailLayoutProps>();
 
 /**

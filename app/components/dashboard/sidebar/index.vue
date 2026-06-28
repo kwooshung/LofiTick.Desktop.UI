@@ -1,6 +1,6 @@
 <template>
   <aside class="drag bg-elevated/25 border-default relative flex h-full w-40 shrink-0 flex-col border-e transition-[width,background] duration-100 ease-out">
-    <Logo class="mx-auto flex h-16 -translate-x-1 items-center" class-icon-area="mr-1 text-3xl text-primary" class-text-area="flex" class-texts="ml-1 text-default text-xl" />
+    <Logo class="mx-auto flex h-16 -translate-x-1 items-center" class-icon-area="mr-1 text-3xl text-primary" class-text-area="flex" class-texts="ml-1 text-xl" />
     <div class="flex flex-1 flex-col gap-1 p-2">
       <UNavigationMenu :class="`${storeAuth.states.ui.show ? '' : 'no-'}drag`" :items="computedLinks" orientation="vertical" tooltip popover />
     </div>

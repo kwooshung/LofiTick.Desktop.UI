@@ -256,8 +256,8 @@ const columns: TableColumn<IPageSettingsLocalCronRow>[] = [
     accessorKey: 'title',
     meta: {
       class: {
-        th: 'w-[42%] xl:w-[40%]',
-        td: 'w-[42%] xl:w-[40%]'
+        th: 'w-[42%] xl:w-2/5',
+        td: 'w-[42%] xl:w-2/5'
       }
     },
     header: t('pages.settings.cron.tabs.local'),

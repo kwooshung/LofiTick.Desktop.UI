@@ -40,12 +40,10 @@
                 </template>
               </UCalendar>
 
-              <div class="border-default bg-default/80 space-y-3 rounded-xl border px-3 py-3">
+              <div class="border-default bg-default/80 space-y-3 rounded-lg border px-3 py-3">
                 <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <div class="text-highlighted text-sm font-medium">{{ computedDatePickerDisplaySummary?.updatedAt || hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
-                    <div class="text-muted mt-1 text-xs">{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</div>
-                  </div>
+                  <Datetime v-if="computedDatePickerDisplayDate" :datetime="computedDatePickerDisplayDate" :relative="false" year="numeric" month="2-digit" day="2-digit" />
+                  <template v-else>{{ hotsearchDateLabelGet(computedDatePickerDisplayDate) }}</template>
 
                   <UBadge :color="computedDatePickerDisplaySummary?.mediaReady ? 'warning' : 'neutral'" variant="soft">
                     {{ computedDatePickerDisplaySummary?.mediaReady ? t('pages.hotsearch.data.status.podcastReady') : t('pages.hotsearch.data.status.pending') }}
@@ -55,6 +53,9 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <UBadge color="primary" variant="soft">{{ t('pages.hotsearch.layout.dates.total', { value: computedDatePickerDisplaySummary?.totalCount ?? 0 }) }}</UBadge>
                   <UBadge color="warning" variant="soft">{{ t('pages.hotsearch.layout.dates.podcastCount', { value: computedDatePickerDisplaySummary?.podcastCount ?? 0 }) }}</UBadge>
+                  <UBadge v-if="computedDatePickerDisplaySummary?.updatedAt" color="neutral" variant="soft" class="w-fit gap-1">
+                    <Datetime :datetime="computedDatePickerDisplaySummary.updatedAt" :relative="false" year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit" second="2-digit" />
+                  </UBadge>
                 </div>
               </div>
             </div>
@@ -173,8 +174,6 @@
 <script setup lang="ts">
 import { CalendarDate, DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
 import type { NavigationMenuItem } from '@nuxt/ui';
-import type { ICalendarDateValue, TMediaPlyrExposed } from '@@/shared/types/pages/hotsearch/index.types';
-
 
 /**
  * Hook：国际化。

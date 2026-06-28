@@ -207,6 +207,9 @@ import type { IComponentPropsQuotesSearch, IComponentPropsQuotesSelectMenuItem, 
 /**
  * 属性：路由状态（由主页面传入）。
  */
+/**
+ * Props：组件入参。
+ */
 const { routeIsList, routeIsAuthors, routeIsSources } = defineProps<IComponentPropsQuotesSearch>();
 
 /**

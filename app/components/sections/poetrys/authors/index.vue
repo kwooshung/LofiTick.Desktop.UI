@@ -281,7 +281,7 @@ const columns: TableColumn<IPageTableColumnPoetryAuthors>[] = [
       }
     },
     header: t('pages.poetrys.result.table.author'),
-    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline text-default hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', row.original.id) }, () => `${row.original.infos.name}（${row.original.infos.count}）`)
+    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('author_ids', row.original.id) }, () => `${row.original.infos.name}（${row.original.infos.count}）`)
   },
   {
     accessorKey: 'infos',

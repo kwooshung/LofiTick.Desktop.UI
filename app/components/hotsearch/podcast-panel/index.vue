@@ -77,7 +77,7 @@
                 <MediaAudioWaves :waveform-path="item.waveformPath" :progress="computedSentenceProgressGet(item.id)" :duration="computedSentenceDurationGet(item.id)" @seek="(payload) => handleSentenceSeek(item.id, payload.percent)" />
               </div>
 
-              <p class="text-muted text-sm leading-6 wrap-break-word whitespace-normal" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : ''">
+              <p class="text-sm leading-6 wrap-break-word whitespace-normal" :class="item.id === stateCurrentSentenceId ? 'text-highlighted' : 'text-muted'">
                 {{ item.text }}
               </p>
             </div>

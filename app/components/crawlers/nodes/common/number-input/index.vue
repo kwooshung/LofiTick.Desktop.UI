@@ -25,7 +25,7 @@
 import type { ICrawlersNodesCommonNumberInputProps } from '@/components/crawlers/nodes/common/number-input/index.types';
 
 /**
- * 属性：通用数值输入组件属性。
+ * Props：组件入参。
  */
 const props = withDefaults(defineProps<ICrawlersNodesCommonNumberInputProps>(), {
   min: 0,
@@ -63,18 +63,18 @@ const computedShowUnit = computed(() => {
  */
 const computedRootClass = computed(() => {
   if (computedShowPrefix.value && computedShowUnit.value) {
-    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center self-center';
   }
 
   if (computedShowPrefix.value) {
-    return 'grid w-60 shrink-0 grid-cols-[3rem_minmax(0,1fr)] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[3rem_minmax(0,1fr)] items-center self-center';
   }
 
   if (computedShowUnit.value) {
-    return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
+    return 'grid w-full min-w-0 shrink-0 grid-cols-[minmax(0,1fr)_3rem] items-center self-center';
   }
 
-  return 'grid w-60 shrink-0 grid-cols-[minmax(0,1fr)] items-center self-center';
+  return 'grid w-full min-w-0 shrink-0 grid-cols-[minmax(0,1fr)] items-center self-center';
 });
 
 /**

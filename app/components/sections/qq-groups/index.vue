@@ -71,6 +71,9 @@ import { z } from 'zod';
 /**
  * 属性：页面刷新标记。
  */
+/**
+ * Props：组件入参。
+ */
 const { createNonce = 0 } = defineProps<IPageQqGroupsProps>();
 
 /**
@@ -1029,7 +1032,7 @@ const columns: TableColumn<IPageTableColumnQqGroup>[] = [
     meta: {
       class: {
         th: 'w-45 2xl:hidden',
-        td: 'w-45 2xl:hidden text-default'
+        td: 'w-45 2xl:hidden'
       }
     },
     header: t('common.labels.time'),

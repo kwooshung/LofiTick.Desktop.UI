@@ -65,6 +65,11 @@
         :undo-text="t('pages.crawlers.editor.actions.undo')"
         :cancel-text="t('common.actions.cancel')"
         :save-text="t('common.actions.save')"
+        :save-disabled="computedSaveDisabled"
+        :execute-visible="flowKind === 'crawler'"
+        :execute-text="t('pages.crawlers.blueprints.actions.execute')"
+        :execute-disabled="computedSaveDisabled"
+        :execute-loading="executeLoading"
         @restore="handleViewportRestore"
         @zoom-in="handleViewportZoomIn"
         @zoom-out="handleViewportZoomOut"
@@ -73,6 +78,8 @@
         @undo="handleUndo"
         @cancel="handelModalCancel"
         @save="handelModalSave"
+        @save-and-close="handelModalSaveAndClose"
+        @execute="handleExecute"
       />
 
       <div v-if="stateEditorInitializing" class="bg-default/70 absolute inset-0 z-40 flex items-center justify-center backdrop-blur-sm">
@@ -90,16 +97,27 @@ import type { Edge, Node, XYPosition } from '@vue-flow/core';
 import { useVueFlow } from '@vue-flow/core';
 import { debounce } from 'es-toolkit';
 
-import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps } from '@/components/crawlers/editor/index.types';
+import type { ICrawlersEditorClipboardBounds, ICrawlersEditorClipboardData, ICrawlersEditorEmits, ICrawlersEditorProps, ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
+import type { ILineEdgeData } from '@/components/crawlers/editor/lines/edge/index.types';
 import type { ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlersListRow } from '@/components/crawlers/list/index.types';
 import { resolveSystemNodeMeta, useCrawlersEditorLogic } from '@/composables/hooks/useCrawlersEditorLogic/index';
 
 /**
- * 属性：站点展示名称与基础 URL。
+ * Props：组件入参。
  */
-const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '' } = defineProps<ICrawlersEditorProps>();
+const { flowKind = 'crawler', siteName = '', baseUrl = '', flowDescription = '', targetId = 0, groups = [], selectedKey = '', functionRefreshNonce = 0, initialFlowData = null, draftStorageKey = '', executeLoading = false } = defineProps<ICrawlersEditorProps>();
 const systemNodeMeta = resolveSystemNodeMeta(flowKind);
+
+/**
+ * 常量：baseUrl provide key。
+ */
+const PROVIDE_KEY_BASE_URL = 'crawlers:editor:baseUrl';
+
+/**
+ * 提供：baseUrl 给所有子节点组件。
+ */
+provide(PROVIDE_KEY_BASE_URL, baseUrl);
 
 /**
  * 类型：导入图数据中的节点摘要。
@@ -372,6 +390,16 @@ const { groups: blueprintGroups } = useCrawlerBlueprintNodesMenu();
 const isCanvasEmpty = computed(() => nodes.value.length === 0);
 
 /**
+ * 计算属性：保存是否禁用（开始节点标题必填）。
+ */
+const computedSaveDisabled = computed<boolean>(() => {
+  const startNode = nodes.value.find((node) => node.id === systemNodeMeta.startNodeId);
+  const nodeData = (startNode?.data ?? {}) as { crawlerTitle?: unknown };
+
+  return String(nodeData.crawlerTitle ?? '').trim() === '';
+});
+
+/**
  * 计算属性：描述文本。
  */
 const computedDescription = computed(() => {
@@ -551,6 +579,46 @@ const restoreInitialFlowData = async (): Promise<boolean> => {
 };
 
 /**
+ * 函数：在初始图晚到时补做一次恢复。
+ *
+ * 补充说明：当父级图数据晚于编辑器挂载到达时，默认起止节点会先占位；这里负责在画布仍处于占位阶段时把真实图恢复进来。
+ *
+ * # Returns
+ *
+ * 返回 true 表示已经成功应用初始图。
+ */
+const restoreInitialFlowDataWhenReady = async (): Promise<boolean> => {
+  if (stateInitialFlowApplied.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    return false;
+  }
+
+  if (nodes.value.length > 2) {
+    return false;
+  }
+
+  const restored = await restoreInitialFlowData();
+  if (!restored) {
+    return false;
+  }
+
+  stateInitialFlowApplied.value = true;
+  syncStartNodeDomain();
+  syncFunctionNodeMeta();
+
+  stateHistory.value = [];
+  stateHistoryIndex.value = -1;
+  pushHistorySnapshot();
+
+  stateLastDraftSnapshot.value = createSnapshot();
+
+  if (saveDraft()) {
+    stateLastDraftSnapshot.value = createSnapshot();
+  }
+
+  return true;
+};
+
+/**
  * 函数：判断事件目标是否为可编辑元素。
  * @param {EventTarget | null} target 事件目标。
  * @returns {boolean} 是否为可编辑元素。
@@ -709,6 +777,32 @@ const createClipboardNode = (node: Node): Node => {
  */
 const createClipboardEdge = (edge: Edge): Edge => {
   return { ...edge, selected: false } as unknown as Edge;
+};
+
+/**
+ * 函数：按粘贴偏移量移动边拐点。
+ * @param {Edge} edge 原始边。
+ * @param {number} offsetX 横向偏移。
+ * @param {number} offsetY 纵向偏移。
+ * @returns {Edge} 已偏移拐点的边。
+ */
+const offsetClipboardEdgePoints = (edge: Edge, offsetX: number, offsetY: number): Edge => {
+  const data = edge.data as ILineEdgeData | undefined;
+
+  if (!Array.isArray(data?.points) || data.points.length === 0) {
+    return edge;
+  }
+
+  return {
+    ...edge,
+    data: {
+      ...data,
+      points: data.points.map((point) => ({
+        x: point.x + offsetX,
+        y: point.y + offsetY
+      }))
+    }
+  } as Edge;
 };
 
 /**
@@ -1039,6 +1133,7 @@ const pasteClipboardData = (clipboardData: ICrawlersEditorClipboardData): void =
         selected: false
       } as unknown as Edge;
     })
+    .map((edge) => (edge ? offsetClipboardEdgePoints(edge, offsetX, offsetY) : edge))
     .filter((edge): edge is Edge => Boolean(edge));
 
   const deselectNodeChanges = nodes.value
@@ -1328,9 +1423,24 @@ const stateInitializingDefault = ref(false);
 const stateDraftRestored = ref(false);
 
 /**
+ * 状态：是否已应用一次初始图。
+ */
+const stateInitialFlowApplied = ref(false);
+
+/**
  * 状态：上次草稿快照。
  */
 const stateLastDraftSnapshot = ref('');
+
+/**
+ * 状态：是否禁止继续写入草稿。
+ */
+const stateDraftWritingDisabled = ref(false);
+
+/**
+ * 状态：外部请求清理的草稿键。
+ */
+const stateDraftCleanupKey = useState<string>('crawlers-editor-draft-cleanup-key', () => '');
 
 /**
  * 状态：自动保存倒计时（秒）。
@@ -1673,10 +1783,31 @@ const clearDraft = (): void => {
 };
 
 /**
+ * 函数：停止自动保存并清理当前草稿。
+ * @returns {void} 无返回值。
+ */
+const stopDraftWritingAndClear = (): void => {
+  stateDraftWritingDisabled.value = true;
+  pushHistorySnapshotDebounced.cancel();
+
+  if (stateAutoSaveTimerId.value !== null) {
+    window.clearInterval(stateAutoSaveTimerId.value);
+    stateAutoSaveTimerId.value = null;
+  }
+
+  clearDraft();
+};
+
+/**
  * 函数：将当前画布保存到草稿。
  * @returns {void} 无返回值。
  */
 const saveDraft = (): boolean => {
+  if (stateDraftWritingDisabled.value) {
+    clearDraft();
+    return true;
+  }
+
   if (!import.meta.client) {
     return true;
   }
@@ -1711,6 +1842,10 @@ const saveDraft = (): boolean => {
  * @returns {void} 无返回值。
  */
 const runAutoSave = (): void => {
+  if (stateDraftWritingDisabled.value) {
+    return;
+  }
+
   /**
    * 常量：success。
    */
@@ -1725,7 +1860,7 @@ const runAutoSave = (): void => {
  * @returns {void} 无返回值。
  */
 const handleAutoSaveManual = (): void => {
-  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+  if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
     return;
   }
 
@@ -1736,7 +1871,7 @@ const handleAutoSaveManual = (): void => {
  * 函数：防抖记录历史。
  */
 const pushHistorySnapshotDebounced = debounce(() => {
-  if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+  if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
     return;
   }
 
@@ -1763,6 +1898,7 @@ onMounted(async () => {
         const restoredInitialFlow = await restoreInitialFlowData();
 
         if (restoredInitialFlow) {
+          stateInitialFlowApplied.value = true;
           stateInitialLoadSource = 'server';
           syncStartNodeDomain();
           syncFunctionNodeMeta();
@@ -1791,6 +1927,7 @@ onMounted(async () => {
         const restoredInitialFlow = await restoreInitialFlowData();
 
         if (restoredInitialFlow) {
+          stateInitialFlowApplied.value = true;
           stateInitialLoadSource = 'server';
           syncStartNodeDomain();
           syncFunctionNodeMeta();
@@ -1868,7 +2005,7 @@ onMounted(async () => {
   }, 150);
 
   stateAutoSaveTimerId.value = window.setInterval(() => {
-    if (stateRestoringSnapshot.value || stateInitializingDefault.value) {
+    if (stateDraftWritingDisabled.value || stateRestoringSnapshot.value || stateInitializingDefault.value) {
       return;
     }
 
@@ -1915,6 +2052,28 @@ watch(computedNormalizedDomain, () => {
 });
 
 /**
+ * 监听：初始图数据晚到时补做恢复。
+ */
+watch(
+  () => initialFlowData,
+  () => {
+    void restoreInitialFlowDataWhenReady();
+  }
+);
+
+/**
+ * 监听：外部保存成功后清理当前草稿。
+ */
+watch(stateDraftCleanupKey, (value) => {
+  const cleanupKey = String(value ?? '').trim();
+  if (cleanupKey === '' || cleanupKey !== computedDraftKey.value) {
+    return;
+  }
+
+  stopDraftWritingAndClear();
+});
+
+/**
  * 监听：开始节点就绪后补同步域名，避免节点初始化时机导致丢值。
  */
 watch(
@@ -1932,6 +2091,10 @@ watch(
  * 生命周期：组件挂载后，记录初始快照。
  */
 watchEffect(() => {
+  if (stateDraftWritingDisabled.value) {
+    return;
+  }
+
   if (nodes.value.length > 0 && stateHistory.value.length === 0) {
     pushHistorySnapshot();
     saveDraft();
@@ -1954,7 +2117,32 @@ watch(
 );
 
 /**
- * 事件：处理模态框保存
+ * 函数：创建编辑器保存载荷。
+ * @returns {Promise<ICrawlersEditorSavePayload>} 保存载荷。
+ */
+const createEditorSavePayload = async (): Promise<ICrawlersEditorSavePayload> => {
+  await nextTick();
+
+  // Vue Flow 的 updateNodeData 存在批处理，这里等一帧确保节点数据已落到快照。
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+
+  flushPendingHistorySnapshot();
+
+  /**
+   * 常量：flowData。
+   */
+  const flowData = toObject();
+
+  return {
+    flowData,
+    draftKey: computedDraftKey.value
+  };
+};
+
+/**
+ * 事件：处理模态框保存。
  */
 const handelModalSave = async () => {
   console.info('[crawler:editor:save-click]', {
@@ -1964,6 +2152,33 @@ const handelModalSave = async () => {
     edges: edges.value.length
   });
 
+  const payload = await createEditorSavePayload();
+  const flowDataStats = payload.flowData as TFlowDataLike;
+
+  console.info('[crawler:editor:save-emit]', {
+    flowKind,
+    draftKey: computedDraftKey.value,
+    nodeCount: Array.isArray(flowDataStats.nodes) ? flowDataStats.nodes.length : 0,
+    edgeCount: Array.isArray(flowDataStats.edges) ? flowDataStats.edges.length : 0
+  });
+
+  emit('save', payload);
+};
+
+/**
+ * 事件：处理模态框保存并关闭。
+ */
+const handelModalSaveAndClose = async () => {
+  const payload = await createEditorSavePayload();
+
+  emit('save-and-close', payload);
+};
+
+/**
+ * 事件：处理蓝图执行。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecute = async (): Promise<void> => {
   await nextTick();
 
   // Vue Flow 的 updateNodeData 存在批处理，这里等一帧确保节点数据已落到快照。
@@ -1971,21 +2186,10 @@ const handelModalSave = async () => {
     requestAnimationFrame(() => resolve());
   });
 
-  /**
-   * 常量：flowData。
-   */
-  const flowData = toObject();
+  flushPendingHistorySnapshot();
 
-  console.info('[crawler:editor:save-emit]', {
-    flowKind,
-    draftKey: computedDraftKey.value,
-    nodeCount: Array.isArray(flowData.nodes) ? flowData.nodes.length : 0,
-    edgeCount: Array.isArray(flowData.edges) ? flowData.edges.length : 0
-  });
-
-  emit('save', {
-    flowData,
-    draftKey: computedDraftKey.value
+  emit('execute', {
+    flowData: toObject()
   });
 };
 
@@ -2259,6 +2463,26 @@ $breakpoint-xs-max: 639px;
 
       &.updating .vue-flow__edge-path {
         stroke: color-mix(in oklab, var(--ui-text-muted) 85%, var(--color-black) 15%);
+      }
+
+      .crawlers-edge-bend-point {
+        pointer-events: all;
+        cursor: grab;
+        fill: var(--ui-bg);
+        stroke: var(--ui-primary);
+        stroke-width: 2;
+      }
+
+      .crawlers-edge-bend-point:hover,
+      .crawlers-edge-bend-point:focus,
+      .crawlers-edge-bend-point-selected {
+        outline: none;
+        fill: var(--ui-primary);
+        stroke: var(--ui-bg);
+      }
+
+      .crawlers-edge-bend-point:active {
+        cursor: grabbing;
       }
     }
 

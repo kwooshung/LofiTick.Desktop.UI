@@ -24,7 +24,7 @@ import type { IFunctionDetailLike, IFunctionGraphNodeLike, IFunctionPinsExtractR
 import { variableInputHandleIdGet, variableOutputHandleIdGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
- * Hook：国际化。
+ * Props：组件入参。
  */
 const { functionRefreshNonce = 0 } = defineProps<{ functionRefreshNonce?: number }>();
 
@@ -95,6 +95,9 @@ const functionPinsExtractFromGraph = (graph: unknown): IFunctionPinsExtractResul
   };
 };
 
+/**
+ * 监控：函数 ID 与刷新 Nonce，获取函数详情。
+ */
 watch(
   [computedFunctionId, () => functionRefreshNonce],
   ([functionId]) => {

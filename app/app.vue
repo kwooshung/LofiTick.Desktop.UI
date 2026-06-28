@@ -79,6 +79,11 @@ const storeAppInfo = useStoreAppInfo();
 const { isTauriRuntime } = useTauriEnv();
 
 /**
+ * Hook：爬虫蓝图能力。
+ */
+const { onPlaySoundEvent: onCrawlerBlueprintPlaySoundEvent, playCrawlerBlueprintSound } = useTauriCrawlerBlueprint();
+
+/**
  * Hook：运行时配置
  */
 const runtimeConfig = useRuntimeConfig();
@@ -117,6 +122,11 @@ const stateStartupSharedSettingsSynced = useState<boolean>('startup-shared-setti
  * 状态：启动场景差异确认是否已执行
  */
 const stateStartupScenesSyncHandled = useState<boolean>('startup-scenes-sync-handled', () => false);
+
+/**
+ * 变量：取消订阅爬虫蓝图提示音事件句柄。
+ */
+let unsubscribeCrawlerBlueprintPlaySound: null | (() => void) = null;
 
 /**
  * 状态：启动期附件目录提示弹窗。
@@ -922,6 +932,16 @@ const handleTauriContextMenuDefaultPrevent = (event: MouseEvent): void => {
 onMounted(() => {
   document.addEventListener('contextmenu', handleTauriContextMenuDefaultPrevent);
 
+  void (async () => {
+    try {
+      unsubscribeCrawlerBlueprintPlaySound = await onCrawlerBlueprintPlaySoundEvent((payload) => {
+        void playCrawlerBlueprintSound(payload.kind);
+      });
+    } catch {
+      unsubscribeCrawlerBlueprintPlaySound = null;
+    }
+  })();
+
   loadSettings();
 
   void (async () => {
@@ -965,6 +985,8 @@ onMounted(() => {
  */
 onBeforeUnmount(() => {
   document.removeEventListener('contextmenu', handleTauriContextMenuDefaultPrevent);
+  unsubscribeCrawlerBlueprintPlaySound?.();
+  unsubscribeCrawlerBlueprintPlaySound = null;
 });
 </script>
 

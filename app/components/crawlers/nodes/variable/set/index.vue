@@ -17,10 +17,7 @@
 
               <UInput v-model="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.variable.set.fields.name.placeholder')" />
 
-              <div v-if="hasTargetPinConnection(item)" :title="t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label')" class="border-default text-muted flex h-8 w-24 shrink-0 items-center gap-1 overflow-hidden border-l px-2 text-[11px] whitespace-nowrap">
-                <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-                <span class="truncate">{{ t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label') }}</span>
-              </div>
+              <CrawlersNodesCommonConnectedInputHint v-if="hasTargetPinConnection(item)" class="w-24 shrink-0" :label="t('components.crawler.blueprint.nodes.variable.set.fields.connectedHint.label')" />
 
               <UInput
                 v-else-if="item.dataType === 'string'"

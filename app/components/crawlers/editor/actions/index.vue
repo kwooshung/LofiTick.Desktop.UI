@@ -19,10 +19,14 @@
       <UTooltip :text="undoText">
         <UButton type="button" color="neutral" variant="outline" icon="i-lucide:undo-2" @click="emit('undo')" />
       </UTooltip>
+      <UTooltip v-if="executeVisible" :text="executeText || ''">
+        <UButton type="button" color="primary" variant="soft" icon="i-lucide:play" :loading="executeLoading" :disabled="executeDisabled || executeLoading" @click="emit('execute')" />
+      </UTooltip>
     </div>
     <div class="flex items-center gap-2">
       <UButton type="button" color="neutral" variant="outline" @click="emit('cancel')">{{ cancelText }}</UButton>
-      <UButton type="button" color="primary" icon="i-lucide:save" @click="emit('save')">{{ saveText }}</UButton>
+      <UButton type="button" color="primary" icon="i-lucide:save" :disabled="saveDisabled" @click="emit('save')">{{ saveText }}</UButton>
+      <UButton type="button" color="primary" variant="soft" icon="i-lucide:save" :disabled="saveDisabled" @click="emit('save-and-close')">{{ saveText }} · {{ $t('common.actions.close') }}</UButton>
     </div>
   </div>
 </template>
@@ -33,7 +37,10 @@ import type { ICrawlersEditorActionsEmits, ICrawlersEditorActionsProps } from '@
 /**
  * 属性：底部操作栏文案。
  */
-const { cancelText, saveText } = defineProps<ICrawlersEditorActionsProps>();
+/**
+ * Props：组件入参。
+ */
+const { cancelText, saveText, saveDisabled = false, executeVisible = false, executeText = '', executeDisabled = false, executeLoading = false } = defineProps<ICrawlersEditorActionsProps>();
 
 /**
  * 事件：底部操作栏操作。

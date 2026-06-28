@@ -362,7 +362,7 @@ const columns: TableColumn<IHotsearchTagSummaryRow>[] = [
   {
     accessorKey: 'count',
     header: t('pages.hotsearch.tags.table.count'),
-    cell: ({ row }) => h('div', { class: 'text-sm text-default' }, row.original.count.toLocaleString()),
+    cell: ({ row }) => h('div', { class: 'text-sm' }, row.original.count.toLocaleString()),
     meta: {
       class: {
         th: 'w-24 text-right',

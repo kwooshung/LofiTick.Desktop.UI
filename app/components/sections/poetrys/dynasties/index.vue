@@ -264,7 +264,7 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: t('pages.poetrys.result.table.dynasty'),
-    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline text-default hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', row.original.id) }, () => row.original.name)
+    cell: ({ row }) => h(ULink, { raw: true, class: 'p-0 no-underline hover:text-primary hover:underline', to: buildSingleFilterLocation('dynasty_ids', row.original.id) }, () => row.original.name)
   },
   {
     accessorKey: 'count',
@@ -293,7 +293,7 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       const icon = isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down';
       return h(UButton, { color: 'neutral', variant: 'ghost', label: t('pages.poetrys.result.table.count'), icon, class: '-mx-2.5 font-semibold', onClick: () => toggleSort('count') });
     },
-    cell: ({ row }) => h('span', { class: 'text-default' }, String(row.original.count))
+    cell: ({ row }) => h('span', String(row.original.count))
   },
   {
     accessorKey: 'authorCount',
@@ -304,7 +304,7 @@ const columns: TableColumn<IPageTableColumnPoetryDynasties>[] = [
       }
     },
     header: t('pages.poetrys.result.table.authorCount'),
-    cell: ({ row }) => h('span', { class: 'text-default' }, String(row.original.authorCount))
+    cell: ({ row }) => h('span', String(row.original.authorCount))
   },
   {
     accessorKey: 'time',
