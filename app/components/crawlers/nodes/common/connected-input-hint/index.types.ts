@@ -11,4 +11,9 @@ export interface ICrawlersNodesCommonConnectedInputHintProps {
    * 属性：悬浮标题。
    */
   title?: string;
+
+  /**
+   * 属性：是否使用紧凑图标模式。
+   */
+  compact?: boolean;
 }

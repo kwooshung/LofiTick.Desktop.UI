@@ -1,7 +1,7 @@
 <template>
-  <div :title="computedTitle" class="border-default text-muted flex h-8 items-center gap-1 overflow-hidden rounded-sm border px-2 text-xs whitespace-nowrap">
+  <div :title="computedTitle" :class="computedRootClass">
     <UIcon name="i-lucide-link-2" class="size-3 shrink-0" />
-    <span class="truncate">{{ label }}</span>
+    <span v-if="!compact" class="truncate">{{ label }}</span>
   </div>
 </template>
 
@@ -11,10 +11,20 @@ import type { ICrawlersNodesCommonConnectedInputHintProps } from '@/components/c
 /**
  * Props：组件入参。
  */
-const { label, title } = defineProps<ICrawlersNodesCommonConnectedInputHintProps>();
+const { label, title, compact = false } = defineProps<ICrawlersNodesCommonConnectedInputHintProps>();
 
 /**
  * 计算属性：悬浮标题。
  */
 const computedTitle = computed(() => title ?? label);
+
+/**
+ * 计算属性：根元素样式。
+ */
+const computedRootClass = computed(() => {
+  return [
+    'text-muted flex items-center overflow-hidden text-[11px] whitespace-nowrap',
+    compact ? 'size-5 justify-center rounded-sm' : 'border-default h-8 gap-1 border-l px-2'
+  ];
+});
 </script>

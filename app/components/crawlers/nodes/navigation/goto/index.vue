@@ -1,5 +1,12 @@
 <template>
-  <CrawlersNodesCommonBasic icon-name="i-lucide-external-link" :title="t('components.crawler.blueprint.nodes.navigation.goto.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.description')" header-bg="bg-blue-500" :left-pins="computedLeftPins" :right-pins="computedRightPins">
+  <CrawlersNodesCommonBasic
+    icon-name="i-lucide-external-link"
+    :title="t('components.crawler.blueprint.nodes.navigation.goto.title')"
+    :description="t('components.crawler.blueprint.nodes.navigation.goto.description')"
+    header-bg="bg-blue-500"
+    :left-pins="computedLeftPins"
+    :right-pins="computedRightPins"
+  >
     <div class="space-y-3">
       <UFormField :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.path.label')">
         <div class="space-y-2">
@@ -8,18 +15,34 @@
       </UFormField>
 
       <div class="space-y-2">
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.label') }}</span>
-          <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')" @click="handlePathVariableAdd" />
-        </div>
+        <span class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.label') }}</span>
 
-        <UEmpty v-if="statePathVariables.length === 0" icon="i-lucide-braces" :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')" variant="naked" size="sm" />
+        <UEmpty
+          v-if="statePathVariables.length === 0"
+          icon="i-lucide-braces"
+          :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')"
+          :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')"
+          size="sm"
+        >
+          <template #actions>
+            <UButton color="primary" variant="soft" icon="i-lucide-plus" @click="handlePathVariableAdd">
+              {{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add') }}
+            </UButton>
+          </template>
+        </UEmpty>
 
         <div v-else class="space-y-1">
           <div v-for="item in statePathVariables" :key="item.id" class="flex items-center gap-2">
-            <CrawlersNodesCommonConnectedInputHint v-if="hasConnectedPathVariable(item)" class="min-w-0 flex-1" :label="t('components.crawler.blueprint.nodes.common.connectedInputHint')" />
-            <UInput v-else :model-value="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')" @update:model-value="(value) => handlePathVariableNameUpdate(item.id, value)" />
+            <UInput :model-value="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')" @update:model-value="(value) => handlePathVariableNameUpdate(item.id, value)">
+              <template v-if="hasConnectedPathVariable(item)" #trailing>
+                <CrawlersNodesCommonConnectedInputHint compact :label="t('components.crawler.blueprint.nodes.common.connectedInputHint')" />
+              </template>
+            </UInput>
             <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handlePathVariableRemove(item.id)" />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')" @click="handlePathVariableAdd" />
           </div>
         </div>
       </div>
@@ -533,29 +556,33 @@ watchEffect(() => {
 /**
  * 监听：本地状态变化时回写到 node.data。
  */
-watch([statePath, statePathVariables, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, stateWindowPositionPreset, stateWindowX, stateWindowY, stateShowWebview, stateWaitReady, stateTimeoutMs], () => {
-  if (!stateInitialized.value) {
-    return;
-  }
+watch(
+  [statePath, statePathVariables, stateWindowWidth, stateWindowHeight, stateWindowPositionMode, stateWindowPositionPreset, stateWindowX, stateWindowY, stateShowWebview, stateWaitReady, stateTimeoutMs],
+  () => {
+    if (!stateInitialized.value) {
+      return;
+    }
 
-  stateNode.node.data = {
-    ...(stateNode.node.data as Record<string, unknown> | undefined),
-    path: statePath.value,
-    pathVariables: statePathVariables.value.map((item) => ({
-      id: item.id,
-      name: item.name
-    })),
-    windowWidth: stateWindowWidth.value,
-    windowHeight: stateWindowHeight.value,
-    windowPositionMode: stateWindowPositionMode.value,
-    windowPositionPreset: stateWindowPositionPreset.value,
-    windowX: stateWindowX.value,
-    windowY: stateWindowY.value,
-    showWebview: stateShowWebview.value,
-    waitReady: stateWaitReady.value,
-    timeoutMs: stateTimeoutMs.value
-  };
-}, { deep: true });
+    stateNode.node.data = {
+      ...(stateNode.node.data as Record<string, unknown> | undefined),
+      path: statePath.value,
+      pathVariables: statePathVariables.value.map((item) => ({
+        id: item.id,
+        name: item.name
+      })),
+      windowWidth: stateWindowWidth.value,
+      windowHeight: stateWindowHeight.value,
+      windowPositionMode: stateWindowPositionMode.value,
+      windowPositionPreset: stateWindowPositionPreset.value,
+      windowX: stateWindowX.value,
+      windowY: stateWindowY.value,
+      showWebview: stateShowWebview.value,
+      waitReady: stateWaitReady.value,
+      timeoutMs: stateTimeoutMs.value
+    };
+  },
+  { deep: true }
+);
 
 /**
  * 监听：路径变量引脚变化后刷新 Vue Flow 内部命中区域。

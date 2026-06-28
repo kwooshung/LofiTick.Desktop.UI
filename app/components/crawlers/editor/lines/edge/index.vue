@@ -1,6 +1,19 @@
 <template>
   <g @dblclick="handleEdgeDoubleClick">
-    <BaseEdge :id="props.id" :style="props.style" :path="computedPath[0]" :marker-end="props.markerEnd" :label="props.data?.text" :label-x="computedPath[1]" :label-y="computedPath[2]" :label-style="{ fill: 'white' }" :label-show-bg="true" :label-bg-style="{ fill: 'red' }" :label-bg-padding="[2, 4]" :label-bg-border-radius="2" />
+    <BaseEdge
+      :id="props.id"
+      :style="props.style"
+      :path="computedPath[0]"
+      :marker-end="props.markerEnd"
+      :label="props.data?.text"
+      :label-x="computedPath[1]"
+      :label-y="computedPath[2]"
+      :label-style="{ fill: 'white' }"
+      :label-show-bg="true"
+      :label-bg-style="{ fill: 'red' }"
+      :label-bg-padding="[2, 4]"
+      :label-bg-border-radius="2"
+    />
 
     <circle
       v-for="(point, index) in computedPoints"
