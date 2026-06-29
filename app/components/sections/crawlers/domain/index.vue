@@ -26,11 +26,24 @@
         <UPagination v-model:page="computedPage" show-edges :items-per-page="computedItemsPerPage" :total="computedTotal" />
       </div>
     </div>
+
+    <CrawlersExecutionParameters
+      v-model:open="stateExecutionParametersOpen"
+      :site-name="computedExecutionParametersSiteName"
+      :base-url="computedExecutionParametersBaseUrl"
+      :flow-data="stateExecutionParametersFlowData"
+      :busy="computedExecutionParametersBusy"
+      @execute="handleExecutionParametersExecute"
+      @save-default-and-execute="handleExecutionParametersSaveDefaultAndExecute"
+    />
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+
+import type { ICrawlerBlueprintExecutionParametersSubmitPayload } from '@/components/crawlers/execution/parameters/index.types';
+import { crawlerBlueprintExecutionParametersExtract } from '@/components/crawlers/execution/parameters/utils/index';
 
 /**
  * 组件：时间展示。
@@ -75,6 +88,14 @@ const route = useRoute();
 const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
 
 /**
+ * API：保存执行参数默认值。
+ */
+const { refresh: refreshBlueprintSave } = await useApi<{ affected: number; id: number; referenceCount: number }>('crawlers/blueprints/add', {
+  method: 'POST',
+  immediate: false
+});
+
+/**
  * 状态：删除确认气泡打开行 ID。
  */
 const stateDeletePopoverOpenId = ref<number | null>(null);
@@ -93,6 +114,21 @@ const stateBlueprintEnabledSavingIds = ref<Record<number, boolean>>({});
  * 状态：蓝图执行中的行。
  */
 const stateBlueprintExecutingIds = ref<Record<number, boolean>>({});
+
+/**
+ * 状态：待执行蓝图行。
+ */
+const statePendingExecutionRow = ref<IQueryResultCrawlerBlueprintRow | null>(null);
+
+/**
+ * 状态：执行参数弹窗开关。
+ */
+const stateExecutionParametersOpen = ref(false);
+
+/**
+ * 状态：执行参数弹窗图数据。
+ */
+const stateExecutionParametersFlowData = ref<unknown>(null);
 
 /**
  * 状态：蓝图抽屉开关。
@@ -413,6 +449,25 @@ const blueprintIsRunning = (status: TCrawlerBlueprintLastRunStatus): boolean => 
 const blueprintRowIsRunning = (row: IQueryResultCrawlerBlueprintRow): boolean => blueprintIsRunning(row.lastRunStatus) || stateBlueprintExecutingIds.value[Number(row.id ?? 0)] === true;
 
 /**
+ * 计算属性：执行参数弹窗加载状态。
+ */
+const computedExecutionParametersBusy = computed<boolean>(() => {
+  const rowId = Number(statePendingExecutionRow.value?.id ?? 0);
+
+  return Number.isFinite(rowId) && rowId > 0 ? stateBlueprintExecutingIds.value[rowId] === true : false;
+});
+
+/**
+ * 计算属性：执行参数弹窗站点名称。
+ */
+const computedExecutionParametersSiteName = computed<string>(() => String(stateDetailDatas.value?.name ?? '').trim());
+
+/**
+ * 计算属性：执行参数弹窗基础 URL。
+ */
+const computedExecutionParametersBaseUrl = computed<string>(() => String(stateDetailDatas.value?.baseUrl ?? '').trim());
+
+/**
  * 函数：打开当前爬虫的编辑抽屉。
  *
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
@@ -489,7 +544,7 @@ const handleToggleCrawlerEnabled = async (row: IQueryResultCrawlerBlueprintRow, 
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
  * @returns {Promise<void>} Promise。
  */
-const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow): Promise<void> => {
+const runCrawlerBlueprintRow = async (row: IQueryResultCrawlerBlueprintRow, flowData: unknown, parameters: Record<string, unknown>): Promise<void> => {
   if (blueprintRowIsRunning(row)) {
     return;
   }
@@ -518,7 +573,8 @@ const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow):
       targetId,
       siteName: String(row.name ?? stateDetailDatas.value?.name ?? '').trim(),
       baseUrl: String(stateDetailDatas.value?.baseUrl ?? '').trim(),
-      nodes: row.nodes ?? {}
+      nodes: flowData ?? {},
+      parameters
     });
 
     toast.add({
@@ -535,11 +591,79 @@ const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow):
       description: errorMessage !== '' ? errorMessage : t('pages.crawlers.blueprints.actions.runFailed')
     });
   } finally {
-    const nextExecutingIds = { ...stateBlueprintExecutingIds.value };
-    delete nextExecutingIds[rowId];
-    stateBlueprintExecutingIds.value = nextExecutingIds;
+    stateBlueprintExecutingIds.value = Object.fromEntries(Object.entries(stateBlueprintExecutingIds.value).filter(([key]) => Number(key) !== rowId));
     refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
   }
+};
+
+/**
+ * 函数：执行当前爬虫蓝图。
+ *
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {Promise<void>} Promise。
+ */
+const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow): Promise<void> => {
+  if (blueprintRowIsRunning(row)) {
+    return;
+  }
+
+  const flowData = row.nodes ?? {};
+
+  if (crawlerBlueprintExecutionParametersExtract(flowData).length > 0) {
+    statePendingExecutionRow.value = row;
+    stateExecutionParametersFlowData.value = flowData;
+    stateExecutionParametersOpen.value = true;
+    return;
+  }
+
+  await runCrawlerBlueprintRow(row, flowData, {});
+};
+
+/**
+ * 事件：使用弹窗参数执行列表蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  const row = statePendingExecutionRow.value;
+  stateExecutionParametersOpen.value = false;
+  statePendingExecutionRow.value = null;
+
+  if (!row) {
+    return;
+  }
+
+  await runCrawlerBlueprintRow(row, payload.flowData, payload.parameters);
+};
+
+/**
+ * 事件：保存参数默认值后执行列表蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersSaveDefaultAndExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  const row = statePendingExecutionRow.value;
+  stateExecutionParametersOpen.value = false;
+  statePendingExecutionRow.value = null;
+
+  if (!row) {
+    return;
+  }
+
+  await refreshBlueprintSave({
+    datas: {
+      id: Number(row.id ?? 0),
+      targetId: Number(row.targetId ?? computedTargetId.value ?? 0),
+      name: String(row.name ?? '').trim(),
+      description: String(row.description ?? '').trim(),
+      nodes: payload.flowData,
+      isEnabled: row.enabled
+    },
+    replace: true
+  });
+
+  row.nodes = payload.flowData;
+  await runCrawlerBlueprintRow(row, payload.flowData, payload.parameters);
 };
 
 /**

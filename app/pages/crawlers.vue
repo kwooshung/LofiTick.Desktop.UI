@@ -87,6 +87,16 @@
       @functions-changed="stateFunctionRefreshNonce += 1"
     />
 
+    <CrawlersExecutionParameters
+      v-model:open="stateExecutionParametersOpen"
+      :site-name="computedExecutionParametersSiteName"
+      :base-url="computedExecutionParametersBaseUrl"
+      :flow-data="stateExecutionParametersFlowData"
+      :busy="stateCrawlerBlueprintExecuting"
+      @execute="handleExecutionParametersExecute"
+      @save-default-and-execute="handleExecutionParametersSaveDefaultAndExecute"
+    />
+
     <USlideover
       v-model:open="stateFunctionLogicOpen"
       :title="computedFunctionLogicTitle"
@@ -197,6 +207,8 @@ import { z } from 'zod';
 
 import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ICrawlerBlueprintExecutionParametersSubmitPayload } from '@/components/crawlers/execution/parameters/index.types';
+import { crawlerBlueprintExecutionParametersExtract } from '@/components/crawlers/execution/parameters/utils/index';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。
@@ -234,6 +246,21 @@ const { onOutputLogEvent: onCrawlerBlueprintOutputLogEvent } = useTauriCrawlerBl
  * Hook：爬虫蓝图执行记录闭环。
  */
 const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
+
+/**
+ * 状态：待执行蓝图载荷。
+ */
+const statePendingBlueprintExecutePayload = ref<IPageCrawlerBlueprintEditorExecutePayload | null>(null);
+
+/**
+ * 状态：执行参数弹窗开关。
+ */
+const stateExecutionParametersOpen = ref(false);
+
+/**
+ * 状态：执行参数弹窗图数据。
+ */
+const stateExecutionParametersFlowData = ref<unknown>(null);
 
 /**
  * 变量：取消订阅爬虫蓝图输出日志事件句柄。
@@ -630,6 +657,16 @@ const computedRouteDetailTitle = computed<string>(() => {
 });
 
 /**
+ * 计算属性：执行参数弹窗站点名称。
+ */
+const computedExecutionParametersSiteName = computed<string>(() => computedRouteDetailTitle.value);
+
+/**
+ * 计算属性：执行参数弹窗基础 URL。
+ */
+const computedExecutionParametersBaseUrl = computed<string>(() => String(stateDetail.value?.baseUrl ?? stateBlueprintDrawerTarget.value?.baseUrl ?? '').trim());
+
+/**
  * 计算属性：函数创建弹窗标题。
  */
 const computedFunctionEditorTitle = computed(() => {
@@ -798,7 +835,7 @@ const normalizeBaseUrlForSave = (value: string): string => {
    */
   const matchResult = withProtocol.match(/^(https?:\/\/[^/?#]+)/i);
 
-  return matchResult ? matchResult[1] : withProtocol;
+  return matchResult?.[1] ?? withProtocol;
 };
 
 /**
@@ -1343,15 +1380,12 @@ const handleBlueprintSaveAndClose = async (payload: ICrawlersEditorSavePayload):
 };
 
 /**
- * 事件：执行当前编辑器蓝图。
+ * 函数：执行当前编辑器蓝图图数据。
  * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @param {Record<string, unknown>} parameters 执行参数覆盖值。
  * @returns {Promise<void>} Promise。
  */
-const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
-  if (stateCrawlerBlueprintExecuting.value) {
-    return;
-  }
-
+const runEditorBlueprintFlow = async (payload: IPageCrawlerBlueprintEditorExecutePayload, parameters: Record<string, unknown>): Promise<void> => {
   const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
   const targetId = Number(target?.id ?? 0);
 
@@ -1386,7 +1420,8 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
       targetId,
       siteName: String(target.name ?? computedRouteDetailTitle.value ?? '').trim(),
       baseUrl: String(target.baseUrl ?? '').trim(),
-      nodes: payload.flowData ?? {}
+      nodes: payload.flowData ?? {},
+      parameters
     });
 
     const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
@@ -1404,6 +1439,64 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
   } finally {
     stateCrawlerBlueprintExecuting.value = false;
   }
+};
+
+/**
+ * 事件：使用弹窗参数执行编辑器蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  const pendingPayload = statePendingBlueprintExecutePayload.value;
+  stateExecutionParametersOpen.value = false;
+  statePendingBlueprintExecutePayload.value = null;
+
+  if (!pendingPayload) {
+    return;
+  }
+
+  await runEditorBlueprintFlow({ flowData: payload.flowData }, payload.parameters);
+};
+
+/**
+ * 事件：保存参数默认值后执行编辑器蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersSaveDefaultAndExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  stateExecutionParametersOpen.value = false;
+  statePendingBlueprintExecutePayload.value = null;
+
+  const saved = await handleBlueprintSave({
+    flowData: payload.flowData,
+    draftKey: ''
+  });
+
+  if (!saved) {
+    return;
+  }
+
+  await runEditorBlueprintFlow({ flowData: payload.flowData }, payload.parameters);
+};
+
+/**
+ * 事件：执行当前编辑器蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
+  if (stateCrawlerBlueprintExecuting.value) {
+    return;
+  }
+
+  if (crawlerBlueprintExecutionParametersExtract(payload.flowData).length > 0) {
+    statePendingBlueprintExecutePayload.value = payload;
+    stateExecutionParametersFlowData.value = payload.flowData ?? {};
+    stateExecutionParametersOpen.value = true;
+    return;
+  }
+
+  await runEditorBlueprintFlow(payload, {});
 };
 
 /**

@@ -183,6 +183,20 @@ export const crawlers = {
       title: 'クローラーがありません',
       description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
     },
+    parameters: {
+      title: '実行パラメータを設定',
+      description: '今回の実行ではここで入力した値を使用し、ブループリントの既定値は自動では上書きしません。',
+      fields: {
+        stringPlaceholder: '今回の実行で使う値を入力',
+        jsonPlaceholder: '有効な JSON を入力',
+        jsonInvalid: 'JSON 形式またはデータ型が正しくありません',
+        description: 'パラメータ ID：{id} · 型：{type}'
+      },
+      actions: {
+        execute: '現在の値で実行',
+        saveDefaultAndExecute: '現在の値を既定値として保存して実行'
+      }
+    },
     table: {
       name: '名称',
       description: '説明',

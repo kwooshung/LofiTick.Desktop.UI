@@ -183,6 +183,20 @@ export const crawlers = {
       title: '暂无爬虫',
       description: '当前站点还没有创建任何爬虫，点击右上角“添加爬虫”开始创建。'
     },
+    parameters: {
+      title: '设置执行参数',
+      description: '本次执行会使用这里填写的参数值，不会自动覆盖蓝图默认值。',
+      fields: {
+        stringPlaceholder: '请输入本次执行的参数值',
+        jsonPlaceholder: '请输入合法 JSON',
+        jsonInvalid: 'JSON 格式或数据类型不正确',
+        description: '参数 ID：{id} · 类型：{type}'
+      },
+      actions: {
+        execute: '使用当前值执行',
+        saveDefaultAndExecute: '保存当前值为默认值并执行'
+      }
+    },
     table: {
       name: '名称',
       description: '描述',

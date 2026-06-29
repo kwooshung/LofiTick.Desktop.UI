@@ -183,6 +183,20 @@ export const crawlers = {
       title: '暫無爬蟲',
       description: '目前站點還沒有建立任何爬蟲，請點擊右上角「添加任務」開始建立。'
     },
+    parameters: {
+      title: '設定執行參數',
+      description: '本次執行會使用這裡填寫的參數值，不會自動覆蓋藍圖預設值。',
+      fields: {
+        stringPlaceholder: '請輸入本次執行的參數值',
+        jsonPlaceholder: '請輸入合法 JSON',
+        jsonInvalid: 'JSON 格式或資料類型不正確',
+        description: '參數 ID：{id} · 類型：{type}'
+      },
+      actions: {
+        execute: '使用目前值執行',
+        saveDefaultAndExecute: '保存目前值為預設值並執行'
+      }
+    },
     table: {
       name: '名稱',
       description: '描述',

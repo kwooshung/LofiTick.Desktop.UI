@@ -183,6 +183,20 @@ export const crawlers = {
       title: 'No Crawlers',
       description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
     },
+    parameters: {
+      title: 'Set Execution Parameters',
+      description: 'This run will use the values entered here and will not overwrite blueprint defaults automatically.',
+      fields: {
+        stringPlaceholder: 'Enter the value for this run',
+        jsonPlaceholder: 'Enter valid JSON',
+        jsonInvalid: 'Invalid JSON format or data type',
+        description: 'Parameter ID: {id} · Type: {type}'
+      },
+      actions: {
+        execute: 'Run With Current Values',
+        saveDefaultAndExecute: 'Save Current Values As Defaults And Run'
+      }
+    },
     table: {
       name: 'Name',
       description: 'Description',
