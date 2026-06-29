@@ -1,5 +1,11 @@
 <template>
-  <UModal v-model:open="stateOpen" :dismissible="!busy" :title="t('pages.crawlers.blueprints.parameters.title')" :description="t('pages.crawlers.blueprints.parameters.description')" :ui="{ content: 'max-w-2xl overflow-hidden', body: 'p-0', footer: 'justify-between border-t border-default bg-muted/20 px-5 py-3' }">
+  <UModal
+    v-model:open="stateOpen"
+    :dismissible="!busy"
+    :title="t('pages.crawlers.blueprints.parameters.title')"
+    :description="t('pages.crawlers.blueprints.parameters.description')"
+    :ui="{ content: 'max-w-2xl overflow-hidden', body: 'p-0', footer: 'justify-between border-t border-default bg-muted/20 px-5 py-3' }"
+  >
     <template #body>
       <div>
         <div class="border-default bg-muted/20 flex min-w-0 items-center gap-3 border-b px-5 py-3">
