@@ -182,6 +182,23 @@ export const useTauriCrawlerBlueprint = () => {
   };
 
   /**
+   * 函数：停止爬虫蓝图任务。
+   * @param {string} taskId 任务 ID。
+   * @returns {Promise<boolean>} 是否写入停止标记。
+   */
+  const stop = async (taskId: string): Promise<boolean> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return invoke<boolean>('crawler_blueprint_stop', { taskId });
+  };
+
+  /**
    * 函数：监听爬虫蓝图输出日志事件。
    * @param {(payload: ITauriCrawlerBlueprintOutputLogEvent) => void} handler 事件处理器。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
@@ -219,5 +236,5 @@ export const useTauriCrawlerBlueprint = () => {
     });
   };
 
-  return { execute, onOutputLogEvent, onPlaySoundEvent, unlockCrawlerBlueprintAudio, playCrawlerBlueprintSound };
+  return { execute, stop, onOutputLogEvent, onPlaySoundEvent, unlockCrawlerBlueprintAudio, playCrawlerBlueprintSound };
 };

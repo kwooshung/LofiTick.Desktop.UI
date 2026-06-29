@@ -4,9 +4,19 @@
 type TCrawlerBlueprintExecutionFinishStatus = 'success' | 'failed' | 'stopped';
 
 /**
+ * 常量：爬虫蓝图停止错误消息。
+ */
+const CRAWLER_BLUEPRINT_STOPPED_ERROR = 'crawler blueprint task stopped';
+
+/**
  * 接口：爬虫蓝图执行入参。
  */
 interface ICrawlerBlueprintExecutionRunnerInput {
+  /**
+   * 任务 ID。
+   */
+  taskId?: string;
+
   /**
    * 蓝图 ID。
    */
@@ -43,6 +53,11 @@ interface ICrawlerBlueprintExecutionRunnerInput {
  */
 interface ICrawlerBlueprintExecutionRunnerResult {
   /**
+   * 执行终态。
+   */
+  status: TCrawlerBlueprintExecutionFinishStatus;
+
+  /**
    * 执行记录 ID。
    */
   executionId: number;
@@ -66,7 +81,7 @@ export const useCrawlerBlueprintExecutionRunner = async () => {
   /**
    * Hook：Tauri 爬虫蓝图能力。
    */
-  const { execute, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
+  const { execute, stop, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
 
   /**
    * API：创建执行记录。
@@ -145,6 +160,7 @@ export const useCrawlerBlueprintExecutionRunner = async () => {
       await unlockCrawlerBlueprintAudio();
 
       const response = await execute({
+        taskId: input.taskId,
         blueprintId: input.blueprintId,
         targetId: input.targetId,
         siteName: input.siteName,
@@ -159,12 +175,23 @@ export const useCrawlerBlueprintExecutionRunner = async () => {
       await finish(input.blueprintId, executionId, 'success', { sessionId, taskId }, '');
 
       return {
+        status: 'success',
         executionId,
         sessionId,
-        taskId
+        taskId: taskId || String(input.taskId ?? '')
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
+
+      if (errorMessage === CRAWLER_BLUEPRINT_STOPPED_ERROR) {
+        await finish(input.blueprintId, executionId, 'stopped', { taskId: String(input.taskId ?? '') }, errorMessage);
+        return {
+          status: 'stopped',
+          executionId,
+          sessionId: '',
+          taskId: String(input.taskId ?? '')
+        };
+      }
 
       await finish(input.blueprintId, executionId, 'failed', { message: errorMessage }, errorMessage);
 
@@ -172,5 +199,5 @@ export const useCrawlerBlueprintExecutionRunner = async () => {
     }
   };
 
-  return { run };
+  return { run, stop };
 };

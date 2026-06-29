@@ -206,9 +206,10 @@ export const crawlers = {
     actions: {
       execute: '実行',
       pause: '一時停止',
-      pausePending: '一時停止機能はまだ接続されていません。現在のタスクは実行を継続します。',
+      stop: '停止',
       deleteConfirm: 'クローラー「{name}」を削除しますか？この操作は取り消せません。',
       runSuccess: '実行を開始しました。現在実行中です。',
+      stopSuccess: '今回の実行を停止しました。',
       runFailed: '実行の開始に失敗しました。しばらくしてから再試行してください。',
       deleteSuccess: '削除しました。',
       deleteFailed: '削除に失敗しました。しばらくしてから再試行してください。'

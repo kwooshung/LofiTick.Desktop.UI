@@ -85,7 +85,7 @@ const route = useRoute();
 /**
  * Hook：爬虫蓝图执行记录闭环。
  */
-const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
+const { run: runCrawlerBlueprintExecution, stop: stopCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
 
 /**
  * API：保存执行参数默认值。
@@ -114,6 +114,21 @@ const stateBlueprintEnabledSavingIds = ref<Record<number, boolean>>({});
  * 状态：蓝图执行中的行。
  */
 const stateBlueprintExecutingIds = ref<Record<number, boolean>>({});
+
+/**
+ * 状态：蓝图暂停确认中的行。
+ */
+const stateBlueprintPausedIds = ref<Record<number, boolean>>({});
+
+/**
+ * 状态：蓝图停止中的行。
+ */
+const stateBlueprintStoppingIds = ref<Record<number, boolean>>({});
+
+/**
+ * 状态：蓝图执行任务 ID。
+ */
+const stateBlueprintTaskIds = ref<Record<number, string>>({});
 
 /**
  * 状态：待执行蓝图行。
@@ -449,6 +464,20 @@ const blueprintIsRunning = (status: TCrawlerBlueprintLastRunStatus): boolean => 
 const blueprintRowIsRunning = (row: IQueryResultCrawlerBlueprintRow): boolean => blueprintIsRunning(row.lastRunStatus) || stateBlueprintExecutingIds.value[Number(row.id ?? 0)] === true;
 
 /**
+ * 函数：判断蓝图行是否处于暂停确认态。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {boolean} 是否处于暂停确认态。
+ */
+const blueprintRowIsPaused = (row: IQueryResultCrawlerBlueprintRow): boolean => stateBlueprintPausedIds.value[Number(row.id ?? 0)] === true;
+
+/**
+ * 函数：判断蓝图行是否正在停止。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {boolean} 是否正在停止。
+ */
+const blueprintRowIsStopping = (row: IQueryResultCrawlerBlueprintRow): boolean => stateBlueprintStoppingIds.value[Number(row.id ?? 0)] === true;
+
+/**
  * 计算属性：执行参数弹窗加载状态。
  */
 const computedExecutionParametersBusy = computed<boolean>(() => {
@@ -565,10 +594,16 @@ const runCrawlerBlueprintRow = async (row: IQueryResultCrawlerBlueprintRow, flow
     ...stateBlueprintExecutingIds.value,
     [rowId]: true
   };
+  const taskId = crypto.randomUUID();
+  stateBlueprintTaskIds.value = {
+    ...stateBlueprintTaskIds.value,
+    [rowId]: taskId
+  };
   row.lastRunStatus = 'running';
 
   try {
-    await runCrawlerBlueprintExecution({
+    const result = await runCrawlerBlueprintExecution({
+      taskId,
       blueprintId: rowId,
       targetId,
       siteName: String(row.name ?? stateDetailDatas.value?.name ?? '').trim(),
@@ -576,6 +611,16 @@ const runCrawlerBlueprintRow = async (row: IQueryResultCrawlerBlueprintRow, flow
       nodes: flowData ?? {},
       parameters
     });
+
+    if (result.status === 'stopped') {
+      row.lastRunStatus = 'stopped';
+      toast.add({
+        color: 'neutral',
+        title: row.name || `#${row.id}`,
+        description: t('pages.crawlers.blueprints.actions.stopSuccess')
+      });
+      return;
+    }
 
     toast.add({
       color: 'success',
@@ -592,6 +637,9 @@ const runCrawlerBlueprintRow = async (row: IQueryResultCrawlerBlueprintRow, flow
     });
   } finally {
     stateBlueprintExecutingIds.value = Object.fromEntries(Object.entries(stateBlueprintExecutingIds.value).filter(([key]) => Number(key) !== rowId));
+    stateBlueprintPausedIds.value = Object.fromEntries(Object.entries(stateBlueprintPausedIds.value).filter(([key]) => Number(key) !== rowId));
+    stateBlueprintStoppingIds.value = Object.fromEntries(Object.entries(stateBlueprintStoppingIds.value).filter(([key]) => Number(key) !== rowId));
+    stateBlueprintTaskIds.value = Object.fromEntries(Object.entries(stateBlueprintTaskIds.value).filter(([key]) => Number(key) !== rowId));
     refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
   }
 };
@@ -671,14 +719,26 @@ const handleExecutionParametersSaveDefaultAndExecute = async (payload: ICrawlerB
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
  * @returns {string} 图标名称。
  */
-const executionActionIconGet = (row: IQueryResultCrawlerBlueprintRow): string => (blueprintRowIsRunning(row) ? 'i-lucide:pause' : 'i-lucide:play');
+const executionActionIconGet = (row: IQueryResultCrawlerBlueprintRow): string => {
+  if (blueprintRowIsPaused(row)) {
+    return 'i-lucide:square';
+  }
+
+  return blueprintRowIsRunning(row) ? 'i-lucide:pause' : 'i-lucide:play';
+};
 
 /**
  * 函数：读取执行按钮文案。
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
  * @returns {string} 按钮文案。
  */
-const executionActionLabelGet = (row: IQueryResultCrawlerBlueprintRow): string => (blueprintRowIsRunning(row) ? t('pages.crawlers.blueprints.actions.pause') : t('pages.crawlers.blueprints.actions.execute'));
+const executionActionLabelGet = (row: IQueryResultCrawlerBlueprintRow): string => {
+  if (blueprintRowIsPaused(row)) {
+    return t('pages.crawlers.blueprints.actions.stop');
+  }
+
+  return blueprintRowIsRunning(row) ? t('pages.crawlers.blueprints.actions.pause') : t('pages.crawlers.blueprints.actions.execute');
+};
 
 /**
  * 函数：读取执行按钮图标样式。
@@ -686,6 +746,12 @@ const executionActionLabelGet = (row: IQueryResultCrawlerBlueprintRow): string =
  * @returns {Record<string, string>} 图标样式。
  */
 const executionActionUiGet = (row: IQueryResultCrawlerBlueprintRow): Record<string, string> => {
+  if (blueprintRowIsPaused(row)) {
+    return {
+      leadingIcon: 'text-error group-hover:text-error'
+    };
+  }
+
   if (blueprintRowIsRunning(row)) {
     return {
       leadingIcon: 'text-warning group-hover:text-warning'
@@ -703,13 +769,32 @@ const executionActionUiGet = (row: IQueryResultCrawlerBlueprintRow): Record<stri
  * @returns {() => void} 点击处理器。
  */
 const executionActionClickGet = (row: IQueryResultCrawlerBlueprintRow): (() => void) => {
-  return () => {
+  return async () => {
+    const rowId = Number(row.id ?? 0);
+
+    if (blueprintRowIsStopping(row)) {
+      return;
+    }
+
+    if (blueprintRowIsPaused(row)) {
+      const taskId = String(stateBlueprintTaskIds.value[rowId] ?? '').trim();
+      if (taskId === '') {
+        return;
+      }
+
+      stateBlueprintStoppingIds.value = {
+        ...stateBlueprintStoppingIds.value,
+        [rowId]: true
+      };
+      await stopCrawlerBlueprintExecution(taskId);
+      return;
+    }
+
     if (blueprintRowIsRunning(row)) {
-      toast.add({
-        color: 'warning',
-        title: row.name || `#${row.id}`,
-        description: t('pages.crawlers.blueprints.actions.pausePending')
-      });
+      stateBlueprintPausedIds.value = {
+        ...stateBlueprintPausedIds.value,
+        [rowId]: true
+      };
       return;
     }
 
@@ -836,6 +921,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
               color: 'neutral',
               variant: 'soft',
               icon: executionActionIconGet(row.original),
+              loading: blueprintRowIsStopping(row.original),
               ui: executionActionUiGet(row.original),
               onClick: executionActionClickGet(row.original)
             },
@@ -1081,6 +1167,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             color: 'neutral',
             variant: 'ghost',
             icon: executionActionIconGet(row.original),
+            loading: blueprintRowIsStopping(row.original),
             ui: executionActionUiGet(row.original),
             onClick: executionActionClickGet(row.original)
           },
