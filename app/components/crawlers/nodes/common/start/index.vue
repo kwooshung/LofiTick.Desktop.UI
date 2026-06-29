@@ -1,7 +1,7 @@
 <template>
   <CrawlersNodesCommonBasic icon-name="i-tdesign:play-circle-filled" :title="computedCrawlerTitle" :description="computedCrawlerDescription" header-bg="bg-rose-500" :show-exec-in="false" :right-pins="computedRightPins">
     <div class="space-y-2">
-      <FormUrlInput v-if="computedDomain !== ''" :model-value="computedDomain" readonly base-url-only class="w-full" />
+      <FormUrlInput v-if="computedBaseUrl !== ''" :model-value="computedBaseUrl" readonly base-url-only class="w-full" />
 
       <div class="space-y-1">
         <label class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.common.start.form.crawlerTitle') }}</label>
@@ -96,6 +96,19 @@ const computedDomain = computed(() => {
    */
   const data = (stateNode.node.data ?? {}) as ICrawlersNodesCommonStartData;
   return String(data.domain ?? '').trim();
+});
+
+/**
+ * 计算属性：开始节点基础 URL。
+ */
+const computedBaseUrl = computed(() => {
+  /**
+   * 常量：data。
+   */
+  const data = (stateNode.node.data ?? {}) as ICrawlersNodesCommonStartData;
+  const baseUrl = String(data.baseUrl ?? '').trim();
+
+  return baseUrl !== '' ? baseUrl : computedDomain.value;
 });
 
 /**
@@ -200,6 +213,7 @@ watch(
       crawlerTitle: stateCrawlerTitle.value,
       crawlerDescription: stateCrawlerDescription.value,
       domain: computedDomain.value,
+      baseUrl: computedBaseUrl.value,
       crawlerParameters: stateParameters.value.map((item) => ({
         id: item.id,
         name: item.name,

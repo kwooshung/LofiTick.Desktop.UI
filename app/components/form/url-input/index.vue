@@ -136,7 +136,9 @@ const joinUrl = (protocol: 'http' | 'https', value: string): string => {
      * 常量：matchResult。
      */
     const matchResult = normalizedValue.match(/^[^/?#]+/);
-    return matchResult ? matchResult[0] : normalizedValue;
+    const host = matchResult ? matchResult[0] : normalizedValue;
+
+    return `${protocol}://${host}`;
   }
 
   return `${protocol}://${normalizedValue}`;

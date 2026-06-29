@@ -446,6 +446,31 @@ const computedNormalizedDomain = computed(() => {
 });
 
 /**
+ * 计算属性：标准化基础 URL。
+ */
+const computedNormalizedBaseUrl = computed(() => {
+  /**
+   * 常量：raw。
+   */
+  const raw = String(baseUrl ?? '').trim();
+
+  if (raw === '') {
+    return '';
+  }
+
+  /**
+   * 常量：withProtocol。
+   */
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  /**
+   * 常量：matchResult。
+   */
+  const matchResult = withProtocol.match(/^(https?:\/\/[^/?#]+)/i);
+
+  return matchResult ? matchResult[1] : withProtocol;
+});
+
+/**
  * 常量：草稿缓存键前缀。
  */
 const DRAFT_ENTRY_PREFIX = 'crawler:blueprint:draft:';
@@ -479,6 +504,10 @@ const computedDraftKey = computed(() => {
    * 常量：domain。
    */
   const domain = computedNormalizedDomain.value;
+  /**
+   * 常量：baseUrl。
+   */
+  const baseUrl = computedNormalizedBaseUrl.value;
 
   if (domain === '') {
     return '';
@@ -1289,7 +1318,11 @@ const syncStartNodeDomain = (): void => {
    * 常量：currentDomain。
    */
   const currentDomain = String((startNode.data as { domain?: string } | undefined)?.domain ?? '');
-  if (currentDomain === domain) {
+  /**
+   * 常量：currentBaseUrl。
+   */
+  const currentBaseUrl = String((startNode.data as { baseUrl?: string } | undefined)?.baseUrl ?? '');
+  if (currentDomain === domain && currentBaseUrl === baseUrl) {
     return;
   }
 
@@ -1302,7 +1335,8 @@ const syncStartNodeDomain = (): void => {
       ...node,
       data: {
         ...(node.data as Record<string, unknown> | undefined),
-        domain
+        domain,
+        baseUrl
       }
     };
   });

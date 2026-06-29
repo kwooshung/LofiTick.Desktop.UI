@@ -491,6 +491,11 @@ const schema = z.object({
     .trim()
     .min(1, t('pages.crawlers.targets.form.name.verify.required'))
     .max(255, t('pages.crawlers.targets.form.name.verify.length')),
+  baseUrl: z
+    .string({ message: t('pages.crawlers.targets.form.baseUrl.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.baseUrl.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.baseUrl.verify.length')),
   domain: z
     .string({ message: t('pages.crawlers.targets.form.domain.verify.required') })
     .trim()
@@ -763,6 +768,32 @@ const normalizeDomainForUniqueCompare = (value: string): string => {
    */
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return (matchResult ? matchResult[0] : withoutProtocol).trim().toLowerCase();
+};
+
+/**
+ * 函数：归一化基础 URL。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 带协议的基础 URL。
+ */
+const normalizeBaseUrlForSave = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
+  const raw = String(value ?? '').trim();
+  if (raw === '') {
+    return '';
+  }
+
+  /**
+   * 常量：withProtocol。
+   */
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  /**
+   * 常量：matchResult。
+   */
+  const matchResult = withProtocol.match(/^(https?:\/\/[^/?#]+)/i);
+
+  return matchResult ? matchResult[1] : withProtocol;
 };
 
 /**
@@ -1190,7 +1221,8 @@ const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>
     datas: {
       id: event.data.id,
       name: event.data.name,
-      domain: event.data.domain,
+      domain: normalizeDomainForUniqueCompare(event.data.baseUrl),
+      baseUrl: normalizeBaseUrlForSave(event.data.baseUrl),
       description: event.data.description ?? '',
       isEnabled: event.data.isEnabled ?? true
     },

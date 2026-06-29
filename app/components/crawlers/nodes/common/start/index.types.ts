@@ -18,6 +18,11 @@ export interface ICrawlersNodesCommonStartData {
   domain?: string;
 
   /**
+   * 属性：站点基础 URL。
+   */
+  baseUrl?: string;
+
+  /**
    * 属性：爬虫入口参数定义列表。
    */
   crawlerParameters?: unknown;
