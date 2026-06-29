@@ -1,3 +1,5 @@
+import type { TVariableValueDataType } from '@/components/crawlers/nodes/variable/shared/index';
+
 /**
  * 接口：跳转页面路径变量。
  */
@@ -11,6 +13,11 @@ export interface ICrawlersNodesNavigationGotoPathVariable {
    * 属性：变量名称。
    */
   name: string;
+
+  /**
+   * 属性：变量数据类型。
+   */
+  dataType: TVariableValueDataType;
 }
 
 /**

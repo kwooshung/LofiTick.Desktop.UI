@@ -24,7 +24,6 @@
         :name-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.namePlaceholder')"
         :string-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.stringPlaceholder')"
         :json-placeholder="t('components.crawler.blueprint.nodes.common.function.pins.jsonPlaceholder')"
-        :connected-hint="t('components.crawler.blueprint.nodes.common.function.pins.connectedHint')"
         @update:model-value="handleParametersUpdate"
       />
     </div>
