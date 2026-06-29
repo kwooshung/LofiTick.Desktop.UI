@@ -191,6 +191,8 @@ export const crawlers = {
     },
     actions: {
       execute: '执行',
+      pause: '暂停',
+      pausePending: '暂停能力尚未接入，当前任务会继续执行。',
       deleteConfirm: '确定要删除爬虫「{name}」吗？此操作不可撤销。',
       runSuccess: '已触发执行，正在运行。',
       runFailed: '触发执行失败，请稍后重试。',

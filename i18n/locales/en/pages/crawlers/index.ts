@@ -191,6 +191,8 @@ export const crawlers = {
     },
     actions: {
       execute: 'Run',
+      pause: 'Pause',
+      pausePending: 'Pause is not connected yet. The current task will continue running.',
       deleteConfirm: 'Delete crawler "{name}"? This action cannot be undone.',
       runSuccess: 'Execution has been triggered and is now running.',
       runFailed: 'Failed to trigger execution. Please try again later.',

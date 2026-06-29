@@ -65,14 +65,14 @@ const { t } = useI18n();
 const toast = useToast();
 
 /**
- * Hook：本地化路由。
- */
-const localePath = useLocalePath();
-
-/**
  * 路由。
  */
 const route = useRoute();
+
+/**
+ * Hook：爬虫蓝图执行记录闭环。
+ */
+const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
 
 /**
  * 状态：删除确认气泡打开行 ID。
@@ -88,6 +88,11 @@ const stateDeletePopoverSource = ref<'summaryMobile' | 'actions' | null>(null);
  * 状态：蓝图启用切换中的行。
  */
 const stateBlueprintEnabledSavingIds = ref<Record<number, boolean>>({});
+
+/**
+ * 状态：蓝图执行中的行。
+ */
+const stateBlueprintExecutingIds = ref<Record<number, boolean>>({});
 
 /**
  * 状态：蓝图抽屉开关。
@@ -257,18 +262,6 @@ watch(
 );
 
 /**
- * API：手动执行蓝图。
- */
-const {
-  error: stateBlueprintRunError,
-  datas: stateBlueprintRunDatas,
-  refresh: refreshBlueprintRun
-} = await useApi<{ affected: number; executionId: number }>('crawlers/executions/add', {
-  method: 'POST',
-  immediate: false
-});
-
-/**
  * API：删除蓝图。
  */
 const { error: stateBlueprintDeleteError, refresh: refreshBlueprintDelete } = await useApi<{ affected: number }>('crawlers/blueprints/delete', {
@@ -413,6 +406,13 @@ const blueprintStatusColorGet = (status: TCrawlerBlueprintLastRunStatus): 'neutr
 const blueprintIsRunning = (status: TCrawlerBlueprintLastRunStatus): boolean => String(status ?? '').trim() === 'running';
 
 /**
+ * 函数：判断蓝图行是否正在执行。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {boolean} 是否正在执行。
+ */
+const blueprintRowIsRunning = (row: IQueryResultCrawlerBlueprintRow): boolean => blueprintIsRunning(row.lastRunStatus) || stateBlueprintExecutingIds.value[Number(row.id ?? 0)] === true;
+
+/**
  * 函数：打开当前爬虫的编辑抽屉。
  *
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
@@ -423,7 +423,7 @@ const handleOpenCrawlerEditor = (row: IQueryResultCrawlerBlueprintRow): void => 
     return;
   }
 
-  if (blueprintIsRunning(row.lastRunStatus)) {
+  if (blueprintRowIsRunning(row)) {
     return;
   }
 
@@ -484,20 +484,20 @@ const handleToggleCrawlerEnabled = async (row: IQueryResultCrawlerBlueprintRow, 
 };
 
 /**
- * 函数：跳转到执行记录页。
+ * 函数：执行当前爬虫蓝图。
  *
  * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
- * @returns {void} 无返回值。
+ * @returns {Promise<void>} Promise。
  */
 const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow): Promise<void> => {
-  await refreshBlueprintRun({
-    datas: {
-      id: Number(row.id ?? 0)
-    },
-    replace: true
-  });
+  if (blueprintRowIsRunning(row)) {
+    return;
+  }
 
-  if (stateBlueprintRunError.value) {
+  const rowId = Number(row.id ?? 0);
+  const targetId = Number(row.targetId ?? computedTargetId.value ?? 0);
+
+  if (!Number.isFinite(rowId) || rowId <= 0 || !Number.isFinite(targetId) || targetId <= 0) {
     toast.add({
       color: 'error',
       title: row.name || `#${row.id}`,
@@ -506,22 +506,91 @@ const handleOpenCrawlerExecution = async (row: IQueryResultCrawlerBlueprintRow):
     return;
   }
 
-  toast.add({
-    color: 'success',
-    title: row.name || `#${row.id}`,
-    description: t('pages.crawlers.blueprints.actions.runSuccess')
-  });
+  stateBlueprintExecutingIds.value = {
+    ...stateBlueprintExecutingIds.value,
+    [rowId]: true
+  };
+  row.lastRunStatus = 'running';
 
-  refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
+  try {
+    await runCrawlerBlueprintExecution({
+      blueprintId: rowId,
+      targetId,
+      siteName: String(row.name ?? stateDetailDatas.value?.name ?? '').trim(),
+      baseUrl: String(stateDetailDatas.value?.baseUrl ?? '').trim(),
+      nodes: row.nodes ?? {}
+    });
 
-  navigateTo({
-    path: localePath('/crawlers/executions'),
-    query: {
-      blueprint_id: String(row.id ?? 0),
-      target_id: String(row.targetId ?? 0),
-      execution_id: String(Number(stateBlueprintRunDatas.value?.executionId ?? 0))
+    toast.add({
+      color: 'success',
+      title: row.name || `#${row.id}`,
+      description: t('pages.crawlers.blueprints.actions.runSuccess')
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
+
+    toast.add({
+      color: 'error',
+      title: row.name || `#${row.id}`,
+      description: errorMessage !== '' ? errorMessage : t('pages.crawlers.blueprints.actions.runFailed')
+    });
+  } finally {
+    const nextExecutingIds = { ...stateBlueprintExecutingIds.value };
+    delete nextExecutingIds[rowId];
+    stateBlueprintExecutingIds.value = nextExecutingIds;
+    refreshListDebounced({ datas: buildBlueprintQueryFromRoute(), replace: true });
+  }
+};
+
+/**
+ * 函数：读取执行按钮图标。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {string} 图标名称。
+ */
+const executionActionIconGet = (row: IQueryResultCrawlerBlueprintRow): string => (blueprintRowIsRunning(row) ? 'i-lucide:pause' : 'i-lucide:play');
+
+/**
+ * 函数：读取执行按钮文案。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {string} 按钮文案。
+ */
+const executionActionLabelGet = (row: IQueryResultCrawlerBlueprintRow): string => (blueprintRowIsRunning(row) ? t('pages.crawlers.blueprints.actions.pause') : t('pages.crawlers.blueprints.actions.execute'));
+
+/**
+ * 函数：读取执行按钮图标样式。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {Record<string, string>} 图标样式。
+ */
+const executionActionUiGet = (row: IQueryResultCrawlerBlueprintRow): Record<string, string> => {
+  if (blueprintRowIsRunning(row)) {
+    return {
+      leadingIcon: 'text-warning group-hover:text-warning'
+    };
+  }
+
+  return {
+    leadingIcon: 'text-dimmed group-hover:text-muted'
+  };
+};
+
+/**
+ * 函数：读取执行按钮点击处理器。
+ * @param {IQueryResultCrawlerBlueprintRow} row 当前爬虫行。
+ * @returns {() => void} 点击处理器。
+ */
+const executionActionClickGet = (row: IQueryResultCrawlerBlueprintRow): (() => void) => {
+  return () => {
+    if (blueprintRowIsRunning(row)) {
+      toast.add({
+        color: 'warning',
+        title: row.name || `#${row.id}`,
+        description: t('pages.crawlers.blueprints.actions.pausePending')
+      });
+      return;
     }
-  });
+
+    void handleOpenCrawlerExecution(row);
+  };
 };
 
 /**
@@ -534,7 +603,7 @@ const handleDeleteCrawler = async (row: IQueryResultCrawlerBlueprintRow): Promis
   stateDeletePopoverOpenId.value = null;
   stateDeletePopoverSource.value = null;
 
-  if (blueprintIsRunning(row.lastRunStatus)) {
+  if (blueprintRowIsRunning(row)) {
     return;
   }
 
@@ -609,7 +678,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
       const lastRunAt = String(row.original.lastRunAt ?? '').trim();
       const hasLastRunAt = !lastRunAtIsEmpty(lastRunAt);
       const lastRunNode = hasLastRunAt ? h(Datetime, { value: lastRunAt, class: 'w-auto max-w-full text-xs' }) : h('span', { class: 'text-muted' }, t('common.labels.none'));
-      const isRunning = blueprintIsRunning(row.original.lastRunStatus);
+      const isRunning = blueprintRowIsRunning(row.original);
 
       return h('div', { class: 'flex min-w-0 flex-col gap-2' }, [
         h('div', { class: 'space-y-1' }, [h('div', { class: 'break-words font-medium' }, row.original.name || '-'), h('div', { class: 'text-sm text-muted break-words leading-5' }, row.original.description || t('common.labels.none'))]),
@@ -642,13 +711,11 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
             {
               color: 'neutral',
               variant: 'soft',
-              icon: 'i-lucide:play',
-              ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
-              onClick: () => {
-                void handleOpenCrawlerExecution(row.original);
-              }
+              icon: executionActionIconGet(row.original),
+              ui: executionActionUiGet(row.original),
+              onClick: executionActionClickGet(row.original)
             },
-            () => t('pages.crawlers.blueprints.actions.execute')
+            () => executionActionLabelGet(row.original)
           ),
           h(
             UButton,
@@ -881,7 +948,7 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
     enableHiding: false,
     header: () => h('div', { class: 'w-full text-right' }, t('common.labels.actions')),
     cell: ({ row }) => {
-      const isRunning = blueprintIsRunning(row.original.lastRunStatus);
+      const isRunning = blueprintRowIsRunning(row.original);
 
       return h('div', { class: 'flex flex-nowrap items-center justify-end gap-1' }, [
         h(
@@ -889,13 +956,11 @@ const columns: TableColumn<IQueryResultCrawlerBlueprintRow>[] = [
           {
             color: 'neutral',
             variant: 'ghost',
-            icon: 'i-lucide:play',
-            ui: { leadingIcon: 'text-dimmed group-hover:text-muted' },
-            onClick: () => {
-              void handleOpenCrawlerExecution(row.original);
-            }
+            icon: executionActionIconGet(row.original),
+            ui: executionActionUiGet(row.original),
+            onClick: executionActionClickGet(row.original)
           },
-          () => t('pages.crawlers.blueprints.actions.execute')
+          () => executionActionLabelGet(row.original)
         ),
         h(
           UButton,

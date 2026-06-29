@@ -228,7 +228,12 @@ const toast = useToast();
 /**
  * Hook：Tauri 爬虫蓝图能力。
  */
-const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
+const { onOutputLogEvent: onCrawlerBlueprintOutputLogEvent } = useTauriCrawlerBlueprint();
+
+/**
+ * Hook：爬虫蓝图执行记录闭环。
+ */
+const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
 
 /**
  * 变量：取消订阅爬虫蓝图输出日志事件句柄。
@@ -1362,15 +1367,32 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
   stateCrawlerBlueprintExecuting.value = true;
 
   try {
-    await unlockCrawlerBlueprintAudio();
+    let blueprintId = Number(stateBlueprintDrawerBlueprintId.value ?? 0);
+    if (!Number.isFinite(blueprintId) || blueprintId <= 0) {
+      const saved = await handleBlueprintSave({
+        flowData: payload.flowData ?? {},
+        draftKey: ''
+      });
 
-    await executeCrawlerBlueprint({
-      blueprintId: Number(stateBlueprintDrawerBlueprintId.value ?? 0),
+      if (!saved) {
+        return;
+      }
+
+      blueprintId = Number(stateBlueprintDrawerBlueprintId.value ?? 0);
+    }
+
+    await runCrawlerBlueprintExecution({
+      blueprintId,
       targetId,
       siteName: String(target.name ?? computedRouteDetailTitle.value ?? '').trim(),
       baseUrl: String(target.baseUrl ?? '').trim(),
       nodes: payload.flowData ?? {}
     });
+
+    const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
+    if (stateBlueprintRefreshNonce) {
+      stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
 
