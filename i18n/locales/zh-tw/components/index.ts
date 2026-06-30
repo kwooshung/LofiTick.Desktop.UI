@@ -1,5 +1,4 @@
 import { askCloseMode } from '@@/i18n/locales/zh-tw/components/ask-close-mode';
-import { crawler } from '@@/i18n/locales/zh-tw/components/crawler';
 import { folder } from '@@/i18n/locales/zh-tw/components/folder';
 import { hotsearch } from '@@/i18n/locales/zh-tw/components/hot-searchs';
 import { pagination } from '@@/i18n/locales/zh-tw/components/pagination';
@@ -12,7 +11,6 @@ import { socials } from '@@/i18n/locales/zh-tw/components/socials';
 
 export const components = {
   askCloseMode,
-  crawler,
   folder,
   hotsearch,
   pagination,

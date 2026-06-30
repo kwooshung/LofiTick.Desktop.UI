@@ -1,4 +1,4 @@
-﻿import { crawler } from '@@/i18n/locales/zh-cn/components/crawler';
+﻿import { askCloseMode } from '@@/i18n/locales/zh-cn/components/ask-close-mode';
 import { folder } from '@@/i18n/locales/zh-cn/components/folder';
 import { hotsearch } from '@@/i18n/locales/zh-cn/components/hot-searchs';
 import { pagination } from '@@/i18n/locales/zh-cn/components/pagination';
@@ -9,11 +9,8 @@ import { selects } from '@@/i18n/locales/zh-cn/components/selects';
 import { sentinel } from '@@/i18n/locales/zh-cn/components/sentinel';
 import { socials } from '@@/i18n/locales/zh-cn/components/socials';
 
-import { askCloseMode } from '@@/i18n/locales/zh-cn/components/ask-close-mode';
-
 export const components = {
   askCloseMode,
-  crawler,
   folder,
   hotsearch,
   pagination,

@@ -1,5 +1,4 @@
 import { askCloseMode } from '@@/i18n/locales/ja/components/ask-close-mode';
-import { crawler } from '@@/i18n/locales/ja/components/crawler';
 import { folder } from '@@/i18n/locales/ja/components/folder';
 import { hotsearch } from '@@/i18n/locales/ja/components/hot-searchs';
 import { pagination } from '@@/i18n/locales/ja/components/pagination';
@@ -12,7 +11,6 @@ import { socials } from '@@/i18n/locales/ja/components/socials';
 
 export const components = {
   askCloseMode,
-  crawler,
   folder,
   hotsearch,
   pagination,
