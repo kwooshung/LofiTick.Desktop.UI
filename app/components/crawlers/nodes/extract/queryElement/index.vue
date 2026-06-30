@@ -9,16 +9,37 @@
 </template>
 
 <script setup lang="ts">
-import { useNode } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 
 const { t } = useI18n();
 
 /**
+ * Hook：Vue Flow。
+ */
+const { updateNodeData } = useVueFlow();
+
+/**
  * 状态：stateNode。
  */
 const stateNode = useNode();
+/**
+ * 常量：当前节点 ID。
+ */
+const stateNodeId = useNodeId();
+/**
+ * 计算属性：当前节点 ID（含兜底）。
+ */
+const computedNodeId = computed<string>(() => {
+  const fromHook = String(stateNodeId.value ?? '').trim();
+
+  if (fromHook !== '') {
+    return fromHook;
+  }
+
+  return String(stateNode.node.id ?? '').trim();
+});
 /**
  * 状态：stateInitialized。
  */
@@ -78,10 +99,13 @@ watch([stateSelector, stateSelectorType], () => {
     return;
   }
 
-  stateNode.node.data = {
-    ...(stateNode.node.data as Record<string, unknown> | undefined),
+  if (computedNodeId.value === '') {
+    return;
+  }
+
+  void updateNodeData(computedNodeId.value, {
     selector: stateSelector.value,
     selectorType: stateSelectorType.value
-  };
+  });
 });
 </script>

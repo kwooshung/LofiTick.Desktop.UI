@@ -55,9 +55,9 @@ export interface ICrawlersNodesFunctionPinsProps {
   jsonPlaceholder: string;
 
   /**
-   * 属性：已连接提示文案。
+   * 属性：是否显示默认值编辑区。
    */
-  connectedHint: string;
+  showDefaultValue?: boolean;
 }
 
 /**

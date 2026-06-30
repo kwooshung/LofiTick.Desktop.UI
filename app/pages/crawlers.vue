@@ -87,6 +87,16 @@
       @functions-changed="stateFunctionRefreshNonce += 1"
     />
 
+    <CrawlersExecutionParameters
+      v-model:open="stateExecutionParametersOpen"
+      :site-name="computedExecutionParametersSiteName"
+      :base-url="computedExecutionParametersBaseUrl"
+      :flow-data="stateExecutionParametersFlowData"
+      :busy="stateCrawlerBlueprintExecuting"
+      @execute="handleExecutionParametersExecute"
+      @save-default-and-execute="handleExecutionParametersSaveDefaultAndExecute"
+    />
+
     <USlideover
       v-model:open="stateFunctionLogicOpen"
       :title="computedFunctionLogicTitle"
@@ -197,6 +207,9 @@ import { z } from 'zod';
 
 import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/index.types';
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
+import type { ICrawlerBlueprintExecutionParametersSubmitPayload } from '@/components/crawlers/execution/parameters/index.types';
+import { crawlerBlueprintExecutionParametersExtract } from '@/components/crawlers/execution/parameters/utils/index';
+import type { IServerError } from '@/composables/hooks/useApi/index.types';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。
@@ -228,7 +241,27 @@ const toast = useToast();
 /**
  * Hook：Tauri 爬虫蓝图能力。
  */
-const { execute: executeCrawlerBlueprint, onOutputLogEvent: onCrawlerBlueprintOutputLogEvent, unlockCrawlerBlueprintAudio } = useTauriCrawlerBlueprint();
+const { onOutputLogEvent: onCrawlerBlueprintOutputLogEvent } = useTauriCrawlerBlueprint();
+
+/**
+ * Hook：爬虫蓝图执行记录闭环。
+ */
+const { run: runCrawlerBlueprintExecution } = await useCrawlerBlueprintExecutionRunner();
+
+/**
+ * 状态：待执行蓝图载荷。
+ */
+const statePendingBlueprintExecutePayload = ref<IPageCrawlerBlueprintEditorExecutePayload | null>(null);
+
+/**
+ * 状态：执行参数弹窗开关。
+ */
+const stateExecutionParametersOpen = ref(false);
+
+/**
+ * 状态：执行参数弹窗图数据。
+ */
+const stateExecutionParametersFlowData = ref<unknown>(null);
 
 /**
  * 变量：取消订阅爬虫蓝图输出日志事件句柄。
@@ -491,6 +524,11 @@ const schema = z.object({
     .trim()
     .min(1, t('pages.crawlers.targets.form.name.verify.required'))
     .max(255, t('pages.crawlers.targets.form.name.verify.length')),
+  baseUrl: z
+    .string({ message: t('pages.crawlers.targets.form.baseUrl.verify.required') })
+    .trim()
+    .min(1, t('pages.crawlers.targets.form.baseUrl.verify.required'))
+    .max(255, t('pages.crawlers.targets.form.baseUrl.verify.length')),
   domain: z
     .string({ message: t('pages.crawlers.targets.form.domain.verify.required') })
     .trim()
@@ -618,6 +656,16 @@ const computedRouteDetailTitle = computed<string>(() => {
   const domain = computedDomain.value;
   return domain !== '' ? domainDisplayNameGet(domain) : t('pages.crawlers.targets.title');
 });
+
+/**
+ * 计算属性：执行参数弹窗站点名称。
+ */
+const computedExecutionParametersSiteName = computed<string>(() => computedRouteDetailTitle.value);
+
+/**
+ * 计算属性：执行参数弹窗基础 URL。
+ */
+const computedExecutionParametersBaseUrl = computed<string>(() => String(stateDetail.value?.baseUrl ?? stateBlueprintDrawerTarget.value?.baseUrl ?? '').trim());
 
 /**
  * 计算属性：函数创建弹窗标题。
@@ -763,6 +811,32 @@ const normalizeDomainForUniqueCompare = (value: string): string => {
    */
   const matchResult = withoutProtocol.match(/^[^/?#]+/);
   return (matchResult ? matchResult[0] : withoutProtocol).trim().toLowerCase();
+};
+
+/**
+ * 函数：归一化基础 URL。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 带协议的基础 URL。
+ */
+const normalizeBaseUrlForSave = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
+  const raw = String(value ?? '').trim();
+  if (raw === '') {
+    return '';
+  }
+
+  /**
+   * 常量：withProtocol。
+   */
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  /**
+   * 常量：matchResult。
+   */
+  const matchResult = withProtocol.match(/^(https?:\/\/[^/?#]+)/i);
+
+  return matchResult?.[1] ?? withProtocol;
 };
 
 /**
@@ -1183,6 +1257,38 @@ const draftRemoveAfterSave = async (value: unknown): Promise<void> => {
 };
 
 /**
+ * 函数：构建 API 状态码文本。
+ * @param {IServerError | undefined} status 服务端状态。
+ * @returns {string} 三段式状态码。
+ */
+const apiStatusCodeTextBuild = (status: IServerError | undefined): string => {
+  const http = Number(status?.http ?? 0);
+  const biz = Number(status?.biz ?? 0);
+  const aim = Number(status?.aim ?? 0);
+
+  return [http, biz, aim]
+    .map((value) => (Number.isFinite(value) ? Math.trunc(value) : 0))
+    .map((value) => String(value).padStart(3, '0'))
+    .join('-');
+};
+
+/**
+ * 函数：构建蓝图保存失败文案。
+ * @param {IServerError | undefined} status 服务端状态。
+ * @returns {string} 可展示的失败文案。
+ */
+const blueprintSaveFailedDescriptionBuild = (status: IServerError | undefined): string => {
+  const code = apiStatusCodeTextBuild(status);
+  const message = String(status?.message ?? '').trim();
+
+  if (message !== '') {
+    return t('pages.crawlers.editor.loadSource.blueprintSaveFailedWithCodeAndMessage', { code, message });
+  }
+
+  return t('pages.crawlers.editor.loadSource.blueprintSaveFailedWithCode', { code });
+};
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -1190,7 +1296,8 @@ const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>
     datas: {
       id: event.data.id,
       name: event.data.name,
-      domain: event.data.domain,
+      domain: normalizeDomainForUniqueCompare(event.data.baseUrl),
+      baseUrl: normalizeBaseUrlForSave(event.data.baseUrl),
       description: event.data.description ?? '',
       isEnabled: event.data.isEnabled ?? true
     },
@@ -1220,8 +1327,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (!Number.isFinite(targetId) || targetId <= 0) {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
-      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+      description: t('pages.crawlers.editor.loadSource.blueprintSaveFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 4200
@@ -1233,7 +1340,7 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (!startNodeCrawlerMeta || startNodeCrawlerMeta.crawlerTitle === '') {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
       description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
@@ -1248,10 +1355,11 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
       targetId,
       name: startNodeCrawlerMeta.crawlerTitle,
       description: startNodeCrawlerMeta.crawlerDescription,
-      nodes: payload?.flowData ?? {},
+      nodes: crawlerBlueprintNodesTransportEncode(payload?.flowData ?? {}),
       isEnabled: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerEnabled.value : true
     },
-    replace: true
+    replace: true,
+    ignoreResponseError: true
   });
 
   const saveHttp = Number(stateCrawlerTaskGraphSaveStatus.value?.http ?? 0);
@@ -1259,8 +1367,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (saveFailed) {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
-      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+      description: blueprintSaveFailedDescriptionBuild(stateCrawlerTaskGraphSaveStatus.value),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 4200
@@ -1269,8 +1377,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
   }
 
   toast.add({
-    title: t('pages.crawlers.editor.saveFeedback.title'),
-    description: t('pages.crawlers.editor.loadSource.saveSuccess'),
+    title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+    description: t('pages.crawlers.editor.loadSource.blueprintSaveSuccess'),
     color: 'success',
     icon: 'i-lucide:check-check',
     duration: 2600
@@ -1306,15 +1414,12 @@ const handleBlueprintSaveAndClose = async (payload: ICrawlersEditorSavePayload):
 };
 
 /**
- * 事件：执行当前编辑器蓝图。
+ * 函数：执行当前编辑器蓝图图数据。
  * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @param {Record<string, unknown>} parameters 执行参数覆盖值。
  * @returns {Promise<void>} Promise。
  */
-const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
-  if (stateCrawlerBlueprintExecuting.value) {
-    return;
-  }
-
+const runEditorBlueprintFlow = async (payload: IPageCrawlerBlueprintEditorExecutePayload, parameters: Record<string, unknown>): Promise<void> => {
   const target = stateDetail.value ?? stateBlueprintDrawerTarget.value;
   const targetId = Number(target?.id ?? 0);
 
@@ -1330,15 +1435,33 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
   stateCrawlerBlueprintExecuting.value = true;
 
   try {
-    await unlockCrawlerBlueprintAudio();
+    let blueprintId = Number(stateBlueprintDrawerBlueprintId.value ?? 0);
+    if (!Number.isFinite(blueprintId) || blueprintId <= 0) {
+      const saved = await handleBlueprintSave({
+        flowData: payload.flowData ?? {},
+        draftKey: ''
+      });
 
-    await executeCrawlerBlueprint({
-      blueprintId: Number(stateBlueprintDrawerBlueprintId.value ?? 0),
+      if (!saved) {
+        return;
+      }
+
+      blueprintId = Number(stateBlueprintDrawerBlueprintId.value ?? 0);
+    }
+
+    await runCrawlerBlueprintExecution({
+      blueprintId,
       targetId,
       siteName: String(target.name ?? computedRouteDetailTitle.value ?? '').trim(),
       baseUrl: String(target.baseUrl ?? '').trim(),
-      nodes: payload.flowData ?? {}
+      nodes: payload.flowData ?? {},
+      parameters
     });
+
+    const stateBlueprintRefreshNonce = useState<number>('crawlers-blueprints-refresh-nonce');
+    if (stateBlueprintRefreshNonce) {
+      stateBlueprintRefreshNonce.value = Number(stateBlueprintRefreshNonce.value ?? 0) + 1;
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message.trim() : String(error ?? '').trim();
 
@@ -1350,6 +1473,64 @@ const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecut
   } finally {
     stateCrawlerBlueprintExecuting.value = false;
   }
+};
+
+/**
+ * 事件：使用弹窗参数执行编辑器蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  const pendingPayload = statePendingBlueprintExecutePayload.value;
+  stateExecutionParametersOpen.value = false;
+  statePendingBlueprintExecutePayload.value = null;
+
+  if (!pendingPayload) {
+    return;
+  }
+
+  await runEditorBlueprintFlow({ flowData: payload.flowData }, payload.parameters);
+};
+
+/**
+ * 事件：保存参数默认值后执行编辑器蓝图。
+ * @param {ICrawlerBlueprintExecutionParametersSubmitPayload} payload 执行参数载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleExecutionParametersSaveDefaultAndExecute = async (payload: ICrawlerBlueprintExecutionParametersSubmitPayload): Promise<void> => {
+  stateExecutionParametersOpen.value = false;
+  statePendingBlueprintExecutePayload.value = null;
+
+  const saved = await handleBlueprintSave({
+    flowData: payload.flowData,
+    draftKey: ''
+  });
+
+  if (!saved) {
+    return;
+  }
+
+  await runEditorBlueprintFlow({ flowData: payload.flowData }, payload.parameters);
+};
+
+/**
+ * 事件：执行当前编辑器蓝图。
+ * @param {IPageCrawlerBlueprintEditorExecutePayload} payload 执行载荷。
+ * @returns {Promise<void>} Promise。
+ */
+const handleBlueprintExecute = async (payload: IPageCrawlerBlueprintEditorExecutePayload): Promise<void> => {
+  if (stateCrawlerBlueprintExecuting.value) {
+    return;
+  }
+
+  if (crawlerBlueprintExecutionParametersExtract(payload.flowData).length > 0) {
+    statePendingBlueprintExecutePayload.value = payload;
+    stateExecutionParametersFlowData.value = payload.flowData ?? {};
+    stateExecutionParametersOpen.value = true;
+    return;
+  }
+
+  await runEditorBlueprintFlow(payload, {});
 };
 
 /**

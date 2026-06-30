@@ -145,6 +145,32 @@ const extractDomainFromUrl = (url: string): string => {
 const normalizeDomainForUniqueCompare = (value: string): string => extractDomainFromUrl(value).trim().toLowerCase();
 
 /**
+ * 函数：归一化基础 URL。
+ * @param {string} value 域名或 URL。
+ * @returns {string} 带协议的基础 URL。
+ */
+const normalizeBaseUrlForSave = (value: string): string => {
+  /**
+   * 常量：raw。
+   */
+  const raw = String(value ?? '').trim();
+  if (raw === '') {
+    return '';
+  }
+
+  /**
+   * 常量：withProtocol。
+   */
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  /**
+   * 常量：matchResult。
+   */
+  const matchResult = withProtocol.match(/^(https?:\/\/[^/?#]+)/i);
+
+  return matchResult ? matchResult[1] : withProtocol;
+};
+
+/**
  * 常量：表单验证规则
  */
 const schema = z.object({
@@ -511,9 +537,6 @@ watch(
      * 常量：domain。
      */
     const domain = extractDomainFromUrl(val ?? '');
-    if (stateEditor.value.baseUrl !== domain) {
-      stateEditor.value.baseUrl = domain;
-    }
     stateEditor.value.domain = domain;
   },
   { immediate: true }
@@ -629,7 +652,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       id: event.data.id,
       name: event.data.name,
       domain: normalizeDomainForUniqueCompare(event.data.domain),
-      baseUrl: extractDomainFromUrl(event.data.baseUrl),
+      baseUrl: normalizeBaseUrlForSave(event.data.baseUrl),
       description: event.data.description ?? '',
       isEnabled: event.data.isEnabled ?? true
     },

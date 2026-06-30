@@ -29,29 +29,24 @@
       <div class="space-y-2">
         <span class="text-toned text-xs leading-none font-medium">{{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.label') }}</span>
 
-        <UEmpty v-if="statePathVariables.length === 0" icon="i-lucide-braces" :title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')" :description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')" size="sm">
-          <template #actions>
-            <UButton color="primary" variant="soft" icon="i-lucide-plus" @click="handlePathVariableAdd">
-              {{ t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add') }}
-            </UButton>
-          </template>
-        </UEmpty>
-
-        <div v-else class="space-y-1">
-          <div v-for="item in statePathVariables" :key="item.id" class="flex items-center gap-2">
-            <UInput :model-value="item.name" class="min-w-0 flex-1" :placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')" @update:model-value="(value) => handlePathVariableNameUpdate(item.id, value)">
-              <template v-if="hasConnectedPathVariable(item)" #trailing>
-                <CrawlersNodesCommonConnectedInputHint compact :label="t('components.crawler.blueprint.nodes.common.connectedInputHint')" />
-              </template>
-            </UInput>
+        <CrawlersNodesFunctionPins
+          :node-id="computedNodeId"
+          direction="input"
+          :model-value="statePathVariables"
+          :empty-title="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.title')"
+          :empty-description="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.empty.description')"
+          :empty-action-label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')"
+          :add-action-label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')"
+          :name-placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')"
+          :string-placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')"
+          :json-placeholder="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.placeholder')"
+          :show-default-value="false"
+          @update:model-value="handlePathVariablesUpdate"
+        >
+          <template #actions="{ item }">
             <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-text-cursor-input" class="shrink-0" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.insert')" @mousedown.prevent @click="handlePathVariableInsert(item)" />
-            <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handlePathVariableRemove(item.id)" />
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-plus" :label="t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.actions.add')" @click="handlePathVariableAdd" />
-          </div>
-        </div>
+          </template>
+        </CrawlersNodesFunctionPins>
       </div>
 
       <div class="space-y-3">
@@ -96,11 +91,12 @@
 </template>
 
 <script setup lang="ts">
-import { useNode, useVueFlow } from '@vue-flow/core';
+import { useNode, useNodeId, useVueFlow } from '@vue-flow/core';
 
 import type { IBasicSidePin } from '@/components/crawlers/nodes/common/basic/index.types';
 import type { ICrawlersNodesNavigationGotoData, ICrawlersNodesNavigationGotoPathVariable } from '@/components/crawlers/nodes/navigation/goto/index.types';
-import { variableDefinitionIdCreate, variableDefinitionNameNormalize } from '@/components/crawlers/nodes/variable/shared/index';
+import type { IVariableDefinitionData } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableDefinitionsParse } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * 类型：窗口位置模式。
@@ -163,6 +159,11 @@ const emit = defineEmits<{
  * Hook：当前节点上下文。
  */
 const stateNode = useNode();
+
+/**
+ * 常量：当前节点 ID。
+ */
+const stateNodeId = useNodeId();
 
 /**
  * Hook：Vue Flow。
@@ -231,6 +232,19 @@ const refPathTextareaWrapper = ref<HTMLDivElement | null>(null);
  * 状态：目标路径变量定义列表。
  */
 const statePathVariables = ref<ICrawlersNodesNavigationGotoPathVariable[]>([]);
+
+/**
+ * 计算属性：当前节点 ID（含兜底）。
+ */
+const computedNodeId = computed<string>(() => {
+  const fromHook = String(stateNodeId.value ?? '').trim();
+
+  if (fromHook !== '') {
+    return fromHook;
+  }
+
+  return String(stateNode.node.id ?? '').trim();
+});
 
 /**
  * 状态：是否等待页面就绪。
@@ -440,8 +454,8 @@ const handlePathSelectionUpdate = (event: Event): void => {
  * @param {string} variableId 路径变量 ID。
  * @returns {string} 输入引脚 ID。
  */
-const pathVariableInputHandleIdGet = (variableId: string): string => {
-  return `path-variable-${variableId}-string`;
+const pathVariableInputHandleIdGet = (variableId: string, dataType: ICrawlersNodesNavigationGotoPathVariable['dataType']): string => {
+  return `path-variable-${variableId}-${dataType}`;
 };
 
 /**
@@ -450,29 +464,16 @@ const pathVariableInputHandleIdGet = (variableId: string): string => {
  * @returns {ICrawlersNodesNavigationGotoPathVariable[]} 路径变量定义列表。
  */
 const pathVariablesParse = (value: unknown): ICrawlersNodesNavigationGotoPathVariable[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  return variableDefinitionsParse(value) as ICrawlersNodesNavigationGotoPathVariable[];
+};
 
-  return value.flatMap((item) => {
-    if (!item || typeof item !== 'object') {
-      return [];
-    }
-
-    const variable = item as Partial<ICrawlersNodesNavigationGotoPathVariable>;
-    const id = String(variable.id ?? variableDefinitionIdCreate()).trim();
-
-    if (id === '') {
-      return [];
-    }
-
-    return [
-      {
-        id,
-        name: variableDefinitionNameNormalize(String(variable.name ?? ''))
-      }
-    ];
-  });
+/**
+ * 事件：更新路径变量列表。
+ * @param {IVariableDefinitionData[]} value 路径变量列表。
+ * @returns {void} 无返回值。
+ */
+const handlePathVariablesUpdate = (value: IVariableDefinitionData[]): void => {
+  statePathVariables.value = variableDefinitionsParse(value) as ICrawlersNodesNavigationGotoPathVariable[];
 };
 
 /**
@@ -482,8 +483,33 @@ const pathVariablesParse = (value: unknown): ICrawlersNodesNavigationGotoPathVar
 const handlePathVariableAdd = (): void => {
   statePathVariables.value.push({
     id: variableDefinitionIdCreate(),
-    name: ''
+    name: '',
+    dataType: 'string'
   });
+};
+
+/**
+ * 事件：更新路径变量数据类型。
+ * @param {string} variableId 路径变量 ID。
+ * @param {string | number} value 输入值。
+ * @returns {void} 无返回值。
+ */
+const handlePathVariableDataTypeUpdate = (variableId: string, value: string | number): void => {
+  const nextType = String(value ?? '') as ICrawlersNodesNavigationGotoPathVariable['dataType'];
+
+  if (!variableValueDataTypesGet().includes(nextType)) {
+    return;
+  }
+
+  const targetItem = statePathVariables.value.find((item) => item.id === variableId);
+
+  if (!targetItem || targetItem.dataType === nextType) {
+    return;
+  }
+
+  const previousHandleId = pathVariableInputHandleIdGet(targetItem.id, targetItem.dataType);
+  edges.value = edges.value.filter((edge) => !(edge.target === stateNode.node.id && edge.targetHandle === previousHandleId));
+  statePathVariables.value = statePathVariables.value.map((item) => (item.id === variableId ? { ...item, dataType: nextType } : item));
 };
 
 /**
@@ -526,7 +552,7 @@ const handlePathVariableNameUpdate = (variableId: string, value: string | number
  * @returns {boolean} 是否已连接。
  */
 const hasConnectedPathVariable = (item: ICrawlersNodesNavigationGotoPathVariable): boolean => {
-  const handleId = pathVariableInputHandleIdGet(item.id);
+  const handleId = pathVariableInputHandleIdGet(item.id, item.dataType);
 
   return edges.value.some((edge) => edge.target === stateNode.node.id && edge.targetHandle === handleId);
 };
@@ -537,7 +563,8 @@ const hasConnectedPathVariable = (item: ICrawlersNodesNavigationGotoPathVariable
  * @returns {void} 无返回值。
  */
 const handlePathVariableRemove = (variableId: string): void => {
-  const handleId = pathVariableInputHandleIdGet(variableId);
+  const targetItem = statePathVariables.value.find((item) => item.id === variableId);
+  const handleId = targetItem ? pathVariableInputHandleIdGet(targetItem.id, targetItem.dataType) : pathVariableInputHandleIdGet(variableId, 'string');
   statePathVariables.value = statePathVariables.value.filter((item) => item.id !== variableId);
   edges.value = edges.value.filter((edge) => !(edge.target === stateNode.node.id && edge.targetHandle === handleId));
 };
@@ -556,10 +583,10 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
       description: t('components.crawler.blueprint.nodes.navigation.goto.inputs.pathDescription')
     },
     ...statePathVariables.value.map((item, index) => ({
-      id: pathVariableInputHandleIdGet(item.id),
+      id: pathVariableInputHandleIdGet(item.id, item.dataType),
       label: item.name.trim() !== '' ? item.name.trim() : t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.fallbackLabel', { index: index + 1 }),
       direction: 'in' as const,
-      dataType: 'string' as const,
+      dataType: item.dataType,
       topPercent: Math.min(85, 20 + index * 12),
       description: t('components.crawler.blueprint.nodes.navigation.goto.fields.pathVariables.pinDescription', {
         name: item.name.trim() !== '' ? item.name.trim() : `${index + 1}`
@@ -572,7 +599,7 @@ const computedLeftPins = computed<IBasicSidePin[]>(() => {
  * 计算属性：路径变量引脚签名。
  */
 const computedPathVariablePinSignature = computed(() => {
-  return statePathVariables.value.map((item) => `${item.id}:${item.name}`).join('|');
+  return statePathVariables.value.map((item) => `${item.id}:${item.dataType}:${item.name}`).join('|');
 });
 
 /**
@@ -640,7 +667,8 @@ watch(
       path: statePath.value,
       pathVariables: statePathVariables.value.map((item) => ({
         id: item.id,
-        name: item.name
+        name: item.name,
+        dataType: item.dataType
       })),
       windowWidth: stateWindowWidth.value,
       windowHeight: stateWindowHeight.value,

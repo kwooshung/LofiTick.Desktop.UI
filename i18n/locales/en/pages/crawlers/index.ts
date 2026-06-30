@@ -145,6 +145,7 @@ export const crawlers = {
       saved: 'Draft auto-saved'
     },
     saveFeedback: {
+      blueprintTitle: 'Blueprint save',
       title: 'Function logic save'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: 'No available logic found, loaded an empty default panel',
       fallbackRequestFailed: 'Server request failed. Local fallback was used.',
       fallbackNoMatchedData: 'Server response did not match current function. Local fallback was used.',
+      blueprintSaveSuccess: 'Blueprint has been saved to server',
+      blueprintSaveFailed: 'Failed to save blueprint',
+      blueprintSaveFailedWithCode: 'Failed to save blueprint ({code})',
+      blueprintSaveFailedWithCodeAndMessage: 'Failed to save blueprint ({code}: {message})',
       persistMismatch: 'Save submitted, but server roundtrip does not match local pin data. Please retry or check backend logs.',
       saveSuccess: 'Function logic has been saved to server',
       saveFailed: 'Failed to save function logic',
@@ -183,6 +188,20 @@ export const crawlers = {
       title: 'No Crawlers',
       description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
     },
+    parameters: {
+      title: 'Set Execution Parameters',
+      description: 'This run will use the values entered here and will not overwrite blueprint defaults automatically.',
+      fields: {
+        stringPlaceholder: 'Enter the value for this run',
+        jsonPlaceholder: 'Enter valid JSON',
+        jsonInvalid: 'Invalid JSON format or data type',
+        description: 'Parameter ID: {id} · Type: {type}'
+      },
+      actions: {
+        execute: 'Run With Current Values',
+        saveDefaultAndExecute: 'Save Current Values As Defaults And Run'
+      }
+    },
     table: {
       name: 'Name',
       description: 'Description',
@@ -191,8 +210,11 @@ export const crawlers = {
     },
     actions: {
       execute: 'Run',
+      pause: 'Pause',
+      stop: 'Stop',
       deleteConfirm: 'Delete crawler "{name}"? This action cannot be undone.',
       runSuccess: 'Execution has been triggered and is now running.',
+      stopSuccess: 'This execution has been stopped.',
       runFailed: 'Failed to trigger execution. Please try again later.',
       deleteSuccess: 'Deleted successfully.',
       deleteFailed: 'Delete failed. Please try again later.'

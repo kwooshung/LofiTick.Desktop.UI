@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '草稿已自动保存'
     },
     saveFeedback: {
+      blueprintTitle: '蓝图保存',
       title: '函数逻辑保存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '未找到可用逻辑，已加载默认空面板',
       fallbackRequestFailed: '服务端请求失败，已执行本地兜底。',
       fallbackNoMatchedData: '服务端响应未命中当前函数，已执行本地兜底。',
+      blueprintSaveSuccess: '蓝图已保存到服务器',
+      blueprintSaveFailed: '蓝图保存失败',
+      blueprintSaveFailedWithCode: '蓝图保存失败（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: '蓝图保存失败（{code}：{message}）',
       persistMismatch: '已提交保存，但服务端回读结果与本地参数不一致，请重试或检查后端日志',
       saveSuccess: '函数逻辑已保存到服务器',
       saveFailed: '函数逻辑保存失败',
@@ -183,6 +188,20 @@ export const crawlers = {
       title: '暂无爬虫',
       description: '当前站点还没有创建任何爬虫，点击右上角“添加爬虫”开始创建。'
     },
+    parameters: {
+      title: '设置执行参数',
+      description: '本次执行会使用这里填写的参数值，不会自动覆盖蓝图默认值。',
+      fields: {
+        stringPlaceholder: '请输入本次执行的参数值',
+        jsonPlaceholder: '请输入合法 JSON',
+        jsonInvalid: 'JSON 格式或数据类型不正确',
+        description: '参数 ID：{id} · 类型：{type}'
+      },
+      actions: {
+        execute: '使用当前值执行',
+        saveDefaultAndExecute: '保存当前值为默认值并执行'
+      }
+    },
     table: {
       name: '名称',
       description: '描述',
@@ -191,8 +210,11 @@ export const crawlers = {
     },
     actions: {
       execute: '执行',
+      pause: '暂停',
+      stop: '停止',
       deleteConfirm: '确定要删除爬虫「{name}」吗？此操作不可撤销。',
       runSuccess: '已触发执行，正在运行。',
+      stopSuccess: '已停止本次执行。',
       runFailed: '触发执行失败，请稍后重试。',
       deleteSuccess: '删除成功。',
       deleteFailed: '删除失败，请稍后重试。'

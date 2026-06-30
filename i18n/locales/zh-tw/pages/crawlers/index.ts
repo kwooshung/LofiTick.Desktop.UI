@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '草稿已自動儲存'
     },
     saveFeedback: {
+      blueprintTitle: '藍圖儲存',
       title: '函數邏輯儲存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '未找到可用邏輯，已載入預設空白面板',
       fallbackRequestFailed: '伺服器請求失敗，已執行本地兜底。',
       fallbackNoMatchedData: '伺服器回應未命中目前函數，已執行本地兜底。',
+      blueprintSaveSuccess: '藍圖已儲存到伺服器',
+      blueprintSaveFailed: '藍圖儲存失敗',
+      blueprintSaveFailedWithCode: '藍圖儲存失敗（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: '藍圖儲存失敗（{code}：{message}）',
       persistMismatch: '已提交保存，但伺服器回讀結果與本地參數不一致，請重試或檢查後端日誌',
       saveSuccess: '函數邏輯已儲存到伺服器',
       saveFailed: '函數邏輯儲存失敗',
@@ -183,6 +188,20 @@ export const crawlers = {
       title: '暫無爬蟲',
       description: '目前站點還沒有建立任何爬蟲，請點擊右上角「添加任務」開始建立。'
     },
+    parameters: {
+      title: '設定執行參數',
+      description: '本次執行會使用這裡填寫的參數值，不會自動覆蓋藍圖預設值。',
+      fields: {
+        stringPlaceholder: '請輸入本次執行的參數值',
+        jsonPlaceholder: '請輸入合法 JSON',
+        jsonInvalid: 'JSON 格式或資料類型不正確',
+        description: '參數 ID：{id} · 類型：{type}'
+      },
+      actions: {
+        execute: '使用目前值執行',
+        saveDefaultAndExecute: '保存目前值為預設值並執行'
+      }
+    },
     table: {
       name: '名稱',
       description: '描述',
@@ -191,8 +210,11 @@ export const crawlers = {
     },
     actions: {
       execute: '執行',
+      pause: '暫停',
+      stop: '停止',
       deleteConfirm: '確定要刪除爬蟲「{name}」嗎？此操作無法復原。',
       runSuccess: '已觸發執行，正在執行中。',
+      stopSuccess: '已停止本次執行。',
       runFailed: '觸發執行失敗，請稍後再試。',
       deleteSuccess: '刪除成功。',
       deleteFailed: '刪除失敗，請稍後再試。'

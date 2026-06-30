@@ -8,37 +8,39 @@
 
             <UInput v-model="item.name" class="min-w-0 flex-1" :placeholder="namePlaceholder" />
 
-            <CrawlersNodesCommonConnectedInputHint v-if="hasConnectedPin(item)" class="min-w-0 flex-1" :label="connectedHint" />
+            <slot name="actions" :item="item" :index="index" />
 
-            <UInput v-else-if="item.dataType === 'string'" :model-value="String(item.defaultValue ?? '')" class="min-w-0 flex-1" :placeholder="stringPlaceholder" @update:model-value="(value) => handleStringValueUpdate(item.id, value)" />
+            <template v-if="showDefaultValue">
+              <UInput v-if="item.dataType === 'string'" :model-value="String(item.defaultValue ?? '')" class="min-w-0 flex-1" :placeholder="stringPlaceholder" @update:model-value="(value) => handleStringValueUpdate(item.id, value)" />
 
-            <UInputNumber
-              v-else-if="item.dataType === 'number'"
-              :model-value="Number(item.defaultValue ?? 0)"
-              class="w-28 shrink-0"
-              orientation="vertical"
-              :increment="{ color: 'neutral', variant: 'soft' }"
-              :decrement="{ color: 'neutral', variant: 'soft' }"
-              @update:model-value="(value) => handleNumberValueUpdate(item.id, Number(value ?? 0))"
-            />
+              <UInputNumber
+                v-else-if="item.dataType === 'number'"
+                :model-value="Number(item.defaultValue ?? 0)"
+                class="w-28 shrink-0"
+                orientation="vertical"
+                :increment="{ color: 'neutral', variant: 'soft' }"
+                :decrement="{ color: 'neutral', variant: 'soft' }"
+                @update:model-value="(value) => handleNumberValueUpdate(item.id, Number(value ?? 0))"
+              />
 
-            <UInput v-else-if="item.dataType === 'boolean'" model-value="" readonly class="w-28 shrink-0 cursor-default">
-              <template #trailing>
-                <USwitch :model-value="Boolean(item.defaultValue)" :label="Boolean(item.defaultValue) ? 'true' : 'false'" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="(value) => handleBooleanValueUpdate(item.id, value === true)" />
-              </template>
-            </UInput>
+              <UInput v-else-if="item.dataType === 'boolean'" model-value="" readonly class="w-28 shrink-0 cursor-default">
+                <template #trailing>
+                  <USwitch :model-value="Boolean(item.defaultValue)" :label="Boolean(item.defaultValue) ? 'true' : 'false'" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="(value) => handleBooleanValueUpdate(item.id, value === true)" />
+                </template>
+              </UInput>
 
-            <UInput v-else-if="item.dataType === 'array' || item.dataType === 'object'" model-value="JSON" readonly class="w-24 shrink-0 cursor-default text-xs">
-              <template #trailing>
-                <UIcon name="i-lucide-chevron-down" class="text-muted size-3" />
-              </template>
-            </UInput>
+              <UInput v-else-if="item.dataType === 'array' || item.dataType === 'object'" model-value="JSON" readonly class="w-24 shrink-0 cursor-default text-xs">
+                <template #trailing>
+                  <UIcon name="i-lucide-chevron-down" class="text-muted size-3" />
+                </template>
+              </UInput>
+            </template>
           </UFieldGroup>
 
           <UButton color="error" variant="soft" icon="i-lucide-trash-2" size="xs" class="shrink-0" @click="handleRemove(item.id)" />
         </div>
 
-        <UTextarea v-if="(item.dataType === 'array' || item.dataType === 'object') && !hasConnectedPin(item)" :model-value="item.jsonText" :rows="4" autoresize class="w-full" :placeholder="jsonPlaceholder" @update:model-value="(value) => handleJsonValueUpdate(item.id, value)" />
+        <UTextarea v-if="showDefaultValue && (item.dataType === 'array' || item.dataType === 'object')" :model-value="item.jsonText" :rows="4" autoresize class="w-full" :placeholder="jsonPlaceholder" @update:model-value="(value) => handleJsonValueUpdate(item.id, value)" />
       </div>
     </template>
 
@@ -57,17 +59,15 @@
 </template>
 
 <script setup lang="ts">
-import { useVueFlow } from '@vue-flow/core';
-
 import type { ICrawlersNodesFunctionPinsEditorItem, ICrawlersNodesFunctionPinsProps } from '@/components/crawlers/nodes/function/pins/index.types';
 import { functionNodePinSignatureGet } from '@/components/crawlers/nodes/common/function/index';
 import type { IVariableDefinitionData, TVariableValueDataType } from '@/components/crawlers/nodes/variable/shared/index';
-import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableInputHandleIdGet, variableJsonTextGet, variableJsonTextParse, variableOutputHandleIdGet, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
+import { variableDefaultValueCreate, variableDefinitionIdCreate, variableDefinitionNameNormalize, variableJsonTextGet, variableJsonTextParse, variableValueDataTypesGet } from '@/components/crawlers/nodes/variable/shared/index';
 
 /**
  * Props：组件入参。
  */
-const { modelValue, nodeId, direction, emptyTitle, emptyDescription, emptyActionLabel, addActionLabel, namePlaceholder, stringPlaceholder, jsonPlaceholder, connectedHint } = defineProps<ICrawlersNodesFunctionPinsProps>();
+const { modelValue, emptyTitle, emptyDescription, emptyActionLabel, addActionLabel, namePlaceholder, stringPlaceholder, jsonPlaceholder, showDefaultValue = true } = defineProps<ICrawlersNodesFunctionPinsProps>();
 
 /**
  * 事件：函数节点引脚编辑器。
@@ -81,11 +81,6 @@ const emit = defineEmits<{
  * 状态：statePins。
  */
 const statePins = ref<ICrawlersNodesFunctionPinsEditorItem[]>([]);
-
-/**
- * Hook：画布状态。
- */
-const { edges } = useVueFlow();
 
 /**
  * Hook：国际化。
@@ -137,24 +132,6 @@ const serializePins = (items: ICrawlersNodesFunctionPinsEditorItem[]): IVariable
  */
 const emitPinsNow = (): void => {
   emit('update:modelValue', serializePins(statePins.value));
-};
-
-/**
- * 函数：判断引脚是否已连接。
- */
-const hasConnectedPin = (item: ICrawlersNodesFunctionPinsEditorItem): boolean => {
-  const currentNodeId = String(nodeId ?? '').trim();
-  const handleId = direction === 'output' ? variableOutputHandleIdGet(item.id, item.dataType) : variableInputHandleIdGet(item.id, item.dataType);
-
-  if (currentNodeId === '') {
-    return false;
-  }
-
-  if (direction === 'output') {
-    return edges.value.some((edge) => edge.source === currentNodeId && edge.sourceHandle === handleId);
-  }
-
-  return edges.value.some((edge) => edge.target === currentNodeId && edge.targetHandle === handleId);
 };
 
 /**

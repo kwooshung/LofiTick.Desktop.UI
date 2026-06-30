@@ -54,6 +54,41 @@ const stateModeOptions = computed(() => {
 });
 
 /**
+ * 函数：校验 CSS 选择器语法。
+ * @param {string} value 选择器文本。
+ * @return {boolean} 是否有效。
+ */
+const validateCssSelector = (value: string): boolean => {
+  if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') {
+    return true;
+  }
+
+  try {
+    return CSS.supports(`selector(${value})`);
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * 函数：校验 XPath 选择器语法。
+ * @param {string} value 选择器文本。
+ * @return {boolean} 是否有效。
+ */
+const validateXpathSelector = (value: string): boolean => {
+  if (typeof document === 'undefined' || typeof document.createExpression !== 'function') {
+    return true;
+  }
+
+  try {
+    document.createExpression(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * 计算属性：computedShowInvalidHint。
  */
 const computedShowInvalidHint = computed(() => {
@@ -70,18 +105,10 @@ const computedShowInvalidHint = computed(() => {
   }
 
   if (stateMode.value === 'xpath') {
-    return !value.startsWith('/') && !value.startsWith('(');
+    return !validateXpathSelector(value);
   }
 
-  if (value.startsWith('/') || value.startsWith('(')) {
-    return true;
-  }
-
-  if (value.includes('<') || value.includes('>')) {
-    return true;
-  }
-
-  return false;
+  return !validateCssSelector(value);
 });
 
 watch(

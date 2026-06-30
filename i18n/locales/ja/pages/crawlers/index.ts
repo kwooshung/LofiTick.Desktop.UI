@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '下書きを自動保存しました'
     },
     saveFeedback: {
+      blueprintTitle: 'ブループリント保存',
       title: '関数ロジック保存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '利用可能なロジックが見つからないため、既定の空パネルを読み込みました',
       fallbackRequestFailed: 'サーバーリクエストに失敗したため、ローカルフォールバックを使用しました。',
       fallbackNoMatchedData: 'サーバー応答が現在の関数に一致しないため、ローカルフォールバックを使用しました。',
+      blueprintSaveSuccess: 'ブループリントをサーバーに保存しました',
+      blueprintSaveFailed: 'ブループリントの保存に失敗しました',
+      blueprintSaveFailedWithCode: 'ブループリントの保存に失敗しました（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: 'ブループリントの保存に失敗しました（{code}：{message}）',
       persistMismatch: '保存は送信されましたが、サーバー再取得結果がローカルのピンデータと一致しません。再試行またはバックエンドログを確認してください。',
       saveSuccess: '関数ロジックをサーバーに保存しました',
       saveFailed: '関数ロジックの保存に失敗しました',
@@ -183,6 +188,20 @@ export const crawlers = {
       title: 'クローラーがありません',
       description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
     },
+    parameters: {
+      title: '実行パラメータを設定',
+      description: '今回の実行ではここで入力した値を使用し、ブループリントの既定値は自動では上書きしません。',
+      fields: {
+        stringPlaceholder: '今回の実行で使う値を入力',
+        jsonPlaceholder: '有効な JSON を入力',
+        jsonInvalid: 'JSON 形式またはデータ型が正しくありません',
+        description: 'パラメータ ID：{id} · 型：{type}'
+      },
+      actions: {
+        execute: '現在の値で実行',
+        saveDefaultAndExecute: '現在の値を既定値として保存して実行'
+      }
+    },
     table: {
       name: '名称',
       description: '説明',
@@ -191,8 +210,11 @@ export const crawlers = {
     },
     actions: {
       execute: '実行',
+      pause: '一時停止',
+      stop: '停止',
       deleteConfirm: 'クローラー「{name}」を削除しますか？この操作は取り消せません。',
       runSuccess: '実行を開始しました。現在実行中です。',
+      stopSuccess: '今回の実行を停止しました。',
       runFailed: '実行の開始に失敗しました。しばらくしてから再試行してください。',
       deleteSuccess: '削除しました。',
       deleteFailed: '削除に失敗しました。しばらくしてから再試行してください。'

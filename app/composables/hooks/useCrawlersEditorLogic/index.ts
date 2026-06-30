@@ -68,7 +68,7 @@ export const useCrawlersEditorLogic = (options: ICrawlersEditorLogicOptions): IC
       return 'exec';
     }
 
-    if (id.includes('boolean') || id.includes('bool')) {
+    if (id === 'element-exists' || id.includes('boolean') || id.includes('bool')) {
       return 'boolean';
     }
 

@@ -3,6 +3,11 @@
  */
 export interface ITauriCrawlerBlueprintExecuteRequest {
   /**
+   * 任务 ID。
+   */
+  taskId?: string;
+
+  /**
    * 蓝图 ID。
    */
   blueprintId: number;
