@@ -107,6 +107,12 @@ export interface IFolderProps {
    * 属性：是否禁用
    */
   disabled?: boolean;
+
+  /**
+   * 属性：是否强制显示指针光标
+   * 描述：用于非跳转场景也保留可点击语义
+   */
+  cursorPointer?: boolean;
 }
 
 /**
