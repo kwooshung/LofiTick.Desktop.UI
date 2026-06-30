@@ -209,6 +209,7 @@ import type { ICrawlersEditorSavePayload } from '@/components/crawlers/editor/in
 import type { ICrawlersEditorSidebarFunctionDetail, ICrawlersEditorSidebarFunctionRow } from '@/components/crawlers/editor/sidebar/index.types';
 import type { ICrawlerBlueprintExecutionParametersSubmitPayload } from '@/components/crawlers/execution/parameters/index.types';
 import { crawlerBlueprintExecutionParametersExtract } from '@/components/crawlers/execution/parameters/utils/index';
+import type { IServerError } from '@/composables/hooks/useApi/index.types';
 
 /**
  * 页面：按爬虫路由层级刷新父页实例。
@@ -1256,6 +1257,38 @@ const draftRemoveAfterSave = async (value: unknown): Promise<void> => {
 };
 
 /**
+ * 函数：构建 API 状态码文本。
+ * @param {IServerError | undefined} status 服务端状态。
+ * @returns {string} 三段式状态码。
+ */
+const apiStatusCodeTextBuild = (status: IServerError | undefined): string => {
+  const http = Number(status?.http ?? 0);
+  const biz = Number(status?.biz ?? 0);
+  const aim = Number(status?.aim ?? 0);
+
+  return [http, biz, aim]
+    .map((value) => (Number.isFinite(value) ? Math.trunc(value) : 0))
+    .map((value) => String(value).padStart(3, '0'))
+    .join('-');
+};
+
+/**
+ * 函数：构建蓝图保存失败文案。
+ * @param {IServerError | undefined} status 服务端状态。
+ * @returns {string} 可展示的失败文案。
+ */
+const blueprintSaveFailedDescriptionBuild = (status: IServerError | undefined): string => {
+  const code = apiStatusCodeTextBuild(status);
+  const message = String(status?.message ?? '').trim();
+
+  if (message !== '') {
+    return t('pages.crawlers.editor.loadSource.blueprintSaveFailedWithCodeAndMessage', { code, message });
+  }
+
+  return t('pages.crawlers.editor.loadSource.blueprintSaveFailedWithCode', { code });
+};
+
+/**
  * 事件：提交表单
  */
 const handleEditorSubmit = async (event: FormSubmitEvent<z.output<typeof schema>>) => {
@@ -1294,8 +1327,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (!Number.isFinite(targetId) || targetId <= 0) {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
-      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+      description: t('pages.crawlers.editor.loadSource.blueprintSaveFailed'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 4200
@@ -1307,7 +1340,7 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (!startNodeCrawlerMeta || startNodeCrawlerMeta.crawlerTitle === '') {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
       description: t('components.crawler.blueprint.nodes.common.start.form.crawlerTitleRequired'),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
@@ -1322,10 +1355,11 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
       targetId,
       name: startNodeCrawlerMeta.crawlerTitle,
       description: startNodeCrawlerMeta.crawlerDescription,
-      nodes: payload?.flowData ?? {},
+      nodes: crawlerBlueprintNodesTransportEncode(payload?.flowData ?? {}),
       isEnabled: stateBlueprintDrawerBlueprintId.value > 0 ? stateBlueprintDrawerEnabled.value : true
     },
-    replace: true
+    replace: true,
+    ignoreResponseError: true
   });
 
   const saveHttp = Number(stateCrawlerTaskGraphSaveStatus.value?.http ?? 0);
@@ -1333,8 +1367,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
 
   if (saveFailed) {
     toast.add({
-      title: t('pages.crawlers.editor.saveFeedback.title'),
-      description: t('pages.crawlers.editor.loadSource.saveFailed'),
+      title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+      description: blueprintSaveFailedDescriptionBuild(stateCrawlerTaskGraphSaveStatus.value),
       color: 'error',
       icon: 'i-lucide:triangle-alert',
       duration: 4200
@@ -1343,8 +1377,8 @@ const handleBlueprintSave = async (payload: ICrawlersEditorSavePayload): Promise
   }
 
   toast.add({
-    title: t('pages.crawlers.editor.saveFeedback.title'),
-    description: t('pages.crawlers.editor.loadSource.saveSuccess'),
+    title: t('pages.crawlers.editor.saveFeedback.blueprintTitle'),
+    description: t('pages.crawlers.editor.loadSource.blueprintSaveSuccess'),
     color: 'success',
     icon: 'i-lucide:check-check',
     duration: 2600

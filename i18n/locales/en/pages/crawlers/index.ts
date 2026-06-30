@@ -145,6 +145,7 @@ export const crawlers = {
       saved: 'Draft auto-saved'
     },
     saveFeedback: {
+      blueprintTitle: 'Blueprint save',
       title: 'Function logic save'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: 'No available logic found, loaded an empty default panel',
       fallbackRequestFailed: 'Server request failed. Local fallback was used.',
       fallbackNoMatchedData: 'Server response did not match current function. Local fallback was used.',
+      blueprintSaveSuccess: 'Blueprint has been saved to server',
+      blueprintSaveFailed: 'Failed to save blueprint',
+      blueprintSaveFailedWithCode: 'Failed to save blueprint ({code})',
+      blueprintSaveFailedWithCodeAndMessage: 'Failed to save blueprint ({code}: {message})',
       persistMismatch: 'Save submitted, but server roundtrip does not match local pin data. Please retry or check backend logs.',
       saveSuccess: 'Function logic has been saved to server',
       saveFailed: 'Failed to save function logic',

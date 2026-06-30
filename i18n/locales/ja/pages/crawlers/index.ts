@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '下書きを自動保存しました'
     },
     saveFeedback: {
+      blueprintTitle: 'ブループリント保存',
       title: '関数ロジック保存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '利用可能なロジックが見つからないため、既定の空パネルを読み込みました',
       fallbackRequestFailed: 'サーバーリクエストに失敗したため、ローカルフォールバックを使用しました。',
       fallbackNoMatchedData: 'サーバー応答が現在の関数に一致しないため、ローカルフォールバックを使用しました。',
+      blueprintSaveSuccess: 'ブループリントをサーバーに保存しました',
+      blueprintSaveFailed: 'ブループリントの保存に失敗しました',
+      blueprintSaveFailedWithCode: 'ブループリントの保存に失敗しました（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: 'ブループリントの保存に失敗しました（{code}：{message}）',
       persistMismatch: '保存は送信されましたが、サーバー再取得結果がローカルのピンデータと一致しません。再試行またはバックエンドログを確認してください。',
       saveSuccess: '関数ロジックをサーバーに保存しました',
       saveFailed: '関数ロジックの保存に失敗しました',

@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '草稿已自动保存'
     },
     saveFeedback: {
+      blueprintTitle: '蓝图保存',
       title: '函数逻辑保存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '未找到可用逻辑，已加载默认空面板',
       fallbackRequestFailed: '服务端请求失败，已执行本地兜底。',
       fallbackNoMatchedData: '服务端响应未命中当前函数，已执行本地兜底。',
+      blueprintSaveSuccess: '蓝图已保存到服务器',
+      blueprintSaveFailed: '蓝图保存失败',
+      blueprintSaveFailedWithCode: '蓝图保存失败（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: '蓝图保存失败（{code}：{message}）',
       persistMismatch: '已提交保存，但服务端回读结果与本地参数不一致，请重试或检查后端日志',
       saveSuccess: '函数逻辑已保存到服务器',
       saveFailed: '函数逻辑保存失败',

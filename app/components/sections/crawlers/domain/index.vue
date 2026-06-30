@@ -704,7 +704,7 @@ const handleExecutionParametersSaveDefaultAndExecute = async (payload: ICrawlerB
       targetId: Number(row.targetId ?? computedTargetId.value ?? 0),
       name: String(row.name ?? '').trim(),
       description: String(row.description ?? '').trim(),
-      nodes: payload.flowData,
+      nodes: crawlerBlueprintNodesTransportEncode(payload.flowData),
       isEnabled: row.enabled
     },
     replace: true

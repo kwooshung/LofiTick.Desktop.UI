@@ -145,6 +145,7 @@ export const crawlers = {
       saved: '草稿已自動儲存'
     },
     saveFeedback: {
+      blueprintTitle: '藍圖儲存',
       title: '函數邏輯儲存'
     },
     loadSource: {
@@ -155,6 +156,10 @@ export const crawlers = {
       default: '未找到可用邏輯，已載入預設空白面板',
       fallbackRequestFailed: '伺服器請求失敗，已執行本地兜底。',
       fallbackNoMatchedData: '伺服器回應未命中目前函數，已執行本地兜底。',
+      blueprintSaveSuccess: '藍圖已儲存到伺服器',
+      blueprintSaveFailed: '藍圖儲存失敗',
+      blueprintSaveFailedWithCode: '藍圖儲存失敗（{code}）',
+      blueprintSaveFailedWithCodeAndMessage: '藍圖儲存失敗（{code}：{message}）',
       persistMismatch: '已提交保存，但伺服器回讀結果與本地參數不一致，請重試或檢查後端日誌',
       saveSuccess: '函數邏輯已儲存到伺服器',
       saveFailed: '函數邏輯儲存失敗',
