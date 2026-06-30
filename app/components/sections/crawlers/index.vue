@@ -47,12 +47,17 @@
 </template>
 
 <script setup lang="ts">
-import type { IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/sections/crawlers/index.types';
+import type { IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/sections/crawlers/index.types';
 
 /**
  * Hook：i18n。
  */
 const { t } = useI18n();
+
+/**
+ * 常量：Pixabay 爬取缓存键。
+ */
+const PIXABAY_CRAWLER_CACHE_STORAGE_KEY = 'pages.crawlers.pixabay.cache';
 
 /**
  * 状态：Pixabay 类型选择弹窗是否打开。
@@ -75,9 +80,103 @@ const statePixabayKeyword = ref('');
 const statePixabayPage = ref(1);
 
 /**
+ * 状态：Pixabay 本地缓存存储。
+ */
+const statePixabayCacheStore = ref<IPixabayCrawlerCacheStore>({ items: {} });
+
+/**
  * 计算属性：关键词是否已填写。
  */
 const computedPixabayKeywordReady = computed(() => statePixabayKeyword.value.trim().length > 0);
+
+/**
+ * 函数：生成默认的 Pixabay 缓存项。
+ *
+ * # Returns
+ *
+ * 返回一个可直接写入本地存储的默认缓存项。
+ */
+const createDefaultPixabayCacheItem = (): IPixabayCrawlerCacheItem => ({
+  keyword: '',
+  page: 1
+});
+
+/**
+ * 函数：读取本地存储中的 Pixabay 缓存。
+ *
+ * # Returns
+ *
+ * 返回已保存的缓存内容；读取失败时回退为空对象。
+ */
+const readPixabayCacheStore = (): IPixabayCrawlerCacheStore => {
+  if (!import.meta.client) {
+    return { items: {} };
+  }
+
+  try {
+    const rawValue = localStorage.getItem(PIXABAY_CRAWLER_CACHE_STORAGE_KEY);
+    if (!rawValue) {
+      return { items: {} };
+    }
+
+    const parsedValue = JSON.parse(rawValue) as Partial<IPixabayCrawlerCacheStore> | null;
+    if (!parsedValue || typeof parsedValue !== 'object' || !parsedValue.items || typeof parsedValue.items !== 'object') {
+      return { items: {} };
+    }
+
+    return {
+      items: parsedValue.items
+    };
+  } catch {
+    return { items: {} };
+  }
+};
+
+/**
+ * 函数：写入本地存储中的 Pixabay 缓存。
+ *
+ * # Arguments
+ *
+ * * `store` - 待保存的缓存内容。
+ */
+const writePixabayCacheStore = (store: IPixabayCrawlerCacheStore): void => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  localStorage.setItem(PIXABAY_CRAWLER_CACHE_STORAGE_KEY, JSON.stringify(store));
+};
+
+/**
+ * 函数：应用指定类型的 Pixabay 缓存。
+ *
+ * # Arguments
+ *
+ * * `type` - Pixabay 地址键。
+ */
+const applyPixabayCacheByType = (type: TPixabayCrawlerType): void => {
+  const cachedItem = statePixabayCacheStore.value.items[type] ?? createDefaultPixabayCacheItem();
+  statePixabayKeyword.value = cachedItem.keyword;
+  statePixabayPage.value = cachedItem.page;
+};
+
+/**
+ * 函数：保存指定类型的 Pixabay 缓存。
+ *
+ * # Arguments
+ *
+ * * `type` - Pixabay 地址键。
+ * * `keyword` - 搜索关键词。
+ * * `page` - 页码。
+ */
+const savePixabayCacheByType = (type: TPixabayCrawlerType, keyword: string, page: number): void => {
+  statePixabayCacheStore.value.items[type] = {
+    keyword,
+    page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
+  };
+
+  writePixabayCacheStore(statePixabayCacheStore.value);
+};
 
 /**
  * 计算属性：Pixabay 爬取类型选项。
@@ -117,12 +216,33 @@ const computedPixabayCrawlerUrlPreview = computed(() => {
 });
 
 /**
+ * 监听：当前 Pixabay 地址变化时，保存旧值并回填新地址缓存。
+ */
+watch(statePixabayCrawlerType, (nextType, prevType) => {
+  savePixabayCacheByType(prevType, statePixabayKeyword.value.trim(), statePixabayPage.value);
+  applyPixabayCacheByType(nextType);
+});
+
+/**
+ * 监听：关键词或页码变化时，自动写入当前地址缓存。
+ */
+watch([statePixabayKeyword, statePixabayPage], () => {
+  savePixabayCacheByType(statePixabayCrawlerType.value, statePixabayKeyword.value.trim(), statePixabayPage.value);
+});
+
+/**
+ * 生命周期：挂载后初始化本地缓存。
+ */
+onMounted(() => {
+  statePixabayCacheStore.value = readPixabayCacheStore();
+  applyPixabayCacheByType(statePixabayCrawlerType.value);
+});
+
+/**
  * 函数：打开 Pixabay 爬取选择弹窗。
  */
 const handlePixabayClick = (): void => {
   statePixabayCrawlerType.value = 'music';
-  statePixabayKeyword.value = '';
-  statePixabayPage.value = 1;
   statePixabayDialogOpen.value = true;
 };
 

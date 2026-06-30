@@ -27,3 +27,28 @@ export interface IPixabayCrawlerOption {
    */
   disabled?: boolean;
 }
+
+/**
+ * 接口：Pixabay 爬取缓存项。
+ */
+export interface IPixabayCrawlerCacheItem {
+  /**
+   * 属性：搜索关键词。
+   */
+  keyword: string;
+
+  /**
+   * 属性：页码。
+   */
+  page: number;
+}
+
+/**
+ * 接口：Pixabay 爬取缓存存储。
+ */
+export interface IPixabayCrawlerCacheStore {
+  /**
+   * 属性：按地址键分桶的缓存。
+   */
+  items: Partial<Record<TPixabayCrawlerType, IPixabayCrawlerCacheItem>>;
+}
