@@ -126,6 +126,12 @@ export interface IFolderEmits {
   dblclick: [ev: MouseEvent];
 
   /**
+   * 事件：单击
+   * @param {MouseEvent} ev 鼠标事件
+   */
+  click: [ev: MouseEvent];
+
+  /**
    * 事件：右键菜单选中事件
    * @param {ContextMenuItem} item 选中的菜单项
    */

@@ -44,6 +44,7 @@
                   variant="link"
                   size="sm"
                   :icon="stateVolcSpeechAccessTokenVisible ? 'i-lucide:eye' : 'i-lucide:eye-off'"
+                  :ui="{ leadingIcon: stateVolcSpeechAccessTokenVisible ? 'transition-transform duration-200' : 'rotate-180 transition-transform duration-200' }"
                   :aria-label="stateVolcSpeechAccessTokenVisible ? t('pages.settings.services.actions.hideAccessToken') : t('pages.settings.services.actions.showAccessToken')"
                   :aria-pressed="stateVolcSpeechAccessTokenVisible"
                   aria-controls="volc-speech-access-token"

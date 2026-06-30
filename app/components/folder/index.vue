@@ -446,6 +446,8 @@ const onClick = (e: MouseEvent) => {
     return;
   }
 
+  emit('click', e);
+
   // 存在跳转目标时：仅左键单击触发跳转（不参与选中/重命名判定）
   if (to && e.button === 0) {
     navigateTo(to);
