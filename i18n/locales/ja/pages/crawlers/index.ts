@@ -15,10 +15,6 @@ export const crawlers = {
         dialog: {
           title: 'Pixabay のURLを選択',
           description: 'まずキーワードを入力し、必要ならページ番号を追加すると、下に最終URLを表示します。',
-          usernameLabel: 'ユーザー名',
-          usernamePlaceholder: 'ユーザー名を入力',
-          passwordLabel: 'パスワード',
-          passwordPlaceholder: 'パスワードを入力',
           keywordLabel: 'キーワード',
           keywordPlaceholder: 'キーワードを入力',
           keywordPreview: 'キーワード',

@@ -26,14 +26,6 @@
           <UInputNumber v-model="statePixabayPage" orientation="vertical" :min="1" :step="1" variant="outline" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
         </UFormField>
 
-        <UFormField :label="t('pages.crawlers.spider.websites.pixabay.dialog.usernameLabel')">
-          <UInput v-model="statePixabayUsername" clear class="w-full" :placeholder="t('pages.crawlers.spider.websites.pixabay.dialog.usernamePlaceholder')" />
-        </UFormField>
-
-        <UFormField :label="t('pages.crawlers.spider.websites.pixabay.dialog.passwordLabel')">
-          <UInput v-model="statePixabayPassword" clear class="w-full" type="password" :placeholder="t('pages.crawlers.spider.websites.pixabay.dialog.passwordPlaceholder')" />
-        </UFormField>
-
         <div class="border-default bg-elevated/20 rounded-lg border p-3">
           <div class="text-muted mb-1 text-xs">{{ t('pages.crawlers.spider.websites.pixabay.dialog.urlLabel') }}</div>
           <div class="text-sm leading-6 break-all">{{ computedPixabayCrawlerUrlPreview }}</div>
@@ -81,16 +73,6 @@ const statePixabayKeyword = ref('');
  * 状态：Pixabay 页码。
  */
 const statePixabayPage = ref(1);
-
-/**
- * 状态：Pixabay 用户名。
- */
-const statePixabayUsername = ref('');
-
-/**
- * 状态：Pixabay 密码。
- */
-const statePixabayPassword = ref('');
 
 /**
  * 计算属性：关键词是否已填写。
@@ -141,8 +123,6 @@ const handlePixabayClick = (): void => {
   statePixabayCrawlerType.value = 'music';
   statePixabayKeyword.value = '';
   statePixabayPage.value = 1;
-  statePixabayUsername.value = '';
-  statePixabayPassword.value = '';
   statePixabayDialogOpen.value = true;
 };
 

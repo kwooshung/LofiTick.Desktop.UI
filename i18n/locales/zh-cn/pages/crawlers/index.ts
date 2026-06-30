@@ -14,10 +14,6 @@ export const crawlers = {
         dialog: {
           title: '选择 Pixabay 地址',
           description: '先填关键词，再按需补页码，下面会实时显示最终链接。',
-          usernameLabel: '用户名',
-          usernamePlaceholder: '请输入用户名',
-          passwordLabel: '密码',
-          passwordPlaceholder: '请输入密码',
           keywordLabel: '搜索关键词',
           keywordPlaceholder: '请输入关键词',
           keywordPreview: '搜索关键词',

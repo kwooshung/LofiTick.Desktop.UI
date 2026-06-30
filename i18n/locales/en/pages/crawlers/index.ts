@@ -15,10 +15,6 @@ export const crawlers = {
         dialog: {
           title: 'Choose a Pixabay address',
           description: 'Enter a keyword first, optionally add a page number, and preview the final URL below.',
-          usernameLabel: 'Username',
-          usernamePlaceholder: 'Enter a username',
-          passwordLabel: 'Password',
-          passwordPlaceholder: 'Enter a password',
           keywordLabel: 'Keyword',
           keywordPlaceholder: 'Enter a keyword',
           keywordPreview: 'keyword',
