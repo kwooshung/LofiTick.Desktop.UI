@@ -6,12 +6,32 @@ export const crawlers = {
       description: '現在表示できるフォルダはありません。'
     }
   },
+  provider: {
+    unsupported: {
+      name: '不明なクローラー',
+      title: 'このクローラーはまだ対応していません',
+      description: 'このサイトのクローラーコンソールはまだ接続されていません。'
+    }
+  },
   spider: {
     title: 'スパイダー',
     websites: {
       pixabay: {
+        name: 'Pixabay',
         title: 'Pixabay',
         music: '音楽',
+        page: {
+          description: 'Pixabay のクロールタスク、実行モード、収集結果を管理します。',
+          actions: {
+            create: 'クロールを作成'
+          },
+          tasks: {
+            empty: {
+              title: 'Pixabay タスクはまだありません',
+              description: '現在 Pixabay のクロールタスクはありません。今後ここにタスク一覧を表示します。'
+            }
+          }
+        },
         dialog: {
           title: 'Pixabay のURLを選択',
           description: 'まずキーワードを入力し、必要ならページ番号を追加すると、下に最終URLを表示します。',
