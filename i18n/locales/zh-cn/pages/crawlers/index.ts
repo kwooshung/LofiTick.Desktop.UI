@@ -10,8 +10,10 @@ export const crawlers = {
     title: '蜘蛛',
     websites: {
       pixabay: {
-        title: 'Pixabay',
-        music: '音乐'
+        name: 'Pixabay'
+      },
+      suno: {
+        name: 'Suno'
       }
     }
   }

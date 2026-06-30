@@ -12,6 +12,9 @@ export const crawlers = {
       pixabay: {
         title: 'Pixabay',
         music: '音楽'
+      },
+      suno: {
+        name: 'Suno'
       }
     }
   }

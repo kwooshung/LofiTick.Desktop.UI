@@ -1,7 +1,7 @@
 <template>
   <DashboardPage direction="horizontal" :padded="false" class="p-4 sm:gap-3 sm:p-3">
-    <Folder :label="t('pages.crawlers.spider.websites.suno.title')" icon-name="i-material-symbols:bigtop-updates-rounded" :to="localePath('/crawlers/suno')" />
-    <Folder :label="t('pages.crawlers.spider.websites.pixabay.title')" icon-name="i-simple-icons:pixabay" :to="localePath('/crawlers/pixabay')" />
+    <Folder :label="t('pages.crawlers.spider.websites.pixabay.name')" icon-name="i-simple-icons:pixabay" />
+    <Folder :label="t('pages.crawlers.spider.websites.suno.name')" icon-name="i-simple-icons:suno" />
   </DashboardPage>
 </template>
 
@@ -10,9 +10,4 @@
  * Hook：i18n
  */
 const { t } = useI18n();
-
-/**
- * 函数：本地化路由
- */
-const localePath = useLocalePath();
 </script>
