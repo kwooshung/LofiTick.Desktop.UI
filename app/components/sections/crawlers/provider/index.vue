@@ -2,7 +2,6 @@
   <DashboardPage :padded="false" class="p-4 sm:p-3">
     <div class="flex min-h-0 flex-1 flex-col gap-4">
       <div class="flex items-center gap-3">
-        <UButton :to="localePath('/crawlers')" icon="i-lucide:arrow-left" color="neutral" variant="ghost" />
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <UIcon :name="computedProviderIcon" class="size-5 shrink-0" />
