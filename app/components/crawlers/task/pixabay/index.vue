@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import type { ICrawlersTaskPixabayEmits, ICrawlersTaskPixabayProps, IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
 import type { ICrawlerTaskRow } from '@/components/crawlers/task/table/index.types';
+import type { ICrawlerTaskExecuteRequest } from '@/composables/tauri/tasks/index.types';
 
 defineOptions({ name: 'CrawlersTaskPixabay' });
 
@@ -63,6 +64,11 @@ const emit = defineEmits<ICrawlersTaskPixabayEmits>();
  * Hook：i18n。
  */
 const { t } = useI18n();
+
+/**
+ * Hook：Tauri 任务能力。
+ */
+const tauriTasks = useTauriTasks();
 
 /**
  * 常量：Pixabay 爬取缓存键。
@@ -93,6 +99,11 @@ const statePixabayCacheStore = ref<IPixabayCrawlerCacheStore>({ items: {} });
  * 状态：Pixabay 任务列表。
  */
 const statePixabayTasks = ref<ICrawlerTaskRow[]>([]);
+
+/**
+ * 状态：Pixabay 提交中。
+ */
+const statePixabaySubmitting = ref(false);
 
 /**
  * 计算属性：关键词是否已填写。
@@ -268,7 +279,30 @@ const handlePixabayCancel = (): void => {
 /**
  * 函数：确认 Pixabay 爬取地址。
  */
-const handlePixabaySubmit = (): void => {
-  computedPixabayDialogOpen.value = false;
+const handlePixabaySubmit = async (): Promise<void> => {
+  if (statePixabaySubmitting.value) {
+    return;
+  }
+
+  statePixabaySubmitting.value = true;
+
+  try {
+    const request: ICrawlerTaskExecuteRequest = {
+      task: 'pixabay',
+      payload: {
+        url: computedPixabayCrawlerUrlPreview.value,
+        type: statePixabayCrawlerType.value,
+        keyword: statePixabayKeyword.value.trim(),
+        page: statePixabayPage.value
+      }
+    };
+
+    const accepted = await tauriTasks.crawlerTaskExecute(request);
+    emit('update:webviewTaskId', accepted.taskId);
+    emit('update:webviewVisible', false);
+    computedPixabayDialogOpen.value = false;
+  } finally {
+    statePixabaySubmitting.value = false;
+  }
 };
 </script>

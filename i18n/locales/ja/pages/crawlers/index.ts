@@ -16,6 +16,8 @@ export const crawlers = {
   task: {
     actions: {
       execute: 'タスクを実行',
+      webviewShow: 'ウィンドウを表示',
+      webviewHide: 'ウィンドウを非表示',
       pause: 'タスクを一時停止',
       resume: 'タスクを再開',
       stop: 'タスクを停止'

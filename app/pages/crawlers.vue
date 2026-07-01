@@ -6,6 +6,9 @@
 
     <template #toolbar-right>
       <template v-if="computedCrawlerTask">
+        <UButton :icon="stateCrawlerWebviewVisible ? 'i-lucide:eye-off' : 'i-lucide:eye'" color="neutral" variant="outline" :disabled="!stateCrawlerWebviewTaskId || stateCrawlerWebviewBusy" :loading="stateCrawlerWebviewBusy" @click="handleCrawlerWebviewToggleClick">
+          {{ stateCrawlerWebviewVisible ? t('pages.crawlers.task.actions.webviewHide') : t('pages.crawlers.task.actions.webviewShow') }}
+        </UButton>
         <UButton icon="i-lucide:square" color="neutral" variant="outline" disabled>
           {{ t('pages.crawlers.task.actions.stop') }}
         </UButton>
@@ -15,7 +18,7 @@
       </template>
     </template>
 
-    <NuxtPage v-model:dialog-open="stateTaskDialogOpen" />
+    <NuxtPage v-model:dialog-open="stateTaskDialogOpen" v-model:webview-task-id="stateCrawlerWebviewTaskId" v-model:webview-visible="stateCrawlerWebviewVisible" />
   </Dashboard>
 </template>
 
@@ -43,6 +46,11 @@ const localePath = useLocalePath();
 const stateTaskDialogOpen = ref(false);
 
 /**
+ * 状态：爬虫 WebView 切换中。
+ */
+const stateCrawlerWebviewBusy = ref(false);
+
+/**
  * 计算属性：当前爬虫任务键
  */
 const computedCrawlerTask = computed(() => {
@@ -56,6 +64,41 @@ const computedCrawlerTask = computed(() => {
 const storeBreadcrumb = useStoreBreadcrumb();
 
 /**
+ * Hook：Tauri 任务能力。
+ */
+const tauriTasks = useTauriTasks();
+
+/**
+ * 计算属性：当前任务对应的 WebView 任务 ID。
+ */
+const stateCrawlerWebviewTaskId = ref('');
+
+/**
+ * 计算属性：当前任务对应的 WebView 是否可见。
+ */
+const stateCrawlerWebviewVisible = ref(false);
+
+/**
+ * 函数：同步当前爬虫 WebView 状态。
+ */
+const syncCrawlerWebviewState = async (): Promise<void> => {
+  if (!import.meta.client) {
+    return;
+  }
+
+  const task = computedCrawlerTask.value.trim();
+  if (!task) {
+    stateCrawlerWebviewTaskId.value = '';
+    stateCrawlerWebviewVisible.value = false;
+    return;
+  }
+
+  const snapshot = await tauriTasks.crawlerTaskWebviewStateGet(task);
+  stateCrawlerWebviewTaskId.value = snapshot?.taskId ?? '';
+  stateCrawlerWebviewVisible.value = snapshot?.visible ?? false;
+};
+
+/**
  * 计算属性：任务导航
  */
 const computedLinks = computed<NavigationMenuItem[][]>(() => [[{ label: t('pages.crawlers.task.filters.all'), icon: 'i-lucide:list-filter', to: localePath(`/crawlers/${computedCrawlerTask.value}`), exact: true }]]);
@@ -66,6 +109,37 @@ const computedLinks = computed<NavigationMenuItem[][]>(() => [[{ label: t('pages
  */
 const handleTaskExecuteClick = (): void => {
   stateTaskDialogOpen.value = true;
+};
+
+watch(
+  computedCrawlerTask,
+  () => {
+    void syncCrawlerWebviewState();
+  },
+  { immediate: true }
+);
+
+/**
+ * 函数：切换当前 Pixabay 爬虫 WebView 显示状态。
+ */
+const handleCrawlerWebviewToggleClick = async (): Promise<void> => {
+  if (!stateCrawlerWebviewTaskId.value || stateCrawlerWebviewBusy.value) {
+    return;
+  }
+
+  stateCrawlerWebviewBusy.value = true;
+
+  try {
+    if (stateCrawlerWebviewVisible.value) {
+      await tauriTasks.crawlerTaskWebviewHide(stateCrawlerWebviewTaskId.value);
+      stateCrawlerWebviewVisible.value = false;
+    } else {
+      await tauriTasks.crawlerTaskWebviewShow(stateCrawlerWebviewTaskId.value);
+      stateCrawlerWebviewVisible.value = true;
+    }
+  } finally {
+    stateCrawlerWebviewBusy.value = false;
+  }
 };
 
 storeBreadcrumb.states = [
