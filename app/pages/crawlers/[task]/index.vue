@@ -1,6 +1,6 @@
 <template>
   <KeepAlive>
-    <SectionsCrawlersTask v-model:dialog-open="stateDialogOpen" v-model:webview-task-id="stateWebviewTaskId" v-model:webview-visible="stateWebviewVisible" />
+    <SectionsCrawlersTask v-model:dialog-open="stateDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:webview-task-id="stateWebviewTaskId" v-model:webview-visible="stateWebviewVisible" />
   </KeepAlive>
 </template>
 
@@ -9,6 +9,11 @@
  * 状态：任务执行弹窗是否打开。
  */
 const stateDialogOpen = defineModel<boolean>('dialogOpen', { default: false });
+
+/**
+ * 状态：当前任务是否正在执行。
+ */
+const stateTaskExecuting = defineModel<boolean>('taskExecuting', { default: false });
 
 /**
  * 状态：当前 Pixabay 爬虫 WebView 任务 ID。

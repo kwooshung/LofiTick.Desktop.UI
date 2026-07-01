@@ -20,7 +20,11 @@ export const crawlers = {
       webviewHide: '隱藏視窗',
       pause: '暫停任務',
       resume: '繼續任務',
-      stop: '停止任務'
+      stop: '停止任務',
+      stopConfirmTitle: '確認停止目前任務？',
+      stopConfirmDescription: '停止後會關閉目前爬蟲視窗，並清理執行狀態。',
+      stopCancel: '取消',
+      stopConfirm: '確認停止'
     },
     filters: {
       all: '全部'

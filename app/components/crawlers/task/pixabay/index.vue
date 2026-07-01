@@ -35,7 +35,7 @@
         <UButton color="neutral" variant="ghost" @click="handlePixabayCancel">
           {{ t('pages.crawlers.spider.websites.pixabay.dialog.cancel') }}
         </UButton>
-        <UButton color="primary" :disabled="!computedPixabayKeywordReady" @click="handlePixabaySubmit">
+        <UButton color="primary" :disabled="!computedPixabayKeywordReady || statePixabaySubmitting" :loading="statePixabaySubmitting" @click="handlePixabaySubmit">
           {{ t('pages.crawlers.spider.websites.pixabay.dialog.submit') }}
         </UButton>
       </div>
@@ -53,7 +53,7 @@ defineOptions({ name: 'CrawlersTaskPixabay' });
 /**
  * 属性：Pixabay 任务组件配置。
  */
-const { dialogOpen } = defineProps<ICrawlersTaskPixabayProps>();
+const { dialogOpen, taskExecuting } = defineProps<ICrawlersTaskPixabayProps>();
 
 /**
  * 事件：Pixabay 任务组件事件。
@@ -117,6 +117,16 @@ const computedPixabayDialogOpen = computed({
   get: () => dialogOpen,
   set: (value: boolean) => {
     emit('update:dialogOpen', value);
+  }
+});
+
+/**
+ * 计算属性：当前任务执行状态。
+ */
+const computedTaskExecuting = computed({
+  get: () => taskExecuting,
+  set: (value: boolean) => {
+    emit('update:taskExecuting', value);
   }
 });
 
@@ -285,6 +295,7 @@ const handlePixabaySubmit = async (): Promise<void> => {
   }
 
   statePixabaySubmitting.value = true;
+  computedTaskExecuting.value = true;
 
   try {
     const request: ICrawlerTaskExecuteRequest = {
@@ -303,6 +314,7 @@ const handlePixabaySubmit = async (): Promise<void> => {
     computedPixabayDialogOpen.value = false;
   } finally {
     statePixabaySubmitting.value = false;
+    computedTaskExecuting.value = false;
   }
 };
 </script>

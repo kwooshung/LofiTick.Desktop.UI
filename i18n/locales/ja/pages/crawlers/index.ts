@@ -20,7 +20,11 @@ export const crawlers = {
       webviewHide: 'ウィンドウを非表示',
       pause: 'タスクを一時停止',
       resume: 'タスクを再開',
-      stop: 'タスクを停止'
+      stop: 'タスクを停止',
+      stopConfirmTitle: '現在のタスクを停止しますか？',
+      stopConfirmDescription: '停止するとクローラーウィンドウを閉じ、実行状態をクリアします。',
+      stopCancel: 'キャンセル',
+      stopConfirm: '停止'
     },
     filters: {
       all: 'すべて'

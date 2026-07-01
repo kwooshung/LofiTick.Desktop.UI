@@ -20,7 +20,11 @@ export const crawlers = {
       webviewHide: 'Hide window',
       pause: 'Pause task',
       resume: 'Resume task',
-      stop: 'Stop task'
+      stop: 'Stop task',
+      stopConfirmTitle: 'Stop the current task?',
+      stopConfirmDescription: 'Stopping will close the crawler window and clear its running state.',
+      stopCancel: 'Cancel',
+      stopConfirm: 'Stop'
     },
     filters: {
       all: 'All'

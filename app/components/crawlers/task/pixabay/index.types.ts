@@ -61,6 +61,11 @@ export interface ICrawlersTaskPixabayProps {
    * 属性：任务执行弹窗是否打开。
    */
   dialogOpen: boolean;
+
+  /**
+   * 属性：当前任务是否正在执行。
+   */
+  taskExecuting: boolean;
 }
 
 /**
@@ -71,7 +76,7 @@ export interface ICrawlersTaskPixabayEmits {
    * 事件：更新任务执行弹窗打开状态。
    * @param {boolean} value 是否打开
    */
-  (event: 'update:dialogOpen' | 'update:webviewVisible', value: boolean): void;
+  (event: 'update:dialogOpen' | 'update:taskExecuting' | 'update:webviewVisible', value: boolean): void;
 
   /**
    * 事件：更新当前 Pixabay 爬虫 WebView 任务 ID。
