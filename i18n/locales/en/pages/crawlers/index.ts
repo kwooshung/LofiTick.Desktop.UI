@@ -21,11 +21,7 @@ export const crawlers = {
       stop: 'Stop task'
     },
     filters: {
-      all: 'All',
-      active: 'Active',
-      paused: 'Paused',
-      completed: 'Completed',
-      failed: 'Failed'
+      all: 'All'
     },
     footer: {
       total: '{total} tasks'
@@ -47,12 +43,13 @@ export const crawlers = {
     table: {
       preview: 'Preview',
       task: 'Task',
+      name: 'Name',
       status: 'Status',
       progress: 'Progress',
       transfer: 'Transfer',
       speed: 'Speed',
       size: 'Size',
-      downloaded: 'Downloaded',
+      downloaded: 'Transferred',
       time: 'Time',
       elapsed: 'Elapsed',
       remaining: 'Remaining',

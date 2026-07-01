@@ -21,11 +21,7 @@ export const crawlers = {
       stop: '停止任务'
     },
     filters: {
-      all: '全部',
-      active: '进行中',
-      paused: '已暂停',
-      completed: '已完成',
-      failed: '失败'
+      all: '全部'
     },
     footer: {
       total: '共 {total} 个任务'
@@ -47,12 +43,13 @@ export const crawlers = {
     table: {
       preview: '预览',
       task: '任务',
+      name: '名称',
       status: '状态',
       progress: '进度',
       transfer: '传输',
       speed: '速率',
       size: '大小',
-      downloaded: '已下载',
+      downloaded: '已传输',
       time: '时间',
       elapsed: '已用时间',
       remaining: '剩余时间',

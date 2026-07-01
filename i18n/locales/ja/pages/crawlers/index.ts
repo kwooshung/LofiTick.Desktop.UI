@@ -21,11 +21,7 @@ export const crawlers = {
       stop: 'タスクを停止'
     },
     filters: {
-      all: 'すべて',
-      active: '進行中',
-      paused: '一時停止',
-      completed: '完了',
-      failed: '失敗'
+      all: 'すべて'
     },
     footer: {
       total: '全 {total} 件のタスク'
@@ -47,12 +43,13 @@ export const crawlers = {
     table: {
       preview: 'プレビュー',
       task: 'タスク',
+      name: '名前',
       status: '状態',
       progress: '進捗',
       transfer: '転送',
       speed: '速度',
       size: 'サイズ',
-      downloaded: '取得済み',
+      downloaded: '転送済み',
       time: '時間',
       elapsed: '経過時間',
       remaining: '残り時間',

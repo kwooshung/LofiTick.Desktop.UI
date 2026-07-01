@@ -6,11 +6,11 @@
 
     <template #toolbar-right>
       <template v-if="computedCrawlerTask">
+        <UButton icon="i-lucide:square" color="neutral" variant="outline" disabled>
+          {{ t('pages.crawlers.task.actions.stop') }}
+        </UButton>
         <UButton icon="i-lucide:play" color="primary" @click="handleTaskExecuteClick">
           {{ t('pages.crawlers.task.actions.execute') }}
-        </UButton>
-        <UButton icon="i-lucide:square" color="neutral" variant="soft" disabled>
-          {{ t('pages.crawlers.task.actions.stop') }}
         </UButton>
       </template>
     </template>
@@ -56,17 +56,9 @@ const computedCrawlerTask = computed(() => {
 const storeBreadcrumb = useStoreBreadcrumb();
 
 /**
- * 计算属性：任务过滤导航
+ * 计算属性：任务导航
  */
-const computedLinks = computed<NavigationMenuItem[][]>(() => [
-  [
-    { label: t('pages.crawlers.task.filters.all'), icon: 'i-lucide:list-filter', to: localePath(`/crawlers/${computedCrawlerTask.value}`), exact: true },
-    { label: t('pages.crawlers.task.filters.active'), icon: 'i-lucide:activity', to: localePath(`/crawlers/${computedCrawlerTask.value}/active`), exact: true },
-    { label: t('pages.crawlers.task.filters.paused'), icon: 'i-lucide:pause', to: localePath(`/crawlers/${computedCrawlerTask.value}/paused`), exact: true },
-    { label: t('pages.crawlers.task.filters.completed'), icon: 'i-lucide:check-check', to: localePath(`/crawlers/${computedCrawlerTask.value}/completed`), exact: true },
-    { label: t('pages.crawlers.task.filters.failed'), icon: 'i-lucide:circle-alert', to: localePath(`/crawlers/${computedCrawlerTask.value}/failed`), exact: true }
-  ]
-]);
+const computedLinks = computed<NavigationMenuItem[][]>(() => [[{ label: t('pages.crawlers.task.filters.all'), icon: 'i-lucide:list-filter', to: localePath(`/crawlers/${computedCrawlerTask.value}`), exact: true }]]);
 
 /**
  * 函数：打开当前任务执行弹窗

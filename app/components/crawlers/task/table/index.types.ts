@@ -16,11 +16,6 @@ export type TCrawlerTaskPreviewKind = 'thumbnail' | 'icon' | 'placeholder';
 export type TCrawlerTaskStatus = 'pending' | 'resolving' | 'crawling' | 'downloading' | 'paused' | 'completed' | 'failed' | 'stopped';
 
 /**
- * 类型：爬虫任务过滤状态。
- */
-export type TCrawlerTaskFilter = 'all' | 'active' | 'paused' | 'completed' | 'failed';
-
-/**
  * 类型：爬虫任务状态颜色。
  */
 export type TCrawlerTaskStatusColor = BadgeProps['color'];
