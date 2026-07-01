@@ -25,7 +25,6 @@
                 :prev-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtFirstMonth }"
                 :next-month="{ color: 'neutral', variant: 'ghost', disabled: computedCalendarAtLastMonth }"
                 :year-controls="false"
-                :disable-days-outside-current-view="true"
                 :is-date-disabled="calendarDateDisabledGet"
                 class="mx-auto"
                 @update:placeholder="handleCalendarPlaceholderUpdate"
