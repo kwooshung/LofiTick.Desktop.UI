@@ -122,7 +122,7 @@ export const useTauriTasks = () => {
   };
 
   /**
-  * 函数：监听爬虫 WebView 状态变化事件。
+   * 函数：监听爬虫 WebView 状态变化事件。
    * @param {(taskId: string) => void} handler 事件回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
    */
