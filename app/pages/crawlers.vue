@@ -248,6 +248,9 @@ onBeforeUnmount(() => {
   }
 });
 
+/**
+ * 状态：当前任务面包屑是否激活。
+ */
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
