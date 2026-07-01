@@ -113,9 +113,9 @@ const storeBreadcrumb = useStoreBreadcrumb();
 const tauriTasks = useTauriTasks();
 
 /**
- * 变量：爬虫 WebView 关闭事件取消监听句柄。
+ * 变量：爬虫 WebView 状态变化事件取消监听句柄。
  */
-let unlistenCrawlerWebviewClosed: UnlistenFn | null = null;
+let unlistenCrawlerWebviewStateChanged: UnlistenFn | null = null;
 
 /**
  * 状态：当前任务对应的 WebView 任务 ID。
@@ -225,11 +225,11 @@ const handleTaskStopClick = async (): Promise<void> => {
  * 生命周期：组件挂载。
  */
 onMounted(async () => {
-  if (!import.meta.client || !isTauriRuntime.value || unlistenCrawlerWebviewClosed) {
+  if (!import.meta.client || !isTauriRuntime.value || unlistenCrawlerWebviewStateChanged) {
     return;
   }
 
-  unlistenCrawlerWebviewClosed = await tauriTasks.onCrawlerWebviewClosed((taskId) => {
+  unlistenCrawlerWebviewStateChanged = await tauriTasks.onCrawlerWebviewStateChanged((taskId) => {
     if (taskId !== stateCrawlerWebviewTaskId.value) {
       return;
     }
@@ -242,9 +242,9 @@ onMounted(async () => {
  * 生命周期：组件卸载。
  */
 onBeforeUnmount(() => {
-  if (unlistenCrawlerWebviewClosed) {
-    unlistenCrawlerWebviewClosed();
-    unlistenCrawlerWebviewClosed = null;
+  if (unlistenCrawlerWebviewStateChanged) {
+    unlistenCrawlerWebviewStateChanged();
+    unlistenCrawlerWebviewStateChanged = null;
   }
 });
 

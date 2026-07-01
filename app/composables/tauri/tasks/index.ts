@@ -5,9 +5,9 @@ import { listen } from '@tauri-apps/api/event';
 import type { ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest, ICrawlerTaskWebviewState } from './index.types';
 
 /**
- * 常量：爬虫 WebView 关闭事件名。
+ * 常量：爬虫 WebView 状态变化事件名。
  */
-const EVENT_CRAWLER_WEBVIEW_CLOSED = 'crawler://webview-closed';
+const EVENT_CRAWLER_WEBVIEW_STATE_CHANGED = 'crawler://webview-state-changed';
 
 /**
  * Hook：Tauri 任务能力
@@ -122,11 +122,11 @@ export const useTauriTasks = () => {
   };
 
   /**
-   * 函数：监听爬虫 WebView 关闭事件。
+  * 函数：监听爬虫 WebView 状态变化事件。
    * @param {(taskId: string) => void} handler 事件回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
    */
-  const onCrawlerWebviewClosed = async (handler: (taskId: string) => void): Promise<UnlistenFn> => {
+  const onCrawlerWebviewStateChanged = async (handler: (taskId: string) => void): Promise<UnlistenFn> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -135,10 +135,10 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    return listen<string>(EVENT_CRAWLER_WEBVIEW_CLOSED, (event) => {
+    return listen<string>(EVENT_CRAWLER_WEBVIEW_STATE_CHANGED, (event) => {
       handler(event.payload);
     });
   };
 
-  return { hotsearchScheduleGet, crawlerTaskExecute, crawlerTaskWebviewShow, crawlerTaskWebviewHide, crawlerTaskWebviewClose, crawlerTaskWebviewStateGet, onCrawlerWebviewClosed };
+  return { hotsearchScheduleGet, crawlerTaskExecute, crawlerTaskWebviewShow, crawlerTaskWebviewHide, crawlerTaskWebviewClose, crawlerTaskWebviewStateGet, onCrawlerWebviewStateChanged };
 };
