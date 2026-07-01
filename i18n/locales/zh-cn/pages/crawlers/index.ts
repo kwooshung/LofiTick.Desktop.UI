@@ -1,12 +1,19 @@
 export const crawlers = {
   title: '爬虫',
   targets: {
+    addTask: '添加任务',
+    edit: '编辑',
     empty: {
       title: '暂无文件夹',
       description: '当前还没有可展示的爬虫文件夹。'
+    },
+    menu: {
+      open: '打开',
+      copyDomain: '复制域名',
+      copyBaseUrl: '复制基础地址'
     }
   },
-  provider: {
+  task: {
     unsupported: {
       name: '未知爬虫',
       title: '暂不支持该爬虫',
@@ -54,7 +61,16 @@ export const crawlers = {
         }
       },
       suno: {
-        name: 'Suno'
+        name: 'Suno',
+        page: {
+          description: '管理 Suno 的爬取任务、执行模式与采集结果。',
+          tasks: {
+            empty: {
+              title: '暂无 Suno 任务',
+              description: '当前还没有 Suno 爬取任务，后续任务列表会在这里展示。'
+            }
+          }
+        }
       }
     }
   }

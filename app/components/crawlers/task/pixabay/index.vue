@@ -1,26 +1,11 @@
 <template>
-  <DashboardPage :padded="false" class="p-4 sm:p-3">
-    <div class="flex min-h-0 flex-1 flex-col gap-4">
-      <div class="flex items-center gap-3">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <UIcon :name="computedProviderIcon" class="size-5 shrink-0" />
-            <h1 class="truncate text-xl font-semibold">{{ computedProviderTitle }}</h1>
-          </div>
-          <p class="text-muted mt-1 text-sm">{{ computedProviderDescription }}</p>
-        </div>
-      </div>
-
-      <UEmpty v-if="!computedProviderSupported" icon="i-lucide:folder-x" :title="t('pages.crawlers.provider.unsupported.title')" :description="t('pages.crawlers.provider.unsupported.description')" />
-      <UEmpty v-else icon="i-lucide:list-todo" :title="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.title')" :description="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.description')">
-        <template #actions>
-          <UButton icon="i-lucide:play" color="primary" @click="handlePixabayClick">
-            {{ t('pages.crawlers.spider.websites.pixabay.page.actions.create') }}
-          </UButton>
-        </template>
-      </UEmpty>
-    </div>
-  </DashboardPage>
+  <UEmpty icon="i-lucide:list-todo" :title="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.title')" :description="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.description')">
+    <template #actions>
+      <UButton icon="i-lucide:play" color="primary" @click="handlePixabayClick">
+        {{ t('pages.crawlers.spider.websites.pixabay.page.actions.create') }}
+      </UButton>
+    </template>
+  </UEmpty>
 
   <UModal v-model:open="statePixabayDialogOpen" :title="t('pages.crawlers.spider.websites.pixabay.dialog.title')" :description="t('pages.crawlers.spider.websites.pixabay.dialog.description')" :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }">
     <template #body>
@@ -53,7 +38,7 @@
 
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UButton color="neutral" variant="ghost" @click="statePixabayDialogOpen = false">
+        <UButton color="neutral" variant="ghost" @click="handlePixabayCancel">
           {{ t('pages.crawlers.spider.websites.pixabay.dialog.cancel') }}
         </UButton>
         <UButton color="primary" :disabled="!computedPixabayKeywordReady" @click="handlePixabaySubmit">
@@ -65,22 +50,14 @@
 </template>
 
 <script setup lang="ts">
-import type { IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/sections/crawlers/index.types';
+import type { IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
 
-/**
- * Hook：当前路由。
- */
-const route = useRoute();
+defineOptions({ name: 'CrawlersTaskPixabay' });
 
 /**
  * Hook：i18n。
  */
 const { t } = useI18n();
-
-/**
- * Hook：本地化路由。
- */
-const localePath = useLocalePath();
 
 /**
  * 常量：Pixabay 爬取缓存键。
@@ -111,34 +88,6 @@ const statePixabayPage = ref(1);
  * 状态：Pixabay 本地缓存存储。
  */
 const statePixabayCacheStore = ref<IPixabayCrawlerCacheStore>({ items: {} });
-
-/**
- * 计算属性：当前动态爬虫站点键。
- */
-const computedProvider = computed(() => {
-  const provider = route.params.provider;
-  return Array.isArray(provider) ? (provider[0] ?? '') : (provider ?? '');
-});
-
-/**
- * 计算属性：当前站点是否已支持。
- */
-const computedProviderSupported = computed(() => computedProvider.value === 'pixabay');
-
-/**
- * 计算属性：当前站点图标。
- */
-const computedProviderIcon = computed(() => (computedProvider.value === 'pixabay' ? 'i-simple-icons:pixabay' : 'i-lucide:folder-question'));
-
-/**
- * 计算属性：当前站点标题。
- */
-const computedProviderTitle = computed(() => (computedProvider.value === 'pixabay' ? t('pages.crawlers.spider.websites.pixabay.name') : t('pages.crawlers.provider.unsupported.name')));
-
-/**
- * 计算属性：当前站点说明。
- */
-const computedProviderDescription = computed(() => (computedProvider.value === 'pixabay' ? t('pages.crawlers.spider.websites.pixabay.page.description') : t('pages.crawlers.provider.unsupported.description')));
 
 /**
  * 计算属性：关键词是否已填写。
@@ -300,6 +249,13 @@ onMounted(() => {
 const handlePixabayClick = (): void => {
   statePixabayCrawlerType.value = 'music';
   statePixabayDialogOpen.value = true;
+};
+
+/**
+ * 函数：关闭 Pixabay 爬取选择弹窗。
+ */
+const handlePixabayCancel = (): void => {
+  statePixabayDialogOpen.value = false;
 };
 
 /**

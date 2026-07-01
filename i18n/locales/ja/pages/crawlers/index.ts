@@ -1,12 +1,19 @@
 export const crawlers = {
   title: 'クローラー',
   targets: {
+    addTask: 'タスクを追加',
+    edit: '編集',
     empty: {
       title: 'クローラー用フォルダがありません',
       description: '現在表示できるフォルダはありません。'
+    },
+    menu: {
+      open: '開く',
+      copyDomain: 'ドメインをコピー',
+      copyBaseUrl: 'ベース URL をコピー'
     }
   },
-  provider: {
+  task: {
     unsupported: {
       name: '不明なクローラー',
       title: 'このクローラーはまだ対応していません',
@@ -18,8 +25,6 @@ export const crawlers = {
     websites: {
       pixabay: {
         name: 'Pixabay',
-        title: 'Pixabay',
-        music: '音楽',
         page: {
           description: 'Pixabay のクロールタスク、実行モード、収集結果を管理します。',
           actions: {
@@ -56,7 +61,16 @@ export const crawlers = {
         }
       },
       suno: {
-        name: 'Suno'
+        name: 'Suno',
+        page: {
+          description: 'Suno のクロールタスク、実行モード、収集結果を管理します。',
+          tasks: {
+            empty: {
+              title: 'Suno タスクはまだありません',
+              description: '現在 Suno のクロールタスクはありません。今後ここにタスク一覧を表示します。'
+            }
+          }
+        }
       }
     }
   }

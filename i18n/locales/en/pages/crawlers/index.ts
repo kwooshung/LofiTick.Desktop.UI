@@ -1,12 +1,19 @@
 export const crawlers = {
   title: 'Crawlers',
   targets: {
+    addTask: 'Add task',
+    edit: 'Edit',
     empty: {
       title: 'No folders yet',
       description: 'There are no crawler folders to show right now.'
+    },
+    menu: {
+      open: 'Open',
+      copyDomain: 'Copy domain',
+      copyBaseUrl: 'Copy base URL'
     }
   },
-  provider: {
+  task: {
     unsupported: {
       name: 'Unknown crawler',
       title: 'Crawler not supported yet',
@@ -18,8 +25,6 @@ export const crawlers = {
     websites: {
       pixabay: {
         name: 'Pixabay',
-        title: 'Pixabay',
-        music: 'Music',
         page: {
           description: 'Manage Pixabay crawl tasks, execution mode, and collected results.',
           actions: {
@@ -56,7 +61,16 @@ export const crawlers = {
         }
       },
       suno: {
-        name: 'Suno'
+        name: 'Suno',
+        page: {
+          description: 'Manage Suno crawl tasks, execution mode, and collected results.',
+          tasks: {
+            empty: {
+              title: 'No Suno tasks yet',
+              description: 'There are no Suno crawl tasks yet. The task list will appear here later.'
+            }
+          }
+        }
       }
     }
   }

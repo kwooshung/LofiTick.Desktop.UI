@@ -1,12 +1,19 @@
 export const crawlers = {
   title: '爬蟲',
   targets: {
+    addTask: '新增任務',
+    edit: '編輯',
     empty: {
       title: '暫無資料夾',
       description: '目前沒有可顯示的爬蟲資料夾。'
+    },
+    menu: {
+      open: '開啟',
+      copyDomain: '複製網域',
+      copyBaseUrl: '複製基礎地址'
     }
   },
-  provider: {
+  task: {
     unsupported: {
       name: '未知爬蟲',
       title: '暫不支援此爬蟲',
@@ -18,8 +25,6 @@ export const crawlers = {
     websites: {
       pixabay: {
         name: 'Pixabay',
-        title: 'Pixabay',
-        music: '音樂',
         page: {
           description: '管理 Pixabay 的爬取任務、執行模式與採集結果。',
           actions: {
@@ -56,7 +61,16 @@ export const crawlers = {
         }
       },
       suno: {
-        name: 'Suno'
+        name: 'Suno',
+        page: {
+          description: '管理 Suno 的爬取任務、執行模式與採集結果。',
+          tasks: {
+            empty: {
+              title: '暫無 Suno 任務',
+              description: '目前還沒有 Suno 爬取任務，後續任務列表會在這裡顯示。'
+            }
+          }
+        }
       }
     }
   }
