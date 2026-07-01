@@ -238,7 +238,7 @@ const columns: TableColumn<ICrawlerTaskRow>[] = [
         td: 'w-16'
       }
     },
-    header: t('pages.crawlers.task.table.preview'),
+    header: () => h('span', [h('span', { class: '5xl:hidden' }, t('pages.crawlers.task.table.task')), h('span', { class: 'hidden 5xl:inline' }, t('pages.crawlers.task.table.name'))]),
     cell: ({ row }) => crawlerTaskPreviewNodeRender(row.original)
   },
   {
@@ -250,7 +250,7 @@ const columns: TableColumn<ICrawlerTaskRow>[] = [
         td: 'min-w-76 xl:hidden'
       }
     },
-    header: t('pages.crawlers.task.table.task'),
+    header: '',
     cell: ({ row }) => crawlerTaskNameNodeRender(row.original, ['status', 'progress', 'downloaded', 'speed', 'size'])
   },
   {
@@ -262,7 +262,7 @@ const columns: TableColumn<ICrawlerTaskRow>[] = [
         td: 'min-w-72 hidden xl:table-cell 2xl:hidden'
       }
     },
-    header: t('pages.crawlers.task.table.task'),
+    header: '',
     cell: ({ row }) => crawlerTaskNameNodeRender(row.original, ['progress', 'downloaded', 'speed', 'size'])
   },
   {
@@ -274,7 +274,7 @@ const columns: TableColumn<ICrawlerTaskRow>[] = [
         td: 'min-w-72 hidden 2xl:table-cell 5xl:hidden'
       }
     },
-    header: t('pages.crawlers.task.table.task'),
+    header: '',
     cell: ({ row }) => crawlerTaskNameNodeRender(row.original, ['downloaded', 'speed'])
   },
   {
@@ -286,7 +286,7 @@ const columns: TableColumn<ICrawlerTaskRow>[] = [
         td: 'min-w-80 hidden 5xl:table-cell'
       }
     },
-    header: t('pages.crawlers.task.table.name'),
+    header: '',
     cell: ({ row }) => crawlerTaskNameNodeRender(row.original)
   },
   {

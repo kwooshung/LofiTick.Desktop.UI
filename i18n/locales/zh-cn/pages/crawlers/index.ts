@@ -41,7 +41,6 @@ export const crawlers = {
       stopped: '已停止'
     },
     table: {
-      preview: '预览',
       task: '任务',
       name: '名称',
       status: '状态',

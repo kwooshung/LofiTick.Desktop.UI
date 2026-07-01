@@ -41,7 +41,6 @@ export const crawlers = {
       stopped: 'Stopped'
     },
     table: {
-      preview: 'Preview',
       task: 'Task',
       name: 'Name',
       status: 'Status',
