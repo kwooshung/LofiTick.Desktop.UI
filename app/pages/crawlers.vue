@@ -25,7 +25,7 @@
                 </div>
               </div>
               <div class="flex justify-end gap-2">
-                <UButton size="xs" color="neutral" variant="ghost" :disabled="stateTaskStopping" @click="stateTaskStopConfirmOpen = false">
+                <UButton size="xs" color="neutral" variant="ghost" :disabled="stateTaskStopping" @click="handleTaskStopConfirmCancelClick">
                   {{ t('pages.crawlers.task.actions.stopCancel') }}
                 </UButton>
                 <UButton size="xs" color="error" variant="solid" :loading="stateTaskStopping" @click="handleTaskStopClick">
@@ -169,6 +169,13 @@ const handleTaskExecuteClick = (): void => {
   }
 
   stateTaskDialogOpen.value = true;
+};
+
+/**
+ * 函数：关闭停止任务确认浮层。
+ */
+const handleTaskStopConfirmCancelClick = (): void => {
+  stateTaskStopConfirmOpen.value = false;
 };
 
 watch(
