@@ -1,13 +1,7 @@
 <template>
-  <UEmpty icon="i-lucide:list-todo" :title="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.title')" :description="t('pages.crawlers.spider.websites.pixabay.page.tasks.empty.description')">
-    <template #actions>
-      <UButton icon="i-lucide:play" color="primary" @click="handlePixabayClick">
-        {{ t('pages.crawlers.spider.websites.pixabay.page.actions.create') }}
-      </UButton>
-    </template>
-  </UEmpty>
+  <CrawlersTaskTable :rows="statePixabayTasks" />
 
-  <UModal v-model:open="statePixabayDialogOpen" :title="t('pages.crawlers.spider.websites.pixabay.dialog.title')" :description="t('pages.crawlers.spider.websites.pixabay.dialog.description')" :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }">
+  <UModal v-model:open="computedPixabayDialogOpen" :title="t('pages.crawlers.spider.websites.pixabay.dialog.title')" :description="t('pages.crawlers.spider.websites.pixabay.dialog.description')" :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }">
     <template #body>
       <div class="space-y-4">
         <UFormField :label="t('pages.crawlers.spider.websites.pixabay.dialog.typeLabel')">
@@ -50,9 +44,20 @@
 </template>
 
 <script setup lang="ts">
-import type { IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
+import type { ICrawlersTaskPixabayEmits, ICrawlersTaskPixabayProps, IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
+import type { ICrawlerTaskRow } from '@/components/crawlers/task/table/index.types';
 
 defineOptions({ name: 'CrawlersTaskPixabay' });
+
+/**
+ * 属性：Pixabay 任务组件配置。
+ */
+const { dialogOpen } = defineProps<ICrawlersTaskPixabayProps>();
+
+/**
+ * 事件：Pixabay 任务组件事件。
+ */
+const emit = defineEmits<ICrawlersTaskPixabayEmits>();
 
 /**
  * Hook：i18n。
@@ -63,11 +68,6 @@ const { t } = useI18n();
  * 常量：Pixabay 爬取缓存键。
  */
 const PIXABAY_CRAWLER_CACHE_STORAGE_KEY = 'pages.crawlers.pixabay.cache';
-
-/**
- * 状态：Pixabay 类型选择弹窗是否打开。
- */
-const statePixabayDialogOpen = ref(false);
 
 /**
  * 状态：Pixabay 当前选择的爬取类型。
@@ -90,9 +90,24 @@ const statePixabayPage = ref(1);
 const statePixabayCacheStore = ref<IPixabayCrawlerCacheStore>({ items: {} });
 
 /**
+ * 状态：Pixabay 任务列表。
+ */
+const statePixabayTasks = ref<ICrawlerTaskRow[]>([]);
+
+/**
  * 计算属性：关键词是否已填写。
  */
 const computedPixabayKeywordReady = computed(() => statePixabayKeyword.value.trim().length > 0);
+
+/**
+ * 计算属性：Pixabay 执行弹窗打开状态。
+ */
+const computedPixabayDialogOpen = computed({
+  get: () => dialogOpen,
+  set: (value: boolean) => {
+    emit('update:dialogOpen', value);
+  }
+});
 
 /**
  * 函数：生成默认的 Pixabay 缓存项。
@@ -244,24 +259,16 @@ onMounted(() => {
 });
 
 /**
- * 函数：打开 Pixabay 爬取选择弹窗。
- */
-const handlePixabayClick = (): void => {
-  statePixabayCrawlerType.value = 'music';
-  statePixabayDialogOpen.value = true;
-};
-
-/**
  * 函数：关闭 Pixabay 爬取选择弹窗。
  */
 const handlePixabayCancel = (): void => {
-  statePixabayDialogOpen.value = false;
+  computedPixabayDialogOpen.value = false;
 };
 
 /**
  * 函数：确认 Pixabay 爬取地址。
  */
 const handlePixabaySubmit = (): void => {
-  statePixabayDialogOpen.value = false;
+  computedPixabayDialogOpen.value = false;
 };
 </script>

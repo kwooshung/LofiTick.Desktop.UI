@@ -14,6 +14,52 @@ export const crawlers = {
     }
   },
   task: {
+    actions: {
+      execute: 'Run task',
+      pause: 'Pause task',
+      resume: 'Resume task',
+      stop: 'Stop task'
+    },
+    filters: {
+      all: 'All',
+      active: 'Active',
+      paused: 'Paused',
+      completed: 'Completed',
+      failed: 'Failed'
+    },
+    footer: {
+      total: '{total} tasks'
+    },
+    progress: {
+      indeterminate: 'Calculating',
+      percent: '{value}%'
+    },
+    status: {
+      pending: 'Pending',
+      resolving: 'Resolving',
+      crawling: 'Crawling',
+      downloading: 'Downloading',
+      paused: 'Paused',
+      completed: 'Completed',
+      failed: 'Failed',
+      stopped: 'Stopped'
+    },
+    table: {
+      preview: 'Preview',
+      task: 'Task',
+      status: 'Status',
+      progress: 'Progress',
+      transfer: 'Transfer',
+      speed: 'Speed',
+      size: 'Size',
+      downloaded: 'Downloaded',
+      time: 'Time',
+      elapsed: 'Elapsed',
+      remaining: 'Remaining',
+      items: 'Items',
+      updatedAt: 'Updated',
+      actions: 'Actions'
+    },
     unsupported: {
       name: 'Unknown crawler',
       title: 'Crawler not supported yet',
@@ -62,6 +108,11 @@ export const crawlers = {
       },
       suno: {
         name: 'Suno',
+        dialog: {
+          title: 'Run Suno task',
+          description: 'Suno task execution settings are not connected yet. They will appear here later.',
+          close: 'Close'
+        },
         page: {
           description: 'Manage Suno crawl tasks, execution mode, and collected results.',
           tasks: {

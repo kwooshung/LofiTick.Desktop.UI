@@ -1,25 +1,25 @@
 <template>
-  <DashboardPage :padded="false" class="p-4 sm:p-3">
-    <div class="flex min-h-0 flex-1 flex-col gap-4">
-      <div class="flex items-center gap-3">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <UIcon :name="computedTaskIcon" class="size-5 shrink-0" />
-            <h1 class="truncate text-xl font-semibold">{{ computedTaskTitle }}</h1>
-          </div>
-          <p class="text-muted mt-1 text-sm">{{ computedTaskDescription }}</p>
-        </div>
-      </div>
-
-      <CrawlersTaskPixabay v-if="computedTask === 'pixabay'" />
-      <CrawlersTaskSuno v-else-if="computedTask === 'suno'" />
-      <UEmpty v-else icon="i-lucide:folder-x" :title="t('pages.crawlers.task.unsupported.title')" :description="t('pages.crawlers.task.unsupported.description')" />
-    </div>
+  <DashboardPage>
+    <CrawlersTaskPixabay v-if="computedTask === 'pixabay'" v-model:dialog-open="computedDialogOpen" />
+    <CrawlersTaskSuno v-else-if="computedTask === 'suno'" v-model:dialog-open="computedDialogOpen" />
+    <UEmpty v-else icon="i-lucide:folder-x" :title="t('pages.crawlers.task.unsupported.title')" :description="t('pages.crawlers.task.unsupported.description')" />
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
+import type { ISectionsCrawlersTaskEmits, ISectionsCrawlersTaskProps } from '@/components/sections/crawlers/task/index.types';
+
 defineOptions({ name: 'SectionsCrawlersTask' });
+
+/**
+ * 属性：爬虫任务区配置。
+ */
+const { dialogOpen } = defineProps<ISectionsCrawlersTaskProps>();
+
+/**
+ * 事件：爬虫任务区事件。
+ */
+const emit = defineEmits<ISectionsCrawlersTaskEmits>();
 
 /**
  * Hook：当前路由。
@@ -55,51 +55,6 @@ const computedTask = computed(() => {
 });
 
 /**
- * 计算属性：当前任务图标。
- */
-const computedTaskIcon = computed(() => {
-  if (computedTask.value === 'pixabay') {
-    return 'i-simple-icons:pixabay';
-  }
-
-  if (computedTask.value === 'suno') {
-    return 'i-simple-icons:suno';
-  }
-
-  return 'i-lucide:folder-question';
-});
-
-/**
- * 计算属性：当前任务标题。
- */
-const computedTaskTitle = computed(() => {
-  if (computedTask.value === 'pixabay') {
-    return t('pages.crawlers.spider.websites.pixabay.name');
-  }
-
-  if (computedTask.value === 'suno') {
-    return t('pages.crawlers.spider.websites.suno.name');
-  }
-
-  return t('pages.crawlers.task.unsupported.name');
-});
-
-/**
- * 计算属性：当前任务说明。
- */
-const computedTaskDescription = computed(() => {
-  if (computedTask.value === 'pixabay') {
-    return t('pages.crawlers.spider.websites.pixabay.page.description');
-  }
-
-  if (computedTask.value === 'suno') {
-    return t('pages.crawlers.spider.websites.suno.page.description');
-  }
-
-  return t('pages.crawlers.task.unsupported.description');
-});
-
-/**
  * 计算属性：当前任务面包屑标题。
  */
 const computedTaskBreadcrumbLabel = computed(() => {
@@ -112,6 +67,16 @@ const computedTaskBreadcrumbLabel = computed(() => {
   }
 
   return t('pages.crawlers.task.unsupported.name');
+});
+
+/**
+ * 计算属性：任务执行弹窗打开状态。
+ */
+const computedDialogOpen = computed({
+  get: () => dialogOpen,
+  set: (value: boolean) => {
+    emit('update:dialogOpen', value);
+  }
 });
 
 /**

@@ -14,6 +14,52 @@ export const crawlers = {
     }
   },
   task: {
+    actions: {
+      execute: '执行任务',
+      pause: '暂停任务',
+      resume: '继续任务',
+      stop: '停止任务'
+    },
+    filters: {
+      all: '全部',
+      active: '进行中',
+      paused: '已暂停',
+      completed: '已完成',
+      failed: '失败'
+    },
+    footer: {
+      total: '共 {total} 个任务'
+    },
+    progress: {
+      indeterminate: '计算中',
+      percent: '{value}%'
+    },
+    status: {
+      pending: '等待中',
+      resolving: '解析中',
+      crawling: '爬取中',
+      downloading: '下载中',
+      paused: '已暂停',
+      completed: '已完成',
+      failed: '失败',
+      stopped: '已停止'
+    },
+    table: {
+      preview: '预览',
+      task: '任务',
+      status: '状态',
+      progress: '进度',
+      transfer: '传输',
+      speed: '速率',
+      size: '大小',
+      downloaded: '已下载',
+      time: '时间',
+      elapsed: '已用时间',
+      remaining: '剩余时间',
+      items: '条目',
+      updatedAt: '更新时间',
+      actions: '操作'
+    },
     unsupported: {
       name: '未知爬虫',
       title: '暂不支持该爬虫',
@@ -62,6 +108,11 @@ export const crawlers = {
       },
       suno: {
         name: 'Suno',
+        dialog: {
+          title: '执行 Suno 任务',
+          description: 'Suno 任务执行配置暂未接入，后续会在这里补充。',
+          close: '关闭'
+        },
         page: {
           description: '管理 Suno 的爬取任务、执行模式与采集结果。',
           tasks: {

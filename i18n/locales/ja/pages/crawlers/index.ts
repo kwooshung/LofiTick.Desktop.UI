@@ -14,6 +14,52 @@ export const crawlers = {
     }
   },
   task: {
+    actions: {
+      execute: 'タスクを実行',
+      pause: 'タスクを一時停止',
+      resume: 'タスクを再開',
+      stop: 'タスクを停止'
+    },
+    filters: {
+      all: 'すべて',
+      active: '進行中',
+      paused: '一時停止',
+      completed: '完了',
+      failed: '失敗'
+    },
+    footer: {
+      total: '全 {total} 件のタスク'
+    },
+    progress: {
+      indeterminate: '計算中',
+      percent: '{value}%'
+    },
+    status: {
+      pending: '待機中',
+      resolving: '解析中',
+      crawling: 'クロール中',
+      downloading: 'ダウンロード中',
+      paused: '一時停止',
+      completed: '完了',
+      failed: '失敗',
+      stopped: '停止済み'
+    },
+    table: {
+      preview: 'プレビュー',
+      task: 'タスク',
+      status: '状態',
+      progress: '進捗',
+      transfer: '転送',
+      speed: '速度',
+      size: 'サイズ',
+      downloaded: '取得済み',
+      time: '時間',
+      elapsed: '経過時間',
+      remaining: '残り時間',
+      items: '項目',
+      updatedAt: '更新日時',
+      actions: '操作'
+    },
     unsupported: {
       name: '不明なクローラー',
       title: 'このクローラーはまだ対応していません',
@@ -62,6 +108,11 @@ export const crawlers = {
       },
       suno: {
         name: 'Suno',
+        dialog: {
+          title: 'Suno タスクを実行',
+          description: 'Suno タスクの実行設定はまだ接続されていません。今後ここに表示します。',
+          close: '閉じる'
+        },
         page: {
           description: 'Suno のクロールタスク、実行モード、収集結果を管理します。',
           tasks: {
