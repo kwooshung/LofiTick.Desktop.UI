@@ -94,16 +94,9 @@
     userDataDirectory: {
       label: '用户目录',
       description: '打开应用的 userData 目录（用户配置、缓存等）',
-      open: '打开目录'
-    },
-    crawlerBrowserProfilesDirectory: {
-      label: '爬虫浏览器资料目录',
-      description: 'Playwright 真实浏览器的资料目录父级；同一爬虫和同一域名会复用固定子目录。',
-      dialogTitle: '选择爬虫浏览器资料目录',
       open: '打开目录',
-      choose: '选择目录',
-      reselect: '重新选择',
-      unset: '未设置'
+      unset: '未设置',
+      notExists: '用户目录不存在'
     },
     storage: {
       label: '数据存放目录',
@@ -125,8 +118,12 @@
   },
   crawler: {
     title: '爬虫',
-    description: '配置 Playwright 采集任务使用的本机浏览器与爬虫运行偏好。',
+    actions: {
+      enterCrawlers: '前往爬虫'
+    },
     browser: {
+      title: '浏览器列表',
+      description: '选择采集时使用的本机浏览器。',
       runtimeDescriptions: {
         edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
         chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。',
@@ -136,6 +133,21 @@
         refresh: '刷新',
         installOfficial: '前往官网下载并安装'
       }
+    },
+    browserProfilesDirectory: {
+      label: '浏览器资料缓存',
+      description: '浏览器资料根目录与子目录都固定在这里。',
+      rootDescription: 'Playwright 浏览器资料的根路径。',
+      rootLabel: '浏览器根目录',
+      edgeDescription: 'Edge 的浏览器资料子目录。',
+      edgeLabel: 'Edge 子目录',
+      chromeDescription: 'Chrome 的浏览器资料子目录。',
+      chromeLabel: 'Chrome 子目录',
+      chromiumDescription: 'Chromium 的浏览器资料子目录。',
+      chromiumLabel: 'Chromium 子目录',
+      open: '打开目录',
+      unset: '未设置',
+      notExists: '爬虫资料目录不存在'
     }
   },
   ui: {

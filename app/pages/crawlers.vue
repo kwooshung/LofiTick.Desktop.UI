@@ -5,37 +5,42 @@
     </template>
 
     <template #toolbar-right>
-      <template v-if="computedCrawlerTask">
-        <UPopover v-model:open="stateTaskStopConfirmOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'w-64 p-3' }">
-          <UButton icon="i-lucide:square" color="neutral" variant="outline" :disabled="!computedTaskRunning || stateTaskStopping" :loading="stateTaskStopping" :ui="{ leadingIcon: 'text-muted' }">
-            {{ t('pages.crawlers.task.actions.stop') }}
-          </UButton>
+      <div class="flex items-center gap-2">
+        <template v-if="computedCrawlerTask">
+          <UPopover v-model:open="stateTaskStopConfirmOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'w-64 p-3' }">
+            <UButton icon="i-lucide:square" color="neutral" variant="outline" :disabled="!computedTaskRunning || stateTaskStopping" :loading="stateTaskStopping" :ui="{ leadingIcon: 'text-muted' }">
+              {{ t('pages.crawlers.task.actions.stop') }}
+            </UButton>
 
-          <template #content>
-            <div class="space-y-3">
-              <div class="space-y-1">
-                <div class="text-sm font-medium">
-                  {{ t('pages.crawlers.task.actions.stopConfirmTitle') }}
+            <template #content>
+              <div class="space-y-3">
+                <div class="space-y-1">
+                  <div class="text-sm font-medium">
+                    {{ t('pages.crawlers.task.actions.stopConfirmTitle') }}
+                  </div>
+                  <div class="text-muted text-xs leading-5">
+                    {{ t('pages.crawlers.task.actions.stopConfirmDescription') }}
+                  </div>
                 </div>
-                <div class="text-muted text-xs leading-5">
-                  {{ t('pages.crawlers.task.actions.stopConfirmDescription') }}
+                <div class="flex justify-end gap-2">
+                  <UButton size="xs" color="neutral" variant="ghost" :disabled="stateTaskStopping" @click="handleTaskStopConfirmCancelClick">
+                    {{ t('pages.crawlers.task.actions.stopCancel') }}
+                  </UButton>
+                  <UButton size="xs" color="error" variant="solid" :loading="stateTaskStopping" @click="handleTaskStopClick">
+                    {{ t('pages.crawlers.task.actions.stopConfirm') }}
+                  </UButton>
                 </div>
               </div>
-              <div class="flex justify-end gap-2">
-                <UButton size="xs" color="neutral" variant="ghost" :disabled="stateTaskStopping" @click="handleTaskStopConfirmCancelClick">
-                  {{ t('pages.crawlers.task.actions.stopCancel') }}
-                </UButton>
-                <UButton size="xs" color="error" variant="solid" :loading="stateTaskStopping" @click="handleTaskStopClick">
-                  {{ t('pages.crawlers.task.actions.stopConfirm') }}
-                </UButton>
-              </div>
-            </div>
-          </template>
-        </UPopover>
-        <UButton icon="i-lucide:play" color="primary" :disabled="computedTaskRunning || stateTaskExecuting || stateTaskStopping" :loading="stateTaskExecuting" @click="handleTaskExecuteClick">
-          {{ t('pages.crawlers.task.actions.execute') }}
+            </template>
+          </UPopover>
+          <UButton icon="i-lucide:play" color="primary" :disabled="computedTaskRunning || stateTaskExecuting || stateTaskStopping" :loading="stateTaskExecuting" @click="handleTaskExecuteClick">
+            {{ t('pages.crawlers.task.actions.execute') }}
+          </UButton>
+        </template>
+        <UButton v-else color="neutral" variant="ghost" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-muted' }" class="shrink-0">
+          {{ t('pages.crawlers.actions.enterSettingsCrawler') }}
         </UButton>
-      </template>
+      </div>
     </template>
 
     <NuxtPage v-model:dialog-open="stateTaskDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:browser-session-task-id="stateCrawlerBrowserSessionTaskId" />

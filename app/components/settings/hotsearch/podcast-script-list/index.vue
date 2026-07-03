@@ -295,6 +295,14 @@ const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right
 };
 
 /**
+ * 函数：创建模板片段稳定渲染键。
+ * @returns {string} 渲染键。
+ */
+const templateItemRenderKeyCreate = (): string => {
+  return `template-item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+/**
  * 监听：同步父级模板片段。
  */
 watch(
@@ -374,14 +382,6 @@ const computedVariableOptions = computed(() =>
     example: hotsearchPodcastVariableExampleGet(item.token)
   }))
 );
-
-/**
- * 函数：创建模板片段稳定渲染键。
- * @returns {string} 渲染键。
- */
-function templateItemRenderKeyCreate(): string {
-  return `template-item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
 
 /**
  * 函数：获取模板片段在总列表中的索引。

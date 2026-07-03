@@ -1,5 +1,8 @@
 export const crawlers = {
   title: 'Crawlers',
+  actions: {
+    enterSettingsCrawler: 'Settings'
+  },
   targets: {
     addTask: 'Add task',
     edit: 'Edit',

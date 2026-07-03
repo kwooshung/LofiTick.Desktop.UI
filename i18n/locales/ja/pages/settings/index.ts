@@ -94,16 +94,9 @@ export const settings = {
     userDataDirectory: {
       label: 'ユーザーデータの場所',
       description: 'userData フォルダー（設定やキャッシュなど）を開きます。',
-      open: 'フォルダーを開く'
-    },
-    crawlerBrowserProfilesDirectory: {
-      label: 'クローラー用ブラウザープロファイル',
-      description: 'Playwright が使う実ブラウザーのプロファイル親ディレクトリです。同じクローラーと同じドメインでは固定の子ディレクトリを再利用します。',
-      dialogTitle: 'クローラー用ブラウザープロファイルを選択',
       open: 'フォルダーを開く',
-      choose: 'フォルダーを選択',
-      reselect: '再選択',
-      unset: '未設定'
+      unset: '未設定',
+      notExists: 'ユーザーデータフォルダーが存在しません'
     },
     storage: {
       label: 'データ保存先',
@@ -125,8 +118,12 @@ export const settings = {
   },
   crawler: {
     title: 'クローラー',
-    description: 'Playwright の収集タスクで使うローカルブラウザーとクローラー実行設定を構成します。',
+    actions: {
+      enterCrawlers: 'クローラーへ移動'
+    },
     browser: {
+      title: 'ブラウザー一覧',
+      description: '収集時に使うローカルブラウザーを選択します。',
       runtimeDescriptions: {
         edge: 'Windows に付属する標準ブラウザーに挙動を合わせたいときに向いている、システム整合性の高い既定クローラー環境です。',
         chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。',
@@ -136,6 +133,21 @@ export const settings = {
         refresh: '更新',
         installOfficial: '公式サイトからダウンロードしてインストール'
       }
+    },
+    browserProfilesDirectory: {
+      label: 'ブラウザープロファイルキャッシュ',
+      description: 'ブラウザープロファイルのルートと各ブラウザーのサブフォルダーを固定保存します。',
+      rootDescription: 'Playwright ブラウザープロファイルのルートパスです。',
+      rootLabel: 'ブラウザーのルートフォルダー',
+      edgeDescription: 'Edge のブラウザープロファイル用サブフォルダーです。',
+      edgeLabel: 'Edge のサブフォルダー',
+      chromeDescription: 'Chrome のブラウザープロファイル用サブフォルダーです。',
+      chromeLabel: 'Chrome のサブフォルダー',
+      chromiumDescription: 'Chromium のブラウザープロファイル用サブフォルダーです。',
+      chromiumLabel: 'Chromium のサブフォルダー',
+      open: 'フォルダーを開く',
+      unset: '未設定',
+      notExists: 'クローラー用プロファイルフォルダーが存在しません'
     }
   },
   ui: {

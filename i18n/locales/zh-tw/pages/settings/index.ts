@@ -94,16 +94,9 @@ export const settings = {
     userDataDirectory: {
       label: '使用者資料目錄',
       description: '開啟應用程式的 userData 目錄（偏好設定、快取等）。',
-      open: '開啟目錄'
-    },
-    crawlerBrowserProfilesDirectory: {
-      label: '爬蟲瀏覽器資料目錄',
-      description: 'Playwright 真實瀏覽器的資料目錄父層；同一爬蟲與同一網域會重用固定子目錄。',
-      dialogTitle: '選擇爬蟲瀏覽器資料目錄',
       open: '開啟目錄',
-      choose: '選擇目錄',
-      reselect: '重新選擇',
-      unset: '尚未設定'
+      unset: '尚未設定',
+      notExists: '使用者資料目錄不存在'
     },
     storage: {
       label: '資料存放目錄',
@@ -125,8 +118,12 @@ export const settings = {
   },
   crawler: {
     title: '爬蟲',
-    description: '設定 Playwright 採集任務使用的本機瀏覽器與爬蟲執行偏好。',
+    actions: {
+      enterCrawlers: '前往爬蟲'
+    },
     browser: {
+      title: '瀏覽器列表',
+      description: '選擇採集時使用的本機瀏覽器。',
       runtimeDescriptions: {
         edge: '適合追求系統一致性的預設採集環境，和 Windows 內建瀏覽器行為保持一致。',
         chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。',
@@ -136,6 +133,21 @@ export const settings = {
         refresh: '刷新',
         installOfficial: '前往官網下載並安裝'
       }
+    },
+    browserProfilesDirectory: {
+      label: '瀏覽器資料快取',
+      description: '瀏覽器資料根目錄與子目錄都固定在這裡。',
+      rootDescription: 'Playwright 瀏覽器資料的根路徑。',
+      rootLabel: '瀏覽器根目錄',
+      edgeDescription: 'Edge 的瀏覽器資料子目錄。',
+      edgeLabel: 'Edge 子目錄',
+      chromeDescription: 'Chrome 的瀏覽器資料子目錄。',
+      chromeLabel: 'Chrome 子目錄',
+      chromiumDescription: 'Chromium 的瀏覽器資料子目錄。',
+      chromiumLabel: 'Chromium 子目錄',
+      open: '開啟目錄',
+      unset: '尚未設定',
+      notExists: '爬蟲資料目錄不存在'
     }
   },
   ui: {

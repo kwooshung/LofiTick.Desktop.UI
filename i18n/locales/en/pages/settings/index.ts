@@ -94,16 +94,9 @@ export const settings = {
     userDataDirectory: {
       label: 'User data directory',
       description: 'Open the userData directory (preferences, cache, etc.).',
-      open: 'Open directory'
-    },
-    crawlerBrowserProfilesDirectory: {
-      label: 'Crawler browser profile directory',
-      description: 'Parent directory for Playwright real-browser profiles. The same crawler and domain reuse a stable child directory.',
-      dialogTitle: 'Choose crawler browser profile directory',
       open: 'Open directory',
-      choose: 'Choose directory',
-      reselect: 'Choose again',
-      unset: 'Not set'
+      unset: 'Not set',
+      notExists: 'User data directory does not exist'
     },
     storage: {
       label: 'Data storage directory',
@@ -125,8 +118,12 @@ export const settings = {
   },
   crawler: {
     title: 'Crawler',
-    description: 'Configure the local browser and runtime preferences used by Playwright crawler tasks.',
+    actions: {
+      enterCrawlers: 'Open crawlers'
+    },
     browser: {
+      title: 'Browser list',
+      description: 'Choose the local browser used for crawling.',
       runtimeDescriptions: {
         edge: 'Best for a system-consistent default crawler environment that matches the browser bundled with Windows.',
         chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.',
@@ -136,6 +133,21 @@ export const settings = {
         refresh: 'Refresh',
         installOfficial: 'Download from the official website'
       }
+    },
+    browserProfilesDirectory: {
+      label: 'Browser profile cache',
+      description: 'The browser profile root and browser-specific subfolders are stored here.',
+      rootDescription: 'Root path for Playwright browser profiles.',
+      rootLabel: 'Browser root directory',
+      edgeDescription: 'Edge browser profile subfolder.',
+      edgeLabel: 'Edge subfolder',
+      chromeDescription: 'Chrome browser profile subfolder.',
+      chromeLabel: 'Chrome subfolder',
+      chromiumDescription: 'Chromium browser profile subfolder.',
+      chromiumLabel: 'Chromium subfolder',
+      open: 'Open directory',
+      unset: 'Not set',
+      notExists: 'Crawler profile directory does not exist'
     }
   },
   ui: {

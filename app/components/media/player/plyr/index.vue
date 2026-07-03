@@ -414,6 +414,30 @@ const mediaPlyrSeekToPlayCleanup = (): void => {
 };
 
 /**
+ * 函数：清理自定义 progress（恢复原生 DOM，避免混乱）
+ * @returns {void} 无返回值
+ */
+const mediaPlyrWaveformCustomProgressCleanup = (): void => {
+  stateWaveformTooltipPinned.value = false;
+
+  if (stateWaveformProgressCustom.value) {
+    try {
+      stateWaveformProgressCustom.value.remove();
+    } catch {
+      // ignore
+    }
+  }
+
+  if (stateWaveformProgressNative.value) {
+    stateWaveformProgressNative.value.classList.remove('media-plyr__progress-native--hidden');
+  }
+
+  stateWaveformProgressCustom.value = null;
+  stateWaveformProgressNative.value = null;
+  stateWaveformTooltip.value = null;
+};
+
+/**
  * 函数：清理波形相关监听。
  * @returns {void} 无返回值
  */
@@ -758,30 +782,6 @@ const mediaPlyrWaveformTimeFormatMmSs = (seconds: number): string => {
 
   return `${mm}:${ss}`;
 };
-
-/**
- * 函数：清理自定义 progress（恢复原生 DOM，避免混乱）
- * @returns {void} 无返回值
- */
-function mediaPlyrWaveformCustomProgressCleanup(): void {
-  stateWaveformTooltipPinned.value = false;
-
-  if (stateWaveformProgressCustom.value) {
-    try {
-      stateWaveformProgressCustom.value.remove();
-    } catch {
-      // ignore
-    }
-  }
-
-  if (stateWaveformProgressNative.value) {
-    stateWaveformProgressNative.value.classList.remove('media-plyr__progress-native--hidden');
-  }
-
-  stateWaveformProgressCustom.value = null;
-  stateWaveformProgressNative.value = null;
-  stateWaveformTooltip.value = null;
-}
 
 /**
  * 函数：设置 tooltip 可见性

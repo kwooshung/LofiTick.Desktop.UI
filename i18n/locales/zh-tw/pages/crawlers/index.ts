@@ -1,5 +1,8 @@
 export const crawlers = {
   title: '爬蟲',
+  actions: {
+    enterSettingsCrawler: '設定'
+  },
   targets: {
     addTask: '新增任務',
     edit: '編輯',
