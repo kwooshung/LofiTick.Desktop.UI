@@ -53,7 +53,7 @@ const links = [
     },
     {
       label: t('pages.settings.crawler.title'),
-      icon: 'i-lucide:bot',
+      icon: 'i-mdi:spider-outline',
       to: localePath('/settings/crawler')
     },
     {

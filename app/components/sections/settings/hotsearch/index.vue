@@ -350,7 +350,6 @@ import { parseTime } from '@internationalized/date';
 import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui';
 import type { InputTimeProps } from '@nuxt/ui/runtime/components/InputTime.vue';
 
-
 /**
  * Hook：i18n
  */

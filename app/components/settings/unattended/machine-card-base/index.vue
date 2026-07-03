@@ -26,7 +26,15 @@
           </div>
           <span class="min-w-0 flex-1 self-center leading-4.5 break-all">{{ machine.machineCode || '-' }}</span>
           <UTooltip v-if="String(machine.machineCode || '').trim()" :text="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" :content="{ side: 'right' }">
-            <UButton :color="stateCodeCopied ? 'success' : 'neutral'" variant="link" size="xs" :icon="stateCodeCopied ? 'i-lucide:copy-check' : 'i-lucide:copy'" :ui="{ leadingIcon: 'text-muted' }" :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')" @click.stop="handleMachineCodeCopy" />
+            <UButton
+              :color="stateCodeCopied ? 'success' : 'neutral'"
+              variant="link"
+              size="xs"
+              :icon="stateCodeCopied ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+              :ui="{ leadingIcon: 'text-muted' }"
+              :aria-label="t('components.sentinel.scenes.card.tooltips.copyToClipboard')"
+              @click.stop="handleMachineCodeCopy"
+            />
           </UTooltip>
         </li>
         <li class="bg-default/22 py-1.15 mb-2 flex items-center gap-2 rounded-md px-2.5">
