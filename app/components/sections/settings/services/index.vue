@@ -14,7 +14,7 @@
         :label="t('pages.settings.services.volcSpeech.appId.label')"
         :description="t('pages.settings.services.volcSpeech.appId.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechAppIdValue" class="w-full" :placeholder="t('pages.settings.services.volcSpeech.appId.placeholder')" autocomplete="off" />
@@ -25,7 +25,7 @@
         :label="t('pages.settings.services.volcSpeech.accessToken.label')"
         :description="t('pages.settings.services.volcSpeech.accessToken.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput
@@ -44,6 +44,7 @@
                   variant="link"
                   size="sm"
                   :icon="stateVolcSpeechAccessTokenVisible ? 'i-lucide:eye' : 'i-lucide:eye-off'"
+                  :ui="{ leadingIcon: stateVolcSpeechAccessTokenVisible ? 'text-primary transition-transform duration-200' : 'text-primary rotate-180 transition-transform duration-200' }"
                   :aria-label="stateVolcSpeechAccessTokenVisible ? t('pages.settings.services.actions.hideAccessToken') : t('pages.settings.services.actions.showAccessToken')"
                   :aria-pressed="stateVolcSpeechAccessTokenVisible"
                   aria-controls="volc-speech-access-token"
@@ -59,12 +60,12 @@
         :label="t('pages.settings.services.volcSpeech.resourceId.label')"
         :description="t('pages.settings.services.volcSpeech.resourceId.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechResourceIdValue" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechResourceId">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechResourceId">
                 {{ t('pages.settings.services.actions.resetDefaultResourceId') }}
               </UButton>
             </template>
@@ -72,7 +73,7 @@
         </div>
       </UFormField>
 
-      <UFormField :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+      <UFormField :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center">
         <template #description>
           <span>
             {{ t('pages.settings.services.volcSpeech.maleSpeakerCode.descriptionPrefix') }}
@@ -85,7 +86,7 @@
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechMaleSpeakerCode">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechMaleSpeakerCode">
                 {{ t('pages.settings.services.actions.resetDefaultMaleSpeakerCode') }}
               </UButton>
             </template>
@@ -93,7 +94,7 @@
         </div>
       </UFormField>
 
-      <UFormField :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+      <UFormField :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center">
         <template #description>
           <span>
             {{ t('pages.settings.services.volcSpeech.femaleSpeakerCode.descriptionPrefix') }}
@@ -106,7 +107,7 @@
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" @click="handleResetVolcSpeechFemaleSpeakerCode">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechFemaleSpeakerCode">
                 {{ t('pages.settings.services.actions.resetDefaultFemaleSpeakerCode') }}
               </UButton>
             </template>
@@ -183,13 +184,13 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

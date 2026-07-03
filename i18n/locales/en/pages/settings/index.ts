@@ -15,10 +15,10 @@ export const settings = {
     },
     onepanelLinks: {
       title: '1Panel navigation directory',
-      description: 'This directory updates with the root URL in real time. The desktop app no longer embeds the 1Panel cron management page.',
+      description: 'This directory updates with the root URL. The desktop app no longer hosts the 1Panel cron page directly.',
       currentBase: 'Current 1Panel root URL',
       actions: {
-        openCronjobs: 'Open cronjobs',
+        openCronjobs: 'Open cron jobs',
         openScriptLibrary: 'Open script library'
       }
     }
@@ -94,7 +94,9 @@ export const settings = {
     userDataDirectory: {
       label: 'User data directory',
       description: 'Open the userData directory (preferences, cache, etc.).',
-      open: 'Open directory'
+      open: 'Open directory',
+      unset: 'Not set',
+      notExists: 'User data directory does not exist'
     },
     storage: {
       label: 'Data storage directory',
@@ -112,6 +114,45 @@ export const settings = {
     multiOpen: {
       label: 'Multiple instances',
       description: 'Allow running multiple instances of the app at the same time.'
+    }
+  },
+  crawler: {
+    title: 'Crawler',
+    actions: {
+      enterCrawlers: 'Open crawlers'
+    },
+    browser: {
+      title: 'Browser list',
+      description: 'Choose the local browser used for crawling.',
+      runtimeDescriptions: {
+        edge: 'Best for a system-consistent default crawler environment that matches the browser bundled with Windows.',
+        chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.',
+        chromium: 'Best for tasks that need an isolated browser profile, keeping crawler data separate from your personal browser.'
+      },
+      actions: {
+        refresh: 'Refresh',
+        installOfficial: 'Download from the official website'
+      }
+    },
+    browserProfilesDirectory: {
+      label: 'Browser profile cache',
+      description: 'Browser profile directories and paths are stored here.',
+      rootDescription: 'Path for Playwright browser profiles.',
+      rootLabel: 'Browser directory',
+      edgeDescription: 'Edge browser profile directory.',
+      edgeLabel: 'Edge directory',
+      chromeDescription: 'Chrome browser profile directory.',
+      chromeLabel: 'Chrome directory',
+      chromiumDescription: 'Chromium browser profile directory.',
+      chromiumLabel: 'Chromium directory',
+      clearCache: 'Clear cache',
+      clearConfirmTitle: 'Clear cache?',
+      clearConfirmDescription: 'This will delete all contents in this directory.',
+      clearSuccess: 'Cache cleared',
+      clearFailed: 'Failed to clear cache',
+      open: 'Open directory',
+      unset: 'Not set',
+      notExists: 'Crawler profile directory does not exist'
     }
   },
   ui: {
@@ -891,7 +932,7 @@ export const settings = {
     title: 'Unattended',
     header: {
       description: 'Adjust unattended mode and heartbeat-related settings.',
-      enter: 'Go to unattended page'
+      enter: 'Enter unattended mode'
     },
     dialogs: {
       restart: {

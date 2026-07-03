@@ -188,10 +188,10 @@
 
       <template #footer>
         <div class="flex flex-wrap justify-end gap-2">
-          <UButton color="neutral" variant="ghost" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:x" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
             {{ t('common.actions.cancel') }}
           </UButton>
-          <UButton color="primary" :disabled="!stateUploadFile || computedUploadSubmitBusy" :loading="computedUploadSubmitBusy" @click="handleUploadSubmit">
+          <UButton color="primary" icon="i-lucide:upload" :disabled="!stateUploadFile || computedUploadSubmitBusy" :loading="computedUploadSubmitBusy" @click="handleUploadSubmit">
             {{ t('pages.settings.hotsearch.dialogs.headMusicUpload.confirmUpload') }}
           </UButton>
         </div>

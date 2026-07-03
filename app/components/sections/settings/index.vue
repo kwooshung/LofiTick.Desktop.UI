@@ -21,10 +21,10 @@
       >
         <USelect
           :model-value="locale"
-          :icon="computedLanguageIcon"
+          :icon="computedLocaleIcon"
           :items="
             computedLocalesUnique.map((l) => ({
-              icon: l.icon,
+              icon: settingsLocaleIconGet(l.code),
               label: l.name,
               value: l.code
             })) as SelectItem[]
@@ -37,33 +37,40 @@
         <USwitch v-model="stateRememberWindowStateValue" @update:model-value="handleChangeRememberWindowState" />
       </UFormField>
       <UFormField :label="t('pages.settings.general.appDirectory.label')" :description="t('pages.settings.general.appDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
       </UFormField>
-      <UFormField :label="t('pages.settings.general.userDataDirectory.label')" :description="t('pages.settings.general.userDataDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
+      <UFormField :label="t('pages.settings.general.userDataDirectory.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <template #description>
+          <div class="space-y-1">
+            <div>{{ t('pages.settings.general.userDataDirectory.description') }}</div>
+            <ULink v-if="stateUserDataDirectoryPath" raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenUserDataDirectory">
+              {{ stateUserDataDirectoryPath }}
+            </ULink>
+            <span v-else class="text-error">{{ t('pages.settings.general.userDataDirectory.unset') }}</span>
+          </div>
+        </template>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
       </UFormField>
       <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.storage.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
           <div class="space-y-1">
             <div>{{ t('pages.settings.general.storage.description') }}</div>
             <span v-if="stateStoragePath">
-              <UTooltip :text="stateStoragePath" :content="{ side: 'top' }" :disabled="stateStoragePath === computedTruncatedStorage">
-                <ULink raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenStorage">
-                  {{ computedTruncatedStorage }}
-                </ULink>
-              </UTooltip>
+              <ULink raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenStorage">
+                {{ stateStoragePath }}
+              </ULink>
             </span>
             <span v-else class="text-error">{{ t('pages.settings.general.storage.unset') }}</span>
           </div>
         </template>
         <div class="flex items-center gap-2">
-          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" :loading="stateSelectingStorage" @click="handleSelectStorage">
+          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" icon="i-lucide:folder-search" :ui="{ leadingIcon: stateSelectingStorage ? 'text-primary' : 'text-primary' }" :loading="stateSelectingStorage" @click="handleSelectStorage">
             {{ stateStoragePath ? t('pages.settings.general.storage.reselect') : t('pages.settings.general.storage.choose') }}
           </UButton>
         </div>
       </UFormField>
       <UFormField :label="t('pages.settings.general.devtools.label')" :description="t('pages.settings.general.devtools.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:bug" :ui="{ leadingIcon: 'text-warning' }" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
       </UFormField>
     </UPageCard>
   </DashboardPage>
@@ -98,6 +105,11 @@ const stateIsMounted = ref(false);
 const { t, locale, locales, setLocale } = useI18n();
 
 /**
+ * Hook：提示消息。
+ */
+const toast = useToast();
+
+/**
  * Store：面包屑
  */
 const storeBreadcrumb = useStoreBreadcrumb();
@@ -113,19 +125,19 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },
   {
     label: t('pages.settings.general.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings')
   }
 ];
@@ -150,7 +162,17 @@ const stateCloseBehaviorValue = ref('unset');
 const stateStoragePath = ref('');
 
 /**
- * 状态：截断显示的存放路径
+ * 状态：用户数据目录路径。
+ */
+const stateUserDataDirectoryPath = ref('');
+
+/**
+ * 状态：用户数据目录是否存在。
+ */
+const stateUserDataDirectoryExists = ref(false);
+
+/**
+ * 状态：是否正在选择数据存放目录。
  */
 const stateSelectingStorage = ref(false);
 
@@ -188,29 +210,35 @@ const computedLocalesUnique = computed(() => {
 });
 
 /**
- * 计算属性：语言图标
+ * 函数：按 locale 获取国旗图标
+ * @param {string} code locale 代码
+ * @returns {string} 图标名
  */
-const computedLanguageIcon = computed(() => String(computedLocalesUnique.value.find((l) => l.code === locale.value)?.icon || ''));
+const settingsLocaleIconGet = (code: string): string => {
+  /**
+   * 常量：normalized。
+   */
+  const normalized = code.trim().toLowerCase().replace(/_/g, '-');
+
+  if (normalized === 'zh-cn') {
+    return 'i-flag-cn-4x3';
+  }
+
+  if (normalized === 'zh-tw') {
+    return 'i-flag-tw-4x3';
+  }
+
+  if (normalized === 'ja') {
+    return 'i-flag-jp-4x3';
+  }
+
+  return 'i-flag-us-4x3';
+};
 
 /**
- * 计算属性：截断显示的存放路径
+ * 计算属性：当前 locale 图标
  */
-const computedTruncatedStorage = computed(() => {
-  /**
-   * 常量：p。
-   */
-  const p = stateStoragePath.value;
-
-  if (!p) {
-    return '';
-  }
-
-  if (p.length <= 56) {
-    return p;
-  }
-
-  return `${p.slice(0, 24)} … ${p.slice(-20)}`;
-});
+const computedLocaleIcon = computed(() => settingsLocaleIconGet(locale.value));
 
 /**
  * 事件：选择数据存放目录
@@ -267,7 +295,15 @@ const handleOpenAppDirectory = async (): Promise<void> => {
  * 事件：打开用户目录（userData）
  */
 const handleOpenUserDataDirectory = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
+  if (!isTauriRuntime.value || !stateUserDataDirectoryPath.value) {
+    return;
+  }
+
+  if (!stateUserDataDirectoryExists.value) {
+    toast.add({
+      title: t('pages.settings.general.userDataDirectory.notExists'),
+      color: 'error'
+    });
     return;
   }
 
@@ -333,6 +369,13 @@ const loadSettings = async (): Promise<void> => {
   }
 
   stateStoragePath.value = String(conf.attachmentsDir || '');
+
+  /**
+   * 常量：userDataDirectory。
+   */
+  const userDataDirectory = await tauriWindow.userDataDirectoryGet();
+  stateUserDataDirectoryPath.value = userDataDirectory.directoryPath;
+  stateUserDataDirectoryExists.value = userDataDirectory.exists;
 
   /**
    * 常量：windowSetting。

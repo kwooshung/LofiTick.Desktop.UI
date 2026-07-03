@@ -1,5 +1,5 @@
 <template>
-  <div v-if="disabled" ref="refRootEl" class="group pointer-events-none size-39.5 rounded-lg opacity-60 outline-none select-none">
+  <div v-if="disabled" ref="refRootEl" class="group pointer-events-none size-39.5 rounded-lg opacity-60 outline-none select-none" :class="cursorPointer ? 'cursor-pointer' : 'cursor-default'">
     <div class="relative w-full">
       <div class="pointer-events-none absolute inset-0 rounded-md" />
       <div class="relative z-10 flex flex-col items-center gap-4 p-4">
@@ -16,7 +16,7 @@
     <div
       ref="refRootEl"
       class="group size-39.5 rounded-lg outline-none select-none"
-      :class="[disabled ? 'pointer-events-none opacity-60' : to ? 'cursor-pointer' : 'cursor-default']"
+      :class="[disabled ? 'pointer-events-none opacity-60' : cursorPointer || to ? 'cursor-pointer' : 'cursor-default']"
       :aria-selected="computedIsSelected"
       role="option"
       tabindex="0"
@@ -72,10 +72,8 @@ const {
   relabelOnly = false,
   contextMenuProps,
   disabled = false,
+  cursorPointer = false,
   iconName
-/**
- * Props：组件入参。
- */
 } = defineProps<IFolderProps>();
 
 /**
@@ -447,6 +445,8 @@ const onClick = (e: MouseEvent) => {
   if (disabled) {
     return;
   }
+
+  emit('click', e);
 
   // 存在跳转目标时：仅左键单击触发跳转（不参与选中/重命名判定）
   if (to && e.button === 0) {

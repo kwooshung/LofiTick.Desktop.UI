@@ -83,10 +83,12 @@ export const configs = {
       exclude: [
         '@iconify-json/carbon',
         '@iconify-json/codicon',
+        '@iconify-json/devicon',
         '@iconify-json/file-icons',
         '@iconify-json/flag',
         '@iconify-json/gg',
         '@iconify-json/heroicons',
+        '@iconify-json/logos',
         '@iconify-json/lucide',
         '@iconify-json/material-symbols',
         '@iconify-json/material-symbols-light',
@@ -95,6 +97,7 @@ export const configs = {
         '@iconify-json/proicons',
         '@iconify-json/ri',
         '@iconify-json/simple-icons',
+        '@iconify-json/streamline-color',
         '@iconify-json/tabler'
       ]
     }

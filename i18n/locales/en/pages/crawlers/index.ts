@@ -1,233 +1,131 @@
-import { crawler } from '@@/i18n/locales/en/components/crawler';
-
 export const crawlers = {
   title: 'Crawlers',
-  search: {
-    header: {
-      title: 'Search Crawlers',
-      startLabel: 'Click to search crawlers',
-      conditions: 'Search conditions set'
-    },
-    body: {
-      keyword: {
-        placeholder: 'Search site name or description'
-      },
-      enabled: {
-        placeholder: 'Filter enabled status'
-      }
-    }
+  actions: {
+    enterSettingsCrawler: 'Settings'
   },
   targets: {
-    title: 'Sites',
-    add: 'Add Site',
-    edit: 'Edit Site',
-    addTask: 'Add Task',
+    addTask: 'Add task',
+    edit: 'Edit',
+    empty: {
+      title: 'No folders yet',
+      description: 'There are no crawler folders to show right now.'
+    },
     menu: {
-      open: 'Open Site',
-      copyDomain: 'Copy Domain',
-      copyBaseUrl: 'Copy Site URL'
-    },
-    empty: {
-      title: 'No Target Sites',
-      description: 'No crawler target sites have been added. Click the button above to add one.'
-    },
-    form: {
-      name: {
-        label: 'Site Name',
-        placeholder: 'Enter site name',
-        verify: {
-          required: 'Site name is required',
-          length: 'Site name cannot exceed 255 characters'
-        }
-      },
-      domain: {
-        label: 'Domain',
-        placeholder: 'Enter domain, e.g. weibo.com',
-        verify: {
-          required: 'Domain is required',
-          length: 'Domain cannot exceed 255 characters',
-          pattern: 'Invalid domain format'
-        }
-      },
-      baseUrl: {
-        label: 'Base URL',
-        placeholder: 'Enter site domain, e.g. weibo.com',
-        verify: {
-          required: 'Base URL is required',
-          length: 'Base URL must not exceed 255 characters',
-          pattern: 'Invalid URL format'
-        }
-      },
-      description: {
-        label: 'Description',
-        placeholder: 'Enter description'
-      },
-      isEnabled: {
-        label: 'Enabled'
-      },
-      unique: {
-        checking: 'Checking uniqueness...',
-        domainExists: 'This domain already exists'
-      }
+      open: 'Open',
+      copyDomain: 'Copy domain',
+      copyBaseUrl: 'Copy base URL'
     }
   },
-  editor: {
-    title: 'Crawler Logic',
-    sidebar: {
-      tabs: {
-        nodes: 'Nodes',
-        siteFunctions: 'Site Functions',
-        globalFunctions: 'Global Functions'
-      },
-      loading: 'Loading functions',
-      row: {
-        id: 'ID: {id}',
-        reference: 'References {count}',
-        target: 'Site #{id}'
-      },
-      empty: {
-        siteMissingTarget: 'Current site information is missing, unable to load site functions.',
-        siteNoData: 'No site functions for the current site.',
-        globalNoData: 'No global functions yet.',
-        defaultDescription: 'No items',
-        siteTitle: 'No Site Functions',
-        globalTitle: 'No Global Functions',
-        defaultTitle: 'No Items'
-      },
-      actions: {
-        createSiteFunction: 'Create Site Function',
-        createGlobalFunction: 'Create Global Function',
-        editLogic: 'Edit Logic',
-        edit: 'Edit',
-        delete: 'Delete'
-      },
-      editModal: {
-        title: 'Edit Function Info',
-        nameLabel: 'Function Name',
-        namePlaceholder: 'Enter function name',
-        descriptionLabel: 'Description',
-        descriptionPlaceholder: 'Enter function description (optional)'
-      },
-      deleteModal: {
-        title: 'Delete Function',
-        description: 'Are you sure you want to delete function "{name}"? This action cannot be undone.'
-      },
-      createModal: {
-        titleSite: 'Create Site Function',
-        titleGlobal: 'Create Global Function',
-        scopeLabel: 'Scope',
-        scopeSite: 'Site Function',
-        scopeGlobal: 'Global Function',
-        nameLabel: 'Function Name',
-        namePlaceholder: 'Enter function name',
-        descriptionLabel: 'Description',
-        descriptionPlaceholder: 'Enter function description (optional)',
-        siteTargetRequired: 'Current site context is missing. Cannot create a site function.'
-      }
-    },
-    empty: {
-      title: 'The canvas is still empty',
-      description: 'Drag a blueprint node from the left into the canvas to start building the crawler flow.'
-    },
-    drag: {
-      title: 'Release to place the node',
-      description: 'The current blueprint node will be inserted at the mouse position.'
-    },
+  task: {
     actions: {
-      restore: 'Restore',
-      zoomIn: 'Zoom In',
-      zoomOut: 'Zoom Out',
-      autoLayout: 'Auto Layout',
-      redo: 'Redo',
-      undo: 'Undo'
+      execute: 'Run task',
+      pause: 'Pause task',
+      resume: 'Resume task',
+      stop: 'Stop task',
+      stopConfirmTitle: 'Stop the current task?',
+      stopConfirmDescription: 'Stopping will close the crawler window and clear its running state.',
+      stopCancel: 'Cancel',
+      stopConfirm: 'Stop'
     },
-    draft: {
-      saved: 'Draft auto-saved'
+    filters: {
+      all: 'All'
     },
-    saveFeedback: {
-      blueprintTitle: 'Blueprint save',
-      title: 'Function logic save'
+    footer: {
+      total: '{total} tasks'
     },
-    loadSource: {
-      title: 'Logic panel loaded',
-      loading: 'Loading logic from server...',
-      server: 'Loaded the latest logic from server',
-      draft: 'Server data is unavailable, restored from local draft',
-      default: 'No available logic found, loaded an empty default panel',
-      fallbackRequestFailed: 'Server request failed. Local fallback was used.',
-      fallbackNoMatchedData: 'Server response did not match current function. Local fallback was used.',
-      blueprintSaveSuccess: 'Blueprint has been saved to server',
-      blueprintSaveFailed: 'Failed to save blueprint',
-      blueprintSaveFailedWithCode: 'Failed to save blueprint ({code})',
-      blueprintSaveFailedWithCodeAndMessage: 'Failed to save blueprint ({code}: {message})',
-      persistMismatch: 'Save submitted, but server roundtrip does not match local pin data. Please retry or check backend logs.',
-      saveSuccess: 'Function logic has been saved to server',
-      saveFailed: 'Failed to save function logic',
-      saveFailedWithCode: 'Failed to save function logic ({code})',
-      saveEchoMissing: 'Save submitted, but latest function detail could not be reloaded'
-    }
-  },
-  executions: {
-    title: 'Execution Records',
+    progress: {
+      indeterminate: 'Calculating',
+      percent: '{value}%'
+    },
     status: {
       pending: 'Pending',
-      running: 'Running',
-      success: 'Success',
+      resolving: 'Resolving',
+      crawling: 'Crawling',
+      downloading: 'Downloading',
+      paused: 'Paused',
+      completed: 'Completed',
       failed: 'Failed',
       stopped: 'Stopped'
     },
-    duration: 'Duration {ms}ms',
-    records: '{count} records',
-    empty: {
-      title: 'No Execution Records',
-      description: 'No execution records yet.'
-    }
-  },
-  blueprints: {
-    empty: {
-      title: 'No Crawlers',
-      description: 'No crawler has been created for this site yet. Click "Add Task" in the top-right to start.'
-    },
-    parameters: {
-      title: 'Set Execution Parameters',
-      description: 'This run will use the values entered here and will not overwrite blueprint defaults automatically.',
-      fields: {
-        stringPlaceholder: 'Enter the value for this run',
-        jsonPlaceholder: 'Enter valid JSON',
-        jsonInvalid: 'Invalid JSON format or data type',
-        description: 'Parameter ID: {id} · Type: {type}'
-      },
-      actions: {
-        execute: 'Run With Current Values',
-        saveDefaultAndExecute: 'Save Current Values As Defaults And Run'
-      }
-    },
     table: {
+      task: 'Task',
       name: 'Name',
-      description: 'Description',
-      status: 'Execution Status',
-      lastRunAt: 'Last Run'
+      status: 'Status',
+      progress: 'Progress',
+      transfer: 'Transfer',
+      speed: 'Speed',
+      size: 'Size',
+      downloaded: 'Transferred',
+      time: 'Time',
+      elapsed: 'Elapsed',
+      remaining: 'Remaining',
+      items: 'Items',
+      updatedAt: 'Updated',
+      actions: 'Actions'
     },
-    actions: {
-      execute: 'Run',
-      pause: 'Pause',
-      stop: 'Stop',
-      deleteConfirm: 'Delete crawler "{name}"? This action cannot be undone.',
-      runSuccess: 'Execution has been triggered and is now running.',
-      stopSuccess: 'This execution has been stopped.',
-      runFailed: 'Failed to trigger execution. Please try again later.',
-      deleteSuccess: 'Deleted successfully.',
-      deleteFailed: 'Delete failed. Please try again later.'
+    unsupported: {
+      name: 'Unknown crawler',
+      title: 'Crawler not supported yet',
+      description: 'This provider does not have a crawler console yet.'
     }
   },
   spider: {
     title: 'Spider',
     websites: {
       pixabay: {
-        title: 'Pixabay',
-        music: 'Music'
+        name: 'Pixabay',
+        page: {
+          description: 'Manage Pixabay crawl tasks, execution mode, and collected results.',
+          actions: {
+            create: 'New crawl'
+          },
+          tasks: {
+            empty: {
+              title: 'No Pixabay tasks yet',
+              description: 'There are no Pixabay crawl tasks yet. The task list will appear here later.'
+            }
+          }
+        },
+        dialog: {
+          title: 'Choose a Pixabay address',
+          description: 'Enter a keyword first, optionally add a page number, and preview the final URL below.',
+          keywordLabel: 'Keyword',
+          keywordPlaceholder: 'Enter a keyword',
+          keywordPreview: 'keyword',
+          pageLabel: 'Page',
+          typeLabel: 'Address',
+          urlLabel: 'URL preview',
+          submit: 'Confirm',
+          cancel: 'Cancel',
+          types: {
+            photos: 'Images: Photos',
+            illustrations: 'Images: Illustrations',
+            vectors: 'Images: Vectors',
+            videos: 'Videos: Videos',
+            gifs: 'GIFs: GIFs',
+            threeDModels: 'Images: 3D models',
+            music: 'Audio: Music',
+            soundEffects: 'Audio: Sound effects'
+          }
+        }
+      },
+      suno: {
+        name: 'Suno',
+        dialog: {
+          title: 'Run Suno task',
+          description: 'Suno task execution settings are not connected yet. They will appear here later.',
+          close: 'Close'
+        },
+        page: {
+          description: 'Manage Suno crawl tasks, execution mode, and collected results.',
+          tasks: {
+            empty: {
+              title: 'No Suno tasks yet',
+              description: 'There are no Suno crawl tasks yet. The task list will appear here later.'
+            }
+          }
+        }
       }
     }
-  },
-  blueprint: crawler.blueprint
+  }
 };

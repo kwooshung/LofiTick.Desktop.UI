@@ -25,7 +25,7 @@
                 <dd v-for="group in computedIpv4Groups" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-md px-3 py-2">
                   <div class="flex min-w-0 flex-1 items-center gap-2">
                     <div class="flex items-center gap-1">
-                      <UIcon name="i-mdi:network-outline" class="text-dimmed" />
+                      <UIcon name="i-lucide:network" class="text-dimmed" />
                       <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
                     </div>
                     <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv4) || '-' }}</span>
@@ -35,7 +35,7 @@
               <template v-else>
                 <dd class="pt-1">
                   <UEmpty
-                    icon="i-mdi:network-outline"
+                    icon="i-lucide:network"
                     :title="t('components.sentinel.scenes.card.empty.ipv4.title')"
                     :description="t('components.sentinel.scenes.card.empty.ipv4.description')"
                     variant="naked"
@@ -51,7 +51,7 @@
                 <dd v-for="group in computedIpv6Groups" :key="group.name" class="bg-muted/40 flex items-center gap-2 rounded-md px-3 py-2">
                   <div class="flex min-w-0 flex-1 items-center gap-2">
                     <div class="flex items-center gap-1">
-                      <UIcon name="i-mdi:network-outline" class="text-dimmed" />
+                      <UIcon name="i-lucide:network" class="text-dimmed" />
                       <span class="text-muted shrink-0">{{ String(group.name || '').trim() || '-' }}</span>
                     </div>
                     <span class="min-w-0 flex-1 text-right break-all">{{ ipJoin(group.ipv6) || '-' }}</span>
@@ -61,7 +61,7 @@
               <template v-else>
                 <dd class="pt-1">
                   <UEmpty
-                    icon="i-mdi:network-outline"
+                    icon="i-lucide:network"
                     :title="t('components.sentinel.scenes.card.empty.ipv6.title')"
                     :description="t('components.sentinel.scenes.card.empty.ipv6.description')"
                     variant="naked"
@@ -75,7 +75,7 @@
         </UPageCard>
       </div>
       <div v-else class="py-6">
-        <UEmpty icon="i-mdi:network-outline" :title="t('components.sentinel.scenes.card.empty.data.title')" :description="t('components.sentinel.scenes.card.empty.data.description')" variant="naked" size="sm" :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }" />
+        <UEmpty icon="i-lucide:network" :title="t('components.sentinel.scenes.card.empty.data.title')" :description="t('components.sentinel.scenes.card.empty.data.description')" variant="naked" size="sm" :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }" />
       </div>
     </template>
   </UModal>

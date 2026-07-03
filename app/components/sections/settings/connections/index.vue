@@ -25,13 +25,14 @@
                     :color="copiedGet('apiBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('apiBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('apiBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: copiedGet('apiBase') ? 'text-success' : 'text-primary' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('apiBase', stateApiBaseValue)"
                   />
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
-                  <ULink raw :href="stateApiBaseValue" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(stateApiBaseValue)">
+                  <ULink raw :href="stateApiBaseValue" class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(stateApiBaseValue)">
                     <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
                   </ULink>
                 </UTooltip>
@@ -54,13 +55,14 @@
                     :color="copiedGet('onepanelPanelBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('onepanelPanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('onepanelPanelBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: copiedGet('onepanelPanelBase') ? 'text-success' : 'text-primary' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('onepanelPanelBase', computedPanelBase)"
                   />
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
-                  <ULink raw :href="computedPanelBase" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
+                  <ULink raw :href="computedPanelBase" class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
                     <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
                   </ULink>
                 </UTooltip>
@@ -85,13 +87,14 @@
                     :color="copiedGet('onepanelBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('onepanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('onepanelBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: copiedGet('onepanelBase') ? 'text-success' : 'text-primary' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('onepanelBase', computedPanelBase)"
                   />
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
-                  <ULink raw :href="computedPanelBase" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
+                  <ULink raw :href="computedPanelBase" class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(computedPanelBase)">
                     <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
                   </ULink>
                 </UTooltip>
@@ -99,7 +102,7 @@
                   <ULink
                     raw
                     :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH)"
-                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline"
                     :aria-label="t('pages.settings.connections.onepanelLinks.actions.openCronjobs')"
                     @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRONJOBS_PATH))"
                   >
@@ -110,7 +113,7 @@
                   <ULink
                     raw
                     :href="onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH)"
-                    class="text-muted hover:text-primary inline-flex items-center justify-center no-underline"
+                    class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline"
                     :aria-label="t('pages.settings.connections.onepanelLinks.actions.openScriptLibrary')"
                     @click.stop.prevent="handleOpenExternal(onepanelLinkBuild(computedPanelBase, ONEPANEL_CRON_LIBRARY_PATH))"
                   >
@@ -146,13 +149,14 @@
                               :color="copiedGet(`onepanelLink|${link.href}`) ? 'success' : 'neutral'"
                               variant="link"
                               size="sm"
-                              :icon="copiedGet(`onepanelLink|${link.href}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                              :icon="copiedGet(`onepanelLink|${link.href}`) ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                              :ui="{ leadingIcon: copiedGet(`onepanelLink|${link.href}`) ? 'text-success' : 'text-primary' }"
                               :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                               @click.stop="handleCopy(`onepanelLink|${link.href}`, link.href)"
                             />
                           </UTooltip>
                           <UTooltip :text="link.label" :content="{ side: 'top' }">
-                            <ULink raw :href="link.href" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" :aria-label="link.label" @click.stop.prevent="handleOpenExternal(link.href)">
+                            <ULink raw :href="link.href" class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline" :aria-label="link.label" @click.stop.prevent="handleOpenExternal(link.href)">
                               <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
                             </ULink>
                           </UTooltip>
@@ -223,13 +227,13 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

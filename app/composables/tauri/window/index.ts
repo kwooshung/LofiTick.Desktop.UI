@@ -8,6 +8,17 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 const EVENT_WINDOW_STATE_CHANGE = 'window_state_change';
 
 /**
+ * 接口：用户数据目录信息。
+ */
+interface ITauriUserDataDirectoryInfo {
+  /** 当前用户数据目录路径。 */
+  directoryPath: string;
+
+  /** 目录是否存在。 */
+  exists: boolean;
+}
+
+/**
  * Hook：Tauri 窗口能力
  * 描述：统一封装 Desktop 壳侧暴露的窗口命令与事件。
  * @returns {object} 窗口能力方法
@@ -115,6 +126,14 @@ export const useTauriWindow = () => {
   };
 
   /**
+   * 函数：读取用户数据目录信息
+   * @returns {Promise<ITauriUserDataDirectoryInfo>} 用户数据目录信息
+   */
+  const userDataDirectoryGet = async (): Promise<ITauriUserDataDirectoryInfo> => {
+    return invoke<ITauriUserDataDirectoryInfo>('window_user_data_directory_get');
+  };
+
+  /**
    * 函数：使用系统默认浏览器打开链接
    * @param {string} url 完整链接地址
    * @returns {Promise<void>} 无返回值
@@ -154,6 +173,7 @@ export const useTauriWindow = () => {
     openDirectory,
     openAppDirectory,
     openUserDataDirectory,
+    userDataDirectoryGet,
     openExternalUrl,
     openFile,
     openFileContent

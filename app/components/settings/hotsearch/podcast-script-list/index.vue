@@ -50,7 +50,7 @@
     <UFormField :label="t('pages.settings.hotsearch.fields.podcastVariables.label')" :description="t('pages.settings.hotsearch.fields.podcastVariables.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
       <div class="mt-4 flex flex-wrap gap-2">
         <UPopover v-for="item in computedVariableOptions" :key="item.token" mode="hover" :open-delay="120" :close-delay="80" arrow :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'p-3 w-64' }">
-          <UButton variant="outline" size="xs" :disabled="disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
+          <UButton variant="outline" size="xs" icon="i-lucide:plus" :disabled="disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
             {{ item.label }}
           </UButton>
 
@@ -295,6 +295,14 @@ const templateItemsEqual = (left: ISettingsHotsearchPodcastTemplateItem[], right
 };
 
 /**
+ * 函数：创建模板片段稳定渲染键。
+ * @returns {string} 渲染键。
+ */
+const templateItemRenderKeyCreate = (): string => {
+  return `template-item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+/**
  * 监听：同步父级模板片段。
  */
 watch(
@@ -374,14 +382,6 @@ const computedVariableOptions = computed(() =>
     example: hotsearchPodcastVariableExampleGet(item.token)
   }))
 );
-
-/**
- * 函数：创建模板片段稳定渲染键。
- * @returns {string} 渲染键。
- */
-function templateItemRenderKeyCreate(): string {
-  return `template-item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
 
 /**
  * 函数：获取模板片段在总列表中的索引。

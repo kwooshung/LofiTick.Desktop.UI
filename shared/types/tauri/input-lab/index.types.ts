@@ -1,0 +1,397 @@
+/**
+ * 类型：键鼠实验台动作。
+ */
+export type TInputLabAction =
+  | 'current_position'
+  | 'distance_to'
+  | 'move_to'
+  | 'move_by'
+  | 'move_to_rect_random'
+  | 'click'
+  | 'click_current'
+  | 'double_click'
+  | 'right_click'
+  | 'click_rect_random'
+  | 'drag_to'
+  | 'drag_by'
+  | 'drag_rect_to_rect_random'
+  | 'scroll_vertical'
+  | 'scroll_horizontal'
+  | 'idle_random_move'
+  | 'idle_circle'
+  | 'idle_infinity'
+  | 'idle_eight'
+  | 'idle_random_scroll'
+  | 'key_tap'
+  | 'hotkey'
+  | 'type_text'
+  | 'paste_text'
+  | 'random_wait'
+  | 'move_to_area'
+  | 'click_area'
+  | 'double_click_area'
+  | 'right_click_area'
+  | 'drag_area_to_area'
+  | 'type_text_into_area'
+  | 'replace_text_in_area'
+  | 'scroll_vertical_human';
+
+/**
+ * 接口：键鼠实验台点位。
+ */
+export interface IInputLabPoint {
+  /**
+   * X 坐标，单位为物理像素。
+   */
+  x: number;
+
+  /**
+   * Y 坐标，单位为物理像素。
+   */
+  y: number;
+}
+
+/**
+ * 接口：键鼠实验台矩形。
+ */
+export interface IInputLabRect {
+  /**
+   * 左上角 X 坐标，单位为物理像素。
+   */
+  x: number;
+
+  /**
+   * 左上角 Y 坐标，单位为物理像素。
+   */
+  y: number;
+
+  /**
+   * 宽度，单位为物理像素。
+   */
+  width: number;
+
+  /**
+   * 高度，单位为物理像素。
+   */
+  height: number;
+}
+
+/**
+ * 接口：键鼠实验台连续动作步骤。
+ */
+export interface IInputLabStep {
+  /**
+   * 步骤标识。
+   */
+  id: string;
+
+  /**
+   * 步骤名称。
+   */
+  label: string;
+
+  /**
+   * 是否启用。
+   */
+  enabled: boolean;
+
+  /**
+   * 动作名称。
+   */
+  action: TInputLabAction;
+
+  /**
+   * 单点动作目标点。
+   */
+  point?: IInputLabPoint;
+
+  /**
+   * 起点。
+   */
+  from?: IInputLabPoint;
+
+  /**
+   * 终点。
+   */
+  to?: IInputLabPoint;
+
+  /**
+   * 单区域动作目标区域。
+   */
+  rect?: IInputLabRect;
+
+  /**
+   * 起点区域。
+   */
+  fromRect?: IInputLabRect;
+
+  /**
+   * 终点区域。
+   */
+  toRect?: IInputLabRect;
+
+  /**
+   * 文本内容或按键名。
+   */
+  text: string;
+
+  /**
+   * 快捷键按键序列。
+   */
+  keys: string[];
+
+  /**
+   * 步骤专属数值参数。
+   */
+  numbers: Record<string, number>;
+}
+
+/**
+ * 接口：键鼠实验台执行请求。
+ */
+export interface IInputLabExecuteRequest {
+  /**
+   * 动作名称。
+   */
+  action: TInputLabAction;
+
+  /**
+   * 连续动作步骤。
+   */
+  steps: IInputLabStep[];
+
+  /**
+   * 是否仅生成 trace。
+   */
+  dryRun: boolean;
+
+  /**
+   * 数值参数映射。
+   */
+  numbers: Record<string, number>;
+
+  /**
+   * 布尔参数映射。
+   */
+  booleans: Record<string, boolean>;
+
+  /**
+   * 字符串参数映射。
+   */
+  strings: Record<string, string>;
+
+  /**
+   * 单点动作目标点。
+   */
+  point?: IInputLabPoint;
+
+  /**
+   * 起点。
+   */
+  from?: IInputLabPoint;
+
+  /**
+   * 终点。
+   */
+  to?: IInputLabPoint;
+
+  /**
+   * 单区域动作目标区域。
+   */
+  rect?: IInputLabRect;
+
+  /**
+   * 起点区域。
+   */
+  fromRect?: IInputLabRect;
+
+  /**
+   * 终点区域。
+   */
+  toRect?: IInputLabRect;
+
+  /**
+   * 文本内容或按键名。
+   */
+  text: string;
+}
+
+/**
+ * 接口：键鼠实验台 trace 项。
+ */
+export interface IInputLabTraceItem {
+  /**
+   * trace 类型。
+   */
+  kind: string;
+
+  /**
+   * trace 摘要。
+   */
+  summary: string;
+
+  /**
+   * trace 详情。
+   */
+  detail: unknown;
+}
+
+/**
+ * 接口：键鼠实验台执行响应。
+ */
+export interface IInputLabExecuteResponse {
+  /**
+   * 实际执行的动作。
+   */
+  action: TInputLabAction | 'script';
+
+  /**
+   * 是否 dry-run。
+   */
+  dryRun: boolean;
+
+  /**
+   * 执行摘要。
+   */
+  summary: string;
+
+  /**
+   * 动作轨迹。
+   */
+  trace: IInputLabTraceItem[];
+
+  /**
+   * 附加结果。
+   */
+  result: unknown;
+}
+
+/**
+ * 接口：鼠标路径录制启动请求。
+ */
+export interface IInputPathRecordStartRequest {
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制启动响应。
+ */
+export interface IInputPathRecordStartResponse {
+  /**
+   * 是否正在录制。
+   */
+  recording: boolean;
+
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制点。
+ */
+export interface IInputPathRecordPoint {
+  /**
+   * X 坐标，单位物理像素。
+   */
+  x: number;
+
+  /**
+   * Y 坐标，单位物理像素。
+   */
+  y: number;
+
+  /**
+   * 距离录制开始的时间，单位毫秒。
+   */
+  tMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制样本。
+ */
+export interface IInputPathRecordSample {
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+
+  /**
+   * 鼠标路径点。
+   */
+  points: IInputPathRecordPoint[];
+}
+
+/**
+ * 接口：鼠标路径录制分析结果。
+ */
+export interface IInputPathRecordAnalysis {
+  /**
+   * 样本点数量。
+   */
+  pointCount: number;
+
+  /**
+   * 总耗时，单位毫秒。
+   */
+  durationMs: number;
+
+  /**
+   * 包围盒。
+   */
+  bounds: IInputLabRect;
+
+  /**
+   * 路径总长度，单位像素。
+   */
+  totalDistancePx: number;
+
+  /**
+   * 平均速度，单位像素每秒。
+   */
+  averageSpeedPxPerSec: number;
+
+  /**
+   * 原地停留采样点数量。
+   */
+  stillSampleCount: number;
+}
+
+/**
+ * 接口：鼠标路径录制停止响应。
+ */
+export interface IInputPathRecordStopResponse {
+  /**
+   * 是否正在录制。
+   */
+  recording: boolean;
+
+  /**
+   * 录制样本。
+   */
+  sample: IInputPathRecordSample;
+
+  /**
+   * 样本分析。
+   */
+  analysis: IInputPathRecordAnalysis;
+}

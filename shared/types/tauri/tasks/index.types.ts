@@ -112,3 +112,63 @@ export interface ITauriHotsearchScheduleSnapshot {
    */
   windows: ITauriHotsearchScheduleWindow[];
 }
+
+/**
+ * 接口：爬虫浏览器候选。
+ */
+export interface ICrawlerBrowserCandidate {
+  /**
+   * 浏览器稳定标识。
+   */
+  id: string;
+
+  /**
+   * 浏览器展示名称。
+   */
+  name: string;
+
+  /**
+   * 图标类名。
+   */
+  icon: string;
+
+  /**
+   * Playwright channel 名称。
+   */
+  channel: string;
+
+  /**
+   * 可执行文件路径。
+   */
+  executablePath?: string | null;
+
+  /**
+   * 当前系统是否支持。
+   */
+  supported: boolean;
+
+  /**
+   * 当前系统是否已安装。
+   */
+  installed: boolean;
+
+  /**
+   * 是否为推荐默认项。
+   */
+  recommended: boolean;
+
+  /**
+   * 安装入口 URL。
+   */
+  installUrl: string;
+
+  /**
+   * 检测来源。
+   */
+  source: string;
+
+  /**
+   * 状态说明。
+   */
+  reason: string;
+}

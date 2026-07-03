@@ -14,11 +14,11 @@ export const settings = {
       placeholder: 'https://one-panel.lofitick.com/'
     },
     onepanelLinks: {
-      title: '1Panel ナビゲーション一覧',
-      description: 'この一覧はルート URL に合わせて即時更新されます。デスクトップ側では 1Panel の cron 管理画面をもう内蔵しません。',
+      title: '1Panel ナビゲーション',
+      description: 'この一覧はルート URL に合わせて更新されます。デスクトップ側では 1Panel の cron ページを直接ホストしません。',
       currentBase: '現在の 1Panel ルート URL',
       actions: {
-        openCronjobs: '計画タスクを開く',
+        openCronjobs: 'cron ジョブを開く',
         openScriptLibrary: 'スクリプトライブラリを開く'
       }
     }
@@ -94,7 +94,9 @@ export const settings = {
     userDataDirectory: {
       label: 'ユーザーデータの場所',
       description: 'userData フォルダー（設定やキャッシュなど）を開きます。',
-      open: 'フォルダーを開く'
+      open: 'フォルダーを開く',
+      unset: '未設定',
+      notExists: 'ユーザーデータフォルダーが存在しません'
     },
     storage: {
       label: 'データ保存先',
@@ -112,6 +114,45 @@ export const settings = {
     multiOpen: {
       label: '複数起動',
       description: 'アプリを複数同時に起動できるようにします。'
+    }
+  },
+  crawler: {
+    title: 'クローラー',
+    actions: {
+      enterCrawlers: 'クローラーへ移動'
+    },
+    browser: {
+      title: 'ブラウザー一覧',
+      description: '収集時に使うローカルブラウザーを選択します。',
+      runtimeDescriptions: {
+        edge: 'Windows に付属する標準ブラウザーに挙動を合わせたいときに向いている、システム整合性の高い既定クローラー環境です。',
+        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。',
+        chromium: '個人用ブラウザーと分離した状態で収集したいときに向いている、隔離性の高いブラウザー環境です。'
+      },
+      actions: {
+        refresh: '更新',
+        installOfficial: '公式サイトからダウンロードしてインストール'
+      }
+    },
+    browserProfilesDirectory: {
+      label: 'ブラウザープロファイルキャッシュ',
+      description: 'ブラウザープロファイルのディレクトリとパスを固定保存します。',
+      rootDescription: 'Playwright ブラウザープロファイルのパスです。',
+      rootLabel: 'ブラウザーのディレクトリ',
+      edgeDescription: 'Edge のブラウザープロファイル用ディレクトリです。',
+      edgeLabel: 'Edge のディレクトリ',
+      chromeDescription: 'Chrome のブラウザープロファイル用ディレクトリです。',
+      chromeLabel: 'Chrome のディレクトリ',
+      chromiumDescription: 'Chromium のブラウザープロファイル用ディレクトリです。',
+      chromiumLabel: 'Chromium のディレクトリ',
+      clearCache: 'キャッシュを消去',
+      clearConfirmTitle: 'キャッシュを消去しますか？',
+      clearConfirmDescription: 'このディレクトリ内の内容をすべて削除します。',
+      clearSuccess: 'キャッシュを消去しました',
+      clearFailed: 'キャッシュの消去に失敗しました',
+      open: 'フォルダーを開く',
+      unset: '未設定',
+      notExists: 'クローラー用プロファイルフォルダーが存在しません'
     }
   },
   ui: {
@@ -891,7 +932,7 @@ export const settings = {
     title: '無人値守',
     header: {
       description: '無人値守モードおよび心拍監視に関する設定を調整します。',
-      enter: '無人値守ページへ移動'
+      enter: '無人値守モードに入る'
     },
     dialogs: {
       restart: {

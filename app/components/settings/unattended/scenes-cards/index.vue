@@ -16,12 +16,12 @@
         <template #machine-remark-actions>
           <template v-if="remarkEditingGet(machine.machineCode)">
             <UTooltip :text="t('components.sentinel.scenes.card.tooltips.saveRemark')" :content="{ side: 'right' }">
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide-save" :aria-label="t('components.sentinel.scenes.card.tooltips.saveRemark')" @click.stop="handleRemarkSave(machine)" />
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:save" :ui="{ leadingIcon: 'text-muted' }" :aria-label="t('components.sentinel.scenes.card.tooltips.saveRemark')" @click.stop="handleRemarkSave(machine)" />
             </UTooltip>
           </template>
           <template v-else>
             <UTooltip :text="t('components.sentinel.scenes.card.tooltips.editRemark')" :content="{ side: 'right' }">
-              <UButton color="neutral" variant="link" size="sm" icon="i-material-symbols:edit-outline" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:pencil" :ui="{ leadingIcon: 'text-muted' }" :aria-label="t('components.sentinel.scenes.card.tooltips.editRemark')" @click.stop="handleRemarkEditStart(machine)" />
             </UTooltip>
           </template>
         </template>
@@ -30,21 +30,21 @@
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
               <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
-                <UIcon name="i-tabler:layout-grid" class="size-3.5" />
+                <UIcon name="i-lucide:layout-grid" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.scenes') }}</span>
               </div>
               <div class="text-highlighted mt-1 text-center text-lg leading-6 font-semibold">{{ scenesCountTotalGet(machine) }}</div>
             </div>
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
               <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
-                <UIcon name="i-material-symbols:check-circle-outline" class="size-3.5" />
+                <UIcon name="i-lucide:circle-check" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.enabled') }}</span>
               </div>
               <div class="mt-1 text-center text-lg leading-6 font-semibold text-emerald-500">{{ scenesCountEnabledGet(machine) }}</div>
             </div>
             <div class="bg-elevated/58 rounded-md px-2.5 py-2 text-center">
               <div class="text-muted flex items-center justify-center gap-1 text-[11px] leading-4">
-                <UIcon name="i-material-symbols:cancel-outline" class="size-3.5" />
+                <UIcon name="i-lucide:circle-x" class="size-3.5" />
                 <span>{{ t('components.sentinel.scenes.card.stats.disabled') }}</span>
               </div>
               <div class="mt-1 text-center text-lg leading-6 font-semibold text-amber-500">{{ scenesCountDisabledGet(machine) }}</div>
@@ -55,26 +55,26 @@
         <template #footer>
           <div class="flex items-center gap-2">
             <UPopover v-if="!isLocalMachine(machine.machineCode)" arrow :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
-              <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.deleteMachine') }}</UButton>
+              <UButton color="error" variant="soft" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" size="sm">{{ t('components.sentinel.scenes.card.actions.deleteMachine') }}</UButton>
               <template #content="{ close }">
                 <div class="flex flex-col gap-2">
                   <div class="text-highlighted text-sm font-medium">{{ t('components.sentinel.scenes.card.dialogs.deleteMachineTitle') }}</div>
                   <div class="text-muted text-xs break-all">{{ machine.machineName || machine.machineCode || '-' }}</div>
                   <div class="flex items-center justify-end gap-2 pt-1">
-                    <UButton color="neutral" variant="outline" size="xs" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                    <UButton color="error" variant="solid" size="xs" @click="() => handleMachineDeleteConfirm(machine, close)">{{ t('common.actions.confirm') }}</UButton>
+                    <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-muted' }" @click="() => handleMachineDeleteConfirm(machine, close)">{{ t('common.actions.confirm') }}</UButton>
                   </div>
                 </div>
               </template>
             </UPopover>
           </div>
           <div class="flex items-center gap-2">
-            <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
-            <UButton icon="i-lucide:file-text" color="primary" size="sm" :variant="machineLogsExists(machine.machineCode) ? 'soft' : 'outline'" :disabled="!machineLogsExists(machine.machineCode)" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{
+            <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+            <UButton icon="i-lucide:file-text" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" :variant="machineLogsExists(machine.machineCode) ? 'soft' : 'outline'" :disabled="!machineLogsExists(machine.machineCode)" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{
               t('components.sentinel.scenes.card.actions.logs')
             }}</UButton>
-            <UButton icon="i-mdi:network-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
-            <UButton icon="i-material-symbols:info-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
+            <UButton icon="i-lucide:network" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
+            <UButton icon="i-lucide:info" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
           </div>
         </template>
       </SettingsUnattendedMachineCardBase>
@@ -93,7 +93,7 @@
         <SettingsUnattendedScenesMachineDetails :machine="computedActiveMachine" :local-machine-code="localMachineCode" @add="emit('add')" @toggle-enabled="(payload) => emit('toggle-enabled', payload)" @edit="(id) => emit('edit', id)" @delete="(id) => emit('delete', id)" />
       </div>
       <div v-else class="py-6">
-        <UEmpty icon="i-lucide-file" :title="t('components.sentinel.scenes.card.empty.data.title')" :description="t('components.sentinel.scenes.card.empty.data.description')" variant="naked" size="sm" :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }" />
+        <UEmpty icon="i-lucide:file" :title="t('components.sentinel.scenes.card.empty.data.title')" :description="t('components.sentinel.scenes.card.empty.data.description')" variant="naked" size="sm" :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }" />
       </div>
     </template>
   </UModal>

@@ -6,7 +6,7 @@
           <div class="text-highlighted text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.scenes') }}</div>
           <UBadge color="neutral" variant="outline">{{ machine.items.length }}</UBadge>
         </div>
-        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-material-symbols:add-ad-outline-rounded" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
+        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
           {{ t('components.sentinel.scenes.card.actions.addScene') }}
         </UButton>
       </div>
@@ -21,7 +21,7 @@
               </div>
 
               <div class="text-muted flex min-w-0 items-start gap-2 text-xs">
-                <UIcon name="i-material-symbols:terminal-rounded" class="mt-0.5 shrink-0" />
+                <UIcon name="i-lucide:terminal" class="mt-0.5 shrink-0" />
                 <span class="min-w-0 break-all">{{ scenesCommandTextGet(item.execPath, item.args) || '-' }}</span>
               </div>
             </div>
@@ -32,17 +32,17 @@
           </div>
 
           <div v-if="isLocalMachine(machine.machineCode)" class="border-default flex items-center justify-end gap-2 border-t pt-3">
-            <UButton color="primary" variant="outline" icon="i-material-symbols:edit-outline" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
+            <UButton color="primary" variant="outline" icon="i-lucide:pencil" :ui="{ leadingIcon: 'text-muted' }" size="sm" @click="() => emit('edit', String(item.id || ''))">{{ t('components.sentinel.scenes.card.actions.edit') }}</UButton>
 
             <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-56 z-51' }">
-              <UButton color="error" variant="soft" icon="i-lucide:trash-2" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
+              <UButton color="error" variant="soft" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" size="sm">{{ t('components.sentinel.scenes.card.actions.delete') }}</UButton>
               <template #content="{ close }">
                 <div class="flex flex-col gap-2">
                   <div class="text-highlighted text-sm font-medium">{{ t('components.sentinel.scenes.card.dialogs.deleteSceneTitle') }}</div>
                   <div class="text-muted text-xs break-all">{{ String(item.sceneName || '') }}</div>
                   <div class="flex items-center justify-end gap-2 pt-1">
-                    <UButton color="neutral" variant="outline" size="xs" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                    <UButton color="error" variant="solid" size="xs" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
+                    <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-muted' }" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
                   </div>
                 </div>
               </template>
@@ -53,7 +53,7 @@
 
       <div v-else class="ring-default ring-dashed rounded-md px-4 py-5 ring-1">
         <UEmpty
-          icon="i-tabler:layout-grid"
+          icon="i-lucide:layout-grid"
           :title="t('components.sentinel.scenes.card.empty.scenes.title')"
           :description="isLocalMachine(machine.machineCode) ? t('components.sentinel.scenes.card.empty.scenes.localDescription') : t('components.sentinel.scenes.card.empty.scenes.remoteDescription')"
           variant="naked"
@@ -61,7 +61,7 @@
           :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }"
         >
           <template v-if="isLocalMachine(machine.machineCode)" #actions>
-            <UButton icon="i-material-symbols:add-ad-outline-rounded" color="primary" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+            <UButton icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
           </template>
         </UEmpty>
       </div>

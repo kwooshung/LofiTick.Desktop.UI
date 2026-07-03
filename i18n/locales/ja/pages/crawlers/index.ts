@@ -1,233 +1,131 @@
-import { crawler } from '@@/i18n/locales/ja/components/crawler';
-
 export const crawlers = {
   title: 'クローラー',
-  search: {
-    header: {
-      title: 'クローラーを検索',
-      startLabel: 'クリックしてクローラーを検索',
-      conditions: '検索条件が設定されています'
-    },
-    body: {
-      keyword: {
-        placeholder: 'サイト名または説明を検索'
-      },
-      enabled: {
-        placeholder: '有効状態で絞り込む'
-      }
-    }
+  actions: {
+    enterSettingsCrawler: '設定'
   },
   targets: {
-    title: 'サイト',
-    add: 'サイトを追加',
-    edit: 'サイトを編集',
     addTask: 'タスクを追加',
+    edit: '編集',
+    empty: {
+      title: 'クローラー用フォルダがありません',
+      description: '現在表示できるフォルダはありません。'
+    },
     menu: {
-      open: 'サイトを開く',
+      open: '開く',
       copyDomain: 'ドメインをコピー',
-      copyBaseUrl: 'サイトURLをコピー'
-    },
-    empty: {
-      title: '対象サイトがありません',
-      description: 'クローラー対象サイトが追加されていません。上のボタンをクリックして追加してください。'
-    },
-    form: {
-      name: {
-        label: 'サイト名',
-        placeholder: 'サイト名を入力',
-        verify: {
-          required: 'サイト名は必須です',
-          length: 'サイト名は255文字以内で入力してください'
-        }
-      },
-      domain: {
-        label: 'ドメイン',
-        placeholder: 'ドメインを入力（例：weibo.com）',
-        verify: {
-          required: 'ドメインは必須です',
-          length: 'ドメインは255文字以内で入力してください',
-          pattern: 'ドメイン形式が不正です'
-        }
-      },
-      baseUrl: {
-        label: 'ベースURL',
-        placeholder: 'サイトのドメインを入力（例：weibo.com）',
-        verify: {
-          required: 'ベースURLは必須です',
-          length: 'ベースURLは255文字以内です',
-          pattern: 'URL形式が不正です'
-        }
-      },
-      description: {
-        label: '説明',
-        placeholder: '説明を入力'
-      },
-      isEnabled: {
-        label: '有効'
-      },
-      unique: {
-        checking: '一意性を確認中...',
-        domainExists: 'このドメインは既に存在します'
-      }
+      copyBaseUrl: 'ベース URL をコピー'
     }
   },
-  editor: {
-    title: 'クローラーロジック',
-    sidebar: {
-      tabs: {
-        nodes: 'ノード',
-        siteFunctions: 'サイト関数',
-        globalFunctions: 'グローバル関数'
-      },
-      loading: '関数リストを読み込み中',
-      row: {
-        id: 'ID: {id}',
-        reference: '参照 {count}',
-        target: 'サイト #{id}'
-      },
-      empty: {
-        siteMissingTarget: '現在のサイト情報が不足しているため、サイト関数を読み込めません。',
-        siteNoData: '現在のサイトには関数がありません。',
-        globalNoData: 'グローバル関数はまだありません。',
-        defaultDescription: '項目がありません',
-        siteTitle: 'サイト関数がありません',
-        globalTitle: 'グローバル関数がありません',
-        defaultTitle: '項目がありません'
-      },
-      actions: {
-        createSiteFunction: 'サイト関数を作成',
-        createGlobalFunction: 'グローバル関数を作成',
-        editLogic: 'ロジックを編集',
-        edit: '編集',
-        delete: '削除'
-      },
-      editModal: {
-        title: '関数情報を編集',
-        nameLabel: '関数名',
-        namePlaceholder: '関数名を入力してください',
-        descriptionLabel: '説明',
-        descriptionPlaceholder: '関数の説明を入力してください（任意）'
-      },
-      deleteModal: {
-        title: '関数を削除',
-        description: '関数「{name}」を削除してもよろしいですか？この操作は元に戻せません。'
-      },
-      createModal: {
-        titleSite: 'サイト関数を作成',
-        titleGlobal: 'グローバル関数を作成',
-        scopeLabel: 'スコープ',
-        scopeSite: 'サイト関数',
-        scopeGlobal: 'グローバル関数',
-        nameLabel: '関数名',
-        namePlaceholder: '関数名を入力してください',
-        descriptionLabel: '説明',
-        descriptionPlaceholder: '関数の説明を入力してください（任意）',
-        siteTargetRequired: '現在のサイトコンテキストが不足しているため、サイト関数を作成できません。'
-      }
-    },
-    empty: {
-      title: 'キャンバスにまだノードがありません',
-      description: '左側からブループリントノードをキャンバスへドラッグして、クローラーフローを作成してください。'
-    },
-    drag: {
-      title: 'マウスを離すとノードを配置します',
-      description: '現在のブループリントノードはマウス位置に挿入されます。'
-    },
+  task: {
     actions: {
-      restore: 'リセット',
-      zoomIn: '拡大',
-      zoomOut: '縮小',
-      autoLayout: '自動レイアウト',
-      redo: 'やり直し',
-      undo: '元に戻す'
+      execute: 'タスクを実行',
+      pause: 'タスクを一時停止',
+      resume: 'タスクを再開',
+      stop: 'タスクを停止',
+      stopConfirmTitle: '現在のタスクを停止しますか？',
+      stopConfirmDescription: '停止するとクローラーウィンドウを閉じ、実行状態をクリアします。',
+      stopCancel: 'キャンセル',
+      stopConfirm: '停止'
     },
-    draft: {
-      saved: '下書きを自動保存しました'
+    filters: {
+      all: 'すべて'
     },
-    saveFeedback: {
-      blueprintTitle: 'ブループリント保存',
-      title: '関数ロジック保存'
+    footer: {
+      total: '全 {total} 件のタスク'
     },
-    loadSource: {
-      title: 'ロジックパネルの読み込み完了',
-      loading: 'サーバーからロジックを読み込み中…',
-      server: '最新ロジックをサーバーから読み込みました',
-      draft: 'サーバーデータが利用できないため、ローカル下書きを復元しました',
-      default: '利用可能なロジックが見つからないため、既定の空パネルを読み込みました',
-      fallbackRequestFailed: 'サーバーリクエストに失敗したため、ローカルフォールバックを使用しました。',
-      fallbackNoMatchedData: 'サーバー応答が現在の関数に一致しないため、ローカルフォールバックを使用しました。',
-      blueprintSaveSuccess: 'ブループリントをサーバーに保存しました',
-      blueprintSaveFailed: 'ブループリントの保存に失敗しました',
-      blueprintSaveFailedWithCode: 'ブループリントの保存に失敗しました（{code}）',
-      blueprintSaveFailedWithCodeAndMessage: 'ブループリントの保存に失敗しました（{code}：{message}）',
-      persistMismatch: '保存は送信されましたが、サーバー再取得結果がローカルのピンデータと一致しません。再試行またはバックエンドログを確認してください。',
-      saveSuccess: '関数ロジックをサーバーに保存しました',
-      saveFailed: '関数ロジックの保存に失敗しました',
-      saveFailedWithCode: '関数ロジックの保存に失敗しました（{code}）',
-      saveEchoMissing: '保存は送信されましたが、最新の関数詳細を再読み込みできませんでした'
-    }
-  },
-  executions: {
-    title: '実行記録',
+    progress: {
+      indeterminate: '計算中',
+      percent: '{value}%'
+    },
     status: {
       pending: '待機中',
-      running: '実行中',
-      success: '成功',
+      resolving: '解析中',
+      crawling: 'クロール中',
+      downloading: 'ダウンロード中',
+      paused: '一時停止',
+      completed: '完了',
       failed: '失敗',
       stopped: '停止済み'
     },
-    duration: '所要時間 {ms}ms',
-    records: '{count} 件を取得',
-    empty: {
-      title: '実行記録がありません',
-      description: 'まだ実行記録がありません'
-    }
-  },
-  blueprints: {
-    empty: {
-      title: 'クローラーがありません',
-      description: 'このサイトにはまだクローラーがありません。右上の「タスクを追加」から作成してください。'
-    },
-    parameters: {
-      title: '実行パラメータを設定',
-      description: '今回の実行ではここで入力した値を使用し、ブループリントの既定値は自動では上書きしません。',
-      fields: {
-        stringPlaceholder: '今回の実行で使う値を入力',
-        jsonPlaceholder: '有効な JSON を入力',
-        jsonInvalid: 'JSON 形式またはデータ型が正しくありません',
-        description: 'パラメータ ID：{id} · 型：{type}'
-      },
-      actions: {
-        execute: '現在の値で実行',
-        saveDefaultAndExecute: '現在の値を既定値として保存して実行'
-      }
-    },
     table: {
-      name: '名称',
-      description: '説明',
-      status: '実行状態',
-      lastRunAt: '最終実行'
+      task: 'タスク',
+      name: '名前',
+      status: '状態',
+      progress: '進捗',
+      transfer: '転送',
+      speed: '速度',
+      size: 'サイズ',
+      downloaded: '転送済み',
+      time: '時間',
+      elapsed: '経過時間',
+      remaining: '残り時間',
+      items: '項目',
+      updatedAt: '更新日時',
+      actions: '操作'
     },
-    actions: {
-      execute: '実行',
-      pause: '一時停止',
-      stop: '停止',
-      deleteConfirm: 'クローラー「{name}」を削除しますか？この操作は取り消せません。',
-      runSuccess: '実行を開始しました。現在実行中です。',
-      stopSuccess: '今回の実行を停止しました。',
-      runFailed: '実行の開始に失敗しました。しばらくしてから再試行してください。',
-      deleteSuccess: '削除しました。',
-      deleteFailed: '削除に失敗しました。しばらくしてから再試行してください。'
+    unsupported: {
+      name: '不明なクローラー',
+      title: 'このクローラーはまだ対応していません',
+      description: 'このサイトのクローラーコンソールはまだ接続されていません。'
     }
   },
   spider: {
     title: 'スパイダー',
     websites: {
       pixabay: {
-        title: 'Pixabay',
-        music: '音楽'
+        name: 'Pixabay',
+        page: {
+          description: 'Pixabay のクロールタスク、実行モード、収集結果を管理します。',
+          actions: {
+            create: 'クロールを作成'
+          },
+          tasks: {
+            empty: {
+              title: 'Pixabay タスクはまだありません',
+              description: '現在 Pixabay のクロールタスクはありません。今後ここにタスク一覧を表示します。'
+            }
+          }
+        },
+        dialog: {
+          title: 'Pixabay のURLを選択',
+          description: 'まずキーワードを入力し、必要ならページ番号を追加すると、下に最終URLを表示します。',
+          keywordLabel: 'キーワード',
+          keywordPlaceholder: 'キーワードを入力',
+          keywordPreview: 'キーワード',
+          pageLabel: 'ページ',
+          typeLabel: 'URL',
+          urlLabel: 'URL プレビュー',
+          submit: '確定',
+          cancel: 'キャンセル',
+          types: {
+            photos: '画像：写真',
+            illustrations: '画像：イラスト',
+            vectors: '画像：ベクター',
+            videos: '動画：動画',
+            gifs: 'GIF：GIF',
+            threeDModels: '画像：3D モデル',
+            music: '音声：音楽',
+            soundEffects: '音声：効果音'
+          }
+        }
+      },
+      suno: {
+        name: 'Suno',
+        dialog: {
+          title: 'Suno タスクを実行',
+          description: 'Suno タスクの実行設定はまだ接続されていません。今後ここに表示します。',
+          close: '閉じる'
+        },
+        page: {
+          description: 'Suno のクロールタスク、実行モード、収集結果を管理します。',
+          tasks: {
+            empty: {
+              title: 'Suno タスクはまだありません',
+              description: '現在 Suno のクロールタスクはありません。今後ここにタスク一覧を表示します。'
+            }
+          }
+        }
       }
     }
-  },
-  blueprint: crawler.blueprint
+  }
 };

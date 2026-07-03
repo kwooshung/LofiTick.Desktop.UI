@@ -91,19 +91,19 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },
   {
     label: t('pages.settings.power.title'),
-    icon: 'i-carbon:flash',
+    icon: 'i-lucide:zap',
     to: localePath('/settings/power')
   }
 ];
@@ -112,9 +112,9 @@ storeBreadcrumb.states = [
  * 选项：阻止休眠
  */
 const powerOptions = [
-  { icon: 'i-mdi:sleep', label: t('pages.settings.power.options.never'), value: 'never' },
-  { icon: 'i-mdi:sleep-off', label: t('pages.settings.power.options.always'), value: 'always' },
-  { icon: 'i-mdi:spider-outline', label: t('pages.settings.power.options.crawling'), value: 'crawling' },
+  { icon: 'i-lucide:moon', label: t('pages.settings.power.options.never'), value: 'never' },
+  { icon: 'i-lucide:shield-ban', label: t('pages.settings.power.options.always'), value: 'always' },
+  { icon: 'i-lucide:bot', label: t('pages.settings.power.options.crawling'), value: 'crawling' },
   { icon: 'i-lucide:play', label: t('pages.settings.power.options.playing'), value: 'playing' }
 ];
 
@@ -126,7 +126,7 @@ const computedSystemIcon = computed(() => {
    * 常量：option。
    */
   const option = powerOptions.find((o) => o.value === storePower.states.policy.system);
-  return option ? option.icon : 'i-mdi:sleep';
+  return option ? option.icon : 'i-lucide:moon';
 });
 
 /**
@@ -137,7 +137,7 @@ const computedDisplayIcon = computed(() => {
    * 常量：option。
    */
   const option = powerOptions.find((o) => o.value === storePower.states.policy.display);
-  return option ? option.icon : 'i-mdi:sleep';
+  return option ? option.icon : 'i-lucide:moon';
 });
 
 /**

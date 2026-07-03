@@ -53,8 +53,8 @@
 
         <template #footer>
           <div class="flex w-full items-center justify-end gap-2">
-            <UButton icon="i-mdi:network-outline" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
-            <UButton icon="i-lucide:file-text" color="primary" size="sm" variant="soft" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.logs') }}</UButton>
+            <UButton icon="i-lucide:network" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
+            <UButton icon="i-lucide:file-text" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="soft" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.logs') }}</UButton>
           </div>
         </template>
       </SettingsUnattendedMachineCardBase>

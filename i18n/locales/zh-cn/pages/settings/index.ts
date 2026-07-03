@@ -94,7 +94,9 @@
     userDataDirectory: {
       label: '用户目录',
       description: '打开应用的 userData 目录（用户配置、缓存等）',
-      open: '打开目录'
+      open: '打开目录',
+      unset: '未设置',
+      notExists: '用户目录不存在'
     },
     storage: {
       label: '数据存放目录',
@@ -114,9 +116,47 @@
       description: '允许同时运行多个应用实例'
     }
   },
+  crawler: {
+    title: '爬虫',
+    actions: {
+      enterCrawlers: '前往爬虫'
+    },
+    browser: {
+      title: '浏览器',
+      description: '选择采集时使用的本机浏览器。',
+      runtimeDescriptions: {
+        edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
+        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。',
+        chromium: '适合需要隔离浏览器资料的任务，便于把采集环境和个人浏览器环境分开。'
+      },
+      actions: {
+        refresh: '刷新',
+        installOfficial: '前往官网下载并安装'
+      }
+    },
+    browserProfilesDirectory: {
+      label: '浏览器资料缓存',
+      description: '浏览器资料目录和路径都固定在这里。',
+      rootDescription: 'Playwright 浏览器资料的路径。',
+      rootLabel: '浏览器目录',
+      edgeDescription: 'Edge 的浏览器资料目录。',
+      edgeLabel: 'Edge 目录',
+      chromeDescription: 'Chrome 的浏览器资料目录。',
+      chromeLabel: 'Chrome 目录',
+      chromiumDescription: 'Chromium 的浏览器资料目录。',
+      chromiumLabel: 'Chromium 目录',
+      clearCache: '清空缓存',
+      clearConfirmTitle: '确认清空缓存？',
+      clearConfirmDescription: '这会删除该目录下的所有内容。',
+      clearSuccess: '缓存已清空',
+      clearFailed: '清空缓存失败',
+      open: '打开目录',
+      unset: '未设置',
+      notExists: '爬虫资料目录不存在'
+    }
+  },
   ui: {
     title: '界面',
-    description: '主题、深浅色模式、布局与界面元素显示相关的选项',
     colorMode: {
       label: '颜色模式',
       description: '外观是浅色还是深色，或者按照计算机的设置进行调整',
@@ -897,7 +937,7 @@
     title: '无人值守',
     header: {
       description: '调整无人值守模式下和心跳检测相关的设置',
-      enter: '前往无人值守页面'
+      enter: '进入无人值守模式'
     },
     dialogs: {
       restart: {

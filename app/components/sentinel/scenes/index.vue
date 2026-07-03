@@ -51,7 +51,6 @@ import { z } from 'zod';
 
 import type { ISentinelScenesConfigEmits, ISentinelScenesConfigExpose, ISentinelScenesConfigFormState, ISentinelScenesConfigProps, ISentinelScenesConfigValidateErrors, TSentinelScenesConfigValidateResult, TSentinelScenesConfigValues } from '@/components/sentinel/scenes/index.types';
 
-
 /**
  * 函数：执行校验
  * @param {boolean} touched 是否标记为已触发校验（用于展示错误）

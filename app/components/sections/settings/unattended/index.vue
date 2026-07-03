@@ -96,10 +96,10 @@
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.sentinel.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.sentinel.description') }}</div>
         </div>
-        <UButton color="primary" variant="soft" icon="i-mdi:cloud-refresh-variant-outline" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
-        <UButton color="primary" variant="soft" icon="i-mdi:reload" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
+        <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
+        <UButton color="primary" variant="soft" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
         <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'p-4 w-80' }">
-          <UButton color="primary" variant="outline" icon="i-lucide:calculator">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
+          <UButton color="primary" variant="outline" icon="i-lucide:calculator" :ui="{ leadingIcon: 'text-primary' }">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
 
           <template #content>
             <ReuseAnalysisDurationPopoverContent :analysis="computedSentinelAnalysis" />
@@ -135,7 +135,7 @@
             </div>
             <label for="scenesOnlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.unattended.sections.scenes.form.onlineWindow.unit') }}</label>
           </div>
-          <UButton color="primary" variant="soft" icon="i-mdi:compare-horizontal" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
+          <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
         </div>
       </template>
     </UPageCard>
@@ -172,8 +172,8 @@
 
       <template #footer>
         <div class="mx-auto flex h-12 w-5/6 items-center justify-end gap-2">
-          <UButton type="button" color="neutral" variant="outline" @click="stateScenesDrawerOpen = false">{{ t('common.actions.cancel') }}</UButton>
-          <UButton type="button" icon="i-lucide-save" color="primary" :disabled="!stateScenesFormValid" @click="handleScenesFooterSave">{{ t('common.actions.save') }}</UButton>
+          <UButton type="button" color="neutral" variant="outline" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="stateScenesDrawerOpen = false">{{ t('common.actions.cancel') }}</UButton>
+          <UButton type="button" icon="i-lucide:save" color="primary" :ui="{ leadingIcon: 'text-white' }" :disabled="!stateScenesFormValid" @click="handleScenesFooterSave">{{ t('common.actions.save') }}</UButton>
         </div>
       </template>
     </UDrawer>
@@ -1782,7 +1782,7 @@ const handleScenesMachineRemarkUpdate = async (payload: { machineName: string; m
   toast.add({
     description: t('components.sentinel.scenes.card.toast.machineRemarkSaved'),
     color: 'success',
-    icon: 'i-lucide-save',
+    icon: 'i-lucide:save',
     duration: 1500,
     type: 'foreground',
     close: false
@@ -1854,7 +1854,7 @@ const handleScenesMachineDelete = async (payload: { machineName: string; machine
   toast.add({
     description: t('components.sentinel.scenes.card.toast.machineDeleted'),
     color: 'success',
-    icon: 'i-lucide-trash-2',
+    icon: 'i-lucide:trash-2',
     duration: 1500,
     type: 'foreground',
     close: false
@@ -2119,13 +2119,13 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

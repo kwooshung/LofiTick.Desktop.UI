@@ -1,12 +1,11 @@
 allowBuilds:
-  '@parcel/watcher': true
-  core-js: true
-  esbuild: true
-  maplibre-gl: true
-  rete: set this to true or false
-  sharp: true
-  unrs-resolver: true
-  vue-demi: true
+  '@parcel/watcher': set this to true or false
+  core-js: set this to true or false
+  esbuild: set this to true or false
+  maplibre-gl: set this to true or false
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false
+  vue-demi: set this to true or false
 minimumReleaseAgeExclude:
   - '@internationalized/date@3.12.2'
   - '@nuxt/ui@4.8.1'

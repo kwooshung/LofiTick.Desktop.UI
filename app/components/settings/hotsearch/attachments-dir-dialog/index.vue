@@ -2,10 +2,10 @@
   <UModal :open="open" :title="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.title')" :description="t('pages.settings.hotsearch.dialogs.attachmentsDirRequired.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }" @update:open="eventUpdateOpen">
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
-        <UButton color="neutral" variant="ghost" @click="eventUpdateOpen(false)">
+        <UButton color="neutral" variant="ghost" icon="i-lucide:x" @click="eventUpdateOpen(false)">
           {{ t('common.actions.cancel') }}
         </UButton>
-        <UButton color="primary" :loading="stateSelecting" @click="eventSelectPath">
+        <UButton color="primary" icon="i-lucide:folder-search" :loading="stateSelecting" @click="eventSelectPath">
           {{ t('pages.settings.hotsearch.headMusicActions.chooseAttachmentsDir') }}
         </UButton>
       </div>

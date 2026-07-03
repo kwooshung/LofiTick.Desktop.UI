@@ -88,6 +88,33 @@ const route = useRoute();
 const localePath = useLocalePath();
 
 /**
+ * 函数：归一化热搜广告平台键。
+ *
+ * 仅保留当前广告投放筛选可用的平台键，其他值统一回退为空。
+ *
+ * # Arguments
+ *
+ * * `value` - 路由查询或表单输入中的平台值。
+ *
+ * # Returns
+ *
+ * 返回可用于 `USelect` 的平台键，非法值返回 `null`。
+ */
+const normalizeHotsearchPlatformKey = (value: unknown): Exclude<THotsearchMediaPlatformKey, 'general'> | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalizedValue = value.trim();
+  if (normalizedValue === '') {
+    return null;
+  }
+
+  const allowedKeys = hotsearchAdDeliveryPlatformOptionsGet().map((item) => item.key);
+  return allowedKeys.includes(normalizedValue as (typeof allowedKeys)[number]) ? (normalizedValue as Exclude<THotsearchMediaPlatformKey, 'general'>) : null;
+};
+
+/**
  * 状态：关键词。
  */
 const stateKeyword = ref(typeof route.query.keyword === 'string' ? route.query.keyword : '');
@@ -105,7 +132,7 @@ const stateEditionScope = ref(typeof route.query.editionScope === 'string' ? rou
 /**
  * 状态：平台筛选。
  */
-const statePlatform = ref(typeof route.query.platform === 'string' ? route.query.platform : null);
+const statePlatform = ref<Exclude<THotsearchMediaPlatformKey, 'general'> | null>(normalizeHotsearchPlatformKey(route.query.platform));
 
 /**
  * 状态：启用状态。
@@ -148,7 +175,7 @@ const computedActiveFilterCount = computed(() => {
     count += 1;
   }
 
-  if (statePlatform.value && statePlatform.value !== '') {
+  if (statePlatform.value !== null) {
     count += 1;
   }
 
@@ -255,7 +282,7 @@ const handleFiltersApply = () => {
     nextQuery.editionScope = stateEditionScope.value;
   }
 
-  if (statePlatform.value && statePlatform.value !== '') {
+  if (statePlatform.value !== null) {
     nextQuery.platform = statePlatform.value;
   }
 
@@ -316,7 +343,7 @@ watch(
     stateKeyword.value = typeof route.query.keyword === 'string' ? route.query.keyword : '';
     stateEditionScope.value = typeof route.query.editionScope === 'string' ? route.query.editionScope : EDITION_SCOPE_ALL_VALUE;
     stateEnabled.value = typeof route.query.enabled === 'string' ? route.query.enabled : ENABLED_ALL_VALUE;
-    statePlatform.value = typeof route.query.platform === 'string' ? route.query.platform : null;
+    statePlatform.value = normalizeHotsearchPlatformKey(route.query.platform);
   }
 );
 
