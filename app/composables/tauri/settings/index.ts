@@ -86,6 +86,19 @@ interface ITauriCrawlerBrowserProfilesDirInfo {
   exists: boolean;
 }
 
+/**
+ * 接口：爬虫浏览器资料目录体积。
+ */
+interface ITauriCrawlerBrowserProfilesDirSizeInfo {
+  /** 目录占用字节数。 */
+  sizeBytes: number;
+}
+
+/**
+ * 类型：爬虫浏览器资料目录范围。
+ */
+type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome' | 'chromium';
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -136,6 +149,25 @@ export const useTauriSettings = () => {
    */
   const crawlerBrowserProfilesDirGet = async (): Promise<ITauriCrawlerBrowserProfilesDirInfo> => {
     return invoke<ITauriCrawlerBrowserProfilesDirInfo>('settings_crawler_browser_profiles_dir_get');
+  };
+
+  /**
+   * 函数：获取爬虫浏览器资料目录占用体积。
+   * @param {TCrawlerBrowserProfilesDirScope} scope 目录范围。
+   * @returns {Promise<number>} 目录占用字节数。
+   */
+  const crawlerBrowserProfilesDirSizeGet = async (scope: TCrawlerBrowserProfilesDirScope): Promise<number> => {
+    const result = await invoke<ITauriCrawlerBrowserProfilesDirSizeInfo>('settings_crawler_browser_profiles_dir_size_get', { scope });
+    return result.sizeBytes;
+  };
+
+  /**
+   * 函数：清空爬虫浏览器资料目录缓存。
+   * @param {TCrawlerBrowserProfilesDirScope} scope 目录范围。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserProfilesDirClear = async (scope: TCrawlerBrowserProfilesDirScope): Promise<void> => {
+    await invoke('settings_crawler_browser_profiles_dir_clear', { scope });
   };
 
   /**
@@ -262,6 +294,8 @@ export const useTauriSettings = () => {
     update,
     setAttachmentsDir,
     crawlerBrowserProfilesDirGet,
+    crawlerBrowserProfilesDirSizeGet,
+    crawlerBrowserProfilesDirClear,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

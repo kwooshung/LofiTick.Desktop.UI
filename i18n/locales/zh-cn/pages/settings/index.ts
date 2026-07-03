@@ -122,7 +122,7 @@
       enterCrawlers: '前往爬虫'
     },
     browser: {
-      title: '浏览器列表',
+      title: '浏览器',
       description: '选择采集时使用的本机浏览器。',
       runtimeDescriptions: {
         edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
@@ -136,15 +136,20 @@
     },
     browserProfilesDirectory: {
       label: '浏览器资料缓存',
-      description: '浏览器资料根目录与子目录都固定在这里。',
-      rootDescription: 'Playwright 浏览器资料的根路径。',
-      rootLabel: '浏览器根目录',
-      edgeDescription: 'Edge 的浏览器资料子目录。',
-      edgeLabel: 'Edge 子目录',
-      chromeDescription: 'Chrome 的浏览器资料子目录。',
-      chromeLabel: 'Chrome 子目录',
-      chromiumDescription: 'Chromium 的浏览器资料子目录。',
-      chromiumLabel: 'Chromium 子目录',
+      description: '浏览器资料目录和路径都固定在这里。',
+      rootDescription: 'Playwright 浏览器资料的路径。',
+      rootLabel: '浏览器目录',
+      edgeDescription: 'Edge 的浏览器资料目录。',
+      edgeLabel: 'Edge 目录',
+      chromeDescription: 'Chrome 的浏览器资料目录。',
+      chromeLabel: 'Chrome 目录',
+      chromiumDescription: 'Chromium 的浏览器资料目录。',
+      chromiumLabel: 'Chromium 目录',
+      clearCache: '清空缓存',
+      clearConfirmTitle: '确认清空缓存？',
+      clearConfirmDescription: '这会删除该目录下的所有内容。',
+      clearSuccess: '缓存已清空',
+      clearFailed: '清空缓存失败',
       open: '打开目录',
       unset: '未设置',
       notExists: '爬虫资料目录不存在'
