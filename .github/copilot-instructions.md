@@ -51,8 +51,8 @@
 ### 1.2 必须先读配置（强制）
 
 - 项目文档导航：[README.md](../README.md)
-- 强制：在判断项目已实现能力、页面边界、桌面集成范围与是否需要新增实现前，必须优先阅读根目录 `README.md`；若根目录暂不存在 `README.md`，则按 `package.json` -> [configs/nuxt/index.ts](../configs/nuxt/index.ts) -> `configs/nuxt/modules.ts` 的顺序补足项目能力认知，禁止跳过这条检查链直接凭经验下结论。
-- 任何操作前，必须优先阅读 `package.json`，不要猜依赖、不要靠经验拍脑袋。
+- 强制：在判断项目已实现能力、页面边界、桌面集成范围与是否需要新增实现前，必须优先阅读根目录 `README.md`；若根目录暂不存在 `README.md`，则按 `package.json` -> `pnpm-lock.yaml` -> [configs/nuxt/index.ts](../configs/nuxt/index.ts) -> `configs/nuxt/modules.ts` 的顺序补足项目能力认知，禁止跳过这条检查链直接凭经验下结论。
+- 任何操作前，必须优先阅读 `package.json` 与 `pnpm-lock.yaml`，不要猜依赖、不要靠经验拍脑袋。
 - 特别是 [configs/nuxt/index.ts](../configs/nuxt/index.ts)、`configs/nuxt/modules.ts` 必须先仔细阅读，避免误解现有配置。
 
 ### 1.3 安装依赖（强制）
@@ -126,7 +126,7 @@
 ### 3.3 实现优先级（强制）
 
 - 强制：在实现任何功能、页面、组件、composable、store、shared type、工具函数或 API 封装之前，必须先检查仓库内是否已经存在可复用的"轮子"（包括但不限于：`app/components/**`、`app/composables/**`、`app/stores/**`、`app/types/**`、`shared/**`、现有 Nuxt auto-import 项、现有 Tauri 封装与现有 API composable）。
-- 强制：只要现有实现能够满足当前需求或经小范围扩展即可满足，就必须优先复用；禁止复制粘贴近似逻辑、平行新增重复组件/重复 composable/重复工具函数，或为已有能力再造一层语义重复的封装。
+- 强制：只要现有实现能够满足当前需求或经小范围扩展即可满足，就必须优先复用；只要现有依赖已经能直接覆盖需求，就必须优先用依赖实现，禁止复制粘贴近似逻辑、平行新增重复组件/重复 composable/重复工具函数，或为已有能力再造一层语义重复的封装。
 - 强制：只要某段实现已经在 2 处及以上出现，并且提取为共享实现后的收益不低于分散维护成本，就必须收敛为共享能力；禁止明知重复仍继续铺开第二套、第三套实现。
 - 强制：若判断必须新增实现，必须先确认并说明现有轮子为何不适用（职责边界不符、运行环境不符、类型约束不符、交互语义不同、性能或可维护性原因等）；不能说明清楚时，默认视为必须复用现有实现。
 - 能用 `es-toolkit` 一定要优先使用，避免冗余代码：
