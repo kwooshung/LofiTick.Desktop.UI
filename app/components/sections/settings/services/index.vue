@@ -44,7 +44,7 @@
                   variant="link"
                   size="sm"
                   :icon="stateVolcSpeechAccessTokenVisible ? 'i-lucide:eye' : 'i-lucide:eye-off'"
-                  :ui="{ leadingIcon: stateVolcSpeechAccessTokenVisible ? 'text-muted transition-transform duration-200' : 'text-muted rotate-180 transition-transform duration-200' }"
+                  :ui="{ leadingIcon: stateVolcSpeechAccessTokenVisible ? 'text-primary transition-transform duration-200' : 'text-primary rotate-180 transition-transform duration-200' }"
                   :aria-label="stateVolcSpeechAccessTokenVisible ? t('pages.settings.services.actions.hideAccessToken') : t('pages.settings.services.actions.showAccessToken')"
                   :aria-pressed="stateVolcSpeechAccessTokenVisible"
                   aria-controls="volc-speech-access-token"
@@ -65,7 +65,7 @@
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechResourceIdValue" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" @click="handleResetVolcSpeechResourceId">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechResourceId">
                 {{ t('pages.settings.services.actions.resetDefaultResourceId') }}
               </UButton>
             </template>
@@ -86,7 +86,7 @@
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechMaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.maleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" @click="handleResetVolcSpeechMaleSpeakerCode">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechMaleSpeakerCode">
                 {{ t('pages.settings.services.actions.resetDefaultMaleSpeakerCode') }}
               </UButton>
             </template>
@@ -107,7 +107,7 @@
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechFemaleSpeakerCodeValue" :placeholder="t('pages.settings.services.volcSpeech.femaleSpeakerCode.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
             <template #trailing>
-              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" @click="handleResetVolcSpeechFemaleSpeakerCode">
+              <UButton color="neutral" variant="link" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-warning' }" @click="handleResetVolcSpeechFemaleSpeakerCode">
                 {{ t('pages.settings.services.actions.resetDefaultFemaleSpeakerCode') }}
               </UButton>
             </template>

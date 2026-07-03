@@ -37,7 +37,7 @@
         <USwitch v-model="stateRememberWindowStateValue" @update:model-value="handleChangeRememberWindowState" />
       </UFormField>
       <UFormField :label="t('pages.settings.general.appDirectory.label')" :description="t('pages.settings.general.appDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
       </UFormField>
       <UFormField :label="t('pages.settings.general.userDataDirectory.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
@@ -49,7 +49,7 @@
             <span v-else class="text-error">{{ t('pages.settings.general.userDataDirectory.unset') }}</span>
           </div>
         </template>
-        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
       </UFormField>
       <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.storage.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
@@ -64,13 +64,13 @@
           </div>
         </template>
         <div class="flex items-center gap-2">
-          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" icon="i-lucide:folder-search" :ui="{ leadingIcon: 'text-muted' }" :loading="stateSelectingStorage" @click="handleSelectStorage">
+          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" icon="i-lucide:folder-search" :ui="{ leadingIcon: stateSelectingStorage ? 'text-primary' : 'text-primary' }" :loading="stateSelectingStorage" @click="handleSelectStorage">
             {{ stateStoragePath ? t('pages.settings.general.storage.reselect') : t('pages.settings.general.storage.choose') }}
           </UButton>
         </div>
       </UFormField>
       <UFormField :label="t('pages.settings.general.devtools.label')" :description="t('pages.settings.general.devtools.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" icon="i-lucide:bug" :ui="{ leadingIcon: 'text-muted' }" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:bug" :ui="{ leadingIcon: 'text-warning' }" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
       </UFormField>
     </UPageCard>
   </DashboardPage>

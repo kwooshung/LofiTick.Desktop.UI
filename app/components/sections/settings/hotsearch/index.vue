@@ -113,7 +113,7 @@
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.schedule.description') }}</p>
         </div>
 
-        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
+        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-primary' }" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
           {{ t('pages.settings.hotsearch.actions.reset') }}
         </UButton>
       </template>

@@ -96,10 +96,10 @@
           <div class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.unattended.sections.sentinel.title') }}</div>
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.sections.sentinel.description') }}</div>
         </div>
-        <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
-        <UButton color="primary" variant="soft" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
+        <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleSentinelSync">{{ t('pages.settings.unattended.sections.sentinel.actions.sync') }}</UButton>
+        <UButton color="primary" variant="soft" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleSentinelResetToDefaults">{{ t('pages.settings.unattended.sections.sentinel.actions.reset') }}</UButton>
         <UPopover arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'p-4 w-80' }">
-          <UButton color="primary" variant="outline" icon="i-lucide:calculator" :ui="{ leadingIcon: 'text-muted' }">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
+          <UButton color="primary" variant="outline" icon="i-lucide:calculator" :ui="{ leadingIcon: 'text-primary' }">{{ t('pages.settings.unattended.analysis.button') }}</UButton>
 
           <template #content>
             <ReuseAnalysisDurationPopoverContent :analysis="computedSentinelAnalysis" />
@@ -135,7 +135,7 @@
             </div>
             <label for="scenesOnlineWindowSeconds" class="bg-elevated/50 border-accented text-muted flex h-8 items-center rounded-r-sm border border-l-0 px-2 py-0 text-xs whitespace-nowrap">{{ t('pages.settings.unattended.sections.scenes.form.onlineWindow.unit') }}</label>
           </div>
-          <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
+          <UButton color="primary" variant="soft" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" loading-auto @click="handleScenesSyncOpen">{{ t('components.sentinel.scenes.sync.actions.open') }}</UButton>
         </div>
       </template>
     </UPageCard>
@@ -172,8 +172,8 @@
 
       <template #footer>
         <div class="mx-auto flex h-12 w-5/6 items-center justify-end gap-2">
-          <UButton type="button" color="neutral" variant="outline" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="stateScenesDrawerOpen = false">{{ t('common.actions.cancel') }}</UButton>
-          <UButton type="button" icon="i-lucide:save" color="primary" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateScenesFormValid" @click="handleScenesFooterSave">{{ t('common.actions.save') }}</UButton>
+          <UButton type="button" color="neutral" variant="outline" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="stateScenesDrawerOpen = false">{{ t('common.actions.cancel') }}</UButton>
+          <UButton type="button" icon="i-lucide:save" color="primary" :ui="{ leadingIcon: 'text-white' }" :disabled="!stateScenesFormValid" @click="handleScenesFooterSave">{{ t('common.actions.save') }}</UButton>
         </div>
       </template>
     </UDrawer>

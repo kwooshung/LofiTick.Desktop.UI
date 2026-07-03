@@ -23,10 +23,10 @@
         </template>
         <USwitch v-if="crawlerBrowserCandidateGet('msedge').installed" :model-value="stateCrawlerBrowserSelectedId === 'msedge'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('msedge'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('msedge'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
@@ -40,10 +40,10 @@
         </template>
         <USwitch v-if="crawlerBrowserCandidateGet('chrome').installed" :model-value="stateCrawlerBrowserSelectedId === 'chrome'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
@@ -57,10 +57,10 @@
         </template>
         <USwitch v-if="crawlerBrowserCandidateGet('chromium').installed" :model-value="stateCrawlerBrowserSelectedId === 'chromium'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chromium'), on)" />
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
@@ -96,7 +96,7 @@
         </template>
         <div class="flex items-center gap-2">
           <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'root'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('root', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesRootPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
+            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesRootPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
               {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
             </UButton>
             <template #content="{ close }">
@@ -105,13 +105,13 @@
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesRootPath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-muted' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('root', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('root', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesRootPath" @click="handleOpenCrawlerBrowserProfilesRoot">
+          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesRootPath" @click="handleOpenCrawlerBrowserProfilesRoot">
             {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
           </UButton>
         </div>
@@ -136,7 +136,7 @@
         </template>
         <div class="flex items-center gap-2">
           <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'edge'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('edge', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesEdgePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
+            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesEdgePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
               {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
             </UButton>
             <template #content="{ close }">
@@ -145,13 +145,13 @@
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesEdgePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('edge', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('edge', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesEdgePath" @click="handleOpenCrawlerBrowserProfilesEdge">
+          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesEdgePath" @click="handleOpenCrawlerBrowserProfilesEdge">
             {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
           </UButton>
         </div>
@@ -176,7 +176,7 @@
         </template>
         <div class="flex items-center gap-2">
           <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chrome'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chrome', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesChromePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
+            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
               {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
             </UButton>
             <template #content="{ close }">
@@ -185,13 +185,13 @@
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chrome', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chrome', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesChromePath" @click="handleOpenCrawlerBrowserProfilesChrome">
+          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromePath" @click="handleOpenCrawlerBrowserProfilesChrome">
             {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
           </UButton>
         </div>
@@ -216,7 +216,7 @@
         </template>
         <div class="flex items-center gap-2">
           <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chromium'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chromium', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
+            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
               {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
             </UButton>
             <template #content="{ close }">
@@ -225,13 +225,13 @@
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromiumPath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath" @click="handleOpenCrawlerBrowserProfilesChromium">
+          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath" @click="handleOpenCrawlerBrowserProfilesChromium">
             {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
           </UButton>
         </div>
