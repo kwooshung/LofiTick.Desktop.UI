@@ -1311,11 +1311,12 @@ const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessag
     }
   }
 
-  stateUpyunObjectUrl.value = undefined;
   await refreshUpyunObjectUrlGet({
     query,
     ...HOTSEARCH_HEAD_MUSIC_UPYUN_SILENT_OPTIONS
   });
+
+  ensureInternalUseApiSucceeded(stateUpyunObjectUrlError.value, errorMessage);
 
   /**
    * 常量：url。
@@ -1326,7 +1327,6 @@ const requestUpyunObjectUrl = async (query: Record<string, unknown>, errorMessag
     return url;
   }
 
-  ensureInternalUseApiSucceeded(stateUpyunObjectUrlError.value, errorMessage);
   throw new Error(errorMessage);
 };
 
