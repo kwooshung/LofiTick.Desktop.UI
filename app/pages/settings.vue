@@ -48,7 +48,7 @@ const links = [
     },
     {
       label: t('pages.settings.hotsearch.title'),
-      icon: 'i-lucide:flame',
+      icon: 'i-material-symbols:bigtop-updates-rounded',
       to: localePath('/settings/hotsearch')
     },
     {
@@ -73,7 +73,7 @@ const links = [
     },
     {
       label: t('pages.settings.unattended.title'),
-      icon: 'i-lucide:bot',
+      icon: 'i-mdi:robot-outline',
       to: localePath('/settings/unattended')
     }
   ]

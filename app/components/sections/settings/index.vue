@@ -21,10 +21,10 @@
       >
         <USelect
           :model-value="locale"
-          icon="i-lucide:languages"
+          :icon="computedLocaleIcon"
           :items="
             computedLocalesUnique.map((l) => ({
-              icon: 'i-lucide:languages',
+              icon: settingsLocaleIconGet(l.code),
               label: l.name,
               value: l.code
             })) as SelectItem[]
@@ -186,6 +186,37 @@ const computedLocalesUnique = computed(() => {
 
   return Array.from(map.values());
 });
+
+/**
+ * 函数：按 locale 获取国旗图标
+ * @param {string} code locale 代码
+ * @returns {string} 图标名
+ */
+const settingsLocaleIconGet = (code: string): string => {
+  /**
+   * 常量：normalized。
+   */
+  const normalized = code.trim().toLowerCase().replace(/_/g, '-');
+
+  if (normalized === 'zh-cn') {
+    return 'i-flag-cn-4x3';
+  }
+
+  if (normalized === 'zh-tw') {
+    return 'i-flag-tw-4x3';
+  }
+
+  if (normalized === 'ja') {
+    return 'i-flag-jp-4x3';
+  }
+
+  return 'i-flag-us-4x3';
+};
+
+/**
+ * 计算属性：当前 locale 图标
+ */
+const computedLocaleIcon = computed(() => settingsLocaleIconGet(locale.value));
 
 /**
  * 计算属性：截断显示的存放路径

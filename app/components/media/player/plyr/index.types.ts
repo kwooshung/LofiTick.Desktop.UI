@@ -866,6 +866,11 @@ export interface IMediaPlyrProps {
   poster?: string;
 
   /**
+   * 是否自动播放
+   */
+  autoplay?: boolean;
+
+  /**
    * 播放器选项配置项
    * @see {@link https://github.com/sampotts/plyr#options}  媒体播放器 Plyr 选项配置项文档
    */

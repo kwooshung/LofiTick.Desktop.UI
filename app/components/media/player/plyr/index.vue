@@ -1,8 +1,8 @@
 <template>
   <ClientOnly>
     <div :id="stateId" :class="stateRootClass" :style="stateRootStyle">
-      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="poster" :autoplay="autoplay" class="size-full bg-transparent" controls playsinline />
-      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full bg-transparent" :autoplay="autoplay" controls />
+      <video v-if="stateRenderMode === 'video'" ref="refElement" :poster="poster" :autoplay="computedAutoplay" class="size-full bg-transparent" controls playsinline />
+      <audio v-else-if="stateRenderMode === 'audio'" ref="refElement" class="size-full bg-transparent" :autoplay="computedAutoplay" controls />
       <div v-else ref="refElement" class="size-full bg-transparent" :data-plyr-provider="stateEmbedProvider" :data-plyr-embed-id="stateEmbedId" />
 
       <Teleport v-if="stateWaveformEnabled && stateWaveformTeleportTarget" :to="stateWaveformTeleportTarget">
@@ -24,11 +24,67 @@ import type {
   IMediaPlyrPlayerTrack,
   IMediaPlyrProps,
   IMediaPlyrSource,
+  IMediaPlyrSourceUrlProviderRule,
   TMediaPlyrConfigControls,
   TMediaPlyrI18nDict,
   TMediaPlyrSourceProvider,
   TPlyrCtor
 } from '@/components/media/player/plyr/index.types';
+
+/**
+ * 组件属性：媒体播放器 Plyr。
+ */
+const { id, type, sources, tracks: propTracks, poster, options: propsOptions, autoplay, waveformPath, waveformHeight, waveformViewBoxWidth, waveformViewBoxHeight } = defineProps<IMediaPlyrProps>();
+
+/**
+ * Hook：国际化。
+ */
+const { locale, tm } = useI18n();
+
+/**
+ * 状态：组件唯一 id。
+ */
+const stateFallbackId = useId();
+
+/**
+ * 计算属性：组件唯一 id。
+ */
+const stateId = computed(() => id?.trim() || stateFallbackId);
+
+/**
+ * 常量：默认播放器控件。
+ */
+const MEDIA_PLYR_CONTROLS_DEFAULT: TMediaPlyrConfigControls[] = ['play-large', 'play', 'current-time', 'progress', 'duration', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'];
+
+/**
+ * 常量：默认播放器设置项。
+ */
+const MEDIA_PLYR_SETTINGS_DEFAULT = ['captions', 'quality', 'speed', 'loop'] as const;
+
+/**
+ * 常量：Plyr 实例集合。
+ */
+const MEDIA_PLYR_INSTANCE_SET = new Set<InstanceType<TPlyrCtor>>();
+
+/**
+ * 状态：播放器根元素引用。
+ */
+const refElement = ref<HTMLElement | null>(null);
+
+/**
+ * 状态：Plyr 实例。
+ */
+const statePlayer = shallowRef<InstanceType<TPlyrCtor> | null>(null);
+
+/**
+ * 状态：波形中断控制器。
+ */
+const stateWaveformAbortController = shallowRef<AbortController | null>(null);
+
+/**
+ * 状态：seek 后播放中断控制器。
+ */
+const stateSeekToPlayAbortController = shallowRef<AbortController | null>(null);
 
 /**
  * 常量：媒体源 URL Provider 识别规则（便于扩展其他平台）
@@ -188,6 +244,186 @@ const mediaPlyrLocaleToBcp47 = (val: string): string => {
 };
 
 /**
+ * 函数：获取 Plyr 构造器。
+ * @returns {Promise<TPlyrCtor>} Plyr 构造器
+ */
+const mediaPlyrCtorGet = async (): Promise<TPlyrCtor> => {
+  /**
+   * 常量：mod。
+   */
+  const mod = await import('plyr');
+
+  return mod.default;
+};
+
+/**
+ * 函数：归一化媒体源。
+ * @param {string | IMediaPlyrSource | IMediaPlyrSource[]} value 媒体源
+ * @returns {IMediaPlyrSource[]} 媒体源列表
+ */
+const mediaPlyrSourcesNormalize = (value: string | IMediaPlyrSource | IMediaPlyrSource[]): IMediaPlyrSource[] => {
+  /**
+   * 常量：items。
+   */
+  const items = Array.isArray(value) ? value : [value];
+
+  return items
+    .map((item) => {
+      if (typeof item === 'string') {
+        /**
+         * 常量：provider。
+         */
+        const provider = mediaPlyrSourceProviderFromUrlSrcGet(item) ?? 'html5';
+
+        return {
+          src: item,
+          provider
+        } satisfies IMediaPlyrSource;
+      }
+
+      /**
+       * 常量：provider。
+       */
+      const provider = item.provider ?? mediaPlyrSourceProviderFromUrlSrcGet(item.src) ?? 'html5';
+
+      return {
+        ...item,
+        provider
+      } satisfies IMediaPlyrSource;
+    })
+    .filter((item) => item.src.trim() !== '');
+};
+
+/**
+ * 函数：限制数值到 0~1。
+ * @param {number} value 数值
+ * @returns {number} 限制后的数值
+ */
+const mediaPlyrClamp01 = (value: number): number => {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, value));
+};
+
+/**
+ * 函数：获取 Plyr 容器元素。
+ * @param {InstanceType<TPlyrCtor> | null} player Plyr 实例
+ * @returns {HTMLElement | null} 容器元素
+ */
+const mediaPlyrContainerGet = (player: InstanceType<TPlyrCtor> | null): HTMLElement | null => {
+  if (!player) {
+    return null;
+  }
+
+  /**
+   * 常量：elements。
+   */
+  const elements = (player as unknown as { elements?: { container?: unknown } }).elements;
+  if (elements?.container instanceof HTMLElement) {
+    return elements.container;
+  }
+
+  /**
+   * 常量：media。
+   */
+  const media = (player as unknown as { media?: unknown }).media;
+  if (media instanceof HTMLElement) {
+    return media.closest('.plyr');
+  }
+
+  return null;
+};
+
+/**
+ * 函数：读取播放器互斥播放配置。
+ * @param {InstanceType<TPlyrCtor>} player Plyr 实例
+ * @returns {boolean} 是否启用互斥播放
+ */
+const mediaPlyrAutopauseEnabledGet = (player: InstanceType<TPlyrCtor>): boolean => {
+  /**
+   * 常量：config。
+   */
+  const config = (player as unknown as { config?: IMediaPlyrInstanceConfigMinimum }).config;
+
+  return config?.autopause !== false;
+};
+
+/**
+ * 函数：读取 seek 后播放配置。
+ * @param {InstanceType<TPlyrCtor>} player Plyr 实例
+ * @returns {boolean} 是否启用 seek 后播放
+ */
+const mediaPlyrSeekToPlayEnabledGet = (player: InstanceType<TPlyrCtor>): boolean => {
+  /**
+   * 常量：config。
+   */
+  const config = (player as unknown as { config?: { seekToPlay?: boolean } }).config;
+
+  return config?.seekToPlay !== false;
+};
+
+/**
+ * 函数：暂停其他播放器。
+ * @param {InstanceType<TPlyrCtor>} current 当前播放器
+ * @returns {void} 无返回值
+ */
+const mediaPlyrPauseOthers = (current: InstanceType<TPlyrCtor>): void => {
+  for (const player of MEDIA_PLYR_INSTANCE_SET) {
+    if (player === current) {
+      continue;
+    }
+
+    try {
+      player.pause();
+    } catch {
+      // ignore
+    }
+  }
+};
+
+/**
+ * 函数：恢复焦点到播放器容器。
+ * @param {InstanceType<TPlyrCtor>} player Plyr 实例
+ * @returns {void} 无返回值
+ */
+const mediaPlyrFocusRestoreToContainer = (player: InstanceType<TPlyrCtor>): void => {
+  /**
+   * 常量：container。
+   */
+  const container = mediaPlyrContainerGet(player);
+  if (!container) {
+    return;
+  }
+
+  if (!container.hasAttribute('tabindex')) {
+    container.setAttribute('tabindex', '-1');
+  }
+
+  container.focus({ preventScroll: true });
+};
+
+/**
+ * 函数：清理 seek 后播放监听。
+ * @returns {void} 无返回值
+ */
+const mediaPlyrSeekToPlayCleanup = (): void => {
+  stateSeekToPlayAbortController.value?.abort();
+  stateSeekToPlayAbortController.value = null;
+};
+
+/**
+ * 函数：清理波形相关监听。
+ * @returns {void} 无返回值
+ */
+const mediaPlyrWaveformCleanup = (): void => {
+  stateWaveformAbortController.value?.abort();
+  stateWaveformAbortController.value = null;
+  mediaPlyrWaveformCustomProgressCleanup();
+};
+
+/**
  * 计算属性：媒体源
  */
 const stateSources = computed(() => mediaPlyrSourcesNormalize(sources));
@@ -196,6 +432,11 @@ const stateSources = computed(() => mediaPlyrSourcesNormalize(sources));
  * 计算属性：自动识别 provider
  */
 const stateAutoProvider = computed<TMediaPlyrSourceProvider | undefined>(() => stateSources.value[0]?.provider);
+
+/**
+ * 计算属性：是否自动播放。
+ */
+const computedAutoplay = computed(() => autoplay === true);
 
 /**
  * 计算属性：渲染模式
@@ -413,8 +654,8 @@ const mediaPlyrOptionsGet = (): IMediaPlyrConfigInjected => {
   }
 
   // 组件级 autoplay 语义优先透传到 Plyr 配置。
-  if (options.autoplay === undefined && autoplay !== undefined) {
-    options.autoplay = autoplay;
+  if (options.autoplay === undefined) {
+    options.autoplay = computedAutoplay.value;
   }
 
   return {
@@ -437,13 +678,13 @@ const mediaPlyrSourceGet = (): IMediaPlyrPlayerSource => {
    * 常量：tracks（仅在 props.tracks 为 URL 字符串时启用）
    */
   const tracks: IMediaPlyrPlayerTrack[] =
-    typeof tracks === 'string'
+    typeof propTracks === 'string'
       ? [
           {
             kind: 'captions',
             label: mediaPlyrLocaleToBcp47(locale.value),
             srclang: mediaPlyrLocaleToBcp47(locale.value),
-            src: tracks,
+            src: propTracks,
             default: true
           }
         ]
@@ -822,7 +1063,7 @@ const mediaPlyrWaveformSync = (player: Plyr | null): void => {
  * @returns {void} 无返回值
  */
 const mediaPlyrCreate = async (): Promise<void> => {
-  if (!stateRefElement.value) {
+  if (!refElement.value) {
     return;
   }
 
@@ -832,7 +1073,7 @@ const mediaPlyrCreate = async (): Promise<void> => {
    * 常量：PlyrCtor。
    */
   const PlyrCtor = await mediaPlyrCtorGet();
-  statePlayer.value = new PlyrCtor(stateRefElement.value, mediaPlyrOptionsGet());
+  statePlayer.value = new PlyrCtor(refElement.value, mediaPlyrOptionsGet());
 
   /**
    * 常量：当前 Plyr 实例
@@ -906,7 +1147,7 @@ const mediaPlyrCreate = async (): Promise<void> => {
     mediaPlyrWaveformTeleportTargetResolve(player);
     mediaPlyrWaveformSync(player);
 
-    if (autoplay === true) {
+    if (computedAutoplay.value) {
       playerPlaySafe();
     }
   });

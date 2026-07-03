@@ -58,7 +58,7 @@
           <div class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.unattended.header.description') }}</div>
         </div>
         <ULink raw :to="localePath('/unattended')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
-          <UIcon name="i-lucide:bot" class="size-4 shrink-0" />
+          <UIcon name="i-mdi:robot-outline" class="size-4 shrink-0" />
           {{ t('pages.settings.unattended.header.enter') }}
         </ULink>
       </template>
@@ -2131,7 +2131,7 @@ storeBreadcrumb.states = [
   },
   {
     label: t('pages.settings.unattended.title'),
-    icon: 'i-lucide:bot',
+    icon: 'i-mdi:robot-outline',
     to: localePath('/settings/unattended')
   }
 ];

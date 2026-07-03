@@ -113,7 +113,7 @@ storeBreadcrumb.states = [
  */
 const powerOptions = [
   { icon: 'i-lucide:moon', label: t('pages.settings.power.options.never'), value: 'never' },
-  { icon: 'i-lucide:moon-off', label: t('pages.settings.power.options.always'), value: 'always' },
+  { icon: 'i-lucide:shield-ban', label: t('pages.settings.power.options.always'), value: 'always' },
   { icon: 'i-lucide:bot', label: t('pages.settings.power.options.crawling'), value: 'crawling' },
   { icon: 'i-lucide:play', label: t('pages.settings.power.options.playing'), value: 'playing' }
 ];

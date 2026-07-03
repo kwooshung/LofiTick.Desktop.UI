@@ -7,7 +7,7 @@
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
         <ULink raw :to="localePath('/hotsearch')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
-          <UIcon name="i-lucide:flame" class="size-4 shrink-0" />
+          <UIcon name="i-material-symbols:bigtop-updates-rounded" class="size-4 shrink-0" />
           {{ t('pages.settings.hotsearch.header.enter') }}
         </ULink>
       </template>
@@ -560,7 +560,7 @@ storeBreadcrumb.states = [
   },
   {
     label: t('pages.settings.hotsearch.title'),
-    icon: 'i-lucide:flame',
+    icon: 'i-material-symbols:bigtop-updates-rounded',
     to: localePath('/settings/hotsearch')
   }
 ];
