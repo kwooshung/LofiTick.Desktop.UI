@@ -69,13 +69,13 @@ const storeBreadcrumb = useStoreBreadcrumb();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

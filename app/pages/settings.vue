@@ -27,7 +27,7 @@ const links = [
   [
     {
       label: t('pages.settings.general.title'),
-      icon: 'i-proicons:settings',
+      icon: 'i-lucide:settings',
       to: localePath('/settings'),
       exact: true
     },
@@ -43,13 +43,18 @@ const links = [
     },
     {
       label: t('pages.settings.power.title'),
-      icon: 'i-carbon:flash',
+      icon: 'i-lucide:zap',
       to: localePath('/settings/power')
     },
     {
       label: t('pages.settings.hotsearch.title'),
-      icon: 'i-material-symbols:bigtop-updates-rounded',
+      icon: 'i-lucide:flame',
       to: localePath('/settings/hotsearch')
+    },
+    {
+      label: t('pages.settings.crawler.title'),
+      icon: 'i-lucide:bot',
+      to: localePath('/settings/crawler')
     },
     {
       label: t('pages.settings.services.title'),
@@ -63,12 +68,12 @@ const links = [
     },
     {
       label: t('pages.settings.unattended.sections.ue5.title'),
-      icon: 'i-file-icons:unrealscript',
+      icon: 'i-lucide:box',
       to: localePath('/settings/ue5')
     },
     {
       label: t('pages.settings.unattended.title'),
-      icon: 'i-mdi:robot-outline',
+      icon: 'i-lucide:bot',
       to: localePath('/settings/unattended')
     }
   ]

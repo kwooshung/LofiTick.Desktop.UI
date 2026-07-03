@@ -54,6 +54,22 @@ export const useTauriTasks = () => {
   };
 
   /**
+   * 函数：读取爬虫浏览器候选。
+   * @returns {Promise<ICrawlerBrowserCandidate[]>} 浏览器候选列表。
+   */
+  const crawlerBrowserCandidatesGet = async (): Promise<ICrawlerBrowserCandidate[]> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return invoke<ICrawlerBrowserCandidate[]>('crawler_browser_candidates_get');
+  };
+
+  /**
    * 函数：显示爬虫 WebView。
    * @param {string} taskId 任务 ID。
    * @returns {Promise<void>} 无返回值。
@@ -140,5 +156,5 @@ export const useTauriTasks = () => {
     });
   };
 
-  return { hotsearchScheduleGet, crawlerTaskExecute, crawlerTaskWebviewShow, crawlerTaskWebviewHide, crawlerTaskWebviewClose, crawlerTaskWebviewStateGet, onCrawlerWebviewStateChanged };
+  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskWebviewShow, crawlerTaskWebviewHide, crawlerTaskWebviewClose, crawlerTaskWebviewStateGet, onCrawlerWebviewStateChanged };
 };

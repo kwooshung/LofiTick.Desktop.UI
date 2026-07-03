@@ -25,7 +25,8 @@
                     :color="copiedGet('apiBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('apiBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('apiBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: 'text-muted' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('apiBase', stateApiBaseValue)"
                   />
@@ -54,7 +55,8 @@
                     :color="copiedGet('onepanelPanelBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('onepanelPanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('onepanelPanelBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: 'text-muted' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('onepanelPanelBase', computedPanelBase)"
                   />
@@ -85,7 +87,8 @@
                     :color="copiedGet('onepanelBase') ? 'success' : 'neutral'"
                     variant="link"
                     size="sm"
-                    :icon="copiedGet('onepanelBase') ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                    :icon="copiedGet('onepanelBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                    :ui="{ leadingIcon: 'text-muted' }"
                     :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                     @click.stop="handleCopy('onepanelBase', computedPanelBase)"
                   />
@@ -146,7 +149,8 @@
                               :color="copiedGet(`onepanelLink|${link.href}`) ? 'success' : 'neutral'"
                               variant="link"
                               size="sm"
-                              :icon="copiedGet(`onepanelLink|${link.href}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                              :icon="copiedGet(`onepanelLink|${link.href}`) ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                              :ui="{ leadingIcon: 'text-muted' }"
                               :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
                               @click.stop="handleCopy(`onepanelLink|${link.href}`, link.href)"
                             />
@@ -223,13 +227,13 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

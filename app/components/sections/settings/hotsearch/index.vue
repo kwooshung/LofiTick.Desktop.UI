@@ -7,7 +7,7 @@
           <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.hotsearch.description') }}</p>
         </div>
         <ULink raw :to="localePath('/hotsearch')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
-          <UIcon name="i-material-symbols:bigtop-updates-rounded" class="size-4 shrink-0" />
+          <UIcon name="i-lucide:flame" class="size-4 shrink-0" />
           {{ t('pages.settings.hotsearch.header.enter') }}
         </ULink>
       </template>
@@ -113,7 +113,7 @@
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.sections.schedule.description') }}</p>
         </div>
 
-        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
+        <UButton color="primary" variant="soft" size="sm" icon="i-lucide:rotate-ccw" :ui="{ leadingIcon: 'text-muted' }" :loading="stateSaving" class="shrink-0" @click="handleResetScheduleDefaults">
           {{ t('pages.settings.hotsearch.actions.reset') }}
         </UButton>
       </template>
@@ -321,9 +321,9 @@
 
     <div class="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <UPageCard icon="i-lucide:layers-2" :title="t('pages.settings.hotsearch.summary.selectedPlatforms')" :description="String(computedSelectedPlatformCount)" />
-      <UPageCard icon="i-mdi:lightning-bolt-outline" :title="t('pages.settings.hotsearch.summary.perWindowCost')" :description="String(computedPerWindowCost)" />
-      <UPageCard icon="i-mdi:calendar-today-outline" :title="t('pages.settings.hotsearch.summary.dailyCost')" :description="String(computedDailyCost)" />
-      <UPageCard icon="i-mdi:calendar-month-outline" :title="t('pages.settings.hotsearch.summary.monthlyEstimate')" :description="String(computedMonthlyEstimate)" />
+      <UPageCard icon="i-lucide:zap" :title="t('pages.settings.hotsearch.summary.perWindowCost')" :description="String(computedPerWindowCost)" />
+      <UPageCard icon="i-lucide:calendar-days" :title="t('pages.settings.hotsearch.summary.dailyCost')" :description="String(computedDailyCost)" />
+      <UPageCard icon="i-lucide:calendar-range" :title="t('pages.settings.hotsearch.summary.monthlyEstimate')" :description="String(computedMonthlyEstimate)" />
       <UPageCard icon="i-lucide:timer" :title="t('pages.settings.hotsearch.summary.windowDuration')" :description="t('pages.settings.hotsearch.summary.minutesValue', { value: computedWindowDurationMinutes })" />
       <UPageCard icon="i-lucide:clock-3" :title="t('pages.settings.hotsearch.summary.suggestedMorningPodcast')" :description="computedSuggestedMorningPodcastTime" />
       <UPageCard icon="i-lucide:clock-9" :title="t('pages.settings.hotsearch.summary.suggestedEveningPodcast')" :description="computedSuggestedEveningPodcastTime" />
@@ -549,19 +549,19 @@ const stateHydrated = ref(false);
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },
   {
     label: t('pages.settings.hotsearch.title'),
-    icon: 'i-material-symbols:bigtop-updates-rounded',
+    icon: 'i-lucide:flame',
     to: localePath('/settings/hotsearch')
   }
 ];
@@ -572,7 +572,7 @@ storeBreadcrumb.states = [
 const computedPodcastAiRulesToolbarItems = computed((): EditorToolbarItem[][] => [
   [
     {
-      icon: 'i-lucide-heading',
+      icon: 'i-lucide:heading',
       content: {
         align: 'start'
       },
@@ -580,19 +580,19 @@ const computedPodcastAiRulesToolbarItems = computed((): EditorToolbarItem[][] =>
         {
           kind: 'heading',
           level: 1,
-          icon: 'i-lucide-heading-1',
+          icon: 'i-lucide:heading-1',
           label: t('pages.settings.hotsearch.editor.items.heading1')
         },
         {
           kind: 'heading',
           level: 2,
-          icon: 'i-lucide-heading-2',
+          icon: 'i-lucide:heading-2',
           label: t('pages.settings.hotsearch.editor.items.heading2')
         },
         {
           kind: 'heading',
           level: 3,
-          icon: 'i-lucide-heading-3',
+          icon: 'i-lucide:heading-3',
           label: t('pages.settings.hotsearch.editor.items.heading3')
         }
       ]
@@ -602,41 +602,41 @@ const computedPodcastAiRulesToolbarItems = computed((): EditorToolbarItem[][] =>
     {
       kind: 'mark',
       mark: 'bold',
-      icon: 'i-lucide-bold',
+      icon: 'i-lucide:bold',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.bold') }
     },
     {
       kind: 'mark',
       mark: 'italic',
-      icon: 'i-lucide-italic',
+      icon: 'i-lucide:italic',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.italic') }
     },
     {
       kind: 'mark',
       mark: 'underline',
-      icon: 'i-lucide-underline',
+      icon: 'i-lucide:underline',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.underline') }
     }
   ],
   [
     {
       kind: 'bulletList',
-      icon: 'i-lucide-list',
+      icon: 'i-lucide:list',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.bulletList') }
     },
     {
       kind: 'orderedList',
-      icon: 'i-lucide-list-ordered',
+      icon: 'i-lucide:list-ordered',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.orderedList') }
     },
     {
       kind: 'blockquote',
-      icon: 'i-lucide-text-quote',
+      icon: 'i-lucide:text-quote',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.blockquote') }
     },
     {
       kind: 'codeBlock',
-      icon: 'i-lucide-square-code',
+      icon: 'i-lucide:square-code',
       tooltip: { text: t('pages.settings.hotsearch.editor.items.codeBlock') }
     }
   ]
@@ -654,25 +654,25 @@ const computedPodcastAiRulesSuggestionItems = computed((): EditorSuggestionMenuI
     {
       kind: 'paragraph',
       label: t('pages.settings.hotsearch.editor.items.paragraph'),
-      icon: 'i-lucide-type'
+      icon: 'i-lucide:type'
     },
     {
       kind: 'heading',
       level: 1,
       label: t('pages.settings.hotsearch.editor.items.heading1'),
-      icon: 'i-lucide-heading-1'
+      icon: 'i-lucide:heading-1'
     },
     {
       kind: 'heading',
       level: 2,
       label: t('pages.settings.hotsearch.editor.items.heading2'),
-      icon: 'i-lucide-heading-2'
+      icon: 'i-lucide:heading-2'
     },
     {
       kind: 'heading',
       level: 3,
       label: t('pages.settings.hotsearch.editor.items.heading3'),
-      icon: 'i-lucide-heading-3'
+      icon: 'i-lucide:heading-3'
     }
   ],
   [
@@ -683,12 +683,12 @@ const computedPodcastAiRulesSuggestionItems = computed((): EditorSuggestionMenuI
     {
       kind: 'bulletList',
       label: t('pages.settings.hotsearch.editor.items.bulletList'),
-      icon: 'i-lucide-list'
+      icon: 'i-lucide:list'
     },
     {
       kind: 'orderedList',
       label: t('pages.settings.hotsearch.editor.items.orderedList'),
-      icon: 'i-lucide-list-ordered'
+      icon: 'i-lucide:list-ordered'
     }
   ],
   [
@@ -699,17 +699,17 @@ const computedPodcastAiRulesSuggestionItems = computed((): EditorSuggestionMenuI
     {
       kind: 'blockquote',
       label: t('pages.settings.hotsearch.editor.items.blockquote'),
-      icon: 'i-lucide-text-quote'
+      icon: 'i-lucide:text-quote'
     },
     {
       kind: 'codeBlock',
       label: t('pages.settings.hotsearch.editor.items.codeBlock'),
-      icon: 'i-lucide-square-code'
+      icon: 'i-lucide:square-code'
     },
     {
       kind: 'horizontalRule',
       label: t('pages.settings.hotsearch.editor.items.divider'),
-      icon: 'i-lucide-separator-horizontal'
+      icon: 'i-lucide:separator-horizontal'
     }
   ]
 ]);

@@ -1,0 +1,3 @@
+<template>
+  <SectionsSettingsCrawler />
+</template>

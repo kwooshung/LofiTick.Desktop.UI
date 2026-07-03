@@ -37,7 +37,7 @@
         </template>
         <div class="grid grid-cols-3 gap-3">
           <UTooltip v-for="lufs in loudness" :key="lufs" :text="t(`pages.settings.playback.normalization.lufs.${lufs}`)" :content="{ side: 'top' }">
-            <UButton color="neutral" variant="outline" size="lg" :class="[storePlayback.states.lufs === lufs ? 'bg-elevated' : 'hover:bg-elevated/50']" @click="storePlayback.states.lufs = lufs">{{ lufs }} {{ t('pages.settings.playback.normalization.unit') }}</UButton>
+            <UButton color="neutral" variant="outline" size="lg" icon="i-lucide:gauge" :ui="{ leadingIcon: 'text-muted' }" :class="[storePlayback.states.lufs === lufs ? 'bg-elevated' : 'hover:bg-elevated/50']" @click="storePlayback.states.lufs = lufs">{{ lufs }} {{ t('pages.settings.playback.normalization.unit') }}</UButton>
           </UTooltip>
         </div>
       </UFormField>
@@ -82,13 +82,13 @@ const loudness = [-14, -16, -24];
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },

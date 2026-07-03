@@ -14,11 +14,11 @@ export const settings = {
       placeholder: 'https://one-panel.lofitick.com/'
     },
     onepanelLinks: {
-      title: '1Panel ナビゲーション一覧',
-      description: 'この一覧はルート URL に合わせて即時更新されます。デスクトップ側では 1Panel の cron 管理画面をもう内蔵しません。',
+      title: '1Panel ナビゲーション',
+      description: 'この一覧はルート URL に合わせて更新されます。デスクトップ側では 1Panel の cron ページを直接ホストしません。',
       currentBase: '現在の 1Panel ルート URL',
       actions: {
-        openCronjobs: '計画タスクを開く',
+        openCronjobs: 'cron ジョブを開く',
         openScriptLibrary: 'スクリプトライブラリを開く'
       }
     }
@@ -112,6 +112,21 @@ export const settings = {
     multiOpen: {
       label: '複数起動',
       description: 'アプリを複数同時に起動できるようにします。'
+    }
+  },
+  crawler: {
+    title: 'クローラー',
+    description: 'Playwright の収集タスクで使うローカルブラウザーとクローラー実行設定を構成します。',
+    browser: {
+      runtimeDescriptions: {
+        edge: 'Windows に付属する標準ブラウザーに挙動を合わせたいときに向いている、システム整合性の高い既定クローラー環境です。',
+        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。',
+        chromium: '個人用ブラウザーと分離した状態で収集したいときに向いている、隔離性の高いブラウザー環境です。'
+      },
+      actions: {
+        refresh: '更新',
+        installOfficial: '公式サイトからダウンロードしてインストール'
+      }
     }
   },
   ui: {
@@ -891,7 +906,7 @@ export const settings = {
     title: '無人値守',
     header: {
       description: '無人値守モードおよび心拍監視に関する設定を調整します。',
-      enter: '無人値守ページへ移動'
+      enter: '無人値守モードに入る'
     },
     dialogs: {
       restart: {

@@ -21,10 +21,10 @@
       >
         <USelect
           :model-value="locale"
-          :icon="computedLanguageIcon"
+          icon="i-lucide:languages"
           :items="
             computedLocalesUnique.map((l) => ({
-              icon: l.icon,
+              icon: 'i-lucide:languages',
               label: l.name,
               value: l.code
             })) as SelectItem[]
@@ -37,10 +37,10 @@
         <USwitch v-model="stateRememberWindowStateValue" @update:model-value="handleChangeRememberWindowState" />
       </UFormField>
       <UFormField :label="t('pages.settings.general.appDirectory.label')" :description="t('pages.settings.general.appDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenAppDirectory">{{ t('pages.settings.general.appDirectory.open') }}</UButton>
       </UFormField>
       <UFormField :label="t('pages.settings.general.userDataDirectory.label')" :description="t('pages.settings.general.userDataDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
       </UFormField>
       <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.storage.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
@@ -57,13 +57,13 @@
           </div>
         </template>
         <div class="flex items-center gap-2">
-          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" :loading="stateSelectingStorage" @click="handleSelectStorage">
+          <UButton :color="stateSelectingStorage ? 'primary' : 'neutral'" variant="outline" icon="i-lucide:folder-search" :ui="{ leadingIcon: 'text-muted' }" :loading="stateSelectingStorage" @click="handleSelectStorage">
             {{ stateStoragePath ? t('pages.settings.general.storage.reselect') : t('pages.settings.general.storage.choose') }}
           </UButton>
         </div>
       </UFormField>
       <UFormField :label="t('pages.settings.general.devtools.label')" :description="t('pages.settings.general.devtools.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <UButton color="neutral" variant="outline" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide:bug" :ui="{ leadingIcon: 'text-muted' }" @click="handleToggleDevtools">{{ t('pages.settings.general.devtools.toggle') }}</UButton>
       </UFormField>
     </UPageCard>
   </DashboardPage>
@@ -113,19 +113,19 @@ const localePath = useLocalePath();
 storeBreadcrumb.states = [
   {
     label: t('pages.home.title'),
-    icon: 'i-mdi:view-dashboard-outline',
+    icon: 'i-lucide:layout-dashboard',
     to: localePath('/'),
     exact: true
   },
   {
     label: t('pages.settings.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings'),
     exact: true
   },
   {
     label: t('pages.settings.general.title'),
-    icon: 'i-proicons:settings',
+    icon: 'i-lucide:settings',
     to: localePath('/settings')
   }
 ];
@@ -186,11 +186,6 @@ const computedLocalesUnique = computed(() => {
 
   return Array.from(map.values());
 });
-
-/**
- * 计算属性：语言图标
- */
-const computedLanguageIcon = computed(() => String(computedLocalesUnique.value.find((l) => l.code === locale.value)?.icon || ''));
 
 /**
  * 计算属性：截断显示的存放路径

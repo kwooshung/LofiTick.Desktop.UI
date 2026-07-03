@@ -114,9 +114,23 @@
       description: '允许同时运行多个应用实例'
     }
   },
+  crawler: {
+    title: '爬虫',
+    description: '配置 Playwright 采集任务使用的本机浏览器与爬虫运行偏好。',
+    browser: {
+      runtimeDescriptions: {
+        edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
+        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。',
+        chromium: '适合需要隔离浏览器资料的任务，便于把采集环境和个人浏览器环境分开。'
+      },
+      actions: {
+        refresh: '刷新',
+        installOfficial: '前往官网下载并安装'
+      }
+    }
+  },
   ui: {
     title: '界面',
-    description: '主题、深浅色模式、布局与界面元素显示相关的选项',
     colorMode: {
       label: '颜色模式',
       description: '外观是浅色还是深色，或者按照计算机的设置进行调整',
@@ -897,7 +911,7 @@
     title: '无人值守',
     header: {
       description: '调整无人值守模式下和心跳检测相关的设置',
-      enter: '前往无人值守页面'
+      enter: '进入无人值守模式'
     },
     dialogs: {
       restart: {

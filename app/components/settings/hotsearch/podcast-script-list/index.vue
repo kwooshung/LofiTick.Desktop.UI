@@ -50,7 +50,7 @@
     <UFormField :label="t('pages.settings.hotsearch.fields.podcastVariables.label')" :description="t('pages.settings.hotsearch.fields.podcastVariables.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="not-last:pb-4">
       <div class="mt-4 flex flex-wrap gap-2">
         <UPopover v-for="item in computedVariableOptions" :key="item.token" mode="hover" :open-delay="120" :close-delay="80" arrow :content="{ side: 'top', align: 'start', sideOffset: 8 }" :ui="{ content: 'p-3 w-64' }">
-          <UButton variant="outline" size="xs" :disabled="disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
+          <UButton variant="outline" size="xs" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" :disabled="disabled" @mousedown.prevent @click="handleVariableInsert(item.token)">
             {{ item.label }}
           </UButton>
 
@@ -73,7 +73,7 @@
             <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.fields.podcastOpeningTemplates.description') }}</p>
           </div>
 
-          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('opening')">
+          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('opening')">
             {{ t('pages.settings.hotsearch.actions.addOpeningTemplate') }}
           </UButton>
         </div>
@@ -128,7 +128,7 @@
             <p class="text-muted mt-1 text-sm">{{ t('pages.settings.hotsearch.fields.podcastClosingTemplates.description') }}</p>
           </div>
 
-          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('closing')">
+          <UButton color="primary" variant="soft" size="sm" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" :disabled="disabled" @click.stop.prevent="handleTemplateItemAppend('closing')">
             {{ t('pages.settings.hotsearch.actions.addClosingTemplate') }}
           </UButton>
         </div>

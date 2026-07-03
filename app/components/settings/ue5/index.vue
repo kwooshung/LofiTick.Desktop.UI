@@ -19,11 +19,11 @@
         <template #actions>
           <div class="flex items-center gap-0.5">
             <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-              <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy('base', computedBaseUrl)" />
+              <UButton :color="copiedGet('base') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('base') ? 'i-lucide:copy-check' : 'i-lucide:copy'" :ui="{ leadingIcon: 'text-muted' }" @click.stop="handleCopy('base', computedBaseUrl)" />
             </UTooltip>
             <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
               <ULink raw :href="computedBaseUrl" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" @click.stop.prevent="handleLinkOpen(computedBaseUrl)">
-                <UIcon name="i-lucide-external-link" class="size-4 shrink-0" />
+                <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
               </ULink>
             </UTooltip>
           </div>
@@ -63,11 +63,11 @@
           <template #actions>
             <div class="flex items-center gap-0.5">
               <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-                <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide-copy-check' : 'i-lucide-copy'" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
+                <UButton :color="copiedGet(`request|${request.id}`) ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet(`request|${request.id}`) ? 'i-lucide:copy-check' : 'i-lucide:copy'" :ui="{ leadingIcon: 'text-muted' }" @click.stop="handleCopy(`request|${request.id}`, request.url)" />
               </UTooltip>
               <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
                 <ULink raw :href="request.url" class="text-muted hover:text-primary inline-flex items-center justify-center no-underline" @click.stop.prevent="handleLinkOpen(request.url)">
-                  <UIcon name="i-lucide-external-link" class="size-4 shrink-0" />
+                  <UIcon name="i-lucide:external-link" class="size-4 shrink-0" />
                 </ULink>
               </UTooltip>
             </div>
@@ -76,10 +76,10 @@
       </div>
     </template>
 
-    <UEmpty v-else icon="i-lucide-link-2-off" :title="t('pages.settings.unattended.sections.ue5.modal.empty.title')" :description="t('pages.settings.unattended.sections.ue5.modal.empty.description')" />
+    <UEmpty v-else icon="i-lucide:link-2-off" :title="t('pages.settings.unattended.sections.ue5.modal.empty.title')" :description="t('pages.settings.unattended.sections.ue5.modal.empty.description')" />
   </UPageCard>
 
-  <UAlert v-if="stateDetailError" color="warning" variant="soft" icon="i-lucide-triangle-alert" :title="t('pages.settings.unattended.sections.ue5.modal.errorTitle')" :description="stateDetailError" />
+  <UAlert v-if="stateDetailError" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.settings.unattended.sections.ue5.modal.errorTitle')" :description="stateDetailError" />
 </template>
 
 <script setup lang="ts">

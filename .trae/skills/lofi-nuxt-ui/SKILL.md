@@ -186,7 +186,11 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 
   - 禁止新增硬编码的颜色/字体/阴影等设计 token；必须复用现有 Tailwind tokens、Nuxt UI 主题能力与项目已有工具类。
   - 默认文本/背景颜色禁止直接显式指定 `text-default` / `bg-default`，除非确有组件边界、主题覆盖或第三方样式对齐等必要原因；`text-default/xx` / `bg-default/xx` 这类透明度语义不属于默认色回填，允许用于分隔符、遮罩、弱背景等真实语义场景，禁止误删。
+  - 图标风格强制统一：当前项目全局默认使用 `lucide` 线条图标，禁止混用填充图标、品牌图标、`mdi`、`material-symbols`、`tabler`、`proicons`、`file-icons` 等不同线条粗细或填充风格的图标；确需品牌标识时必须先在变更清单中说明原因并等待确认。
+  - 同一语义动作必须使用同一个图标，但最终判定标准是渲染后的视觉一致性，不是类名是否看起来一致；刷新/同步统一使用 `i-lucide:refresh-cw`，重置/恢复默认统一使用 `i-lucide:rotate-ccw`，打开外链统一使用 `i-lucide:external-link`，打开/选择目录统一使用对应 `folder-*` 线条图标，保存统一使用 `i-lucide:save`，删除统一使用 `i-lucide:trash-2`，取消统一使用 `i-lucide:x`，确认统一使用 `i-lucide:check`；新增动作前必须先搜索现有同语义图标，禁止同一个动作在两个地方用不同图标。
   - 图标按钮若只需要调整图标颜色，必须通过 Nuxt UI 的 `ui.leadingIcon` / `ui.trailingIcon` 等图标插槽样式处理，禁止把颜色 class 写到按钮根节点导致文字一起变色。
+  - 按钮图标颜色必须统一到同一个浅色层级；当前项目使用 `ui.leadingIcon: 'text-muted'` 或等价 slot class，禁止让 primary/error/success 按钮图标各自继承更深颜色，也禁止把已经是统一浅色的图标改成更浅造成层级不一致。
+  - 图标一致性的验收标准必须看实际渲染效果，不能只看 token、类名、或图标名称一致；如果两枚按钮在代码上同样的图标和同样的颜色类，实际呈现仍有差异，则需要按渲染结果继续调到视觉一致。
   - 删除、重置等危险操作按钮默认状态不得直接使用危险色；仅允许在 hover / focus / active 等交互态显式变为危险色，二次确认内的最终确认按钮除外。
 
   ### 文档同步（强制）

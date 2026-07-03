@@ -15,10 +15,10 @@ export const settings = {
     },
     onepanelLinks: {
       title: '1Panel 導航目錄',
-      description: '這份目錄會隨根網址即時變化，桌面端不再直接內嵌 1Panel 排程管理頁。',
-      currentBase: '目前的 1Panel 根網址',
+      description: '下面這份目錄會隨根網址即時變化，桌面端不再直接託管 1Panel 計劃任務頁面。',
+      currentBase: '目前 1Panel 根網址',
       actions: {
-        openCronjobs: '開啟排程任務',
+        openCronjobs: '開啟計劃任務',
         openScriptLibrary: '開啟腳本庫'
       }
     }
@@ -112,6 +112,21 @@ export const settings = {
     multiOpen: {
       label: '允許多重開啟',
       description: '允許同時執行多個應用程式實例。'
+    }
+  },
+  crawler: {
+    title: '爬蟲',
+    description: '設定 Playwright 採集任務使用的本機瀏覽器與爬蟲執行偏好。',
+    browser: {
+      runtimeDescriptions: {
+        edge: '適合追求系統一致性的預設採集環境，和 Windows 內建瀏覽器行為保持一致。',
+        chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。',
+        chromium: '適合需要隔離瀏覽器資料的任務，方便把採集環境與個人瀏覽器環境分開。'
+      },
+      actions: {
+        refresh: '刷新',
+        installOfficial: '前往官網下載並安裝'
+      }
     }
   },
   ui: {
@@ -891,7 +906,7 @@ export const settings = {
     title: '無人值守',
     header: {
       description: '調整無人值守模式與心跳檢測相關設定。',
-      enter: '前往無人值守頁面'
+      enter: '進入無人值守模式'
     },
     dialogs: {
       restart: {

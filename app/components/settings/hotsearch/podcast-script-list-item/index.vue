@@ -32,7 +32,7 @@
     />
 
     <div v-if="showRemove" class="border-default flex w-10 shrink-0 items-center justify-center border-l">
-      <UButton color="neutral" variant="ghost" icon="i-lucide:x" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="disabled" @click="emit('remove')" />
+      <UButton color="neutral" variant="ghost" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" class="text-muted flex h-full w-full items-center justify-center rounded-none p-0" :disabled="disabled" @click="emit('remove')" />
     </div>
   </div>
 </template>
