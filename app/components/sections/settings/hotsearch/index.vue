@@ -126,11 +126,7 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputTime :model-value="computedMorningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleMorningStartAtUpdate">
-          <template #leading>
-            <UIcon name="i-lucide:clock-3" class="text-dimmed size-4" />
-          </template>
-        </UInputTime>
+        <UInputTime :model-value="computedMorningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleMorningStartAtUpdate" />
       </UFormField>
 
       <UFormField
@@ -139,11 +135,7 @@
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
         class="flex items-center justify-between gap-3 not-last:pb-4"
       >
-        <UInputTime :model-value="computedEveningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleEveningStartAtUpdate">
-          <template #leading>
-            <UIcon name="i-lucide:clock-9" class="text-dimmed size-4" />
-          </template>
-        </UInputTime>
+        <UInputTime :model-value="computedEveningStartAtValue" granularity="minute" :hour-cycle="24" color="primary" variant="outline" class="w-36" @update:model-value="handleEveningStartAtUpdate" />
       </UFormField>
 
       <UFormField

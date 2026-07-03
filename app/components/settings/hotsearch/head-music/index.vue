@@ -35,11 +35,11 @@
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
-          <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :ui="{ leadingIcon: 'text-muted' }" :disabled="disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
+          <UButton v-if="item.remoteExists" color="neutral" variant="outline" size="sm" icon="i-lucide:headphones" :disabled="disabled" :loading="statePreviewLoadingKind === item.kind" @click="openPreviewModal(item.kind)">
             {{ t('pages.settings.hotsearch.headMusicActions.previewHeadMusic') }}
           </UButton>
 
-          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :ui="{ leadingIcon: 'text-muted' }" :disabled="disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
+          <UButton color="primary" :variant="item.remoteExists ? 'soft' : 'solid'" size="sm" icon="i-lucide:upload" :disabled="disabled" :loading="item.uploadLoading" @click="openUploadModal(item.kind)">
             {{ item.remoteExists ? t('pages.settings.hotsearch.headMusicActions.reuploadHeadMusic') : t('pages.settings.hotsearch.headMusicActions.selectHeadMusic') }}
           </UButton>
         </div>
@@ -118,11 +118,11 @@
             >
               <template #actions="{ files, open, removeFile }">
                 <div class="flex flex-wrap items-center gap-2">
-                  <UButton color="primary" variant="soft" size="sm" icon="i-lucide:folder-up" :ui="{ leadingIcon: 'text-muted' }" :disabled="computedActiveUploadBusy" @click.stop.prevent="open()">
+                  <UButton color="primary" variant="soft" size="sm" icon="i-lucide:folder-up" :disabled="computedActiveUploadBusy" @click.stop.prevent="open()">
                     {{ t('pages.settings.hotsearch.dialogs.headMusicUpload.selectFile') }}
                   </UButton>
 
-                  <UButton v-if="files" color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" :disabled="computedActiveUploadBusy" @click.stop.prevent="removeFile()">
+                  <UButton v-if="files" color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :disabled="computedActiveUploadBusy" @click.stop.prevent="removeFile()">
                     {{ t('pages.settings.hotsearch.dialogs.headMusicUpload.clearFile') }}
                   </UButton>
                 </div>
@@ -188,10 +188,10 @@
 
       <template #footer>
         <div class="flex flex-wrap justify-end gap-2">
-          <UButton color="neutral" variant="ghost" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:x" :disabled="computedActiveUploadBusy" @click="stateUploadModalOpen = false">
             {{ t('common.actions.cancel') }}
           </UButton>
-          <UButton color="primary" icon="i-lucide:upload" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateUploadFile || computedUploadSubmitBusy" :loading="computedUploadSubmitBusy" @click="handleUploadSubmit">
+          <UButton color="primary" icon="i-lucide:upload" :disabled="!stateUploadFile || computedUploadSubmitBusy" :loading="computedUploadSubmitBusy" @click="handleUploadSubmit">
             {{ t('pages.settings.hotsearch.dialogs.headMusicUpload.confirmUpload') }}
           </UButton>
         </div>

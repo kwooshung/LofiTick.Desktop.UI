@@ -14,7 +14,7 @@
         :label="t('pages.settings.services.volcSpeech.appId.label')"
         :description="t('pages.settings.services.volcSpeech.appId.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechAppIdValue" class="w-full" :placeholder="t('pages.settings.services.volcSpeech.appId.placeholder')" autocomplete="off" />
@@ -25,7 +25,7 @@
         :label="t('pages.settings.services.volcSpeech.accessToken.label')"
         :description="t('pages.settings.services.volcSpeech.accessToken.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput
@@ -60,7 +60,7 @@
         :label="t('pages.settings.services.volcSpeech.resourceId.label')"
         :description="t('pages.settings.services.volcSpeech.resourceId.description')"
         :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center"
+        class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center"
       >
         <div class="w-full max-w-6xl min-w-0 justify-self-end">
           <UInput v-model="stateVolcSpeechResourceIdValue" :placeholder="t('pages.settings.services.volcSpeech.resourceId.placeholder')" autocomplete="off" :ui="{ trailing: 'pe-1' }" class="w-full">
@@ -73,7 +73,7 @@
         </div>
       </UFormField>
 
-      <UFormField :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+      <UFormField :label="t('pages.settings.services.volcSpeech.maleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 not-last:pb-4 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center">
         <template #description>
           <span>
             {{ t('pages.settings.services.volcSpeech.maleSpeakerCode.descriptionPrefix') }}
@@ -94,7 +94,7 @@
         </div>
       </UFormField>
 
-      <UFormField :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] xl:items-center">
+      <UFormField :label="t('pages.settings.services.volcSpeech.femaleSpeakerCode.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 xl:grid-cols-[minmax(24rem,31rem)_minmax(0,1fr)] xl:items-center">
         <template #description>
           <span>
             {{ t('pages.settings.services.volcSpeech.femaleSpeakerCode.descriptionPrefix') }}
