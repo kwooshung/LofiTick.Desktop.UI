@@ -3,73 +3,59 @@
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
-          <h2 class="text-highlighted text-base font-semibold text-pretty">{{ t('pages.settings.crawler.title') }}</h2>
-          <p class="text-muted mt-1 text-[15px] text-pretty">{{ t('pages.settings.crawler.description') }}</p>
-        </div>
-      </template>
-    </UPageCard>
-
-    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
-      <template #header>
-        <div class="flex-1">
           <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.browser.title') }}</h3>
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.browser.description') }}</p>
         </div>
+        <ULink raw :to="localePath('/crawlers')" class="border-primary text-primary hover:bg-primary/8 inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors">
+          <UIcon name="i-mdi:spider-outline" class="size-4 shrink-0" />
+          {{ t('pages.settings.crawler.actions.enterCrawlers') }}
+        </ULink>
       </template>
     </UPageCard>
 
-    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.edge')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-logos:microsoft-edge" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('msedge').name }}</span>
-          </span>
-        </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('msedge').installed" :model-value="stateCrawlerBrowserSelectedId === 'msedge'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
-        <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
-            {{ t('pages.settings.crawler.browser.actions.refresh') }}
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('msedge'))">
-            {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
-          </UButton>
-        </div>
-      </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chrome')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-devicon:chrome" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('chrome').name }}</span>
-          </span>
-        </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chrome').installed" :model-value="stateCrawlerBrowserSelectedId === 'chrome'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
-        <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
-            {{ t('pages.settings.crawler.browser.actions.refresh') }}
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
-            {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
-          </UButton>
-        </div>
-      </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chromium')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-streamline-color:chrome-flat" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('chromium').name }}</span>
-          </span>
-        </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chromium').installed" :model-value="stateCrawlerBrowserSelectedId === 'chromium'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chromium'), on)" />
-        <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
-            {{ t('pages.settings.crawler.browser.actions.refresh') }}
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
-            {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
-          </UButton>
-        </div>
-      </UFormField>
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'overflow-hidden p-0 sm:p-0 gap-y-0' }">
+      <div class="after:border-default relative overflow-hidden p-4 after:pointer-events-none after:absolute after:right-4 after:bottom-0 after:left-4 after:border-b after:content-[''] sm:p-6 sm:after:right-6 sm:after:left-6">
+        <UFormField :label="crawlerBrowserCandidateGet('msedge').name" :description="t('pages.settings.crawler.browser.runtimeDescriptions.edge')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+          <USwitch v-if="crawlerBrowserCandidateGet('msedge').installed" :model-value="stateCrawlerBrowserSelectedId === 'msedge'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
+          <div v-else class="flex shrink-0 items-center gap-2">
+            <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+              {{ t('pages.settings.crawler.browser.actions.refresh') }}
+            </UButton>
+            <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('msedge'))">
+              {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
+            </UButton>
+          </div>
+        </UFormField>
+        <UIcon name="i-logos:microsoft-edge" class="absolute -top-16 -left-16 size-64 opacity-5" />
+      </div>
+      <div class="after:border-default relative overflow-hidden p-4 after:pointer-events-none after:absolute after:right-4 after:bottom-0 after:left-4 after:border-b after:content-[''] sm:p-6 sm:after:right-6 sm:after:left-6">
+        <UFormField :label="crawlerBrowserCandidateGet('chrome').name" :description="t('pages.settings.crawler.browser.runtimeDescriptions.chrome')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+          <USwitch v-if="crawlerBrowserCandidateGet('chrome').installed" :model-value="stateCrawlerBrowserSelectedId === 'chrome'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
+          <div v-else class="flex shrink-0 items-center gap-2">
+            <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+              {{ t('pages.settings.crawler.browser.actions.refresh') }}
+            </UButton>
+            <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
+              {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
+            </UButton>
+          </div>
+        </UFormField>
+        <UIcon name="i-devicon:chrome" class="absolute -top-16 -left-16 size-64 opacity-5" />
+      </div>
+      <div class="relative overflow-hidden p-4 sm:p-6">
+        <UFormField :label="crawlerBrowserCandidateGet('chromium').name" :description="t('pages.settings.crawler.browser.runtimeDescriptions.chromium')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+          <USwitch v-if="crawlerBrowserCandidateGet('chromium').installed" :model-value="stateCrawlerBrowserSelectedId === 'chromium'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chromium'), on)" />
+          <div v-else class="flex shrink-0 items-center gap-2">
+            <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+              {{ t('pages.settings.crawler.browser.actions.refresh') }}
+            </UButton>
+            <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
+              {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
+            </UButton>
+          </div>
+        </UFormField>
+        <UIcon name="i-streamline-color:chrome-flat" class="absolute -top-16 -left-16 size-64 opacity-5" />
+      </div>
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
