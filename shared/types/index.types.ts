@@ -24,6 +24,7 @@ export type {
   TPageHomePodcastLength
 } from '@@/shared/types/pages/home/index.types';
 export type {
+  ICalendarDateValue,
   IHotsearchAdDeliveryPlatformOption,
   IHotsearchArchiveDateSummary,
   IHotsearchDataPage,
@@ -37,8 +38,6 @@ export type {
   IHotsearchPodcastViewModel,
   IHotsearchTagSummaryPage,
   IHotsearchTagSummaryRow,
-  ICalendarDateValue,
-  TMediaPlyrExposed,
   IQueryResultHotSearchCronAllResponse,
   IQueryResultHotSearchCronPlatformResponse,
   IQueryResultHotSearchDateRecountRequest,
@@ -49,7 +48,8 @@ export type {
   THotsearchAdDeliveryPlatformKind,
   THotsearchMediaPlatformKey,
   THotsearchPodcastVariantKey,
-  THotsearchSectionKey
+  THotsearchSectionKey,
+  TMediaPlyrExposed
 } from '@@/shared/types/pages/hotsearch/index.types';
 export type {
   IPagePoetrysDetailInfo,
@@ -138,6 +138,7 @@ export type {
 } from '@@/shared/types/pages/settings/unattended/index.types';
 export type { IApiClientConfig, IApiClientConfigPatch, IApiClientRequestInput, IApiClientRequestOutput } from '@@/shared/types/tauri/api-client/index.types';
 export type { IOpenFileContentResult, IOpenFileFilter, IOpenFilePayload } from '@@/shared/types/tauri/dialog/index.types';
+export type { IInputLabExecuteRequest, IInputLabExecuteResponse, IInputLabPoint, IInputLabRect, IInputLabTraceItem, TInputLabAction } from '@@/shared/types/tauri/input-lab/index.types';
 export type {
   ITauriPodcastGenerateAccepted,
   ITauriPodcastNlpText,
