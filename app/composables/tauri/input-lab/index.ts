@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import type { IInputLabExecuteRequest, IInputLabExecuteResponse } from '@@/shared/types/tauri/input-lab/index.types';
+import type { IInputLabExecuteRequest, IInputLabExecuteResponse, IInputPathRecordStartRequest, IInputPathRecordStartResponse, IInputPathRecordStopResponse } from '@@/shared/types/tauri/input-lab/index.types';
 
 /**
  * Hook：Tauri 键鼠实验台。
@@ -30,5 +30,38 @@ export const useTauriInputLab = () => {
     return invoke<IInputLabExecuteResponse>('crawler_input_lab_execute', { request });
   };
 
-  return { execute };
+  /**
+   * 函数：开始录制鼠标路径。
+   * @param {IInputPathRecordStartRequest} request 录制启动请求。
+   * @returns {Promise<IInputPathRecordStartResponse>} 录制启动结果。
+   */
+  const recordStart = async (request: IInputPathRecordStartRequest): Promise<IInputPathRecordStartResponse> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return invoke<IInputPathRecordStartResponse>('crawler_input_path_record_start', { request });
+  };
+
+  /**
+   * 函数：停止录制鼠标路径。
+   * @returns {Promise<IInputPathRecordStopResponse>} 录制停止结果。
+   */
+  const recordStop = async (): Promise<IInputPathRecordStopResponse> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return invoke<IInputPathRecordStopResponse>('crawler_input_path_record_stop');
+  };
+
+  return { execute, recordStart, recordStop };
 };

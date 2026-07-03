@@ -265,3 +265,133 @@ export interface IInputLabExecuteResponse {
    */
   result: unknown;
 }
+
+/**
+ * 接口：鼠标路径录制启动请求。
+ */
+export interface IInputPathRecordStartRequest {
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制启动响应。
+ */
+export interface IInputPathRecordStartResponse {
+  /**
+   * 是否正在录制。
+   */
+  recording: boolean;
+
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制点。
+ */
+export interface IInputPathRecordPoint {
+  /**
+   * X 坐标，单位物理像素。
+   */
+  x: number;
+
+  /**
+   * Y 坐标，单位物理像素。
+   */
+  y: number;
+
+  /**
+   * 距离录制开始的时间，单位毫秒。
+   */
+  tMs: number;
+}
+
+/**
+ * 接口：鼠标路径录制样本。
+ */
+export interface IInputPathRecordSample {
+  /**
+   * 采样间隔，单位毫秒。
+   */
+  sampleIntervalMs: number;
+
+  /**
+   * 最长录制时间，单位毫秒。
+   */
+  maxDurationMs: number;
+
+  /**
+   * 鼠标路径点。
+   */
+  points: IInputPathRecordPoint[];
+}
+
+/**
+ * 接口：鼠标路径录制分析结果。
+ */
+export interface IInputPathRecordAnalysis {
+  /**
+   * 样本点数量。
+   */
+  pointCount: number;
+
+  /**
+   * 总耗时，单位毫秒。
+   */
+  durationMs: number;
+
+  /**
+   * 包围盒。
+   */
+  bounds: IInputLabRect;
+
+  /**
+   * 路径总长度，单位像素。
+   */
+  totalDistancePx: number;
+
+  /**
+   * 平均速度，单位像素每秒。
+   */
+  averageSpeedPxPerSec: number;
+
+  /**
+   * 原地停留采样点数量。
+   */
+  stillSampleCount: number;
+}
+
+/**
+ * 接口：鼠标路径录制停止响应。
+ */
+export interface IInputPathRecordStopResponse {
+  /**
+   * 是否正在录制。
+   */
+  recording: boolean;
+
+  /**
+   * 录制样本。
+   */
+  sample: IInputPathRecordSample;
+
+  /**
+   * 样本分析。
+   */
+  analysis: IInputPathRecordAnalysis;
+}

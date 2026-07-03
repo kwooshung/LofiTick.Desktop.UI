@@ -470,6 +470,41 @@
               <span v-if="!isTauriRuntime" class="text-warning text-sm">只能在 Tauri 桌面壳里执行。</span>
             </div>
 
+            <section class="border-default bg-muted/30 space-y-4 rounded-lg border p-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="space-y-1">
+                  <h3 class="text-highlighted text-sm font-semibold">鼠标路径录制</h3>
+                  <p class="text-muted text-sm leading-6">录制你真实操作时的鼠标路径，停止后直接输出 JSON 样本。</p>
+                </div>
+                <UBadge :color="stateInputPathRecordRecording ? 'warning' : 'neutral'" variant="soft">{{ stateInputPathRecordRecording ? '录制中' : '未录制' }}</UBadge>
+              </div>
+
+              <div class="grid gap-3 md:grid-cols-2">
+                <UFormField label="采样间隔" description="单位毫秒，默认约 60Hz。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }">
+                  <UInputNumber v-model="stateInputPathRecordSampleIntervalMs" orientation="vertical" :min="5" :max="1000" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+                </UFormField>
+                <UFormField label="最长时间" description="单位毫秒，到时自动停止采样线程。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }">
+                  <UInputNumber v-model="stateInputPathRecordMaxDurationMs" orientation="vertical" :min="100" :max="120000" :step="1000" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+                </UFormField>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3">
+                <UButton color="primary" icon="i-lucide:radio" :loading="stateInputPathRecordLoading && !stateInputPathRecordRecording" :disabled="!isTauriRuntime || stateInputPathRecordRecording" @click="handleInputPathRecordStart">开始录制</UButton>
+                <UButton color="warning" variant="soft" icon="i-lucide:square" :loading="stateInputPathRecordLoading && stateInputPathRecordRecording" :disabled="!isTauriRuntime || !stateInputPathRecordRecording" @click="handleInputPathRecordStop">停止并输出</UButton>
+                <UButton color="neutral" variant="outline" icon="i-lucide:x" :disabled="stateInputPathRecordRecording || !stateInputPathRecordOutput" @click="handleInputPathRecordOutputClear">清空输出</UButton>
+              </div>
+
+              <UAlert v-if="stateInputPathRecordError" color="error" variant="soft" title="录制失败" :description="stateInputPathRecordError" />
+
+              <div v-if="stateInputPathRecordResult" class="flex flex-wrap items-center gap-2">
+                <UBadge color="primary" variant="soft">{{ stateInputPathRecordResult.analysis.pointCount }} points</UBadge>
+                <UBadge color="neutral" variant="outline">{{ stateInputPathRecordResult.analysis.durationMs }} ms</UBadge>
+                <UBadge color="neutral" variant="outline">{{ Math.round(stateInputPathRecordResult.analysis.totalDistancePx) }} px</UBadge>
+              </div>
+
+              <UTextarea v-model="stateInputPathRecordOutput" autoresize :rows="10" class="w-full font-mono text-xs" />
+            </section>
+
             <UAlert v-if="stateInputLabError" color="error" variant="soft" title="执行失败" :description="stateInputLabError" />
             <UAlert v-if="stateInputLabResult" color="success" variant="soft" title="执行完成" :description="stateInputLabResult.summary" />
 
@@ -584,7 +619,7 @@
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { VueDraggable } from 'vue-draggable-plus';
 
-import type { IInputLabExecuteRequest, IInputLabExecuteResponse, IInputLabPoint, IInputLabRect, IInputLabStep, TInputLabAction } from '@@/shared/types/tauri/input-lab/index.types';
+import type { IInputLabExecuteRequest, IInputLabExecuteResponse, IInputLabPoint, IInputLabRect, IInputLabStep, IInputPathRecordStopResponse, TInputLabAction } from '@@/shared/types/tauri/input-lab/index.types';
 
 /**
  * 国际化：i18n
@@ -664,10 +699,10 @@ const INPUT_CONTROLLER_ACTIONS = [
   { name: 'scroll_vertical', icon: 'i-lucide:panel-top-open', description: '按分段配置执行纵向滚轮。' },
   { name: 'scroll_horizontal', icon: 'i-lucide:panel-left-open', description: '按分段配置执行横向滚轮。' },
   { name: 'idle_random_move', icon: 'i-lucide:waves', description: '在当前位置附近执行毫无目的的随机游走。' },
-  { name: 'idle_circle', icon: 'i-lucide:circle', description: '执行不标准、不固定路线的圆形空闲移动。' },
-  { name: 'idle_infinity', icon: 'i-lucide:infinity', description: '执行方向、比例、旋转和扰动随机的无限符号移动。' },
+  { name: 'idle_circle', icon: 'i-lucide:circle', description: '执行基于录制样本尺寸的圆圈移动，方向可顺逆随机。' },
+  { name: 'idle_infinity', icon: 'i-lucide:infinity', description: '执行基于录制样本尺寸的无限符号移动，方向可顺逆随机。' },
   { name: 'idle_eight', icon: 'i-lucide:badge-8', description: '执行偏手写感的连写 8 轨迹。' },
-  { name: 'idle_random_scroll', icon: 'i-lucide:mouse', description: '随机滚轮，并在滚轮前后轻微移动鼠标。' },
+  { name: 'idle_random_scroll', icon: 'i-lucide:mouse', description: '先按录制样本尺度移动到滚动点，停留滚动后再离开。' },
   { name: 'key_tap', icon: 'i-lucide:keyboard', description: '按配置执行单个键的按下与释放。' },
   { name: 'key_down / key_up', icon: 'i-lucide:corner-down-left', description: '分别发送按下与释放事件，适合快捷键组合。' },
   { name: 'hotkey', icon: 'i-lucide:command', description: '按顺序按下按键，再反向释放。' },
@@ -699,34 +734,34 @@ const HUMAN_INPUT_ACTIONS = [
  * 常量：键鼠实验台数值默认值。
  */
 const INPUT_LAB_NUMBER_DEFAULTS = {
-  'move.durationMs.min': 120,
+  'move.durationMs.min': 150,
   'move.durationMs.max': 650,
-  'move.durationPerPxMs.min': 0.15,
-  'move.durationPerPxMs.max': 0.75,
-  'move.durationBounds.min': 80,
-  'move.durationBounds.max': 900,
-  'move.steps.min': 12,
-  'move.steps.max': 36,
-  'move.jitterPx.min': -2,
-  'move.jitterPx.max': 2,
+  'move.durationPerPxMs.min': 0.18,
+  'move.durationPerPxMs.max': 0.72,
+  'move.durationBounds.min': 110,
+  'move.durationBounds.max': 1200,
+  'move.steps.min': 18,
+  'move.steps.max': 48,
+  'move.jitterPx.min': -5,
+  'move.jitterPx.max': 5,
   'move.overshootPx.min': 0,
   'move.overshootPx.max': 6,
-  'move.curveFactor.min': 0.08,
-  'move.curveFactor.max': 0.24,
-  'move.secondaryCurveFactor.min': 0.02,
-  'move.secondaryCurveFactor.max': 0.14,
+  'move.curveFactor.min': 0.015,
+  'move.curveFactor.max': 0.22,
+  'move.secondaryCurveFactor.min': 0.004,
+  'move.secondaryCurveFactor.max': 0.12,
   'move.curveDirectionChangeProbability.min': 0.18,
   'move.curveDirectionChangeProbability.max': 0.46,
-  'move.speedFactor.min': 0.85,
-  'move.speedFactor.max': 1.25,
+  'move.speedFactor.min': 0.95,
+  'move.speedFactor.max': 1.45,
   'move.splitMoveProbability.min': 0.06,
   'move.splitMoveProbability.max': 0.16,
   'move.splitMoveCount.min': 2,
   'move.splitMoveCount.max': 3,
   'move.splitMovePauseMs.min': 70,
   'move.splitMovePauseMs.max': 240,
-  'move.settleMs.min': 40,
-  'move.settleMs.max': 160,
+  'move.settleMs.min': 50,
+  'move.settleMs.max': 170,
   'click.beforeClickMs.min': 30,
   'click.beforeClickMs.max': 180,
   'click.downUpMs.min': 45,
@@ -749,20 +784,20 @@ const INPUT_LAB_NUMBER_DEFAULTS = {
   'scroll.intervalMs.max': 220,
   'scroll.afterScrollMs.min': 120,
   'scroll.afterScrollMs.max': 360,
-  'idle.durationMs.min': 800,
-  'idle.durationMs.max': 2600,
-  'idle.steps.min': 18,
-  'idle.steps.max': 64,
-  'idle.radiusPx.min': 18,
-  'idle.radiusPx.max': 90,
-  'idle.shapeScale.min': 10,
-  'idle.shapeScale.max': 30,
+  'idle.durationMs.min': 1500,
+  'idle.durationMs.max': 4800,
+  'idle.steps.min': 42,
+  'idle.steps.max': 84,
+  'idle.radiusPx.min': 108,
+  'idle.radiusPx.max': 540,
+  'idle.shapeScale.min': 0.5,
+  'idle.shapeScale.max': 1.5,
   'idle.aspectRatio.min': 0.62,
   'idle.aspectRatio.max': 1.48,
   'idle.rotationDeg.min': -28,
   'idle.rotationDeg.max': 28,
-  'idle.jitterPx.min': -4,
-  'idle.jitterPx.max': 4,
+  'idle.jitterPx.min': -3,
+  'idle.jitterPx.max': 3,
   'idle.clickProbability.min': 0,
   'idle.clickProbability.max': 0.08,
   'idle.scrollProbability.min': 0.02,
@@ -972,6 +1007,41 @@ const stateInputLabError = ref('');
 const stateInputLabResult = ref<IInputLabExecuteResponse | null>(null);
 
 /**
+ * 状态：鼠标路径录制采样间隔。
+ */
+const stateInputPathRecordSampleIntervalMs = ref(16);
+
+/**
+ * 状态：鼠标路径录制最长时间。
+ */
+const stateInputPathRecordMaxDurationMs = ref(15_000);
+
+/**
+ * 状态：鼠标路径是否正在录制。
+ */
+const stateInputPathRecordRecording = ref(false);
+
+/**
+ * 状态：鼠标路径录制是否正在请求。
+ */
+const stateInputPathRecordLoading = ref(false);
+
+/**
+ * 状态：鼠标路径录制错误。
+ */
+const stateInputPathRecordError = ref('');
+
+/**
+ * 状态：鼠标路径录制输出。
+ */
+const stateInputPathRecordOutput = ref('');
+
+/**
+ * 状态：鼠标路径录制结果。
+ */
+const stateInputPathRecordResult = ref<IInputPathRecordStopResponse | null>(null);
+
+/**
  * 计算属性：首页页签徽章。
  */
 const computedHomeTabBadge = computed(() => {
@@ -1145,15 +1215,15 @@ const inputLabParameterGroups = computed(() => [
     items: [
       inputLabRangeItemCreate('idle.durationMs', 'duration_ms', '无目标行为总耗时，单位毫秒。', 10, 0, 10000),
       inputLabRangeItemCreate('idle.steps', 'steps', '无目标轨迹采样点数量。', 1, 3, 240),
-      inputLabRangeItemCreate('idle.radiusPx', 'radius_px', '图形半径或随机活动半径，单位像素。', 1, 1, 500),
-      inputLabRangeItemCreate('idle.shapeScale', 'shape_scale', '圆圈、无限符号和连写 8 的动态图形倍率。', 1, 1, 60),
+      inputLabRangeItemCreate('idle.radiusPx', 'radius_px', '随机游走基础活动半径，单位像素；一次无目的随机移动中会多次随机切换为 1 到 3 倍，并降低最高播放速度。', 1, 1, 1200),
+      inputLabRangeItemCreate('idle.shapeScale', 'shape_scale', '录制样本倍率；圆圈、无限符号和连写 8 内部按半尺寸绘制，随机滚轮按原样本尺度移动。', 0.1, 0.1, 3),
       inputLabRangeItemCreate('idle.aspectRatio', 'aspect_ratio', '图形横纵比例扰动。', 0.01, 0.1, 5),
       inputLabRangeItemCreate('idle.rotationDeg', 'rotation_deg', '图形整体随机旋转角度。', 1, -180, 180),
-      inputLabRangeItemCreate('idle.jitterPx', 'jitter_px', '无目标轨迹点扰动，单位像素。', 1, -80, 80),
+      inputLabRangeItemCreate('idle.jitterPx', 'jitter_px', '无目标轨迹点扰动，单位像素；录制图形绘制时会缩减到三分之一。', 1, -80, 80),
       inputLabRangeItemCreate('idle.clickProbability', 'click_probability', '移动过程中随机点击概率。', 0.01, 0, 1),
       inputLabRangeItemCreate('idle.scrollProbability', 'scroll_probability', '移动过程中随机滚轮概率。', 0.01, 0, 1),
       inputLabRangeItemCreate('idle.scrollTicks', 'scroll_ticks', '随机滚轮刻度。', 1, -20, 20),
-      inputLabRangeItemCreate('idle.scrollDriftPx', 'scroll_drift_px', '滚轮时鼠标轻微漂移像素。', 1, -50, 50),
+      inputLabRangeItemCreate('idle.scrollDriftPx', 'scroll_drift_px', '滚轮停留期间偶发微漂移像素。', 1, -50, 50),
       inputLabRangeItemCreate('idle.scrollIntervalMs', 'scroll_interval_ms', '滚轮动作之间的随机等待。', 10, 0, 5000)
     ]
   },
@@ -2094,6 +2164,59 @@ const handleInputLabExecute = async (): Promise<void> => {
   } finally {
     stateInputLabExecuting.value = false;
   }
+};
+
+/**
+ * 事件：开始录制鼠标路径。
+ * @returns {Promise<void>} 无返回值
+ */
+const handleInputPathRecordStart = async (): Promise<void> => {
+  stateInputPathRecordLoading.value = true;
+  stateInputPathRecordError.value = '';
+  stateInputPathRecordResult.value = null;
+  stateInputPathRecordOutput.value = '';
+
+  try {
+    const response = await tauriInputLab.recordStart({
+      sampleIntervalMs: stateInputPathRecordSampleIntervalMs.value,
+      maxDurationMs: stateInputPathRecordMaxDurationMs.value
+    });
+    stateInputPathRecordRecording.value = response.recording;
+  } catch (error) {
+    stateInputPathRecordError.value = inputLabErrorFormat(error);
+  } finally {
+    stateInputPathRecordLoading.value = false;
+  }
+};
+
+/**
+ * 事件：停止录制鼠标路径。
+ * @returns {Promise<void>} 无返回值
+ */
+const handleInputPathRecordStop = async (): Promise<void> => {
+  stateInputPathRecordLoading.value = true;
+  stateInputPathRecordError.value = '';
+
+  try {
+    const response = await tauriInputLab.recordStop();
+    stateInputPathRecordRecording.value = response.recording;
+    stateInputPathRecordResult.value = response;
+    stateInputPathRecordOutput.value = inputLabJsonFormat(response);
+  } catch (error) {
+    stateInputPathRecordError.value = inputLabErrorFormat(error);
+  } finally {
+    stateInputPathRecordLoading.value = false;
+  }
+};
+
+/**
+ * 事件：清空鼠标路径录制输出。
+ * @returns {void} 无返回值
+ */
+const handleInputPathRecordOutputClear = (): void => {
+  stateInputPathRecordResult.value = null;
+  stateInputPathRecordOutput.value = '';
+  stateInputPathRecordError.value = '';
 };
 
 /**
