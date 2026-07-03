@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { listen } from '@tauri-apps/api/event';
 
-import type { ICrawlerTaskBrowserSessionState, ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest } from './index.types';
+import type { ICrawlerTaskBrowserSessionEvent, ICrawlerTaskBrowserSessionState, ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest } from './index.types';
 
 /**
  * 常量：爬虫浏览器会话状态变化事件名。
@@ -70,40 +70,6 @@ export const useTauriTasks = () => {
   };
 
   /**
-   * 函数：显示爬虫浏览器会话。
-   * @param {string} taskId 任务 ID。
-   * @returns {Promise<void>} 无返回值。
-   */
-  const crawlerTaskBrowserSessionShow = async (taskId: string): Promise<void> => {
-    if (!import.meta.client) {
-      throw new Error('client only');
-    }
-
-    if (!isTauriRuntime.value) {
-      throw new Error('tauri only');
-    }
-
-    await invoke('crawler_task_browser_session_show', { taskId });
-  };
-
-  /**
-   * 函数：隐藏爬虫浏览器会话。
-   * @param {string} taskId 任务 ID。
-   * @returns {Promise<void>} 无返回值。
-   */
-  const crawlerTaskBrowserSessionHide = async (taskId: string): Promise<void> => {
-    if (!import.meta.client) {
-      throw new Error('client only');
-    }
-
-    if (!isTauriRuntime.value) {
-      throw new Error('tauri only');
-    }
-
-    await invoke('crawler_task_browser_session_hide', { taskId });
-  };
-
-  /**
    * 函数：关闭爬虫浏览器会话。
    * @param {string} taskId 任务 ID。
    * @returns {Promise<void>} 无返回值。
@@ -139,10 +105,10 @@ export const useTauriTasks = () => {
 
   /**
    * 函数：监听爬虫浏览器会话状态变化事件。
-   * @param {(taskId: string) => void} handler 事件回调。
+   * @param {(state: ICrawlerTaskBrowserSessionEvent) => void} handler 事件回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
    */
-  const onCrawlerBrowserSessionStateChanged = async (handler: (taskId: string) => void): Promise<UnlistenFn> => {
+  const onCrawlerBrowserSessionStateChanged = async (handler: (state: ICrawlerTaskBrowserSessionEvent) => void): Promise<UnlistenFn> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -151,10 +117,10 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    return listen<string>(EVENT_CRAWLER_BROWSER_SESSION_STATE_CHANGED, (event) => {
+    return listen<ICrawlerTaskBrowserSessionEvent>(EVENT_CRAWLER_BROWSER_SESSION_STATE_CHANGED, (event) => {
       handler(event.payload);
     });
   };
 
-  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskBrowserSessionShow, crawlerTaskBrowserSessionHide, crawlerTaskBrowserSessionClose, crawlerTaskBrowserSessionStateGet, onCrawlerBrowserSessionStateChanged };
+  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskBrowserSessionClose, crawlerTaskBrowserSessionStateGet, onCrawlerBrowserSessionStateChanged };
 };

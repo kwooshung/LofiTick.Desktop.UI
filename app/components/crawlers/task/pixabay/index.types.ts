@@ -76,7 +76,7 @@ export interface ICrawlersTaskPixabayEmits {
    * 事件：更新任务执行弹窗打开状态。
    * @param {boolean} value 是否打开
    */
-  (event: 'update:dialogOpen' | 'update:taskExecuting' | 'update:browserSessionVisible', value: boolean): void;
+  (event: 'update:dialogOpen' | 'update:taskExecuting', value: boolean): void;
 
   /**
    * 事件：更新当前 Pixabay 爬虫浏览器会话任务 ID。

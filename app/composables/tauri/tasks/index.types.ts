@@ -76,9 +76,19 @@ export interface ICrawlerTaskBrowserSessionState {
    * 属性：当前任务对应的浏览器会话任务 ID。
    */
   taskId: string;
+}
+
+/**
+ * 接口：爬虫浏览器会话状态变化事件。
+ */
+export interface ICrawlerTaskBrowserSessionEvent {
+  /**
+   * 属性：当前任务对应的浏览器会话任务 ID。
+   */
+  taskId: string;
 
   /**
-   * 属性：当前任务对应的浏览器会话是否可见。
+   * 属性：当前任务是否仍在运行。
    */
-  visible: boolean;
+  running: boolean;
 }

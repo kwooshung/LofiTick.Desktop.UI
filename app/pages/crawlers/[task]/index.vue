@@ -1,6 +1,6 @@
 <template>
   <KeepAlive>
-    <SectionsCrawlersTask v-model:dialog-open="stateDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:browser-session-task-id="stateBrowserSessionTaskId" v-model:browser-session-visible="stateBrowserSessionVisible" />
+    <SectionsCrawlersTask v-model:dialog-open="stateDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:browser-session-task-id="stateBrowserSessionTaskId" />
   </KeepAlive>
 </template>
 
@@ -19,9 +19,4 @@ const stateTaskExecuting = defineModel<boolean>('taskExecuting', { default: fals
  * 状态：当前 Pixabay 爬虫浏览器会话任务 ID。
  */
 const stateBrowserSessionTaskId = defineModel<string>('browserSessionTaskId', { default: '' });
-
-/**
- * 状态：当前 Pixabay 爬虫浏览器会话是否可见。
- */
-const stateBrowserSessionVisible = defineModel<boolean>('browserSessionVisible', { default: false });
 </script>

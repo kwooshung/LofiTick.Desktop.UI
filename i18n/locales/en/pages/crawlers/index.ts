@@ -16,8 +16,6 @@ export const crawlers = {
   task: {
     actions: {
       execute: 'Run task',
-      browserSessionShow: 'Show window',
-      browserSessionHide: 'Hide window',
       pause: 'Pause task',
       resume: 'Resume task',
       stop: 'Stop task',

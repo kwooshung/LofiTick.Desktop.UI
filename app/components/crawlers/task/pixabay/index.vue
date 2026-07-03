@@ -310,7 +310,6 @@ const handlePixabaySubmit = async (): Promise<void> => {
 
     const accepted = await tauriTasks.crawlerTaskExecute(request);
     emit('update:browserSessionTaskId', accepted.taskId);
-    emit('update:browserSessionVisible', true);
     computedPixabayDialogOpen.value = false;
   } finally {
     statePixabaySubmitting.value = false;
