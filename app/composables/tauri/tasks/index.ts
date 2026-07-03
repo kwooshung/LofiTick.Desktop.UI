@@ -2,12 +2,12 @@ import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { listen } from '@tauri-apps/api/event';
 
-import type { ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest, ICrawlerTaskWebviewState } from './index.types';
+import type { ICrawlerTaskBrowserSessionState, ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest } from './index.types';
 
 /**
- * 常量：爬虫 WebView 状态变化事件名。
+ * 常量：爬虫浏览器会话状态变化事件名。
  */
-const EVENT_CRAWLER_WEBVIEW_STATE_CHANGED = 'crawler://webview-state-changed';
+const EVENT_CRAWLER_BROWSER_SESSION_STATE_CHANGED = 'crawler://browser-session-state-changed';
 
 /**
  * Hook：Tauri 任务能力
@@ -70,11 +70,11 @@ export const useTauriTasks = () => {
   };
 
   /**
-   * 函数：显示爬虫 WebView。
+   * 函数：显示爬虫浏览器会话。
    * @param {string} taskId 任务 ID。
    * @returns {Promise<void>} 无返回值。
    */
-  const crawlerTaskWebviewShow = async (taskId: string): Promise<void> => {
+  const crawlerTaskBrowserSessionShow = async (taskId: string): Promise<void> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -83,15 +83,15 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    await invoke('crawler_task_webview_show', { taskId });
+    await invoke('crawler_task_browser_session_show', { taskId });
   };
 
   /**
-   * 函数：隐藏爬虫 WebView。
+   * 函数：隐藏爬虫浏览器会话。
    * @param {string} taskId 任务 ID。
    * @returns {Promise<void>} 无返回值。
    */
-  const crawlerTaskWebviewHide = async (taskId: string): Promise<void> => {
+  const crawlerTaskBrowserSessionHide = async (taskId: string): Promise<void> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -100,15 +100,15 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    await invoke('crawler_task_webview_hide', { taskId });
+    await invoke('crawler_task_browser_session_hide', { taskId });
   };
 
   /**
-   * 函数：关闭爬虫 WebView。
+   * 函数：关闭爬虫浏览器会话。
    * @param {string} taskId 任务 ID。
    * @returns {Promise<void>} 无返回值。
    */
-  const crawlerTaskWebviewClose = async (taskId: string): Promise<void> => {
+  const crawlerTaskBrowserSessionClose = async (taskId: string): Promise<void> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -117,15 +117,15 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    await invoke('crawler_task_webview_close', { taskId });
+    await invoke('crawler_task_browser_session_close', { taskId });
   };
 
   /**
-   * 函数：读取指定任务的 WebView 状态。
+   * 函数：读取指定任务的浏览器会话状态。
    * @param {string} task 任务键。
-   * @returns {Promise<ICrawlerTaskWebviewState | null>} WebView 状态。
+   * @returns {Promise<ICrawlerTaskBrowserSessionState | null>} 浏览器会话状态。
    */
-  const crawlerTaskWebviewStateGet = async (task: string): Promise<ICrawlerTaskWebviewState | null> => {
+  const crawlerTaskBrowserSessionStateGet = async (task: string): Promise<ICrawlerTaskBrowserSessionState | null> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -134,15 +134,15 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    return invoke<ICrawlerTaskWebviewState | null>('crawler_task_webview_state_get', { task });
+    return invoke<ICrawlerTaskBrowserSessionState | null>('crawler_task_browser_session_state_get', { task });
   };
 
   /**
-   * 函数：监听爬虫 WebView 状态变化事件。
+   * 函数：监听爬虫浏览器会话状态变化事件。
    * @param {(taskId: string) => void} handler 事件回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
    */
-  const onCrawlerWebviewStateChanged = async (handler: (taskId: string) => void): Promise<UnlistenFn> => {
+  const onCrawlerBrowserSessionStateChanged = async (handler: (taskId: string) => void): Promise<UnlistenFn> => {
     if (!import.meta.client) {
       throw new Error('client only');
     }
@@ -151,10 +151,10 @@ export const useTauriTasks = () => {
       throw new Error('tauri only');
     }
 
-    return listen<string>(EVENT_CRAWLER_WEBVIEW_STATE_CHANGED, (event) => {
+    return listen<string>(EVENT_CRAWLER_BROWSER_SESSION_STATE_CHANGED, (event) => {
       handler(event.payload);
     });
   };
 
-  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskWebviewShow, crawlerTaskWebviewHide, crawlerTaskWebviewClose, crawlerTaskWebviewStateGet, onCrawlerWebviewStateChanged };
+  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskBrowserSessionShow, crawlerTaskBrowserSessionHide, crawlerTaskBrowserSessionClose, crawlerTaskBrowserSessionStateGet, onCrawlerBrowserSessionStateChanged };
 };

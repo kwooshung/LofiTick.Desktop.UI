@@ -75,6 +75,20 @@ interface ITauriHotsearchAdAssetPathResult {
   filePath: string;
 }
 
+/**
+ * 接口：爬虫浏览器资料目录信息。
+ */
+interface ITauriCrawlerBrowserProfilesDirInfo {
+  /** 配置路径。 */
+  configuredDir: string;
+
+  /** 默认路径。 */
+  defaultDir: string;
+
+  /** 当前生效路径。 */
+  directoryPath: string;
+}
+
 export const useTauriSettings = () => {
   /**
    * 函数：获取完整设置
@@ -117,6 +131,24 @@ export const useTauriSettings = () => {
    */
   const setAttachmentsDir = async (title: string, current: string): Promise<string | null> => {
     return invoke<string | null>('settings_set_attachments_dir', { title, current });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器资料目录信息。
+   * @returns {Promise<ITauriCrawlerBrowserProfilesDirInfo>} 目录信息。
+   */
+  const crawlerBrowserProfilesDirGet = async (): Promise<ITauriCrawlerBrowserProfilesDirInfo> => {
+    return invoke<ITauriCrawlerBrowserProfilesDirInfo>('settings_crawler_browser_profiles_dir_get');
+  };
+
+  /**
+   * 函数：选择并设置爬虫浏览器资料目录父级。
+   * @param {string} title 对话框标题。
+   * @param {string} current 当前目录。
+   * @returns {Promise<string | null>} 选择结果。
+   */
+  const setCrawlerBrowserProfilesDir = async (title: string, current: string): Promise<string | null> => {
+    return invoke<string | null>('settings_set_crawler_browser_profiles_dir', { title, current });
   };
 
   /**
@@ -242,6 +274,8 @@ export const useTauriSettings = () => {
     get,
     update,
     setAttachmentsDir,
+    crawlerBrowserProfilesDirGet,
+    setCrawlerBrowserProfilesDir,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

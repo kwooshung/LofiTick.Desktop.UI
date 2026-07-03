@@ -96,6 +96,15 @@
       description: '打开应用的 userData 目录（用户配置、缓存等）',
       open: '打开目录'
     },
+    crawlerBrowserProfilesDirectory: {
+      label: '爬虫浏览器资料目录',
+      description: 'Playwright 真实浏览器的资料目录父级；同一爬虫和同一域名会复用固定子目录。',
+      dialogTitle: '选择爬虫浏览器资料目录',
+      open: '打开目录',
+      choose: '选择目录',
+      reselect: '重新选择',
+      unset: '未设置'
+    },
     storage: {
       label: '数据存放目录',
       description: '数据文件保存的目录，当前路径：',

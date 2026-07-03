@@ -42,6 +42,29 @@
       <UFormField :label="t('pages.settings.general.userDataDirectory.label')" :description="t('pages.settings.general.userDataDirectory.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenUserDataDirectory">{{ t('pages.settings.general.userDataDirectory.open') }}</UButton>
       </UFormField>
+      <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.crawlerBrowserProfilesDirectory.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <template #description>
+          <div class="space-y-1">
+            <div>{{ t('pages.settings.general.crawlerBrowserProfilesDirectory.description') }}</div>
+            <span v-if="stateCrawlerBrowserProfilesPath">
+              <UTooltip :text="stateCrawlerBrowserProfilesPath" :content="{ side: 'top' }" :disabled="stateCrawlerBrowserProfilesPath === computedTruncatedCrawlerBrowserProfiles">
+                <ULink raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfiles">
+                  {{ computedTruncatedCrawlerBrowserProfiles }}
+                </ULink>
+              </UTooltip>
+            </span>
+            <span v-else class="text-error">{{ t('pages.settings.general.crawlerBrowserProfilesDirectory.unset') }}</span>
+          </div>
+        </template>
+        <div class="flex items-center gap-2">
+          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateCrawlerBrowserProfilesPath" @click="handleOpenCrawlerBrowserProfiles">
+            {{ t('pages.settings.general.crawlerBrowserProfilesDirectory.open') }}
+          </UButton>
+          <UButton :color="stateSelectingCrawlerBrowserProfiles ? 'primary' : 'neutral'" variant="outline" icon="i-lucide:folder-search" :ui="{ leadingIcon: 'text-muted' }" :loading="stateSelectingCrawlerBrowserProfiles" @click="handleSelectCrawlerBrowserProfiles">
+            {{ stateCrawlerBrowserProfilesConfigured ? t('pages.settings.general.crawlerBrowserProfilesDirectory.reselect') : t('pages.settings.general.crawlerBrowserProfilesDirectory.choose') }}
+          </UButton>
+        </div>
+      </UFormField>
       <UFormField v-if="stateIsMounted" :label="t('pages.settings.general.storage.label')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #description>
           <div class="space-y-1">
@@ -150,9 +173,24 @@ const stateCloseBehaviorValue = ref('unset');
 const stateStoragePath = ref('');
 
 /**
+ * 状态：爬虫浏览器资料目录路径
+ */
+const stateCrawlerBrowserProfilesPath = ref('');
+
+/**
+ * 状态：爬虫浏览器资料目录是否来自显式配置
+ */
+const stateCrawlerBrowserProfilesConfigured = ref(false);
+
+/**
  * 状态：截断显示的存放路径
  */
 const stateSelectingStorage = ref(false);
+
+/**
+ * 状态：是否正在选择爬虫浏览器资料目录
+ */
+const stateSelectingCrawlerBrowserProfiles = ref(false);
 
 /**
  * 状态：记忆窗口状态（始终写入窗口状态；该值仅控制启动时是否恢复）
@@ -219,23 +257,34 @@ const settingsLocaleIconGet = (code: string): string => {
 const computedLocaleIcon = computed(() => settingsLocaleIconGet(locale.value));
 
 /**
- * 计算属性：截断显示的存放路径
+ * 函数：截断路径显示
+ * @param {string} path 完整路径
+ * @returns {string} 截断后的路径
  */
-const computedTruncatedStorage = computed(() => {
-  /**
-   * 常量：p。
-   */
-  const p = stateStoragePath.value;
-
-  if (!p) {
+const pathDisplayTruncate = (path: string): string => {
+  if (!path) {
     return '';
   }
 
-  if (p.length <= 56) {
-    return p;
+  if (path.length <= 56) {
+    return path;
   }
 
-  return `${p.slice(0, 24)} … ${p.slice(-20)}`;
+  return `${path.slice(0, 24)} … ${path.slice(-20)}`;
+};
+
+/**
+ * 计算属性：截断显示的存放路径
+ */
+const computedTruncatedStorage = computed(() => {
+  return pathDisplayTruncate(stateStoragePath.value);
+});
+
+/**
+ * 计算属性：截断显示的爬虫浏览器资料目录
+ */
+const computedTruncatedCrawlerBrowserProfiles = computed(() => {
+  return pathDisplayTruncate(stateCrawlerBrowserProfilesPath.value);
 });
 
 /**
@@ -276,6 +325,47 @@ const handleOpenStorage = async (): Promise<void> => {
   }
 
   await tauriWindow.openDirectory(stateStoragePath.value);
+};
+
+/**
+ * 事件：选择爬虫浏览器资料目录
+ */
+const handleSelectCrawlerBrowserProfiles = async (): Promise<void> => {
+  if (stateSelectingCrawlerBrowserProfiles.value) {
+    return;
+  }
+
+  stateSelectingCrawlerBrowserProfiles.value = true;
+  try {
+    if (!isTauriRuntime.value) {
+      return;
+    }
+
+    /**
+     * 常量：result。
+     */
+    const result = await tauriSettings.setCrawlerBrowserProfilesDir(t('pages.settings.general.crawlerBrowserProfilesDirectory.dialogTitle'), stateCrawlerBrowserProfilesPath.value);
+
+    if (result) {
+      stateCrawlerBrowserProfilesPath.value = result;
+      stateCrawlerBrowserProfilesConfigured.value = true;
+    }
+  } catch {
+    // ignore
+  } finally {
+    stateSelectingCrawlerBrowserProfiles.value = false;
+  }
+};
+
+/**
+ * 事件：打开爬虫浏览器资料目录
+ */
+const handleOpenCrawlerBrowserProfiles = async (): Promise<void> => {
+  if (!isTauriRuntime.value || !stateCrawlerBrowserProfilesPath.value) {
+    return;
+  }
+
+  await tauriWindow.openDirectory(stateCrawlerBrowserProfilesPath.value);
 };
 
 /**
@@ -359,6 +449,13 @@ const loadSettings = async (): Promise<void> => {
   }
 
   stateStoragePath.value = String(conf.attachmentsDir || '');
+
+  /**
+   * 常量：crawlerBrowserProfiles。
+   */
+  const crawlerBrowserProfiles = await tauriSettings.crawlerBrowserProfilesDirGet();
+  stateCrawlerBrowserProfilesPath.value = crawlerBrowserProfiles.directoryPath;
+  stateCrawlerBrowserProfilesConfigured.value = Boolean(crawlerBrowserProfiles.configuredDir);
 
   /**
    * 常量：windowSetting。

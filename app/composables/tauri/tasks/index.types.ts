@@ -69,16 +69,16 @@ export interface ICrawlerTaskExecuteAccepted {
 }
 
 /**
- * 接口：爬虫 WebView 状态。
+ * 接口：爬虫浏览器会话状态。
  */
-export interface ICrawlerTaskWebviewState {
+export interface ICrawlerTaskBrowserSessionState {
   /**
-   * 属性：当前任务对应的 WebView 任务 ID。
+   * 属性：当前任务对应的浏览器会话任务 ID。
    */
   taskId: string;
 
   /**
-   * 属性：当前任务对应的 WebView 是否可见。
+   * 属性：当前任务对应的浏览器会话是否可见。
    */
   visible: boolean;
 }

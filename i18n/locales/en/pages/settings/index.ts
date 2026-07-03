@@ -96,6 +96,15 @@ export const settings = {
       description: 'Open the userData directory (preferences, cache, etc.).',
       open: 'Open directory'
     },
+    crawlerBrowserProfilesDirectory: {
+      label: 'Crawler browser profile directory',
+      description: 'Parent directory for Playwright real-browser profiles. The same crawler and domain reuse a stable child directory.',
+      dialogTitle: 'Choose crawler browser profile directory',
+      open: 'Open directory',
+      choose: 'Choose directory',
+      reselect: 'Choose again',
+      unset: 'Not set'
+    },
     storage: {
       label: 'Data storage directory',
       description: 'Directory where data files are stored. Current path:',

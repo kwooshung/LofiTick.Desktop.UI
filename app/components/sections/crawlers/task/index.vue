@@ -1,6 +1,6 @@
 <template>
   <DashboardPage>
-    <CrawlersTaskPixabay v-if="computedTask === 'pixabay'" v-model:dialog-open="computedDialogOpen" v-model:task-executing="computedTaskExecuting" v-model:webview-task-id="computedWebviewTaskId" v-model:webview-visible="computedWebviewVisible" />
+    <CrawlersTaskPixabay v-if="computedTask === 'pixabay'" v-model:dialog-open="computedDialogOpen" v-model:task-executing="computedTaskExecuting" v-model:browser-session-task-id="computedBrowserSessionTaskId" v-model:browser-session-visible="computedBrowserSessionVisible" />
     <CrawlersTaskSuno v-else-if="computedTask === 'suno'" v-model:dialog-open="computedDialogOpen" />
     <UEmpty v-else icon="i-lucide:folder-x" :title="t('pages.crawlers.task.unsupported.title')" :description="t('pages.crawlers.task.unsupported.description')" />
   </DashboardPage>
@@ -14,7 +14,7 @@ defineOptions({ name: 'SectionsCrawlersTask' });
 /**
  * 属性：爬虫任务区配置。
  */
-const { dialogOpen, taskExecuting, webviewTaskId, webviewVisible } = defineProps<ISectionsCrawlersTaskProps>();
+const { dialogOpen, taskExecuting, browserSessionTaskId, browserSessionVisible } = defineProps<ISectionsCrawlersTaskProps>();
 
 /**
  * 事件：爬虫任务区事件。
@@ -90,22 +90,22 @@ const computedTaskExecuting = computed({
 });
 
 /**
- * 计算属性：当前 Pixabay 爬虫 WebView 任务 ID。
+ * 计算属性：当前 Pixabay 爬虫浏览器会话任务 ID。
  */
-const computedWebviewTaskId = computed({
-  get: () => webviewTaskId,
+const computedBrowserSessionTaskId = computed({
+  get: () => browserSessionTaskId,
   set: (value: string) => {
-    emit('update:webviewTaskId', value);
+    emit('update:browserSessionTaskId', value);
   }
 });
 
 /**
- * 计算属性：当前 Pixabay 爬虫 WebView 可见状态。
+ * 计算属性：当前 Pixabay 爬虫浏览器会话可见状态。
  */
-const computedWebviewVisible = computed({
-  get: () => webviewVisible,
+const computedBrowserSessionVisible = computed({
+  get: () => browserSessionVisible,
   set: (value: boolean) => {
-    emit('update:webviewVisible', value);
+    emit('update:browserSessionVisible', value);
   }
 });
 

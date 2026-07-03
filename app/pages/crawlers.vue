@@ -6,8 +6,16 @@
 
     <template #toolbar-right>
       <template v-if="computedCrawlerTask">
-        <UButton :icon="stateCrawlerWebviewVisible ? 'i-lucide:eye-off' : 'i-lucide:eye'" color="neutral" variant="outline" :disabled="!computedTaskRunning || stateCrawlerWebviewBusy" :loading="stateCrawlerWebviewBusy" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerWebviewToggleClick">
-          {{ stateCrawlerWebviewVisible ? t('pages.crawlers.task.actions.webviewHide') : t('pages.crawlers.task.actions.webviewShow') }}
+        <UButton
+          :icon="stateCrawlerBrowserSessionVisible ? 'i-lucide:eye-off' : 'i-lucide:eye'"
+          color="neutral"
+          variant="outline"
+          :disabled="!computedTaskRunning || stateCrawlerBrowserSessionBusy"
+          :loading="stateCrawlerBrowserSessionBusy"
+          :ui="{ leadingIcon: 'text-muted' }"
+          @click="handleCrawlerBrowserSessionToggleClick"
+        >
+          {{ stateCrawlerBrowserSessionVisible ? t('pages.crawlers.task.actions.browserSessionHide') : t('pages.crawlers.task.actions.browserSessionShow') }}
         </UButton>
         <UPopover v-model:open="stateTaskStopConfirmOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'w-64 p-3' }">
           <UButton icon="i-lucide:square" color="neutral" variant="outline" :disabled="!computedTaskRunning || stateTaskStopping" :loading="stateTaskStopping" :ui="{ leadingIcon: 'text-muted' }">
@@ -41,7 +49,7 @@
       </template>
     </template>
 
-    <NuxtPage v-model:dialog-open="stateTaskDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:webview-task-id="stateCrawlerWebviewTaskId" v-model:webview-visible="stateCrawlerWebviewVisible" />
+    <NuxtPage v-model:dialog-open="stateTaskDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:browser-session-task-id="stateCrawlerBrowserSessionTaskId" v-model:browser-session-visible="stateCrawlerBrowserSessionVisible" />
   </Dashboard>
 </template>
 
@@ -90,9 +98,9 @@ const stateTaskStopping = ref(false);
 const stateTaskStopConfirmOpen = ref(false);
 
 /**
- * 状态：爬虫 WebView 切换中。
+ * 状态：爬虫浏览器会话切换中。
  */
-const stateCrawlerWebviewBusy = ref(false);
+const stateCrawlerBrowserSessionBusy = ref(false);
 
 /**
  * 计算属性：当前爬虫任务键
@@ -113,44 +121,44 @@ const storeBreadcrumb = useStoreBreadcrumb();
 const tauriTasks = useTauriTasks();
 
 /**
- * 变量：爬虫 WebView 状态变化事件取消监听句柄。
+ * 变量：爬虫浏览器会话状态变化事件取消监听句柄。
  */
-let unlistenCrawlerWebviewStateChanged: UnlistenFn | null = null;
+let unlistenCrawlerBrowserSessionStateChanged: UnlistenFn | null = null;
 
 /**
- * 状态：当前任务对应的 WebView 任务 ID。
+ * 状态：当前任务对应的浏览器会话任务 ID。
  */
-const stateCrawlerWebviewTaskId = ref('');
+const stateCrawlerBrowserSessionTaskId = ref('');
 
 /**
- * 状态：当前任务对应的 WebView 是否可见。
+ * 状态：当前任务对应的浏览器会话是否可见。
  */
-const stateCrawlerWebviewVisible = ref(false);
+const stateCrawlerBrowserSessionVisible = ref(false);
 
 /**
  * 计算属性：当前任务是否正在运行。
  */
-const computedTaskRunning = computed(() => stateCrawlerWebviewTaskId.value.trim().length > 0);
+const computedTaskRunning = computed(() => stateCrawlerBrowserSessionTaskId.value.trim().length > 0);
 
 /**
- * 函数：同步当前爬虫 WebView 状态。
+ * 函数：同步当前爬虫浏览器会话状态。
  */
-const syncCrawlerWebviewState = async (): Promise<void> => {
+const syncCrawlerBrowserSessionState = async (): Promise<void> => {
   if (!import.meta.client || !isTauriRuntime.value) {
     return;
   }
 
   const task = computedCrawlerTask.value.trim();
   if (!task) {
-    stateCrawlerWebviewTaskId.value = '';
-    stateCrawlerWebviewVisible.value = false;
+    stateCrawlerBrowserSessionTaskId.value = '';
+    stateCrawlerBrowserSessionVisible.value = false;
     stateTaskExecuting.value = false;
     return;
   }
 
-  const snapshot = await tauriTasks.crawlerTaskWebviewStateGet(task);
-  stateCrawlerWebviewTaskId.value = snapshot?.taskId ?? '';
-  stateCrawlerWebviewVisible.value = snapshot?.visible ?? false;
+  const snapshot = await tauriTasks.crawlerTaskBrowserSessionStateGet(task);
+  stateCrawlerBrowserSessionTaskId.value = snapshot?.taskId ?? '';
+  stateCrawlerBrowserSessionVisible.value = snapshot?.visible ?? false;
   stateTaskExecuting.value = false;
 };
 
@@ -181,31 +189,31 @@ const handleTaskStopConfirmCancelClick = (): void => {
 watch(
   computedCrawlerTask,
   () => {
-    void syncCrawlerWebviewState();
+    void syncCrawlerBrowserSessionState();
   },
   { immediate: true }
 );
 
 /**
- * 函数：切换当前 Pixabay 爬虫 WebView 显示状态。
+ * 函数：切换当前 Pixabay 爬虫浏览器会话显示状态。
  */
-const handleCrawlerWebviewToggleClick = async (): Promise<void> => {
-  if (!computedTaskRunning.value || stateCrawlerWebviewBusy.value) {
+const handleCrawlerBrowserSessionToggleClick = async (): Promise<void> => {
+  if (!computedTaskRunning.value || stateCrawlerBrowserSessionBusy.value) {
     return;
   }
 
-  stateCrawlerWebviewBusy.value = true;
+  stateCrawlerBrowserSessionBusy.value = true;
 
   try {
-    if (stateCrawlerWebviewVisible.value) {
-      await tauriTasks.crawlerTaskWebviewHide(stateCrawlerWebviewTaskId.value);
-      stateCrawlerWebviewVisible.value = false;
+    if (stateCrawlerBrowserSessionVisible.value) {
+      await tauriTasks.crawlerTaskBrowserSessionHide(stateCrawlerBrowserSessionTaskId.value);
+      stateCrawlerBrowserSessionVisible.value = false;
     } else {
-      await tauriTasks.crawlerTaskWebviewShow(stateCrawlerWebviewTaskId.value);
-      stateCrawlerWebviewVisible.value = true;
+      await tauriTasks.crawlerTaskBrowserSessionShow(stateCrawlerBrowserSessionTaskId.value);
+      stateCrawlerBrowserSessionVisible.value = true;
     }
   } finally {
-    stateCrawlerWebviewBusy.value = false;
+    stateCrawlerBrowserSessionBusy.value = false;
   }
 };
 
@@ -220,10 +228,10 @@ const handleTaskStopClick = async (): Promise<void> => {
   stateTaskStopping.value = true;
 
   try {
-    await tauriTasks.crawlerTaskWebviewClose(stateCrawlerWebviewTaskId.value);
+    await tauriTasks.crawlerTaskBrowserSessionClose(stateCrawlerBrowserSessionTaskId.value);
     stateTaskStopConfirmOpen.value = false;
   } finally {
-    await syncCrawlerWebviewState();
+    await syncCrawlerBrowserSessionState();
     stateTaskStopping.value = false;
   }
 };
@@ -232,16 +240,16 @@ const handleTaskStopClick = async (): Promise<void> => {
  * 生命周期：组件挂载。
  */
 onMounted(async () => {
-  if (!import.meta.client || !isTauriRuntime.value || unlistenCrawlerWebviewStateChanged) {
+  if (!import.meta.client || !isTauriRuntime.value || unlistenCrawlerBrowserSessionStateChanged) {
     return;
   }
 
-  unlistenCrawlerWebviewStateChanged = await tauriTasks.onCrawlerWebviewStateChanged((taskId) => {
-    if (taskId !== stateCrawlerWebviewTaskId.value) {
+  unlistenCrawlerBrowserSessionStateChanged = await tauriTasks.onCrawlerBrowserSessionStateChanged((taskId) => {
+    if (taskId !== stateCrawlerBrowserSessionTaskId.value) {
       return;
     }
 
-    void syncCrawlerWebviewState();
+    void syncCrawlerBrowserSessionState();
   });
 });
 
@@ -249,9 +257,9 @@ onMounted(async () => {
  * 生命周期：组件卸载。
  */
 onBeforeUnmount(() => {
-  if (unlistenCrawlerWebviewStateChanged) {
-    unlistenCrawlerWebviewStateChanged();
-    unlistenCrawlerWebviewStateChanged = null;
+  if (unlistenCrawlerBrowserSessionStateChanged) {
+    unlistenCrawlerBrowserSessionStateChanged();
+    unlistenCrawlerBrowserSessionStateChanged = null;
   }
 });
 

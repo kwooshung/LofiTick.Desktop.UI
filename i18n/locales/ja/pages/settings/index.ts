@@ -96,6 +96,15 @@ export const settings = {
       description: 'userData フォルダー（設定やキャッシュなど）を開きます。',
       open: 'フォルダーを開く'
     },
+    crawlerBrowserProfilesDirectory: {
+      label: 'クローラー用ブラウザープロファイル',
+      description: 'Playwright が使う実ブラウザーのプロファイル親ディレクトリです。同じクローラーと同じドメインでは固定の子ディレクトリを再利用します。',
+      dialogTitle: 'クローラー用ブラウザープロファイルを選択',
+      open: 'フォルダーを開く',
+      choose: 'フォルダーを選択',
+      reselect: '再選択',
+      unset: '未設定'
+    },
     storage: {
       label: 'データ保存先',
       description: 'データファイルを保存するディレクトリです。現在のパス：',

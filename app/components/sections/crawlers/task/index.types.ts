@@ -13,14 +13,14 @@ export interface ISectionsCrawlersTaskProps {
   taskExecuting: boolean;
 
   /**
-   * 属性：当前 Pixabay 爬虫 WebView 任务 ID。
+   * 属性：当前 Pixabay 爬虫浏览器会话任务 ID。
    */
-  webviewTaskId: string;
+  browserSessionTaskId: string;
 
   /**
-   * 属性：当前 Pixabay 爬虫 WebView 是否可见。
+   * 属性：当前 Pixabay 爬虫浏览器会话是否可见。
    */
-  webviewVisible: boolean;
+  browserSessionVisible: boolean;
 }
 
 /**
@@ -31,11 +31,11 @@ export interface ISectionsCrawlersTaskEmits {
    * 事件：更新任务执行弹窗打开状态。
    * @param {boolean} value 是否打开
    */
-  (event: 'update:dialogOpen' | 'update:taskExecuting' | 'update:webviewVisible', value: boolean): void;
+  (event: 'update:dialogOpen' | 'update:taskExecuting' | 'update:browserSessionVisible', value: boolean): void;
 
   /**
-   * 事件：更新当前 Pixabay 爬虫 WebView 任务 ID。
+   * 事件：更新当前 Pixabay 爬虫浏览器会话任务 ID。
    * @param {string} value 任务 ID
    */
-  (event: 'update:webviewTaskId', value: string): void;
+  (event: 'update:browserSessionTaskId', value: string): void;
 }

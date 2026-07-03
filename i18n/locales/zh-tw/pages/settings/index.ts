@@ -96,6 +96,15 @@ export const settings = {
       description: '開啟應用程式的 userData 目錄（偏好設定、快取等）。',
       open: '開啟目錄'
     },
+    crawlerBrowserProfilesDirectory: {
+      label: '爬蟲瀏覽器資料目錄',
+      description: 'Playwright 真實瀏覽器的資料目錄父層；同一爬蟲與同一網域會重用固定子目錄。',
+      dialogTitle: '選擇爬蟲瀏覽器資料目錄',
+      open: '開啟目錄',
+      choose: '選擇目錄',
+      reselect: '重新選擇',
+      unset: '尚未設定'
+    },
     storage: {
       label: '資料存放目錄',
       description: '資料檔案儲存的目錄，目前路徑：',

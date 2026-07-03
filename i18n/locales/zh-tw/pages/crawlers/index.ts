@@ -16,8 +16,8 @@ export const crawlers = {
   task: {
     actions: {
       execute: '執行任務',
-      webviewShow: '顯示視窗',
-      webviewHide: '隱藏視窗',
+      browserSessionShow: '顯示視窗',
+      browserSessionHide: '隱藏視窗',
       pause: '暫停任務',
       resume: '繼續任務',
       stop: '停止任務',
