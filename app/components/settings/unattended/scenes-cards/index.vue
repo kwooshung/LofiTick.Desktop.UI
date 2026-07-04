@@ -62,19 +62,19 @@
                   <div class="text-muted text-xs break-all">{{ machine.machineName || machine.machineCode || '-' }}</div>
                   <div class="flex items-center justify-end gap-2 pt-1">
                     <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-muted' }" @click="() => handleMachineDeleteConfirm(machine, close)">{{ t('common.actions.confirm') }}</UButton>
+                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" @click="() => handleMachineDeleteConfirm(machine, close)">{{ t('common.actions.confirm') }}</UButton>
                   </div>
                 </div>
               </template>
             </UPopover>
           </div>
           <div class="flex items-center gap-2">
-            <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
-            <UButton icon="i-lucide:file-text" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" :variant="machineLogsExists(machine.machineCode) ? 'soft' : 'outline'" :disabled="!machineLogsExists(machine.machineCode)" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{
+            <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" color="primary" size="sm" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+            <UButton icon="i-lucide:file-text" color="primary" size="sm" :variant="machineLogsExists(machine.machineCode) ? 'soft' : 'outline'" :disabled="!machineLogsExists(machine.machineCode)" @click.stop="handleMachineLogsOpen(machine.machineCode)">{{
               t('components.sentinel.scenes.card.actions.logs')
             }}</UButton>
-            <UButton icon="i-lucide:network" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
-            <UButton icon="i-lucide:info" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
+            <UButton icon="i-lucide:network" color="primary" size="sm" variant="outline" @click.stop="handleMachineNetworkOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.network') }}</UButton>
+            <UButton icon="i-lucide:info" color="primary" size="sm" variant="outline" @click.stop="handleMachineOpen(machine.machineCode)">{{ t('components.sentinel.scenes.card.actions.details') }}</UButton>
           </div>
         </template>
       </SettingsUnattendedMachineCardBase>

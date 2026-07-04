@@ -108,7 +108,7 @@
       </template>
     </UPageCard>
     <UPageCard variant="outline" :ui="{ root: 'mb-10', container: 'divide-y divide-default' }">
-      <SentinelConfig ref="refSentinelConfig" @analysis-change="handleSentinelConfigChanged" />
+      <SentinelConfig ref="stateRefSentinelConfig" @analysis-change="handleSentinelConfigChanged" />
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3', body: 'pb-15', footer: 'absolute bottom-0 w-full' }">
@@ -157,7 +157,7 @@
       <template #body>
         <UPageCard variant="ghost" :ui="{ container: 'px-0!' }">
           <SentinelScenes
-            ref="refScenes"
+            ref="stateRefScenes"
             form-id="sentinelScenesEditorForm"
             :machine-id="stateMachineCode"
             :machine-name="computedMachineName"

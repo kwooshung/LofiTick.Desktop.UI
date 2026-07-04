@@ -6,7 +6,7 @@
           <div class="text-highlighted text-lg font-medium">{{ t('components.sentinel.scenes.card.fields.scenes') }}</div>
           <UBadge color="neutral" variant="outline">{{ machine.items.length }}</UBadge>
         </div>
-        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
+        <UButton v-if="isLocalMachine(machine.machineCode)" icon="i-lucide:plus" color="primary" size="sm" variant="soft" @click.stop="emit('add')">
           {{ t('components.sentinel.scenes.card.actions.addScene') }}
         </UButton>
       </div>
@@ -42,7 +42,7 @@
                   <div class="text-muted text-xs break-all">{{ String(item.sceneName || '') }}</div>
                   <div class="flex items-center justify-end gap-2 pt-1">
                     <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-muted' }" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
+                    <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" @click="() => handleDeleteConfirm(String(item.id || ''), close)">{{ t('common.actions.confirm') }}</UButton>
                   </div>
                 </div>
               </template>
@@ -61,7 +61,7 @@
           :ui="{ root: 'p-0', header: 'max-w-none', body: 'max-w-none' }"
         >
           <template v-if="isLocalMachine(machine.machineCode)" #actions>
-            <UButton icon="i-lucide:plus" :ui="{ leadingIcon: 'text-muted' }" color="primary" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
+            <UButton icon="i-lucide:plus" color="primary" variant="soft" @click.stop="emit('add')">{{ t('components.sentinel.scenes.card.actions.addScene') }}</UButton>
           </template>
         </UEmpty>
       </div>
