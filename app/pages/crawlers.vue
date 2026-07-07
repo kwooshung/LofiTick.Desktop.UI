@@ -6,6 +6,9 @@
 
     <template #toolbar-right>
       <div class="flex items-center gap-2">
+        <UButton color="neutral" variant="ghost" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-muted' }" class="shrink-0">
+          {{ t('pages.crawlers.actions.enterSettingsCrawler') }}
+        </UButton>
         <template v-if="computedCrawlerTask">
           <UPopover v-model:open="stateTaskStopConfirmOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'w-64 p-3' }">
             <UButton icon="i-lucide:square" color="neutral" variant="outline" :disabled="!computedTaskRunning || stateTaskStopping" :loading="stateTaskStopping" :ui="{ leadingIcon: 'text-muted' }">
@@ -37,9 +40,6 @@
             {{ t('pages.crawlers.task.actions.execute') }}
           </UButton>
         </template>
-        <UButton v-else color="neutral" variant="ghost" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-muted' }" class="shrink-0">
-          {{ t('pages.crawlers.actions.enterSettingsCrawler') }}
-        </UButton>
       </div>
     </template>
 
