@@ -88,7 +88,7 @@
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.rootDescription') }}</div>
             <UTooltip v-if="stateCrawlerBrowserProfilesRootPath" :text="stateCrawlerBrowserProfilesRootPath" :content="{ side: 'top' }">
-              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap font-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesRoot">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesRoot">
                 {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesRootPath) }}
               </ULink>
             </UTooltip>
@@ -132,7 +132,7 @@
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.edgeDescription') }}</div>
             <UTooltip v-if="stateCrawlerBrowserProfilesEdgePath" :text="stateCrawlerBrowserProfilesEdgePath" :content="{ side: 'top' }">
-              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap font-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesEdge">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesEdge">
                 {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesEdgePath) }}
               </ULink>
             </UTooltip>
@@ -198,7 +198,7 @@
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.chromeDescription') }}</div>
             <UTooltip v-if="stateCrawlerBrowserProfilesChromePath" :text="stateCrawlerBrowserProfilesChromePath" :content="{ side: 'top' }">
-              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap font-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChrome">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChrome">
                 {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesChromePath) }}
               </ULink>
             </UTooltip>
@@ -264,7 +264,7 @@
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.chromiumDescription') }}</div>
             <UTooltip v-if="stateCrawlerBrowserProfilesChromiumPath" :text="stateCrawlerBrowserProfilesChromiumPath" :content="{ side: 'top' }">
-              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap font-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChromium">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChromium">
                 {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesChromiumPath) }}
               </ULink>
             </UTooltip>
