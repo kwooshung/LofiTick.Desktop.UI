@@ -137,7 +137,7 @@
     browserProfilesDirectory: {
       label: '浏览器资料缓存',
       description: '浏览器资料目录和路径都固定在这里。',
-      rootDescription: 'Playwright 浏览器资料的路径。',
+      rootDescription: '爬虫浏览器资料和匹配记录的固定根目录。',
       rootLabel: '浏览器目录',
       edgeDescription: 'Edge 的浏览器资料目录。',
       edgeLabel: 'Edge 目录',
@@ -146,11 +146,17 @@
       chromiumDescription: 'Chromium 的浏览器资料目录。',
       chromiumLabel: 'Chromium 目录',
       clearCache: '清空缓存',
+      clearMatches: '清空匹配记录',
       clearConfirmTitle: '确认清空缓存？',
       clearConfirmDescription: '这会删除该目录下的所有内容。',
+      matchesClearConfirmTitle: '确认清空匹配记录？',
+      matchesClearConfirmDescription: '这会删除该站点匹配记录目录下的所有诊断截图和元信息。',
       clearSuccess: '缓存已清空',
       clearFailed: '清空缓存失败',
+      matchesClearSuccess: '匹配记录已清空',
+      matchesClearFailed: '清空匹配记录失败',
       open: '打开目录',
+      openMatches: '打开匹配记录',
       unset: '未设置',
       notExists: '爬虫资料目录不存在'
     }

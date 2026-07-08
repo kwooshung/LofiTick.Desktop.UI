@@ -95,9 +95,25 @@ interface ITauriCrawlerBrowserProfilesDirSizeInfo {
 }
 
 /**
+ * 接口：爬虫浏览器站点目录信息。
+ */
+interface ITauriCrawlerBrowserSiteDirInfo {
+  /** 当前生效路径。 */
+  directoryPath: string;
+
+  /** 目录是否存在。 */
+  exists: boolean;
+}
+
+/**
  * 类型：爬虫浏览器资料目录范围。
  */
 type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome' | 'chromium';
+
+/**
+ * 类型：爬虫浏览器站点目录浏览器范围。
+ */
+type TCrawlerBrowserSiteDirBrowser = 'edge' | 'chrome' | 'chromium';
 
 export const useTauriSettings = () => {
   /**
@@ -168,6 +184,68 @@ export const useTauriSettings = () => {
    */
   const crawlerBrowserProfilesDirClear = async (scope: TCrawlerBrowserProfilesDirScope): Promise<void> => {
     await invoke('settings_crawler_browser_profiles_dir_clear', { scope });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点 profile 目录信息。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<ITauriCrawlerBrowserSiteDirInfo>} 目录信息。
+   */
+  const crawlerBrowserProfileDirGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<ITauriCrawlerBrowserSiteDirInfo> => {
+    return invoke<ITauriCrawlerBrowserSiteDirInfo>('settings_crawler_browser_profile_dir_get', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点 profile 目录占用体积。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<number>} 目录占用字节数。
+   */
+  const crawlerBrowserProfileDirSizeGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<number> => {
+    const result = await invoke<ITauriCrawlerBrowserProfilesDirSizeInfo>('settings_crawler_browser_profile_dir_size_get', { browser, site });
+    return result.sizeBytes;
+  };
+
+  /**
+   * 函数：清空爬虫浏览器站点 profile 目录。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserProfileDirClear = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<void> => {
+    await invoke('settings_crawler_browser_profile_dir_clear', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点匹配记录目录信息。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<ITauriCrawlerBrowserSiteDirInfo>} 目录信息。
+   */
+  const crawlerBrowserMatchesDirGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<ITauriCrawlerBrowserSiteDirInfo> => {
+    return invoke<ITauriCrawlerBrowserSiteDirInfo>('settings_crawler_browser_matches_dir_get', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点匹配记录目录占用体积。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<number>} 目录占用字节数。
+   */
+  const crawlerBrowserMatchesDirSizeGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<number> => {
+    const result = await invoke<ITauriCrawlerBrowserProfilesDirSizeInfo>('settings_crawler_browser_matches_dir_size_get', { browser, site });
+    return result.sizeBytes;
+  };
+
+  /**
+   * 函数：清空爬虫浏览器站点匹配记录目录。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserMatchesDirClear = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<void> => {
+    await invoke('settings_crawler_browser_matches_dir_clear', { browser, site });
   };
 
   /**
@@ -296,6 +374,12 @@ export const useTauriSettings = () => {
     crawlerBrowserProfilesDirGet,
     crawlerBrowserProfilesDirSizeGet,
     crawlerBrowserProfilesDirClear,
+    crawlerBrowserProfileDirGet,
+    crawlerBrowserProfileDirSizeGet,
+    crawlerBrowserProfileDirClear,
+    crawlerBrowserMatchesDirGet,
+    crawlerBrowserMatchesDirSizeGet,
+    crawlerBrowserMatchesDirClear,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

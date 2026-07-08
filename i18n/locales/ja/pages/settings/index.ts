@@ -137,7 +137,7 @@ export const settings = {
     browserProfilesDirectory: {
       label: 'ブラウザープロファイルキャッシュ',
       description: 'ブラウザープロファイルのディレクトリとパスを固定保存します。',
-      rootDescription: 'Playwright ブラウザープロファイルのパスです。',
+      rootDescription: 'クローラー用ブラウザープロファイルと照合記録の固定ルートディレクトリです。',
       rootLabel: 'ブラウザーのディレクトリ',
       edgeDescription: 'Edge のブラウザープロファイル用ディレクトリです。',
       edgeLabel: 'Edge のディレクトリ',
@@ -146,11 +146,17 @@ export const settings = {
       chromiumDescription: 'Chromium のブラウザープロファイル用ディレクトリです。',
       chromiumLabel: 'Chromium のディレクトリ',
       clearCache: 'キャッシュを消去',
+      clearMatches: '照合記録を消去',
       clearConfirmTitle: 'キャッシュを消去しますか？',
       clearConfirmDescription: 'このディレクトリ内の内容をすべて削除します。',
+      matchesClearConfirmTitle: '照合記録を消去しますか？',
+      matchesClearConfirmDescription: 'このサイトの照合記録ディレクトリ内にある診断スクリーンショットとメタ情報をすべて削除します。',
       clearSuccess: 'キャッシュを消去しました',
       clearFailed: 'キャッシュの消去に失敗しました',
+      matchesClearSuccess: '照合記録を消去しました',
+      matchesClearFailed: '照合記録の消去に失敗しました',
       open: 'フォルダーを開く',
+      openMatches: '照合記録を開く',
       unset: '未設定',
       notExists: 'クローラー用プロファイルフォルダーが存在しません'
     }

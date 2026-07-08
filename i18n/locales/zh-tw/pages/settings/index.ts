@@ -137,7 +137,7 @@ export const settings = {
     browserProfilesDirectory: {
       label: '瀏覽器資料快取',
       description: '瀏覽器資料目錄與路徑都固定在這裡。',
-      rootDescription: 'Playwright 瀏覽器資料的路徑。',
+      rootDescription: '爬蟲瀏覽器資料與匹配記錄的固定根目錄。',
       rootLabel: '瀏覽器目錄',
       edgeDescription: 'Edge 的瀏覽器資料目錄。',
       edgeLabel: 'Edge 目錄',
@@ -146,11 +146,17 @@ export const settings = {
       chromiumDescription: 'Chromium 的瀏覽器資料目錄。',
       chromiumLabel: 'Chromium 目錄',
       clearCache: '清空快取',
+      clearMatches: '清空匹配記錄',
       clearConfirmTitle: '確定要清空快取嗎？',
       clearConfirmDescription: '這會刪除該目錄下的所有內容。',
+      matchesClearConfirmTitle: '確定要清空匹配記錄嗎？',
+      matchesClearConfirmDescription: '這會刪除該網站匹配記錄目錄下的所有診斷截圖與中繼資訊。',
       clearSuccess: '快取已清空',
       clearFailed: '清空快取失敗',
+      matchesClearSuccess: '匹配記錄已清空',
+      matchesClearFailed: '清空匹配記錄失敗',
       open: '開啟目錄',
+      openMatches: '開啟匹配記錄',
       unset: '尚未設定',
       notExists: '爬蟲資料目錄不存在'
     }

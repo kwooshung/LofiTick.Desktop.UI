@@ -137,7 +137,7 @@ export const settings = {
     browserProfilesDirectory: {
       label: 'Browser profile cache',
       description: 'Browser profile directories and paths are stored here.',
-      rootDescription: 'Path for Playwright browser profiles.',
+      rootDescription: 'Fixed root directory for crawler browser profiles and match records.',
       rootLabel: 'Browser directory',
       edgeDescription: 'Edge browser profile directory.',
       edgeLabel: 'Edge directory',
@@ -146,11 +146,17 @@ export const settings = {
       chromiumDescription: 'Chromium browser profile directory.',
       chromiumLabel: 'Chromium directory',
       clearCache: 'Clear cache',
+      clearMatches: 'Clear match records',
       clearConfirmTitle: 'Clear cache?',
       clearConfirmDescription: 'This will delete all contents in this directory.',
+      matchesClearConfirmTitle: 'Clear match records?',
+      matchesClearConfirmDescription: 'This will delete all diagnostic screenshots and metadata in this site match records directory.',
       clearSuccess: 'Cache cleared',
       clearFailed: 'Failed to clear cache',
+      matchesClearSuccess: 'Match records cleared',
+      matchesClearFailed: 'Failed to clear match records',
       open: 'Open directory',
+      openMatches: 'Open match records',
       unset: 'Not set',
       notExists: 'Crawler profile directory does not exist'
     }
