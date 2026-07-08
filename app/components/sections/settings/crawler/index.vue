@@ -146,7 +146,16 @@
             </UButton>
           </UDropdownMenu>
           <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('edge')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('edge', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+            >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes))" :content="{ side: 'top' }">
                 <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes)) }}</UBadge>
@@ -219,7 +228,16 @@
             </UButton>
           </UDropdownMenu>
           <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chrome')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chrome', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+            >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes))" :content="{ side: 'top' }">
                 <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes)) }}</UBadge>
@@ -292,7 +310,16 @@
             </UButton>
           </UDropdownMenu>
           <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chromium')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chromium', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+            >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes))" :content="{ side: 'top' }">
                 <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes)) }}</UBadge>
