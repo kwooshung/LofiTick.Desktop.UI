@@ -134,6 +134,14 @@ export const settings = {
         installOfficial: 'Download from the official website'
       }
     },
+    diagnostics: {
+      title: 'Diagnostic screenshots',
+      description: 'Control the diagnostic screenshots written to the matches directory.',
+      fullFlow: {
+        label: 'Full-flow screenshots',
+        description: 'When enabled, the full browser window is saved as well. When disabled, only the local crop used for failed matching is saved.'
+      }
+    },
     browserProfilesDirectory: {
       label: 'Browser profile cache',
       description: 'Browser profile directories and paths are stored here.',

@@ -134,6 +134,14 @@
         installOfficial: '前往官网下载并安装'
       }
     },
+    diagnostics: {
+      title: '诊断截图',
+      description: '控制写入 matches 目录的诊断截图范围。',
+      fullFlow: {
+        label: '全流程截图',
+        description: '开启后额外保存完整窗口流程截图；关闭时仅保存报错时实际参与比较的局部截图。'
+      }
+    },
     browserProfilesDirectory: {
       label: '浏览器资料缓存',
       description: '浏览器资料目录和路径都固定在这里。',

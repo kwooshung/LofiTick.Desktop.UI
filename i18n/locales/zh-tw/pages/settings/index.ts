@@ -134,6 +134,14 @@ export const settings = {
         installOfficial: '前往官網下載並安裝'
       }
     },
+    diagnostics: {
+      title: '診斷截圖',
+      description: '控制寫入 matches 目錄的診斷截圖範圍。',
+      fullFlow: {
+        label: '全流程截圖',
+        description: '開啟後額外保存完整視窗流程截圖；關閉時僅保存報錯時實際參與比較的局部截圖。'
+      }
+    },
     browserProfilesDirectory: {
       label: '瀏覽器資料快取',
       description: '瀏覽器資料目錄與路徑都固定在這裡。',

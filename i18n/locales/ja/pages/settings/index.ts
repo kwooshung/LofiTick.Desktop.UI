@@ -134,6 +134,14 @@ export const settings = {
         installOfficial: '公式サイトからダウンロードしてインストール'
       }
     },
+    diagnostics: {
+      title: '診断スクリーンショット',
+      description: 'matches ディレクトリへ書き込む診断スクリーンショットの範囲を制御します。',
+      fullFlow: {
+        label: '全フロースクリーンショット',
+        description: '有効にするとブラウザーウィンドウ全体も保存します。無効時は、失敗した照合で実際に使った局所画像のみ保存します。'
+      }
+    },
     browserProfilesDirectory: {
       label: 'ブラウザープロファイルキャッシュ',
       description: 'ブラウザープロファイルのディレクトリとパスを固定保存します。',
