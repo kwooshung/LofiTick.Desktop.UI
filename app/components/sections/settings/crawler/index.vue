@@ -95,7 +95,7 @@
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex flex-wrap items-center justify-end gap-2">
+        <div class="flex items-center justify-end gap-2">
           <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesRootPath" @click="handleOpenCrawlerBrowserProfilesRoot">
             {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
           </UButton>
@@ -139,19 +139,39 @@
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesEdgePath" @click="handleOpenCrawlerBrowserProfilesEdge">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'edge'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('edge', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesEdgePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesEdgeSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesEdgeSizeBytes) }}</UBadge>
+        <div class="flex items-center justify-end gap-2">
+          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('edge')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-primary', trailingIcon: 'text-muted' }">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+            </UButton>
+          </UDropdownMenu>
+          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('edge')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('edge', open)">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes))" :content="{ side: 'top' }">
+                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes)) }}</UBadge>
               </UTooltip>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('edge')" class="flex flex-col gap-1">
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesEdgePath" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('edge')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesEdgeSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesEdgeSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesEdgePath" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('edge')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesEdgeSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesEdgeSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'edge'" class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesEdgePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
@@ -160,20 +180,7 @@
                   <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('edge', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
-            </template>
-          </UPopover>
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserMatchesEdgePath" @click="handleOpenCrawlerBrowserMatchesEdge">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.openMatches') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserMatchesClearTarget === 'edge'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserMatchesDirectoryClearToggle('edge', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesEdgePath || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserMatchesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesEdgeSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesEdgeSizeBytes) }}</UBadge>
-              </UTooltip>
-            </UButton>
-            <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-else class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesEdgePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
@@ -205,19 +212,39 @@
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromePath" @click="handleOpenCrawlerBrowserProfilesChrome">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chrome'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chrome', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromeSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromeSizeBytes) }}</UBadge>
+        <div class="flex items-center justify-end gap-2">
+          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('chrome')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-primary', trailingIcon: 'text-muted' }">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+            </UButton>
+          </UDropdownMenu>
+          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chrome')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chrome', open)">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes))" :content="{ side: 'top' }">
+                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes)) }}</UBadge>
               </UTooltip>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chrome')" class="flex flex-col gap-1">
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromePath" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chrome')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromeSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromeSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesChromePath" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chrome')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesChromeSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromeSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'chrome'" class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
@@ -226,20 +253,7 @@
                   <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chrome', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
-            </template>
-          </UPopover>
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserMatchesChromePath" @click="handleOpenCrawlerBrowserMatchesChrome">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.openMatches') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserMatchesClearTarget === 'chrome'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserMatchesDirectoryClearToggle('chrome', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesChromePath || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserMatchesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesChromeSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromeSizeBytes) }}</UBadge>
-              </UTooltip>
-            </UButton>
-            <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-else class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesChromePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
@@ -271,19 +285,39 @@
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath" @click="handleOpenCrawlerBrowserProfilesChromium">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chromium'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chromium', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromiumSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromiumSizeBytes) }}</UBadge>
+        <div class="flex items-center justify-end gap-2">
+          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('chromium')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-primary', trailingIcon: 'text-muted' }">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+            </UButton>
+          </UDropdownMenu>
+          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chromium')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chromium', open)">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }" :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes))" :content="{ side: 'top' }">
+                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes)) }}</UBadge>
               </UTooltip>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chromium')" class="flex flex-col gap-1">
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chromium')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromiumSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromiumSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesChromiumPath" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chromium')">
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesChromiumSizeBytes)" :content="{ side: 'top' }">
+                      <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromiumSizeBytes) }}</UBadge>
+                    </UTooltip>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'chromium'" class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromiumPath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
@@ -292,20 +326,7 @@
                   <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
-            </template>
-          </UPopover>
-          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserMatchesChromiumPath" @click="handleOpenCrawlerBrowserMatchesChromium">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.openMatches') }}
-          </UButton>
-          <UPopover :open="stateCrawlerBrowserMatchesClearTarget === 'chromium'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserMatchesDirectoryClearToggle('chromium', open)">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserMatchesChromiumPath || stateCrawlerBrowserMatchesClearing" :loading="stateCrawlerBrowserMatchesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserMatchesChromiumSizeBytes)" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromiumSizeBytes) }}</UBadge>
-              </UTooltip>
-            </UButton>
-            <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-else class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesChromiumPath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
@@ -503,6 +524,11 @@ const stateCrawlerBrowserProfilesClearTarget = ref<'root' | 'edge' | 'chrome' | 
 const stateCrawlerBrowserMatchesClearTarget = ref<'edge' | 'chrome' | 'chromium' | ''>('');
 
 /**
+ * 状态：当前打开的浏览器目录清理选择菜单目标。
+ */
+const stateCrawlerBrowserDirectoryClearMenuTarget = ref<'edge' | 'chrome' | 'chromium' | ''>('');
+
+/**
  * 状态：爬虫浏览器资料目录是否正在清空。
  */
 const stateCrawlerBrowserProfilesClearing = ref(false);
@@ -618,6 +644,18 @@ const crawlerBrowserProfilesSizeLabelShortGet = (sizeBytes: number): string => {
   }
 
   return `${label.slice(0, 4)}...${label.slice(-2)}`;
+};
+
+/**
+ * 函数：汇总爬虫浏览器资料与匹配记录目录体积。
+ * @param {number} profileSizeBytes 资料目录字节数。
+ * @param {number} matchesSizeBytes 匹配记录目录字节数。
+ * @returns {number} 合计字节数。
+ */
+const crawlerBrowserProfilesTotalSizeBytesGet = (profileSizeBytes: number, matchesSizeBytes: number): number => {
+  const normalizedProfileSize = Number.isFinite(profileSizeBytes) && profileSizeBytes > 0 ? profileSizeBytes : 0;
+  const normalizedMatchesSize = Number.isFinite(matchesSizeBytes) && matchesSizeBytes > 0 ? matchesSizeBytes : 0;
+  return normalizedProfileSize + normalizedMatchesSize;
 };
 
 /**
@@ -894,6 +932,7 @@ const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge'
   } finally {
     stateCrawlerBrowserProfilesClearing.value = false;
     stateCrawlerBrowserProfilesClearTarget.value = '';
+    stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
   }
 };
 
@@ -914,13 +953,55 @@ const crawlerBrowserMatchesDirectoryStateGet = (browser: 'edge' | 'chrome' | 'ch
 };
 
 /**
- * 函数：切换匹配记录清空确认弹层。
+ * 函数：读取浏览器目录清理弹层是否打开。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {boolean} 是否打开。
+ */
+const crawlerBrowserDirectoryClearPopoverOpenGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+  return stateCrawlerBrowserDirectoryClearMenuTarget.value === browser || stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：读取浏览器目录清理弹层是否正在确认。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {boolean} 是否正在确认。
+ */
+const crawlerBrowserDirectoryClearConfirmOpenGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+  return stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：切换浏览器目录清理选择菜单。
  * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
  * @param {boolean} open 是否打开。
  * @returns {void} 无返回值。
  */
-const handleCrawlerBrowserMatchesDirectoryClearToggle = (browser: 'edge' | 'chrome' | 'chromium', open: boolean): void => {
-  stateCrawlerBrowserMatchesClearTarget.value = open ? browser : '';
+const handleCrawlerBrowserDirectoryClearMenuToggle = (browser: 'edge' | 'chrome' | 'chromium', open: boolean): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = open ? browser : '';
+  stateCrawlerBrowserProfilesClearTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = '';
+};
+
+/**
+ * 事件：选择清空浏览器资料目录缓存。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserProfilesDirectoryClearSelect = (browser: 'edge' | 'chrome' | 'chromium'): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = '';
+  stateCrawlerBrowserProfilesClearTarget.value = browser;
+};
+
+/**
+ * 事件：选择清空浏览器匹配记录目录。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chrome' | 'chromium'): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
+  stateCrawlerBrowserProfilesClearTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = browser;
 };
 
 /**
@@ -955,6 +1036,7 @@ const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chro
   } finally {
     stateCrawlerBrowserMatchesClearing.value = false;
     stateCrawlerBrowserMatchesClearTarget.value = '';
+    stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
   }
 };
 
@@ -981,6 +1063,59 @@ const handleOpenCrawlerBrowserProfilesDirectory = async (path: string, exists: b
 };
 
 /**
+ * 事件：按浏览器打开资料目录。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleOpenCrawlerBrowserProfilesBrowser = async (browser: 'edge' | 'chrome' | 'chromium'): Promise<void> => {
+  const directory = crawlerBrowserProfilesDirectoryStateGet(browser);
+  await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
+};
+
+/**
+ * 事件：按浏览器打开匹配记录目录。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleOpenCrawlerBrowserMatchesBrowser = async (browser: 'edge' | 'chrome' | 'chromium'): Promise<void> => {
+  const directory = crawlerBrowserMatchesDirectoryStateGet(browser);
+  await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
+};
+
+/**
+ * 函数：生成浏览器目录打开菜单项。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {Array<Array<Record<string, unknown>>>} 菜单项列表。
+ */
+const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome' | 'chromium'): Array<Array<Record<string, unknown>>> => {
+  const profileDirectory = crawlerBrowserProfilesDirectoryStateGet(browser);
+  const matchesDirectory = crawlerBrowserMatchesDirectoryStateGet(browser);
+
+  return [
+    [
+      {
+        label: t('pages.settings.crawler.browserProfilesDirectory.browserDirectory'),
+        icon: 'i-lucide:folder-open',
+        disabled: !profileDirectory.path,
+        onSelect: (): void => {
+          void handleOpenCrawlerBrowserProfilesBrowser(browser);
+        }
+      }
+    ],
+    [
+      {
+        label: t('pages.settings.crawler.browserProfilesDirectory.matchesDirectory'),
+        icon: 'i-lucide:folder-open',
+        disabled: !matchesDirectory.path,
+        onSelect: (): void => {
+          void handleOpenCrawlerBrowserMatchesBrowser(browser);
+        }
+      }
+    ]
+  ];
+};
+
+/**
  * 事件：打开浏览器目录。
  * @returns {Promise<void>} 无返回值。
  */
@@ -993,7 +1128,7 @@ const handleOpenCrawlerBrowserProfilesRoot = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesEdge = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesEdgePath.value, stateCrawlerBrowserProfilesEdgeExists.value);
+  await handleOpenCrawlerBrowserProfilesBrowser('edge');
 };
 
 /**
@@ -1001,7 +1136,7 @@ const handleOpenCrawlerBrowserProfilesEdge = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesChrome = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesChromePath.value, stateCrawlerBrowserProfilesChromeExists.value);
+  await handleOpenCrawlerBrowserProfilesBrowser('chrome');
 };
 
 /**
@@ -1009,7 +1144,7 @@ const handleOpenCrawlerBrowserProfilesChrome = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesChromium = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesChromiumPath.value, stateCrawlerBrowserProfilesChromiumExists.value);
+  await handleOpenCrawlerBrowserProfilesBrowser('chromium');
 };
 
 /**
@@ -1017,7 +1152,7 @@ const handleOpenCrawlerBrowserProfilesChromium = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserMatchesEdge = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserMatchesEdgePath.value, stateCrawlerBrowserMatchesEdgeExists.value);
+  await handleOpenCrawlerBrowserMatchesBrowser('edge');
 };
 
 /**
@@ -1025,7 +1160,7 @@ const handleOpenCrawlerBrowserMatchesEdge = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserMatchesChrome = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserMatchesChromePath.value, stateCrawlerBrowserMatchesChromeExists.value);
+  await handleOpenCrawlerBrowserMatchesBrowser('chrome');
 };
 
 /**
@@ -1033,7 +1168,7 @@ const handleOpenCrawlerBrowserMatchesChrome = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserMatchesChromium = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserMatchesChromiumPath.value, stateCrawlerBrowserMatchesChromiumExists.value);
+  await handleOpenCrawlerBrowserMatchesBrowser('chromium');
 };
 
 /**
