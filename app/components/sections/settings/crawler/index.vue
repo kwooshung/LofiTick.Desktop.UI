@@ -379,10 +379,7 @@
 
     <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
       <UFormField :label="t('pages.settings.crawler.compareBackend.label')" :description="t('pages.settings.crawler.compareBackend.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
-        <div class="flex min-w-0 flex-col gap-1">
-          <div class="text-muted text-sm">{{ t('pages.settings.crawler.compareBackend.currentMode', { mode: t(stateCrawlerCompareBackend === 'gpu' ? 'pages.settings.crawler.compareBackend.modes.gpu' : 'pages.settings.crawler.compareBackend.modes.cpu') }) }}</div>
-        </div>
-        <USwitch :model-value="stateCrawlerCompareBackend === 'gpu'" :disabled="stateCrawlerCompareBackendProbing" @update:model-value="handleCrawlerCompareBackendUpdate" />
+        <USwitch :model-value="stateCrawlerCompareBackend === 'gpu'" :disabled="stateCrawlerCompareBackendProbing" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="handleCrawlerCompareBackendUpdate" />
       </UFormField>
     </UPageCard>
 
