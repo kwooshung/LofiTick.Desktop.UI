@@ -185,7 +185,7 @@ export const settings = {
   },
   ui: {
     title: '外観',
-    description: 'テーマ、ライト／ダークモード、レイアウトなどの外観設定です。',
+    description: 'アプリの外観、配色、見た目の表示方法を調整します。',
     colorMode: {
       label: 'カラーモード',
       description: '外観をライト/ダークにするか、またはコンピューターの設定に合わせて調整します。',

@@ -71,6 +71,11 @@ export interface ICrawlersTaskPixabayProps {
    * 属性：当前任务是否正在执行。
    */
   taskExecuting: boolean;
+
+  /**
+   * 属性：当前 Pixabay 爬虫浏览器会话任务 ID。
+   */
+  browserSessionTaskId: string;
 }
 
 /**

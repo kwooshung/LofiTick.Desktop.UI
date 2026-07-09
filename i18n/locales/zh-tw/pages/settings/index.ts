@@ -185,7 +185,7 @@ export const settings = {
   },
   ui: {
     title: '介面',
-    description: '主題、亮暗模式、版面配置與介面元素的相關設定。',
+    description: '調整應用外觀、顏色與視覺呈現方式。',
     colorMode: {
       label: '顏色模式',
       description: '外觀是淺色還是深色，或依照電腦的設定進行調整',

@@ -201,6 +201,7 @@
   },
   ui: {
     title: '界面',
+    description: '调整应用外观、颜色与视觉呈现方式。',
     colorMode: {
       label: '颜色模式',
       description: '外观是浅色还是深色，或者按照计算机的设置进行调整',

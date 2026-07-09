@@ -201,7 +201,7 @@ export const settings = {
   },
   ui: {
     title: 'Appearance',
-    description: 'Theme, light/dark mode, layout, and other UI options.',
+    description: 'Adjust the app appearance, colors, and visual presentation.',
     colorMode: {
       label: 'Color mode',
       description: 'Choose whether the appearance is light or dark, or adjust according to your computer settings.',
