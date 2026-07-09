@@ -137,9 +137,9 @@ export const settings = {
     diagnostics: {
       title: '診断スクリーンショット',
       description: 'matches ディレクトリへ書き込む診断スクリーンショットの範囲を制御します。',
-      fullFlow: {
-        label: '全フロースクリーンショット',
-        description: '有効にするとブラウザーウィンドウ全体も保存します。無効時は、失敗した照合で実際に使った局所画像のみ保存します。'
+      compareMode: {
+        label: '全フロー比較',
+        description: '有効時はテンプレート比較ごとに保存します。無効時は最終的に失敗した場合のみ最後の多段階比較を保存し、成功した場合は保存しません。'
       }
     },
     browserProfilesDirectory: {

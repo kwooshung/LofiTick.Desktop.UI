@@ -136,10 +136,10 @@
     },
     diagnostics: {
       title: '诊断截图',
-      description: '控制写入 matches 目录的诊断截图范围。',
-      fullFlow: {
-        label: '全流程截图',
-        description: '开启后额外保存完整窗口流程截图；关闭时仅保存报错时实际参与比较的局部截图。'
+      description: '控制写入 matches 目录的诊断比较范围。',
+      compareMode: {
+        label: '全流程比较',
+        description: '开启后每次模板比较都保存完整流程；关闭时仅在最终失败后保存最后一轮多阶段比较，最终成功不保存。'
       }
     },
     browserProfilesDirectory: {

@@ -136,10 +136,10 @@ export const settings = {
     },
     diagnostics: {
       title: '診斷截圖',
-      description: '控制寫入 matches 目錄的診斷截圖範圍。',
-      fullFlow: {
-        label: '全流程截圖',
-        description: '開啟後額外保存完整視窗流程截圖；關閉時僅保存報錯時實際參與比較的局部截圖。'
+      description: '控制寫入 matches 目錄的診斷比較範圍。',
+      compareMode: {
+        label: '全流程比較',
+        description: '開啟後每次模板比較都保存完整流程；關閉時僅在最終失敗後保存最後一輪多階段比較，最終成功不保存。'
       }
     },
     browserProfilesDirectory: {

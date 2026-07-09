@@ -378,8 +378,8 @@
     </UPageCard>
 
     <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.crawler.diagnostics.fullFlow.label')" :description="t('pages.settings.crawler.diagnostics.fullFlow.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
-        <USwitch :model-value="stateCrawlerDiagnosticsCaptureMode === 'flow'" @update:model-value="handleCrawlerDiagnosticsFullFlowUpdate" />
+      <UFormField :label="t('pages.settings.crawler.diagnostics.compareMode.label')" :description="t('pages.settings.crawler.diagnostics.compareMode.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+        <USwitch :model-value="stateCrawlerDiagnosticsCompareMode === 'flow'" @update:model-value="handleCrawlerDiagnosticsCompareModeUpdate" />
       </UFormField>
     </UPageCard>
   </DashboardPage>
@@ -511,9 +511,9 @@ const stateCrawlerBrowserRefreshing = ref(false);
 const stateCrawlerBrowserSelectedId = ref('');
 
 /**
- * 状态：爬虫匹配诊断截图模式。
+ * 状态：爬虫诊断比较模式。
  */
-const stateCrawlerDiagnosticsCaptureMode = ref('match');
+const stateCrawlerDiagnosticsCompareMode = ref('match');
 
 /**
  * 状态：是否已经触发过浏览器安装入口
@@ -828,7 +828,7 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
 
   const diagnosticsSetting = (crawlerSetting as Record<string, unknown>).diagnostics;
   if (diagnosticsSetting && typeof diagnosticsSetting === 'object' && !Array.isArray(diagnosticsSetting)) {
-    stateCrawlerDiagnosticsCaptureMode.value = crawlerDiagnosticsCaptureModeNormalize((diagnosticsSetting as Record<string, unknown>).captureMode);
+    stateCrawlerDiagnosticsCompareMode.value = crawlerDiagnosticsCompareModeNormalize((diagnosticsSetting as Record<string, unknown>).captureMode);
   }
 
   const browserSetting = (crawlerSetting as Record<string, unknown>).browser;
@@ -840,26 +840,26 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
 };
 
 /**
- * 函数：归一化爬虫诊断截图模式。
+ * 函数：归一化爬虫诊断比较模式。
  * @param {unknown} value 原始模式值。
  * @returns {string} 可保存的模式值。
  */
-const crawlerDiagnosticsCaptureModeNormalize = (value: unknown): string => {
+const crawlerDiagnosticsCompareModeNormalize = (value: unknown): string => {
   return value === 'flow' ? 'flow' : 'match';
 };
 
 /**
- * 事件：更新全流程诊断截图开关。
- * @param {boolean} on 是否启用全流程截图。
+ * 事件：更新全流程比较开关。
+ * @param {boolean} on 是否启用全流程比较。
  * @returns {Promise<void>} 无返回值。
  */
-const handleCrawlerDiagnosticsFullFlowUpdate = async (on: boolean): Promise<void> => {
+const handleCrawlerDiagnosticsCompareModeUpdate = async (on: boolean): Promise<void> => {
   if (!isTauriRuntime.value) {
     return;
   }
 
   const captureMode = on ? 'flow' : 'match';
-  stateCrawlerDiagnosticsCaptureMode.value = captureMode;
+  stateCrawlerDiagnosticsCompareMode.value = captureMode;
   await tauriSettings.update({
     crawler: {
       diagnostics: {
