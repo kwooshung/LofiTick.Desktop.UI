@@ -134,6 +134,10 @@
         installOfficial: '前往官网下载并安装'
       }
     },
+    runtime: {
+      title: '爬虫运行与诊断',
+      description: '统一控制模板比较后端、诊断截图保留范围和可见日志输出。'
+    },
     compareBackend: {
       title: '模板比较后端',
       description: '控制站点模板比较时使用 CPU 还是 GPU。GPU 仅在硬件条件满足时可启用，CPU 模式始终保留。',
@@ -155,6 +159,12 @@
         label: '全流程比较',
         description: '开启后每次模板比较都保存完整流程；关闭时仅在最终失败后保存最后一轮多阶段比较，最终成功不保存。'
       }
+    },
+    logs: {
+      title: '日志显示',
+      description: '控制爬虫运行过程中的可见日志输出。',
+      label: '显示爬虫日志',
+      runtimeDescription: '开启后会显示爬虫会话、浏览器视觉状态与入口守卫的关键日志；关闭后只保留错误信息。'
     },
     browserProfilesDirectory: {
       label: '浏览器资料缓存',

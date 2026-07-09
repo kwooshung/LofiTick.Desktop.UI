@@ -371,30 +371,26 @@
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
-          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.compareBackend.title') }}</h3>
-          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.compareBackend.description') }}</p>
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.runtime.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.runtime.description') }}</p>
         </div>
       </template>
     </UPageCard>
 
     <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.crawler.compareBackend.label')" :description="t('pages.settings.crawler.compareBackend.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+      <UFormField :label="t('pages.settings.crawler.compareBackend.label')" :description="t('pages.settings.crawler.compareBackend.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <USwitch :model-value="stateCrawlerCompareBackend === 'gpu'" :disabled="stateCrawlerCompareBackendProbing" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="handleCrawlerCompareBackendUpdate" />
       </UFormField>
-    </UPageCard>
-
-    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
-      <template #header>
-        <div class="flex-1">
-          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.diagnostics.title') }}</h3>
-          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.diagnostics.description') }}</p>
-        </div>
-      </template>
-    </UPageCard>
-
-    <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
-      <UFormField :label="t('pages.settings.crawler.diagnostics.compareMode.label')" :description="t('pages.settings.crawler.diagnostics.compareMode.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+      <UFormField
+        :label="t('pages.settings.crawler.diagnostics.compareMode.label')"
+        :description="t('pages.settings.crawler.diagnostics.compareMode.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
         <USwitch :model-value="stateCrawlerDiagnosticsCompareMode === 'flow'" @update:model-value="handleCrawlerDiagnosticsCompareModeUpdate" />
+      </UFormField>
+      <UFormField :label="t('pages.settings.crawler.logs.label')" :description="t('pages.settings.crawler.logs.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <USwitch :model-value="stateCrawlerShowLogs" @update:model-value="handleCrawlerShowLogsUpdate" />
       </UFormField>
     </UPageCard>
   </DashboardPage>
@@ -534,6 +530,11 @@ const stateCrawlerDiagnosticsCompareMode = ref('match');
  * 状态：爬虫模板比较后端。
  */
 const stateCrawlerCompareBackend = ref<'cpu' | 'gpu'>('cpu');
+
+/**
+ * 状态：爬虫日志是否显示。
+ */
+const stateCrawlerShowLogs = ref(false);
 
 /**
  * 状态：爬虫模板比较后端是否正在探测。
@@ -857,6 +858,7 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
   }
 
   stateCrawlerCompareBackend.value = crawlerCompareBackendNormalize((crawlerSetting as Record<string, unknown>).compareBackend);
+  stateCrawlerShowLogs.value = Boolean((crawlerSetting as Record<string, unknown>).showLogs);
 
   const browserSetting = (crawlerSetting as Record<string, unknown>).browser;
   if (!browserSetting || typeof browserSetting !== 'object' || Array.isArray(browserSetting)) {
@@ -969,6 +971,24 @@ const handleCrawlerCompareBackendUpdate = async (on: boolean): Promise<void> => 
   } finally {
     stateCrawlerCompareBackendProbing.value = false;
   }
+};
+
+/**
+ * 事件：更新爬虫日志显示开关。
+ * @param {boolean} on 是否显示爬虫日志。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerShowLogsUpdate = async (on: boolean): Promise<void> => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  stateCrawlerShowLogs.value = on;
+  await tauriSettings.update({
+    crawler: {
+      showLogs: on
+    }
+  });
 };
 
 /**

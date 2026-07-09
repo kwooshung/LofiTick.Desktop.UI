@@ -134,6 +134,10 @@ export const settings = {
         installOfficial: '前往官網下載並安裝'
       }
     },
+    runtime: {
+      title: '爬蟲執行與診斷',
+      description: '統一控制模板比較後端、診斷截圖保留範圍和可見日誌輸出。'
+    },
     diagnostics: {
       title: '診斷截圖',
       description: '控制寫入 matches 目錄的診斷比較範圍。',
@@ -141,6 +145,12 @@ export const settings = {
         label: '全流程比較',
         description: '開啟後每次模板比較都保存完整流程；關閉時僅在最終失敗後保存最後一輪多階段比較，最終成功不保存。'
       }
+    },
+    logs: {
+      title: '日誌顯示',
+      description: '控制爬蟲執行過程中的可見日誌輸出。',
+      label: '顯示爬蟲日誌',
+      runtimeDescription: '開啟後會顯示爬蟲工作階段、瀏覽器視覺狀態與入口守衛的關鍵日誌；關閉後只保留錯誤資訊。'
     },
     browserProfilesDirectory: {
       label: '瀏覽器資料快取',

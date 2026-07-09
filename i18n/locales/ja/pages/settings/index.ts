@@ -134,6 +134,10 @@ export const settings = {
         installOfficial: '公式サイトからダウンロードしてインストール'
       }
     },
+    runtime: {
+      title: 'クローラーの実行と診断',
+      description: 'テンプレート比較の方式、診断スクリーンショットの範囲、表示ログをまとめて制御します。'
+    },
     diagnostics: {
       title: '診断スクリーンショット',
       description: 'matches ディレクトリへ書き込む診断スクリーンショットの範囲を制御します。',
@@ -141,6 +145,12 @@ export const settings = {
         label: '全フロー比較',
         description: '有効時はテンプレート比較ごとに保存します。無効時は最終的に失敗した場合のみ最後の多段階比較を保存し、成功した場合は保存しません。'
       }
+    },
+    logs: {
+      title: 'ログ表示',
+      description: 'クローラー実行中に表示するログ出力を制御します。',
+      label: 'クローラーのログを表示',
+      runtimeDescription: '有効にすると、クローラーセッション、ブラウザーの視覚状態、入口ガードの主要ログを表示します。無効にすると、エラーのみ表示されます。'
     },
     browserProfilesDirectory: {
       label: 'ブラウザープロファイルキャッシュ',

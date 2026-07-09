@@ -134,6 +134,10 @@ export const settings = {
         installOfficial: 'Download from the official website'
       }
     },
+    runtime: {
+      title: 'Crawler runtime and diagnostics',
+      description: 'Control the template compare backend, diagnostic screenshot scope, and visible log output in one place.'
+    },
     compareBackend: {
       title: 'Template compare backend',
       description: 'Choose whether site template matching uses CPU or GPU. GPU stays optional and CPU always remains available.',
@@ -155,6 +159,12 @@ export const settings = {
         label: 'Full-flow comparison',
         description: 'When enabled, every template comparison is saved. When disabled, only the final failed round saves its staged comparisons, and successful flows save nothing.'
       }
+    },
+    logs: {
+      title: 'Log display',
+      description: 'Control the visible log output during crawler runs.',
+      label: 'Show crawler logs',
+      runtimeDescription: 'When enabled, the crawler session, browser visual state, and entry guard will emit key logs. When disabled, only errors remain visible.'
     },
     browserProfilesDirectory: {
       label: 'Browser profile cache',
