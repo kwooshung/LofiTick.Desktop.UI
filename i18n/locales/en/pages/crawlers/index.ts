@@ -88,10 +88,12 @@ export const crawlers = {
         },
         dialog: {
           title: 'Choose a Pixabay address',
-          description: 'Enter a keyword first, optionally add a page number, and preview the final URL below.',
+          description: 'Enter a keyword first, then set the minimum duration and page number as needed. The final URL will update below.',
           keywordLabel: 'Keyword',
           keywordPlaceholder: 'Enter a keyword',
           keywordPreview: 'keyword',
+          minDurationLabel: 'Minimum duration',
+          minDurationDescription: 'Audio shorter than this will be skipped before downloading. Unit: seconds. Default: 60.',
           pageLabel: 'Page',
           typeLabel: 'Address',
           urlLabel: 'URL preview',

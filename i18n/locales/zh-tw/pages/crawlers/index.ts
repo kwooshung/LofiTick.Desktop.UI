@@ -88,10 +88,12 @@ export const crawlers = {
         },
         dialog: {
           title: '選擇 Pixabay 地址',
-          description: '先輸入關鍵字，再按需要補頁碼，下方會即時顯示最終網址。',
+          description: '先輸入關鍵字，再按需要補最小長度與頁碼，下方會即時顯示最終網址。',
           keywordLabel: '關鍵字',
           keywordPlaceholder: '請輸入關鍵字',
           keywordPreview: '關鍵字',
+          minDurationLabel: '最小長度',
+          minDurationDescription: '低於此長度的音訊不會進入下載流程，單位為秒，預設 60 秒。',
           pageLabel: '頁碼',
           typeLabel: '網址',
           urlLabel: '網址預覽',

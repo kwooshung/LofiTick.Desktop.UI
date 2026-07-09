@@ -154,7 +154,7 @@
               trailing-icon="i-lucide:chevron-down"
               :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
               :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
-              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('edge') || crawlerBrowserMatchesDirectoryClearLoadingGet('edge')"
             >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes))" :content="{ side: 'top' }">
@@ -236,7 +236,7 @@
               trailing-icon="i-lucide:chevron-down"
               :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
               :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
-              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('chrome') || crawlerBrowserMatchesDirectoryClearLoadingGet('chrome')"
             >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes))" :content="{ side: 'top' }">
@@ -318,7 +318,7 @@
               trailing-icon="i-lucide:chevron-down"
               :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
               :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
-              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('chromium') || crawlerBrowserMatchesDirectoryClearLoadingGet('chromium')"
             >
               {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
               <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes))" :content="{ side: 'top' }">
@@ -1172,6 +1172,24 @@ const crawlerBrowserDirectoryClearPopoverOpenGet = (browser: 'edge' | 'chrome' |
  */
 const crawlerBrowserDirectoryClearConfirmOpenGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
   return stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：读取浏览器资料目录清理加载状态。
+ * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @returns {boolean} 是否正在清理。
+ */
+const crawlerBrowserProfilesDirectoryClearLoadingGet = (scope: 'root' | 'edge' | 'chrome' | 'chromium'): boolean => {
+  return stateCrawlerBrowserProfilesClearing.value && stateCrawlerBrowserProfilesClearTarget.value === scope;
+};
+
+/**
+ * 函数：读取浏览器匹配记录目录清理加载状态。
+ * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @returns {boolean} 是否正在清理。
+ */
+const crawlerBrowserMatchesDirectoryClearLoadingGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+  return stateCrawlerBrowserMatchesClearing.value && stateCrawlerBrowserMatchesClearTarget.value === browser;
 };
 
 /**

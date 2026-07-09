@@ -88,10 +88,12 @@ export const crawlers = {
         },
         dialog: {
           title: 'Pixabay のURLを選択',
-          description: 'まずキーワードを入力し、必要ならページ番号を追加すると、下に最終URLを表示します。',
+          description: 'まずキーワードを入力し、必要に応じて最小長とページ番号を設定すると、下に最終URLを表示します。',
           keywordLabel: 'キーワード',
           keywordPlaceholder: 'キーワードを入力',
           keywordPreview: 'キーワード',
+          minDurationLabel: '最小長',
+          minDurationDescription: 'これ未満の音声はダウンロード前にスキップします。単位は秒、初期値は 60 秒です。',
           pageLabel: 'ページ',
           typeLabel: 'URL',
           urlLabel: 'URL プレビュー',
