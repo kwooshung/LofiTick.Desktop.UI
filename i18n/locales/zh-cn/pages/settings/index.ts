@@ -134,6 +134,20 @@
         installOfficial: '前往官网下载并安装'
       }
     },
+    compareBackend: {
+      title: '模板比较后端',
+      description: '控制站点模板比较时使用 CPU 还是 GPU。GPU 仅在硬件条件满足时可启用，CPU 模式始终保留。',
+      label: '使用 GPU 比较',
+      runtimeDescription: '开启前会先探测当前机器的 GPU 条件；不满足时会自动保持 CPU。',
+      currentMode: '当前模式：{mode}',
+      modes: {
+        cpu: 'CPU',
+        gpu: 'GPU'
+      },
+      probeSuccessTitle: 'GPU 比较可用',
+      probeFailedTitle: 'GPU 比较不可用',
+      probeFailedFallback: '当前机器不满足 GPU 比较条件'
+    },
     diagnostics: {
       title: '诊断截图',
       description: '控制写入 matches 目录的诊断比较范围。',

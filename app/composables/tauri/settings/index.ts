@@ -106,6 +106,29 @@ interface ITauriCrawlerBrowserSiteDirInfo {
 }
 
 /**
+ * 接口：爬虫比较后端探测结果。
+ */
+interface ITauriCrawlerCompareBackendProbeResult {
+  /** 是否满足 GPU 比较条件。 */
+  eligible: boolean;
+
+  /** 探测到的比较后端。 */
+  backend: string;
+
+  /** 适配器名称。 */
+  adapterName: string;
+
+  /** 适配器设备类型。 */
+  deviceType: string;
+
+  /** 适配器后端类型。 */
+  backendName: string;
+
+  /** 不满足条件时的原因。 */
+  reason: string;
+}
+
+/**
  * 类型：爬虫浏览器资料目录范围。
  */
 type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome' | 'chromium';
@@ -249,6 +272,14 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：探测爬虫 GPU 比较可用性。
+   * @returns {Promise<ITauriCrawlerCompareBackendProbeResult>} 探测结果。
+   */
+  const crawlerCompareBackendProbe = async (): Promise<ITauriCrawlerCompareBackendProbeResult> => {
+    return invoke<ITauriCrawlerCompareBackendProbeResult>('settings_crawler_compare_backend_probe');
+  };
+
+  /**
    * 函数：获取热搜播客固定开头音乐路径。
    * @returns {Promise<ITauriHotsearchPodcastHeadMusicPaths>} 固定路径信息
    */
@@ -380,6 +411,7 @@ export const useTauriSettings = () => {
     crawlerBrowserMatchesDirGet,
     crawlerBrowserMatchesDirSizeGet,
     crawlerBrowserMatchesDirClear,
+    crawlerCompareBackendProbe,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

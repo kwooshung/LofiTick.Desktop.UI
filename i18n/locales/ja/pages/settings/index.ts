@@ -214,6 +214,20 @@ export const settings = {
       description: '主にテキスト、背景、ボーダーなどに使用される補助的な色です。',
       colors: {
         ink: 'インク',
+        compareBackend: {
+          title: 'テンプレート比較バックエンド',
+          description: 'サイトのテンプレート比較に CPU か GPU のどちらを使うかを切り替えます。GPU は条件を満たす場合のみ有効で、CPU は常に残ります。',
+          label: 'GPU 比較を使用',
+          runtimeDescription: 'GPU を有効にする前に現在の端末を確認します。条件を満たさない場合は CPU のまま維持されます。',
+          currentMode: '現在のモード: {mode}',
+          modes: {
+            cpu: 'CPU',
+            gpu: 'GPU'
+          },
+          probeSuccessTitle: 'GPU 比較は利用可能です',
+          probeFailedTitle: 'GPU 比較は利用できません',
+          probeFailedFallback: 'この端末は GPU 比較の要件を満たしていません'
+        },
         slate: 'スレート',
         gray: 'グレー',
         zinc: 'ジンク',

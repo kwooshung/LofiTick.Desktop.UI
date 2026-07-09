@@ -371,6 +371,24 @@
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.compareBackend.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.compareBackend.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
+      <UFormField :label="t('pages.settings.crawler.compareBackend.label')" :description="t('pages.settings.crawler.compareBackend.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2">
+        <div class="flex min-w-0 flex-col gap-1">
+          <div class="text-muted text-sm">{{ t('pages.settings.crawler.compareBackend.currentMode', { mode: t(stateCrawlerCompareBackend === 'gpu' ? 'pages.settings.crawler.compareBackend.modes.gpu' : 'pages.settings.crawler.compareBackend.modes.cpu') }) }}</div>
+        </div>
+        <USwitch :model-value="stateCrawlerCompareBackend === 'gpu'" :disabled="stateCrawlerCompareBackendProbing" @update:model-value="handleCrawlerCompareBackendUpdate" />
+      </UFormField>
+    </UPageCard>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
           <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.diagnostics.title') }}</h3>
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.diagnostics.description') }}</p>
         </div>
@@ -514,6 +532,16 @@ const stateCrawlerBrowserSelectedId = ref('');
  * 状态：爬虫诊断比较模式。
  */
 const stateCrawlerDiagnosticsCompareMode = ref('match');
+
+/**
+ * 状态：爬虫模板比较后端。
+ */
+const stateCrawlerCompareBackend = ref<'cpu' | 'gpu'>('cpu');
+
+/**
+ * 状态：爬虫模板比较后端是否正在探测。
+ */
+const stateCrawlerCompareBackendProbing = ref(false);
 
 /**
  * 状态：是否已经触发过浏览器安装入口
@@ -831,6 +859,8 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
     stateCrawlerDiagnosticsCompareMode.value = crawlerDiagnosticsCompareModeNormalize((diagnosticsSetting as Record<string, unknown>).captureMode);
   }
 
+  stateCrawlerCompareBackend.value = crawlerCompareBackendNormalize((crawlerSetting as Record<string, unknown>).compareBackend);
+
   const browserSetting = (crawlerSetting as Record<string, unknown>).browser;
   if (!browserSetting || typeof browserSetting !== 'object' || Array.isArray(browserSetting)) {
     return;
@@ -846,6 +876,15 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
  */
 const crawlerDiagnosticsCompareModeNormalize = (value: unknown): string => {
   return value === 'flow' ? 'flow' : 'match';
+};
+
+/**
+ * 函数：归一化爬虫模板比较后端。
+ * @param {unknown} value 原始后端值。
+ * @returns {'cpu' | 'gpu'} 可保存的后端值。
+ */
+const crawlerCompareBackendNormalize = (value: unknown): 'cpu' | 'gpu' => {
+  return value === 'gpu' ? 'gpu' : 'cpu';
 };
 
 /**
@@ -867,6 +906,72 @@ const handleCrawlerDiagnosticsCompareModeUpdate = async (on: boolean): Promise<v
       }
     }
   });
+};
+
+/**
+ * 事件：更新模板比较后端。
+ * @param {boolean} on 是否启用 GPU 比较。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerCompareBackendUpdate = async (on: boolean): Promise<void> => {
+  if (!isTauriRuntime.value || stateCrawlerCompareBackendProbing.value) {
+    return;
+  }
+
+  if (!on) {
+    stateCrawlerCompareBackend.value = 'cpu';
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'cpu'
+      }
+    });
+    return;
+  }
+
+  stateCrawlerCompareBackendProbing.value = true;
+  try {
+    const probe = await tauriSettings.crawlerCompareBackendProbe();
+    if (!probe.eligible) {
+      stateCrawlerCompareBackend.value = 'cpu';
+      toast.add({
+        title: t('pages.settings.crawler.compareBackend.probeFailedTitle'),
+        description: probe.reason,
+        color: 'error'
+      });
+      await tauriSettings.update({
+        crawler: {
+          compareBackend: 'cpu'
+        }
+      });
+      return;
+    }
+
+    stateCrawlerCompareBackend.value = 'gpu';
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'gpu'
+      }
+    });
+    toast.add({
+      title: t('pages.settings.crawler.compareBackend.probeSuccessTitle'),
+      description: probe.adapterName,
+      color: 'success'
+    });
+  } catch (error) {
+    stateCrawlerCompareBackend.value = 'cpu';
+    toast.add({
+      title: t('pages.settings.crawler.compareBackend.probeFailedTitle'),
+      description: error instanceof Error ? error.message : t('pages.settings.crawler.compareBackend.probeFailedFallback'),
+      color: 'error'
+    });
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'cpu'
+      }
+    });
+  } finally {
+    stateCrawlerCompareBackendProbing.value = false;
+  }
 };
 
 /**
@@ -1227,30 +1332,6 @@ const handleOpenCrawlerBrowserProfilesChrome = async (): Promise<void> => {
  */
 const handleOpenCrawlerBrowserProfilesChromium = async (): Promise<void> => {
   await handleOpenCrawlerBrowserProfilesBrowser('chromium');
-};
-
-/**
- * 事件：打开 Edge 浏览器匹配记录目录。
- * @returns {Promise<void>} 无返回值。
- */
-const handleOpenCrawlerBrowserMatchesEdge = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserMatchesBrowser('edge');
-};
-
-/**
- * 事件：打开 Chrome 浏览器匹配记录目录。
- * @returns {Promise<void>} 无返回值。
- */
-const handleOpenCrawlerBrowserMatchesChrome = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserMatchesBrowser('chrome');
-};
-
-/**
- * 事件：打开 Chromium 浏览器匹配记录目录。
- * @returns {Promise<void>} 无返回值。
- */
-const handleOpenCrawlerBrowserMatchesChromium = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserMatchesBrowser('chromium');
 };
 
 /**

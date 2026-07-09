@@ -206,6 +206,20 @@ export const settings = {
         purple: '紫藍',
         fuchsia: '桃紅',
         pink: '粉紅',
+        compareBackend: {
+          title: '模板比較後端',
+          description: '控制站點模板比較時使用 CPU 還是 GPU。GPU 只在硬體條件滿足時可啟用，CPU 模式始終保留。',
+          label: '使用 GPU 比較',
+          runtimeDescription: '開啟前會先探測目前裝置的 GPU 條件；若不符合，會自動維持 CPU。',
+          currentMode: '目前模式：{mode}',
+          modes: {
+            cpu: 'CPU',
+            gpu: 'GPU'
+          },
+          probeSuccessTitle: 'GPU 比較可用',
+          probeFailedTitle: 'GPU 比較不可用',
+          probeFailedFallback: '目前裝置不符合 GPU 比較條件'
+        },
         rose: '玫紅'
       }
     },

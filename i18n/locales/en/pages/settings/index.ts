@@ -134,6 +134,20 @@ export const settings = {
         installOfficial: 'Download from the official website'
       }
     },
+    compareBackend: {
+      title: 'Template compare backend',
+      description: 'Choose whether site template matching uses CPU or GPU. GPU stays optional and CPU always remains available.',
+      label: 'Use GPU compare',
+      runtimeDescription: 'The current machine will be probed before enabling GPU. If the probe fails, the setting stays on CPU.',
+      currentMode: 'Current mode: {mode}',
+      modes: {
+        cpu: 'CPU',
+        gpu: 'GPU'
+      },
+      probeSuccessTitle: 'GPU compare is available',
+      probeFailedTitle: 'GPU compare is unavailable',
+      probeFailedFallback: 'This machine does not meet the GPU compare requirements'
+    },
     diagnostics: {
       title: 'Diagnostic screenshots',
       description: 'Control the diagnostic screenshots written to the matches directory.',
