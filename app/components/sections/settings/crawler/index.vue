@@ -115,13 +115,31 @@
             </UButton>
             <template #content="{ close }">
               <div v-if="stateCrawlerBrowserProfilesRootClearTarget === ''" class="flex flex-col gap-1">
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes ? 'opacity-45 pointer-events-none cursor-not-allowed' : ''" :disabled="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes" @click="handleCrawlerBrowserProfilesRootClearSelect('cache')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes"
+                  @click="handleCrawlerBrowserProfilesRootClearSelect('cache')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(computedCrawlerBrowserProfilesRootClearCacheSizeBytes) }}</UBadge>
                   </span>
                 </UButton>
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes ? 'opacity-45 pointer-events-none cursor-not-allowed' : ''" :disabled="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes" @click="handleCrawlerBrowserProfilesRootClearSelect('matches')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes"
+                  @click="handleCrawlerBrowserProfilesRootClearSelect('matches')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(computedCrawlerBrowserProfilesRootClearMatchesSizeBytes) }}</UBadge>
@@ -137,7 +155,9 @@
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-1">
                   <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => handleCrawlerBrowserProfilesRootClearToggle(false)">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserProfilesRootClearConfirm(close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserProfilesRootClearConfirm(close)">{{
+                    t('common.actions.confirm')
+                  }}</UButton>
                 </div>
               </div>
             </template>
@@ -187,13 +207,31 @@
             </UButton>
             <template #content="{ close }">
               <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('edge')" class="flex flex-col gap-1">
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserProfilesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserProfilesEdgePath || !stateCrawlerBrowserProfilesEdgeSizeBytes" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('edge')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserProfilesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserProfilesEdgePath || !stateCrawlerBrowserProfilesEdgeSizeBytes"
+                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('edge')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesEdgeSizeBytes) }}</UBadge>
                   </span>
                 </UButton>
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserMatchesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserMatchesEdgePath || !stateCrawlerBrowserMatchesEdgeSizeBytes" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('edge')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserMatchesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserMatchesEdgePath || !stateCrawlerBrowserMatchesEdgeSizeBytes"
+                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('edge')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesEdgeSizeBytes) }}</UBadge>
@@ -265,13 +303,31 @@
             </UButton>
             <template #content="{ close }">
               <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chrome')" class="flex flex-col gap-1">
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserProfilesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserProfilesChromePath || !stateCrawlerBrowserProfilesChromeSizeBytes" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chrome')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserProfilesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserProfilesChromePath || !stateCrawlerBrowserProfilesChromeSizeBytes"
+                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chrome')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromeSizeBytes) }}</UBadge>
                   </span>
                 </UButton>
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserMatchesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserMatchesChromePath || !stateCrawlerBrowserMatchesChromeSizeBytes" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chrome')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserMatchesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserMatchesChromePath || !stateCrawlerBrowserMatchesChromeSizeBytes"
+                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chrome')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromeSizeBytes) }}</UBadge>
@@ -343,13 +399,31 @@
             </UButton>
             <template #content="{ close }">
               <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chromium')" class="flex flex-col gap-1">
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserProfilesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserProfilesChromiumPath || !stateCrawlerBrowserProfilesChromiumSizeBytes" @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chromium')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserProfilesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserProfilesChromiumPath || !stateCrawlerBrowserProfilesChromiumSizeBytes"
+                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chromium')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromiumSizeBytes) }}</UBadge>
                   </span>
                 </UButton>
-                <UButton block color="neutral" variant="ghost" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :class="!stateCrawlerBrowserMatchesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''" :disabled="!stateCrawlerBrowserMatchesChromiumPath || !stateCrawlerBrowserMatchesChromiumSizeBytes" @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chromium')">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserMatchesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserMatchesChromiumPath || !stateCrawlerBrowserMatchesChromiumSizeBytes"
+                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chromium')"
+                >
                   <span class="flex flex-1 items-center justify-between gap-3">
                     <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
                     <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromiumSizeBytes) }}</UBadge>
@@ -1357,7 +1431,10 @@ const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome' | 'ch
 const computedCrawlerBrowserProfilesRootClearTotalSizeBytes = computed<number>(() => {
   return crawlerBrowserProfilesTotalSizeBytesGet(
     crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesRootSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes.value, stateCrawlerBrowserMatchesEdgeSizeBytes.value)),
-    crawlerBrowserProfilesTotalSizeBytesGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromeSizeBytes.value), crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value))
+    crawlerBrowserProfilesTotalSizeBytesGet(
+      crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromeSizeBytes.value),
+      crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value)
+    )
   );
 });
 
@@ -1368,10 +1445,7 @@ const computedCrawlerBrowserProfilesRootClearTotalSizeBytes = computed<number>((
 const computedCrawlerBrowserProfilesRootClearCacheSizeBytes = computed<number>(() => {
   return crawlerBrowserProfilesTotalSizeBytesGet(
     stateCrawlerBrowserProfilesRootSizeBytes.value,
-    crawlerBrowserProfilesTotalSizeBytesGet(
-      stateCrawlerBrowserProfilesEdgeSizeBytes.value,
-      crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserProfilesChromiumSizeBytes.value)
-    )
+    crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserProfilesChromiumSizeBytes.value))
   );
 });
 
@@ -1380,10 +1454,7 @@ const computedCrawlerBrowserProfilesRootClearCacheSizeBytes = computed<number>((
  * @returns {number} 根目录匹配记录清理总字节数。
  */
 const computedCrawlerBrowserProfilesRootClearMatchesSizeBytes = computed<number>(() => {
-  return crawlerBrowserProfilesTotalSizeBytesGet(
-    stateCrawlerBrowserMatchesEdgeSizeBytes.value,
-    crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value)
-  );
+  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesEdgeSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value));
 });
 
 /**
@@ -1445,11 +1516,7 @@ const handleCrawlerBrowserMatchesDirectoryClearAll = async (): Promise<void> => 
 
   stateCrawlerBrowserMatchesClearing.value = true;
   try {
-    await Promise.all([
-      tauriSettings.crawlerBrowserMatchesDirClear('edge', crawlerBrowserProfileSite),
-      tauriSettings.crawlerBrowserMatchesDirClear('chrome', crawlerBrowserProfileSite),
-      tauriSettings.crawlerBrowserMatchesDirClear('chromium', crawlerBrowserProfileSite)
-    ]);
+    await Promise.all([tauriSettings.crawlerBrowserMatchesDirClear('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chrome', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chromium', crawlerBrowserProfileSite)]);
     await loadCrawlerBrowserProfilesDirectory();
     toast.add({
       title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearSuccess')
