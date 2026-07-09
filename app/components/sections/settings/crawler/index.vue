@@ -1429,13 +1429,7 @@ const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome' | 'ch
  * @returns {number} 根目录全量清理总字节数。
  */
 const computedCrawlerBrowserProfilesRootClearTotalSizeBytes = computed<number>(() => {
-  return crawlerBrowserProfilesTotalSizeBytesGet(
-    crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesRootSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes.value, stateCrawlerBrowserMatchesEdgeSizeBytes.value)),
-    crawlerBrowserProfilesTotalSizeBytesGet(
-      crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromeSizeBytes.value),
-      crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value)
-    )
-  );
+  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesRootSizeBytes.value, computedCrawlerBrowserProfilesRootClearMatchesSizeBytes.value);
 });
 
 /**
@@ -1443,10 +1437,7 @@ const computedCrawlerBrowserProfilesRootClearTotalSizeBytes = computed<number>((
  * @returns {number} 根目录缓存清理总字节数。
  */
 const computedCrawlerBrowserProfilesRootClearCacheSizeBytes = computed<number>(() => {
-  return crawlerBrowserProfilesTotalSizeBytesGet(
-    stateCrawlerBrowserProfilesRootSizeBytes.value,
-    crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes.value, stateCrawlerBrowserProfilesChromiumSizeBytes.value))
-  );
+  return stateCrawlerBrowserProfilesRootSizeBytes.value;
 });
 
 /**
