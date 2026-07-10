@@ -32,10 +32,6 @@ export type TInputLabAction =
   | 'double_click_area'
   | 'right_click_area'
   | 'drag_area_to_area'
-  | 'type_text_into_area'
-  | 'replace_text_in_area'
-  | 'type_text_synthetic_ime_into_area'
-  | 'replace_text_synthetic_ime_in_area'
   | 'scroll_vertical_human';
 
 /**

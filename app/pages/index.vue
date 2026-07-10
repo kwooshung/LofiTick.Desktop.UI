@@ -260,7 +260,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 class="text-highlighted text-sm font-semibold">执行测试</h3>
-                <p class="text-muted mt-1 text-sm leading-6">按顺序编辑一组连续动作；每一步共享下面的速度、曲线、按键间隔与输入节奏参数。</p>
+                <p class="text-muted mt-1 text-sm leading-6">按顺序编辑一组连续动作；每一步共享下面的速度、曲线与按键间隔参数。</p>
               </div>
               <div class="flex items-center gap-3">
                 <UBadge :color="stateInputLabDryRun ? 'neutral' : 'warning'" variant="soft">
@@ -275,7 +275,6 @@
                 <UButton color="primary" variant="soft" size="sm" icon="i-lucide:move" @click="handleInputLabStepAppend('move_to')">添加移动</UButton>
                 <UButton color="primary" variant="soft" size="sm" icon="i-lucide:mouse-pointer-click" @click="handleInputLabStepAppend('click_current')">添加点击</UButton>
                 <UButton color="primary" variant="soft" size="sm" icon="i-lucide:text-cursor-input" @click="handleInputLabStepAppend('type_text')">添加输入</UButton>
-                <UButton color="primary" variant="soft" size="sm" icon="i-lucide:languages" @click="handleInputLabStepAppend('type_text_synthetic_ime_into_area')">添加合成输入法</UButton>
                 <UButton color="primary" variant="soft" size="sm" icon="i-lucide:command" @click="handleInputLabStepAppend('hotkey')">添加快捷键</UButton>
                 <UButton color="primary" variant="soft" size="sm" icon="i-lucide:timer" @click="handleInputLabStepAppend('random_wait')">添加等待</UButton>
               </div>
@@ -405,7 +404,7 @@
                 </div>
               </UFormField>
 
-              <UFormField label="目标区域" description="用于区域随机点、区域点击、区域输入和人类化区域动作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
+              <UFormField label="目标区域" description="用于区域随机点、区域点击和人类化区域动作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
                 <div class="grid gap-2 md:grid-cols-4">
                   <UInputNumber v-model="stateInputLabRect.x" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }"
                     ><template #leading><span class="text-muted text-xs">x</span></template></UInputNumber
@@ -457,7 +456,7 @@
 
               <UFormField
                 label="文本 / 按键"
-                description="用于 key_tap、type_text、paste_text、type_text_into_area、replace_text_in_area、type_text_synthetic_ime_into_area、replace_text_synthetic_ime_in_area；hotkey 固定测试 Control+A。"
+                description="用于 key_tap、type_text、paste_text；hotkey 固定测试 Control+A。"
                 :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }"
                 class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center"
               >
@@ -675,10 +674,6 @@ const INPUT_LAB_EXECUTE_ACTION_OPTIONS = [
   { label: 'double_click_area - 人类化区域双击', value: 'double_click_area' },
   { label: 'right_click_area - 人类化区域右键', value: 'right_click_area' },
   { label: 'drag_area_to_area - 人类化区域拖拽', value: 'drag_area_to_area' },
-  { label: 'type_text_into_area - 点击区域并输入', value: 'type_text_into_area' },
-  { label: 'replace_text_in_area - 替换区域文本', value: 'replace_text_in_area' },
-  { label: '合成输入法输入 - type_text_synthetic_ime_into_area', value: 'type_text_synthetic_ime_into_area' },
-  { label: '合成输入法替换 - replace_text_synthetic_ime_in_area', value: 'replace_text_synthetic_ime_in_area' },
   { label: 'scroll_vertical_human - 人类化纵向滚动', value: 'scroll_vertical_human' }
 ] satisfies Array<{ label: string; value: TInputLabAction }>;
 
@@ -724,10 +719,6 @@ const HUMAN_INPUT_ACTIONS = [
   { name: 'double_click_area', icon: 'i-lucide:copy-plus', description: '区域安全点选择后执行人类化双击。' },
   { name: 'right_click_area', icon: 'i-lucide:panel-right-open', description: '区域安全点选择后执行人类化右键点击。' },
   { name: 'drag_area_to_area', icon: 'i-lucide:combine', description: '从起点区域安全点拖拽到终点区域安全点。' },
-  { name: 'type_text_into_area', icon: 'i-lucide:text-cursor-input', description: '点击输入区域，再按文本长度选择逐字、分段或快速输入。' },
-  { name: 'replace_text_in_area', icon: 'i-lucide:replace', description: '点击区域、全选旧文本，再执行人类化文本输入。' },
-  { name: 'type_text_synthetic_ime_into_area', icon: 'i-lucide:languages', description: '点击输入区域，模拟拼音键流、候选确认、错词回删和最终文本提交。' },
-  { name: 'replace_text_synthetic_ime_in_area', icon: 'i-lucide:spell-check', description: '点击区域、全选旧文本，再按合成输入法策略输入最终正确文本。' },
   { name: 'scroll_vertical_human', icon: 'i-lucide:panel-top-open', description: '滚动前等待、基础分段滚动、可选轻微反向滚动、滚动后观察。' },
   { name: 'overshoot', icon: 'i-lucide:undo-2', description: '按概率越过目标点，再回到目标。' },
   { name: 'hesitation', icon: 'i-lucide:pause', description: '移动前按概率插入停顿与小范围漂移。' },
@@ -870,15 +861,6 @@ const INPUT_LAB_NUMBER_DEFAULTS = {
   'humanClick.retryCount.max': 1,
   'humanClick.retryPauseMs.min': 160,
   'humanClick.retryPauseMs.max': 520,
-  'typing.charByChar': 42,
-  'typing.chunked': 38,
-  'typing.paste': 20,
-  'typing.shortTextMaxChars': 24,
-  'typing.longTextMinChars': 120,
-  'typing.chunkSize.min': 12,
-  'typing.chunkSize.max': 42,
-  'typing.chunkPauseMs.min': 120,
-  'typing.chunkPauseMs.max': 520,
   'humanScroll.beforeScrollMs.min': 80,
   'humanScroll.beforeScrollMs.max': 260,
   'humanScroll.reverseProbability.min': 0.03,
@@ -906,61 +888,7 @@ const INPUT_LAB_NUMBER_DEFAULTS = {
   'attention.pageObserveMs.min': 320,
   'attention.pageObserveMs.max': 1200,
   'attention.uncertaintyPauseMs.min': 500,
-  'attention.uncertaintyPauseMs.max': 1800,
-  'syntheticIme.timing.letterIntervalMs.min': 42,
-  'syntheticIme.timing.letterIntervalMs.max': 185,
-  'syntheticIme.timing.midPinyinPauseMs.min': 260,
-  'syntheticIme.timing.midPinyinPauseMs.max': 1250,
-  'syntheticIme.timing.afterPinyinPauseMs.min': 120,
-  'syntheticIme.timing.afterPinyinPauseMs.max': 520,
-  'syntheticIme.timing.beforeCandidateMs.min': 80,
-  'syntheticIme.timing.beforeCandidateMs.max': 360,
-  'syntheticIme.timing.afterCandidateMs.min': 160,
-  'syntheticIme.timing.afterCandidateMs.max': 720,
-  'syntheticIme.timing.segmentGapMs.min': 180,
-  'syntheticIme.timing.segmentGapMs.max': 880,
-  'syntheticIme.timing.switchGapMs.min': 120,
-  'syntheticIme.timing.switchGapMs.max': 520,
-  'syntheticIme.timing.backspaceIntervalMs.min': 55,
-  'syntheticIme.timing.backspaceIntervalMs.max': 210,
-  'syntheticIme.timing.shiftKeyIntervalMs.min': 45,
-  'syntheticIme.timing.shiftKeyIntervalMs.max': 160,
-  'syntheticIme.timing.sentenceEndPauseMs.min': 420,
-  'syntheticIme.timing.sentenceEndPauseMs.max': 1500,
-  'syntheticIme.candidate.spaceWeight': 70,
-  'syntheticIme.candidate.arrowWeight': 20,
-  'syntheticIme.candidate.digitWeight': 10,
-  'syntheticIme.candidate.arrowCount.min': 1,
-  'syntheticIme.candidate.arrowCount.max': 3,
-  'syntheticIme.candidate.digitCandidate.min': 1,
-  'syntheticIme.candidate.digitCandidate.max': 5,
-  'syntheticIme.repair.pinyinTypoProbability.min': 0.015,
-  'syntheticIme.repair.pinyinTypoProbability.max': 0.06,
-  'syntheticIme.repair.maxPinyinTyposPerSegment.min': 0,
-  'syntheticIme.repair.maxPinyinTyposPerSegment.max': 2,
-  'syntheticIme.repair.committedTextRepairProbability.min': 0.02,
-  'syntheticIme.repair.committedTextRepairProbability.max': 0.08,
-  'syntheticIme.repair.committedRepairPauseMs.min': 260,
-  'syntheticIme.repair.committedRepairPauseMs.max': 1100,
-  'syntheticIme.repair.backspaceJitter.min': 0,
-  'syntheticIme.repair.backspaceJitter.max': 1,
-  'syntheticIme.mouseNoise.midPauseProbability.min': 0.02,
-  'syntheticIme.mouseNoise.midPauseProbability.max': 0.08,
-  'syntheticIme.mouseNoise.segmentGapProbability.min': 0.03,
-  'syntheticIme.mouseNoise.segmentGapProbability.max': 0.12,
-  'syntheticIme.mouseNoise.scrollProbability.min': 0.01,
-  'syntheticIme.mouseNoise.scrollProbability.max': 0.04,
-  'syntheticIme.mouseNoise.driftPx.min': 2,
-  'syntheticIme.mouseNoise.driftPx.max': 14,
-  'syntheticIme.english.capsLockMinRun': 4,
-  'syntheticIme.english.capsLockProbability.min': 0.35,
-  'syntheticIme.english.capsLockProbability.max': 0.65,
-  'syntheticIme.guard.enterShiftTaps.min': 1,
-  'syntheticIme.guard.enterShiftTaps.max': 2,
-  'syntheticIme.guard.exitShiftTaps.min': 1,
-  'syntheticIme.guard.exitShiftTaps.max': 1,
-  'syntheticIme.associationProbability.min': 0.16,
-  'syntheticIme.associationProbability.max': 0.34
+  'attention.uncertaintyPauseMs.max': 1800
 };
 
 /**
@@ -969,8 +897,7 @@ const INPUT_LAB_NUMBER_DEFAULTS = {
 const INPUT_LAB_BOOLEAN_DEFAULTS = {
   'overshoot.enabled': true,
   'micro.enabled': true,
-  'hesitation.enabled': true,
-  'syntheticIme.guard.enabled': true
+  'hesitation.enabled': true
 };
 
 /**
@@ -1313,7 +1240,7 @@ const inputLabParameterGroups = computed(() => [
     ]
   },
   {
-    title: '人类目标点 / 点击 / 输入 / 滚动 / 会话',
+    title: '人类目标点 / 点击 / 滚动 / 会话',
     icon: 'i-lucide:sliders-horizontal',
     items: [
       inputLabRangeItemCreate('target.innerPaddingRatio', 'target.inner_padding_ratio', '目标区域内部安全 padding 比例。', 0.01, 0, 0.49),
@@ -1324,13 +1251,6 @@ const inputLabParameterGroups = computed(() => [
       inputLabRangeItemCreate('humanClick.postClickPauseMs', 'click.post_click_pause_ms', '策略层点击后等待。', 10, 0, 3000),
       inputLabRangeItemCreate('humanClick.retryCount', 'click.retry_count', '换点重试次数。', 1, 0, 10),
       inputLabRangeItemCreate('humanClick.retryPauseMs', 'click.retry_pause_ms', '换点重试间隔。', 10, 0, 5000),
-      inputLabNumberItemCreate('typing.charByChar', 'typing.char_by_char', '逐字输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.chunked', 'typing.chunked', '分段输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.paste', 'typing.paste', '快速文本输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.shortTextMaxChars', 'typing.short_text_max_chars', '短文本最大字符数。', 1, 1, 1000),
-      inputLabNumberItemCreate('typing.longTextMinChars', 'typing.long_text_min_chars', '长文本最小字符数。', 1, 1, 5000),
-      inputLabRangeItemCreate('typing.chunkSize', 'typing.chunk_size', '分段输入每段字符数。', 1, 1, 1000),
-      inputLabRangeItemCreate('typing.chunkPauseMs', 'typing.chunk_pause_ms', '分段输入段间停顿。', 10, 0, 5000),
       inputLabRangeItemCreate('humanScroll.beforeScrollMs', 'scroll.before_scroll_ms', '人类化滚动前等待。', 10, 0, 3000),
       inputLabRangeItemCreate('humanScroll.reverseProbability', 'scroll.reverse_micro_scroll_probability', '轻微反向滚动概率。', 0.01, 0, 1),
       inputLabRangeItemCreate('humanScroll.reverseTicks', 'scroll.reverse_micro_scroll_ticks', '轻微反向滚动刻度。', 1, 0, 20),
@@ -1345,42 +1265,6 @@ const inputLabParameterGroups = computed(() => [
       inputLabRangeItemCreate('attention.afterActionMs', 'attention.after_action_ms', '动作后观察等待。', 10, 0, 5000),
       inputLabRangeItemCreate('attention.pageObserveMs', 'attention.page_observe_ms', '页面观察等待。', 10, 0, 10000),
       inputLabRangeItemCreate('attention.uncertaintyPauseMs', 'attention.uncertainty_pause_ms', '不确定状态等待。', 10, 0, 10000)
-    ]
-  },
-  {
-    title: '合成输入法 SyntheticImeConfig',
-    icon: 'i-lucide:languages',
-    items: [
-      inputLabRangeItemCreate('syntheticIme.timing.letterIntervalMs', 'timing.letter_interval_ms', '单个拼音字母间隔，单位毫秒。', 5, 0, 3000),
-      inputLabRangeItemCreate('syntheticIme.timing.midPinyinPauseMs', 'timing.mid_pinyin_pause_ms', '拼音中途思考停顿，单位毫秒。', 10, 0, 5000),
-      inputLabRangeItemCreate('syntheticIme.timing.afterPinyinPauseMs', 'timing.after_pinyin_pause_ms', '拼音打完后的观察停顿，单位毫秒。', 10, 0, 5000),
-      inputLabRangeItemCreate('syntheticIme.timing.beforeCandidateMs', 'timing.before_candidate_ms', '候选动作前停顿，单位毫秒。', 10, 0, 5000),
-      inputLabRangeItemCreate('syntheticIme.timing.afterCandidateMs', 'timing.after_candidate_ms', '候选确认后的停留，单位毫秒。', 10, 0, 5000),
-      inputLabRangeItemCreate('syntheticIme.timing.segmentGapMs', 'timing.segment_gap_ms', '中文词组之间停顿，单位毫秒。', 10, 0, 8000),
-      inputLabRangeItemCreate('syntheticIme.timing.switchGapMs', 'timing.switch_gap_ms', '模式切换停顿，单位毫秒。', 10, 0, 5000),
-      inputLabRangeItemCreate('syntheticIme.timing.backspaceIntervalMs', 'timing.backspace_interval_ms', '退格间隔，单位毫秒。', 5, 0, 3000),
-      inputLabRangeItemCreate('syntheticIme.timing.shiftKeyIntervalMs', 'timing.shift_key_interval_ms', 'Shift 按住输入的按键间隔，单位毫秒。', 5, 0, 3000),
-      inputLabRangeItemCreate('syntheticIme.timing.sentenceEndPauseMs', 'timing.sentence_end_pause_ms', '句末标点后的观察停顿，单位毫秒。', 10, 0, 10000),
-      inputLabNumberItemCreate('syntheticIme.candidate.spaceWeight', 'candidate.space_weight', '空格确认首选权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('syntheticIme.candidate.arrowWeight', 'candidate.arrow_weight', '方向键翻候选后空格确认权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('syntheticIme.candidate.digitWeight', 'candidate.digit_weight', '数字键选候选权重。', 1, 0, 1000),
-      inputLabRangeItemCreate('syntheticIme.candidate.arrowCount', 'candidate.arrow_count', '方向键翻动次数。', 1, 1, 20),
-      inputLabRangeItemCreate('syntheticIme.candidate.digitCandidate', 'candidate.digit_candidate', '数字候选范围，后端限制 1 到 9。', 1, 1, 9),
-      inputLabRangeItemCreate('syntheticIme.repair.pinyinTypoProbability', 'repair.pinyin_typo_probability', '拼音阶段单字符错键概率。', 0.01, 0, 1),
-      inputLabRangeItemCreate('syntheticIme.repair.maxPinyinTyposPerSegment', 'repair.max_pinyin_typos_per_segment', '每个拼音段最大错键次数。', 1, 0, 20),
-      inputLabRangeItemCreate('syntheticIme.repair.committedTextRepairProbability', 'repair.committed_text_repair_probability', '候选提交后模拟错词修正概率。', 0.01, 0, 1),
-      inputLabRangeItemCreate('syntheticIme.repair.committedRepairPauseMs', 'repair.committed_repair_pause_ms', '候选提交后修正停顿，单位毫秒。', 10, 0, 10000),
-      inputLabRangeItemCreate('syntheticIme.repair.backspaceJitter', 'repair.backspace_jitter', '单次修正退格数量抖动。', 1, 0, 20),
-      inputLabRangeItemCreate('syntheticIme.mouseNoise.midPauseProbability', 'mouse_noise.mid_pause_probability', '拼音中途停顿时鼠标噪声概率。', 0.01, 0, 1),
-      inputLabRangeItemCreate('syntheticIme.mouseNoise.segmentGapProbability', 'mouse_noise.segment_gap_probability', '词组间停顿时鼠标噪声概率。', 0.01, 0, 1),
-      inputLabRangeItemCreate('syntheticIme.mouseNoise.scrollProbability', 'mouse_noise.scroll_probability', '轻微滚动概率。', 0.01, 0, 1),
-      inputLabRangeItemCreate('syntheticIme.mouseNoise.driftPx', 'mouse_noise.drift_px', '轻微漂移距离，单位像素。', 1, 0, 120),
-      inputLabNumberItemCreate('syntheticIme.english.capsLockMinRun', 'english.caps_lock_min_run', '允许使用 CapsLock 的最小连续大写长度。', 1, 1, 50),
-      inputLabRangeItemCreate('syntheticIme.english.capsLockProbability', 'english.caps_lock_probability', '达到长度条件后使用 CapsLock 的概率。', 0.01, 0, 1),
-      inputLabSwitchItemCreate('syntheticIme.guard.enabled', 'guard.enabled', '是否启用前后置输入状态保护。'),
-      inputLabRangeItemCreate('syntheticIme.guard.enterShiftTaps', 'guard.enter_shift_taps', '进入前模拟 Shift 切换次数。', 1, 0, 10),
-      inputLabRangeItemCreate('syntheticIme.guard.exitShiftTaps', 'guard.exit_shift_taps', '退出后模拟 Shift 恢复次数。', 1, 0, 10),
-      inputLabRangeItemCreate('syntheticIme.associationProbability', 'association_probability', '连续联想合并中文词组的概率。', 0.01, 0, 1)
     ]
   }
 ]);
