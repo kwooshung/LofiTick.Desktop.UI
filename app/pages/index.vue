@@ -454,12 +454,7 @@
                 </div>
               </UFormField>
 
-              <UFormField
-                label="文本 / 按键"
-                description="用于 key_tap、type_text、paste_text；hotkey 固定测试 Control+A。"
-                :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }"
-                class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center"
-              >
+              <UFormField label="文本 / 按键" description="用于 key_tap、type_text、paste_text；hotkey 固定测试 Control+A。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
                 <UTextarea v-model="stateInputLabText" autoresize :rows="3" class="w-full" />
               </UFormField>
             </div>
