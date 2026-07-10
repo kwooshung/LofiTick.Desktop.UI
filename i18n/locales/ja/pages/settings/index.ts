@@ -126,8 +126,7 @@ export const settings = {
       description: '収集時に使うローカルブラウザーを選択します。',
       runtimeDescriptions: {
         edge: 'Windows に付属する標準ブラウザーに挙動を合わせたいときに向いている、システム整合性の高い既定クローラー環境です。',
-        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。',
-        chromium: '個人用ブラウザーと分離した状態で収集したいときに向いている、隔離性の高いブラウザー環境です。'
+        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。'
       },
       actions: {
         refresh: '更新',
@@ -161,8 +160,6 @@ export const settings = {
       edgeLabel: 'Edge のディレクトリ',
       chromeDescription: 'Chrome のブラウザープロファイル用ディレクトリです。',
       chromeLabel: 'Chrome のディレクトリ',
-      chromiumDescription: 'Chromium のブラウザープロファイル用ディレクトリです。',
-      chromiumLabel: 'Chromium のディレクトリ',
       actionOpen: 'ディレクトリを開く',
       actionClear: '整理',
       browserDirectory: 'ブラウザーディレクトリ',

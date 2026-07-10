@@ -126,8 +126,7 @@ export const settings = {
       description: 'Choose the local browser used for crawling.',
       runtimeDescriptions: {
         edge: 'Best for a system-consistent default crawler environment that matches the browser bundled with Windows.',
-        chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.',
-        chromium: 'Best for tasks that need an isolated browser profile, keeping crawler data separate from your personal browser.'
+        chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.'
       },
       actions: {
         refresh: 'Refresh',
@@ -175,8 +174,6 @@ export const settings = {
       edgeLabel: 'Edge directory',
       chromeDescription: 'Chrome browser profile directory.',
       chromeLabel: 'Chrome directory',
-      chromiumDescription: 'Chromium browser profile directory.',
-      chromiumLabel: 'Chromium directory',
       actionOpen: 'Open directory',
       actionClear: 'Clean',
       browserDirectory: 'Browser directory',

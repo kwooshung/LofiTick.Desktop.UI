@@ -131,12 +131,12 @@ interface ITauriCrawlerCompareBackendProbeResult {
 /**
  * 类型：爬虫浏览器资料目录范围。
  */
-type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome' | 'chromium';
+type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome';
 
 /**
  * 类型：爬虫浏览器站点目录浏览器范围。
  */
-type TCrawlerBrowserSiteDirBrowser = 'edge' | 'chrome' | 'chromium';
+type TCrawlerBrowserSiteDirBrowser = 'edge' | 'chrome';
 
 export const useTauriSettings = () => {
   /**

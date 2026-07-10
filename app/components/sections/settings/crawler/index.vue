@@ -48,23 +48,6 @@
           </UButton>
         </div>
       </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chromium')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-streamline-color:chrome-flat" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('chromium').name }}</span>
-          </span>
-        </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chromium').installed" :model-value="stateCrawlerBrowserSelectedId === 'chromium'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chromium'), on)" />
-        <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
-            {{ t('pages.settings.crawler.browser.actions.refresh') }}
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
-            {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
-          </UButton>
-        </div>
-      </UFormField>
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -356,102 +339,6 @@
           </UPopover>
         </div>
       </UFormField>
-
-      <UFormField v-if="stateIsMounted" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-lucide:folder" class="text-muted size-4 shrink-0" />
-            <span>{{ t('pages.settings.crawler.browserProfilesDirectory.chromiumLabel') }}</span>
-          </span>
-        </template>
-        <template #description>
-          <div class="space-y-1">
-            <div>{{ t('pages.settings.crawler.browserProfilesDirectory.chromiumDescription') }}</div>
-            <UTooltip v-if="stateCrawlerBrowserProfilesChromiumPath" :text="stateCrawlerBrowserProfilesChromiumPath" :content="{ side: 'top' }">
-              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChromium">
-                {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesChromiumPath) }}
-              </ULink>
-            </UTooltip>
-            <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
-          </div>
-        </template>
-        <div class="flex items-center justify-end gap-2">
-          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('chromium')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
-            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-primary', trailingIcon: 'text-muted' }">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
-            </UButton>
-          </UDropdownMenu>
-          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chromium')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chromium', open)">
-            <UButton
-              class="shrink-0 whitespace-nowrap"
-              color="neutral"
-              variant="outline"
-              icon="i-lucide:trash-2"
-              trailing-icon="i-lucide:chevron-down"
-              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
-              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
-              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('chromium') || crawlerBrowserMatchesDirectoryClearLoadingGet('chromium')"
-            >
-              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
-              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes))" :content="{ side: 'top' }">
-                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromiumSizeBytes, stateCrawlerBrowserMatchesChromiumSizeBytes)) }}</UBadge>
-              </UTooltip>
-            </UButton>
-            <template #content="{ close }">
-              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chromium')" class="flex flex-col gap-1">
-                <UButton
-                  block
-                  color="neutral"
-                  variant="ghost"
-                  icon="i-lucide:trash-2"
-                  :ui="{ leadingIcon: 'text-error' }"
-                  :class="!stateCrawlerBrowserProfilesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
-                  :disabled="!stateCrawlerBrowserProfilesChromiumPath || !stateCrawlerBrowserProfilesChromiumSizeBytes"
-                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chromium')"
-                >
-                  <span class="flex flex-1 items-center justify-between gap-3">
-                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
-                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromiumSizeBytes) }}</UBadge>
-                  </span>
-                </UButton>
-                <UButton
-                  block
-                  color="neutral"
-                  variant="ghost"
-                  icon="i-lucide:trash-2"
-                  :ui="{ leadingIcon: 'text-error' }"
-                  :class="!stateCrawlerBrowserMatchesChromiumSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
-                  :disabled="!stateCrawlerBrowserMatchesChromiumPath || !stateCrawlerBrowserMatchesChromiumSizeBytes"
-                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chromium')"
-                >
-                  <span class="flex flex-1 items-center justify-between gap-3">
-                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
-                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromiumSizeBytes) }}</UBadge>
-                  </span>
-                </UButton>
-              </div>
-              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'chromium'" class="flex flex-col gap-2">
-                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
-                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromiumPath }}</div>
-                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
-                <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
-                </div>
-              </div>
-              <div v-else class="flex flex-col gap-2">
-                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
-                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesChromiumPath }}</div>
-                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
-                <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserMatchesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
-                </div>
-              </div>
-            </template>
-          </UPopover>
-        </div>
-      </UFormField>
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -552,19 +439,6 @@ const crawlerBrowserCandidatesDefault: ICrawlerBrowserCandidate[] = [
     installUrl: 'https://www.google.com/chrome/',
     source: 'fallback',
     reason: 'not installed on this computer'
-  },
-  {
-    id: 'chromium',
-    name: 'Chromium',
-    icon: 'i-streamline-color:chrome-flat',
-    channel: 'chromium',
-    executablePath: '',
-    supported: true,
-    installed: false,
-    recommended: false,
-    installUrl: 'https://www.chromium.org/getting-involved/download-chromium/',
-    source: 'fallback',
-    reason: 'not installed on this computer'
   }
 ];
 
@@ -663,29 +537,19 @@ const stateCrawlerBrowserProfilesChromePath = ref('');
 const stateCrawlerBrowserProfilesChromeExists = ref(false);
 
 /**
- * 状态：Chromium 浏览器资料目录路径。
- */
-const stateCrawlerBrowserProfilesChromiumPath = ref('');
-
-/**
- * 状态：Chromium 浏览器资料目录是否存在。
- */
-const stateCrawlerBrowserProfilesChromiumExists = ref(false);
-
-/**
  * 状态：当前打开的资料清空确认目标。
  */
-const stateCrawlerBrowserProfilesClearTarget = ref<'root' | 'edge' | 'chrome' | 'chromium' | ''>('');
+const stateCrawlerBrowserProfilesClearTarget = ref<'root' | 'edge' | 'chrome' | ''>('');
 
 /**
  * 状态：当前打开的匹配记录清空确认目标。
  */
-const stateCrawlerBrowserMatchesClearTarget = ref<'edge' | 'chrome' | 'chromium' | ''>('');
+const stateCrawlerBrowserMatchesClearTarget = ref<'edge' | 'chrome' | ''>('');
 
 /**
  * 状态：当前打开的浏览器目录清理选择菜单目标。
  */
-const stateCrawlerBrowserDirectoryClearMenuTarget = ref<'edge' | 'chrome' | 'chromium' | ''>('');
+const stateCrawlerBrowserDirectoryClearMenuTarget = ref<'edge' | 'chrome' | ''>('');
 
 /**
  * 状态：爬虫浏览器资料目录是否正在清空。
@@ -713,11 +577,6 @@ const stateCrawlerBrowserProfilesEdgeSizeBytes = ref(0);
 const stateCrawlerBrowserProfilesChromeSizeBytes = ref(0);
 
 /**
- * 状态：Chromium 浏览器资料目录占用字节数。
- */
-const stateCrawlerBrowserProfilesChromiumSizeBytes = ref(0);
-
-/**
  * 状态：Edge 浏览器匹配记录目录路径。
  */
 const stateCrawlerBrowserMatchesEdgePath = ref('');
@@ -738,16 +597,6 @@ const stateCrawlerBrowserMatchesChromePath = ref('');
 const stateCrawlerBrowserMatchesChromeExists = ref(false);
 
 /**
- * 状态：Chromium 浏览器匹配记录目录路径。
- */
-const stateCrawlerBrowserMatchesChromiumPath = ref('');
-
-/**
- * 状态：Chromium 浏览器匹配记录目录是否存在。
- */
-const stateCrawlerBrowserMatchesChromiumExists = ref(false);
-
-/**
  * 状态：Edge 浏览器匹配记录目录占用字节数。
  */
 const stateCrawlerBrowserMatchesEdgeSizeBytes = ref(0);
@@ -756,11 +605,6 @@ const stateCrawlerBrowserMatchesEdgeSizeBytes = ref(0);
  * 状态：Chrome 浏览器匹配记录目录占用字节数。
  */
 const stateCrawlerBrowserMatchesChromeSizeBytes = ref(0);
-
-/**
- * 状态：Chromium 浏览器匹配记录目录占用字节数。
- */
-const stateCrawlerBrowserMatchesChromiumSizeBytes = ref(0);
 
 /**
  * 接口：爬虫浏览器资料目录状态。
@@ -1121,23 +965,16 @@ const loadCrawlerBrowserProfilesDirectory = async (): Promise<void> => {
   const rootPath = directory.directoryPath;
   const edgePath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'edge');
   const chromePath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'chrome');
-  const chromiumPath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'chromium');
-  const pathEntries = [rootPath, edgePath, chromePath, chromiumPath];
+  const pathEntries = [rootPath, edgePath, chromePath];
   const pathExistsEntries = await tauriSettings.pathsExistGet(pathEntries);
   const pathExistsMap = new Map(pathExistsEntries.map((item) => [item.path, item.exists]));
-  const [edgeMatches, chromeMatches, chromiumMatches] = await Promise.all([
-    tauriSettings.crawlerBrowserMatchesDirGet('edge', crawlerBrowserProfileSite),
-    tauriSettings.crawlerBrowserMatchesDirGet('chrome', crawlerBrowserProfileSite),
-    tauriSettings.crawlerBrowserMatchesDirGet('chromium', crawlerBrowserProfileSite)
-  ]);
-  const [rootSizeBytes, edgeSizeBytes, chromeSizeBytes, chromiumSizeBytes, edgeMatchesSizeBytes, chromeMatchesSizeBytes, chromiumMatchesSizeBytes] = await Promise.all([
+  const [edgeMatches, chromeMatches] = await Promise.all([tauriSettings.crawlerBrowserMatchesDirGet('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirGet('chrome', crawlerBrowserProfileSite)]);
+  const [rootSizeBytes, edgeSizeBytes, chromeSizeBytes, edgeMatchesSizeBytes, chromeMatchesSizeBytes] = await Promise.all([
     tauriSettings.crawlerBrowserProfilesDirSizeGet('root').catch(() => 0),
     tauriSettings.crawlerBrowserProfilesDirSizeGet('edge').catch(() => 0),
     tauriSettings.crawlerBrowserProfilesDirSizeGet('chrome').catch(() => 0),
-    tauriSettings.crawlerBrowserProfilesDirSizeGet('chromium').catch(() => 0),
     tauriSettings.crawlerBrowserMatchesDirSizeGet('edge', crawlerBrowserProfileSite).catch(() => 0),
-    tauriSettings.crawlerBrowserMatchesDirSizeGet('chrome', crawlerBrowserProfileSite).catch(() => 0),
-    tauriSettings.crawlerBrowserMatchesDirSizeGet('chromium', crawlerBrowserProfileSite).catch(() => 0)
+    tauriSettings.crawlerBrowserMatchesDirSizeGet('chrome', crawlerBrowserProfileSite).catch(() => 0)
   ]);
 
   stateCrawlerBrowserProfilesRootPath.value = rootPath;
@@ -1146,29 +983,23 @@ const loadCrawlerBrowserProfilesDirectory = async (): Promise<void> => {
   stateCrawlerBrowserProfilesEdgeExists.value = pathExistsMap.get(edgePath) ?? false;
   stateCrawlerBrowserProfilesChromePath.value = chromePath;
   stateCrawlerBrowserProfilesChromeExists.value = pathExistsMap.get(chromePath) ?? false;
-  stateCrawlerBrowserProfilesChromiumPath.value = chromiumPath;
-  stateCrawlerBrowserProfilesChromiumExists.value = pathExistsMap.get(chromiumPath) ?? false;
   stateCrawlerBrowserMatchesEdgePath.value = edgeMatches.directoryPath;
   stateCrawlerBrowserMatchesEdgeExists.value = edgeMatches.exists;
   stateCrawlerBrowserMatchesChromePath.value = chromeMatches.directoryPath;
   stateCrawlerBrowserMatchesChromeExists.value = chromeMatches.exists;
-  stateCrawlerBrowserMatchesChromiumPath.value = chromiumMatches.directoryPath;
-  stateCrawlerBrowserMatchesChromiumExists.value = chromiumMatches.exists;
   stateCrawlerBrowserProfilesRootSizeBytes.value = rootSizeBytes;
   stateCrawlerBrowserProfilesEdgeSizeBytes.value = edgeSizeBytes;
   stateCrawlerBrowserProfilesChromeSizeBytes.value = chromeSizeBytes;
-  stateCrawlerBrowserProfilesChromiumSizeBytes.value = chromiumSizeBytes;
   stateCrawlerBrowserMatchesEdgeSizeBytes.value = edgeMatchesSizeBytes;
   stateCrawlerBrowserMatchesChromeSizeBytes.value = chromeMatchesSizeBytes;
-  stateCrawlerBrowserMatchesChromiumSizeBytes.value = chromiumMatchesSizeBytes;
 };
 
 /**
  * 函数：按资料范围读取路径与存在状态。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
  * @returns {{ path: string; exists: boolean }} 当前范围的路径与存在状态。
  */
-const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrome' | 'chromium'): ICrawlerBrowserProfilesDirectoryState => {
+const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrome'): ICrawlerBrowserProfilesDirectoryState => {
   switch (scope) {
     case 'root':
       return { path: stateCrawlerBrowserProfilesRootPath.value, exists: stateCrawlerBrowserProfilesRootExists.value };
@@ -1176,28 +1007,16 @@ const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrom
       return { path: stateCrawlerBrowserProfilesEdgePath.value, exists: stateCrawlerBrowserProfilesEdgeExists.value };
     case 'chrome':
       return { path: stateCrawlerBrowserProfilesChromePath.value, exists: stateCrawlerBrowserProfilesChromeExists.value };
-    case 'chromium':
-      return { path: stateCrawlerBrowserProfilesChromiumPath.value, exists: stateCrawlerBrowserProfilesChromiumExists.value };
   }
 };
 
 /**
- * 函数：切换资料清空确认弹层。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
- * @param {boolean} open 是否打开。
- * @returns {void} 无返回值。
- */
-const handleCrawlerBrowserProfilesDirectoryClearToggle = (scope: 'root' | 'edge' | 'chrome' | 'chromium', open: boolean): void => {
-  stateCrawlerBrowserProfilesClearTarget.value = open ? scope : '';
-};
-
-/**
  * 函数：清空爬虫浏览器资料目录缓存。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
  * @param {(() => void) | undefined} close 弹层关闭函数。
  * @returns {Promise<void>} 无返回值。
  */
-const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge' | 'chrome' | 'chromium', close?: () => void): Promise<void> => {
+const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge' | 'chrome', close?: () => void): Promise<void> => {
   if (!isTauriRuntime.value || stateCrawlerBrowserProfilesClearing.value) {
     return;
   }
@@ -1229,63 +1048,61 @@ const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge'
 
 /**
  * 函数：按浏览器范围读取匹配记录路径与存在状态。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {{ path: string; exists: boolean }} 当前范围的路径与存在状态。
  */
-const crawlerBrowserMatchesDirectoryStateGet = (browser: 'edge' | 'chrome' | 'chromium'): ICrawlerBrowserProfilesDirectoryState => {
+const crawlerBrowserMatchesDirectoryStateGet = (browser: 'edge' | 'chrome'): ICrawlerBrowserProfilesDirectoryState => {
   switch (browser) {
     case 'edge':
       return { path: stateCrawlerBrowserMatchesEdgePath.value, exists: stateCrawlerBrowserMatchesEdgeExists.value };
     case 'chrome':
       return { path: stateCrawlerBrowserMatchesChromePath.value, exists: stateCrawlerBrowserMatchesChromeExists.value };
-    case 'chromium':
-      return { path: stateCrawlerBrowserMatchesChromiumPath.value, exists: stateCrawlerBrowserMatchesChromiumExists.value };
   }
 };
 
 /**
  * 函数：读取浏览器目录清理弹层是否打开。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {boolean} 是否打开。
  */
-const crawlerBrowserDirectoryClearPopoverOpenGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+const crawlerBrowserDirectoryClearPopoverOpenGet = (browser: 'edge' | 'chrome'): boolean => {
   return stateCrawlerBrowserDirectoryClearMenuTarget.value === browser || stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
 };
 
 /**
  * 函数：读取浏览器目录清理弹层是否正在确认。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {boolean} 是否正在确认。
  */
-const crawlerBrowserDirectoryClearConfirmOpenGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+const crawlerBrowserDirectoryClearConfirmOpenGet = (browser: 'edge' | 'chrome'): boolean => {
   return stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
 };
 
 /**
  * 函数：读取浏览器资料目录清理加载状态。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
  * @returns {boolean} 是否正在清理。
  */
-const crawlerBrowserProfilesDirectoryClearLoadingGet = (scope: 'root' | 'edge' | 'chrome' | 'chromium'): boolean => {
+const crawlerBrowserProfilesDirectoryClearLoadingGet = (scope: 'root' | 'edge' | 'chrome'): boolean => {
   return stateCrawlerBrowserProfilesClearing.value && stateCrawlerBrowserProfilesClearTarget.value === scope;
 };
 
 /**
  * 函数：读取浏览器匹配记录目录清理加载状态。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {boolean} 是否正在清理。
  */
-const crawlerBrowserMatchesDirectoryClearLoadingGet = (browser: 'edge' | 'chrome' | 'chromium'): boolean => {
+const crawlerBrowserMatchesDirectoryClearLoadingGet = (browser: 'edge' | 'chrome'): boolean => {
   return stateCrawlerBrowserMatchesClearing.value && stateCrawlerBrowserMatchesClearTarget.value === browser;
 };
 
 /**
  * 函数：切换浏览器目录清理选择菜单。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @param {boolean} open 是否打开。
  * @returns {void} 无返回值。
  */
-const handleCrawlerBrowserDirectoryClearMenuToggle = (browser: 'edge' | 'chrome' | 'chromium', open: boolean): void => {
+const handleCrawlerBrowserDirectoryClearMenuToggle = (browser: 'edge' | 'chrome', open: boolean): void => {
   stateCrawlerBrowserDirectoryClearMenuTarget.value = open ? browser : '';
   stateCrawlerBrowserProfilesClearTarget.value = '';
   stateCrawlerBrowserMatchesClearTarget.value = '';
@@ -1293,10 +1110,10 @@ const handleCrawlerBrowserDirectoryClearMenuToggle = (browser: 'edge' | 'chrome'
 
 /**
  * 事件：选择清空浏览器资料目录缓存。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {void} 无返回值。
  */
-const handleCrawlerBrowserProfilesDirectoryClearSelect = (browser: 'edge' | 'chrome' | 'chromium'): void => {
+const handleCrawlerBrowserProfilesDirectoryClearSelect = (browser: 'edge' | 'chrome'): void => {
   stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
   stateCrawlerBrowserMatchesClearTarget.value = '';
   stateCrawlerBrowserProfilesClearTarget.value = browser;
@@ -1304,10 +1121,10 @@ const handleCrawlerBrowserProfilesDirectoryClearSelect = (browser: 'edge' | 'chr
 
 /**
  * 事件：选择清空浏览器匹配记录目录。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {void} 无返回值。
  */
-const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chrome' | 'chromium'): void => {
+const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chrome'): void => {
   stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
   stateCrawlerBrowserProfilesClearTarget.value = '';
   stateCrawlerBrowserMatchesClearTarget.value = browser;
@@ -1315,11 +1132,11 @@ const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chro
 
 /**
  * 函数：清空爬虫浏览器匹配记录目录。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @param {(() => void) | undefined} close 弹层关闭函数。
  * @returns {Promise<void>} 无返回值。
  */
-const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chrome' | 'chromium', close?: () => void): Promise<void> => {
+const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chrome', close?: () => void): Promise<void> => {
   if (!isTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
     return;
   }
@@ -1373,30 +1190,30 @@ const handleOpenCrawlerBrowserProfilesDirectory = async (path: string, exists: b
 
 /**
  * 事件：按浏览器打开资料目录。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {Promise<void>} 无返回值。
  */
-const handleOpenCrawlerBrowserProfilesBrowser = async (browser: 'edge' | 'chrome' | 'chromium'): Promise<void> => {
+const handleOpenCrawlerBrowserProfilesBrowser = async (browser: 'edge' | 'chrome'): Promise<void> => {
   const directory = crawlerBrowserProfilesDirectoryStateGet(browser);
   await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
 };
 
 /**
  * 事件：按浏览器打开匹配记录目录。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {Promise<void>} 无返回值。
  */
-const handleOpenCrawlerBrowserMatchesBrowser = async (browser: 'edge' | 'chrome' | 'chromium'): Promise<void> => {
+const handleOpenCrawlerBrowserMatchesBrowser = async (browser: 'edge' | 'chrome'): Promise<void> => {
   const directory = crawlerBrowserMatchesDirectoryStateGet(browser);
   await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
 };
 
 /**
  * 函数：生成浏览器目录打开菜单项。
- * @param {'edge' | 'chrome' | 'chromium'} browser 浏览器范围。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
  * @returns {Array<Array<Record<string, unknown>>>} 菜单项列表。
  */
-const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome' | 'chromium'): Array<Array<Record<string, unknown>>> => {
+const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome'): Array<Array<Record<string, unknown>>> => {
   const profileDirectory = crawlerBrowserProfilesDirectoryStateGet(browser);
   const matchesDirectory = crawlerBrowserMatchesDirectoryStateGet(browser);
 
@@ -1445,7 +1262,7 @@ const computedCrawlerBrowserProfilesRootClearCacheSizeBytes = computed<number>((
  * @returns {number} 根目录匹配记录清理总字节数。
  */
 const computedCrawlerBrowserProfilesRootClearMatchesSizeBytes = computed<number>(() => {
-  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesEdgeSizeBytes.value, crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesChromeSizeBytes.value, stateCrawlerBrowserMatchesChromiumSizeBytes.value));
+  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesEdgeSizeBytes.value, stateCrawlerBrowserMatchesChromeSizeBytes.value);
 });
 
 /**
@@ -1507,7 +1324,7 @@ const handleCrawlerBrowserMatchesDirectoryClearAll = async (): Promise<void> => 
 
   stateCrawlerBrowserMatchesClearing.value = true;
   try {
-    await Promise.all([tauriSettings.crawlerBrowserMatchesDirClear('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chrome', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chromium', crawlerBrowserProfileSite)]);
+    await Promise.all([tauriSettings.crawlerBrowserMatchesDirClear('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chrome', crawlerBrowserProfileSite)]);
     await loadCrawlerBrowserProfilesDirectory();
     toast.add({
       title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearSuccess')
@@ -1544,14 +1361,6 @@ const handleOpenCrawlerBrowserProfilesEdge = async (): Promise<void> => {
  */
 const handleOpenCrawlerBrowserProfilesChrome = async (): Promise<void> => {
   await handleOpenCrawlerBrowserProfilesBrowser('chrome');
-};
-
-/**
- * 事件：打开 Chromium 浏览器资料目录。
- * @returns {Promise<void>} 无返回值。
- */
-const handleOpenCrawlerBrowserProfilesChromium = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesBrowser('chromium');
 };
 
 /**

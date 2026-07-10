@@ -126,8 +126,7 @@ export const settings = {
       description: '選擇採集時使用的本機瀏覽器。',
       runtimeDescriptions: {
         edge: '適合追求系統一致性的預設採集環境，和 Windows 內建瀏覽器行為保持一致。',
-        chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。',
-        chromium: '適合需要隔離瀏覽器資料的任務，方便把採集環境與個人瀏覽器環境分開。'
+        chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。'
       },
       actions: {
         refresh: '刷新',
@@ -161,8 +160,6 @@ export const settings = {
       edgeLabel: 'Edge 目錄',
       chromeDescription: 'Chrome 的瀏覽器資料目錄。',
       chromeLabel: 'Chrome 目錄',
-      chromiumDescription: 'Chromium 的瀏覽器資料目錄。',
-      chromiumLabel: 'Chromium 目錄',
       actionOpen: '開啟目錄',
       actionClear: '清理',
       browserDirectory: '瀏覽器目錄',

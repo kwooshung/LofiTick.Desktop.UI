@@ -126,8 +126,7 @@
       description: '选择采集时使用的本机浏览器。',
       runtimeDescriptions: {
         edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
-        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。',
-        chromium: '适合需要隔离浏览器资料的任务，便于把采集环境和个人浏览器环境分开。'
+        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。'
       },
       actions: {
         refresh: '刷新',
@@ -175,8 +174,6 @@
       edgeLabel: 'Edge 目录',
       chromeDescription: 'Chrome 的浏览器资料目录。',
       chromeLabel: 'Chrome 目录',
-      chromiumDescription: 'Chromium 的浏览器资料目录。',
-      chromiumLabel: 'Chromium 目录',
       actionOpen: '打开目录',
       actionClear: '清理',
       browserDirectory: '浏览器目录',
