@@ -1,4 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import type { UnlistenFn } from '@tauri-apps/api/event';
 
 /**
  * Hook：Tauri 设置
@@ -138,9 +140,6 @@ interface ITauriBrowserBridgeAccessDetail {
   /** 是否已有扩展连接。 */
   connected: boolean;
 
-  /** 当前连接数。 */
-  connectionCount: number;
-
   /** 当前监听端口。 */
   port: number | null;
 
@@ -153,20 +152,6 @@ interface ITauriBrowserBridgeAccessDetail {
   /** 最近一次错误。 */
   lastError: string | null;
 
-  /** 当前连接列表。 */
-  connections: Array<{
-    /** 扩展实例 ID。 */
-    extensionInstanceId: string;
-
-    /** 扩展名称。 */
-    extensionName: string;
-
-    /** 扩展版本。 */
-    extensionVersion: string;
-
-    /** 浏览器用户代理。 */
-    userAgent: string;
-  }>;
 }
 
 /**
@@ -180,6 +165,11 @@ type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome';
 type TCrawlerBrowserSiteDirBrowser = 'edge' | 'chrome';
 
 export const useTauriSettings = () => {
+  /**
+   * 常量：浏览器校准进度事件名。
+   */
+  const EVENT_CRAWLER_BROWSER_CALIBRATION_PROGRESS = 'crawler://browser-calibration-progress';
+
   /**
    * 函数：获取完整设置
    * @returns {Promise<Record<string, unknown>>} 设置 JSON
@@ -329,6 +319,28 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：执行浏览器校准。
+   * @param {string} browserId 浏览器稳定标识。
+   * @returns {Promise<ICrawlerBrowserCalibrationResult>} 校准结果。
+   */
+  const crawlerBrowserCalibrate = async (browserId: string): Promise<ICrawlerBrowserCalibrationResult> => {
+    return invoke<ICrawlerBrowserCalibrationResult>('settings_crawler_browser_calibrate', { browserId });
+  };
+
+  /**
+   * 函数：监听浏览器校准进度。
+   * @param {(event: ICrawlerBrowserCalibrationProgressEvent) => void} handler 进度回调。
+   * @returns {Promise<UnlistenFn>} 取消监听函数。
+   */
+  const onCrawlerBrowserCalibrationProgress = async (
+    handler: (event: ICrawlerBrowserCalibrationProgressEvent) => void,
+  ): Promise<UnlistenFn> => {
+    return listen<ICrawlerBrowserCalibrationProgressEvent>(EVENT_CRAWLER_BROWSER_CALIBRATION_PROGRESS, (event) => {
+      handler(event.payload);
+    });
+  };
+
+  /**
    * 函数：获取热搜播客固定开头音乐路径。
    * @returns {Promise<ITauriHotsearchPodcastHeadMusicPaths>} 固定路径信息
    */
@@ -462,6 +474,8 @@ export const useTauriSettings = () => {
     crawlerBrowserMatchesDirClear,
     crawlerCompareBackendProbe,
     browserBridgeAccessDetailGet,
+    crawlerBrowserCalibrate,
+    onCrawlerBrowserCalibrationProgress,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

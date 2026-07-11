@@ -131,6 +131,22 @@
       actions: {
         refresh: '刷新',
         installOfficial: '前往官网下载并安装'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手动校准'
+        },
+        badges: {
+          maximized: '最大化',
+          normal: '普通'
+        },
+        toast: {
+          starting: '开始校准',
+          capture: '正在采集数据',
+          retry: '校验失败，正在重试',
+          success: '校准完成',
+          failed: '校准失败'
+        }
       }
     },
     runtime: {
@@ -150,8 +166,7 @@
         running: '服务已启动',
         stopped: '未运行',
         connected: '已连接',
-        disconnected: '未连接',
-        connectionCount: '连接数：{count}'
+        disconnected: '未连接'
       },
       statusDescriptions: {
         default: 'WebSocket 地址用于桌面壳与浏览器扩展通信。'

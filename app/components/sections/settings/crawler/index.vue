@@ -14,14 +14,38 @@
     </UPageCard>
 
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.edge')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+      <UFormField :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #label>
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-logos:microsoft-edge" class="size-5" />
             <span>{{ crawlerBrowserCandidateGet('msedge').name }}</span>
           </span>
         </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('msedge').installed" :model-value="stateCrawlerBrowserSelectedId === 'msedge'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
+        <template #description>
+          <div class="space-y-2">
+            <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.edge') }}</div>
+            <div class="flex flex-wrap items-center gap-2">
+              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.verticalDiff) }}</UBadge>
+              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.verticalDiff) }}</UBadge>
+              <UButton
+                v-if="crawlerBrowserCandidateGet('msedge').installed"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                icon="i-lucide:wand-sparkles"
+                :ui="{ leadingIcon: 'text-primary' }"
+                :loading="stateCrawlerBrowserCalibratingId === 'msedge'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserCalibratingId !== ''"
+                @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('msedge'))"
+              >
+                {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
+              </UButton>
+            </div>
+          </div>
+        </template>
+        <div v-if="crawlerBrowserCandidateGet('msedge').installed" class="flex shrink-0 items-center gap-2">
+          <USwitch :model-value="stateCrawlerBrowserSelectedId === 'msedge'" :disabled="stateCrawlerBrowserCalibratingId !== ''" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
+        </div>
         <div v-else class="flex shrink-0 items-center gap-2">
           <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
@@ -31,14 +55,38 @@
           </UButton>
         </div>
       </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chrome')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+      <UFormField :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #label>
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-devicon:chrome" class="size-5" />
             <span>{{ crawlerBrowserCandidateGet('chrome').name }}</span>
           </span>
         </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chrome').installed" :model-value="stateCrawlerBrowserSelectedId === 'chrome'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
+        <template #description>
+          <div class="space-y-2">
+            <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.chrome') }}</div>
+            <div class="flex flex-wrap items-center gap-2">
+              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.verticalDiff) }}</UBadge>
+              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.verticalDiff) }}</UBadge>
+              <UButton
+                v-if="crawlerBrowserCandidateGet('chrome').installed"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                icon="i-lucide:wand-sparkles"
+                :ui="{ leadingIcon: 'text-primary' }"
+                :loading="stateCrawlerBrowserCalibratingId === 'chrome'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserCalibratingId !== ''"
+                @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('chrome'))"
+              >
+                {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
+              </UButton>
+            </div>
+          </div>
+        </template>
+        <div v-if="crawlerBrowserCandidateGet('chrome').installed" class="flex shrink-0 items-center gap-2">
+          <USwitch :model-value="stateCrawlerBrowserSelectedId === 'chrome'" :disabled="stateCrawlerBrowserCalibratingId !== ''" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
+        </div>
         <div v-else class="flex shrink-0 items-center gap-2">
           <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
@@ -48,6 +96,7 @@
           </UButton>
         </div>
       </UFormField>
+
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -86,7 +135,6 @@
         <div class="flex flex-wrap gap-2">
           <UBadge :color="stateBrowserBridgeRunning ? 'success' : 'error'" variant="soft"> {{ computedBrowserBridgeServiceStatusLabel }} </UBadge>
           <UBadge :color="stateBrowserBridgeConnected ? 'success' : 'neutral'" variant="soft"> {{ computedBrowserBridgeConnectionStatusLabel }} </UBadge>
-          <UBadge :color="stateBrowserBridgeConnectionCount > 0 ? 'primary' : 'neutral'" variant="soft"> {{ t('pages.settings.crawler.browserBridge.status.connectionCount', { count: stateBrowserBridgeConnectionCount }) }} </UBadge>
         </div>
       </UFormField>
       <UFormField
@@ -111,29 +159,6 @@
         </UButton>
       </UFormField>
       <UAlert v-if="stateBrowserBridgeError" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.settings.crawler.browserBridge.errorTitle')" :description="stateBrowserBridgeError" />
-      <UFormField
-        v-if="stateBrowserBridgeConnections.length"
-        :label="t('pages.settings.crawler.browserBridge.connections.label')"
-        :description="t('pages.settings.crawler.browserBridge.connections.description')"
-        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
-        class="flex items-center justify-between gap-2 not-last:pb-4"
-      >
-        <template #description>
-          <div class="space-y-2">
-            <div>{{ t('pages.settings.crawler.browserBridge.connections.description') }}</div>
-            <div class="flex flex-col gap-2">
-              <div v-for="connection in stateBrowserBridgeConnections" :key="connection.extensionInstanceId" class="border-default bg-elevated/30 rounded-lg border px-3 py-2">
-                <div class="flex items-center justify-between gap-3 text-sm">
-                  <span class="text-highlighted font-medium">{{ connection.extensionName }}</span>
-                  <span class="text-muted">{{ connection.extensionVersion }}</span>
-                </div>
-                <div class="text-muted mt-1 text-xs break-all">{{ connection.extensionInstanceId }}</div>
-                <div class="text-muted mt-1 text-xs break-all">{{ connection.userAgent }}</div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </UFormField>
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -456,6 +481,9 @@
 </template>
 
 <script setup lang="ts">
+import { listen } from '@tauri-apps/api/event';
+import type { UnlistenFn } from '@tauri-apps/api/event';
+
 /**
  * Hook：Tauri 环境
  */
@@ -568,6 +596,11 @@ const stateCrawlerBrowserRefreshing = ref(false);
 const stateCrawlerBrowserSelectedId = ref('');
 
 /**
+ * 状态：当前正在校准的浏览器标识。
+ */
+const stateCrawlerBrowserCalibratingId = ref<ICrawlerBrowserCandidate['id'] | ''>('');
+
+/**
  * 状态：爬虫诊断比较模式。
  */
 const stateCrawlerDiagnosticsCompareMode = ref('match');
@@ -621,16 +654,6 @@ const stateBrowserBridgeExtensionDir = ref('');
  * 状态：浏览器扩展桥错误信息。
  */
 const stateBrowserBridgeError = ref('');
-
-/**
- * 状态：浏览器扩展桥连接数。
- */
-const stateBrowserBridgeConnectionCount = ref(0);
-
-/**
- * 状态：浏览器扩展桥连接列表。
- */
-const stateBrowserBridgeConnections = ref<ITauriBrowserBridgeAccessDetail['connections']>([]);
 
 /**
  * 状态：浏览器扩展桥地址是否已复制。
@@ -750,6 +773,11 @@ const stateCrawlerBrowserMatchesEdgeSizeBytes = ref(0);
 const stateCrawlerBrowserMatchesChromeSizeBytes = ref(0);
 
 /**
+ * 状态：浏览器校准缓存。
+ */
+const stateCrawlerBrowserCalibrationMap = ref<Partial<Record<ICrawlerBrowserCandidate['id'], ICrawlerBrowserCalibrationResult>>>({});
+
+/**
  * 接口：爬虫浏览器资料目录状态。
  */
 interface ICrawlerBrowserProfilesDirectoryState {
@@ -836,6 +864,37 @@ const crawlerBrowserProfilesDirectoryPathJoin = (basePath: string, segment: stri
 
   const separator = trimmedBasePath.includes('\\') ? '\\' : '/';
   return [trimmedBasePath, segment].join(separator);
+};
+
+/**
+ * 函数：获取浏览器校准参数。
+ * @param {ICrawlerBrowserCandidate['id']} id 浏览器标识。
+ * @returns {ICrawlerBrowserCalibrationResult | null} 校准结果。
+ */
+const crawlerBrowserCalibrationResultGet = (id: ICrawlerBrowserCandidate['id']): ICrawlerBrowserCalibrationResult | null => {
+  return stateCrawlerBrowserCalibrationMap.value[id] ?? null;
+};
+
+/**
+ * 函数：格式化浏览器校准数值。
+ * @param {number | null | undefined} value 数值。
+ * @returns {string} 显示文本。
+ */
+const crawlerBrowserCalibrationValueLabelGet = (value: number | null | undefined): string => {
+  if (!Number.isFinite(value ?? Number.NaN)) {
+    return '—';
+  }
+
+  return `${Math.round(Number(value))}`;
+};
+
+/**
+ * 函数：归一化校准数值。
+ * @param {unknown} value 原始值。
+ * @returns {number | null} 可显示数值。
+ */
+const crawlerBrowserCalibrationNumberNormalize = (value: unknown): number | null => {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : null;
 };
 
 /**
@@ -944,11 +1003,9 @@ const loadBrowserBridgeAccessDetail = async (silent = false): Promise<void> => {
     const detail = await tauriSettings.browserBridgeAccessDetailGet();
     stateBrowserBridgeRunning.value = detail.running;
     stateBrowserBridgeConnected.value = detail.connected;
-    stateBrowserBridgeConnectionCount.value = detail.connectionCount;
     stateBrowserBridgeWsUrl.value = detail.wsUrl;
     stateBrowserBridgeExtensionDir.value = detail.extensionDir;
     stateBrowserBridgeError.value = detail.lastError || '';
-    stateBrowserBridgeConnections.value = detail.connections;
   } catch (error) {
     if (!silent) {
       stateBrowserBridgeError.value = error instanceof Error ? error.message : String(error || '');
@@ -964,6 +1021,11 @@ const loadBrowserBridgeAccessDetail = async (silent = false): Promise<void> => {
 let unlistenBrowserBridgeStateChanged: null | (() => void) = null;
 
 /**
+ * 状态：浏览器校准进度事件取消监听句柄。
+ */
+let unlistenCrawlerBrowserCalibrationProgress: null | UnlistenFn = null;
+
+/**
  * 函数：订阅浏览器扩展桥状态变化。
  * @returns {Promise<void>} 无返回值。
  */
@@ -972,16 +1034,45 @@ const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
     return;
   }
 
-  const { listen } = await import('@tauri-apps/api/event');
   unlistenBrowserBridgeStateChanged = await listen<ITauriBrowserBridgeAccessDetail>('browser://bridge-state-changed', (event) => {
     const detail = event.payload;
     stateBrowserBridgeRunning.value = detail.running;
     stateBrowserBridgeConnected.value = detail.connected;
-    stateBrowserBridgeConnectionCount.value = detail.connectionCount;
     stateBrowserBridgeWsUrl.value = detail.wsUrl;
     stateBrowserBridgeExtensionDir.value = detail.extensionDir;
     stateBrowserBridgeError.value = detail.lastError || '';
-    stateBrowserBridgeConnections.value = detail.connections;
+  });
+};
+
+/**
+ * 函数：订阅浏览器校准进度。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenCrawlerBrowserCalibrationProgress !== null) {
+    return;
+  }
+
+  unlistenCrawlerBrowserCalibrationProgress = await listen<ICrawlerBrowserCalibrationProgressEvent>('crawler://browser-calibration-progress', (event) => {
+    const payload = event.payload;
+    const browser = crawlerBrowserCandidateGet(payload.browserId);
+    const phaseLabel = payload.phase === 'maximized' ? t('pages.settings.crawler.browser.calibration.badges.maximized') : t('pages.settings.crawler.browser.calibration.badges.normal');
+    const stageTitle = payload.stage === 'success'
+      ? t('pages.settings.crawler.browser.calibration.toast.success')
+      : payload.stage === 'failed'
+        ? t('pages.settings.crawler.browser.calibration.toast.failed')
+        : payload.stage === 'retry'
+          ? t('pages.settings.crawler.browser.calibration.toast.retry')
+          : payload.stage === 'capture'
+            ? t('pages.settings.crawler.browser.calibration.toast.capture')
+            : t('pages.settings.crawler.browser.calibration.toast.starting');
+
+    toast.add({
+      title: stageTitle,
+      description: `${browser.name} · ${phaseLabel} · ${payload.attempt}/${payload.total}${payload.message ? ` · ${payload.message}` : ''}`,
+      color: payload.stage === 'failed' ? 'error' : payload.stage === 'success' ? 'success' : 'primary',
+      duration: payload.stage === 'failed' || payload.stage === 'success' ? 2500 : 1800
+    });
   });
 };
 
@@ -1041,6 +1132,40 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
   }
 
   stateCrawlerBrowserSelectedId.value = String((browserSetting as Record<string, unknown>).id || '');
+
+  const browserCalibration = (crawlerSetting as Record<string, unknown>).browserCalibration;
+  if (browserCalibration && typeof browserCalibration === 'object' && !Array.isArray(browserCalibration)) {
+    const nextCalibrationMap: Partial<Record<ICrawlerBrowserCandidate['id'], ICrawlerBrowserCalibrationResult>> = {};
+
+    for (const browserId of ['msedge', 'chrome'] as const) {
+      const calibration = (browserCalibration as Record<string, unknown>)[browserId];
+      if (!calibration || typeof calibration !== 'object' || Array.isArray(calibration)) {
+        continue;
+      }
+
+      const calibrationRecord = calibration as Record<string, unknown>;
+      const maximizedBorderLeftOffset = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.maxBorderLeftOffset);
+      const maximizedVerticalDiff = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.maxVerticalDiff);
+      const normalBorderLeftOffset = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.normalBorderLeftOffset);
+      const normalVerticalDiff = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.normalVerticalDiff);
+
+      nextCalibrationMap[browserId] = {
+        browserId,
+        maximized: {
+          borderLeftOffset: maximizedBorderLeftOffset,
+          verticalDiff: maximizedVerticalDiff
+        },
+        normal: {
+          borderLeftOffset: normalBorderLeftOffset,
+          verticalDiff: normalVerticalDiff
+        }
+      };
+    }
+
+    stateCrawlerBrowserCalibrationMap.value = nextCalibrationMap;
+  } else {
+    stateCrawlerBrowserCalibrationMap.value = {};
+  }
 };
 
 /**
@@ -1173,11 +1298,42 @@ const handleCrawlerShowLogsUpdate = async (on: boolean): Promise<void> => {
  * @returns {Promise<void>} 无返回值
  */
 const handleCrawlerBrowserSelect = async (candidate: ICrawlerBrowserCandidate, on: boolean): Promise<void> => {
-  if (!on || !isTauriRuntime.value || !candidate.installed) {
+  if (!on || !isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
     return;
   }
 
   await saveCrawlerBrowserCandidate(candidate);
+  await handleCrawlerBrowserCalibrate(candidate);
+};
+
+/**
+ * 事件：校准浏览器窗口参数。
+ * @param {ICrawlerBrowserCandidate} candidate 浏览器候选。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate): Promise<void> => {
+  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+    return;
+  }
+
+  stateCrawlerBrowserCalibratingId.value = candidate.id;
+  try {
+    const calibration = await tauriSettings.crawlerBrowserCalibrate(candidate.id);
+    stateCrawlerBrowserCalibrationMap.value = {
+      ...stateCrawlerBrowserCalibrationMap.value,
+      [calibration.browserId]: calibration
+    };
+    await loadCrawlerBrowserSettings();
+  } catch (error) {
+    toast.add({
+      title: t('pages.settings.crawler.browser.calibration.toast.failed'),
+      description: error instanceof Error ? error.message : String(error || ''),
+      color: 'error',
+      duration: 3200
+    });
+  } finally {
+    stateCrawlerBrowserCalibratingId.value = '';
+  }
 };
 
 /**
@@ -1627,6 +1783,7 @@ onMounted(async () => {
 
   await loadCrawlerBrowserProfilesDirectory();
   await subscribeBrowserBridgeStateChanged();
+  await subscribeCrawlerBrowserCalibrationProgress();
   await loadBrowserBridgeAccessDetail(true);
   await loadCrawlerBrowserSettings();
   await refreshCrawlerBrowsers(true);
@@ -1642,6 +1799,11 @@ onBeforeUnmount(() => {
   if (unlistenBrowserBridgeStateChanged !== null) {
     unlistenBrowserBridgeStateChanged();
     unlistenBrowserBridgeStateChanged = null;
+  }
+
+  if (unlistenCrawlerBrowserCalibrationProgress !== null) {
+    unlistenCrawlerBrowserCalibrationProgress();
+    unlistenCrawlerBrowserCalibrationProgress = null;
   }
 
   window.removeEventListener('focus', handleWindowFocus);

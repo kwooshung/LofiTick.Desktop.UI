@@ -131,6 +131,22 @@ export const settings = {
       actions: {
         refresh: 'Refresh',
         installOfficial: 'Download from the official website'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: 'Manual calibrate'
+        },
+        badges: {
+          maximized: 'Maximized',
+          normal: 'Normal'
+        },
+        toast: {
+          starting: 'Calibration started',
+          capture: 'Capturing data',
+          retry: 'Validation failed, retrying',
+          success: 'Calibration completed',
+          failed: 'Calibration failed'
+        }
       }
     },
     runtime: {
@@ -150,8 +166,7 @@ export const settings = {
         running: 'Service started',
         stopped: 'Stopped',
         connected: 'Connected',
-        disconnected: 'Disconnected',
-        connectionCount: 'Connections: {count}'
+        disconnected: 'Disconnected'
       },
       statusDescriptions: {
         default: 'The WebSocket URL is used for desktop-shell and browser-extension communication.',

@@ -131,6 +131,22 @@ export const settings = {
       actions: {
         refresh: '刷新',
         installOfficial: '前往官網下載並安裝'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手動校準'
+        },
+        badges: {
+          maximized: '最大化',
+          normal: '一般'
+        },
+        toast: {
+          starting: '開始校準',
+          capture: '正在採集資料',
+          retry: '校驗失敗，正在重試',
+          success: '校準完成',
+          failed: '校準失敗'
+        }
       }
     },
     runtime: {
@@ -150,8 +166,7 @@ export const settings = {
         running: '服務已啟動',
         stopped: '未執行',
         connected: '已連線',
-        disconnected: '未連線',
-        connectionCount: '連線數：{count}'
+        disconnected: '未連線'
       },
       statusDescriptions: {
         default: 'WebSocket 位址用於桌面殼與瀏覽器擴充通訊。'
