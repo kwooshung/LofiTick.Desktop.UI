@@ -151,7 +151,6 @@ interface ITauriBrowserBridgeAccessDetail {
 
   /** 最近一次错误。 */
   lastError: string | null;
-
 }
 
 /**
@@ -332,9 +331,7 @@ export const useTauriSettings = () => {
    * @param {(event: ICrawlerBrowserCalibrationProgressEvent) => void} handler 进度回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
    */
-  const onCrawlerBrowserCalibrationProgress = async (
-    handler: (event: ICrawlerBrowserCalibrationProgressEvent) => void,
-  ): Promise<UnlistenFn> => {
+  const onCrawlerBrowserCalibrationProgress = async (handler: (event: ICrawlerBrowserCalibrationProgressEvent) => void): Promise<UnlistenFn> => {
     return listen<ICrawlerBrowserCalibrationProgressEvent>(EVENT_CRAWLER_BROWSER_CALIBRATION_PROGRESS, (event) => {
       handler(event.payload);
     });

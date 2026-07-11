@@ -25,8 +25,14 @@
           <div class="space-y-2">
             <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.edge') }}</div>
             <div class="flex flex-wrap items-center gap-2">
-              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.verticalDiff) }}</UBadge>
-              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.verticalDiff) }}</UBadge>
+              <UBadge color="neutral" variant="soft"
+                >{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.borderLeftOffset) }} /
+                {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.maximized.verticalDiff) }}</UBadge
+              >
+              <UBadge color="neutral" variant="soft"
+                >{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.borderLeftOffset) }} /
+                {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('msedge')?.normal.verticalDiff) }}</UBadge
+              >
               <UButton
                 v-if="crawlerBrowserCandidateGet('msedge').installed"
                 color="neutral"
@@ -66,8 +72,14 @@
           <div class="space-y-2">
             <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.chrome') }}</div>
             <div class="flex flex-wrap items-center gap-2">
-              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.verticalDiff) }}</UBadge>
-              <UBadge color="neutral" variant="soft">{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.borderLeftOffset) }} / {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.verticalDiff) }}</UBadge>
+              <UBadge color="neutral" variant="soft"
+                >{{ t('pages.settings.crawler.browser.calibration.badges.maximized') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.borderLeftOffset) }} /
+                {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.verticalDiff) }}</UBadge
+              >
+              <UBadge color="neutral" variant="soft"
+                >{{ t('pages.settings.crawler.browser.calibration.badges.normal') }}: {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.borderLeftOffset) }} /
+                {{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.verticalDiff) }}</UBadge
+              >
               <UButton
                 v-if="crawlerBrowserCandidateGet('chrome').installed"
                 color="neutral"
@@ -96,7 +108,6 @@
           </UButton>
         </div>
       </UFormField>
-
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -1057,15 +1068,16 @@ const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
     const payload = event.payload;
     const browser = crawlerBrowserCandidateGet(payload.browserId);
     const phaseLabel = payload.phase === 'maximized' ? t('pages.settings.crawler.browser.calibration.badges.maximized') : t('pages.settings.crawler.browser.calibration.badges.normal');
-    const stageTitle = payload.stage === 'success'
-      ? t('pages.settings.crawler.browser.calibration.toast.success')
-      : payload.stage === 'failed'
-        ? t('pages.settings.crawler.browser.calibration.toast.failed')
-        : payload.stage === 'retry'
-          ? t('pages.settings.crawler.browser.calibration.toast.retry')
-          : payload.stage === 'capture'
-            ? t('pages.settings.crawler.browser.calibration.toast.capture')
-            : t('pages.settings.crawler.browser.calibration.toast.starting');
+    const stageTitle =
+      payload.stage === 'success'
+        ? t('pages.settings.crawler.browser.calibration.toast.success')
+        : payload.stage === 'failed'
+          ? t('pages.settings.crawler.browser.calibration.toast.failed')
+          : payload.stage === 'retry'
+            ? t('pages.settings.crawler.browser.calibration.toast.retry')
+            : payload.stage === 'capture'
+              ? t('pages.settings.crawler.browser.calibration.toast.capture')
+              : t('pages.settings.crawler.browser.calibration.toast.starting');
 
     toast.add({
       title: stageTitle,
