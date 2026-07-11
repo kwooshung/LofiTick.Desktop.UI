@@ -70,15 +70,15 @@ export const scenes = {
     pickProgramTitle: '選擇守護程式'
   },
   errors: {
-      shortFields: {
-        state: '狀態',
-        path: '路徑',
-        command: '命令'
-      },
-      shortSources: {
-        local: '本地',
-        remote: '遠端'
-      },
+    shortFields: {
+      state: '狀態',
+      path: '路徑',
+      command: '命令'
+    },
+    shortSources: {
+      local: '本地',
+      remote: '遠端'
+    },
     sceneNameRequired: '場景名稱不能為空',
     sourceExecPathRequired: '程式路徑不能為空',
     execPathInvalidWindowsPath: '程式路徑必須是 Windows 絕對路徑（例如：C:\\Apps\\Scene.exe 或 \\\\Server\\Share\\Scene.exe）'
