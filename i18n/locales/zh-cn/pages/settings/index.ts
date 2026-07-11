@@ -137,6 +137,36 @@
       title: '爬虫运行与诊断',
       description: '统一控制模板比较后端、诊断截图保留范围和可见日志输出。'
     },
+    browserBridge: {
+      title: '浏览器扩展桥接',
+      description: '这是桌面壳与浏览器扩展之间的本机接入地址。',
+      wsUrl: {
+        label: 'WebSocket 地址',
+        description: '桌面壳与浏览器扩展通过这个地址互相通信。'
+      },
+      status: {
+        service: '服务状态',
+        label: '连接状态',
+        running: '服务已启动',
+        stopped: '未运行',
+        connected: '已连接',
+        disconnected: '未连接',
+        connectionCount: '连接数：{count}'
+      },
+      statusDescriptions: {
+        default: 'WebSocket 地址用于桌面壳与浏览器扩展通信。'
+      },
+      extensionDir: {
+        label: '扩展运行目录',
+        description: '扩展运行目录和路径都固定在这里。桌面壳会把打包资源同步到此目录，并写入 bridge.config.json。',
+        actionOpen: '打开目录',
+        unset: '未生成'
+      },
+      actions: {
+        refresh: '刷新状态'
+      },
+      errorTitle: '浏览器扩展桥不可用'
+    },
     compareBackend: {
       title: '模板比较后端',
       description: '控制站点模板比较时使用 CPU 还是 GPU。GPU 仅在硬件条件满足时可启用，CPU 模式始终保留。',

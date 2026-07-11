@@ -129,6 +129,47 @@ interface ITauriCrawlerCompareBackendProbeResult {
 }
 
 /**
+ * 接口：浏览器扩展桥接入详情。
+ */
+interface ITauriBrowserBridgeAccessDetail {
+  /** 服务是否运行。 */
+  running: boolean;
+
+  /** 是否已有扩展连接。 */
+  connected: boolean;
+
+  /** 当前连接数。 */
+  connectionCount: number;
+
+  /** 当前监听端口。 */
+  port: number | null;
+
+  /** WebSocket 接入地址。 */
+  wsUrl: string;
+
+  /** 浏览器扩展运行目录。 */
+  extensionDir: string;
+
+  /** 最近一次错误。 */
+  lastError: string | null;
+
+  /** 当前连接列表。 */
+  connections: Array<{
+    /** 扩展实例 ID。 */
+    extensionInstanceId: string;
+
+    /** 扩展名称。 */
+    extensionName: string;
+
+    /** 扩展版本。 */
+    extensionVersion: string;
+
+    /** 浏览器用户代理。 */
+    userAgent: string;
+  }>;
+}
+
+/**
  * 类型：爬虫浏览器资料目录范围。
  */
 type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome';
@@ -280,6 +321,14 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：获取浏览器扩展桥接入详情。
+   * @returns {Promise<ITauriBrowserBridgeAccessDetail>} 接入详情。
+   */
+  const browserBridgeAccessDetailGet = async (): Promise<ITauriBrowserBridgeAccessDetail> => {
+    return invoke<ITauriBrowserBridgeAccessDetail>('browser_bridge_access_detail_get');
+  };
+
+  /**
    * 函数：获取热搜播客固定开头音乐路径。
    * @returns {Promise<ITauriHotsearchPodcastHeadMusicPaths>} 固定路径信息
    */
@@ -412,6 +461,7 @@ export const useTauriSettings = () => {
     crawlerBrowserMatchesDirSizeGet,
     crawlerBrowserMatchesDirClear,
     crawlerCompareBackendProbe,
+    browserBridgeAccessDetailGet,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

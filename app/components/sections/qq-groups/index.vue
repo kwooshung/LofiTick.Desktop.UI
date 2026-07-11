@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent, TableColumn } from '@nuxt/ui';
 import { z } from 'zod';
+import { useTimeoutFn } from '@vueuse/core';
 
 /**
  * 属性：页面刷新标记。
@@ -400,7 +401,15 @@ const computedUniqueNumberError = computed<string | undefined>(() => {
  * 状态：群号复制反馈
  */
 const stateCopiedNumberId = ref<number | null>(null);
-let stateCopiedNumberTimer: ReturnType<typeof setTimeout> | undefined;
+const { start: startStateCopiedNumberTimer, stop: stopStateCopiedNumberTimer } = useTimeoutFn(
+  () => {
+    if (stateCopiedNumberId.value !== null) {
+      stateCopiedNumberId.value = null;
+    }
+  },
+  1500,
+  { immediate: false }
+);
 
 /**
  * 函数：复制到剪贴板
@@ -454,14 +463,8 @@ const handleCopyGroupNumber = async (row: IPageTableColumnQqGroup): Promise<void
   }
 
   stateCopiedNumberId.value = row.id;
-  if (stateCopiedNumberTimer) {
-    clearTimeout(stateCopiedNumberTimer);
-  }
-  stateCopiedNumberTimer = setTimeout(() => {
-    if (stateCopiedNumberId.value === row.id) {
-      stateCopiedNumberId.value = null;
-    }
-  }, 1500);
+  stopStateCopiedNumberTimer();
+  startStateCopiedNumberTimer();
 };
 
 /**
@@ -791,9 +794,7 @@ watch([stateEditorOpen, () => stateEditor.value.id, () => stateEditor.value.name
 });
 
 onBeforeUnmount(() => {
-  if (stateCopiedNumberTimer) {
-    clearTimeout(stateCopiedNumberTimer);
-  }
+  stopStateCopiedNumberTimer();
 });
 
 watch(

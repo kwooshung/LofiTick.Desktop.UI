@@ -137,6 +137,36 @@ export const settings = {
       title: '爬蟲執行與診斷',
       description: '統一控制模板比較後端、診斷截圖保留範圍和可見日誌輸出。'
     },
+    browserBridge: {
+      title: '瀏覽器擴充橋接',
+      description: '這是桌面殼與瀏覽器擴充之間的本機接入位址。',
+      wsUrl: {
+        label: 'WebSocket 位址',
+        description: '桌面殼與瀏覽器擴充透過這個位址互相通訊。'
+      },
+      status: {
+        service: '服務狀態',
+        label: '連線狀態',
+        running: '服務已啟動',
+        stopped: '未執行',
+        connected: '已連線',
+        disconnected: '未連線',
+        connectionCount: '連線數：{count}'
+      },
+      statusDescriptions: {
+        default: 'WebSocket 位址用於桌面殼與瀏覽器擴充通訊。'
+      },
+      extensionDir: {
+        label: '擴充執行目錄',
+        description: '擴充執行目錄與路徑都固定在這裡。桌面殼會把打包資源同步到此目錄，並寫入 bridge.config.json。',
+        actionOpen: '開啟目錄',
+        unset: '尚未產生'
+      },
+      actions: {
+        refresh: '刷新狀態'
+      },
+      errorTitle: '瀏覽器擴充橋接不可用'
+    },
     diagnostics: {
       title: '診斷截圖',
       description: '控制寫入 matches 目錄的診斷比較範圍。',
@@ -177,7 +207,9 @@ export const settings = {
       open: '開啟目錄',
       openMatches: '開啟匹配記錄',
       unset: '尚未設定',
-      notExists: '爬蟲資料目錄不存在'
+      notExists: '爬蟲資料目錄不存在',
+      rootClearCacheConfirmDescription: '這會刪除三個瀏覽器的資料快取內容。',
+      rootClearMatchesConfirmDescription: '這會刪除三個瀏覽器的所有匹配記錄內容。'
     }
   },
   ui: {
@@ -522,6 +554,7 @@ export const settings = {
       remoteReady: '雲端已就緒',
       remoteMissing: '雲端缺失',
       attachmentsDirUnset: '目前尚未設定附件目錄。',
+      attachmentsDirUnsetShort: '尚未設定附件目錄',
       podcastGenerateOwnedByCurrentMachine: '目前機器已占用',
       podcastGenerateOwnedByOtherMachine: '其他機器已占用',
       podcastGenerateOwnerIdle: '目前無人占用',
@@ -532,6 +565,7 @@ export const settings = {
       headMusicWaitingTitle: '開頭音樂尚未準備完成',
       headMusicNeedAttachmentsDir: '目前尚未設定附件目錄。',
       headMusicNeedUpload: '這份開頭音樂在雲端尚不存在。請先選擇音樂並上傳。',
+      headMusicCloudMissingAfterLocalReady: '本地已準備完成，但雲端副本仍缺失。',
       headMusicNeedSync: '目前機器本地尚未存在這份開頭音樂。開啟生成 Podcast 時會優先嘗試從雲端補齊。',
       headMusicNeedPreview: '檔案已存在，但暫時還沒有可播放的預覽網址。'
     },
@@ -545,6 +579,7 @@ export const settings = {
         description: '支援拖放與點擊選擇。上傳會直接由前端直傳到又拍雲，並同步寫入目前機器的固定路徑。',
         dropLabel: '把 MP3 檔案拖到這裡',
         dropDescription: '或使用下方按鈕選擇檔案。建議使用較短且音量穩定的開頭音樂。',
+        dropActive: '放開即可上傳',
         selectFile: '選擇檔案',
         clearFile: '清空選擇',
         confirmUpload: '開始上傳',
@@ -554,7 +589,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: '{title} 試聽',
-        description: '這裡可以先試聽雲端可用的開頭音樂。'
+        description: '這裡可以先試聽雲端可用的開頭音樂。',
+        loadingTitle: '試聽網址載入中',
+        loadingDescription: '正在從雲端取得可播放的預覽網址，請稍候。',
+        remoteAddress: '雲端網址'
       }
     },
     messages: {

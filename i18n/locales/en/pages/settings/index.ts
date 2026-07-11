@@ -137,6 +137,38 @@ export const settings = {
       title: 'Crawler runtime and diagnostics',
       description: 'Control the template compare backend, diagnostic screenshot scope, and visible log output in one place.'
     },
+    browserBridge: {
+      title: 'Browser extension bridging',
+      description: 'This is the local connection address between the desktop shell and the browser extension.',
+      wsUrl: {
+        label: 'WebSocket URL',
+        description: 'The desktop shell and the browser extension communicate through this address.'
+      },
+      status: {
+        service: 'Service status',
+        label: 'Connection status',
+        running: 'Service started',
+        stopped: 'Stopped',
+        connected: 'Connected',
+        disconnected: 'Disconnected',
+        connectionCount: 'Connections: {count}'
+      },
+      statusDescriptions: {
+        default: 'The WebSocket URL is used for desktop-shell and browser-extension communication.',
+        running: 'The WebSocket service is running.',
+        stopped: 'The WebSocket service is not running. Restart the desktop shell and try again.'
+      },
+      extensionDir: {
+        label: 'Extension runtime directory',
+        description: 'The extension runtime directory and path stay fixed here. The desktop shell syncs the packaged resource here and writes bridge.config.json.',
+        actionOpen: 'Open directory',
+        unset: 'Not generated'
+      },
+      actions: {
+        refresh: 'Refresh status'
+      },
+      errorTitle: 'Browser extension bridge unavailable'
+    },
     compareBackend: {
       title: 'Template compare backend',
       description: 'Choose whether site template matching uses CPU or GPU. GPU stays optional and CPU always remains available.',
@@ -524,6 +556,7 @@ export const settings = {
       remoteReady: 'Cloud ready',
       remoteMissing: 'Cloud missing',
       attachmentsDirUnset: 'Attachments directory is not configured yet.',
+      attachmentsDirUnsetShort: 'Attachments directory not set',
       podcastGenerateOwnedByCurrentMachine: 'Owned by this machine',
       podcastGenerateOwnedByOtherMachine: 'Owned by another machine',
       podcastGenerateOwnerIdle: 'No active owner',
@@ -534,6 +567,7 @@ export const settings = {
       headMusicWaitingTitle: 'Head music is not ready yet',
       headMusicNeedAttachmentsDir: 'The attachments directory is not configured yet.',
       headMusicNeedUpload: 'This head-music file does not exist in cloud storage yet. Choose music and upload it first.',
+      headMusicCloudMissingAfterLocalReady: 'The local copy is ready, but the cloud copy is still missing.',
       headMusicNeedSync: 'This machine is still missing the local head-music file. Enabling podcast generation will try to repair it from cloud storage first.',
       headMusicNeedPreview: 'The file exists, but a playable preview URL is not available yet.'
     },
@@ -547,6 +581,7 @@ export const settings = {
         description: "Drag and drop or click to choose a file. The upload goes directly from the frontend to UpYun and is also written into this machine's fixed local path.",
         dropLabel: 'Drop an MP3 file here',
         dropDescription: 'Or choose a file below. Short, stable-volume intros work best.',
+        dropActive: 'Release to upload',
         selectFile: 'Choose file',
         clearFile: 'Clear selection',
         confirmUpload: 'Start upload',
@@ -556,7 +591,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: 'Preview {title}',
-        description: 'Listen to the cloud copy of this head-music file here.'
+        description: 'Preview the cloud copy of this head-music file here.',
+        loadingTitle: 'Loading preview URL',
+        loadingDescription: 'Fetching a playable preview URL from the cloud. Please wait.',
+        remoteAddress: 'Cloud URL'
       }
     },
     messages: {

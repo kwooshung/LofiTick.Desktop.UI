@@ -21,15 +21,7 @@
             <FormUrlInput v-model="stateApiBaseValue" class="w-full" :placeholder="t('pages.settings.connections.apiBase.placeholder')">
               <template #actions>
                 <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
-                  <UButton
-                    :color="copiedGet('apiBase') ? 'success' : 'neutral'"
-                    variant="link"
-                    size="sm"
-                    :icon="copiedGet('apiBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'"
-                    :ui="{ leadingIcon: copiedGet('apiBase') ? 'text-success' : 'text-primary' }"
-                    :aria-label="t('pages.settings.unattended.tooltips.copyToClipboard')"
-                    @click.stop="handleCopy('apiBase', stateApiBaseValue)"
-                  />
+                  <UButton :color="copiedGet('apiBase') ? 'success' : 'neutral'" variant="link" size="sm" :icon="copiedGet('apiBase') ? 'i-lucide:copy-check' : 'i-lucide:copy'" stopTimeoutCopied(); startTimeoutCopied(); @click.stop="handleCopy('apiBase', stateApiBaseValue)" />
                 </UTooltip>
                 <UTooltip :text="t('pages.settings.unattended.tooltips.openLink')" :content="{ side: 'top' }">
                   <ULink raw :href="stateApiBaseValue" class="text-primary hover:text-primary/80 inline-flex items-center justify-center no-underline" :aria-label="t('pages.settings.unattended.tooltips.openLink')" @click.stop.prevent="handleOpenExternal(stateApiBaseValue)">
@@ -272,7 +264,13 @@ const stateCopiedKey = ref('');
 /**
  * 变量：复制状态重置计时器。
  */
-let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
+const { start: startTimeoutCopied, stop: stopTimeoutCopied } = useTimeoutFn(
+  () => {
+    stateCopiedKey.value = '';
+  },
+  1500,
+  { immediate: false }
+);
 
 /**
  * 计算属性：当前生效的 1Panel 根域名。
@@ -333,16 +331,8 @@ const handleCopy = async (key: string, value: string): Promise<void> => {
 
   await navigator.clipboard.writeText(text);
   stateCopiedKey.value = key;
-
-  if (timeoutCopied) {
-    clearTimeout(timeoutCopied);
-  }
-
-  timeoutCopied = setTimeout(() => {
-    if (stateCopiedKey.value === key) {
-      stateCopiedKey.value = '';
-    }
-  }, 1500);
+  stopTimeoutCopied();
+  startTimeoutCopied();
 };
 
 /**
@@ -458,8 +448,6 @@ onMounted(() => {
  * 生命周期：清理复制状态计时器。
  */
 onBeforeUnmount(() => {
-  if (timeoutCopied) {
-    clearTimeout(timeoutCopied);
-  }
+  stopTimeoutCopied();
 });
 </script>

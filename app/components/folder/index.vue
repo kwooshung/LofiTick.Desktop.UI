@@ -119,7 +119,17 @@ let pendingBlurClose = false;
 /**
  * 变量：离开输入框后延迟取消重命名的计时器句柄
  */
-let blurCloseTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+const { start: startBlurCloseTimer, stop: stopBlurCloseTimer } = useTimeoutFn(
+  () => {
+    if (pendingBlurClose) {
+      cancelRelabel();
+      suppressNextClickRelabel = true;
+    }
+    pendingBlurClose = false;
+  },
+  0,
+  { immediate: false }
+);
 
 /**
  * 引用：根元素与重命名输入框元素引用
@@ -154,7 +164,13 @@ const stateDraftLabel = ref<string>('');
 /**
  * 状态：重命名延迟计时器句柄
  */
-const stateRelabelTimer = ref<ReturnType<typeof setTimeout> | undefined>(undefined);
+const { start: startRelabelTimer, stop: stopRelabelTimer } = useTimeoutFn(
+  () => {
+    startRelabel();
+  },
+  relabelDelay,
+  { immediate: false }
+);
 
 /**
  * 计算属性：是否无右键菜单
@@ -175,9 +191,8 @@ const computedIsSelected = computed({
       stateInnerSelected.value = v;
     }
 
-    if (!v && stateRelabelTimer.value !== undefined) {
-      clearTimeout(stateRelabelTimer.value);
-      stateRelabelTimer.value = undefined;
+    if (!v) {
+      stopRelabelTimer();
     }
 
     emit('update:selected', v);
@@ -252,13 +267,8 @@ const startRelabel = () => {
  * 函数：延迟进入重命名
  */
 const delayedStartRelabel = () => {
-  if (stateRelabelTimer.value !== undefined) {
-    clearTimeout(stateRelabelTimer.value);
-  }
-  stateRelabelTimer.value = setTimeout(() => {
-    startRelabel();
-    stateRelabelTimer.value = undefined;
-  }, relabelDelay);
+  stopRelabelTimer();
+  startRelabelTimer();
 };
 
 /**
@@ -285,10 +295,7 @@ const confirmRelabel = () => {
 const cancelRelabel = () => {
   stateDraftLabel.value = displayLabel.value;
   stateIsRenaming.value = false;
-  if (stateRelabelTimer.value !== undefined) {
-    clearTimeout(stateRelabelTimer.value);
-    stateRelabelTimer.value = undefined;
-  }
+  stopRelabelTimer();
   emit('relabel-cancel');
 };
 
@@ -297,10 +304,7 @@ const cancelRelabel = () => {
  */
 const onInputEsc = () => {
   pendingBlurClose = false;
-  if (blurCloseTimer !== undefined) {
-    clearTimeout(blurCloseTimer);
-    blurCloseTimer = undefined;
-  }
+  stopBlurCloseTimer();
   cancelRelabel();
   suppressNextClickRelabel = true;
 };
@@ -335,17 +339,7 @@ const handleRelabelInputUpdate = (value: string | number) => {
  */
 const handleInputBlur = () => {
   pendingBlurClose = true;
-  if (blurCloseTimer !== undefined) {
-    clearTimeout(blurCloseTimer);
-  }
-  blurCloseTimer = setTimeout(() => {
-    if (pendingBlurClose) {
-      cancelRelabel();
-      suppressNextClickRelabel = true;
-    }
-    pendingBlurClose = false;
-    blurCloseTimer = undefined;
-  }, 0);
+  startBlurCloseTimer();
 };
 
 /**
@@ -489,10 +483,7 @@ const onClick = (e: MouseEvent) => {
     if (!input || (target && !input.contains(target))) {
       // 由根节点处理取消，避免与 input 的 blur 竞争
       pendingBlurClose = false;
-      if (blurCloseTimer !== undefined) {
-        clearTimeout(blurCloseTimer);
-        blurCloseTimer = undefined;
-      }
+      stopBlurCloseTimer();
       cancelRelabel();
       suppressNextClickRelabel = true;
     }

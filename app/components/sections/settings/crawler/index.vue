@@ -53,6 +53,92 @@
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
       <template #header>
         <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.browserBridge.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.browserBridge.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
+      <UFormField :label="t('pages.settings.crawler.browserBridge.wsUrl.label')" :description="t('pages.settings.crawler.browserBridge.wsUrl.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <FormUrlInput readonly :model-value="stateBrowserBridgeWsUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
+          <template #actions>
+            <div class="flex items-center gap-0.5">
+              <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                <UButton
+                  :color="stateBrowserBridgeCopied ? 'success' : 'neutral'"
+                  variant="link"
+                  size="sm"
+                  :icon="stateBrowserBridgeCopied ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :disabled="!stateBrowserBridgeWsUrl"
+                  @click.stop="handleBrowserBridgeWsUrlCopy"
+                />
+              </UTooltip>
+              <UTooltip :text="t('pages.settings.crawler.browserBridge.actions.refresh')" :content="{ side: 'top' }">
+                <UButton color="neutral" variant="link" size="sm" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateBrowserBridgeRefreshing" @click.stop="loadBrowserBridgeAccessDetail" />
+              </UTooltip>
+            </div>
+          </template>
+        </FormUrlInput>
+      </UFormField>
+      <UFormField :label="t('pages.settings.crawler.browserBridge.status.label')" :description="computedBrowserBridgeStatusDescription" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <div class="flex flex-wrap gap-2">
+          <UBadge :color="stateBrowserBridgeRunning ? 'success' : 'error'" variant="soft"> {{ computedBrowserBridgeServiceStatusLabel }} </UBadge>
+          <UBadge :color="stateBrowserBridgeConnected ? 'success' : 'neutral'" variant="soft"> {{ computedBrowserBridgeConnectionStatusLabel }} </UBadge>
+          <UBadge :color="stateBrowserBridgeConnectionCount > 0 ? 'primary' : 'neutral'" variant="soft"> {{ t('pages.settings.crawler.browserBridge.status.connectionCount', { count: stateBrowserBridgeConnectionCount }) }} </UBadge>
+        </div>
+      </UFormField>
+      <UFormField
+        :label="t('pages.settings.crawler.browserBridge.extensionDir.label')"
+        :description="t('pages.settings.crawler.browserBridge.extensionDir.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
+        <template #description>
+          <div class="space-y-1">
+            <div>{{ t('pages.settings.crawler.browserBridge.extensionDir.description') }}</div>
+            <UTooltip v-if="stateBrowserBridgeExtensionDir" :text="stateBrowserBridgeExtensionDir" :content="{ side: 'top' }">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleBrowserBridgeExtensionDirOpen">
+                {{ crawlerBrowserProfilesPathLabelShortGet(stateBrowserBridgeExtensionDir) }}
+              </ULink>
+            </UTooltip>
+            <span v-else class="text-error">{{ t('pages.settings.crawler.browserBridge.extensionDir.unset') }}</span>
+          </div>
+        </template>
+        <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateBrowserBridgeExtensionDir || !isTauriRuntime" @click="handleBrowserBridgeExtensionDirOpen">
+          {{ t('pages.settings.crawler.browserBridge.extensionDir.actionOpen') }}
+        </UButton>
+      </UFormField>
+      <UAlert v-if="stateBrowserBridgeError" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.settings.crawler.browserBridge.errorTitle')" :description="stateBrowserBridgeError" />
+      <UFormField
+        v-if="stateBrowserBridgeConnections.length"
+        :label="t('pages.settings.crawler.browserBridge.connections.label')"
+        :description="t('pages.settings.crawler.browserBridge.connections.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
+        <template #description>
+          <div class="space-y-2">
+            <div>{{ t('pages.settings.crawler.browserBridge.connections.description') }}</div>
+            <div class="flex flex-col gap-2">
+              <div v-for="connection in stateBrowserBridgeConnections" :key="connection.extensionInstanceId" class="border-default bg-elevated/30 rounded-lg border px-3 py-2">
+                <div class="flex items-center justify-between gap-3 text-sm">
+                  <span class="text-highlighted font-medium">{{ connection.extensionName }}</span>
+                  <span class="text-muted">{{ connection.extensionVersion }}</span>
+                </div>
+                <div class="text-muted mt-1 text-xs break-all">{{ connection.extensionInstanceId }}</div>
+                <div class="text-muted mt-1 text-xs break-all">{{ connection.userAgent }}</div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UFormField>
+    </UPageCard>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
           <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.browserProfilesDirectory.label') }}</h3>
           <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.browserProfilesDirectory.description') }}</p>
         </div>
@@ -507,6 +593,63 @@ const stateCrawlerCompareBackendProbing = ref(false);
 const stateCrawlerBrowserInstallStarted = ref(false);
 
 /**
+ * 状态：浏览器扩展桥是否正在刷新。
+ */
+const stateBrowserBridgeRefreshing = ref(false);
+
+/**
+ * 状态：浏览器扩展桥是否运行。
+ */
+const stateBrowserBridgeRunning = ref(false);
+
+/**
+ * 状态：浏览器扩展桥是否已连接。
+ */
+const stateBrowserBridgeConnected = ref(false);
+
+/**
+ * 状态：浏览器扩展桥 WebSocket 地址。
+ */
+const stateBrowserBridgeWsUrl = ref('');
+
+/**
+ * 状态：浏览器扩展桥运行目录。
+ */
+const stateBrowserBridgeExtensionDir = ref('');
+
+/**
+ * 状态：浏览器扩展桥错误信息。
+ */
+const stateBrowserBridgeError = ref('');
+
+/**
+ * 状态：浏览器扩展桥连接数。
+ */
+const stateBrowserBridgeConnectionCount = ref(0);
+
+/**
+ * 状态：浏览器扩展桥连接列表。
+ */
+const stateBrowserBridgeConnections = ref<ITauriBrowserBridgeAccessDetail['connections']>([]);
+
+/**
+ * 状态：浏览器扩展桥地址是否已复制。
+ */
+const stateBrowserBridgeCopied = ref(false);
+
+/**
+ * 变量：浏览器扩展桥复制状态计时器。
+ */
+const { start: startBrowserBridgeCopiedTimer, stop: stopBrowserBridgeCopiedTimer } = useTimeoutFn(
+  () => {
+    stat;
+    eBrowserBridgeCopied.value = false;
+  },
+  1500,
+  { immediate: false }
+);
+
+/**
  * 状态：爬虫浏览器资料目录路径。
  */
 const stateCrawlerBrowserProfilesRootPath = ref('');
@@ -696,6 +839,25 @@ const crawlerBrowserProfilesDirectoryPathJoin = (basePath: string, segment: stri
 };
 
 /**
+ * 计算属性：浏览器扩展桥状态文本。
+ */
+const computedBrowserBridgeServiceStatusLabel = computed((): string => {
+  return stateBrowserBridgeRunning.value ? t('pages.settings.crawler.browserBridge.status.running') : t('pages.settings.crawler.browserBridge.status.stopped');
+});
+
+/**
+ * 计算属性：浏览器扩展桥连接状态文本。
+ */
+const computedBrowserBridgeConnectionStatusLabel = computed((): string => {
+  return stateBrowserBridgeConnected.value ? t('pages.settings.crawler.browserBridge.status.connected') : t('pages.settings.crawler.browserBridge.status.disconnected');
+});
+
+/**
+ * 计算属性：浏览器扩展桥状态说明。
+ */
+const computedBrowserBridgeStatusDescription = computed((): string => t('pages.settings.crawler.browserBridge.statusDescriptions.default'));
+
+/**
  * 设置面包屑导航状态
  */
 storeBreadcrumb.states = [
@@ -766,6 +928,88 @@ const refreshCrawlerBrowsers = async (silent: boolean): Promise<void> => {
   } finally {
     stateCrawlerBrowserRefreshing.value = false;
   }
+};
+
+/**
+ * 函数：加载浏览器扩展桥接入详情。
+ * @returns {Promise<void>} 无返回值。
+ */
+const loadBrowserBridgeAccessDetail = async (silent = false): Promise<void> => {
+  if (!isTauriRuntime.value || stateBrowserBridgeRefreshing.value) {
+    return;
+  }
+
+  stateBrowserBridgeRefreshing.value = true;
+  try {
+    const detail = await tauriSettings.browserBridgeAccessDetailGet();
+    stateBrowserBridgeRunning.value = detail.running;
+    stateBrowserBridgeConnected.value = detail.connected;
+    stateBrowserBridgeConnectionCount.value = detail.connectionCount;
+    stateBrowserBridgeWsUrl.value = detail.wsUrl;
+    stateBrowserBridgeExtensionDir.value = detail.extensionDir;
+    stateBrowserBridgeError.value = detail.lastError || '';
+    stateBrowserBridgeConnections.value = detail.connections;
+  } catch (error) {
+    if (!silent) {
+      stateBrowserBridgeError.value = error instanceof Error ? error.message : String(error || '');
+    }
+  } finally {
+    stateBrowserBridgeRefreshing.value = false;
+  }
+};
+
+/**
+ * 状态：浏览器扩展桥状态事件取消监听句柄。
+ */
+let unlistenBrowserBridgeStateChanged: null | (() => void) = null;
+
+/**
+ * 函数：订阅浏览器扩展桥状态变化。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenBrowserBridgeStateChanged !== null) {
+    return;
+  }
+
+  const { listen } = await import('@tauri-apps/api/event');
+  unlistenBrowserBridgeStateChanged = await listen<ITauriBrowserBridgeAccessDetail>('browser://bridge-state-changed', (event) => {
+    const detail = event.payload;
+    stateBrowserBridgeRunning.value = detail.running;
+    stateBrowserBridgeConnected.value = detail.connected;
+    stateBrowserBridgeConnectionCount.value = detail.connectionCount;
+    stateBrowserBridgeWsUrl.value = detail.wsUrl;
+    stateBrowserBridgeExtensionDir.value = detail.extensionDir;
+    stateBrowserBridgeError.value = detail.lastError || '';
+    stateBrowserBridgeConnections.value = detail.connections;
+  });
+};
+
+/**
+ * 事件：复制浏览器扩展桥 WebSocket 地址。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleBrowserBridgeWsUrlCopy = async (): Promise<void> => {
+  if (!stateBrowserBridgeWsUrl.value) {
+    return;
+  }
+
+  await navigator.clipboard.writeText(stateBrowserBridgeWsUrl.value);
+  stateBrowserBridgeCopied.value = true;
+  stopBrowserBridgeCopiedTimer();
+  startBrowserBridgeCopiedTimer();
+};
+
+/**
+ * 事件：打开浏览器扩展桥运行目录。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleBrowserBridgeExtensionDirOpen = async (): Promise<void> => {
+  if (!isTauriRuntime.value || !stateBrowserBridgeExtensionDir.value) {
+    return;
+  }
+
+  await tauriWindow.openDirectory(stateBrowserBridgeExtensionDir.value);
 };
 
 /**
@@ -1382,6 +1626,8 @@ onMounted(async () => {
   stateIsMounted.value = true;
 
   await loadCrawlerBrowserProfilesDirectory();
+  await subscribeBrowserBridgeStateChanged();
+  await loadBrowserBridgeAccessDetail(true);
   await loadCrawlerBrowserSettings();
   await refreshCrawlerBrowsers(true);
   window.addEventListener('focus', handleWindowFocus);
@@ -1391,6 +1637,13 @@ onMounted(async () => {
  * 生命周期：组件卸载前
  */
 onBeforeUnmount(() => {
+  stopBrowserBridgeCopiedTimer();
+
+  if (unlistenBrowserBridgeStateChanged !== null) {
+    unlistenBrowserBridgeStateChanged();
+    unlistenBrowserBridgeStateChanged = null;
+  }
+
   window.removeEventListener('focus', handleWindowFocus);
 });
 </script>

@@ -29,6 +29,7 @@ export const card = {
     saveRemark: '備考を保存'
   },
   toast: {
+    copiedPrefix: 'コピーしました: ',
     machineRemarkSaved: 'マシン備考を保存しました',
     machineDeleted: 'マシンを削除しました'
   },
@@ -46,6 +47,7 @@ export const card = {
     disabled: '無効'
   },
   dialogs: {
+    guardTitle: 'シーンガード',
     deleteSceneTitle: 'このシーンを削除しますか？',
     deleteMachineTitle: 'このマシンを削除しますか？'
   },

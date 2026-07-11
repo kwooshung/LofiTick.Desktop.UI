@@ -137,6 +137,38 @@ export const settings = {
       title: 'クローラーの実行と診断',
       description: 'テンプレート比較の方式、診断スクリーンショットの範囲、表示ログをまとめて制御します。'
     },
+    browserBridge: {
+      title: 'ブラウザー拡張ブリッジ接続',
+      description: 'これはデスクトップシェルとブラウザー拡張のローカル接続先です。',
+      wsUrl: {
+        label: 'WebSocket アドレス',
+        description: 'デスクトップシェルとブラウザー拡張はこのアドレスで通信します。'
+      },
+      status: {
+        service: 'サービス状態',
+        label: '接続状態',
+        running: 'サービス起動済み',
+        stopped: '停止中',
+        connected: '接続済み',
+        disconnected: '未接続',
+        connectionCount: '接続数：{count}'
+      },
+      statusDescriptions: {
+        default: 'この WebSocket アドレスは、デスクトップシェルとブラウザー拡張の通信に使います。',
+        running: 'WebSocket サービスは起動済みです。',
+        stopped: 'WebSocket サービスが起動していません。デスクトップシェルを再起動してから再試行してください。'
+      },
+      extensionDir: {
+        label: '拡張の実行ディレクトリ',
+        description: '拡張の実行ディレクトリとパスはここで固定されます。デスクトップシェルはパッケージ済みリソースをここへ同期し、bridge.config.json を書き込みます。',
+        actionOpen: 'ディレクトリを開く',
+        unset: '未生成'
+      },
+      actions: {
+        refresh: '状態を更新'
+      },
+      errorTitle: 'ブラウザー拡張ブリッジを利用できません'
+    },
     diagnostics: {
       title: '診断スクリーンショット',
       description: 'matches ディレクトリへ書き込む診断スクリーンショットの範囲を制御します。',
@@ -174,6 +206,8 @@ export const settings = {
       clearFailed: 'キャッシュの消去に失敗しました',
       matchesClearSuccess: '照合記録を消去しました',
       matchesClearFailed: '照合記録の消去に失敗しました',
+        rootClearCacheConfirmDescription: 'この操作で 3 つのブラウザーのプロファイルキャッシュ内容を削除します。',
+        rootClearMatchesConfirmDescription: 'この操作で 3 つのブラウザーのすべての照合記録内容を削除します。',
       open: 'フォルダーを開く',
       openMatches: '照合記録を開く',
       unset: '未設定',
@@ -522,6 +556,7 @@ export const settings = {
       remoteReady: 'クラウド準備完了',
       remoteMissing: 'クラウド不足',
       attachmentsDirUnset: '添付ディレクトリがまだ設定されていません。',
+      attachmentsDirUnsetShort: '添付ディレクトリ未設定',
       podcastGenerateOwnedByCurrentMachine: 'この端末が占有中',
       podcastGenerateOwnedByOtherMachine: '他の端末が占有中',
       podcastGenerateOwnerIdle: '現在は未占有',
@@ -532,6 +567,7 @@ export const settings = {
       headMusicWaitingTitle: '冒頭音楽はまだ準備できていません',
       headMusicNeedAttachmentsDir: '添付ディレクトリがまだ設定されていません。',
       headMusicNeedUpload: 'この冒頭音楽はまだクラウドに存在しません。先に音楽を選んでアップロードしてください。',
+      headMusicCloudMissingAfterLocalReady: 'ローカルは準備できていますが、クラウド側のコピーはまだありません。',
       headMusicNeedSync: 'この端末にはまだ冒頭音楽がありません。Podcast 生成を有効にすると、必要に応じてクラウドから補完します。',
       headMusicNeedPreview: 'ファイルは存在しますが、まだ再生可能なプレビュー URL を取得できていません。'
     },
@@ -545,6 +581,7 @@ export const settings = {
         description: 'ドラッグ＆ドロップにもクリック選択にも対応しています。アップロードはフロントエンドから又拍雲へ直接送信し、同時にこの端末の固定パスにも書き込みます。',
         dropLabel: 'ここに MP3 ファイルをドロップ',
         dropDescription: 'または下のボタンから選択してください。短くて音量が安定したイントロ音源がおすすめです。',
+        dropActive: '離すとアップロードします',
         selectFile: 'ファイルを選択',
         clearFile: '選択をクリア',
         confirmUpload: 'アップロード開始',
@@ -554,7 +591,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: '{title} を試聴',
-        description: 'クラウド上の冒頭音楽をここで先に試聴できます。'
+        description: 'クラウド上の冒頭音楽をここで先に試聴できます。',
+        loadingTitle: '試聴 URL を読み込み中',
+        loadingDescription: 'クラウドから再生可能なプレビュー URL を取得しています。しばらくお待ちください。',
+        remoteAddress: 'クラウド URL'
       }
     },
     messages: {

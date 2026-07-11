@@ -29,6 +29,7 @@ export const card = {
     saveRemark: 'Save remark'
   },
   toast: {
+    copiedPrefix: 'Copied: ',
     machineRemarkSaved: 'Machine remark saved',
     machineDeleted: 'Machine deleted'
   },
@@ -46,6 +47,7 @@ export const card = {
     disabled: 'Disabled'
   },
   dialogs: {
+    guardTitle: 'Scene guard',
     deleteSceneTitle: 'Delete this scene?',
     deleteMachineTitle: 'Delete this machine?'
   },
