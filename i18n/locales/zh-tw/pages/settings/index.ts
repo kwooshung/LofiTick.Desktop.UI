@@ -178,7 +178,7 @@ export const settings = {
             loadUnpackedPrefix: '點選',
             loadUnpackedQuoted: '載入未封裝項目',
             loadUnpackedSuffix: '',
-            chooseExtensionDir: '把複製的位址貼到選擇目錄',
+            chooseExtensionDir: '把複製的位址貼到選擇目錄'
           }
         }
       }

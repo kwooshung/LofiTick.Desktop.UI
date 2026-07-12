@@ -178,7 +178,7 @@
             loadUnpackedPrefix: '点击',
             loadUnpackedQuoted: '加载已解压的扩展程序',
             loadUnpackedSuffix: '',
-            chooseExtensionDir: '将复制的地址粘贴到选择目录',
+            chooseExtensionDir: '将复制的地址粘贴到选择目录'
           }
         }
       }

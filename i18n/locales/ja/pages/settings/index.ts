@@ -178,7 +178,7 @@ export const settings = {
             loadUnpackedPrefix: '',
             loadUnpackedQuoted: 'パッケージ化されていない拡張機能を読み込む',
             loadUnpackedSuffix: 'を押す',
-            chooseExtensionDir: 'コピーしたアドレスをディレクトリ選択欄に貼り付ける',
+            chooseExtensionDir: 'コピーしたアドレスをディレクトリ選択欄に貼り付ける'
           }
         }
       }

@@ -178,7 +178,7 @@ export const settings = {
             loadUnpackedPrefix: 'Click ',
             loadUnpackedQuoted: 'Load unpacked',
             loadUnpackedSuffix: '',
-            chooseExtensionDir: 'Paste the copied address into the directory picker',
+            chooseExtensionDir: 'Paste the copied address into the directory picker'
           }
         }
       }
