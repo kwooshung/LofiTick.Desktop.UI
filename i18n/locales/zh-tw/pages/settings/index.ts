@@ -166,13 +166,19 @@ export const settings = {
             continueSelect: '已安裝，繼續選擇'
           },
           steps: {
-            openExtensions: '開啟瀏覽器擴充功能頁，目前已開啟',
-            enableDeveloperMode: '打開右上角的「開發人員模式」',
+            openExtensionsPrefix: '開啟瀏覽器的',
+            openExtensionsQuoted: '擴充管理頁',
+            openExtensionsSuffix: '，然後點擊右側按鈕複製位址',
+            copyExtensionsPageAction: '複製擴充管理位址',
+            enableDeveloperModePrefix: '打開右上角的',
+            enableDeveloperModeQuoted: '開發人員模式',
+            enableDeveloperModeSuffix: '',
             copyPrefix: '點擊此處，',
             copyAction: '複製擴充目錄',
-            loadUnpacked: '點選「載入未封裝項目」',
+            loadUnpackedPrefix: '點選',
+            loadUnpackedQuoted: '載入未封裝項目',
+            loadUnpackedSuffix: '',
             chooseExtensionDir: '把複製的位址貼到選擇目錄',
-            openedNow: '目前頁面已開啟'
           }
         }
       }

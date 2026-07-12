@@ -166,13 +166,19 @@
             continueSelect: '已安装，继续选择'
           },
           steps: {
-            openExtensions: '打开浏览器扩展页面，目前已打开',
-            enableDeveloperMode: '开启右上角“开发者模式”',
+            openExtensionsPrefix: '打开浏览器的',
+            openExtensionsQuoted: '扩展管理页',
+            openExtensionsSuffix: '',
+            copyExtensionsPageAction: '复制扩展管理地址',
+            enableDeveloperModePrefix: '开启右上角的',
+            enableDeveloperModeQuoted: '开发者模式',
+            enableDeveloperModeSuffix: '',
             copyPrefix: '点击此处，',
             copyAction: '复制扩展目录',
-            loadUnpacked: '点击“加载已解压的扩展程序”',
+            loadUnpackedPrefix: '点击',
+            loadUnpackedQuoted: '加载已解压的扩展程序',
+            loadUnpackedSuffix: '',
             chooseExtensionDir: '将复制的地址粘贴到选择目录',
-            openedNow: '当前页面已打开'
           }
         }
       }

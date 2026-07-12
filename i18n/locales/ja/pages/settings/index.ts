@@ -166,13 +166,19 @@ export const settings = {
             continueSelect: 'インストール済み、選択を続ける'
           },
           steps: {
-            openExtensions: 'ブラウザーの拡張機能ページを開く。現在は開いています',
-            enableDeveloperMode: '右上の「デベロッパーモード」を有効にする',
+            openExtensionsPrefix: 'ブラウザーの',
+            openExtensionsQuoted: '拡張機能ページ',
+            openExtensionsSuffix: 'を開いて、右側のボタンでアドレスをコピーする',
+            copyExtensionsPageAction: '拡張管理アドレスをコピー',
+            enableDeveloperModePrefix: '右上の',
+            enableDeveloperModeQuoted: 'デベロッパーモード',
+            enableDeveloperModeSuffix: 'を有効にする',
             copyPrefix: 'ここをクリックして ',
             copyAction: '拡張ディレクトリをコピーする',
-            loadUnpacked: '「パッケージ化されていない拡張機能を読み込む」を押す',
+            loadUnpackedPrefix: '',
+            loadUnpackedQuoted: 'パッケージ化されていない拡張機能を読み込む',
+            loadUnpackedSuffix: 'を押す',
             chooseExtensionDir: 'コピーしたアドレスをディレクトリ選択欄に貼り付ける',
-            openedNow: '現在のページは開いています'
           }
         }
       }

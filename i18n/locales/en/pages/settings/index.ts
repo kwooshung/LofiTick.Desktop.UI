@@ -166,13 +166,19 @@ export const settings = {
             continueSelect: 'Installed, continue selection'
           },
           steps: {
-            openExtensions: 'Open the browser extensions page; it is already open now',
-            enableDeveloperMode: 'Turn on Developer mode in the top-right corner',
+            openExtensionsPrefix: 'Open the browser ',
+            openExtensionsQuoted: 'Extensions page',
+            openExtensionsSuffix: ', then click the button on the right to copy the address',
+            copyExtensionsPageAction: 'Copy extension management address',
+            enableDeveloperModePrefix: 'Turn on ',
+            enableDeveloperModeQuoted: 'Developer mode',
+            enableDeveloperModeSuffix: ' in the top-right corner',
             copyPrefix: 'Click here to ',
             copyAction: 'copy the extension directory',
-            loadUnpacked: 'Click Load unpacked',
+            loadUnpackedPrefix: 'Click ',
+            loadUnpackedQuoted: 'Load unpacked',
+            loadUnpackedSuffix: '',
             chooseExtensionDir: 'Paste the copied address into the directory picker',
-            openedNow: 'the page is already open'
           }
         }
       }

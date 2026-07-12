@@ -50,14 +50,14 @@
                 </span>
               </UBadge>
               <UButton
-                v-if="crawlerBrowserCandidateGet('edge').installed"
+                v-if="crawlerBrowserCandidateGet('chrome').installed"
                 color="neutral"
                 variant="soft"
                 size="xs"
                 icon="i-lucide:wand-sparkles"
                 :ui="{ leadingIcon: 'text-muted' }"
-                :loading="stateCrawlerBrowserCalibratingId === 'edge'"
-                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserCalibratingId !== ''"
+                :loading="stateCrawlerBrowserSelectionPendingId === 'edge' || stateCrawlerBrowserCalibratingId === 'edge'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserSelectionPendingId !== '' || stateCrawlerBrowserCalibratingId !== ''"
                 @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('edge'))"
               >
                 {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
@@ -124,8 +124,8 @@
                 size="xs"
                 icon="i-lucide:wand-sparkles"
                 :ui="{ leadingIcon: 'text-muted' }"
-                :loading="stateCrawlerBrowserCalibratingId === 'chrome'"
-                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserCalibratingId !== ''"
+                :loading="stateCrawlerBrowserSelectionPendingId === 'chrome' || stateCrawlerBrowserCalibratingId === 'chrome'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserSelectionPendingId !== '' || stateCrawlerBrowserCalibratingId !== ''"
                 @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('chrome'))"
               >
                 {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
@@ -170,37 +170,65 @@
       <template #body>
         <div class="border-default bg-muted/30 rounded-lg border p-5">
           <ol class="space-y-3 text-sm leading-7">
-            <li class="flex items-start gap-3">
-              <span class="text-muted mt-0.5 w-5 shrink-0 text-right font-medium">1.</span>
-              <span class="text-highlighted flex-1 font-medium">
-                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.openExtensions') }}
-                <span class="text-muted font-normal">（{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.openedNow') }}）</span>
+            <li class="flex items-center gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">1.</span>
+              <span class="text-highlighted inline-flex flex-1 flex-wrap items-center gap-2 font-medium">
+                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.openExtensionsPrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.openExtensionsQuoted') }}</strong>
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  icon="i-lucide:copy"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :loading="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied"
+                  :disabled="!stateCrawlerBrowserChromeInstallGuideCandidate"
+                  class="align-middle"
+                  @click="handleCrawlerBrowserChromeInstallGuideExtensionsPageCopy"
+                >
+                  {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.copyExtensionsPageAction') }}
+                </UButton>
+                <span v-if="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied" class="text-success ml-2">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.copied') }}</span>
               </span>
             </li>
             <li class="flex items-start gap-3">
-              <span class="text-muted mt-0.5 w-5 shrink-0 text-right font-medium">2.</span>
+              <span class="text-muted w-5 shrink-0 text-right font-medium">2.</span>
               <span class="text-highlighted flex-1 font-medium">
-                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.enableDeveloperMode') }}
+                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.enableDeveloperModePrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.enableDeveloperModeQuoted') }}</strong>
+                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.enableDeveloperModeSuffix') }}
               </span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-muted mt-0.5 w-5 shrink-0 text-right font-medium">3.</span>
-              <span class="text-highlighted flex-1">
+            <li class="flex items-center gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">3.</span>
+              <span class="text-highlighted inline-flex flex-1 flex-wrap items-center gap-2">
                 <span class="font-medium">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.copyPrefix') }}</span>
-                <span :class="stateBrowserBridgeExtensionDir ? 'text-primary cursor-pointer hover:underline' : 'text-muted cursor-not-allowed'" class="inline-flex items-center font-semibold" @click="handleCrawlerBrowserChromeInstallGuideCopy">
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  icon="i-lucide:copy"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :loading="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied"
+                  :disabled="!stateBrowserBridgeExtensionDir"
+                  class="align-middle"
+                  @click="handleCrawlerBrowserChromeInstallGuideCopy"
+                >
                   {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.copyAction') }}
-                </span>
+                </UButton>
                 <span v-if="stateCrawlerBrowserChromeInstallGuideCopied" class="text-success ml-2">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.copied') }}</span>
               </span>
             </li>
             <li class="flex items-start gap-3">
-              <span class="text-muted mt-0.5 w-5 shrink-0 text-right font-medium">4.</span>
+              <span class="text-muted w-5 shrink-0 text-right font-medium">4.</span>
               <span class="text-highlighted flex-1 font-medium">
-                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.loadUnpacked') }}
+                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.loadUnpackedPrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.loadUnpackedQuoted') }}</strong>
+                {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.loadUnpackedSuffix') }}
               </span>
             </li>
             <li class="flex items-start gap-3">
-              <span class="text-muted mt-0.5 w-5 shrink-0 text-right font-medium">5.</span>
+              <span class="text-muted w-5 shrink-0 text-right font-medium">5.</span>
               <span class="text-highlighted flex-1 font-medium">
                 {{ t('pages.settings.crawler.browser.calibration.chromeInstallModal.steps.chooseExtensionDir') }}
               </span>
@@ -806,6 +834,11 @@ const stateBrowserBridgeCopied = ref(false);
 const stateCrawlerBrowserChromeInstallGuideCopied = ref(false);
 
 /**
+ * 状态：Chrome 校准引导是否已复制扩展管理地址。
+ */
+const stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied = ref(false);
+
+/**
  * 状态：Chrome 校准引导是否打开。
  */
 const stateCrawlerBrowserChromeInstallGuideOpen = ref(false);
@@ -893,6 +926,17 @@ const { start: startBrowserBridgeCopiedTimer, stop: stopBrowserBridgeCopiedTimer
 const { start: startCrawlerBrowserChromeInstallGuideCopiedTimer, stop: stopCrawlerBrowserChromeInstallGuideCopiedTimer } = useTimeoutFn(
   () => {
     stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  },
+  1500,
+  { immediate: false }
+);
+
+/**
+ * 变量：Chrome 校准引导复制扩展管理地址状态计时器。
+ */
+const { start: startCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer, stop: stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer } = useTimeoutFn(
+  () => {
+    stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
   },
   1500,
   { immediate: false }
@@ -1403,9 +1447,11 @@ const handleCrawlerBrowserChromeInstallGuideOpen = async (mode: 'select' | 'cali
   stateCrawlerBrowserChromeInstallGuideCandidate.value = candidate;
   stateCrawlerBrowserChromeInstallGuideMode.value = mode;
   stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
   stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
   stateCrawlerBrowserChromeInstallGuideRetried.value = false;
   stopCrawlerBrowserChromeInstallGuideCopiedTimer();
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
   stopCrawlerBrowserChromeInstallGuideOpenTimer();
 
   await tauriSettings.crawlerBrowserInstallSessionStart(candidate.id, false);
@@ -1425,9 +1471,11 @@ const handleCrawlerBrowserChromeInstallGuideCancel = async (restoreSelection = t
   stateCrawlerBrowserChromeInstallGuideMode.value = '';
   stateCrawlerBrowserChromeInstallGuideCandidate.value = null;
   stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
   stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
   stateCrawlerBrowserChromeInstallGuideRetried.value = false;
   stopCrawlerBrowserChromeInstallGuideCopiedTimer();
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
   stopCrawlerBrowserChromeInstallGuideOpenTimer();
   try {
     await tauriSettings.crawlerBrowserSessionClose();
@@ -1455,6 +1503,23 @@ const handleCrawlerBrowserChromeInstallGuideCopy = async (): Promise<void> => {
   stateCrawlerBrowserChromeInstallGuideCopied.value = true;
   stopCrawlerBrowserChromeInstallGuideCopiedTimer();
   startCrawlerBrowserChromeInstallGuideCopiedTimer();
+};
+
+/**
+ * 事件：复制 Chrome 扩展管理地址。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideExtensionsPageCopy = async (): Promise<void> => {
+  const browserId = stateCrawlerBrowserChromeInstallGuideCandidate.value?.id;
+  if (browserId !== 'edge' && browserId !== 'chrome') {
+    return;
+  }
+
+  const extensionsPageUrl = browserId === 'edge' ? 'edge://extensions/' : 'chrome://extensions/';
+  await navigator.clipboard.writeText(extensionsPageUrl);
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = true;
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
+  startCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
 };
 
 /**
@@ -1693,6 +1758,7 @@ const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate
   }
 
   stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value = stateCrawlerBrowserSelectedId.value;
+  stateCrawlerBrowserSelectionPendingId.value = candidate.id;
 
   if (candidate.id === 'chrome') {
     handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
