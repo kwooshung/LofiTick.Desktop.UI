@@ -12,7 +12,6 @@
         </ULink>
       </template>
     </UPageCard>
-
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
       <UFormField :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #label>
@@ -1286,6 +1285,11 @@ let unlistenBrowserBridgeStateChanged: null | (() => void) = null;
 let unlistenCrawlerBrowserCalibrationProgress: null | UnlistenFn = null;
 
 /**
+ * 状态：浏览器资料目录变化事件取消监听句柄。
+ */
+let unlistenCrawlerBrowserProfilesChanged: null | UnlistenFn = null;
+
+/**
  * 函数：订阅浏览器扩展桥状态变化。
  * @returns {Promise<void>} 无返回值。
  */
@@ -1341,6 +1345,20 @@ const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
       color: payload.stage === 'failed' ? 'error' : payload.stage === 'success' ? 'success' : 'primary',
       duration: payload.stage === 'failed' || payload.stage === 'success' ? 2500 : 1800
     });
+  });
+};
+
+/**
+ * 函数：订阅浏览器资料目录变化。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeCrawlerBrowserProfilesChanged = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenCrawlerBrowserProfilesChanged !== null) {
+    return;
+  }
+
+  unlistenCrawlerBrowserProfilesChanged = await listen<string>('crawler://browser-profiles-changed', () => {
+    void loadCrawlerBrowserProfilesDirectory();
   });
 };
 
@@ -1451,6 +1469,7 @@ const handleCrawlerBrowserChromeInstallGuideProceed = async (): Promise<void> =>
       handleCrawlerBrowserChromeInstallGuideHide(false);
       await saveCrawlerBrowserCandidate(candidate);
       await tauriSettings.crawlerBrowserCalibrateResume(candidate.id);
+      await loadCrawlerBrowserProfilesDirectory();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error || '');
       if (stateBrowserBridgeConnected.value) {
@@ -1817,11 +1836,18 @@ const handleCrawlerBrowserCalibrateRun = async (candidate: ICrawlerBrowserCandid
       [calibration.browserId]: calibration
     };
     await loadCrawlerBrowserSettings();
+    await loadCrawlerBrowserProfilesDirectory();
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || '');
+    if (message.includes('未连接') || message.includes('未就绪') || message.includes('not connected') || message.includes('not ready')) {
+      handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
+      return false;
+    }
+
     if (!silent) {
       toast.add({
         title: t('pages.settings.crawler.browser.calibration.toast.failed'),
-        description: error instanceof Error ? error.message : String(error || ''),
+        description: message,
         icon: candidate.icon,
         color: 'error',
         duration: 3200
@@ -2284,6 +2310,7 @@ onMounted(async () => {
   stateIsMounted.value = true;
 
   await loadCrawlerBrowserProfilesDirectory();
+  await subscribeCrawlerBrowserProfilesChanged();
   await subscribeBrowserBridgeStateChanged();
   await subscribeCrawlerBrowserCalibrationProgress();
   await loadBrowserBridgeAccessDetail(true);
@@ -2306,6 +2333,11 @@ onBeforeUnmount(() => {
   if (unlistenCrawlerBrowserCalibrationProgress !== null) {
     unlistenCrawlerBrowserCalibrationProgress();
     unlistenCrawlerBrowserCalibrationProgress = null;
+  }
+
+  if (unlistenCrawlerBrowserProfilesChanged !== null) {
+    unlistenCrawlerBrowserProfilesChanged();
+    unlistenCrawlerBrowserProfilesChanged = null;
   }
 
   window.removeEventListener('focus', handleWindowFocus);
