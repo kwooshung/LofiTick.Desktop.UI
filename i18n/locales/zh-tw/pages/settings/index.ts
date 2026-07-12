@@ -138,14 +138,37 @@ export const settings = {
         },
         badges: {
           maximized: '最大化',
-          normal: '一般'
+          maximizedPrefix: '最大化：邊框 =',
+          metricSeparator: '，',
+          normal: '小視窗',
+          normalPrefix: '小視窗：邊框 ='
+        },
+        metrics: {
+          borderLeftOffset: '邊框',
+          verticalDiff: '內高差',
+          verticalDiffPrefix: '內高=',
+          headHeightPrefix: '頭部 ='
         },
         toast: {
-          starting: '開始校準',
-          capture: '正在採集資料',
-          retry: '校驗失敗，正在重試',
           success: '校準完成',
           failed: '校準失敗'
+        },
+        chromeInstallModal: {
+          title: 'Chrome 需要手動載入擴充功能',
+          description: 'Chrome 目前可能無法再透過啟動參數直接載入擴充功能。請先複製下方的擴充目錄位址，接著到 Chrome 的擴充功能頁面手動載入，再繼續校準。',
+          extensionDirLabel: '擴充目錄位址',
+          copyExtensionDir: '複製目錄位址',
+          copied: '已複製',
+          actions: {
+            cancel: '取消',
+            continue: '已載入，繼續校準'
+          },
+          steps: {
+            openExtensions: '開啟 chrome://extensions/',
+            enableDeveloperMode: '打開右上角的「開發人員模式」',
+            loadUnpacked: '點選「載入未封裝項目」',
+            chooseExtensionDir: '選擇剛剛複製的擴充目錄'
+          }
         }
       }
     },
@@ -212,6 +235,7 @@ export const settings = {
       clearCache: '清空快取',
       clearMatches: '清空匹配記錄',
       clearConfirmTitle: '確定要清空快取嗎？',
+      clearCacheRiskDescription: '注意：這會強制關閉 Edge 和 Chrome 的爬蟲瀏覽器工作階段，並刪除這個目錄下的瀏覽器資料快取；如果擴充功能還在手動安裝，或校準尚未完成，請先完成後再繼續。',
       clearConfirmDescription: '這會刪除該目錄下的所有內容。',
       matchesClearConfirmTitle: '確定要清空匹配記錄嗎？',
       matchesClearConfirmDescription: '這會刪除該網站匹配記錄目錄下的所有診斷截圖與中繼資訊。',

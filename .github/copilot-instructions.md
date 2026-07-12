@@ -114,6 +114,13 @@
 - 模板 props 访问（强制）：在 Vue 模板里，能不用 `props.xxx` 就不用；优先在 `<script setup>` 中把会直接用于模板展示的字段直接解构成局部常量或计算属性，再在模板中直接使用这些标识符。开始写之前必须先到 `package.json` / lockfile 确认当前 Vue 版本；当前仓库锁定 Vue 3.5.35。Vue 3.5+ 下，能直接从 `defineProps(...)` 解构并保持响应式时，优先直接解构，只有在需要整体透传、动态 key 访问、对象级遍历或确实必须保持对象语义时，才保留 `props` 或改用 `toRefs`。
 - 模板内联定义（强制）：凡是只服务于当前模板、且不会被复用的静态对象或静态配置，优先直接写在模板属性里；不要为了“整洁”把它们提到 `<script setup>` 里再绕一层常量或计算属性。
 
+#### 3.2.2 类型与组件边界（强制）
+
+- 强制：`app/components/**` 里的组件私有 `props`、事件载荷、计算辅助类型与展示模型，必须优先拆到组件同级的 `index.types.ts`，再由组件静态导入；禁止把这类类型长期写在 `<script setup>` 里和业务逻辑混在一起。
+- 强制：`app/pages/**` 里的页面类型仍然禁止就地声明；如果页面逻辑需要类型，必须放到 `shared/types/pages/**` 并从 `shared/types/index.types.ts` 导出。
+- 强制：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 的泛型参数必须使用可静态解析的显式 `import type`；当类型来自同级 `index.types.ts` 或共享类型入口时，也必须先导入再喂给宏。
+- 强制：当一个 `.vue` 文件同时承担“类型定义 + 数据转换 + 业务流程 + 模板渲染”时，必须优先拆出类型文件；拆分后删除重复定义，禁止保留两套并行来源。
+
 - Vue 页面与组件中，禁止使用 `te(...)` 先判断翻译键是否存在再决定是否调用 `t(...)`；应直接调用 `t(...)`，缺失的翻译键必须补齐到对应 `i18n` 文件，禁止用运行时探测键存在性来兜底。
 
 ### 3.2.1 导入路径（强制）
@@ -219,6 +226,13 @@
 - Vue 3.5+ 组件中，`withDefaults(defineProps(...))` 应优先改为直接解构默认值的写法；能用 `const { a = 1 } = defineProps<...>()` 就不要再保留 `withDefaults`，模板里也优先直接使用解构出的标识符。
 - `props` / `defineProps` 必须放在 `import` 之后、`<script setup>` 顶层，不允许藏在函数体里或条件分支里。
 - 只在确实会用到时才解构 props；如果某个属性不会被脚本或模板使用，就不要把它从 `defineProps` 里解构出来。
+
+#### 3.2.2 类型与组件边界（强制）
+
+- 强制：`app/components/**` 里的组件私有 `props`、事件载荷、计算辅助类型与展示模型，必须优先拆到组件同级的 `index.types.ts`，再由组件静态导入；禁止把这类类型长期写在 `<script setup>` 里和业务逻辑混在一起。
+- 强制：`app/pages/**` 里的页面类型仍然禁止就地声明；如果页面逻辑需要类型，必须放到 `shared/types/pages/**` 并从 `shared/types/index.types.ts` 导出。
+- 强制：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 的泛型参数必须使用可静态解析的显式 `import type`；当类型来自同级 `index.types.ts` 或共享类型入口时，也必须先导入再喂给宏。
+- 强制：当一个 `.vue` 文件同时承担“类型定义 + 数据转换 + 业务流程 + 模板渲染”时，必须优先拆出类型文件；拆分后删除重复定义，禁止保留两套并行来源。
 
 ---
 

@@ -138,14 +138,37 @@
         },
         badges: {
           maximized: '最大化',
-          normal: '普通'
+          maximizedPrefix: '最大化：边框 =',
+          metricSeparator: '，',
+          normal: '小窗',
+          normalPrefix: '小窗：边框 ='
+        },
+        metrics: {
+          borderLeftOffset: '边框',
+          verticalDiff: '内高差',
+          verticalDiffPrefix: '内高=',
+          headHeightPrefix: '头部 ='
         },
         toast: {
-          starting: '开始校准',
-          capture: '正在采集数据',
-          retry: '校验失败，正在重试',
           success: '校准完成',
           failed: '校准失败'
+        },
+        chromeInstallModal: {
+          title: 'Chrome 需要手动加载扩展',
+          description: 'Chrome 现在可能无法直接通过启动参数加载扩展。请先复制下面的扩展目录地址，然后在 Chrome 的扩展页面手动加载它，再继续校准。',
+          extensionDirLabel: '扩展目录地址',
+          copyExtensionDir: '复制目录地址',
+          copied: '已复制',
+          actions: {
+            cancel: '取消',
+            continue: '我已加载，继续校准'
+          },
+          steps: {
+            openExtensions: '打开 chrome://extensions/',
+            enableDeveloperMode: '开启右上角“开发者模式”',
+            loadUnpacked: '点击“加载已解压的扩展程序”',
+            chooseExtensionDir: '选择刚才复制的扩展目录'
+          }
         }
       }
     },
@@ -226,6 +249,7 @@
       clearCache: '清空缓存',
       clearMatches: '清空匹配记录',
       clearConfirmTitle: '确认清空缓存？',
+      clearCacheRiskDescription: '注意：这会强制关闭 Edge 和 Chrome 的爬虫浏览器会话，并删除当前目录下的浏览器资料缓存；如果扩展正在手动安装或校准尚未完成，请先完成操作再继续。',
       clearConfirmDescription: '这会删除该目录下的所有内容。',
       rootClearCacheConfirmDescription: '这会删除三个浏览器的资料缓存内容。',
       matchesClearConfirmTitle: '确认清空匹配记录？',

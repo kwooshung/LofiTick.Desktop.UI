@@ -131,6 +131,45 @@ export const settings = {
       actions: {
         refresh: '更新',
         installOfficial: '公式サイトからダウンロードしてインストール'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手動校準'
+        },
+        badges: {
+          maximized: '最大化',
+          maximizedPrefix: '最大化：Border =',
+          metricSeparator: '、',
+          normal: 'ウィンドウ',
+          normalPrefix: 'ウィンドウ：Border ='
+        },
+        metrics: {
+          borderLeftOffset: 'Border',
+          verticalDiff: '内高差',
+          verticalDiffPrefix: '内高=',
+          headHeightPrefix: 'ヘッダー高 ='
+        },
+        toast: {
+          success: '校準が完了しました',
+          failed: '校準に失敗しました'
+        },
+        chromeInstallModal: {
+          title: 'Chrome では拡張機能を手動で読み込む必要があります',
+          description: 'Chrome は起動フラグだけでは拡張機能を読み込めない場合があります。下の拡張ディレクトリをコピーして、Chrome の拡張機能ページから手動で読み込んだあと、校準を続けてください。',
+          extensionDirLabel: '拡張ディレクトリ',
+          copyExtensionDir: 'ディレクトリをコピー',
+          copied: 'コピーしました',
+          actions: {
+            cancel: 'キャンセル',
+            continue: '読み込み済みなので続ける'
+          },
+          steps: {
+            openExtensions: 'chrome://extensions/ を開く',
+            enableDeveloperMode: '右上の「デベロッパーモード」を有効にする',
+            loadUnpacked: '「パッケージ化されていない拡張機能を読み込む」を押す',
+            chooseExtensionDir: 'コピーした拡張ディレクトリを選ぶ'
+          }
+        }
       }
     },
     runtime: {
@@ -199,6 +238,7 @@ export const settings = {
       clearCache: 'キャッシュを消去',
       clearMatches: '照合記録を消去',
       clearConfirmTitle: 'キャッシュを消去しますか？',
+      clearCacheRiskDescription: '注意：この操作では Edge と Chrome のクローラーブラウザーセッションを強制終了し、このディレクトリ内のブラウザープロファイルキャッシュを削除します。拡張機能を手動で読み込み中、または校準が完了していない場合は、先に完了させてください。',
       clearConfirmDescription: 'このディレクトリ内の内容をすべて削除します。',
       matchesClearConfirmTitle: '照合記録を消去しますか？',
       matchesClearConfirmDescription: 'このサイトの照合記録ディレクトリ内にある診断スクリーンショットとメタ情報をすべて削除します。',

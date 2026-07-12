@@ -183,9 +183,9 @@ export interface ICrawlerBrowserCalibrationProfile {
   borderLeftOffset: number | null;
 
   /**
-   * 纵向偏移（单位：像素）。
+   * 头部高度（单位：像素）。
    */
-  verticalDiff: number | null;
+  headHeight: number | null;
 }
 
 /**

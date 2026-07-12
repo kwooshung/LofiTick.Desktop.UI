@@ -273,6 +273,13 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 如果同一个页面同时还要写本地 Tauri settings、窗口状态或其他非 HTTP 本地镜像，这类本地副作用可以继续单独使用页面层防抖；但 HTTP 远端写链路仍必须交给 `useApi` 自己限流。
 - 查询列表、搜索建议、筛选联动等读请求，可以继续按现有模式使用 `refreshDebounced` / `refreshThrottled`。
 
+### 4.3 类型与组件边界（强制）
+
+- 强制：`app/components/**` 里的组件私有 `props`、事件载荷、计算辅助类型与展示模型，必须优先拆到组件同级的 `index.types.ts`，再由组件静态导入；禁止把这类类型长期写在 `<script setup>` 里和业务逻辑混在一起。
+- 强制：`app/pages/**` 里的页面类型仍然禁止就地声明；如果页面逻辑需要类型，必须放到 `shared/types/pages/**` 并从 `shared/types/index.types.ts` 导出。
+- 强制：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 的泛型参数必须使用可静态解析的显式 `import type`；当类型来自同级 `index.types.ts` 或共享类型入口时，也必须先导入再喂给宏。
+- 强制：当一个 `.vue` 文件同时承担“类型定义 + 数据转换 + 业务流程 + 模板渲染”时，必须优先拆出类型文件；拆分后删除重复定义，禁止保留两套并行来源。
+
 ---
 
 ## 5. TypeScript 与注释规范

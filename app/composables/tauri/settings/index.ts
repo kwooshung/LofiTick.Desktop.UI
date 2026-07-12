@@ -133,7 +133,7 @@ interface ITauriCrawlerCompareBackendProbeResult {
 /**
  * 接口：浏览器扩展桥接入详情。
  */
-interface ITauriBrowserBridgeAccessDetail {
+export interface ITauriBrowserBridgeAccessDetail {
   /** 服务是否运行。 */
   running: boolean;
 

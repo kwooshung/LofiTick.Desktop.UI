@@ -138,14 +138,37 @@ export const settings = {
         },
         badges: {
           maximized: 'Maximized',
-          normal: 'Normal'
+          maximizedPrefix: 'Maximized: Border =',
+          metricSeparator: ', ',
+          normal: 'Windowed',
+          normalPrefix: 'Windowed: Border ='
+        },
+        metrics: {
+          borderLeftOffset: 'Border',
+          verticalDiff: 'Inner height diff',
+          verticalDiffPrefix: 'Inner height=',
+          headHeightPrefix: 'Head height ='
         },
         toast: {
-          starting: 'Calibration started',
-          capture: 'Capturing data',
-          retry: 'Validation failed, retrying',
           success: 'Calibration completed',
           failed: 'Calibration failed'
+        },
+        chromeInstallModal: {
+          title: 'Chrome needs the extension loaded manually',
+          description: 'Chrome may no longer load the extension through launch flags. Copy the extension directory below, load it manually from Chrome’s Extensions page, then continue calibration.',
+          extensionDirLabel: 'Extension directory',
+          copyExtensionDir: 'Copy directory',
+          copied: 'Copied',
+          actions: {
+            cancel: 'Cancel',
+            continue: 'I loaded it, continue calibration'
+          },
+          steps: {
+            openExtensions: 'Open chrome://extensions/',
+            enableDeveloperMode: 'Turn on Developer mode in the top-right corner',
+            loadUnpacked: 'Click Load unpacked',
+            chooseExtensionDir: 'Pick the extension directory you copied'
+          }
         }
       }
     },
@@ -228,6 +251,7 @@ export const settings = {
       clearCache: 'Clear cache',
       clearMatches: 'Clear match records',
       clearConfirmTitle: 'Clear cache?',
+      clearCacheRiskDescription: 'Warning: this will force-close the Edge and Chrome crawler browser sessions and delete the browser profile cache in this directory. If the extension is still being installed manually or calibration is not finished yet, complete that first.',
       clearConfirmDescription: 'This will delete all contents in this directory.',
       rootClearCacheConfirmDescription: 'This will delete the profile cache contents of all three browsers.',
       matchesClearConfirmTitle: 'Clear match records?',
