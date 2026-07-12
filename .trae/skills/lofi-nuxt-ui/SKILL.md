@@ -280,6 +280,7 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 强制：`app/pages/**` 里的页面类型仍然禁止就地声明；如果页面逻辑需要类型，必须放到 `shared/types/pages/**` 并从 `shared/types/index.types.ts` 导出。
 - 强制：`defineProps<T>()`、`defineEmits<T>()`、`defineSlots<T>()`、`defineModel<T>()` 的泛型参数必须使用可静态解析的显式 `import type`；当类型来自同级 `index.types.ts` 或共享类型入口时，也必须先导入再喂给宏。
 - 强制：当一个 `.vue` 文件同时承担“类型定义 + 数据转换 + 业务流程 + 模板渲染”时，必须优先拆出类型文件；拆分后删除重复定义，禁止保留两套并行来源。
+- 强制：凡是页面、组件、composable、store、工具函数或消息处理器，只要存在可命名的参数/返回值，必须在函数签名层显式标注参数类型与返回类型；不能依赖推导来回避语义说明。
 
 ---
 
@@ -324,6 +325,11 @@ description: 'LofiTick Nuxt UI 规范助手。当用户询问 Nuxt/Vue/TypeScrip
 - 逻辑步骤/操作说明：允许使用 `//`，但必须放在代码上方，禁止行尾注释。
 - 对于 `类型/接口/变量/常量/函数/类/Hook/状态/计算属性/生命周期（组件挂载）` 的注释，必须以对应的中文前缀开头，接口属性除外。
 - Vue 模板（`<template>`）中禁止出现 HTML 注释（`<!-- ... -->`），包括临时注释、整段注释代码与 TODO 注释；需要说明时必须改写到脚本区或文档中。
+
+#### 5.4.2 JSDoc 标签（强制）
+
+- 强制：JSDoc 标准格式统一使用 `@param` 与 `@return`；禁止混用 `@returns`，以免同一工程内出现两套注释口径。
+- 强制：`@param` 与 `@return` 必须与函数签名语义一致，参数、返回值的类型信息要写在花括号中。
 
 #### 5.4.1 特征式注释（强制：禁止）
 
