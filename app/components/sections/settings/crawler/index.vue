@@ -74,10 +74,10 @@
           />
         </div>
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('edge'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('edge'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
@@ -1427,7 +1427,6 @@ const handleCrawlerBrowserChromeInstallGuideCancel = async (restoreSelection = t
   stateCrawlerBrowserChromeInstallGuideCopied.value = false;
   stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
   stateCrawlerBrowserChromeInstallGuideRetried.value = false;
-  stateCrawlerBrowserSelectionPendingId.value = '';
   stopCrawlerBrowserChromeInstallGuideCopiedTimer();
   stopCrawlerBrowserChromeInstallGuideOpenTimer();
   try {
@@ -1439,6 +1438,8 @@ const handleCrawlerBrowserChromeInstallGuideCancel = async (restoreSelection = t
   if (restoreSelection && stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value !== null) {
     stateCrawlerBrowserSelectedId.value = stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value;
   }
+
+  stateCrawlerBrowserSelectionPendingId.value = '';
 };
 
 /**
@@ -1692,8 +1693,6 @@ const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate
   }
 
   stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value = stateCrawlerBrowserSelectedId.value;
-  stateCrawlerBrowserSelectionPendingId.value = candidate.id;
-  stateCrawlerBrowserSelectedId.value = candidate.id;
 
   if (candidate.id === 'chrome') {
     handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
