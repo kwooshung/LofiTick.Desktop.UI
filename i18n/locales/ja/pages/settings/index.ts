@@ -154,20 +154,25 @@ export const settings = {
           failed: '校準に失敗しました'
         },
         chromeInstallModal: {
-          title: 'Chrome では拡張機能を手動で読み込む必要があります',
-          description: 'Chrome は起動フラグだけでは拡張機能を読み込めない場合があります。下の拡張ディレクトリをコピーして、Chrome の拡張機能ページから手動で読み込んだあと、校準を続けてください。',
-          extensionDirLabel: '拡張ディレクトリ',
-          copyExtensionDir: 'ディレクトリをコピー',
+          title: 'ブラウザーでは拡張機能を手動で読み込む必要があります',
+          description: '現在のブラウザーは起動フラグだけでは拡張機能を読み込めない場合があります。下の手順に沿って手動で読み込み、最後に校準を続けてください。',
+          guideTitle: '拡張機能ページを開いてディレクトリを読み込む',
+          guideHint: '5 秒たっても接続できない場合、この案内が表示されます。',
           copied: 'コピーしました',
           actions: {
             cancel: 'キャンセル',
-            continue: '読み込み済みなので続ける'
+            waitingInstall: '拡張機能のインストール待ち',
+            continue: 'インストール済み、校準を続ける',
+            continueSelect: 'インストール済み、選択を続ける'
           },
           steps: {
-            openExtensions: 'chrome://extensions/ を開く',
+            openExtensions: 'ブラウザーの拡張機能ページを開く。現在は開いています',
             enableDeveloperMode: '右上の「デベロッパーモード」を有効にする',
+            copyPrefix: 'ここをクリックして ',
+            copyAction: '拡張ディレクトリをコピーする',
             loadUnpacked: '「パッケージ化されていない拡張機能を読み込む」を押す',
-            chooseExtensionDir: 'コピーした拡張ディレクトリを選ぶ'
+            chooseExtensionDir: 'コピーしたアドレスをディレクトリ選択欄に貼り付ける',
+            openedNow: '現在のページは開いています'
           }
         }
       }

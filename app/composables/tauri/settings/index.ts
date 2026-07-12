@@ -327,6 +327,24 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：启动浏览器扩展手动安装等待会话。
+   * @param {string} browserId 浏览器稳定标识。
+   * @param {boolean} openExtensionsPage 是否打开浏览器扩展页面。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserInstallSessionStart = async (browserId: string, openExtensionsPage: boolean): Promise<void> => {
+    await invoke('settings_crawler_browser_install_session_start', { browserId, openExtensionsPage });
+  };
+
+  /**
+   * 函数：关闭当前爬虫浏览器会话。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserSessionClose = async (): Promise<void> => {
+    await invoke('settings_crawler_browser_session_close');
+  };
+
+  /**
    * 函数：监听浏览器校准进度。
    * @param {(event: ICrawlerBrowserCalibrationProgressEvent) => void} handler 进度回调。
    * @returns {Promise<UnlistenFn>} 取消监听函数。
@@ -472,6 +490,8 @@ export const useTauriSettings = () => {
     crawlerCompareBackendProbe,
     browserBridgeAccessDetailGet,
     crawlerBrowserCalibrate,
+    crawlerBrowserInstallSessionStart,
+    crawlerBrowserSessionClose,
     onCrawlerBrowserCalibrationProgress,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,

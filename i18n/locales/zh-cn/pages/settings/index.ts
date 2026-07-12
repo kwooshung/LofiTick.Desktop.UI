@@ -154,20 +154,25 @@
           failed: '校准失败'
         },
         chromeInstallModal: {
-          title: 'Chrome 需要手动加载扩展',
-          description: 'Chrome 现在可能无法直接通过启动参数加载扩展。请先复制下面的扩展目录地址，然后在 Chrome 的扩展页面手动加载它，再继续校准。',
-          extensionDirLabel: '扩展目录地址',
-          copyExtensionDir: '复制目录地址',
+          title: '浏览器需要手动加载扩展',
+          description: '当前浏览器可能无法直接通过启动参数加载扩展。按下面步骤完成手动加载，最后再继续校准。',
+          guideTitle: '先打开扩展页面并加载目录',
+          guideHint: '如果超过 5 秒还没连上，再会显示这个提示。',
           copied: '已复制',
           actions: {
             cancel: '取消',
-            continue: '我已加载，继续校准'
+            waitingInstall: '等待安装插件',
+            continue: '已安装，继续校准',
+            continueSelect: '已安装，继续选择'
           },
           steps: {
-            openExtensions: '打开 chrome://extensions/',
+            openExtensions: '打开浏览器扩展页面，目前已打开',
             enableDeveloperMode: '开启右上角“开发者模式”',
+            copyPrefix: '点击此处，',
+            copyAction: '复制扩展目录',
             loadUnpacked: '点击“加载已解压的扩展程序”',
-            chooseExtensionDir: '选择刚才复制的扩展目录'
+            chooseExtensionDir: '将复制的地址粘贴到选择目录',
+            openedNow: '当前页面已打开'
           }
         }
       }

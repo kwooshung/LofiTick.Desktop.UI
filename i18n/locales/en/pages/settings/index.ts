@@ -154,20 +154,25 @@ export const settings = {
           failed: 'Calibration failed'
         },
         chromeInstallModal: {
-          title: 'Chrome needs the extension loaded manually',
-          description: 'Chrome may no longer load the extension through launch flags. Copy the extension directory below, load it manually from Chrome’s Extensions page, then continue calibration.',
-          extensionDirLabel: 'Extension directory',
-          copyExtensionDir: 'Copy directory',
+          title: 'The browser needs the extension loaded manually',
+          description: 'The current browser may no longer load the extension through launch flags. Follow the steps below to load it manually, then continue calibration.',
+          guideTitle: 'Open the Extensions page and load the directory',
+          guideHint: 'If it is still disconnected after 5 seconds, this prompt will appear.',
           copied: 'Copied',
           actions: {
             cancel: 'Cancel',
-            continue: 'I loaded it, continue calibration'
+            waitingInstall: 'Waiting for the extension to be installed',
+            continue: 'Installed, continue calibration',
+            continueSelect: 'Installed, continue selection'
           },
           steps: {
-            openExtensions: 'Open chrome://extensions/',
+            openExtensions: 'Open the browser extensions page; it is already open now',
             enableDeveloperMode: 'Turn on Developer mode in the top-right corner',
+            copyPrefix: 'Click here to ',
+            copyAction: 'copy the extension directory',
             loadUnpacked: 'Click Load unpacked',
-            chooseExtensionDir: 'Pick the extension directory you copied'
+            chooseExtensionDir: 'Paste the copied address into the directory picker',
+            openedNow: 'the page is already open'
           }
         }
       }

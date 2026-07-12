@@ -154,20 +154,25 @@ export const settings = {
           failed: '校準失敗'
         },
         chromeInstallModal: {
-          title: 'Chrome 需要手動載入擴充功能',
-          description: 'Chrome 目前可能無法再透過啟動參數直接載入擴充功能。請先複製下方的擴充目錄位址，接著到 Chrome 的擴充功能頁面手動載入，再繼續校準。',
-          extensionDirLabel: '擴充目錄位址',
-          copyExtensionDir: '複製目錄位址',
+          title: '瀏覽器需要手動載入擴充功能',
+          description: '目前的瀏覽器可能無法再透過啟動參數直接載入擴充功能。請照下方步驟手動載入，最後再繼續校準。',
+          guideTitle: '先開啟擴充功能頁並載入目錄',
+          guideHint: '如果超過 5 秒還沒連上，就會顯示這個提示。',
           copied: '已複製',
           actions: {
             cancel: '取消',
-            continue: '已載入，繼續校準'
+            waitingInstall: '等待安裝擴充功能',
+            continue: '已安裝，繼續校準',
+            continueSelect: '已安裝，繼續選擇'
           },
           steps: {
-            openExtensions: '開啟 chrome://extensions/',
+            openExtensions: '開啟瀏覽器擴充功能頁，目前已開啟',
             enableDeveloperMode: '打開右上角的「開發人員模式」',
+            copyPrefix: '點擊此處，',
+            copyAction: '複製擴充目錄',
             loadUnpacked: '點選「載入未封裝項目」',
-            chooseExtensionDir: '選擇剛剛複製的擴充目錄'
+            chooseExtensionDir: '把複製的位址貼到選擇目錄',
+            openedNow: '目前頁面已開啟'
           }
         }
       }
