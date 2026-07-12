@@ -153,18 +153,12 @@ export const settings = {
           success: '校準完成',
           failed: '校準失敗'
         },
-        chromeInstallModal: {
+        extensionInstallModal: {
           title: '瀏覽器需要手動載入擴充功能',
           description: '目前的瀏覽器可能無法再透過啟動參數直接載入擴充功能。請照下方步驟手動載入，最後再繼續校準。',
           guideTitle: '先開啟擴充功能頁並載入目錄',
           guideHint: '如果超過 5 秒還沒連上，就會顯示這個提示。',
           copied: '已複製',
-          actions: {
-            cancel: '取消',
-            waitingInstall: '等待安裝擴充功能',
-            continue: '已安裝，繼續校準',
-            continueSelect: '已安裝，繼續選擇'
-          },
           steps: {
             openExtensionsPrefix: '開啟瀏覽器的',
             openExtensionsQuoted: '擴充管理頁',

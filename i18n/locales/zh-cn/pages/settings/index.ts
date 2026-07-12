@@ -153,18 +153,12 @@
           success: '校准完成',
           failed: '校准失败'
         },
-        chromeInstallModal: {
+        extensionInstallModal: {
           title: '浏览器需要手动加载扩展',
           description: '当前浏览器可能无法直接通过启动参数加载扩展。按下面步骤完成手动加载，最后再继续校准。',
           guideTitle: '先打开扩展页面并加载目录',
           guideHint: '如果超过 5 秒还没连上，再会显示这个提示。',
           copied: '已复制',
-          actions: {
-            cancel: '取消',
-            waitingInstall: '等待安装插件',
-            continue: '已安装，继续校准',
-            continueSelect: '已安装，继续选择'
-          },
           steps: {
             openExtensionsPrefix: '打开浏览器的',
             openExtensionsQuoted: '扩展管理页',

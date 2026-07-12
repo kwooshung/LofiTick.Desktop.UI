@@ -153,18 +153,12 @@ export const settings = {
           success: '校準が完了しました',
           failed: '校準に失敗しました'
         },
-        chromeInstallModal: {
+        extensionInstallModal: {
           title: 'ブラウザーでは拡張機能を手動で読み込む必要があります',
           description: '現在のブラウザーは起動フラグだけでは拡張機能を読み込めない場合があります。下の手順に沿って手動で読み込み、最後に校準を続けてください。',
           guideTitle: '拡張機能ページを開いてディレクトリを読み込む',
           guideHint: '5 秒たっても接続できない場合、この案内が表示されます。',
           copied: 'コピーしました',
-          actions: {
-            cancel: 'キャンセル',
-            waitingInstall: '拡張機能のインストール待ち',
-            continue: 'インストール済み、校準を続ける',
-            continueSelect: 'インストール済み、選択を続ける'
-          },
           steps: {
             openExtensionsPrefix: 'ブラウザーの',
             openExtensionsQuoted: '拡張機能ページ',

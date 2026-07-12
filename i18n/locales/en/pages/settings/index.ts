@@ -153,18 +153,12 @@ export const settings = {
           success: 'Calibration completed',
           failed: 'Calibration failed'
         },
-        chromeInstallModal: {
+        extensionInstallModal: {
           title: 'The browser needs the extension loaded manually',
           description: 'The current browser may no longer load the extension through launch flags. Follow the steps below to load it manually, then continue calibration.',
           guideTitle: 'Open the Extensions page and load the directory',
           guideHint: 'If it is still disconnected after 5 seconds, this prompt will appear.',
           copied: 'Copied',
-          actions: {
-            cancel: 'Cancel',
-            waitingInstall: 'Waiting for the extension to be installed',
-            continue: 'Installed, continue calibration',
-            continueSelect: 'Installed, continue selection'
-          },
           steps: {
             openExtensionsPrefix: 'Open the browser ',
             openExtensionsQuoted: 'Extensions page',

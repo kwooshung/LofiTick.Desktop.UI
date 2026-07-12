@@ -327,13 +327,21 @@ export const useTauriSettings = () => {
   };
 
   /**
+   * 函数：继续执行浏览器校准。
+   * @param {string} browserId 浏览器稳定标识。
+   * @returns {Promise<ICrawlerBrowserCalibrationResult>} 校准结果。
+   */
+  const crawlerBrowserCalibrateResume = async (browserId: string): Promise<ICrawlerBrowserCalibrationResult> => {
+    return invoke<ICrawlerBrowserCalibrationResult>('settings_crawler_browser_calibrate_resume', { browserId });
+  };
+
+  /**
    * 函数：启动浏览器扩展手动安装等待会话。
    * @param {string} browserId 浏览器稳定标识。
-   * @param {boolean} openExtensionsPage 是否打开浏览器扩展页面。
    * @returns {Promise<void>} 无返回值。
    */
-  const crawlerBrowserInstallSessionStart = async (browserId: string, openExtensionsPage: boolean): Promise<void> => {
-    await invoke('settings_crawler_browser_install_session_start', { browserId, openExtensionsPage });
+  const crawlerBrowserInstallSessionStart = async (browserId: string): Promise<void> => {
+    await invoke('settings_crawler_browser_install_session_start', { browserId });
   };
 
   /**
@@ -490,6 +498,7 @@ export const useTauriSettings = () => {
     crawlerCompareBackendProbe,
     browserBridgeAccessDetailGet,
     crawlerBrowserCalibrate,
+    crawlerBrowserCalibrateResume,
     crawlerBrowserInstallSessionStart,
     crawlerBrowserSessionClose,
     onCrawlerBrowserCalibrationProgress,
