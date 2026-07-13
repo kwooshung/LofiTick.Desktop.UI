@@ -29,9 +29,9 @@ metadata:
 ## 适用场景
 
 - 新建或优化 `.github/skills/lofitick-desktop-ui-<skill-name>/SKILL.md`
-- 审查 `skill` 是否过大、过宽、重复堆叠、触发词不清晰，或结构不利于 Copilot 触发
-- 需要把一个大 `skill` 拆成多个按需加载的子 Skill
-- 需要把现有 `skill` 改成中英双语、专业命名、清晰职责和更可靠的 description
+- 审查 `skill` 是否过大、过宽、重复堆叠、触发词不清晰，或结构不利于 `Copilot` 触发
+- 需要把一个大 `skill` 拆成多个按需加载的子 `skill`
+- 需要把现有 `skill` 改成中英双语、专业命名、清晰职责和更可靠的 `description`
 - 需要维护 `skill` 索引、规则继承、入口收口和去重边界
 
 ## 你要做什么
@@ -48,7 +48,14 @@ metadata:
 - 渐进加载: 先用根索引分流，再按需加载子 `skill`。
 - Token 经济: 避免把同一类规则重复写多遍，也不要把项目级规范塞进元 `skill`。
 - 双语清晰: `description` 可以双语，但英文触发面应更直接；`argument-hint` 必须用中文。
-- 专业命名: 文件夹名、`name`、标题保持一致，使用 kebab-case。
+- 专业命名: 文件夹名、`name`、标题保持一致，使用 `kebab-case`。
+
+## 索引写法
+
+- 只要是在维护 `skill` 根索引，优先使用 `Markdown table`。
+- 每一行对应一个任务领域，每一列尽量只放最容易命中的关键词和对应子 `skill` 链接。
+- 这样可以同时提升 Copilot 命中率和人工扫描效率。
+- 如果当前索引还是列表形式，优化时应优先改成表格，再决定是否继续拆分子 `skill`。
 
 ## 输出要求
 
