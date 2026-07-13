@@ -1467,7 +1467,6 @@ const handleCrawlerBrowserChromeInstallGuideProceed = async (): Promise<void> =>
 
     try {
       handleCrawlerBrowserChromeInstallGuideHide(false);
-      await saveCrawlerBrowserCandidate(candidate);
       await tauriSettings.crawlerBrowserCalibrateResume(candidate.id);
       await loadCrawlerBrowserProfilesDirectory();
     } catch (error) {
@@ -1800,7 +1799,6 @@ const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate
 
   if (candidate.id === 'chrome') {
     try {
-      await saveCrawlerBrowserCandidate(candidate);
       const calibrated = await handleCrawlerBrowserCalibrateRun(candidate, true);
       if (!calibrated) {
         handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
