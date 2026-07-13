@@ -34,7 +34,7 @@ metadata:
 | 四语 `i18n`、主语言、`key` 对齐、翻译质量、禁止 `te(...)` 探测                 | [`lofitick-desktop-ui-i18n`](../lofitick-desktop-ui-i18n/SKILL.md)                             |
 | `Tauri API`、环境检查、`invoke` 类型、`useTauri*`、事件清理                    | [`lofitick-desktop-ui-tauri`](../lofitick-desktop-ui-tauri/SKILL.md)                           |
 | `Skill` `frontmatter`、拆分、去重、索引维护、权威来源                          | [`lofitick-desktop-ui-skill-maintenance`](../lofitick-desktop-ui-skill-maintenance/SKILL.md)   |
-| `Skill` 写作、拆分、去重、索引写法、关键词包裹、权威来源                       | [`lofitick-desktop-ui-skill-writer`](../lofitick-desktop-ui-skill-writer/SKILL.md)            |
+| `Skill` 写作、拆分、去重、索引写法、关键词包裹、权威来源                       | [`lofitick-desktop-ui-skill-writer`](../lofitick-desktop-ui-skill-writer/SKILL.md)             |
 
 ## 维护规则
 
