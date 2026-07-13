@@ -64,7 +64,7 @@ metadata:
 - 项目级约束、代码规范、目录规则和复用轮子，应写在对应项目的 root `skill` 或子 `skill` 中。
 - 发现重复规则时，优先合并到一个权威来源，不要在多个 `skill` 中并行维护同一条规则。
 - 如果一个 `skill` 开始同时覆盖多个无关领域，先建议拆分，再继续优化。
-- 只要对 `skill` 有了增删改，都要及时更新 `lofitick-desktop-ui-coding` 这个 `skill` 索引，要用 `md 链接`、维护入口收口，并清理重复规则，确保整个 `skill` 系统的一致性和可靠性。
+- 只要对 `skill` 有了增删改，都要及时更新 `lofitick-desktop-ui-coding` 这个 `skill` 索引，要用 `Markdown` 链接、维护入口收口，并清理重复规则，确保整个 `skill` 系统的一致性和可靠性，从而保证日常使用可以无脑使用 `lofitick-desktop-ui-coding` 这个 `skill` 来处理所有编码相关任务。
 
 ## 审查清单
 
