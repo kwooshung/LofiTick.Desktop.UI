@@ -5,8 +5,13 @@ export interface IFormUrlInputProtocolOption {
   /** 显示文案。 */
   label: string;
   /** 协议值。 */
-  value: 'http' | 'https';
+  value: TFormUrlInputProtocol;
 }
+
+/**
+ * 类型：URL 输入组件协议。
+ */
+export type TFormUrlInputProtocol = 'http' | 'https' | 'ws' | 'wss';
 
 /**
  * 接口：URL 输入组件属性。
@@ -29,7 +34,7 @@ export interface IFormUrlInputProps {
  */
 export interface IFormUrlInputSplitResult {
   /** URL 协议。 */
-  protocol: 'http' | 'https';
+  protocol: TFormUrlInputProtocol;
   /** 协议后面的主体内容，可包含路径。 */
   value: string;
 }

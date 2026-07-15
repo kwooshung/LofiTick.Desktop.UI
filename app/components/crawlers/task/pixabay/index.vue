@@ -19,6 +19,10 @@
           <UInput v-model="statePixabayKeyword" clear class="w-full" :placeholder="t('pages.crawlers.spider.websites.pixabay.dialog.keywordPlaceholder')" />
         </UFormField>
 
+        <UFormField :label="t('pages.crawlers.spider.websites.pixabay.dialog.minDurationLabel')" :description="t('pages.crawlers.spider.websites.pixabay.dialog.minDurationDescription')">
+          <UInputNumber v-model="statePixabayMinDurationSeconds" orientation="vertical" :min="0" :step="1" variant="outline" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
+        </UFormField>
+
         <UFormField :label="t('pages.crawlers.spider.websites.pixabay.dialog.pageLabel')">
           <UInputNumber v-model="statePixabayPage" orientation="vertical" :min="1" :step="1" variant="outline" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }" />
         </UFormField>
@@ -86,6 +90,11 @@ const statePixabayCrawlerType = ref<TPixabayCrawlerType>('music');
 const statePixabayKeyword = ref('');
 
 /**
+ * 状态：Pixabay 最小时长（单位：秒）。
+ */
+const statePixabayMinDurationSeconds = ref(60);
+
+/**
  * 状态：Pixabay 页码。
  */
 const statePixabayPage = ref(1);
@@ -139,6 +148,7 @@ const computedTaskExecuting = computed({
  */
 const createDefaultPixabayCacheItem = (): IPixabayCrawlerCacheItem => ({
   keyword: '',
+  minDurationSeconds: 60,
   page: 1
 });
 
@@ -198,6 +208,7 @@ const writePixabayCacheStore = (store: IPixabayCrawlerCacheStore): void => {
 const applyPixabayCacheByType = (type: TPixabayCrawlerType): void => {
   const cachedItem = statePixabayCacheStore.value.items[type] ?? createDefaultPixabayCacheItem();
   statePixabayKeyword.value = cachedItem.keyword;
+  statePixabayMinDurationSeconds.value = Number.isFinite(cachedItem.minDurationSeconds) && cachedItem.minDurationSeconds >= 0 ? Math.floor(cachedItem.minDurationSeconds) : 60;
   statePixabayPage.value = cachedItem.page;
 };
 
@@ -208,11 +219,13 @@ const applyPixabayCacheByType = (type: TPixabayCrawlerType): void => {
  *
  * * `type` - Pixabay 地址键。
  * * `keyword` - 搜索关键词。
+ * * `minDurationSeconds` - 最小时长（单位：秒）。
  * * `page` - 页码。
  */
-const savePixabayCacheByType = (type: TPixabayCrawlerType, keyword: string, page: number): void => {
+const savePixabayCacheByType = (type: TPixabayCrawlerType, keyword: string, minDurationSeconds: number, page: number): void => {
   statePixabayCacheStore.value.items[type] = {
     keyword,
+    minDurationSeconds: Number.isFinite(minDurationSeconds) && minDurationSeconds >= 0 ? Math.floor(minDurationSeconds) : 60,
     page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
   };
 
@@ -260,15 +273,15 @@ const computedPixabayCrawlerUrlPreview = computed(() => {
  * 监听：当前 Pixabay 地址变化时，保存旧值并回填新地址缓存。
  */
 watch(statePixabayCrawlerType, (nextType, prevType) => {
-  savePixabayCacheByType(prevType, statePixabayKeyword.value.trim(), statePixabayPage.value);
+  savePixabayCacheByType(prevType, statePixabayKeyword.value.trim(), statePixabayMinDurationSeconds.value, statePixabayPage.value);
   applyPixabayCacheByType(nextType);
 });
 
 /**
  * 监听：关键词或页码变化时，自动写入当前地址缓存。
  */
-watch([statePixabayKeyword, statePixabayPage], () => {
-  savePixabayCacheByType(statePixabayCrawlerType.value, statePixabayKeyword.value.trim(), statePixabayPage.value);
+watch([statePixabayKeyword, statePixabayMinDurationSeconds, statePixabayPage], () => {
+  savePixabayCacheByType(statePixabayCrawlerType.value, statePixabayKeyword.value.trim(), statePixabayMinDurationSeconds.value, statePixabayPage.value);
 });
 
 /**
@@ -304,6 +317,7 @@ const handlePixabaySubmit = async (): Promise<void> => {
         url: computedPixabayCrawlerUrlPreview.value,
         type: statePixabayCrawlerType.value,
         keyword: statePixabayKeyword.value.trim(),
+        minDurationSeconds: statePixabayMinDurationSeconds.value,
         page: statePixabayPage.value
       }
     };

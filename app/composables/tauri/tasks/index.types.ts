@@ -21,6 +21,11 @@ export interface ICrawlerTaskExecuteRequestPayload {
    * 属性：页码。
    */
   page: number;
+
+  /**
+   * 属性：最小时长（单位：秒）。
+   */
+  minDurationSeconds: number;
 }
 
 /**

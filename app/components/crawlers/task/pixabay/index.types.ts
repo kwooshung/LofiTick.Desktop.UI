@@ -38,6 +38,11 @@ export interface IPixabayCrawlerCacheItem {
   keyword: string;
 
   /**
+   * 属性：最小时长（单位：秒）。
+   */
+  minDurationSeconds: number;
+
+  /**
    * 属性：页码。
    */
   page: number;
@@ -66,6 +71,11 @@ export interface ICrawlersTaskPixabayProps {
    * 属性：当前任务是否正在执行。
    */
   taskExecuting: boolean;
+
+  /**
+   * 属性：当前 Pixabay 爬虫浏览器会话任务 ID。
+   */
+  browserSessionTaskId: string;
 }
 
 /**

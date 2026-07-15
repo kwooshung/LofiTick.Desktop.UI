@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { useTimeoutFn } from '@vueuse/core';
 
 /**
  * Hook：Tauri 环境
@@ -113,6 +114,11 @@ const refreshWindowStateDebounced = useDebounceFn(() => {
 }, 120);
 
 /**
+ * 计时器：全屏切换后的延迟刷新句柄。
+ */
+const { start: startRefreshWindowStateTimer, stop: stopRefreshWindowStateTimer } = useTimeoutFn(refreshWindowStateDebounced, 360, { immediate: false });
+
+/**
  * 事件：切换最大化/恢复窗口
  */
 const onToggleMaximize = async () => {
@@ -138,7 +144,8 @@ const onToggleFullScreen = async () => {
   // 这里延时刷新一次，避免 snapshot 读到过渡态导致按钮状态锁死。
   // 同时保留壳侧事件推送作为主同步来源。
   refreshWindowStateDebounced();
-  useTimeoutFn(refreshWindowStateDebounced, 360);
+  stopRefreshWindowStateTimer();
+  startRefreshWindowStateTimer();
 };
 
 /**

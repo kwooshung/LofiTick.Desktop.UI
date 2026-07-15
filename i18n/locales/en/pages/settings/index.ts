@@ -126,38 +126,155 @@ export const settings = {
       description: 'Choose the local browser used for crawling.',
       runtimeDescriptions: {
         edge: 'Best for a system-consistent default crawler environment that matches the browser bundled with Windows.',
-        chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.',
-        chromium: 'Best for tasks that need an isolated browser profile, keeping crawler data separate from your personal browser.'
+        chrome: 'Best for tasks that need normal Chrome behavior, especially when login, cookies, and site compatibility matter.'
       },
       actions: {
         refresh: 'Refresh',
         installOfficial: 'Download from the official website'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: 'Manual calibrate'
+        },
+        badges: {
+          maximized: 'Maximized',
+          maximizedPrefix: 'Maximized: Border =',
+          metricSeparator: ', ',
+          normal: 'Windowed',
+          normalPrefix: 'Windowed: Border ='
+        },
+        metrics: {
+          borderLeftOffset: 'Border',
+          verticalDiff: 'Inner height diff',
+          verticalDiffPrefix: 'Inner height=',
+          headHeightPrefix: 'Head height ='
+        },
+        toast: {
+          success: 'Calibration completed',
+          failed: 'Calibration failed'
+        },
+        extensionInstallModal: {
+          title: 'The browser needs the extension loaded manually',
+          description: 'The current browser may no longer load the extension through launch flags. Follow the steps below to load it manually, then continue calibration.',
+          guideTitle: 'Open the Extensions page and load the directory',
+          guideHint: 'If it is still disconnected after 5 seconds, this prompt will appear.',
+          copied: 'Copied',
+          steps: {
+            openExtensionsPrefix: 'Open the browser ',
+            openExtensionsQuoted: 'Extensions page',
+            openExtensionsSuffix: ', then click the button on the right to copy the address',
+            copyExtensionsPageAction: 'Copy extension management address',
+            enableDeveloperModePrefix: 'Turn on ',
+            enableDeveloperModeQuoted: 'Developer mode',
+            enableDeveloperModeSuffix: ' in the top-right corner',
+            copyPrefix: 'Click here to ',
+            copyAction: 'copy the extension directory',
+            loadUnpackedPrefix: 'Click ',
+            loadUnpackedQuoted: 'Load unpacked',
+            loadUnpackedSuffix: '',
+            chooseExtensionDir: 'Paste the copied address into the directory picker'
+          }
+        }
       }
+    },
+    runtime: {
+      title: 'Crawler runtime and diagnostics',
+      description: 'Control the template compare backend, diagnostic screenshot scope, and visible log output in one place.'
+    },
+    browserBridge: {
+      title: 'Browser extension bridging',
+      description: 'This is the local connection address between the desktop shell and the browser extension.',
+      wsUrl: {
+        label: 'WebSocket URL',
+        description: 'The desktop shell and the browser extension communicate through this address.'
+      },
+      status: {
+        service: 'Service status',
+        label: 'Connection status',
+        running: 'Service started',
+        stopped: 'Stopped',
+        connected: 'Connected',
+        disconnected: 'Disconnected'
+      },
+      statusDescriptions: {
+        default: 'The WebSocket URL is used for desktop-shell and browser-extension communication.',
+        running: 'The WebSocket service is running.',
+        stopped: 'The WebSocket service is not running. Restart the desktop shell and try again.'
+      },
+      extensionDir: {
+        label: 'Extension runtime directory',
+        description: 'The extension runtime directory and path stay fixed here. The desktop shell syncs the packaged resource here and writes bridge.config.json.',
+        actionOpen: 'Open directory',
+        unset: 'Not generated'
+      },
+      actions: {
+        refresh: 'Refresh status'
+      },
+      errorTitle: 'Browser extension bridge unavailable'
+    },
+    compareBackend: {
+      title: 'Template compare backend',
+      description: 'Choose whether site template matching uses CPU or GPU. GPU stays optional and CPU always remains available.',
+      label: 'Use GPU compare',
+      runtimeDescription: 'The current machine will be probed before enabling GPU. If the probe fails, the setting stays on CPU.',
+      currentMode: 'Current mode: {mode}',
+      modes: {
+        cpu: 'CPU',
+        gpu: 'GPU'
+      },
+      probeSuccessTitle: 'GPU compare is available',
+      probeFailedTitle: 'GPU compare is unavailable',
+      probeFailedFallback: 'This machine does not meet the GPU compare requirements'
+    },
+    diagnostics: {
+      title: 'Diagnostic screenshots',
+      description: 'Control the diagnostic screenshots written to the matches directory.',
+      compareMode: {
+        label: 'Full-flow comparison',
+        description: 'When enabled, every template comparison is saved. When disabled, only the final failed round saves its staged comparisons, and successful flows save nothing.'
+      }
+    },
+    logs: {
+      title: 'Log display',
+      description: 'Control the visible log output during crawler runs.',
+      label: 'Show crawler logs',
+      runtimeDescription: 'When enabled, the crawler session, browser visual state, and entry guard will emit key logs. When disabled, only errors remain visible.'
     },
     browserProfilesDirectory: {
       label: 'Browser profile cache',
       description: 'Browser profile directories and paths are stored here.',
-      rootDescription: 'Path for Playwright browser profiles.',
+      rootDescription: 'Fixed root directory for crawler browser profiles and match records.',
       rootLabel: 'Browser directory',
       edgeDescription: 'Edge browser profile directory.',
       edgeLabel: 'Edge directory',
       chromeDescription: 'Chrome browser profile directory.',
       chromeLabel: 'Chrome directory',
-      chromiumDescription: 'Chromium browser profile directory.',
-      chromiumLabel: 'Chromium directory',
+      actionOpen: 'Open directory',
+      actionClear: 'Clean',
+      browserDirectory: 'Browser directory',
+      matchesDirectory: 'Match records',
       clearCache: 'Clear cache',
+      clearMatches: 'Clear match records',
       clearConfirmTitle: 'Clear cache?',
+      clearCacheRiskDescription: 'Warning: this will force-close the Edge and Chrome crawler browser sessions and delete the browser profile cache in this directory. If the extension is still being installed manually or calibration is not finished yet, complete that first.',
       clearConfirmDescription: 'This will delete all contents in this directory.',
+      rootClearCacheConfirmDescription: 'This will delete the profile cache contents of all three browsers.',
+      matchesClearConfirmTitle: 'Clear match records?',
+      matchesClearConfirmDescription: 'This will delete all diagnostic screenshots and metadata in this site match records directory.',
+      rootClearMatchesConfirmDescription: 'This will delete all match record contents of all three browsers.',
       clearSuccess: 'Cache cleared',
       clearFailed: 'Failed to clear cache',
+      matchesClearSuccess: 'Match records cleared',
+      matchesClearFailed: 'Failed to clear match records',
       open: 'Open directory',
+      openMatches: 'Open match records',
       unset: 'Not set',
       notExists: 'Crawler profile directory does not exist'
     }
   },
   ui: {
     title: 'Appearance',
-    description: 'Theme, light/dark mode, layout, and other UI options.',
+    description: 'Adjust the app appearance, colors, and visual presentation.',
     colorMode: {
       label: 'Color mode',
       description: 'Choose whether the appearance is light or dark, or adjust according to your computer settings.',
@@ -483,6 +600,7 @@ export const settings = {
       remoteReady: 'Cloud ready',
       remoteMissing: 'Cloud missing',
       attachmentsDirUnset: 'Attachments directory is not configured yet.',
+      attachmentsDirUnsetShort: 'Attachments directory not set',
       podcastGenerateOwnedByCurrentMachine: 'Owned by this machine',
       podcastGenerateOwnedByOtherMachine: 'Owned by another machine',
       podcastGenerateOwnerIdle: 'No active owner',
@@ -493,6 +611,7 @@ export const settings = {
       headMusicWaitingTitle: 'Head music is not ready yet',
       headMusicNeedAttachmentsDir: 'The attachments directory is not configured yet.',
       headMusicNeedUpload: 'This head-music file does not exist in cloud storage yet. Choose music and upload it first.',
+      headMusicCloudMissingAfterLocalReady: 'The local copy is ready, but the cloud copy is still missing.',
       headMusicNeedSync: 'This machine is still missing the local head-music file. Enabling podcast generation will try to repair it from cloud storage first.',
       headMusicNeedPreview: 'The file exists, but a playable preview URL is not available yet.'
     },
@@ -506,6 +625,7 @@ export const settings = {
         description: "Drag and drop or click to choose a file. The upload goes directly from the frontend to UpYun and is also written into this machine's fixed local path.",
         dropLabel: 'Drop an MP3 file here',
         dropDescription: 'Or choose a file below. Short, stable-volume intros work best.',
+        dropActive: 'Release to upload',
         selectFile: 'Choose file',
         clearFile: 'Clear selection',
         confirmUpload: 'Start upload',
@@ -515,7 +635,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: 'Preview {title}',
-        description: 'Listen to the cloud copy of this head-music file here.'
+        description: 'Preview the cloud copy of this head-music file here.',
+        loadingTitle: 'Loading preview URL',
+        loadingDescription: 'Fetching a playable preview URL from the cloud. Please wait.',
+        remoteAddress: 'Cloud URL'
       }
     },
     messages: {

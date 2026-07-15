@@ -128,7 +128,13 @@ const stateCopiedKey = ref('');
 /**
  * 变量：复制状态重置计时器
  */
-let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
+const { start: startTimeoutCopied, stop: stopTimeoutCopied } = useTimeoutFn(
+  () => {
+    stateCopiedKey.value = '';
+  },
+  1200,
+  { immediate: false }
+);
 
 /**
  * 函数：从 URL 中提取基地址
@@ -291,15 +297,8 @@ const handleCopy = async (key: string, value: string): Promise<void> => {
   try {
     await navigator.clipboard.writeText(text);
     stateCopiedKey.value = copiedKey;
-
-    if (timeoutCopied) {
-      clearTimeout(timeoutCopied);
-    }
-
-    timeoutCopied = setTimeout(() => {
-      stateCopiedKey.value = '';
-      timeoutCopied = undefined;
-    }, 1200);
+    stopTimeoutCopied();
+    startTimeoutCopied();
   } catch {
     // ignore
   }

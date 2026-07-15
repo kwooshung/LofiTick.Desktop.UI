@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import type { ISpinProps, TSpinSizePreset } from '@/components/spin/index.types';
+import { useTimeoutFn } from '@vueuse/core';
 
 /**
  * 组件：属性
@@ -71,7 +72,13 @@ const computedContentClass = computed(() => {
 /**
  * 变量：延迟定时器
  */
-let delayTimer: NodeJS.Timeout | null = null;
+const { start: startDelayTimer, stop: stopDelayTimer } = useTimeoutFn(
+  () => {
+    stateInternalSpinning.value = true;
+  },
+  delay,
+  { immediate: false }
+);
 
 /**
  * 监听：spinning 变化
@@ -82,18 +89,13 @@ watch(
     if (newVal) {
       // 开启加载：延迟显示
       if (delay > 0) {
-        delayTimer = setTimeout(() => {
-          stateInternalSpinning.value = true;
-        }, delay);
+        startDelayTimer();
       } else {
         stateInternalSpinning.value = true;
       }
     } else {
       // 关闭加载：立即隐藏，并取消延迟
-      if (delayTimer) {
-        clearTimeout(delayTimer);
-        delayTimer = null;
-      }
+      stopDelayTimer();
       stateInternalSpinning.value = false;
     }
   },
@@ -104,8 +106,6 @@ watch(
  * 生命周期：清理定时器
  */
 onUnmounted(() => {
-  if (delayTimer) {
-    clearTimeout(delayTimer);
-  }
+  stopDelayTimer();
 });
 </script>

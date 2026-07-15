@@ -172,3 +172,73 @@ export interface ICrawlerBrowserCandidate {
    */
   reason: string;
 }
+
+/**
+ * 接口：浏览器单态校准参数。
+ */
+export interface ICrawlerBrowserCalibrationProfile {
+  /**
+   * 横向边框左侧偏移（单位：像素）。
+   */
+  borderLeftOffset: number | null;
+
+  /**
+   * 头部高度（单位：像素）。
+   */
+  headHeight: number | null;
+}
+
+/**
+ * 接口：浏览器校准结果。
+ */
+export interface ICrawlerBrowserCalibrationResult {
+  /**
+   * 浏览器稳定标识。
+   */
+  browserId: string;
+
+  /**
+   * 最大化窗口校准参数。
+   */
+  maximized: ICrawlerBrowserCalibrationProfile;
+
+  /**
+   * 普通窗口校准参数。
+   */
+  normal: ICrawlerBrowserCalibrationProfile;
+}
+
+/**
+ * 接口：浏览器校准进度事件。
+ */
+export interface ICrawlerBrowserCalibrationProgressEvent {
+  /**
+   * 浏览器稳定标识。
+   */
+  browserId: string;
+
+  /**
+   * 当前校准阶段。
+   */
+  phase: 'maximized' | 'normal';
+
+  /**
+   * 当前尝试次数。
+   */
+  attempt: number;
+
+  /**
+   * 最大尝试次数。
+   */
+  total: number;
+
+  /**
+   * 当前状态。
+   */
+  stage: 'start' | 'capture' | 'retry' | 'success' | 'failed';
+
+  /**
+   * 说明文本。
+   */
+  message: string;
+}

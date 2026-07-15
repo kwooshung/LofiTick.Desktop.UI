@@ -59,6 +59,19 @@ export default withNuxt({
         args: 'after-used',
         argsIgnorePattern: '^_'
       }
-    ]
+    ],
+
+    // 文件行数限制，超过 500 行会警告，函数行数超过 50 行会报错
+    'max-lines': [
+      'warn',
+      {
+        max: 500,
+        skipBlankLines: true,
+        skipComments: true
+      }
+    ],
+
+    // 函数行数限制，超过 50 行会报错
+    'max-lines-per-function': ['error', 50]
   }
 });

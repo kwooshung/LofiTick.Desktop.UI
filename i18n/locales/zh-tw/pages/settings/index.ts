@@ -126,38 +126,139 @@ export const settings = {
       description: '選擇採集時使用的本機瀏覽器。',
       runtimeDescriptions: {
         edge: '適合追求系統一致性的預設採集環境，和 Windows 內建瀏覽器行為保持一致。',
-        chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。',
-        chromium: '適合需要隔離瀏覽器資料的任務，方便把採集環境與個人瀏覽器環境分開。'
+        chrome: '適合需要貼近日常 Chrome 行為的任務，特別是登入、Cookie 與網站相容性要求較高時。'
       },
       actions: {
         refresh: '刷新',
         installOfficial: '前往官網下載並安裝'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手動校準'
+        },
+        badges: {
+          maximized: '最大化',
+          maximizedPrefix: '最大化：邊框 =',
+          metricSeparator: '，',
+          normal: '小視窗',
+          normalPrefix: '小視窗：邊框 ='
+        },
+        metrics: {
+          borderLeftOffset: '邊框',
+          verticalDiff: '內高差',
+          verticalDiffPrefix: '內高=',
+          headHeightPrefix: '頭部 ='
+        },
+        toast: {
+          success: '校準完成',
+          failed: '校準失敗'
+        },
+        extensionInstallModal: {
+          title: '瀏覽器需要手動載入擴充功能',
+          description: '目前的瀏覽器可能無法再透過啟動參數直接載入擴充功能。請照下方步驟手動載入，最後再繼續校準。',
+          guideTitle: '先開啟擴充功能頁並載入目錄',
+          guideHint: '如果超過 5 秒還沒連上，就會顯示這個提示。',
+          copied: '已複製',
+          steps: {
+            openExtensionsPrefix: '開啟瀏覽器的',
+            openExtensionsQuoted: '擴充管理頁',
+            openExtensionsSuffix: '，然後點擊右側按鈕複製位址',
+            copyExtensionsPageAction: '複製擴充管理位址',
+            enableDeveloperModePrefix: '打開右上角的',
+            enableDeveloperModeQuoted: '開發人員模式',
+            enableDeveloperModeSuffix: '',
+            copyPrefix: '點擊此處，',
+            copyAction: '複製擴充目錄',
+            loadUnpackedPrefix: '點選',
+            loadUnpackedQuoted: '載入未封裝項目',
+            loadUnpackedSuffix: '',
+            chooseExtensionDir: '把複製的位址貼到選擇目錄'
+          }
+        }
       }
+    },
+    runtime: {
+      title: '爬蟲執行與診斷',
+      description: '統一控制模板比較後端、診斷截圖保留範圍和可見日誌輸出。'
+    },
+    browserBridge: {
+      title: '瀏覽器擴充橋接',
+      description: '這是桌面殼與瀏覽器擴充之間的本機接入位址。',
+      wsUrl: {
+        label: 'WebSocket 位址',
+        description: '桌面殼與瀏覽器擴充透過這個位址互相通訊。'
+      },
+      status: {
+        service: '服務狀態',
+        label: '連線狀態',
+        running: '服務已啟動',
+        stopped: '未執行',
+        connected: '已連線',
+        disconnected: '未連線'
+      },
+      statusDescriptions: {
+        default: 'WebSocket 位址用於桌面殼與瀏覽器擴充通訊。'
+      },
+      extensionDir: {
+        label: '擴充執行目錄',
+        description: '擴充執行目錄與路徑都固定在這裡。桌面殼會把打包資源同步到此目錄，並寫入 bridge.config.json。',
+        actionOpen: '開啟目錄',
+        unset: '尚未產生'
+      },
+      actions: {
+        refresh: '刷新狀態'
+      },
+      errorTitle: '瀏覽器擴充橋接不可用'
+    },
+    diagnostics: {
+      title: '診斷截圖',
+      description: '控制寫入 matches 目錄的診斷比較範圍。',
+      compareMode: {
+        label: '全流程比較',
+        description: '開啟後每次模板比較都保存完整流程；關閉時僅在最終失敗後保存最後一輪多階段比較，最終成功不保存。'
+      }
+    },
+    logs: {
+      title: '日誌顯示',
+      description: '控制爬蟲執行過程中的可見日誌輸出。',
+      label: '顯示爬蟲日誌',
+      runtimeDescription: '開啟後會顯示爬蟲工作階段、瀏覽器視覺狀態與入口守衛的關鍵日誌；關閉後只保留錯誤資訊。'
     },
     browserProfilesDirectory: {
       label: '瀏覽器資料快取',
       description: '瀏覽器資料目錄與路徑都固定在這裡。',
-      rootDescription: 'Playwright 瀏覽器資料的路徑。',
+      rootDescription: '爬蟲瀏覽器資料與匹配記錄的固定根目錄。',
       rootLabel: '瀏覽器目錄',
       edgeDescription: 'Edge 的瀏覽器資料目錄。',
       edgeLabel: 'Edge 目錄',
       chromeDescription: 'Chrome 的瀏覽器資料目錄。',
       chromeLabel: 'Chrome 目錄',
-      chromiumDescription: 'Chromium 的瀏覽器資料目錄。',
-      chromiumLabel: 'Chromium 目錄',
+      actionOpen: '開啟目錄',
+      actionClear: '清理',
+      browserDirectory: '瀏覽器目錄',
+      matchesDirectory: '匹配記錄',
       clearCache: '清空快取',
+      clearMatches: '清空匹配記錄',
       clearConfirmTitle: '確定要清空快取嗎？',
+      clearCacheRiskDescription: '注意：這會強制關閉 Edge 和 Chrome 的爬蟲瀏覽器工作階段，並刪除這個目錄下的瀏覽器資料快取；如果擴充功能還在手動安裝，或校準尚未完成，請先完成後再繼續。',
       clearConfirmDescription: '這會刪除該目錄下的所有內容。',
+      matchesClearConfirmTitle: '確定要清空匹配記錄嗎？',
+      matchesClearConfirmDescription: '這會刪除該網站匹配記錄目錄下的所有診斷截圖與中繼資訊。',
       clearSuccess: '快取已清空',
       clearFailed: '清空快取失敗',
+      matchesClearSuccess: '匹配記錄已清空',
+      matchesClearFailed: '清空匹配記錄失敗',
       open: '開啟目錄',
+      openMatches: '開啟匹配記錄',
       unset: '尚未設定',
-      notExists: '爬蟲資料目錄不存在'
+      notExists: '爬蟲資料目錄不存在',
+      rootClearCacheConfirmDescription: '這會刪除三個瀏覽器的資料快取內容。',
+      rootClearMatchesConfirmDescription: '這會刪除三個瀏覽器的所有匹配記錄內容。'
     }
   },
   ui: {
     title: '介面',
-    description: '主題、亮暗模式、版面配置與介面元素的相關設定。',
+    description: '調整應用外觀、顏色與視覺呈現方式。',
     colorMode: {
       label: '顏色模式',
       description: '外觀是淺色還是深色，或依照電腦的設定進行調整',
@@ -188,6 +289,20 @@ export const settings = {
         purple: '紫藍',
         fuchsia: '桃紅',
         pink: '粉紅',
+        compareBackend: {
+          title: '模板比較後端',
+          description: '控制站點模板比較時使用 CPU 還是 GPU。GPU 只在硬體條件滿足時可啟用，CPU 模式始終保留。',
+          label: '使用 GPU 比較',
+          runtimeDescription: '開啟前會先探測目前裝置的 GPU 條件；若不符合，會自動維持 CPU。',
+          currentMode: '目前模式：{mode}',
+          modes: {
+            cpu: 'CPU',
+            gpu: 'GPU'
+          },
+          probeSuccessTitle: 'GPU 比較可用',
+          probeFailedTitle: 'GPU 比較不可用',
+          probeFailedFallback: '目前裝置不符合 GPU 比較條件'
+        },
         rose: '玫紅'
       }
     },
@@ -483,6 +598,7 @@ export const settings = {
       remoteReady: '雲端已就緒',
       remoteMissing: '雲端缺失',
       attachmentsDirUnset: '目前尚未設定附件目錄。',
+      attachmentsDirUnsetShort: '尚未設定附件目錄',
       podcastGenerateOwnedByCurrentMachine: '目前機器已占用',
       podcastGenerateOwnedByOtherMachine: '其他機器已占用',
       podcastGenerateOwnerIdle: '目前無人占用',
@@ -493,6 +609,7 @@ export const settings = {
       headMusicWaitingTitle: '開頭音樂尚未準備完成',
       headMusicNeedAttachmentsDir: '目前尚未設定附件目錄。',
       headMusicNeedUpload: '這份開頭音樂在雲端尚不存在。請先選擇音樂並上傳。',
+      headMusicCloudMissingAfterLocalReady: '本地已準備完成，但雲端副本仍缺失。',
       headMusicNeedSync: '目前機器本地尚未存在這份開頭音樂。開啟生成 Podcast 時會優先嘗試從雲端補齊。',
       headMusicNeedPreview: '檔案已存在，但暫時還沒有可播放的預覽網址。'
     },
@@ -506,6 +623,7 @@ export const settings = {
         description: '支援拖放與點擊選擇。上傳會直接由前端直傳到又拍雲，並同步寫入目前機器的固定路徑。',
         dropLabel: '把 MP3 檔案拖到這裡',
         dropDescription: '或使用下方按鈕選擇檔案。建議使用較短且音量穩定的開頭音樂。',
+        dropActive: '放開即可上傳',
         selectFile: '選擇檔案',
         clearFile: '清空選擇',
         confirmUpload: '開始上傳',
@@ -515,7 +633,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: '{title} 試聽',
-        description: '這裡可以先試聽雲端可用的開頭音樂。'
+        description: '這裡可以先試聽雲端可用的開頭音樂。',
+        loadingTitle: '試聽網址載入中',
+        loadingDescription: '正在從雲端取得可播放的預覽網址，請稍候。',
+        remoteAddress: '雲端網址'
       }
     },
     messages: {

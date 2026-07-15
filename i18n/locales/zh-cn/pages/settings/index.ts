@@ -126,37 +126,153 @@
       description: '选择采集时使用的本机浏览器。',
       runtimeDescriptions: {
         edge: '适合追求系统一致性的默认采集环境，和 Windows 自带浏览器行为保持一致。',
-        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。',
-        chromium: '适合需要隔离浏览器资料的任务，便于把采集环境和个人浏览器环境分开。'
+        chrome: '适合需要贴近日常 Chrome 行为的任务，尤其是账号登录、Cookie 和站点兼容性要求较高时。'
       },
       actions: {
         refresh: '刷新',
         installOfficial: '前往官网下载并安装'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手动校准'
+        },
+        badges: {
+          maximized: '最大化',
+          maximizedPrefix: '最大化：边框 =',
+          metricSeparator: '，',
+          normal: '小窗',
+          normalPrefix: '小窗：边框 ='
+        },
+        metrics: {
+          borderLeftOffset: '边框',
+          verticalDiff: '内高差',
+          verticalDiffPrefix: '内高=',
+          headHeightPrefix: '头部 ='
+        },
+        toast: {
+          success: '校准完成',
+          failed: '校准失败'
+        },
+        extensionInstallModal: {
+          title: '浏览器需要手动加载扩展',
+          description: '当前浏览器可能无法直接通过启动参数加载扩展。按下面步骤完成手动加载，最后再继续校准。',
+          guideTitle: '先打开扩展页面并加载目录',
+          guideHint: '如果超过 5 秒还没连上，再会显示这个提示。',
+          copied: '已复制',
+          steps: {
+            openExtensionsPrefix: '打开浏览器的',
+            openExtensionsQuoted: '扩展管理页',
+            openExtensionsSuffix: '',
+            copyExtensionsPageAction: '复制扩展管理地址',
+            enableDeveloperModePrefix: '开启右上角的',
+            enableDeveloperModeQuoted: '开发者模式',
+            enableDeveloperModeSuffix: '',
+            copyPrefix: '点击此处，',
+            copyAction: '复制扩展目录',
+            loadUnpackedPrefix: '点击',
+            loadUnpackedQuoted: '加载已解压的扩展程序',
+            loadUnpackedSuffix: '',
+            chooseExtensionDir: '将复制的地址粘贴到选择目录'
+          }
+        }
       }
+    },
+    runtime: {
+      title: '爬虫运行与诊断',
+      description: '统一控制模板比较后端、诊断截图保留范围和可见日志输出。'
+    },
+    browserBridge: {
+      title: '浏览器扩展桥接',
+      description: '这是桌面壳与浏览器扩展之间的本机接入地址。',
+      wsUrl: {
+        label: 'WebSocket 地址',
+        description: '桌面壳与浏览器扩展通过这个地址互相通信。'
+      },
+      status: {
+        service: '服务状态',
+        label: '连接状态',
+        running: '服务已启动',
+        stopped: '未运行',
+        connected: '已连接',
+        disconnected: '未连接'
+      },
+      statusDescriptions: {
+        default: 'WebSocket 地址用于桌面壳与浏览器扩展通信。'
+      },
+      extensionDir: {
+        label: '扩展运行目录',
+        description: '扩展运行目录和路径都固定在这里。桌面壳会把打包资源同步到此目录，并写入 bridge.config.json。',
+        actionOpen: '打开目录',
+        unset: '未生成'
+      },
+      actions: {
+        refresh: '刷新状态'
+      },
+      errorTitle: '浏览器扩展桥不可用'
+    },
+    compareBackend: {
+      title: '模板比较后端',
+      description: '控制站点模板比较时使用 CPU 还是 GPU。GPU 仅在硬件条件满足时可启用，CPU 模式始终保留。',
+      label: '使用 GPU 比较',
+      runtimeDescription: '开启前会先探测当前机器的 GPU 条件；不满足时会自动保持 CPU。',
+      currentMode: '当前模式：{mode}',
+      modes: {
+        cpu: 'CPU',
+        gpu: 'GPU'
+      },
+      probeSuccessTitle: 'GPU 比较可用',
+      probeFailedTitle: 'GPU 比较不可用',
+      probeFailedFallback: '当前机器不满足 GPU 比较条件'
+    },
+    diagnostics: {
+      title: '诊断截图',
+      description: '控制写入 matches 目录的诊断比较范围。',
+      compareMode: {
+        label: '全流程比较',
+        description: '开启后每次模板比较都保存完整流程；关闭时仅在最终失败后保存最后一轮多阶段比较，最终成功不保存。'
+      }
+    },
+    logs: {
+      title: '日志显示',
+      description: '控制爬虫运行过程中的可见日志输出。',
+      label: '显示爬虫日志',
+      runtimeDescription: '开启后会显示爬虫会话、浏览器视觉状态与入口守卫的关键日志；关闭后只保留错误信息。'
     },
     browserProfilesDirectory: {
       label: '浏览器资料缓存',
       description: '浏览器资料目录和路径都固定在这里。',
-      rootDescription: 'Playwright 浏览器资料的路径。',
+      rootDescription: '爬虫浏览器资料和匹配记录的固定根目录。',
       rootLabel: '浏览器目录',
       edgeDescription: 'Edge 的浏览器资料目录。',
       edgeLabel: 'Edge 目录',
       chromeDescription: 'Chrome 的浏览器资料目录。',
       chromeLabel: 'Chrome 目录',
-      chromiumDescription: 'Chromium 的浏览器资料目录。',
-      chromiumLabel: 'Chromium 目录',
+      actionOpen: '打开目录',
+      actionClear: '清理',
+      browserDirectory: '浏览器目录',
+      matchesDirectory: '匹配记录',
       clearCache: '清空缓存',
+      clearMatches: '清空匹配记录',
       clearConfirmTitle: '确认清空缓存？',
+      clearCacheRiskDescription: '注意：这会强制关闭 Edge 和 Chrome 的爬虫浏览器会话，并删除当前目录下的浏览器资料缓存；如果扩展正在手动安装或校准尚未完成，请先完成操作再继续。',
       clearConfirmDescription: '这会删除该目录下的所有内容。',
+      rootClearCacheConfirmDescription: '这会删除三个浏览器的资料缓存内容。',
+      matchesClearConfirmTitle: '确认清空匹配记录？',
+      matchesClearConfirmDescription: '这会删除该站点匹配记录目录下的所有诊断截图和元信息。',
+      rootClearMatchesConfirmDescription: '这会删除三个浏览器的所有匹配记录内容。',
       clearSuccess: '缓存已清空',
       clearFailed: '清空缓存失败',
+      matchesClearSuccess: '匹配记录已清空',
+      matchesClearFailed: '清空匹配记录失败',
       open: '打开目录',
+      openMatches: '打开匹配记录',
       unset: '未设置',
       notExists: '爬虫资料目录不存在'
     }
   },
   ui: {
     title: '界面',
+    description: '调整应用外观、颜色与视觉呈现方式。',
     colorMode: {
       label: '颜色模式',
       description: '外观是浅色还是深色，或者按照计算机的设置进行调整',

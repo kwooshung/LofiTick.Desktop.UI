@@ -8,6 +8,7 @@
  */
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 import { colors, createLogger } from './common/console';
 
@@ -166,7 +167,7 @@ const safeRenameDir = async (oldPath: string, newPath: string, dryRun = false): 
     } catch (e: unknown) {
       const msg = getErrMessage(e);
       logger.warn(`大小写重命名重试(${attempt}/${maxAttempts})失败：${colors.blue(rel(oldPath))}：${colors.yellow(msg)}`);
-      await new Promise((r) => setTimeout(r, 100 * 2 ** (attempt - 1)));
+      await sleep(100 * 2 ** (attempt - 1));
     }
   }
 

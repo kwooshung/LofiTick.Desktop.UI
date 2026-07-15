@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import { useClipboard } from '@vueuse/core';
+import { useTimeoutFn } from '@vueuse/core';
 import type { ISettingsUnattendedMachineCardBaseProps } from '@/components/settings/unattended/machine-card-base/index.types';
 
 /**
@@ -105,7 +106,13 @@ const stateCodeCopied = ref(false);
 /**
  * 变量：复制状态重置定时器
  */
-let timeoutCopied: ReturnType<typeof setTimeout> | undefined;
+const { start: startTimeoutCopied, stop: stopTimeoutCopied } = useTimeoutFn(
+  () => {
+    stateCodeCopied.value = false;
+  },
+  1200,
+  { immediate: false }
+);
 
 /**
  * 函数：是否本机
@@ -155,20 +162,14 @@ const handleMachineCodeCopy = async (): Promise<void> => {
   });
 
   stateCodeCopied.value = true;
-  if (timeoutCopied) {
-    clearTimeout(timeoutCopied);
-  }
-  timeoutCopied = setTimeout(() => {
-    stateCodeCopied.value = false;
-  }, 1200);
+  stopTimeoutCopied();
+  startTimeoutCopied();
 };
 
 /**
  * 生命周期：组件卸载
  */
 onBeforeUnmount(() => {
-  if (timeoutCopied) {
-    clearTimeout(timeoutCopied);
-  }
+  stopTimeoutCopied();
 });
 </script>

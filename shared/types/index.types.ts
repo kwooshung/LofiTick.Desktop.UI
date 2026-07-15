@@ -152,5 +152,5 @@ export type {
   TTauraPodcastTaskPhase,
   TTauraPodcastTaskStatus
 } from '@@/shared/types/tauri/podcast/index.types';
-export type { ICrawlerBrowserCandidate, ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
+export type { ICrawlerBrowserCalibrationProgressEvent, ICrawlerBrowserCalibrationProfile, ICrawlerBrowserCalibrationResult, ICrawlerBrowserCandidate, ITauriHotsearchScheduleSnapshot, ITauriHotsearchScheduleWindow } from '@@/shared/types/tauri/tasks/index.types';
 export type { IWindowSnapshot } from '@@/shared/types/tauri/window/index.types';

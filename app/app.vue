@@ -38,6 +38,23 @@ const { locale, t } = useI18n();
 const colorMode = useColorMode();
 
 /**
+ * 函数：输出启动信息。
+ */
+const printStartupConsoleBadges = () => {
+  new ConsoleBadge(t('common.site.console.info.appName'), storeAppInfo.states.name).leftBgColor('#120338').rightBgColor('#00c16a').print();
+  new ConsoleBadge(t('common.site.console.info.appVersion'), storeAppInfo.states.version).leftBgColor('#120338').rightBgColor('#1677ff').print();
+  new ConsoleBadge(t('common.site.console.info.theme'), colorMode.value).leftBgColor('#120338').rightBgColor('#eb2f96').print();
+  new ConsoleBadge(t('common.site.console.info.language'), locale.value).leftBgColor('#120338').rightBgColor('#5b8c00').print();
+  new ConsoleBadge(t('common.site.console.info.runtimeEnv'), storeAppInfo.states.isDev ? '开发' : '生产').leftBgColor('#120338').rightBgColor('#13c2c2').print();
+  new ConsoleBadge(t('common.site.console.info.systemArch'), storeAppInfo.states.platform.name).leftBgColor('#120338').rightBgColor('#120338').print();
+};
+
+/**
+ * 计时器：启动信息延迟输出。
+ */
+const { start: startStartupConsoleBadgesTimer } = useTimeoutFn(printStartupConsoleBadges, 3000, { immediate: false });
+
+/**
  * 计算属性：文档语言
  */
 const computedLang = computed(() => locales[locale.value].code);
@@ -950,14 +967,7 @@ onMounted(() => {
     console.clear();
   }
 
-  setTimeout(() => {
-    new ConsoleBadge(t('common.site.console.info.appName'), storeAppInfo.states.name).leftBgColor('#120338').rightBgColor('#00c16a').print();
-    new ConsoleBadge(t('common.site.console.info.appVersion'), storeAppInfo.states.version).leftBgColor('#120338').rightBgColor('#1677ff').print();
-    new ConsoleBadge(t('common.site.console.info.theme'), colorMode.value).leftBgColor('#120338').rightBgColor('#eb2f96').print();
-    new ConsoleBadge(t('common.site.console.info.language'), locale.value).leftBgColor('#120338').rightBgColor('#5b8c00').print();
-    new ConsoleBadge(t('common.site.console.info.runtimeEnv'), storeAppInfo.states.isDev ? '开发' : '生产').leftBgColor('#120338').rightBgColor('#13c2c2').print();
-    new ConsoleBadge(t('common.site.console.info.systemArch'), storeAppInfo.states.platform.name).leftBgColor('#120338').rightBgColor('#120338').print();
-  }, 3000);
+  startStartupConsoleBadgesTimer();
 });
 
 /**

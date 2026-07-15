@@ -38,6 +38,15 @@ export const scenes = {
       remote: 'Remote scenes',
       conflict: 'Conflicts'
     },
+    shortFields: {
+      state: 'State',
+      path: 'Path',
+      command: 'Command'
+    },
+    shortSources: {
+      local: 'Local',
+      remote: 'Remote'
+    },
     values: {
       enabled: 'Enabled',
       disabled: 'Disabled',

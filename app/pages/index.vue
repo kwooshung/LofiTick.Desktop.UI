@@ -260,7 +260,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 class="text-highlighted text-sm font-semibold">执行测试</h3>
-                <p class="text-muted mt-1 text-sm leading-6">按顺序编辑一组连续动作；每一步共享下面的速度、曲线、按键间隔与输入节奏参数。</p>
+                <p class="text-muted mt-1 text-sm leading-6">按顺序编辑一组连续动作；每一步共享下面的速度、曲线与按键间隔参数。</p>
               </div>
               <div class="flex items-center gap-3">
                 <UBadge :color="stateInputLabDryRun ? 'neutral' : 'warning'" variant="soft">
@@ -306,7 +306,7 @@
                       <UButton color="error" variant="ghost" size="sm" icon="i-lucide:trash-2" @click="handleInputLabStepRemove(index)" />
                     </div>
 
-                    <div class="mt-4 grid gap-3 xl:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
+                    <div class="mt-4 grid gap-3 xl:grid-cols-[minmax(20rem,32rem)_minmax(0,1fr)]">
                       <UFormField label="动作" :ui="{ label: 'text-sm text-highlighted mb-1' }">
                         <USelect v-model="step.action" :items="INPUT_LAB_EXECUTE_ACTION_OPTIONS" class="w-full" />
                       </UFormField>
@@ -367,7 +367,7 @@
             </div>
 
             <div class="divide-default bg-muted/30 divide-y rounded-lg px-4">
-              <UFormField label="动作" description="选择要执行的基础操作或人类模拟操作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
+              <UFormField label="动作" description="选择要执行的基础操作或人类模拟操作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(20rem,32rem)_minmax(0,1fr)] xl:items-center">
                 <USelect v-model="stateInputLabAction" :items="INPUT_LAB_EXECUTE_ACTION_OPTIONS" class="w-full" />
               </UFormField>
 
@@ -404,7 +404,7 @@
                 </div>
               </UFormField>
 
-              <UFormField label="目标区域" description="用于区域随机点、区域点击、区域输入和人类化区域动作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
+              <UFormField label="目标区域" description="用于区域随机点、区域点击和人类化区域动作。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
                 <div class="grid gap-2 md:grid-cols-4">
                   <UInputNumber v-model="stateInputLabRect.x" orientation="vertical" class="w-full" :increment="{ color: 'neutral', variant: 'soft' }" :decrement="{ color: 'neutral', variant: 'soft' }"
                     ><template #leading><span class="text-muted text-xs">x</span></template></UInputNumber
@@ -454,12 +454,7 @@
                 </div>
               </UFormField>
 
-              <UFormField
-                label="文本 / 按键"
-                description="用于 key_tap、type_text、paste_text、type_text_into_area、replace_text_in_area；hotkey 固定测试 Control+A。"
-                :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }"
-                class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center"
-              >
+              <UFormField label="文本 / 按键" description="用于 key_tap、type_text、paste_text；hotkey 固定测试 Control+A。" :ui="{ label: 'text-sm text-highlighted mb-1', description: 'text-muted' }" class="grid gap-3 py-4 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] xl:items-center">
                 <UTextarea v-model="stateInputLabText" autoresize :rows="3" class="w-full" />
               </UFormField>
             </div>
@@ -674,8 +669,6 @@ const INPUT_LAB_EXECUTE_ACTION_OPTIONS = [
   { label: 'double_click_area - 人类化区域双击', value: 'double_click_area' },
   { label: 'right_click_area - 人类化区域右键', value: 'right_click_area' },
   { label: 'drag_area_to_area - 人类化区域拖拽', value: 'drag_area_to_area' },
-  { label: 'type_text_into_area - 点击区域并输入', value: 'type_text_into_area' },
-  { label: 'replace_text_in_area - 替换区域文本', value: 'replace_text_in_area' },
   { label: 'scroll_vertical_human - 人类化纵向滚动', value: 'scroll_vertical_human' }
 ] satisfies Array<{ label: string; value: TInputLabAction }>;
 
@@ -721,8 +714,6 @@ const HUMAN_INPUT_ACTIONS = [
   { name: 'double_click_area', icon: 'i-lucide:copy-plus', description: '区域安全点选择后执行人类化双击。' },
   { name: 'right_click_area', icon: 'i-lucide:panel-right-open', description: '区域安全点选择后执行人类化右键点击。' },
   { name: 'drag_area_to_area', icon: 'i-lucide:combine', description: '从起点区域安全点拖拽到终点区域安全点。' },
-  { name: 'type_text_into_area', icon: 'i-lucide:text-cursor-input', description: '点击输入区域，再按文本长度选择逐字、分段或快速输入。' },
-  { name: 'replace_text_in_area', icon: 'i-lucide:replace', description: '点击区域、全选旧文本，再执行人类化文本输入。' },
   { name: 'scroll_vertical_human', icon: 'i-lucide:panel-top-open', description: '滚动前等待、基础分段滚动、可选轻微反向滚动、滚动后观察。' },
   { name: 'overshoot', icon: 'i-lucide:undo-2', description: '按概率越过目标点，再回到目标。' },
   { name: 'hesitation', icon: 'i-lucide:pause', description: '移动前按概率插入停顿与小范围漂移。' },
@@ -865,15 +856,6 @@ const INPUT_LAB_NUMBER_DEFAULTS = {
   'humanClick.retryCount.max': 1,
   'humanClick.retryPauseMs.min': 160,
   'humanClick.retryPauseMs.max': 520,
-  'typing.charByChar': 42,
-  'typing.chunked': 38,
-  'typing.paste': 20,
-  'typing.shortTextMaxChars': 24,
-  'typing.longTextMinChars': 120,
-  'typing.chunkSize.min': 12,
-  'typing.chunkSize.max': 42,
-  'typing.chunkPauseMs.min': 120,
-  'typing.chunkPauseMs.max': 520,
   'humanScroll.beforeScrollMs.min': 80,
   'humanScroll.beforeScrollMs.max': 260,
   'humanScroll.reverseProbability.min': 0.03,
@@ -989,7 +971,7 @@ const stateInputLabToRect = reactive<IInputLabRect>({ x: 560, y: 320, width: 180
 /**
  * 状态：键鼠实验台文本。
  */
-const stateInputLabText = ref('LofiTick input lab');
+const stateInputLabText = ref('真的不错 NASA OK!');
 
 /**
  * 状态：键鼠实验台是否执行中。
@@ -1253,7 +1235,7 @@ const inputLabParameterGroups = computed(() => [
     ]
   },
   {
-    title: '人类目标点 / 点击 / 输入 / 滚动 / 会话',
+    title: '人类目标点 / 点击 / 滚动 / 会话',
     icon: 'i-lucide:sliders-horizontal',
     items: [
       inputLabRangeItemCreate('target.innerPaddingRatio', 'target.inner_padding_ratio', '目标区域内部安全 padding 比例。', 0.01, 0, 0.49),
@@ -1264,13 +1246,6 @@ const inputLabParameterGroups = computed(() => [
       inputLabRangeItemCreate('humanClick.postClickPauseMs', 'click.post_click_pause_ms', '策略层点击后等待。', 10, 0, 3000),
       inputLabRangeItemCreate('humanClick.retryCount', 'click.retry_count', '换点重试次数。', 1, 0, 10),
       inputLabRangeItemCreate('humanClick.retryPauseMs', 'click.retry_pause_ms', '换点重试间隔。', 10, 0, 5000),
-      inputLabNumberItemCreate('typing.charByChar', 'typing.char_by_char', '逐字输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.chunked', 'typing.chunked', '分段输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.paste', 'typing.paste', '快速文本输入权重。', 1, 0, 1000),
-      inputLabNumberItemCreate('typing.shortTextMaxChars', 'typing.short_text_max_chars', '短文本最大字符数。', 1, 1, 1000),
-      inputLabNumberItemCreate('typing.longTextMinChars', 'typing.long_text_min_chars', '长文本最小字符数。', 1, 1, 5000),
-      inputLabRangeItemCreate('typing.chunkSize', 'typing.chunk_size', '分段输入每段字符数。', 1, 1, 1000),
-      inputLabRangeItemCreate('typing.chunkPauseMs', 'typing.chunk_pause_ms', '分段输入段间停顿。', 10, 0, 5000),
       inputLabRangeItemCreate('humanScroll.beforeScrollMs', 'scroll.before_scroll_ms', '人类化滚动前等待。', 10, 0, 3000),
       inputLabRangeItemCreate('humanScroll.reverseProbability', 'scroll.reverse_micro_scroll_probability', '轻微反向滚动概率。', 0.01, 0, 1),
       inputLabRangeItemCreate('humanScroll.reverseTicks', 'scroll.reverse_micro_scroll_ticks', '轻微反向滚动刻度。', 1, 0, 20),
@@ -1340,7 +1315,7 @@ function inputLabStepCreate(action: TInputLabAction): IInputLabStep {
     rect: inputLabRectCreate(260, 220, 240, 96),
     fromRect: inputLabRectCreate(240, 220, 180, 90),
     toRect: inputLabRectCreate(560, 320, 180, 90),
-    text: action === 'hotkey' ? 'Control+A' : 'LofiTick input lab',
+    text: action === 'hotkey' ? 'Control+A' : action.includes('synthetic_ime') ? '真的不错 NASA OK!' : 'LofiTick input lab',
     keys: [],
     numbers: {
       'action.waitMs.min': 300,

@@ -126,38 +126,142 @@ export const settings = {
       description: '収集時に使うローカルブラウザーを選択します。',
       runtimeDescriptions: {
         edge: 'Windows に付属する標準ブラウザーに挙動を合わせたいときに向いている、システム整合性の高い既定クローラー環境です。',
-        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。',
-        chromium: '個人用ブラウザーと分離した状態で収集したいときに向いている、隔離性の高いブラウザー環境です。'
+        chrome: 'ログイン、Cookie、サイト互換性を重視して、普段使いの Chrome に近い挙動で収集したいときに向いています。'
       },
       actions: {
         refresh: '更新',
         installOfficial: '公式サイトからダウンロードしてインストール'
+      },
+      calibration: {
+        actions: {
+          manualCalibrate: '手動校準'
+        },
+        badges: {
+          maximized: '最大化',
+          maximizedPrefix: '最大化：Border =',
+          metricSeparator: '、',
+          normal: 'ウィンドウ',
+          normalPrefix: 'ウィンドウ：Border ='
+        },
+        metrics: {
+          borderLeftOffset: 'Border',
+          verticalDiff: '内高差',
+          verticalDiffPrefix: '内高=',
+          headHeightPrefix: 'ヘッダー高 ='
+        },
+        toast: {
+          success: '校準が完了しました',
+          failed: '校準に失敗しました'
+        },
+        extensionInstallModal: {
+          title: 'ブラウザーでは拡張機能を手動で読み込む必要があります',
+          description: '現在のブラウザーは起動フラグだけでは拡張機能を読み込めない場合があります。下の手順に沿って手動で読み込み、最後に校準を続けてください。',
+          guideTitle: '拡張機能ページを開いてディレクトリを読み込む',
+          guideHint: '5 秒たっても接続できない場合、この案内が表示されます。',
+          copied: 'コピーしました',
+          steps: {
+            openExtensionsPrefix: 'ブラウザーの',
+            openExtensionsQuoted: '拡張機能ページ',
+            openExtensionsSuffix: 'を開いて、右側のボタンでアドレスをコピーする',
+            copyExtensionsPageAction: '拡張管理アドレスをコピー',
+            enableDeveloperModePrefix: '右上の',
+            enableDeveloperModeQuoted: 'デベロッパーモード',
+            enableDeveloperModeSuffix: 'を有効にする',
+            copyPrefix: 'ここをクリックして ',
+            copyAction: '拡張ディレクトリをコピーする',
+            loadUnpackedPrefix: '',
+            loadUnpackedQuoted: 'パッケージ化されていない拡張機能を読み込む',
+            loadUnpackedSuffix: 'を押す',
+            chooseExtensionDir: 'コピーしたアドレスをディレクトリ選択欄に貼り付ける'
+          }
+        }
       }
+    },
+    runtime: {
+      title: 'クローラーの実行と診断',
+      description: 'テンプレート比較の方式、診断スクリーンショットの範囲、表示ログをまとめて制御します。'
+    },
+    browserBridge: {
+      title: 'ブラウザー拡張ブリッジ接続',
+      description: 'これはデスクトップシェルとブラウザー拡張のローカル接続先です。',
+      wsUrl: {
+        label: 'WebSocket アドレス',
+        description: 'デスクトップシェルとブラウザー拡張はこのアドレスで通信します。'
+      },
+      status: {
+        service: 'サービス状態',
+        label: '接続状態',
+        running: 'サービス起動済み',
+        stopped: '停止中',
+        connected: '接続済み',
+        disconnected: '未接続',
+        connectionCount: '接続数：{count}'
+      },
+      statusDescriptions: {
+        default: 'この WebSocket アドレスは、デスクトップシェルとブラウザー拡張の通信に使います。',
+        running: 'WebSocket サービスは起動済みです。',
+        stopped: 'WebSocket サービスが起動していません。デスクトップシェルを再起動してから再試行してください。'
+      },
+      extensionDir: {
+        label: '拡張の実行ディレクトリ',
+        description: '拡張の実行ディレクトリとパスはここで固定されます。デスクトップシェルはパッケージ済みリソースをここへ同期し、bridge.config.json を書き込みます。',
+        actionOpen: 'ディレクトリを開く',
+        unset: '未生成'
+      },
+      actions: {
+        refresh: '状態を更新'
+      },
+      errorTitle: 'ブラウザー拡張ブリッジを利用できません'
+    },
+    diagnostics: {
+      title: '診断スクリーンショット',
+      description: 'matches ディレクトリへ書き込む診断スクリーンショットの範囲を制御します。',
+      compareMode: {
+        label: '全フロー比較',
+        description: '有効時はテンプレート比較ごとに保存します。無効時は最終的に失敗した場合のみ最後の多段階比較を保存し、成功した場合は保存しません。'
+      }
+    },
+    logs: {
+      title: 'ログ表示',
+      description: 'クローラー実行中に表示するログ出力を制御します。',
+      label: 'クローラーのログを表示',
+      runtimeDescription: '有効にすると、クローラーセッション、ブラウザーの視覚状態、入口ガードの主要ログを表示します。無効にすると、エラーのみ表示されます。'
     },
     browserProfilesDirectory: {
       label: 'ブラウザープロファイルキャッシュ',
       description: 'ブラウザープロファイルのディレクトリとパスを固定保存します。',
-      rootDescription: 'Playwright ブラウザープロファイルのパスです。',
+      rootDescription: 'クローラー用ブラウザープロファイルと照合記録の固定ルートディレクトリです。',
       rootLabel: 'ブラウザーのディレクトリ',
       edgeDescription: 'Edge のブラウザープロファイル用ディレクトリです。',
       edgeLabel: 'Edge のディレクトリ',
       chromeDescription: 'Chrome のブラウザープロファイル用ディレクトリです。',
       chromeLabel: 'Chrome のディレクトリ',
-      chromiumDescription: 'Chromium のブラウザープロファイル用ディレクトリです。',
-      chromiumLabel: 'Chromium のディレクトリ',
+      actionOpen: 'ディレクトリを開く',
+      actionClear: '整理',
+      browserDirectory: 'ブラウザーディレクトリ',
+      matchesDirectory: '照合記録',
       clearCache: 'キャッシュを消去',
+      clearMatches: '照合記録を消去',
       clearConfirmTitle: 'キャッシュを消去しますか？',
+      clearCacheRiskDescription: '注意：この操作では Edge と Chrome のクローラーブラウザーセッションを強制終了し、このディレクトリ内のブラウザープロファイルキャッシュを削除します。拡張機能を手動で読み込み中、または校準が完了していない場合は、先に完了させてください。',
       clearConfirmDescription: 'このディレクトリ内の内容をすべて削除します。',
+      matchesClearConfirmTitle: '照合記録を消去しますか？',
+      matchesClearConfirmDescription: 'このサイトの照合記録ディレクトリ内にある診断スクリーンショットとメタ情報をすべて削除します。',
       clearSuccess: 'キャッシュを消去しました',
       clearFailed: 'キャッシュの消去に失敗しました',
+      matchesClearSuccess: '照合記録を消去しました',
+      matchesClearFailed: '照合記録の消去に失敗しました',
+      rootClearCacheConfirmDescription: 'この操作で 3 つのブラウザーのプロファイルキャッシュ内容を削除します。',
+      rootClearMatchesConfirmDescription: 'この操作で 3 つのブラウザーのすべての照合記録内容を削除します。',
       open: 'フォルダーを開く',
+      openMatches: '照合記録を開く',
       unset: '未設定',
       notExists: 'クローラー用プロファイルフォルダーが存在しません'
     }
   },
   ui: {
     title: '外観',
-    description: 'テーマ、ライト／ダークモード、レイアウトなどの外観設定です。',
+    description: 'アプリの外観、配色、見た目の表示方法を調整します。',
     colorMode: {
       label: 'カラーモード',
       description: '外観をライト/ダークにするか、またはコンピューターの設定に合わせて調整します。',
@@ -196,6 +300,20 @@ export const settings = {
       description: '主にテキスト、背景、ボーダーなどに使用される補助的な色です。',
       colors: {
         ink: 'インク',
+        compareBackend: {
+          title: 'テンプレート比較バックエンド',
+          description: 'サイトのテンプレート比較に CPU か GPU のどちらを使うかを切り替えます。GPU は条件を満たす場合のみ有効で、CPU は常に残ります。',
+          label: 'GPU 比較を使用',
+          runtimeDescription: 'GPU を有効にする前に現在の端末を確認します。条件を満たさない場合は CPU のまま維持されます。',
+          currentMode: '現在のモード: {mode}',
+          modes: {
+            cpu: 'CPU',
+            gpu: 'GPU'
+          },
+          probeSuccessTitle: 'GPU 比較は利用可能です',
+          probeFailedTitle: 'GPU 比較は利用できません',
+          probeFailedFallback: 'この端末は GPU 比較の要件を満たしていません'
+        },
         slate: 'スレート',
         gray: 'グレー',
         zinc: 'ジンク',
@@ -483,6 +601,7 @@ export const settings = {
       remoteReady: 'クラウド準備完了',
       remoteMissing: 'クラウド不足',
       attachmentsDirUnset: '添付ディレクトリがまだ設定されていません。',
+      attachmentsDirUnsetShort: '添付ディレクトリ未設定',
       podcastGenerateOwnedByCurrentMachine: 'この端末が占有中',
       podcastGenerateOwnedByOtherMachine: '他の端末が占有中',
       podcastGenerateOwnerIdle: '現在は未占有',
@@ -493,6 +612,7 @@ export const settings = {
       headMusicWaitingTitle: '冒頭音楽はまだ準備できていません',
       headMusicNeedAttachmentsDir: '添付ディレクトリがまだ設定されていません。',
       headMusicNeedUpload: 'この冒頭音楽はまだクラウドに存在しません。先に音楽を選んでアップロードしてください。',
+      headMusicCloudMissingAfterLocalReady: 'ローカルは準備できていますが、クラウド側のコピーはまだありません。',
       headMusicNeedSync: 'この端末にはまだ冒頭音楽がありません。Podcast 生成を有効にすると、必要に応じてクラウドから補完します。',
       headMusicNeedPreview: 'ファイルは存在しますが、まだ再生可能なプレビュー URL を取得できていません。'
     },
@@ -506,6 +626,7 @@ export const settings = {
         description: 'ドラッグ＆ドロップにもクリック選択にも対応しています。アップロードはフロントエンドから又拍雲へ直接送信し、同時にこの端末の固定パスにも書き込みます。',
         dropLabel: 'ここに MP3 ファイルをドロップ',
         dropDescription: 'または下のボタンから選択してください。短くて音量が安定したイントロ音源がおすすめです。',
+        dropActive: '離すとアップロードします',
         selectFile: 'ファイルを選択',
         clearFile: '選択をクリア',
         confirmUpload: 'アップロード開始',
@@ -515,7 +636,10 @@ export const settings = {
       },
       headMusicPreview: {
         title: '{title} を試聴',
-        description: 'クラウド上の冒頭音楽をここで先に試聴できます。'
+        description: 'クラウド上の冒頭音楽をここで先に試聴できます。',
+        loadingTitle: '試聴 URL を読み込み中',
+        loadingDescription: 'クラウドから再生可能なプレビュー URL を取得しています。しばらくお待ちください。',
+        remoteAddress: 'クラウド URL'
       }
     },
     messages: {

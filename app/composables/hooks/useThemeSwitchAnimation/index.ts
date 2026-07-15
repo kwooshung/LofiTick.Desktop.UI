@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { useTimeoutFn } from '@vueuse/core';
+
 /**
  * 函数：isBrowser。
  */
@@ -58,6 +60,24 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
    * 常量：动画时长（高分屏时略短一些）
    */
   const duration = isHighResolution ? Math.max(propsDuration * 0.8, 500) : propsDuration;
+
+  /**
+   * 变量：样式清理计时器句柄。
+   */
+  const { start: startCleanupStyleTimer, stop: stopCleanupStyleTimer } = useTimeoutFn(
+    () => {
+      /**
+       * 常量：styleElement。
+       */
+      const styleElement = document.getElementById(styleId);
+
+      if (styleElement) {
+        styleElement.remove();
+      }
+    },
+    0,
+    { immediate: false }
+  );
 
   /**
    * 实际生效的「当前是否 Dark」
@@ -369,19 +389,8 @@ export const useThemeSwitchAnimation = (options: IThemeSwitchAnimationOptions = 
     // === BLUR_CIRCLE 样式清理（比动画稍晚一点） ===
     if (animationType === EThemeAnimationType.BLUR_CIRCLE) {
       void vt.finished.finally(() => {
-        window.setTimeout(
-          () => {
-            /**
-             * 常量：styleElement。
-             */
-            const styleElement = document.getElementById(styleId);
-
-            if (styleElement) {
-              styleElement.remove();
-            }
-          },
-          Math.max(blurAnimationDuration - duration, 16)
-        );
+        stopCleanupStyleTimer();
+        startCleanupStyleTimer(Math.max(blurAnimationDuration - duration, 16));
       });
     }
   };

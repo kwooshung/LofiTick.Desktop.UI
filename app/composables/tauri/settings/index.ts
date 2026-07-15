@@ -1,4 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import type { UnlistenFn } from '@tauri-apps/api/event';
 
 /**
  * Hook：Tauri 设置
@@ -95,11 +97,78 @@ interface ITauriCrawlerBrowserProfilesDirSizeInfo {
 }
 
 /**
+ * 接口：爬虫浏览器站点目录信息。
+ */
+interface ITauriCrawlerBrowserSiteDirInfo {
+  /** 当前生效路径。 */
+  directoryPath: string;
+
+  /** 目录是否存在。 */
+  exists: boolean;
+}
+
+/**
+ * 接口：爬虫比较后端探测结果。
+ */
+interface ITauriCrawlerCompareBackendProbeResult {
+  /** 是否满足 GPU 比较条件。 */
+  eligible: boolean;
+
+  /** 探测到的比较后端。 */
+  backend: string;
+
+  /** 适配器名称。 */
+  adapterName: string;
+
+  /** 适配器设备类型。 */
+  deviceType: string;
+
+  /** 适配器后端类型。 */
+  backendName: string;
+
+  /** 不满足条件时的原因。 */
+  reason: string;
+}
+
+/**
+ * 接口：浏览器扩展桥接入详情。
+ */
+export interface ITauriBrowserBridgeAccessDetail {
+  /** 服务是否运行。 */
+  running: boolean;
+
+  /** 是否已有扩展连接。 */
+  connected: boolean;
+
+  /** 当前监听端口。 */
+  port: number | null;
+
+  /** WebSocket 接入地址。 */
+  wsUrl: string;
+
+  /** 浏览器扩展运行目录。 */
+  extensionDir: string;
+
+  /** 最近一次错误。 */
+  lastError: string | null;
+}
+
+/**
  * 类型：爬虫浏览器资料目录范围。
  */
-type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome' | 'chromium';
+type TCrawlerBrowserProfilesDirScope = 'root' | 'edge' | 'chrome';
+
+/**
+ * 类型：爬虫浏览器站点目录浏览器范围。
+ */
+type TCrawlerBrowserSiteDirBrowser = 'edge' | 'chrome';
 
 export const useTauriSettings = () => {
+  /**
+   * 常量：浏览器校准进度事件名。
+   */
+  const EVENT_CRAWLER_BROWSER_CALIBRATION_PROGRESS = 'crawler://browser-calibration-progress';
+
   /**
    * 函数：获取完整设置
    * @returns {Promise<Record<string, unknown>>} 设置 JSON
@@ -168,6 +237,130 @@ export const useTauriSettings = () => {
    */
   const crawlerBrowserProfilesDirClear = async (scope: TCrawlerBrowserProfilesDirScope): Promise<void> => {
     await invoke('settings_crawler_browser_profiles_dir_clear', { scope });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点 profile 目录信息。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<ITauriCrawlerBrowserSiteDirInfo>} 目录信息。
+   */
+  const crawlerBrowserProfileDirGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<ITauriCrawlerBrowserSiteDirInfo> => {
+    return invoke<ITauriCrawlerBrowserSiteDirInfo>('settings_crawler_browser_profile_dir_get', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点 profile 目录占用体积。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<number>} 目录占用字节数。
+   */
+  const crawlerBrowserProfileDirSizeGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<number> => {
+    const result = await invoke<ITauriCrawlerBrowserProfilesDirSizeInfo>('settings_crawler_browser_profile_dir_size_get', { browser, site });
+    return result.sizeBytes;
+  };
+
+  /**
+   * 函数：清空爬虫浏览器站点 profile 目录。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserProfileDirClear = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<void> => {
+    await invoke('settings_crawler_browser_profile_dir_clear', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点匹配记录目录信息。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<ITauriCrawlerBrowserSiteDirInfo>} 目录信息。
+   */
+  const crawlerBrowserMatchesDirGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<ITauriCrawlerBrowserSiteDirInfo> => {
+    return invoke<ITauriCrawlerBrowserSiteDirInfo>('settings_crawler_browser_matches_dir_get', { browser, site });
+  };
+
+  /**
+   * 函数：获取爬虫浏览器站点匹配记录目录占用体积。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<number>} 目录占用字节数。
+   */
+  const crawlerBrowserMatchesDirSizeGet = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<number> => {
+    const result = await invoke<ITauriCrawlerBrowserProfilesDirSizeInfo>('settings_crawler_browser_matches_dir_size_get', { browser, site });
+    return result.sizeBytes;
+  };
+
+  /**
+   * 函数：清空爬虫浏览器站点匹配记录目录。
+   * @param {TCrawlerBrowserSiteDirBrowser} browser 浏览器范围。
+   * @param {string} site 站点域名。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserMatchesDirClear = async (browser: TCrawlerBrowserSiteDirBrowser, site: string): Promise<void> => {
+    await invoke('settings_crawler_browser_matches_dir_clear', { browser, site });
+  };
+
+  /**
+   * 函数：探测爬虫 GPU 比较可用性。
+   * @returns {Promise<ITauriCrawlerCompareBackendProbeResult>} 探测结果。
+   */
+  const crawlerCompareBackendProbe = async (): Promise<ITauriCrawlerCompareBackendProbeResult> => {
+    return invoke<ITauriCrawlerCompareBackendProbeResult>('settings_crawler_compare_backend_probe');
+  };
+
+  /**
+   * 函数：获取浏览器扩展桥接入详情。
+   * @returns {Promise<ITauriBrowserBridgeAccessDetail>} 接入详情。
+   */
+  const browserBridgeAccessDetailGet = async (): Promise<ITauriBrowserBridgeAccessDetail> => {
+    return invoke<ITauriBrowserBridgeAccessDetail>('browser_bridge_access_detail_get');
+  };
+
+  /**
+   * 函数：执行浏览器校准。
+   * @param {string} browserId 浏览器稳定标识。
+   * @returns {Promise<ICrawlerBrowserCalibrationResult>} 校准结果。
+   */
+  const crawlerBrowserCalibrate = async (browserId: string): Promise<ICrawlerBrowserCalibrationResult> => {
+    return invoke<ICrawlerBrowserCalibrationResult>('settings_crawler_browser_calibrate', { browserId });
+  };
+
+  /**
+   * 函数：继续执行浏览器校准。
+   * @param {string} browserId 浏览器稳定标识。
+   * @returns {Promise<ICrawlerBrowserCalibrationResult>} 校准结果。
+   */
+  const crawlerBrowserCalibrateResume = async (browserId: string): Promise<ICrawlerBrowserCalibrationResult> => {
+    return invoke<ICrawlerBrowserCalibrationResult>('settings_crawler_browser_calibrate_resume', { browserId });
+  };
+
+  /**
+   * 函数：启动浏览器扩展手动安装等待会话。
+   * @param {string} browserId 浏览器稳定标识。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserInstallSessionStart = async (browserId: string): Promise<void> => {
+    await invoke('settings_crawler_browser_install_session_start', { browserId });
+  };
+
+  /**
+   * 函数：关闭当前爬虫浏览器会话。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerBrowserSessionClose = async (): Promise<void> => {
+    await invoke('settings_crawler_browser_session_close');
+  };
+
+  /**
+   * 函数：监听浏览器校准进度。
+   * @param {(event: ICrawlerBrowserCalibrationProgressEvent) => void} handler 进度回调。
+   * @returns {Promise<UnlistenFn>} 取消监听函数。
+   */
+  const onCrawlerBrowserCalibrationProgress = async (handler: (event: ICrawlerBrowserCalibrationProgressEvent) => void): Promise<UnlistenFn> => {
+    return listen<ICrawlerBrowserCalibrationProgressEvent>(EVENT_CRAWLER_BROWSER_CALIBRATION_PROGRESS, (event) => {
+      handler(event.payload);
+    });
   };
 
   /**
@@ -296,6 +489,19 @@ export const useTauriSettings = () => {
     crawlerBrowserProfilesDirGet,
     crawlerBrowserProfilesDirSizeGet,
     crawlerBrowserProfilesDirClear,
+    crawlerBrowserProfileDirGet,
+    crawlerBrowserProfileDirSizeGet,
+    crawlerBrowserProfileDirClear,
+    crawlerBrowserMatchesDirGet,
+    crawlerBrowserMatchesDirSizeGet,
+    crawlerBrowserMatchesDirClear,
+    crawlerCompareBackendProbe,
+    browserBridgeAccessDetailGet,
+    crawlerBrowserCalibrate,
+    crawlerBrowserCalibrateResume,
+    crawlerBrowserInstallSessionStart,
+    crawlerBrowserSessionClose,
+    onCrawlerBrowserCalibrationProgress,
     hotsearchPodcastHeadMusicPathsGet,
     hotsearchPodcastHeadMusicWrite,
     hotsearchPodcastHeadMusicDownload,

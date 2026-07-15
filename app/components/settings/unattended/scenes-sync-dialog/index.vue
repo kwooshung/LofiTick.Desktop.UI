@@ -92,9 +92,9 @@
 
     <template #footer>
       <div class="flex items-center gap-2">
-        <UButton color="neutral" variant="soft" icon="i-lucide:cloud-download" :ui="{ leadingIcon: 'text-muted' }" :disabled="!computedHasRemote" @click="settle('remote')">{{ t('components.sentinel.scenes.sync.actions.useRemote') }}</UButton>
-        <UButton color="primary" variant="soft" icon="i-lucide:git-merge" :ui="{ leadingIcon: 'text-muted' }" @click="settle('merge')">{{ t('components.sentinel.scenes.sync.actions.merge') }}</UButton>
-        <UButton color="primary" icon="i-lucide:hard-drive" :ui="{ leadingIcon: 'text-muted' }" @click="settle('local')">{{ t('components.sentinel.scenes.sync.actions.useLocal') }}</UButton>
+        <UButton color="neutral" variant="soft" icon="i-lucide:cloud-download" :disabled="!computedHasRemote" @click="settle('remote')">{{ t('components.sentinel.scenes.sync.actions.useRemote') }}</UButton>
+        <UButton color="primary" variant="soft" icon="i-lucide:git-merge" @click="settle('merge')">{{ t('components.sentinel.scenes.sync.actions.merge') }}</UButton>
+        <UButton color="primary" icon="i-lucide:hard-drive" @click="settle('local')">{{ t('components.sentinel.scenes.sync.actions.useLocal') }}</UButton>
       </div>
     </template>
   </UModal>

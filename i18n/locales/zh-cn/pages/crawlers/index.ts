@@ -88,10 +88,12 @@ export const crawlers = {
         },
         dialog: {
           title: '选择 Pixabay 地址',
-          description: '先填关键词，再按需补页码，下面会实时显示最终链接。',
+          description: '先填关键词，再按需补最小时长和页码，下面会实时显示最终链接。',
           keywordLabel: '搜索关键词',
           keywordPlaceholder: '请输入关键词',
           keywordPreview: '搜索关键词',
+          minDurationLabel: '最小时长',
+          minDurationDescription: '低于该时长的音频不会进入下载流程，单位为秒，默认 60 秒。',
           pageLabel: '页码',
           typeLabel: '爬取地址',
           urlLabel: '对应网址',

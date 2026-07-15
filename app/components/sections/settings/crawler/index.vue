@@ -12,59 +12,292 @@
         </ULink>
       </template>
     </UPageCard>
-
     <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.edge')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+      <UFormField :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #label>
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-logos:microsoft-edge" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('msedge').name }}</span>
+            <span>{{ crawlerBrowserCandidateGet('edge').name }}</span>
           </span>
         </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('msedge').installed" :model-value="stateCrawlerBrowserSelectedId === 'msedge'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('msedge'), on)" />
+        <template #description>
+          <div class="space-y-2">
+            <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.edge') }}</div>
+            <div v-if="crawlerBrowserCandidateGet('edge').installed" class="flex flex-wrap items-center gap-1.5">
+              <UBadge color="neutral" variant="soft" class="max-w-full px-2 py-1 text-xs leading-4 whitespace-normal">
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.maximizedPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('edge')?.maximized.borderLeftOffset) }}</span>
+                  <span>px</span>
+                </span>
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.metricSeparator') }}{{ t('pages.settings.crawler.browser.calibration.metrics.headHeightPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('edge')?.maximized.headHeight) }}</span>
+                  <span>px</span>
+                </span>
+              </UBadge>
+              <UBadge color="neutral" variant="soft" class="max-w-full px-2 py-1 text-xs leading-4 whitespace-normal">
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.normalPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('edge')?.normal.borderLeftOffset) }}</span>
+                  <span>px</span>
+                </span>
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.metricSeparator') }}{{ t('pages.settings.crawler.browser.calibration.metrics.headHeightPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('edge')?.normal.headHeight) }}</span>
+                  <span>px</span>
+                </span>
+              </UBadge>
+              <UButton
+                v-if="crawlerBrowserCandidateGet('chrome').installed"
+                color="neutral"
+                variant="soft"
+                size="xs"
+                icon="i-lucide:wand-sparkles"
+                :ui="{ leadingIcon: 'text-muted' }"
+                :loading="stateCrawlerBrowserSelectionPendingId === 'edge' || stateCrawlerBrowserCalibratingId === 'edge'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserSelectionPendingId !== '' || stateCrawlerBrowserCalibratingId !== ''"
+                @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('edge'))"
+              >
+                {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
+              </UButton>
+            </div>
+          </div>
+        </template>
+        <div v-if="crawlerBrowserCandidateGet('edge').installed" class="flex shrink-0 items-center gap-2">
+          <USwitch
+            :model-value="stateCrawlerBrowserSelectedId === 'edge'"
+            :loading="stateCrawlerBrowserSelectionPendingId === 'edge'"
+            :disabled="stateCrawlerBrowserCalibratingId !== '' || stateCrawlerBrowserSelectionPendingId !== ''"
+            @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('edge'), on)"
+          />
+        </div>
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('msedge'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('edge'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
       </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chrome')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+      <UFormField :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
         <template #label>
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-devicon:chrome" class="size-5" />
             <span>{{ crawlerBrowserCandidateGet('chrome').name }}</span>
           </span>
         </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chrome').installed" :model-value="stateCrawlerBrowserSelectedId === 'chrome'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)" />
-        <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
-            {{ t('pages.settings.crawler.browser.actions.refresh') }}
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
-            {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
-          </UButton>
-        </div>
-      </UFormField>
-      <UFormField :description="t('pages.settings.crawler.browser.runtimeDescriptions.chromium')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-streamline-color:chrome-flat" class="size-5" />
-            <span>{{ crawlerBrowserCandidateGet('chromium').name }}</span>
-          </span>
+        <template #description>
+          <div class="space-y-2">
+            <div>{{ t('pages.settings.crawler.browser.runtimeDescriptions.chrome') }}</div>
+            <div v-if="crawlerBrowserCandidateGet('chrome').installed" class="flex flex-wrap items-center gap-1.5">
+              <UBadge color="neutral" variant="soft" class="max-w-full px-2 py-1 text-xs leading-4 whitespace-normal">
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.maximizedPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.borderLeftOffset) }}</span>
+                  <span>px</span>
+                </span>
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.metricSeparator') }}{{ t('pages.settings.crawler.browser.calibration.metrics.headHeightPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.maximized.headHeight) }}</span>
+                  <span>px</span>
+                </span>
+              </UBadge>
+              <UBadge color="neutral" variant="soft" class="max-w-full px-2 py-1 text-xs leading-4 whitespace-normal">
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.normalPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.borderLeftOffset) }}</span>
+                  <span>px</span>
+                </span>
+                <span class="text-muted">{{ t('pages.settings.crawler.browser.calibration.badges.metricSeparator') }}{{ t('pages.settings.crawler.browser.calibration.metrics.headHeightPrefix') }}</span>
+                <span class="inline-flex items-baseline gap-0 whitespace-nowrap">
+                  <span class="text-primary">{{ crawlerBrowserCalibrationValueLabelGet(crawlerBrowserCalibrationResultGet('chrome')?.normal.headHeight) }}</span>
+                  <span>px</span>
+                </span>
+              </UBadge>
+              <UButton
+                v-if="crawlerBrowserCandidateGet('edge').installed"
+                color="neutral"
+                variant="soft"
+                size="xs"
+                icon="i-lucide:wand-sparkles"
+                :ui="{ leadingIcon: 'text-muted' }"
+                :loading="stateCrawlerBrowserSelectionPendingId === 'chrome' || stateCrawlerBrowserCalibratingId === 'chrome'"
+                :disabled="stateCrawlerBrowserRefreshing || stateCrawlerBrowserSelectionPendingId !== '' || stateCrawlerBrowserCalibratingId !== ''"
+                @click="handleCrawlerBrowserCalibrate(crawlerBrowserCandidateGet('chrome'))"
+              >
+                {{ t('pages.settings.crawler.browser.calibration.actions.manualCalibrate') }}
+              </UButton>
+            </div>
+          </div>
         </template>
-        <USwitch v-if="crawlerBrowserCandidateGet('chromium').installed" :model-value="stateCrawlerBrowserSelectedId === 'chromium'" @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chromium'), on)" />
+        <div v-if="crawlerBrowserCandidateGet('chrome').installed" class="flex shrink-0 items-center gap-2">
+          <USwitch
+            :model-value="stateCrawlerBrowserSelectedId === 'chrome'"
+            :loading="stateCrawlerBrowserSelectionPendingId === 'chrome'"
+            :disabled="stateCrawlerBrowserCalibratingId !== '' || stateCrawlerBrowserSelectionPendingId !== ''"
+            @update:model-value="(on) => handleCrawlerBrowserSelect(crawlerBrowserCandidateGet('chrome'), on)"
+          />
+        </div>
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-primary' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
-          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-primary' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chromium'))">
+          <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
             {{ t('pages.settings.crawler.browser.actions.installOfficial') }}
           </UButton>
         </div>
       </UFormField>
+    </UPageCard>
+
+    <UModal v-model:open="stateCrawlerBrowserChromeInstallGuideOpen" :close="false" :dismissible="false" :ui="{ content: 'sm:max-w-3xl', body: 'space-y-4' }">
+      <template #header>
+        <div class="flex w-full items-start gap-3 pr-10">
+          <UIcon :name="computedCrawlerBrowserChromeInstallGuideIcon" class="text-primary size-12 shrink-0" />
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="text-highlighted text-base font-semibold">
+              {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.title') }}
+            </div>
+            <p class="text-muted text-sm leading-6">
+              {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.description') }}
+            </p>
+          </div>
+          <UButton color="neutral" variant="ghost" size="sm" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" class="absolute top-4 right-4" @click="() => handleCrawlerBrowserChromeInstallGuideCancel()" />
+        </div>
+      </template>
+
+      <template #body>
+        <div class="border-default bg-muted/30 rounded-lg border p-5">
+          <ol class="space-y-3 text-sm leading-7">
+            <li class="flex items-center gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">1.</span>
+              <span class="text-highlighted inline-flex flex-1 flex-wrap items-center gap-2 font-medium">
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.openExtensionsPrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.openExtensionsQuoted') }}</strong>
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  icon="i-lucide:copy"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :loading="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied"
+                  :disabled="!stateCrawlerBrowserChromeInstallGuideCandidate"
+                  class="align-middle"
+                  @click="handleCrawlerBrowserChromeInstallGuideExtensionsPageCopy"
+                >
+                  {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.copyExtensionsPageAction') }}
+                </UButton>
+                <span v-if="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied" class="text-success ml-2">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.copied') }}</span>
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">2.</span>
+              <span class="text-highlighted flex-1 font-medium">
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.enableDeveloperModePrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.enableDeveloperModeQuoted') }}</strong>
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.enableDeveloperModeSuffix') }}
+              </span>
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">3.</span>
+              <span class="text-highlighted inline-flex flex-1 flex-wrap items-center gap-2">
+                <span class="font-medium">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.copyPrefix') }}</span>
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  icon="i-lucide:copy"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :loading="stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied"
+                  :disabled="!stateBrowserBridgeExtensionDir"
+                  class="align-middle"
+                  @click="handleCrawlerBrowserChromeInstallGuideCopy"
+                >
+                  {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.copyAction') }}
+                </UButton>
+                <span v-if="stateCrawlerBrowserChromeInstallGuideCopied" class="text-success ml-2">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.copied') }}</span>
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">4.</span>
+              <span class="text-highlighted flex-1 font-medium">
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.loadUnpackedPrefix') }}
+                <strong class="font-semibold">{{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.loadUnpackedQuoted') }}</strong>
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.loadUnpackedSuffix') }}
+              </span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-muted w-5 shrink-0 text-right font-medium">5.</span>
+              <span class="text-highlighted flex-1 font-medium">
+                {{ t('pages.settings.crawler.browser.calibration.extensionInstallModal.steps.chooseExtensionDir') }}
+              </span>
+            </li>
+          </ol>
+        </div>
+      </template>
+    </UModal>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.browserBridge.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.browserBridge.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ root: 'mb-6', container: 'divide-y divide-default' }">
+      <UFormField :label="t('pages.settings.crawler.browserBridge.wsUrl.label')" :description="t('pages.settings.crawler.browserBridge.wsUrl.description')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <FormUrlInput readonly :model-value="stateBrowserBridgeWsUrl" placeholder="-" class="w-full max-w-full md:w-136 2xl:w-160">
+          <template #actions>
+            <div class="flex items-center gap-0.5">
+              <UTooltip :text="t('pages.settings.unattended.tooltips.copyToClipboard')" :content="{ side: 'top' }">
+                <UButton
+                  :color="stateBrowserBridgeCopied ? 'success' : 'neutral'"
+                  variant="link"
+                  size="sm"
+                  :icon="stateBrowserBridgeCopied ? 'i-lucide:copy-check' : 'i-lucide:copy'"
+                  :ui="{ leadingIcon: 'text-muted' }"
+                  :disabled="!stateBrowserBridgeWsUrl"
+                  @click.stop="handleBrowserBridgeWsUrlCopy"
+                />
+              </UTooltip>
+              <UTooltip :text="t('pages.settings.crawler.browserBridge.actions.refresh')" :content="{ side: 'top' }">
+                <UButton color="neutral" variant="link" size="sm" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateBrowserBridgeRefreshing" @click.stop="handleBrowserBridgeAccessDetailRefresh" />
+              </UTooltip>
+            </div>
+          </template>
+        </FormUrlInput>
+      </UFormField>
+      <UFormField :label="t('pages.settings.crawler.browserBridge.status.label')" :description="computedBrowserBridgeStatusDescription" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <div class="flex flex-wrap gap-2">
+          <UBadge :color="stateBrowserBridgeRunning ? 'success' : 'error'" variant="soft"> {{ computedBrowserBridgeServiceStatusLabel }} </UBadge>
+          <UBadge :color="stateBrowserBridgeConnected ? 'success' : 'neutral'" variant="soft"> {{ computedBrowserBridgeConnectionStatusLabel }} </UBadge>
+        </div>
+      </UFormField>
+      <UFormField
+        :label="t('pages.settings.crawler.browserBridge.extensionDir.label')"
+        :description="t('pages.settings.crawler.browserBridge.extensionDir.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
+        <template #description>
+          <div class="space-y-1">
+            <div>{{ t('pages.settings.crawler.browserBridge.extensionDir.description') }}</div>
+            <UTooltip v-if="stateBrowserBridgeExtensionDir" :text="stateBrowserBridgeExtensionDir" :content="{ side: 'top' }">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleBrowserBridgeExtensionDirOpen">
+                {{ crawlerBrowserProfilesPathLabelShortGet(stateBrowserBridgeExtensionDir) }}
+              </ULink>
+            </UTooltip>
+            <span v-else class="text-error">{{ t('pages.settings.crawler.browserBridge.extensionDir.unset') }}</span>
+          </div>
+        </template>
+        <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateBrowserBridgeExtensionDir || !isTauriRuntime" @click="handleBrowserBridgeExtensionDirOpen">
+          {{ t('pages.settings.crawler.browserBridge.extensionDir.actionOpen') }}
+        </UButton>
+      </UFormField>
+      <UAlert v-if="stateBrowserBridgeError" color="warning" variant="soft" icon="i-lucide:triangle-alert" :title="t('pages.settings.crawler.browserBridge.errorTitle')" :description="stateBrowserBridgeError" />
     </UPageCard>
 
     <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
@@ -82,38 +315,86 @@
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-lucide:folder" class="text-muted size-4 shrink-0" />
             <span>{{ t('pages.settings.crawler.browserProfilesDirectory.rootLabel') }}</span>
-            <UBadge color="neutral" variant="soft">{{ crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesRootSizeBytes) }}</UBadge>
           </span>
         </template>
         <template #description>
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.rootDescription') }}</div>
-            <ULink v-if="stateCrawlerBrowserProfilesRootPath" raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesRoot">
-              {{ stateCrawlerBrowserProfilesRootPath }}
-            </ULink>
+            <UTooltip v-if="stateCrawlerBrowserProfilesRootPath" :text="stateCrawlerBrowserProfilesRootPath" :content="{ side: 'top' }">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesRoot">
+                {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesRootPath) }}
+              </ULink>
+            </UTooltip>
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex items-center gap-2">
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'root'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('root', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesRootPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
+        <div class="flex items-center justify-end gap-2">
+          <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" @click="handleOpenCrawlerBrowserProfilesRoot">
+            {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+          </UButton>
+          <UPopover :open="stateCrawlerBrowserProfilesRootClearOpen" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesRootClearToggle(open)">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+            >
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(computedCrawlerBrowserProfilesRootClearTotalSizeBytes) }}</UBadge>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
-                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
-                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesRootPath }}</div>
-                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
+              <div v-if="stateCrawlerBrowserProfilesRootClearTarget === ''" class="flex flex-col gap-1">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!computedCrawlerBrowserProfilesRootClearCacheSizeBytes"
+                  @click="handleCrawlerBrowserProfilesRootClearSelect('cache')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(computedCrawlerBrowserProfilesRootClearCacheSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!computedCrawlerBrowserProfilesRootClearMatchesSizeBytes"
+                  @click="handleCrawlerBrowserProfilesRootClearSelect('matches')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(computedCrawlerBrowserProfilesRootClearMatchesSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else class="flex flex-col gap-2">
+                <div class="text-highlighted text-sm font-medium">
+                  {{ stateCrawlerBrowserProfilesRootClearTarget === 'cache' ? t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') : t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}
+                </div>
+                <div class="text-muted text-xs break-all">
+                  {{ stateCrawlerBrowserProfilesRootClearTarget === 'cache' ? t('pages.settings.crawler.browserProfilesDirectory.rootClearCacheConfirmDescription') : t('pages.settings.crawler.browserProfilesDirectory.rootClearMatchesConfirmDescription') }}
+                </div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('root', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => handleCrawlerBrowserProfilesRootClearToggle(false)">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserProfilesRootClearConfirm(close)">{{
+                    t('common.actions.confirm')
+                  }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesRootPath" @click="handleOpenCrawlerBrowserProfilesRoot">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
         </div>
       </UFormField>
 
@@ -122,38 +403,94 @@
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-lucide:folder" class="text-muted size-4 shrink-0" />
             <span>{{ t('pages.settings.crawler.browserProfilesDirectory.edgeLabel') }}</span>
-            <UBadge color="neutral" variant="soft">{{ crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesEdgeSizeBytes) }}</UBadge>
           </span>
         </template>
         <template #description>
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.edgeDescription') }}</div>
-            <ULink v-if="stateCrawlerBrowserProfilesEdgePath" raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesEdge">
-              {{ stateCrawlerBrowserProfilesEdgePath }}
-            </ULink>
+            <UTooltip v-if="stateCrawlerBrowserProfilesEdgePath" :text="stateCrawlerBrowserProfilesEdgePath" :content="{ side: 'top' }">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesEdge">
+                {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesEdgePath) }}
+              </ULink>
+            </UTooltip>
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex items-center gap-2">
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'edge'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('edge', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesEdgePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
+        <div class="flex items-center justify-end gap-2">
+          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('edge')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-muted', trailingIcon: 'text-muted' }">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+            </UButton>
+          </UDropdownMenu>
+          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('edge')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('edge', open)">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('edge') || crawlerBrowserMatchesDirectoryClearLoadingGet('edge')"
+            >
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes))" :content="{ side: 'top' }">
+                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesEdgeSizeBytes, stateCrawlerBrowserMatchesEdgeSizeBytes)) }}</UBadge>
+              </UTooltip>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('edge')" class="flex flex-col gap-1">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserProfilesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserProfilesEdgePath || !stateCrawlerBrowserProfilesEdgeSizeBytes"
+                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('edge')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesEdgeSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserMatchesEdgeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserMatchesEdgePath || !stateCrawlerBrowserMatchesEdgeSizeBytes"
+                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('edge')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesEdgeSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'edge'" class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesEdgePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
                   <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('edge', close)">{{ t('common.actions.confirm') }}</UButton>
+                </div>
+              </div>
+              <div v-else class="flex flex-col gap-2">
+                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
+                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesEdgePath }}</div>
+                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
+                <div class="flex items-center justify-end gap-2 pt-1">
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserMatchesDirectoryClear('edge', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesEdgePath" @click="handleOpenCrawlerBrowserProfilesEdge">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
         </div>
       </UFormField>
 
@@ -162,85 +499,132 @@
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-lucide:folder" class="text-muted size-4 shrink-0" />
             <span>{{ t('pages.settings.crawler.browserProfilesDirectory.chromeLabel') }}</span>
-            <UBadge color="neutral" variant="soft">{{ crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromeSizeBytes) }}</UBadge>
           </span>
         </template>
         <template #description>
           <div class="space-y-1">
             <div>{{ t('pages.settings.crawler.browserProfilesDirectory.chromeDescription') }}</div>
-            <ULink v-if="stateCrawlerBrowserProfilesChromePath" raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChrome">
-              {{ stateCrawlerBrowserProfilesChromePath }}
-            </ULink>
+            <UTooltip v-if="stateCrawlerBrowserProfilesChromePath" :text="stateCrawlerBrowserProfilesChromePath" :content="{ side: 'top' }">
+              <ULink raw class="text-muted hover:text-primary block max-w-full cursor-pointer overflow-hidden font-normal text-ellipsis whitespace-nowrap no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChrome">
+                {{ crawlerBrowserProfilesPathLabelShortGet(stateCrawlerBrowserProfilesChromePath) }}
+              </ULink>
+            </UTooltip>
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
           </div>
         </template>
-        <div class="flex items-center gap-2">
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chrome'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chrome', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromePath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
+        <div class="flex items-center justify-end gap-2">
+          <UDropdownMenu :items="crawlerBrowserProfilesOpenMenuItemsGet('chrome')" :content="{ align: 'end', side: 'bottom', sideOffset: 8 }" :ui="{ content: 'w-44' }">
+            <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" trailing-icon="i-lucide:chevron-down" :ui="{ leadingIcon: 'text-muted', trailingIcon: 'text-muted' }">
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionOpen') }}
+            </UButton>
+          </UDropdownMenu>
+          <UPopover :open="crawlerBrowserDirectoryClearPopoverOpenGet('chrome')" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserDirectoryClearMenuToggle('chrome', open)">
+            <UButton
+              class="shrink-0 whitespace-nowrap"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide:trash-2"
+              trailing-icon="i-lucide:chevron-down"
+              :ui="{ leadingIcon: 'text-error', trailingIcon: 'text-muted' }"
+              :disabled="stateCrawlerBrowserProfilesClearing || stateCrawlerBrowserMatchesClearing"
+              :loading="crawlerBrowserProfilesDirectoryClearLoadingGet('chrome') || crawlerBrowserMatchesDirectoryClearLoadingGet('chrome')"
+            >
+              {{ t('pages.settings.crawler.browserProfilesDirectory.actionClear') }}
+              <UTooltip :text="crawlerBrowserProfilesSizeLabelGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes))" :content="{ side: 'top' }">
+                <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesChromeSizeBytes, stateCrawlerBrowserMatchesChromeSizeBytes)) }}</UBadge>
+              </UTooltip>
             </UButton>
             <template #content="{ close }">
-              <div class="flex flex-col gap-2">
+              <div v-if="!crawlerBrowserDirectoryClearConfirmOpenGet('chrome')" class="flex flex-col gap-1">
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserProfilesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserProfilesChromePath || !stateCrawlerBrowserProfilesChromeSizeBytes"
+                  @click="handleCrawlerBrowserProfilesDirectoryClearSelect('chrome')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserProfilesChromeSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+                <UButton
+                  block
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide:trash-2"
+                  :ui="{ leadingIcon: 'text-error' }"
+                  :class="!stateCrawlerBrowserMatchesChromeSizeBytes ? 'pointer-events-none cursor-not-allowed opacity-45' : ''"
+                  :disabled="!stateCrawlerBrowserMatchesChromePath || !stateCrawlerBrowserMatchesChromeSizeBytes"
+                  @click="handleCrawlerBrowserMatchesDirectoryClearSelect('chrome')"
+                >
+                  <span class="flex flex-1 items-center justify-between gap-3">
+                    <span>{{ t('pages.settings.crawler.browserProfilesDirectory.clearMatches') }}</span>
+                    <UBadge color="neutral" variant="soft" class="max-w-16 justify-center truncate">{{ crawlerBrowserProfilesSizeLabelShortGet(stateCrawlerBrowserMatchesChromeSizeBytes) }}</UBadge>
+                  </span>
+                </UButton>
+              </div>
+              <div v-else-if="stateCrawlerBrowserProfilesClearTarget === 'chrome'" class="flex flex-col gap-2">
                 <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
                 <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromePath }}</div>
                 <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
                   <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chrome', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
-            </template>
-          </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromePath" @click="handleOpenCrawlerBrowserProfilesChrome">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
-        </div>
-      </UFormField>
-
-      <UFormField v-if="stateIsMounted" :ui="{ label: 'text-base text-highlighted mb-1', description: 'mr-16 text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
-        <template #label>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-lucide:folder" class="text-muted size-4 shrink-0" />
-            <span>{{ t('pages.settings.crawler.browserProfilesDirectory.chromiumLabel') }}</span>
-            <UBadge color="neutral" variant="soft">{{ crawlerBrowserProfilesSizeLabelGet(stateCrawlerBrowserProfilesChromiumSizeBytes) }}</UBadge>
-          </span>
-        </template>
-        <template #description>
-          <div class="space-y-1">
-            <div>{{ t('pages.settings.crawler.browserProfilesDirectory.chromiumDescription') }}</div>
-            <ULink v-if="stateCrawlerBrowserProfilesChromiumPath" raw class="text-muted hover:text-primary inline-flex max-w-full cursor-pointer align-middle font-normal break-all whitespace-normal no-underline hover:underline" @click="handleOpenCrawlerBrowserProfilesChromium">
-              {{ stateCrawlerBrowserProfilesChromiumPath }}
-            </ULink>
-            <span v-else class="text-error">{{ t('pages.settings.crawler.browserProfilesDirectory.unset') }}</span>
-          </div>
-        </template>
-        <div class="flex items-center gap-2">
-          <UPopover :open="stateCrawlerBrowserProfilesClearTarget === 'chromium'" arrow :content="{ side: 'bottom', align: 'end', sideOffset: 8 }" :ui="{ content: 'no-drag p-3 w-80 z-51' }" @update:open="(open) => handleCrawlerBrowserProfilesDirectoryClearToggle('chromium', open)">
-            <UButton color="neutral" variant="outline" icon="i-lucide:trash-2" :ui="{ leadingIcon: 'text-error' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath || stateCrawlerBrowserProfilesClearing" :loading="stateCrawlerBrowserProfilesClearing">
-              {{ t('pages.settings.crawler.browserProfilesDirectory.clearCache') }}
-            </UButton>
-            <template #content="{ close }">
-              <div class="flex flex-col gap-2">
-                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmTitle') }}</div>
-                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserProfilesChromiumPath }}</div>
-                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.clearConfirmDescription') }}</div>
+              <div v-else class="flex flex-col gap-2">
+                <div class="text-highlighted text-sm font-medium">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmTitle') }}</div>
+                <div class="text-muted text-xs break-all">{{ stateCrawlerBrowserMatchesChromePath }}</div>
+                <div class="text-muted text-xs">{{ t('pages.settings.crawler.browserProfilesDirectory.matchesClearConfirmDescription') }}</div>
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-primary' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
-                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserProfilesClearing" @click="() => handleCrawlerBrowserProfilesDirectoryClear('chromium', close)">{{ t('common.actions.confirm') }}</UButton>
+                  <UButton color="neutral" variant="outline" size="xs" icon="i-lucide:x" :ui="{ leadingIcon: 'text-muted' }" @click="() => close?.()">{{ t('common.actions.cancel') }}</UButton>
+                  <UButton color="error" variant="solid" size="xs" icon="i-lucide:check" :ui="{ leadingIcon: 'text-white' }" :loading="stateCrawlerBrowserMatchesClearing" @click="() => handleCrawlerBrowserMatchesDirectoryClear('chrome', close)">{{ t('common.actions.confirm') }}</UButton>
                 </div>
               </div>
             </template>
           </UPopover>
-          <UButton color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-primary' }" :disabled="!stateCrawlerBrowserProfilesChromiumPath" @click="handleOpenCrawlerBrowserProfilesChromium">
-            {{ t('pages.settings.crawler.browserProfilesDirectory.open') }}
-          </UButton>
         </div>
+      </UFormField>
+    </UPageCard>
+
+    <UPageCard variant="naked" :ui="{ header: 'mb-0 flex w-full items-center gap-3' }">
+      <template #header>
+        <div class="flex-1">
+          <h3 class="text-highlighted text-base font-semibold">{{ t('pages.settings.crawler.runtime.title') }}</h3>
+          <p class="text-muted mt-1 text-sm">{{ t('pages.settings.crawler.runtime.description') }}</p>
+        </div>
+      </template>
+    </UPageCard>
+
+    <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
+      <UFormField :label="t('pages.settings.crawler.compareBackend.label')" :description="t('pages.settings.crawler.compareBackend.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <USwitch :model-value="stateCrawlerCompareBackend === 'gpu'" :disabled="stateCrawlerCompareBackendProbing" unchecked-icon="i-lucide-x" checked-icon="i-lucide-check" @update:model-value="handleCrawlerCompareBackendUpdate" />
+      </UFormField>
+      <UFormField
+        :label="t('pages.settings.crawler.diagnostics.compareMode.label')"
+        :description="t('pages.settings.crawler.diagnostics.compareMode.description')"
+        :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }"
+        class="flex items-center justify-between gap-2 not-last:pb-4"
+      >
+        <USwitch :model-value="stateCrawlerDiagnosticsCompareMode === 'flow'" @update:model-value="handleCrawlerDiagnosticsCompareModeUpdate" />
+      </UFormField>
+      <UFormField :label="t('pages.settings.crawler.logs.label')" :description="t('pages.settings.crawler.logs.runtimeDescription')" :ui="{ label: 'text-base text-highlighted mb-1', description: 'text-muted' }" class="flex items-center justify-between gap-2 not-last:pb-4">
+        <USwitch :model-value="stateCrawlerShowLogs" @update:model-value="handleCrawlerShowLogsUpdate" />
       </UFormField>
     </UPageCard>
   </DashboardPage>
 </template>
 
 <script setup lang="ts">
+import type { UnlistenFn } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event';
+
+import type { ITauriBrowserBridgeAccessDetail } from '@/composables/tauri/settings';
+
 /**
  * Hook：Tauri 环境
  */
@@ -286,7 +670,7 @@ const storeBreadcrumb = useStoreBreadcrumb();
  */
 const crawlerBrowserCandidatesDefault: ICrawlerBrowserCandidate[] = [
   {
-    id: 'msedge',
+    id: 'edge',
     name: 'Microsoft Edge',
     icon: 'i-logos:microsoft-edge',
     channel: 'msedge',
@@ -310,26 +694,18 @@ const crawlerBrowserCandidatesDefault: ICrawlerBrowserCandidate[] = [
     installUrl: 'https://www.google.com/chrome/',
     source: 'fallback',
     reason: 'not installed on this computer'
-  },
-  {
-    id: 'chromium',
-    name: 'Chromium',
-    icon: 'i-streamline-color:chrome-flat',
-    channel: 'chromium',
-    executablePath: '',
-    supported: true,
-    installed: false,
-    recommended: false,
-    installUrl: 'https://www.chromium.org/getting-involved/download-chromium/',
-    source: 'fallback',
-    reason: 'not installed on this computer'
   }
 ];
 
 /**
  * 常量：默认浏览器候选兜底项。
  */
-const crawlerBrowserCandidateFallback: ICrawlerBrowserCandidate = crawlerBrowserCandidatesDefault.find((candidate) => candidate.id === 'msedge') as ICrawlerBrowserCandidate;
+const crawlerBrowserCandidateFallback: ICrawlerBrowserCandidate = crawlerBrowserCandidatesDefault.find((candidate) => candidate.id === 'edge') as ICrawlerBrowserCandidate;
+
+/**
+ * 常量：当前支持展示目录的爬虫站点。
+ */
+const crawlerBrowserProfileSite = 'pixabay.com';
 
 /**
  * 状态：组件是否挂载完成
@@ -351,6 +727,22 @@ const crawlerBrowserCandidateGet = (id: ICrawlerBrowserCandidate['id']): ICrawle
 };
 
 /**
+ * 函数：归一化浏览器候选。
+ * @param {ICrawlerBrowserCandidate} candidate 浏览器候选。
+ * @returns {ICrawlerBrowserCandidate} 归一化后的浏览器候选。
+ */
+const crawlerBrowserCandidateNormalize = (candidate: ICrawlerBrowserCandidate): ICrawlerBrowserCandidate => {
+  if (candidate.id !== 'msedge') {
+    return candidate;
+  }
+
+  return {
+    ...candidate,
+    id: 'edge'
+  };
+};
+
+/**
  * 状态：爬虫浏览器候选是否正在刷新
  */
 const stateCrawlerBrowserRefreshing = ref(false);
@@ -361,9 +753,159 @@ const stateCrawlerBrowserRefreshing = ref(false);
 const stateCrawlerBrowserSelectedId = ref('');
 
 /**
+ * 状态：当前正在校准的浏览器标识。
+ */
+const stateCrawlerBrowserCalibratingId = ref<ICrawlerBrowserCandidate['id'] | ''>('');
+
+/**
+ * 状态：爬虫诊断比较模式。
+ */
+const stateCrawlerDiagnosticsCompareMode = ref('match');
+
+/**
+ * 状态：爬虫模板比较后端。
+ */
+const stateCrawlerCompareBackend = ref<'cpu' | 'gpu'>('cpu');
+
+/**
+ * 状态：爬虫日志是否显示。
+ */
+const stateCrawlerShowLogs = ref(false);
+
+/**
+ * 状态：爬虫模板比较后端是否正在探测。
+ */
+const stateCrawlerCompareBackendProbing = ref(false);
+
+/**
  * 状态：是否已经触发过浏览器安装入口
  */
 const stateCrawlerBrowserInstallStarted = ref(false);
+
+/**
+ * 状态：浏览器扩展桥是否正在刷新。
+ */
+const stateBrowserBridgeRefreshing = ref(false);
+
+/**
+ * 状态：浏览器扩展桥是否运行。
+ */
+const stateBrowserBridgeRunning = ref(false);
+
+/**
+ * 状态：浏览器扩展桥是否已连接。
+ */
+const stateBrowserBridgeConnected = ref(false);
+
+/**
+ * 状态：浏览器扩展桥 WebSocket 地址。
+ */
+const stateBrowserBridgeWsUrl = ref('');
+
+/**
+ * 状态：浏览器扩展桥运行目录。
+ */
+const stateBrowserBridgeExtensionDir = ref('');
+
+/**
+ * 状态：浏览器扩展桥错误信息。
+ */
+const stateBrowserBridgeError = ref('');
+
+/**
+ * 状态：浏览器扩展桥地址是否已复制。
+ */
+const stateBrowserBridgeCopied = ref(false);
+
+/**
+ * 状态：Chrome 校准引导是否已复制插件目录。
+ */
+const stateCrawlerBrowserChromeInstallGuideCopied = ref(false);
+
+/**
+ * 状态：Chrome 校准引导是否已复制扩展管理地址。
+ */
+const stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied = ref(false);
+
+/**
+ * 状态：Chrome 校准引导是否打开。
+ */
+const stateCrawlerBrowserChromeInstallGuideOpen = ref(false);
+
+/**
+ * 状态：Chrome 校准引导模式。
+ */
+const stateCrawlerBrowserChromeInstallGuideMode = ref<'select' | 'calibrate' | ''>('');
+
+/**
+ * 状态：Chrome 校准引导候选项。
+ */
+const stateCrawlerBrowserChromeInstallGuideCandidate = ref<ICrawlerBrowserCandidate | null>(null);
+
+/**
+ * 状态：Chrome 校准引导进入前的浏览器选择。
+ */
+const stateCrawlerBrowserChromeInstallGuidePreviousSelectedId = ref('');
+
+/**
+ * 状态：Chrome 校准引导是否正在提交。
+ */
+const stateCrawlerBrowserChromeInstallGuideSubmitting = ref(false);
+
+/**
+ * 状态：Chrome 校准引导是否正在等待桥恢复可继续校准。
+ */
+const stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady = ref(false);
+
+/**
+ * 状态：浏览器选择是否正在提交。
+ */
+const stateCrawlerBrowserSelectionPendingId = ref<ICrawlerBrowserCandidate['id'] | ''>('');
+
+/**
+ * 变量：浏览器扩展桥复制状态计时器。
+ */
+const { start: startBrowserBridgeCopiedTimer, stop: stopBrowserBridgeCopiedTimer } = useTimeoutFn(
+  () => {
+    stateBrowserBridgeCopied.value = false;
+  },
+  1500,
+  { immediate: false }
+);
+
+/**
+ * 变量：Chrome 校准引导复制状态计时器。
+ */
+const { start: startCrawlerBrowserChromeInstallGuideCopiedTimer, stop: stopCrawlerBrowserChromeInstallGuideCopiedTimer } = useTimeoutFn(
+  () => {
+    stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  },
+  1500,
+  { immediate: false }
+);
+
+/**
+ * 变量：Chrome 校准引导复制扩展管理地址状态计时器。
+ */
+const { start: startCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer, stop: stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer } = useTimeoutFn(
+  () => {
+    stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
+  },
+  1500,
+  { immediate: false }
+);
+
+/**
+ * 计算属性：Chrome 校准引导标题图标。
+ */
+const computedCrawlerBrowserChromeInstallGuideIcon = computed((): string => {
+  const candidate = stateCrawlerBrowserChromeInstallGuideCandidate.value;
+  if (candidate) {
+    return candidate.icon;
+  }
+
+  return crawlerBrowserCandidateGet(stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value as ICrawlerBrowserCandidate['id']).icon;
+});
 
 /**
  * 状态：爬虫浏览器资料目录路径。
@@ -396,24 +938,29 @@ const stateCrawlerBrowserProfilesChromePath = ref('');
 const stateCrawlerBrowserProfilesChromeExists = ref(false);
 
 /**
- * 状态：Chromium 浏览器资料目录路径。
- */
-const stateCrawlerBrowserProfilesChromiumPath = ref('');
-
-/**
- * 状态：Chromium 浏览器资料目录是否存在。
- */
-const stateCrawlerBrowserProfilesChromiumExists = ref(false);
-
-/**
  * 状态：当前打开的资料清空确认目标。
  */
-const stateCrawlerBrowserProfilesClearTarget = ref<'root' | 'edge' | 'chrome' | 'chromium' | ''>('');
+const stateCrawlerBrowserProfilesClearTarget = ref<'root' | 'edge' | 'chrome' | ''>('');
+
+/**
+ * 状态：当前打开的匹配记录清空确认目标。
+ */
+const stateCrawlerBrowserMatchesClearTarget = ref<'edge' | 'chrome' | ''>('');
+
+/**
+ * 状态：当前打开的浏览器目录清理选择菜单目标。
+ */
+const stateCrawlerBrowserDirectoryClearMenuTarget = ref<'edge' | 'chrome' | ''>('');
 
 /**
  * 状态：爬虫浏览器资料目录是否正在清空。
  */
 const stateCrawlerBrowserProfilesClearing = ref(false);
+
+/**
+ * 状态：爬虫浏览器匹配记录目录是否正在清空。
+ */
+const stateCrawlerBrowserMatchesClearing = ref(false);
 
 /**
  * 状态：爬虫浏览器资料目录根目录占用字节数。
@@ -431,9 +978,39 @@ const stateCrawlerBrowserProfilesEdgeSizeBytes = ref(0);
 const stateCrawlerBrowserProfilesChromeSizeBytes = ref(0);
 
 /**
- * 状态：Chromium 浏览器资料目录占用字节数。
+ * 状态：Edge 浏览器匹配记录目录路径。
  */
-const stateCrawlerBrowserProfilesChromiumSizeBytes = ref(0);
+const stateCrawlerBrowserMatchesEdgePath = ref('');
+
+/**
+ * 状态：Edge 浏览器匹配记录目录是否存在。
+ */
+const stateCrawlerBrowserMatchesEdgeExists = ref(false);
+
+/**
+ * 状态：Chrome 浏览器匹配记录目录路径。
+ */
+const stateCrawlerBrowserMatchesChromePath = ref('');
+
+/**
+ * 状态：Chrome 浏览器匹配记录目录是否存在。
+ */
+const stateCrawlerBrowserMatchesChromeExists = ref(false);
+
+/**
+ * 状态：Edge 浏览器匹配记录目录占用字节数。
+ */
+const stateCrawlerBrowserMatchesEdgeSizeBytes = ref(0);
+
+/**
+ * 状态：Chrome 浏览器匹配记录目录占用字节数。
+ */
+const stateCrawlerBrowserMatchesChromeSizeBytes = ref(0);
+
+/**
+ * 状态：浏览器校准缓存。
+ */
+const stateCrawlerBrowserCalibrationMap = ref<Partial<Record<ICrawlerBrowserCandidate['id'], ICrawlerBrowserCalibrationResult>>>({});
 
 /**
  * 接口：爬虫浏览器资料目录状态。
@@ -463,6 +1040,115 @@ const crawlerBrowserProfilesSizeLabelGet = (sizeBytes: number): string => {
   const roundedSize = Math.round(scaledSize * 10) / 10;
   return `${roundedSize % 1 === 0 ? roundedSize.toFixed(0) : roundedSize.toFixed(1)} ${sizeUnits[sizeIndex]}`;
 };
+
+/**
+ * 函数：格式化爬虫浏览器资料目录体积短文本。
+ * @param {number} sizeBytes 字节数。
+ * @returns {string} 可用于按钮徽章的短文本。
+ */
+const crawlerBrowserProfilesSizeLabelShortGet = (sizeBytes: number): string => {
+  const label = crawlerBrowserProfilesSizeLabelGet(sizeBytes);
+  if (label.length <= 8) {
+    return label;
+  }
+
+  return `${label.slice(0, 4)}...${label.slice(-2)}`;
+};
+
+/**
+ * 函数：汇总爬虫浏览器资料与匹配记录目录体积。
+ * @param {number} profileSizeBytes 资料目录字节数。
+ * @param {number} matchesSizeBytes 匹配记录目录字节数。
+ * @returns {number} 合计字节数。
+ */
+const crawlerBrowserProfilesTotalSizeBytesGet = (profileSizeBytes: number, matchesSizeBytes: number): number => {
+  const normalizedProfileSize = Number.isFinite(profileSizeBytes) && profileSizeBytes > 0 ? profileSizeBytes : 0;
+  const normalizedMatchesSize = Number.isFinite(matchesSizeBytes) && matchesSizeBytes > 0 ? matchesSizeBytes : 0;
+  return normalizedProfileSize + normalizedMatchesSize;
+};
+
+/**
+ * 函数：格式化爬虫浏览器资料目录路径短文本。
+ * @param {string} path 完整目录路径。
+ * @returns {string} 中间省略后的路径文本。
+ */
+const crawlerBrowserProfilesPathLabelShortGet = (path: string): string => {
+  const normalizedPath = path.trim();
+  const maxLength = 42;
+  if (normalizedPath.length <= maxLength) {
+    return normalizedPath;
+  }
+
+  const prefixLength = 16;
+  const suffixLength = maxLength - prefixLength - 3;
+  return `${normalizedPath.slice(0, prefixLength)}...${normalizedPath.slice(-suffixLength)}`;
+};
+
+/**
+ * 函数：拼接爬虫浏览器资料目录路径。
+ * @param {string} basePath 基础路径。
+ * @param {string} segment 子目录名。
+ * @returns {string} 拼接后的路径。
+ */
+const crawlerBrowserProfilesDirectoryPathJoin = (basePath: string, segment: string): string => {
+  const trimmedBasePath = basePath.trim().replace(/[\\/]+$/, '');
+  if (!trimmedBasePath) {
+    return '';
+  }
+
+  const separator = trimmedBasePath.includes('\\') ? '\\' : '/';
+  return [trimmedBasePath, segment].join(separator);
+};
+
+/**
+ * 函数：获取浏览器校准参数。
+ * @param {ICrawlerBrowserCandidate['id']} id 浏览器标识。
+ * @returns {ICrawlerBrowserCalibrationResult | null} 校准结果。
+ */
+const crawlerBrowserCalibrationResultGet = (id: ICrawlerBrowserCandidate['id']): ICrawlerBrowserCalibrationResult | null => {
+  return stateCrawlerBrowserCalibrationMap.value[id] ?? null;
+};
+
+/**
+ * 函数：格式化浏览器校准数值。
+ * @param {number | null | undefined} value 数值。
+ * @returns {string} 显示文本。
+ */
+const crawlerBrowserCalibrationValueLabelGet = (value: number | null | undefined): string => {
+  if (!Number.isFinite(value ?? Number.NaN)) {
+    return '—';
+  }
+
+  return `${Math.round(Number(value))}`;
+};
+
+/**
+ * 函数：归一化校准数值。
+ * @param {unknown} value 原始值。
+ * @returns {number | null} 可显示数值。
+ */
+const crawlerBrowserCalibrationNumberNormalize = (value: unknown): number | null => {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : null;
+};
+
+/**
+ * 计算属性：浏览器扩展桥状态文本。
+ */
+const computedBrowserBridgeServiceStatusLabel = computed((): string => {
+  return stateBrowserBridgeRunning.value ? t('pages.settings.crawler.browserBridge.status.running') : t('pages.settings.crawler.browserBridge.status.stopped');
+});
+
+/**
+ * 计算属性：浏览器扩展桥连接状态文本。
+ */
+const computedBrowserBridgeConnectionStatusLabel = computed((): string => {
+  return stateBrowserBridgeConnected.value ? t('pages.settings.crawler.browserBridge.status.connected') : t('pages.settings.crawler.browserBridge.status.disconnected');
+});
+
+/**
+ * 计算属性：浏览器扩展桥状态说明。
+ */
+const computedBrowserBridgeStatusDescription = computed((): string => t('pages.settings.crawler.browserBridge.statusDescriptions.default'));
 
 /**
  * 设置面包屑导航状态
@@ -507,6 +1193,24 @@ const saveCrawlerBrowserCandidate = async (candidate: ICrawlerBrowserCandidate):
 };
 
 /**
+ * 函数：清空当前浏览器选择。
+ * @returns {Promise<void>} 无返回值。
+ */
+const clearCrawlerBrowserSelection = async (): Promise<void> => {
+  stateCrawlerBrowserSelectedId.value = '';
+  await tauriSettings.update({
+    crawler: {
+      browser: {
+        id: '',
+        name: '',
+        channel: '',
+        executablePath: ''
+      }
+    }
+  });
+};
+
+/**
  * 函数：刷新爬虫浏览器候选。
  * @param {boolean} silent 是否静默忽略失败
  * @returns {Promise<void>} 无返回值
@@ -518,15 +1222,14 @@ const refreshCrawlerBrowsers = async (silent: boolean): Promise<void> => {
 
   stateCrawlerBrowserRefreshing.value = true;
   try {
-    const candidates = await tauriTasks.crawlerBrowserCandidatesGet();
+    const candidates = (await tauriTasks.crawlerBrowserCandidatesGet()).map(crawlerBrowserCandidateNormalize);
     if (candidates.length > 0) {
       stateCrawlerBrowserCandidates.value = candidates;
     }
 
     const selected = stateCrawlerBrowserCandidates.value.find((candidate) => candidate.id === stateCrawlerBrowserSelectedId.value && candidate.installed);
-    const fallback = selected || stateCrawlerBrowserCandidates.value.find((candidate) => candidate.recommended);
-    if (fallback) {
-      await saveCrawlerBrowserCandidate(fallback);
+    if (selected) {
+      await saveCrawlerBrowserCandidate(selected);
     }
   } catch (error) {
     if (!silent) {
@@ -535,6 +1238,317 @@ const refreshCrawlerBrowsers = async (silent: boolean): Promise<void> => {
   } finally {
     stateCrawlerBrowserRefreshing.value = false;
   }
+};
+
+/**
+ * 函数：加载浏览器扩展桥接入详情。
+ * @returns {Promise<void>} 无返回值。
+ */
+const loadBrowserBridgeAccessDetail = async (silent = false): Promise<void> => {
+  if (!isTauriRuntime.value || stateBrowserBridgeRefreshing.value) {
+    return;
+  }
+
+  stateBrowserBridgeRefreshing.value = true;
+  try {
+    const detail = await tauriSettings.browserBridgeAccessDetailGet();
+    stateBrowserBridgeRunning.value = detail.running;
+    stateBrowserBridgeConnected.value = detail.connected;
+    stateBrowserBridgeWsUrl.value = detail.wsUrl;
+    stateBrowserBridgeExtensionDir.value = detail.extensionDir;
+    stateBrowserBridgeError.value = detail.lastError || '';
+  } catch (error) {
+    if (!silent) {
+      stateBrowserBridgeError.value = error instanceof Error ? error.message : String(error || '');
+    }
+  } finally {
+    stateBrowserBridgeRefreshing.value = false;
+  }
+};
+
+/**
+ * 事件：刷新浏览器扩展桥接入详情。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleBrowserBridgeAccessDetailRefresh = async (): Promise<void> => {
+  await loadBrowserBridgeAccessDetail();
+};
+
+/**
+ * 状态：浏览器扩展桥状态事件取消监听句柄。
+ */
+let unlistenBrowserBridgeStateChanged: null | (() => void) = null;
+
+/**
+ * 状态：浏览器校准进度事件取消监听句柄。
+ */
+let unlistenCrawlerBrowserCalibrationProgress: null | UnlistenFn = null;
+
+/**
+ * 状态：浏览器资料目录变化事件取消监听句柄。
+ */
+let unlistenCrawlerBrowserProfilesChanged: null | UnlistenFn = null;
+
+/**
+ * 函数：订阅浏览器扩展桥状态变化。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenBrowserBridgeStateChanged !== null) {
+    return;
+  }
+
+  unlistenBrowserBridgeStateChanged = await listen<ITauriBrowserBridgeAccessDetail>('browser://bridge-state-changed', (event) => {
+    const detail = event.payload;
+    stateBrowserBridgeRunning.value = detail.running;
+    stateBrowserBridgeConnected.value = detail.connected;
+    stateBrowserBridgeWsUrl.value = detail.wsUrl;
+    stateBrowserBridgeExtensionDir.value = detail.extensionDir;
+    stateBrowserBridgeError.value = detail.lastError || '';
+
+    if (detail.connected && stateCrawlerBrowserChromeInstallGuideMode.value === 'calibrate' && stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value && stateCrawlerBrowserChromeInstallGuideCandidate.value !== null && !stateCrawlerBrowserChromeInstallGuideSubmitting.value) {
+      stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value = false;
+      void handleCrawlerBrowserChromeInstallGuideProceed();
+      return;
+    }
+
+    if (detail.connected) {
+      if (stateCrawlerBrowserChromeInstallGuideCandidate.value !== null && !stateCrawlerBrowserChromeInstallGuideSubmitting.value && stateCrawlerBrowserChromeInstallGuideMode.value === 'select') {
+        void handleCrawlerBrowserChromeInstallGuideProceed();
+      }
+    }
+  });
+};
+
+/**
+ * 函数：订阅浏览器校准进度。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenCrawlerBrowserCalibrationProgress !== null) {
+    return;
+  }
+
+  unlistenCrawlerBrowserCalibrationProgress = await listen<ICrawlerBrowserCalibrationProgressEvent>('crawler://browser-calibration-progress', (event) => {
+    const payload = event.payload;
+    const browser = crawlerBrowserCandidateGet(payload.browserId);
+    if (payload.stage !== 'success' && payload.stage !== 'failed') {
+      return;
+    }
+
+    const stageTitle = payload.stage === 'success' ? t('pages.settings.crawler.browser.calibration.toast.success') : t('pages.settings.crawler.browser.calibration.toast.failed');
+
+    toast.add({
+      title: stageTitle,
+      description: `${browser.name}${payload.message ? ` · ${payload.message}` : ''}`,
+      icon: browser.icon,
+      color: payload.stage === 'failed' ? 'error' : payload.stage === 'success' ? 'success' : 'primary',
+      duration: payload.stage === 'failed' || payload.stage === 'success' ? 2500 : 1800
+    });
+  });
+};
+
+/**
+ * 函数：订阅浏览器资料目录变化。
+ * @returns {Promise<void>} 无返回值。
+ */
+const subscribeCrawlerBrowserProfilesChanged = async (): Promise<void> => {
+  if (!isTauriRuntime.value || unlistenCrawlerBrowserProfilesChanged !== null) {
+    return;
+  }
+
+  unlistenCrawlerBrowserProfilesChanged = await listen<string>('crawler://browser-profiles-changed', () => {
+    void loadCrawlerBrowserProfilesDirectory();
+  });
+};
+
+/**
+ * 事件：复制浏览器扩展桥 WebSocket 地址。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleBrowserBridgeWsUrlCopy = async (): Promise<void> => {
+  if (!stateBrowserBridgeWsUrl.value) {
+    return;
+  }
+
+  await navigator.clipboard.writeText(stateBrowserBridgeWsUrl.value);
+  stateBrowserBridgeCopied.value = true;
+  stopBrowserBridgeCopiedTimer();
+  startBrowserBridgeCopiedTimer();
+};
+
+/**
+ * 事件：打开浏览器扩展桥运行目录。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleBrowserBridgeExtensionDirOpen = async (): Promise<void> => {
+  if (!isTauriRuntime.value || !stateBrowserBridgeExtensionDir.value) {
+    return;
+  }
+
+  await tauriWindow.openDirectory(stateBrowserBridgeExtensionDir.value);
+};
+
+/**
+ * 函数：仅关闭 Chrome 引导弹窗。
+ * @param {boolean} restoreSelection 是否恢复引导前的选择。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideHide = (restoreSelection = false): void => {
+  stateCrawlerBrowserChromeInstallGuideOpen.value = false;
+  stateCrawlerBrowserChromeInstallGuideMode.value = '';
+  stateCrawlerBrowserChromeInstallGuideCandidate.value = null;
+  stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
+  stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value = false;
+  stopCrawlerBrowserChromeInstallGuideCopiedTimer();
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
+
+  if (restoreSelection && stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value !== null) {
+    stateCrawlerBrowserSelectedId.value = stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value;
+  }
+
+  stateCrawlerBrowserSelectionPendingId.value = '';
+};
+
+/**
+ * 事件：关闭浏览器扩展安装引导。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideCancel = async (restoreSelection = true): Promise<void> => {
+  handleCrawlerBrowserChromeInstallGuideHide(restoreSelection);
+  try {
+    await tauriSettings.crawlerBrowserSessionClose();
+  } catch {
+    // 会话已经结束时忽略关闭失败，避免关闭弹窗后再弹出无意义错误。
+  }
+};
+
+/**
+ * 生命周期：挂载时订阅浏览器桥与校准进度事件。
+ */
+onMounted(() => {
+  void subscribeBrowserBridgeStateChanged();
+  void subscribeCrawlerBrowserCalibrationProgress();
+  void loadBrowserBridgeAccessDetail(true);
+});
+
+/**
+ * 生命周期：卸载时清理浏览器桥与校准进度事件订阅。
+ */
+onBeforeUnmount(() => {
+  unlistenBrowserBridgeStateChanged?.();
+  unlistenBrowserBridgeStateChanged = null;
+  unlistenCrawlerBrowserCalibrationProgress?.();
+  unlistenCrawlerBrowserCalibrationProgress = null;
+});
+
+/**
+ * 函数：执行浏览器安装引导的继续动作。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideProceed = async (): Promise<void> => {
+  const candidate = stateCrawlerBrowserChromeInstallGuideCandidate.value;
+  const mode = stateCrawlerBrowserChromeInstallGuideMode.value;
+  if (!candidate) {
+    return;
+  }
+
+  stateCrawlerBrowserChromeInstallGuideSubmitting.value = true;
+  stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value = false;
+  stateCrawlerBrowserCalibratingId.value = candidate.id;
+  try {
+    if (mode === 'select') {
+      handleCrawlerBrowserChromeInstallGuideHide(false);
+      await saveCrawlerBrowserCandidate(candidate);
+      return;
+    }
+
+    try {
+      handleCrawlerBrowserChromeInstallGuideHide(false);
+      await tauriSettings.crawlerBrowserCalibrateResume(candidate.id);
+      await loadCrawlerBrowserProfilesDirectory();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error || '');
+      if (stateBrowserBridgeConnected.value) {
+        stateBrowserBridgeError.value = message;
+        toast.add({
+          title: t('pages.settings.crawler.browser.calibration.toast.failed'),
+          description: message,
+          icon: candidate.icon,
+          color: 'error',
+          duration: 4200
+        });
+      }
+      handleCrawlerBrowserChromeInstallGuideHide(true);
+      try {
+        await tauriSettings.crawlerBrowserSessionClose();
+      } catch {
+        // 关闭失败时不额外打断前端回退。
+      }
+      return;
+    }
+  } finally {
+    stateCrawlerBrowserCalibratingId.value = '';
+    stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
+  }
+};
+
+/**
+ * 函数：打开浏览器安装引导。
+ * @param {'select' | 'calibrate'} mode 触发模式。
+ * @param {ICrawlerBrowserCandidate} candidate 浏览器候选。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideOpen = async (mode: 'select' | 'calibrate', candidate: ICrawlerBrowserCandidate): Promise<void> => {
+  stateCrawlerBrowserChromeInstallGuideCandidate.value = candidate;
+  stateCrawlerBrowserChromeInstallGuideMode.value = mode;
+  stateCrawlerBrowserChromeInstallGuideCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = false;
+  stateCrawlerBrowserChromeInstallGuideSubmitting.value = false;
+  stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value = mode === 'calibrate';
+  stopCrawlerBrowserChromeInstallGuideCopiedTimer();
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
+
+  stateCrawlerBrowserChromeInstallGuideOpen.value = true;
+  await loadBrowserBridgeAccessDetail(true);
+
+  if (mode === 'select' && stateBrowserBridgeConnected.value) {
+    void handleCrawlerBrowserChromeInstallGuideProceed();
+  }
+};
+
+/**
+ * 事件：复制 Chrome 扩展目录。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideCopy = async (): Promise<void> => {
+  if (!stateBrowserBridgeExtensionDir.value) {
+    return;
+  }
+
+  await navigator.clipboard.writeText(stateBrowserBridgeExtensionDir.value);
+  stateCrawlerBrowserChromeInstallGuideCopied.value = true;
+  stopCrawlerBrowserChromeInstallGuideCopiedTimer();
+  startCrawlerBrowserChromeInstallGuideCopiedTimer();
+};
+
+/**
+ * 事件：复制 Chrome 扩展管理地址。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserChromeInstallGuideExtensionsPageCopy = async (): Promise<void> => {
+  const browserId = stateCrawlerBrowserChromeInstallGuideCandidate.value?.id;
+  if (browserId !== 'edge' && browserId !== 'chrome') {
+    return;
+  }
+
+  const extensionsPageUrl = browserId === 'edge' ? 'edge://extensions/' : 'chrome://extensions/';
+  await navigator.clipboard.writeText(extensionsPageUrl);
+  stateCrawlerBrowserChromeInstallGuideExtensionsPageCopied.value = true;
+  stopCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
+  startCrawlerBrowserChromeInstallGuideExtensionsPageCopiedTimer();
 };
 
 /**
@@ -552,12 +1566,177 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
     return;
   }
 
+  const diagnosticsSetting = (crawlerSetting as Record<string, unknown>).diagnostics;
+  if (diagnosticsSetting && typeof diagnosticsSetting === 'object' && !Array.isArray(diagnosticsSetting)) {
+    stateCrawlerDiagnosticsCompareMode.value = crawlerDiagnosticsCompareModeNormalize((diagnosticsSetting as Record<string, unknown>).captureMode);
+  }
+
+  stateCrawlerCompareBackend.value = crawlerCompareBackendNormalize((crawlerSetting as Record<string, unknown>).compareBackend);
+  stateCrawlerShowLogs.value = Boolean((crawlerSetting as Record<string, unknown>).showLogs);
+
   const browserSetting = (crawlerSetting as Record<string, unknown>).browser;
   if (!browserSetting || typeof browserSetting !== 'object' || Array.isArray(browserSetting)) {
     return;
   }
 
   stateCrawlerBrowserSelectedId.value = String((browserSetting as Record<string, unknown>).id || '');
+
+  const browserCalibration = (crawlerSetting as Record<string, unknown>).browserCalibration;
+  if (browserCalibration && typeof browserCalibration === 'object' && !Array.isArray(browserCalibration)) {
+    const nextCalibrationMap: Partial<Record<ICrawlerBrowserCandidate['id'], ICrawlerBrowserCalibrationResult>> = {};
+
+    for (const browserId of ['edge', 'chrome'] as const) {
+      const calibration = (browserCalibration as Record<string, unknown>)[browserId];
+      if (!calibration || typeof calibration !== 'object' || Array.isArray(calibration)) {
+        continue;
+      }
+
+      const calibrationRecord = calibration as Record<string, unknown>;
+      const maximizedBorderLeftOffset = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.maxBorderLeftOffset);
+      const maximizedHeadHeight = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.maxHeadHeight ?? calibrationRecord.maxVerticalDiff);
+      const normalBorderLeftOffset = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.normalBorderLeftOffset);
+      const normalHeadHeight = crawlerBrowserCalibrationNumberNormalize(calibrationRecord.normalHeadHeight ?? calibrationRecord.normalVerticalDiff);
+
+      nextCalibrationMap[browserId] = {
+        browserId,
+        maximized: {
+          borderLeftOffset: maximizedBorderLeftOffset,
+          headHeight: maximizedHeadHeight
+        },
+        normal: {
+          borderLeftOffset: normalBorderLeftOffset,
+          headHeight: normalHeadHeight
+        }
+      };
+    }
+
+    stateCrawlerBrowserCalibrationMap.value = nextCalibrationMap;
+  } else {
+    stateCrawlerBrowserCalibrationMap.value = {};
+  }
+};
+
+/**
+ * 函数：归一化爬虫诊断比较模式。
+ * @param {unknown} value 原始模式值。
+ * @returns {string} 可保存的模式值。
+ */
+const crawlerDiagnosticsCompareModeNormalize = (value: unknown): string => {
+  return value === 'flow' ? 'flow' : 'match';
+};
+
+/**
+ * 函数：归一化爬虫模板比较后端。
+ * @param {unknown} value 原始后端值。
+ * @returns {'cpu' | 'gpu'} 可保存的后端值。
+ */
+const crawlerCompareBackendNormalize = (value: unknown): 'cpu' | 'gpu' => {
+  return value === 'gpu' ? 'gpu' : 'cpu';
+};
+
+/**
+ * 事件：更新全流程比较开关。
+ * @param {boolean} on 是否启用全流程比较。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerDiagnosticsCompareModeUpdate = async (on: boolean): Promise<void> => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  const captureMode = on ? 'flow' : 'match';
+  stateCrawlerDiagnosticsCompareMode.value = captureMode;
+  await tauriSettings.update({
+    crawler: {
+      diagnostics: {
+        captureMode
+      }
+    }
+  });
+};
+
+/**
+ * 事件：更新模板比较后端。
+ * @param {boolean} on 是否启用 GPU 比较。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerCompareBackendUpdate = async (on: boolean): Promise<void> => {
+  if (!isTauriRuntime.value || stateCrawlerCompareBackendProbing.value) {
+    return;
+  }
+
+  if (!on) {
+    stateCrawlerCompareBackend.value = 'cpu';
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'cpu'
+      }
+    });
+    return;
+  }
+
+  stateCrawlerCompareBackendProbing.value = true;
+  try {
+    const probe = await tauriSettings.crawlerCompareBackendProbe();
+    if (!probe.eligible) {
+      stateCrawlerCompareBackend.value = 'cpu';
+      toast.add({
+        title: t('pages.settings.crawler.compareBackend.probeFailedTitle'),
+        description: probe.reason,
+        color: 'error'
+      });
+      await tauriSettings.update({
+        crawler: {
+          compareBackend: 'cpu'
+        }
+      });
+      return;
+    }
+
+    stateCrawlerCompareBackend.value = 'gpu';
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'gpu'
+      }
+    });
+    toast.add({
+      title: t('pages.settings.crawler.compareBackend.probeSuccessTitle'),
+      description: probe.adapterName,
+      color: 'success'
+    });
+  } catch (error) {
+    stateCrawlerCompareBackend.value = 'cpu';
+    toast.add({
+      title: t('pages.settings.crawler.compareBackend.probeFailedTitle'),
+      description: error instanceof Error ? error.message : t('pages.settings.crawler.compareBackend.probeFailedFallback'),
+      color: 'error'
+    });
+    await tauriSettings.update({
+      crawler: {
+        compareBackend: 'cpu'
+      }
+    });
+  } finally {
+    stateCrawlerCompareBackendProbing.value = false;
+  }
+};
+
+/**
+ * 事件：更新爬虫日志显示开关。
+ * @param {boolean} on 是否显示爬虫日志。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerShowLogsUpdate = async (on: boolean): Promise<void> => {
+  if (!isTauriRuntime.value) {
+    return;
+  }
+
+  stateCrawlerShowLogs.value = on;
+  await tauriSettings.update({
+    crawler: {
+      showLogs: on
+    }
+  });
 };
 
 /**
@@ -567,11 +1746,117 @@ const loadCrawlerBrowserSettings = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值
  */
 const handleCrawlerBrowserSelect = async (candidate: ICrawlerBrowserCandidate, on: boolean): Promise<void> => {
-  if (!on || !isTauriRuntime.value || !candidate.installed) {
+  if (!on) {
+    stateCrawlerBrowserSelectionPendingId.value = '';
+    if (stateCrawlerBrowserSelectedId.value === candidate.id) {
+      await clearCrawlerBrowserSelection();
+    }
+
     return;
   }
 
-  await saveCrawlerBrowserCandidate(candidate);
+  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+    return;
+  }
+
+  stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value = stateCrawlerBrowserSelectedId.value;
+  stateCrawlerBrowserSelectionPendingId.value = candidate.id;
+  stateCrawlerBrowserSelectedId.value = candidate.id;
+
+  if (candidate.id === 'chrome') {
+    try {
+      await saveCrawlerBrowserCandidate(candidate);
+      const calibrated = await handleCrawlerBrowserCalibrateRun(candidate, true);
+      if (!calibrated) {
+        handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
+      }
+    } finally {
+      stateCrawlerBrowserSelectionPendingId.value = '';
+    }
+    return;
+  }
+
+  try {
+    await saveCrawlerBrowserCandidate(candidate);
+    await handleCrawlerBrowserCalibrateRun(candidate);
+  } finally {
+    stateCrawlerBrowserSelectionPendingId.value = '';
+  }
+};
+
+/**
+ * 事件：校准浏览器窗口参数。
+ * @param {ICrawlerBrowserCandidate} candidate 浏览器候选。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate): Promise<void> => {
+  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+    return;
+  }
+
+  stateCrawlerBrowserChromeInstallGuidePreviousSelectedId.value = stateCrawlerBrowserSelectedId.value;
+  stateCrawlerBrowserSelectionPendingId.value = candidate.id;
+
+  if (candidate.id === 'chrome') {
+    try {
+      const calibrated = await handleCrawlerBrowserCalibrateRun(candidate, true);
+      if (!calibrated) {
+        handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
+      }
+    } finally {
+      stateCrawlerBrowserSelectionPendingId.value = '';
+    }
+    return;
+  }
+
+  try {
+    await handleCrawlerBrowserCalibrateRun(candidate);
+  } finally {
+    stateCrawlerBrowserSelectionPendingId.value = '';
+  }
+};
+
+/**
+ * 事件：真正执行浏览器校准。
+ * @param {ICrawlerBrowserCandidate} candidate 浏览器候选。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserCalibrateRun = async (candidate: ICrawlerBrowserCandidate, silent = false): Promise<boolean> => {
+  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+    return false;
+  }
+
+  stateCrawlerBrowserCalibratingId.value = candidate.id;
+  try {
+    const calibration = await tauriSettings.crawlerBrowserCalibrate(candidate.id);
+    stateCrawlerBrowserCalibrationMap.value = {
+      ...stateCrawlerBrowserCalibrationMap.value,
+      [calibration.browserId]: calibration
+    };
+    await loadCrawlerBrowserSettings();
+    await loadCrawlerBrowserProfilesDirectory();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || '');
+    if (message.includes('未连接') || message.includes('未就绪') || message.includes('not connected') || message.includes('not ready')) {
+      handleCrawlerBrowserChromeInstallGuideOpen('calibrate', candidate);
+      return false;
+    }
+
+    if (!silent) {
+      toast.add({
+        title: t('pages.settings.crawler.browser.calibration.toast.failed'),
+        description: message,
+        icon: candidate.icon,
+        color: 'error',
+        duration: 3200
+      });
+    }
+    return false;
+  } finally {
+    stateCrawlerBrowserCalibratingId.value = '';
+  }
+
+  return true;
 };
 
 /**
@@ -591,22 +1876,6 @@ const handleCrawlerBrowserInstall = async (candidate: ICrawlerBrowserCandidate):
 };
 
 /**
- * 函数：拼接爬虫浏览器资料目录路径。
- * @param {string} basePath 基础路径。
- * @param {string} segment 子目录名。
- * @returns {string} 拼接后的路径。
- */
-const crawlerBrowserProfilesDirectoryPathJoin = (basePath: string, segment: string): string => {
-  const trimmedBasePath = basePath.trim().replace(/[\\/]+$/, '');
-  if (!trimmedBasePath) {
-    return '';
-  }
-
-  const separator = trimmedBasePath.includes('\\') ? '\\' : '/';
-  return [trimmedBasePath, segment].join(separator);
-};
-
-/**
  * 函数：加载爬虫浏览器资料目录信息。
  * @returns {Promise<void>} 无返回值
  */
@@ -619,15 +1888,16 @@ const loadCrawlerBrowserProfilesDirectory = async (): Promise<void> => {
   const rootPath = directory.directoryPath;
   const edgePath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'edge');
   const chromePath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'chrome');
-  const chromiumPath = crawlerBrowserProfilesDirectoryPathJoin(rootPath, 'chromium');
-  const pathEntries = [rootPath, edgePath, chromePath, chromiumPath];
+  const pathEntries = [rootPath, edgePath, chromePath];
   const pathExistsEntries = await tauriSettings.pathsExistGet(pathEntries);
   const pathExistsMap = new Map(pathExistsEntries.map((item) => [item.path, item.exists]));
-  const [rootSizeBytes, edgeSizeBytes, chromeSizeBytes, chromiumSizeBytes] = await Promise.all([
+  const [edgeMatches, chromeMatches] = await Promise.all([tauriSettings.crawlerBrowserMatchesDirGet('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirGet('chrome', crawlerBrowserProfileSite)]);
+  const [rootSizeBytes, edgeSizeBytes, chromeSizeBytes, edgeMatchesSizeBytes, chromeMatchesSizeBytes] = await Promise.all([
     tauriSettings.crawlerBrowserProfilesDirSizeGet('root').catch(() => 0),
     tauriSettings.crawlerBrowserProfilesDirSizeGet('edge').catch(() => 0),
     tauriSettings.crawlerBrowserProfilesDirSizeGet('chrome').catch(() => 0),
-    tauriSettings.crawlerBrowserProfilesDirSizeGet('chromium').catch(() => 0)
+    tauriSettings.crawlerBrowserMatchesDirSizeGet('edge', crawlerBrowserProfileSite).catch(() => 0),
+    tauriSettings.crawlerBrowserMatchesDirSizeGet('chrome', crawlerBrowserProfileSite).catch(() => 0)
   ]);
 
   stateCrawlerBrowserProfilesRootPath.value = rootPath;
@@ -636,20 +1906,23 @@ const loadCrawlerBrowserProfilesDirectory = async (): Promise<void> => {
   stateCrawlerBrowserProfilesEdgeExists.value = pathExistsMap.get(edgePath) ?? false;
   stateCrawlerBrowserProfilesChromePath.value = chromePath;
   stateCrawlerBrowserProfilesChromeExists.value = pathExistsMap.get(chromePath) ?? false;
-  stateCrawlerBrowserProfilesChromiumPath.value = chromiumPath;
-  stateCrawlerBrowserProfilesChromiumExists.value = pathExistsMap.get(chromiumPath) ?? false;
+  stateCrawlerBrowserMatchesEdgePath.value = edgeMatches.directoryPath;
+  stateCrawlerBrowserMatchesEdgeExists.value = edgeMatches.exists;
+  stateCrawlerBrowserMatchesChromePath.value = chromeMatches.directoryPath;
+  stateCrawlerBrowserMatchesChromeExists.value = chromeMatches.exists;
   stateCrawlerBrowserProfilesRootSizeBytes.value = rootSizeBytes;
   stateCrawlerBrowserProfilesEdgeSizeBytes.value = edgeSizeBytes;
   stateCrawlerBrowserProfilesChromeSizeBytes.value = chromeSizeBytes;
-  stateCrawlerBrowserProfilesChromiumSizeBytes.value = chromiumSizeBytes;
+  stateCrawlerBrowserMatchesEdgeSizeBytes.value = edgeMatchesSizeBytes;
+  stateCrawlerBrowserMatchesChromeSizeBytes.value = chromeMatchesSizeBytes;
 };
 
 /**
  * 函数：按资料范围读取路径与存在状态。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
  * @returns {{ path: string; exists: boolean }} 当前范围的路径与存在状态。
  */
-const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrome' | 'chromium'): ICrawlerBrowserProfilesDirectoryState => {
+const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrome'): ICrawlerBrowserProfilesDirectoryState => {
   switch (scope) {
     case 'root':
       return { path: stateCrawlerBrowserProfilesRootPath.value, exists: stateCrawlerBrowserProfilesRootExists.value };
@@ -657,28 +1930,16 @@ const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrom
       return { path: stateCrawlerBrowserProfilesEdgePath.value, exists: stateCrawlerBrowserProfilesEdgeExists.value };
     case 'chrome':
       return { path: stateCrawlerBrowserProfilesChromePath.value, exists: stateCrawlerBrowserProfilesChromeExists.value };
-    case 'chromium':
-      return { path: stateCrawlerBrowserProfilesChromiumPath.value, exists: stateCrawlerBrowserProfilesChromiumExists.value };
   }
 };
 
 /**
- * 函数：切换资料清空确认弹层。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
- * @param {boolean} open 是否打开。
- * @returns {void} 无返回值。
- */
-const handleCrawlerBrowserProfilesDirectoryClearToggle = (scope: 'root' | 'edge' | 'chrome' | 'chromium', open: boolean): void => {
-  stateCrawlerBrowserProfilesClearTarget.value = open ? scope : '';
-};
-
-/**
  * 函数：清空爬虫浏览器资料目录缓存。
- * @param {'root' | 'edge' | 'chrome' | 'chromium'} scope 资料范围。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
  * @param {(() => void) | undefined} close 弹层关闭函数。
  * @returns {Promise<void>} 无返回值。
  */
-const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge' | 'chrome' | 'chromium', close?: () => void): Promise<void> => {
+const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge' | 'chrome', close?: () => void): Promise<void> => {
   if (!isTauriRuntime.value || stateCrawlerBrowserProfilesClearing.value) {
     return;
   }
@@ -692,6 +1953,9 @@ const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge'
   try {
     await tauriSettings.crawlerBrowserProfilesDirClear(scope);
     await loadCrawlerBrowserProfilesDirectory();
+    if (scope === 'root' || stateCrawlerBrowserSelectedId.value === scope) {
+      await clearCrawlerBrowserSelection();
+    }
     toast.add({
       title: t('pages.settings.crawler.browserProfilesDirectory.clearSuccess')
     });
@@ -704,6 +1968,127 @@ const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge'
   } finally {
     stateCrawlerBrowserProfilesClearing.value = false;
     stateCrawlerBrowserProfilesClearTarget.value = '';
+    stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
+  }
+};
+
+/**
+ * 函数：按浏览器范围读取匹配记录路径与存在状态。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {{ path: string; exists: boolean }} 当前范围的路径与存在状态。
+ */
+const crawlerBrowserMatchesDirectoryStateGet = (browser: 'edge' | 'chrome'): ICrawlerBrowserProfilesDirectoryState => {
+  switch (browser) {
+    case 'edge':
+      return { path: stateCrawlerBrowserMatchesEdgePath.value, exists: stateCrawlerBrowserMatchesEdgeExists.value };
+    case 'chrome':
+      return { path: stateCrawlerBrowserMatchesChromePath.value, exists: stateCrawlerBrowserMatchesChromeExists.value };
+  }
+};
+
+/**
+ * 函数：读取浏览器目录清理弹层是否打开。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {boolean} 是否打开。
+ */
+const crawlerBrowserDirectoryClearPopoverOpenGet = (browser: 'edge' | 'chrome'): boolean => {
+  return stateCrawlerBrowserDirectoryClearMenuTarget.value === browser || stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：读取浏览器目录清理弹层是否正在确认。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {boolean} 是否正在确认。
+ */
+const crawlerBrowserDirectoryClearConfirmOpenGet = (browser: 'edge' | 'chrome'): boolean => {
+  return stateCrawlerBrowserProfilesClearTarget.value === browser || stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：读取浏览器资料目录清理加载状态。
+ * @param {'root' | 'edge' | 'chrome'} scope 资料范围。
+ * @returns {boolean} 是否正在清理。
+ */
+const crawlerBrowserProfilesDirectoryClearLoadingGet = (scope: 'root' | 'edge' | 'chrome'): boolean => {
+  return stateCrawlerBrowserProfilesClearing.value && stateCrawlerBrowserProfilesClearTarget.value === scope;
+};
+
+/**
+ * 函数：读取浏览器匹配记录目录清理加载状态。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {boolean} 是否正在清理。
+ */
+const crawlerBrowserMatchesDirectoryClearLoadingGet = (browser: 'edge' | 'chrome'): boolean => {
+  return stateCrawlerBrowserMatchesClearing.value && stateCrawlerBrowserMatchesClearTarget.value === browser;
+};
+
+/**
+ * 函数：切换浏览器目录清理选择菜单。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @param {boolean} open 是否打开。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserDirectoryClearMenuToggle = (browser: 'edge' | 'chrome', open: boolean): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = open ? browser : '';
+  stateCrawlerBrowserProfilesClearTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = '';
+};
+
+/**
+ * 事件：选择清空浏览器资料目录缓存。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserProfilesDirectoryClearSelect = (browser: 'edge' | 'chrome'): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = '';
+  stateCrawlerBrowserProfilesClearTarget.value = browser;
+};
+
+/**
+ * 事件：选择清空浏览器匹配记录目录。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chrome'): void => {
+  stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
+  stateCrawlerBrowserProfilesClearTarget.value = '';
+  stateCrawlerBrowserMatchesClearTarget.value = browser;
+};
+
+/**
+ * 函数：清空爬虫浏览器匹配记录目录。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @param {(() => void) | undefined} close 弹层关闭函数。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chrome', close?: () => void): Promise<void> => {
+  if (!isTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
+    return;
+  }
+
+  const directory = crawlerBrowserMatchesDirectoryStateGet(browser);
+  if (!directory.path) {
+    return;
+  }
+
+  stateCrawlerBrowserMatchesClearing.value = true;
+  try {
+    await tauriSettings.crawlerBrowserMatchesDirClear(browser, crawlerBrowserProfileSite);
+    await loadCrawlerBrowserProfilesDirectory();
+    toast.add({
+      title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearSuccess')
+    });
+    close?.();
+  } catch {
+    toast.add({
+      title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearFailed'),
+      color: 'error'
+    });
+  } finally {
+    stateCrawlerBrowserMatchesClearing.value = false;
+    stateCrawlerBrowserMatchesClearTarget.value = '';
+    stateCrawlerBrowserDirectoryClearMenuTarget.value = '';
   }
 };
 
@@ -730,7 +2115,158 @@ const handleOpenCrawlerBrowserProfilesDirectory = async (path: string, exists: b
 };
 
 /**
- * 事件：打开浏览器目录。
+ * 事件：按浏览器打开资料目录。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleOpenCrawlerBrowserProfilesBrowser = async (browser: 'edge' | 'chrome'): Promise<void> => {
+  const directory = crawlerBrowserProfilesDirectoryStateGet(browser);
+  await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
+};
+
+/**
+ * 事件：按浏览器打开匹配记录目录。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleOpenCrawlerBrowserMatchesBrowser = async (browser: 'edge' | 'chrome'): Promise<void> => {
+  const directory = crawlerBrowserMatchesDirectoryStateGet(browser);
+  await handleOpenCrawlerBrowserProfilesDirectory(directory.path, directory.exists);
+};
+
+/**
+ * 函数：生成浏览器目录打开菜单项。
+ * @param {'edge' | 'chrome'} browser 浏览器范围。
+ * @returns {Array<Array<Record<string, unknown>>>} 菜单项列表。
+ */
+const crawlerBrowserProfilesOpenMenuItemsGet = (browser: 'edge' | 'chrome'): Array<Array<Record<string, unknown>>> => {
+  const profileDirectory = crawlerBrowserProfilesDirectoryStateGet(browser);
+  const matchesDirectory = crawlerBrowserMatchesDirectoryStateGet(browser);
+
+  return [
+    [
+      {
+        label: t('pages.settings.crawler.browserProfilesDirectory.browserDirectory'),
+        icon: 'i-lucide:folder-open',
+        disabled: !profileDirectory.path,
+        onSelect: (): void => {
+          void handleOpenCrawlerBrowserProfilesBrowser(browser);
+        }
+      }
+    ],
+    [
+      {
+        label: t('pages.settings.crawler.browserProfilesDirectory.matchesDirectory'),
+        icon: 'i-lucide:folder-open',
+        disabled: !matchesDirectory.path,
+        onSelect: (): void => {
+          void handleOpenCrawlerBrowserMatchesBrowser(browser);
+        }
+      }
+    ]
+  ];
+};
+
+/**
+ * 计算属性：浏览器资料目录根目录清理总字节数。
+ * @returns {number} 根目录全量清理总字节数。
+ */
+const computedCrawlerBrowserProfilesRootClearTotalSizeBytes = computed<number>(() => {
+  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserProfilesRootSizeBytes.value, computedCrawlerBrowserProfilesRootClearMatchesSizeBytes.value);
+});
+
+/**
+ * 计算属性：浏览器资料目录根目录缓存清理总字节数。
+ * @returns {number} 根目录缓存清理总字节数。
+ */
+const computedCrawlerBrowserProfilesRootClearCacheSizeBytes = computed<number>(() => {
+  return stateCrawlerBrowserProfilesRootSizeBytes.value;
+});
+
+/**
+ * 计算属性：浏览器资料目录根目录匹配记录清理总字节数。
+ * @returns {number} 根目录匹配记录清理总字节数。
+ */
+const computedCrawlerBrowserProfilesRootClearMatchesSizeBytes = computed<number>(() => {
+  return crawlerBrowserProfilesTotalSizeBytesGet(stateCrawlerBrowserMatchesEdgeSizeBytes.value, stateCrawlerBrowserMatchesChromeSizeBytes.value);
+});
+
+/**
+ * 状态：浏览器资料目录根目录清理目标。
+ */
+const stateCrawlerBrowserProfilesRootClearOpen = ref(false);
+
+/**
+ * 状态：浏览器资料目录根目录清理目标。
+ */
+const stateCrawlerBrowserProfilesRootClearTarget = ref<'cache' | 'matches' | ''>('');
+
+/**
+ * 函数：切换浏览器资料目录根目录清理菜单。
+ * @param {boolean} open 是否打开。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserProfilesRootClearToggle = (open: boolean): void => {
+  stateCrawlerBrowserProfilesRootClearOpen.value = open;
+  if (!open) {
+    stateCrawlerBrowserProfilesRootClearTarget.value = '';
+  }
+};
+
+/**
+ * 函数：选择浏览器资料目录根目录清理目标。
+ * @param {'cache' | 'matches'} target 清理目标。
+ * @returns {void} 无返回值。
+ */
+const handleCrawlerBrowserProfilesRootClearSelect = (target: 'cache' | 'matches'): void => {
+  stateCrawlerBrowserProfilesRootClearTarget.value = target;
+};
+
+/**
+ * 函数：确认浏览器资料目录根目录清理。
+ * @param {(() => void) | undefined} close 弹层关闭函数。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserProfilesRootClearConfirm = async (close?: () => void): Promise<void> => {
+  if (stateCrawlerBrowserProfilesRootClearTarget.value === 'cache') {
+    await handleCrawlerBrowserProfilesDirectoryClear('root', close);
+  } else if (stateCrawlerBrowserProfilesRootClearTarget.value === 'matches') {
+    await handleCrawlerBrowserMatchesDirectoryClearAll();
+    close?.();
+  }
+
+  stateCrawlerBrowserProfilesRootClearTarget.value = '';
+  stateCrawlerBrowserProfilesRootClearOpen.value = false;
+};
+
+/**
+ * 事件：清空全部浏览器匹配记录。
+ * @returns {Promise<void>} 无返回值。
+ */
+const handleCrawlerBrowserMatchesDirectoryClearAll = async (): Promise<void> => {
+  if (!isTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
+    return;
+  }
+
+  stateCrawlerBrowserMatchesClearing.value = true;
+  try {
+    await Promise.all([tauriSettings.crawlerBrowserMatchesDirClear('edge', crawlerBrowserProfileSite), tauriSettings.crawlerBrowserMatchesDirClear('chrome', crawlerBrowserProfileSite)]);
+    await loadCrawlerBrowserProfilesDirectory();
+    toast.add({
+      title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearSuccess')
+    });
+  } catch {
+    toast.add({
+      title: t('pages.settings.crawler.browserProfilesDirectory.matchesClearFailed'),
+      color: 'error'
+    });
+  } finally {
+    stateCrawlerBrowserMatchesClearing.value = false;
+  }
+};
+
+/**
+ * 事件：打开当前选择的浏览器资料目录。
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesRoot = async (): Promise<void> => {
@@ -742,7 +2278,7 @@ const handleOpenCrawlerBrowserProfilesRoot = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesEdge = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesEdgePath.value, stateCrawlerBrowserProfilesEdgeExists.value);
+  await handleOpenCrawlerBrowserProfilesBrowser('edge');
 };
 
 /**
@@ -750,15 +2286,7 @@ const handleOpenCrawlerBrowserProfilesEdge = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesChrome = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesChromePath.value, stateCrawlerBrowserProfilesChromeExists.value);
-};
-
-/**
- * 事件：打开 Chromium 浏览器资料目录。
- * @returns {Promise<void>} 无返回值。
- */
-const handleOpenCrawlerBrowserProfilesChromium = async (): Promise<void> => {
-  await handleOpenCrawlerBrowserProfilesDirectory(stateCrawlerBrowserProfilesChromiumPath.value, stateCrawlerBrowserProfilesChromiumExists.value);
+  await handleOpenCrawlerBrowserProfilesBrowser('chrome');
 };
 
 /**
@@ -780,6 +2308,10 @@ onMounted(async () => {
   stateIsMounted.value = true;
 
   await loadCrawlerBrowserProfilesDirectory();
+  await subscribeCrawlerBrowserProfilesChanged();
+  await subscribeBrowserBridgeStateChanged();
+  await subscribeCrawlerBrowserCalibrationProgress();
+  await loadBrowserBridgeAccessDetail(true);
   await loadCrawlerBrowserSettings();
   await refreshCrawlerBrowsers(true);
   window.addEventListener('focus', handleWindowFocus);
@@ -789,6 +2321,23 @@ onMounted(async () => {
  * 生命周期：组件卸载前
  */
 onBeforeUnmount(() => {
+  stopBrowserBridgeCopiedTimer();
+
+  if (unlistenBrowserBridgeStateChanged !== null) {
+    unlistenBrowserBridgeStateChanged();
+    unlistenBrowserBridgeStateChanged = null;
+  }
+
+  if (unlistenCrawlerBrowserCalibrationProgress !== null) {
+    unlistenCrawlerBrowserCalibrationProgress();
+    unlistenCrawlerBrowserCalibrationProgress = null;
+  }
+
+  if (unlistenCrawlerBrowserProfilesChanged !== null) {
+    unlistenCrawlerBrowserProfilesChanged();
+    unlistenCrawlerBrowserProfilesChanged = null;
+  }
+
   window.removeEventListener('focus', handleWindowFocus);
 });
 </script>

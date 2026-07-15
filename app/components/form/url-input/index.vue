@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSplitResult } from '@/components/form/url-input/index.types';
+import type { IFormUrlInputProps, IFormUrlInputProtocolOption, IFormUrlInputSplitResult, TFormUrlInputProtocol } from '@/components/form/url-input/index.types';
 
 /**
  * 属性：URL 输入组件。
@@ -43,7 +43,7 @@ const slots = useSlots();
 /**
  * 状态：当前协议。
  */
-const stateProtocol = ref<'http' | 'https'>('https');
+const stateProtocol = ref<TFormUrlInputProtocol>('https');
 
 /**
  * 状态：当前主体内容。
@@ -55,7 +55,9 @@ const stateValue = ref<string>('');
  */
 const computedProtocolOptions = computed<IFormUrlInputProtocolOption[]>(() => [
   { label: 'https://', value: 'https' },
-  { label: 'http://', value: 'http' }
+  { label: 'http://', value: 'http' },
+  { label: 'wss://', value: 'wss' },
+  { label: 'ws://', value: 'ws' }
 ]);
 
 /**
@@ -71,7 +73,7 @@ const computedInputPlaceholder = computed(() => {
     return '';
   }
 
-  if (/^https?:\/\//i.test(placeholder)) {
+  if (/^(https?|wss?):\/\//i.test(placeholder)) {
     return splitUrl(placeholder).value;
   }
 
@@ -92,15 +94,13 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
     return { protocol: 'https', value: '' };
   }
 
-  let protocol: 'http' | 'https' = 'https';
+  let protocol: TFormUrlInputProtocol = 'https';
   let body: string = raw;
+  const matched = raw.match(/^(https?|wss?):\/\//i);
 
-  if (/^http:\/\//i.test(raw)) {
-    protocol = 'http';
-    body = raw.replace(/^http:\/\//i, '');
-  } else if (/^https:\/\//i.test(raw)) {
-    protocol = 'https';
-    body = raw.replace(/^https:\/\//i, '');
+  if (matched?.[1]) {
+    protocol = matched[1].toLowerCase() as TFormUrlInputProtocol;
+    body = raw.slice(matched[0].length);
   }
 
   if (props.baseUrlOnly) {
@@ -116,17 +116,17 @@ const splitUrl = (url: string): IFormUrlInputSplitResult => {
 
 /**
  * 函数：拼接完整 URL。
- * @param {'http' | 'https'} protocol URL 协议。
+ * @param {TFormUrlInputProtocol} protocol URL 协议。
  * @param {string} value 协议后面的主体内容。
  * @returns {string} 完整 URL。
  */
-const joinUrl = (protocol: 'http' | 'https', value: string): string => {
+const joinUrl = (protocol: TFormUrlInputProtocol, value: string): string => {
   /**
    * 函数：normalizedValue。
    */
   const normalizedValue = String(value || '')
     .trim()
-    .replace(/^https?:\/\//i, '');
+    .replace(/^(https?|wss?):\/\//i, '');
   if (!normalizedValue) {
     return '';
   }
