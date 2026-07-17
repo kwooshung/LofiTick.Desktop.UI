@@ -45,15 +45,11 @@
 
     <UModal v-model:open="stateCrawlerBrowserEnableHintOpen" :title="t('pages.settings.crawler.browser.title')" :description="t('pages.settings.crawler.browser.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }">
       <template #body>
-        <div class="text-muted text-sm leading-6">
-          当前没有启用浏览器，请先到爬虫设置页面启用一个浏览器，再回来执行任务。
-        </div>
+        <div class="text-muted text-sm leading-6">当前没有启用浏览器，请先到爬虫设置页面启用一个浏览器，再回来执行任务。</div>
       </template>
 
       <template #footer>
-        <UButton color="primary" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-white' }">
-          去爬虫设置
-        </UButton>
+        <UButton color="primary" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-white' }"> 去爬虫设置 </UButton>
       </template>
     </UModal>
 
