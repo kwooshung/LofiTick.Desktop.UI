@@ -43,6 +43,20 @@
       </div>
     </template>
 
+    <UModal v-model:open="stateCrawlerBrowserEnableHintOpen" :title="t('pages.settings.crawler.browser.title')" :description="t('pages.settings.crawler.browser.description')" :ui="{ content: 'sm:max-w-lg', footer: 'justify-end' }">
+      <template #body>
+        <div class="text-muted text-sm leading-6">
+          当前没有启用浏览器，请先到爬虫设置页面启用一个浏览器，再回来执行任务。
+        </div>
+      </template>
+
+      <template #footer>
+        <UButton color="primary" icon="i-lucide:settings" :to="localePath('/settings/crawler')" :ui="{ leadingIcon: 'text-white' }">
+          去爬虫设置
+        </UButton>
+      </template>
+    </UModal>
+
     <NuxtPage v-model:dialog-open="stateTaskDialogOpen" v-model:task-executing="stateTaskExecuting" v-model:browser-session-task-id="stateCrawlerBrowserSessionTaskId" />
   </Dashboard>
 </template>
@@ -72,6 +86,11 @@ const localePath = useLocalePath();
 const { isTauriRuntime } = useTauriEnv();
 
 /**
+ * Hook：Tauri 设置。
+ */
+const tauriSettings = useTauriSettings();
+
+/**
  * 状态：任务执行弹窗是否打开
  */
 const stateTaskDialogOpen = ref(false);
@@ -90,6 +109,11 @@ const stateTaskStopping = ref(false);
  * 状态：停止任务确认浮层是否打开。
  */
 const stateTaskStopConfirmOpen = ref(false);
+
+/**
+ * 状态：浏览器启用提示是否打开。
+ */
+const stateCrawlerBrowserEnableHintOpen = ref(false);
 
 /**
  * 计算属性：当前爬虫任务键
@@ -153,8 +177,18 @@ const computedLinks = computed<NavigationMenuItem[][]>(() => [[{ label: t('pages
  * 函数：打开当前任务执行弹窗
  * @return {void}
  */
-const handleTaskExecuteClick = (): void => {
+const handleTaskExecuteClick = async (): Promise<void> => {
   if (computedTaskRunning.value || stateTaskExecuting.value || stateTaskStopping.value) {
+    return;
+  }
+
+  const conf = await tauriSettings.get();
+  const crawlerSetting = conf.crawler;
+  const browserSetting = crawlerSetting && typeof crawlerSetting === 'object' && !Array.isArray(crawlerSetting) ? (crawlerSetting as Record<string, unknown>).browser : null;
+  const browserId = browserSetting && typeof browserSetting === 'object' && !Array.isArray(browserSetting) ? String((browserSetting as Record<string, unknown>).id || '') : '';
+
+  if (!browserId) {
+    stateCrawlerBrowserEnableHintOpen.value = true;
     return;
   }
 
