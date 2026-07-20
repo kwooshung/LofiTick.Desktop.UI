@@ -97,3 +97,43 @@ export interface ICrawlerTaskBrowserSessionEvent {
    */
   running: boolean;
 }
+
+/**
+ * 接口：爬虫任务失败事件。
+ */
+export interface ICrawlerTaskFailedEvent {
+  /**
+   * 属性：当前任务对应的浏览器会话任务 ID。
+   */
+  taskId: string;
+
+  /**
+   * 属性：失败步骤。
+   */
+  step: string;
+
+  /**
+   * 属性：失败原因。
+   */
+  error: string;
+}
+
+/**
+ * 接口：Pixabay 继续等待请求。
+ */
+export interface ICrawlerPixabayWaitContinueRequest {
+  /**
+   * 属性：任务标识。
+   */
+  taskId: string;
+
+  /**
+   * 属性：任务类型。
+   */
+  task: string;
+
+  /**
+   * 属性：任务参数。
+   */
+  payload: ICrawlerTaskExecuteRequestPayload;
+}

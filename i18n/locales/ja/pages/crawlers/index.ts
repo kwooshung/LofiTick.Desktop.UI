@@ -25,7 +25,14 @@ export const crawlers = {
       stopConfirmTitle: '現在のタスクを停止しますか？',
       stopConfirmDescription: '停止するとクローラーウィンドウを閉じ、実行状態をクリアします。',
       stopCancel: 'キャンセル',
-      stopConfirm: '停止'
+      stopConfirm: '停止',
+      retryConfirm: {
+        title: 'タスクの実行に失敗しました',
+        description: 'タスクの実行に失敗しました。ページの状態を確認してから再試行してください。',
+        cancel: 'キャンセル',
+        confirm: '再試行',
+        stop: 'タスクを終了'
+      }
     },
     filters: {
       all: 'すべて'

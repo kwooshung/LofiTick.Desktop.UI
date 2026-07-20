@@ -25,7 +25,14 @@ export const crawlers = {
       stopConfirmTitle: 'Stop the current task?',
       stopConfirmDescription: 'Stopping will close the crawler window and clear its running state.',
       stopCancel: 'Cancel',
-      stopConfirm: 'Stop'
+      stopConfirm: 'Stop',
+      retryConfirm: {
+        title: 'Task failed',
+        description: 'The task failed. Check the page state and try again.',
+        cancel: 'Cancel',
+        confirm: 'Retry',
+        stop: 'Stop task'
+      }
     },
     filters: {
       all: 'All'

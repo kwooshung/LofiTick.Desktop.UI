@@ -41,6 +41,14 @@ export const useTauriWindow = () => {
   };
 
   /**
+   * 函数：恢复窗口显示
+   * @returns {Promise<void>} 无返回值
+   */
+  const restore = async (): Promise<void> => {
+    await invoke('window_restore');
+  };
+
+  /**
    * 函数：切换最大化/恢复
    * @returns {Promise<void>} 无返回值
    */
@@ -163,6 +171,7 @@ export const useTauriWindow = () => {
   return {
     snapshotGet,
     minimize,
+    restore,
     toggleMaximize,
     toggleFullscreen,
     toggleAlwaysOnTop,

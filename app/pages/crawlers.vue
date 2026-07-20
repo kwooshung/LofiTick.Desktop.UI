@@ -61,6 +61,8 @@
 import type { NavigationMenuItem } from '@nuxt/ui';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 
+import type { ICrawlerTaskFailedEvent } from '@/composables/tauri/tasks/index.types';
+
 /**
  * Hook：国际化
  */
@@ -85,6 +87,11 @@ const { isTauriRuntime } = useTauriEnv();
  * Hook：Tauri 设置。
  */
 const tauriSettings = useTauriSettings();
+
+/**
+ * Hook：Tauri 窗口能力。
+ */
+const tauriWindow = useTauriWindow();
 
 /**
  * 状态：任务执行弹窗是否打开
@@ -133,6 +140,11 @@ const tauriTasks = useTauriTasks();
  * 变量：爬虫浏览器会话状态变化事件取消监听句柄。
  */
 let unlistenCrawlerBrowserSessionStateChanged: UnlistenFn | null = null;
+
+/**
+ * 变量：爬虫任务失败事件取消监听句柄。
+ */
+let unlistenCrawlerTaskFailed: UnlistenFn | null = null;
 
 /**
  * 状态：当前任务对应的浏览器会话任务 ID。
@@ -243,6 +255,15 @@ onMounted(async () => {
       stateTaskExecuting.value = false;
     }
   });
+
+  unlistenCrawlerTaskFailed = await tauriTasks.onCrawlerTaskFailed((event: ICrawlerTaskFailedEvent) => {
+    if (event.taskId !== stateCrawlerBrowserSessionTaskId.value && event.taskId !== computedCrawlerTask.value) {
+      return;
+    }
+
+    stateTaskDialogOpen.value = false;
+    void tauriWindow.restore();
+  });
 });
 
 /**
@@ -252,6 +273,11 @@ onBeforeUnmount(() => {
   if (unlistenCrawlerBrowserSessionStateChanged) {
     unlistenCrawlerBrowserSessionStateChanged();
     unlistenCrawlerBrowserSessionStateChanged = null;
+  }
+
+  if (unlistenCrawlerTaskFailed) {
+    unlistenCrawlerTaskFailed();
+    unlistenCrawlerTaskFailed = null;
   }
 });
 

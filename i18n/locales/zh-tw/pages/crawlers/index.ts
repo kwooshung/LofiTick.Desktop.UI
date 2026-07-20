@@ -25,7 +25,13 @@ export const crawlers = {
       stopConfirmTitle: '確認停止目前任務？',
       stopConfirmDescription: '停止後會關閉目前爬蟲視窗，並清理執行狀態。',
       stopCancel: '取消',
-      stopConfirm: '確認停止'
+      stopConfirm: '確認停止',
+      retryConfirm: {
+        title: '任務執行失敗',
+        description: '目前任務執行失敗，請先確認頁面狀態再重新嘗試。',
+        cancel: '取消',
+        confirm: '重試'
+      }
     },
     filters: {
       all: '全部'

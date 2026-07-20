@@ -94,3 +94,42 @@ export interface ICrawlersTaskPixabayEmits {
    */
   (event: 'update:browserSessionTaskId', value: string): void;
 }
+
+/**
+ * 接口：Pixabay 任务失败上下文。
+ */
+export interface ICrawlersTaskPixabayFailureContext {
+  /**
+   * 属性：失败步骤。
+   */
+  step: string;
+
+  /**
+   * 属性：失败原因。
+   */
+  error: string;
+}
+
+/**
+ * 接口：Pixabay 任务暴露方法。
+ */
+export interface ICrawlersTaskPixabayExposed {
+  /**
+   * 函数：同步失败上下文并打开失败弹窗。
+   * @param {ICrawlersTaskPixabayFailureContext} context 失败上下文。
+   * @returns {void} 无返回值。
+   */
+  openFailure(context: ICrawlersTaskPixabayFailureContext): void;
+
+  /**
+   * 函数：继续等待失败步骤。
+   * @returns {Promise<void>} 无返回值。
+   */
+  continueFailure(): Promise<void>;
+
+  /**
+   * 函数：终止失败任务。
+   * @returns {Promise<void>} 无返回值。
+   */
+  stopFailure(): Promise<void>;
+}

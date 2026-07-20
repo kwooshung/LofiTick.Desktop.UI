@@ -636,6 +636,11 @@ const { isTauriRuntime } = useTauriEnv();
 const tauriSettings = useTauriSettings();
 
 /**
+ * Hook：Tauri 提醒音能力。
+ */
+const tauriSound = useTauriSound();
+
+/**
  * Hook：Tauri 任务能力
  */
 const tauriTasks = useTauriTasks();
@@ -1298,21 +1303,30 @@ const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
     return;
   }
 
+  let lastConnected = stateBrowserBridgeConnected.value;
+
   unlistenBrowserBridgeStateChanged = await listen<ITauriBrowserBridgeAccessDetail>('browser://bridge-state-changed', (event) => {
     const detail = event.payload;
+    const connected = detail.connected;
     stateBrowserBridgeRunning.value = detail.running;
-    stateBrowserBridgeConnected.value = detail.connected;
+    stateBrowserBridgeConnected.value = connected;
     stateBrowserBridgeWsUrl.value = detail.wsUrl;
     stateBrowserBridgeExtensionDir.value = detail.extensionDir;
     stateBrowserBridgeError.value = detail.lastError || '';
 
-    if (detail.connected && stateCrawlerBrowserChromeInstallGuideMode.value === 'calibrate' && stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value && stateCrawlerBrowserChromeInstallGuideCandidate.value !== null && !stateCrawlerBrowserChromeInstallGuideSubmitting.value) {
+    if (!lastConnected && connected) {
+      void tauriSound.tipPlay('conn');
+    }
+
+    lastConnected = connected;
+
+    if (connected && stateCrawlerBrowserChromeInstallGuideMode.value === 'calibrate' && stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value && stateCrawlerBrowserChromeInstallGuideCandidate.value !== null && !stateCrawlerBrowserChromeInstallGuideSubmitting.value) {
       stateCrawlerBrowserChromeInstallGuideAwaitingBridgeReady.value = false;
       void handleCrawlerBrowserChromeInstallGuideProceed();
       return;
     }
 
-    if (detail.connected) {
+    if (connected) {
       if (stateCrawlerBrowserChromeInstallGuideCandidate.value !== null && !stateCrawlerBrowserChromeInstallGuideSubmitting.value && stateCrawlerBrowserChromeInstallGuideMode.value === 'select') {
         void handleCrawlerBrowserChromeInstallGuideProceed();
       }

@@ -48,11 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import type { ICrawlersTaskPixabayEmits, ICrawlersTaskPixabayProps, IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
+import type { ICrawlersTaskPixabayEmits, ICrawlersTaskPixabayExposed, ICrawlersTaskPixabayFailureContext, ICrawlersTaskPixabayProps, IPixabayCrawlerCacheItem, IPixabayCrawlerCacheStore, IPixabayCrawlerOption, TPixabayCrawlerType } from '@/components/crawlers/task/pixabay/index.types';
 import type { ICrawlerTaskRow } from '@/components/crawlers/task/table/index.types';
 import type { ICrawlerTaskExecuteRequest } from '@/composables/tauri/tasks/index.types';
-
-defineOptions({ name: 'CrawlersTaskPixabay' });
 
 /**
  * 属性：Pixabay 任务组件配置。
@@ -73,6 +71,11 @@ const { t } = useI18n();
  * Hook：Tauri 任务能力。
  */
 const tauriTasks = useTauriTasks();
+
+/**
+ * Hook：Tauri 窗口能力。
+ */
+const tauriWindow = useTauriWindow();
 
 /**
  * 常量：Pixabay 爬取缓存键。
@@ -113,6 +116,11 @@ const statePixabayTasks = ref<ICrawlerTaskRow[]>([]);
  * 状态：Pixabay 提交中。
  */
 const statePixabaySubmitting = ref(false);
+
+/**
+ * 状态：Pixabay 任务失败上下文。
+ */
+const stateFailureContext = ref<ICrawlersTaskPixabayFailureContext | null>(null);
 
 /**
  * 计算属性：关键词是否已填写。
@@ -298,6 +306,39 @@ onMounted(() => {
 const handlePixabayCancel = (): void => {
   computedPixabayDialogOpen.value = false;
 };
+
+/**
+ * 向外暴露失败处理能力。
+ */
+defineExpose<ICrawlersTaskPixabayExposed>({
+  openFailure: (context: ICrawlersTaskPixabayFailureContext): void => {
+    stateFailureContext.value = context;
+  },
+  continueFailure: async (): Promise<void> => {
+    await tauriTasks.crawlerPixabayWaitContinue({
+      taskId: stateFailureContext.value?.step ? stateFailureContext.value.step : statePixabayPage.value.toString(),
+      task: 'pixabay',
+      payload: {
+        url: computedPixabayCrawlerUrlPreview.value,
+        type: statePixabayCrawlerType.value,
+        keyword: statePixabayKeyword.value.trim(),
+        minDurationSeconds: statePixabayMinDurationSeconds.value,
+        page: statePixabayPage.value
+      }
+    });
+    stateFailureContext.value = null;
+  },
+  stopFailure: async (): Promise<void> => {
+    const taskId = stateFailureContext.value?.step ? stateFailureContext.value.step : '';
+    if (!taskId) {
+      return;
+    }
+
+    await tauriTasks.crawlerTaskBrowserSessionClose(taskId);
+    await tauriWindow.restore();
+    stateFailureContext.value = null;
+  }
+});
 
 /**
  * 函数：确认 Pixabay 爬取地址。

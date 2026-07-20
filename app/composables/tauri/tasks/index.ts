@@ -2,12 +2,17 @@ import { invoke } from '@tauri-apps/api/core';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import { listen } from '@tauri-apps/api/event';
 
-import type { ICrawlerTaskBrowserSessionEvent, ICrawlerTaskBrowserSessionState, ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest } from './index.types';
+import type { ICrawlerPixabayWaitContinueRequest, ICrawlerTaskBrowserSessionEvent, ICrawlerTaskBrowserSessionState, ICrawlerTaskExecuteAccepted, ICrawlerTaskExecuteRequest, ICrawlerTaskFailedEvent } from './index.types';
 
 /**
  * 常量：爬虫浏览器会话状态变化事件名。
  */
 const EVENT_CRAWLER_BROWSER_SESSION_STATE_CHANGED = 'crawler://browser-session-state-changed';
+
+/**
+ * 常量：爬虫任务失败事件名。
+ */
+const EVENT_CRAWLER_TASK_FAILED = 'crawler://task-failed';
 
 /**
  * Hook：Tauri 任务能力
@@ -87,6 +92,23 @@ export const useTauriTasks = () => {
   };
 
   /**
+   * 函数：继续等待 Pixabay 登录弹窗。
+   * @param {ICrawlerPixabayWaitContinueRequest} request 继续等待请求。
+   * @returns {Promise<void>} 无返回值。
+   */
+  const crawlerPixabayWaitContinue = async (request: ICrawlerPixabayWaitContinueRequest): Promise<void> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    await invoke('crawler_pixabay_wait_continue', { taskId: request.taskId, task: request.task, payload: request.payload });
+  };
+
+  /**
    * 函数：读取指定任务的浏览器会话状态。
    * @param {string} task 任务键。
    * @returns {Promise<ICrawlerTaskBrowserSessionState | null>} 浏览器会话状态。
@@ -122,5 +144,24 @@ export const useTauriTasks = () => {
     });
   };
 
-  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskBrowserSessionClose, crawlerTaskBrowserSessionStateGet, onCrawlerBrowserSessionStateChanged };
+  /**
+   * 函数：监听爬虫任务失败事件。
+   * @param {(event: ICrawlerTaskFailedEvent) => void} handler 事件回调。
+   * @returns {Promise<UnlistenFn>} 取消监听函数。
+   */
+  const onCrawlerTaskFailed = async (handler: (event: ICrawlerTaskFailedEvent) => void): Promise<UnlistenFn> => {
+    if (!import.meta.client) {
+      throw new Error('client only');
+    }
+
+    if (!isTauriRuntime.value) {
+      throw new Error('tauri only');
+    }
+
+    return listen<ICrawlerTaskFailedEvent>(EVENT_CRAWLER_TASK_FAILED, (event) => {
+      handler(event.payload);
+    });
+  };
+
+  return { hotsearchScheduleGet, crawlerBrowserCandidatesGet, crawlerTaskExecute, crawlerTaskBrowserSessionClose, crawlerTaskBrowserSessionStateGet, crawlerPixabayWaitContinue, onCrawlerBrowserSessionStateChanged, onCrawlerTaskFailed };
 };
