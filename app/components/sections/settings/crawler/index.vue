@@ -1481,7 +1481,37 @@ const handleCrawlerBrowserChromeInstallGuideProceed = async (): Promise<void> =>
 
     try {
       handleCrawlerBrowserChromeInstallGuideHide(false);
-      await tauriSettings.crawlerBrowserCalibrateResume(candidate.id);
+      const retryDelaysMs = [300, 600, 900];
+      let calibration: ICrawlerBrowserCalibrationResult | null = null;
+
+      for (let index = 0; index < retryDelaysMs.length + 1; index += 1) {
+        try {
+          calibration = await tauriSettings.crawlerBrowserCalibrateResume(candidate.id);
+          break;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error || '');
+          const bridgeNotReady = message.includes('未连接') || message.includes('未就绪') || message.includes('not connected') || message.includes('not ready');
+
+          if (!bridgeNotReady || index >= retryDelaysMs.length) {
+            throw error;
+          }
+
+          await loadBrowserBridgeAccessDetail(true);
+          await new Promise((resolve) => {
+            window.setTimeout(resolve, retryDelaysMs[index]);
+          });
+        }
+      }
+
+      if (!calibration) {
+        throw new Error('浏览器扩展桥未就绪');
+      }
+
+      stateCrawlerBrowserCalibrationMap.value = {
+        ...stateCrawlerBrowserCalibrationMap.value,
+        [calibration.browserId]: calibration
+      };
+      await loadCrawlerBrowserSettings();
       await loadCrawlerBrowserProfilesDirectory();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error || '');
