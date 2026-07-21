@@ -1,6 +1,6 @@
 <template>
   <DashboardPage>
-    <CrawlersTaskFailureModal
+    <SectionsCrawlersTaskFailureModal
       v-model:open="stateFailureModalOpen"
       :title="stateFailureModalTitle"
       :description="stateFailureModalDescription"
@@ -17,11 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ISectionsCrawlersTaskEmits, ISectionsCrawlersTaskProps } from '@/components/sections/crawlers/task/index.types';
-import type { ISectionsCrawlersTaskFailureModalEmits, ISectionsCrawlersTaskFailureModalProps } from '@/components/sections/crawlers/task/failure-modal/index.types';
-import type { ICrawlersTaskPixabayExposed, ICrawlersTaskPixabayFailureContext } from '@/components/crawlers/task/pixabay/index.types';
-import type { ICrawlerTaskFailedEvent } from '@/composables/tauri/tasks/index.types';
 import type { UnlistenFn } from '@tauri-apps/api/event';
+
+import type { ICrawlersTaskPixabayExposed, ICrawlersTaskPixabayFailureContext } from '@/components/crawlers/task/pixabay/index.types';
+import type { ISectionsCrawlersTaskEmits, ISectionsCrawlersTaskProps } from '@/components/sections/crawlers/task/index.types';
+import type { ICrawlerTaskFailedEvent } from '@/composables/tauri/tasks/index.types';
 
 defineOptions({ name: 'SectionsCrawlersTask' });
 
@@ -59,6 +59,11 @@ const storeBreadcrumb = useStoreBreadcrumb();
  * Hook：Tauri 任务能力。
  */
 const tauriTasks = useTauriTasks();
+
+/**
+ * Hook：Tauri 运行环境。
+ */
+const { isTauriRuntime } = useTauriEnv();
 
 /**
  * Hook：Tauri 提醒音能力。

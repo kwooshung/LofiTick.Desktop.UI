@@ -73,7 +73,7 @@
           />
         </div>
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateIsTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
           <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('edge'))">
@@ -141,7 +141,7 @@
           />
         </div>
         <div v-else class="flex shrink-0 items-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
+          <UButton color="neutral" variant="outline" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateIsTauriRuntime" :loading="stateCrawlerBrowserRefreshing" @click="refreshCrawlerBrowsers(false)">
             {{ t('pages.settings.crawler.browser.actions.refresh') }}
           </UButton>
           <UButton color="neutral" variant="outline" icon="i-lucide:download" :ui="{ leadingIcon: 'text-muted' }" @click="handleCrawlerBrowserInstall(crawlerBrowserCandidateGet('chrome'))">
@@ -264,7 +264,7 @@
                 />
               </UTooltip>
               <UTooltip :text="t('pages.settings.crawler.browserBridge.actions.refresh')" :content="{ side: 'top' }">
-                <UButton color="neutral" variant="link" size="sm" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!isTauriRuntime" :loading="stateBrowserBridgeRefreshing" @click.stop="handleBrowserBridgeAccessDetailRefresh" />
+                <UButton color="neutral" variant="link" size="sm" icon="i-lucide:refresh-cw" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateIsTauriRuntime" :loading="stateBrowserBridgeRefreshing" @click.stop="handleBrowserBridgeAccessDetailRefresh" />
               </UTooltip>
             </div>
           </template>
@@ -293,7 +293,7 @@
             <span v-else class="text-error">{{ t('pages.settings.crawler.browserBridge.extensionDir.unset') }}</span>
           </div>
         </template>
-        <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateBrowserBridgeExtensionDir || !isTauriRuntime" @click="handleBrowserBridgeExtensionDirOpen">
+        <UButton class="shrink-0 whitespace-nowrap" color="neutral" variant="outline" icon="i-lucide:folder-open" :ui="{ leadingIcon: 'text-muted' }" :disabled="!stateBrowserBridgeExtensionDir || !stateIsTauriRuntime" @click="handleBrowserBridgeExtensionDirOpen">
           {{ t('pages.settings.crawler.browserBridge.extensionDir.actionOpen') }}
         </UButton>
       </UFormField>
@@ -628,7 +628,7 @@ import type { ITauriBrowserBridgeAccessDetail } from '@/composables/tauri/settin
 /**
  * Hook：Tauri 环境
  */
-const { isTauriRuntime } = useTauriEnv();
+const { isTauriRuntime: stateIsTauriRuntime } = useTauriEnv();
 
 /**
  * Hook：Tauri 设置
@@ -1221,7 +1221,7 @@ const clearCrawlerBrowserSelection = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值
  */
 const refreshCrawlerBrowsers = async (silent: boolean): Promise<void> => {
-  if (stateCrawlerBrowserRefreshing.value || !isTauriRuntime.value) {
+  if (stateCrawlerBrowserRefreshing.value || !stateIsTauriRuntime.value) {
     return;
   }
 
@@ -1250,7 +1250,7 @@ const refreshCrawlerBrowsers = async (silent: boolean): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const loadBrowserBridgeAccessDetail = async (silent = false): Promise<void> => {
-  if (!isTauriRuntime.value || stateBrowserBridgeRefreshing.value) {
+  if (!stateIsTauriRuntime.value || stateBrowserBridgeRefreshing.value) {
     return;
   }
 
@@ -1299,7 +1299,7 @@ let unlistenCrawlerBrowserProfilesChanged: null | UnlistenFn = null;
  * @returns {Promise<void>} 无返回值。
  */
 const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
-  if (!isTauriRuntime.value || unlistenBrowserBridgeStateChanged !== null) {
+  if (!stateIsTauriRuntime.value || unlistenBrowserBridgeStateChanged !== null) {
     return;
   }
 
@@ -1339,7 +1339,7 @@ const subscribeBrowserBridgeStateChanged = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
-  if (!isTauriRuntime.value || unlistenCrawlerBrowserCalibrationProgress !== null) {
+  if (!stateIsTauriRuntime.value || unlistenCrawlerBrowserCalibrationProgress !== null) {
     return;
   }
 
@@ -1367,7 +1367,7 @@ const subscribeCrawlerBrowserCalibrationProgress = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const subscribeCrawlerBrowserProfilesChanged = async (): Promise<void> => {
-  if (!isTauriRuntime.value || unlistenCrawlerBrowserProfilesChanged !== null) {
+  if (!stateIsTauriRuntime.value || unlistenCrawlerBrowserProfilesChanged !== null) {
     return;
   }
 
@@ -1396,7 +1396,7 @@ const handleBrowserBridgeWsUrlCopy = async (): Promise<void> => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleBrowserBridgeExtensionDirOpen = async (): Promise<void> => {
-  if (!isTauriRuntime.value || !stateBrowserBridgeExtensionDir.value) {
+  if (!stateIsTauriRuntime.value || !stateBrowserBridgeExtensionDir.value) {
     return;
   }
 
@@ -1570,7 +1570,7 @@ const handleCrawlerBrowserChromeInstallGuideExtensionsPageCopy = async (): Promi
  * @returns {Promise<void>} 无返回值
  */
 const loadCrawlerBrowserSettings = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
+  if (!stateIsTauriRuntime.value) {
     return;
   }
 
@@ -1654,7 +1654,7 @@ const crawlerCompareBackendNormalize = (value: unknown): 'cpu' | 'gpu' => {
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerDiagnosticsCompareModeUpdate = async (on: boolean): Promise<void> => {
-  if (!isTauriRuntime.value) {
+  if (!stateIsTauriRuntime.value) {
     return;
   }
 
@@ -1675,7 +1675,7 @@ const handleCrawlerDiagnosticsCompareModeUpdate = async (on: boolean): Promise<v
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerCompareBackendUpdate = async (on: boolean): Promise<void> => {
-  if (!isTauriRuntime.value || stateCrawlerCompareBackendProbing.value) {
+  if (!stateIsTauriRuntime.value || stateCrawlerCompareBackendProbing.value) {
     return;
   }
 
@@ -1741,7 +1741,7 @@ const handleCrawlerCompareBackendUpdate = async (on: boolean): Promise<void> => 
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerShowLogsUpdate = async (on: boolean): Promise<void> => {
-  if (!isTauriRuntime.value) {
+  if (!stateIsTauriRuntime.value) {
     return;
   }
 
@@ -1769,7 +1769,7 @@ const handleCrawlerBrowserSelect = async (candidate: ICrawlerBrowserCandidate, o
     return;
   }
 
-  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+  if (!stateIsTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
     return;
   }
 
@@ -1804,7 +1804,7 @@ const handleCrawlerBrowserSelect = async (candidate: ICrawlerBrowserCandidate, o
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate): Promise<void> => {
-  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+  if (!stateIsTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
     return;
   }
 
@@ -1836,7 +1836,7 @@ const handleCrawlerBrowserCalibrate = async (candidate: ICrawlerBrowserCandidate
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerBrowserCalibrateRun = async (candidate: ICrawlerBrowserCandidate, silent = false): Promise<boolean> => {
-  if (!isTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
+  if (!stateIsTauriRuntime.value || !candidate.installed || stateCrawlerBrowserCalibratingId.value) {
     return false;
   }
 
@@ -1879,7 +1879,7 @@ const handleCrawlerBrowserCalibrateRun = async (candidate: ICrawlerBrowserCandid
  * @returns {Promise<void>} 无返回值
  */
 const handleCrawlerBrowserInstall = async (candidate: ICrawlerBrowserCandidate): Promise<void> => {
-  if (import.meta.client && !isTauriRuntime.value) {
+  if (import.meta.client && !stateIsTauriRuntime.value) {
     window.open(candidate.installUrl, '_blank', 'noopener,noreferrer');
     return;
   }
@@ -1894,7 +1894,7 @@ const handleCrawlerBrowserInstall = async (candidate: ICrawlerBrowserCandidate):
  * @returns {Promise<void>} 无返回值
  */
 const loadCrawlerBrowserProfilesDirectory = async (): Promise<void> => {
-  if (!isTauriRuntime.value) {
+  if (!stateIsTauriRuntime.value) {
     return;
   }
 
@@ -1954,7 +1954,7 @@ const crawlerBrowserProfilesDirectoryStateGet = (scope: 'root' | 'edge' | 'chrom
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerBrowserProfilesDirectoryClear = async (scope: 'root' | 'edge' | 'chrome', close?: () => void): Promise<void> => {
-  if (!isTauriRuntime.value || stateCrawlerBrowserProfilesClearing.value) {
+  if (!stateIsTauriRuntime.value || stateCrawlerBrowserProfilesClearing.value) {
     return;
   }
 
@@ -2077,7 +2077,7 @@ const handleCrawlerBrowserMatchesDirectoryClearSelect = (browser: 'edge' | 'chro
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chrome', close?: () => void): Promise<void> => {
-  if (!isTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
+  if (!stateIsTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
     return;
   }
 
@@ -2113,7 +2113,7 @@ const handleCrawlerBrowserMatchesDirectoryClear = async (browser: 'edge' | 'chro
  * @returns {Promise<void>} 无返回值。
  */
 const handleOpenCrawlerBrowserProfilesDirectory = async (path: string, exists: boolean): Promise<void> => {
-  if (!isTauriRuntime.value || !path) {
+  if (!stateIsTauriRuntime.value || !path) {
     return;
   }
 
@@ -2258,7 +2258,7 @@ const handleCrawlerBrowserProfilesRootClearConfirm = async (close?: () => void):
  * @returns {Promise<void>} 无返回值。
  */
 const handleCrawlerBrowserMatchesDirectoryClearAll = async (): Promise<void> => {
-  if (!isTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
+  if (!stateIsTauriRuntime.value || stateCrawlerBrowserMatchesClearing.value) {
     return;
   }
 
