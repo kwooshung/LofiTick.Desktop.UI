@@ -27,6 +27,7 @@ metadata:
 | `UI` 样式、可访问性、响应式布局、主题、暗色模式     | [`lofitick-desktop-ui-design-ui-styling`](../lofitick-desktop-ui-design-ui-styling/SKILL.md) |
 | 幻灯片、`HTML` 演示、`Chart.js`、图表叙事、社媒视觉 | [`lofitick-desktop-ui-design-slides`](../lofitick-desktop-ui-design-slides/SKILL.md)         |
 | 横幅、广告、网站首屏、创意资产、社媒封面、印刷物料  | [`lofitick-desktop-ui-design-banner`](../lofitick-desktop-ui-design-banner/SKILL.md)         |
+| `UX Pro Max`、设计风格库、配色方案、字体配对、`UX` 指南、图表类型      | [`lofitick-desktop-ui-design-ux-pro-max`](../lofitick-desktop-ui-design-ux-pro-max/PROMPT.md) |
 
 ## 维护规则
 

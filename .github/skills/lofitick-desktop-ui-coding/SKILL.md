@@ -31,11 +31,10 @@ metadata:
 | 页面薄壳、`sections` 边界、页面类型、组件私有类型                                                                                                    | [`lofitick-desktop-ui-pages-sections`](../lofitick-desktop-ui-pages-sections/SKILL.md)         |
 | `UTable`、`sticky`、响应式列、树形、固定列、表尾、危险操作确认                                                                                       | [`lofitick-desktop-ui-tables`](../lofitick-desktop-ui-tables/SKILL.md)                         |
 | `Tailwind v4`、`Tailwind4`、`Tailwind`、`twcss`、`twcssv4`、`twcss v4`、`twcssv4`、`twcss4``Nuxt UI`、断点、任意值、图标、空状态、链接语义、时间展示 | [`lofitick-desktop-ui-styling`](../lofitick-desktop-ui-styling/SKILL.md)                       |
-| 品牌、设计系统、`UI` 样式、幻灯片、横幅、视觉设计                                                                                                    | [`lofitick-desktop-ui-design`](../lofitick-desktop-ui-design/SKILL.md)                         |
+| 品牌、设计系统、`UI` 样式、`UX Pro Max`、幻灯片、横幅、视觉设计                                                                                                    | [`lofitick-desktop-ui-design`](../lofitick-desktop-ui-design/SKILL.md)                         |
 | 四语 `i18n`、主语言、`key` 对齐、翻译质量、禁止 `te(...)` 探测                                                                                       | [`lofitick-desktop-ui-i18n`](../lofitick-desktop-ui-i18n/SKILL.md)                             |
 | `Tauri API`、环境检查、`invoke` 类型、`useTauri*`、事件清理                                                                                          | [`lofitick-desktop-ui-tauri`](../lofitick-desktop-ui-tauri/SKILL.md)                           |
-| `Skill` `frontmatter`、拆分、去重、索引维护、权威来源                                                                                                | [`lofitick-desktop-ui-skill-maintenance`](../lofitick-desktop-ui-skill-maintenance/SKILL.md)   |
-| `Skill` 写作、拆分、去重、索引写法、关键词包裹、权威来源                                                                                             | [`lofitick-desktop-ui-skill-writer`](../lofitick-desktop-ui-skill-writer/SKILL.md)             |
+| `Skill` 写作、frontmatter、拆分、去重、索引写法、根索引更新、关键词包裹、权威来源                                                                                             | [`lofitick-desktop-ui-skill-writer`](../lofitick-desktop-ui-skill-writer/SKILL.md)             |
 
 ## 维护规则
 

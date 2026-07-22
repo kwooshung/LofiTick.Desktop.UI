@@ -37,7 +37,7 @@ metadata:
 ## 你要做什么
 
 - 先判断这个 `skill` 的唯一职责是什么，再决定是否要拆分
-- 再检查 `description`、`tags`、`argument-hint` 是否足够具体、可触发、可复用
+- 再检查 `description`、`argument-hint` 是否足够具体、可触发、可复用
 - 然后压缩正文，只保留长期稳定规则、工作流程和维护边界
 - 最后移除重复段落、重复入口、历史迁移叙述和项目级重复规则
 
@@ -74,6 +74,15 @@ metadata:
 - 如果一个 `skill` 开始同时覆盖多个无关领域，先建议拆分，再继续优化。
 - 只要对 `skill` 有了增删改，都要及时更新 `lofitick-desktop-ui-coding` 这个 `skill` 索引，要用 `Markdown` 链接、维护入口收口，并清理重复规则，确保整个 `skill` 系统的一致性和可靠性，从而保证日常使用可以无脑使用 `lofitick-desktop-ui-coding` 这个 `skill` 来处理所有编码相关任务。
 
+## 索引维护
+
+- `.github/skills/lofitick-desktop-ui-coding/SKILL.md` 是编码规则根索引。
+- 新增、删除或重命名子 skill 时，必须同步更新根索引。
+- 根索引必须使用 Markdown 链接指向真实存在的 `SKILL.md`。
+- 子 skill 禁止维护跨 skill 索引。
+- 根索引只负责路由，不承载具体领域的长规则。
+- 只要对 skill 有增删改，都要同步清理重复规则，确保整个 skill 系统一致可靠。
+
 ## 审查清单
 
 - `name` 和文件夹名是否一致，且为 `lowercase kebab-case`。
@@ -81,3 +90,4 @@ metadata:
 - 正文是否存在重复段落、重复列表、重复入口或跨领域混写。
 - 是否把项目级规则误塞进了元 `skill`。
 - 是否已经明确权威来源、子 `skill` 拆分边界和旧入口清理方式。
+- 是否同步更新 `lofitick-desktop-ui-coding` 根索引。
